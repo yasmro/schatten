@@ -21,8 +21,8 @@
   /* Ink scale - Japanese calligraphy inspired */
   --ink-black: var(--sumi-900);
   --ink-dark: var(--sumi-700);
-  --ink-medium: #4a4a4a;
-  --ink-light: #6b6b6b;
+  --ink-medium: var(--sumi-600);
+  --ink-light: var(--sumi-400);
 
   /* Alabaster (アラバスター) - warm white scale */
   --alabaster-50: oklch(0.98 0.005 70);
@@ -43,10 +43,10 @@
   --paper-cream: #f0ede8;
 
   /* Ink inverted (for dark mode semantic mapping) */
-  --ink-black-inv: #e8e4df;
-  --ink-dark-inv: #d4d0cb;
-  --ink-medium-inv: #a8a4a0;
-  --ink-light-inv: #8a8680;
+  --ink-black-inv: var(--alabaster-200);
+  --ink-dark-inv: var(--alabaster-300);
+  --ink-medium-inv: var(--alabaster-400);
+  --ink-light-inv: var(--alabaster-500);
 
   /* Paper inverted (for dark mode semantic mapping) */
   --paper-white-inv: #1a1a1a;

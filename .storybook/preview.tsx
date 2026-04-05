@@ -90,7 +90,7 @@ const preview: Preview = {
       }, [isDark, season])
 
       return (
-        <div className={`${isDark ? 'dark' : ''} p-8`}>
+        <div className={`${isDark ? 'dark bg-background' : ''} p-8`}>
           <Story />
         </div>
       )

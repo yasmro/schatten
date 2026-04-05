@@ -44,7 +44,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           isError
             ? 'border-destructive bg-destructive-subtle has-focus-visible:ring-destructive'
             : 'border-border-strong',
-          disabled && 'cursor-not-allowed opacity-70 bg-disabled',
+          disabled && 'cursor-not-allowed opacity-50',
           className,
         )}
       >

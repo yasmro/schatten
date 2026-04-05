@@ -1,4 +1,5 @@
 export { Badge, type BadgeProps } from './Badge'
 export { Button, type ButtonProps } from './Button'
+export { Input, type InputProps } from './Input'
 export { Spinner, type SpinnerProps } from './Spinner'
 export { Text, type TextProps } from './Text'

@@ -40,6 +40,7 @@
   --color-destructive: var(--vermillion);
   --color-destructive-hover: var(--vermillion-hover);
   --color-destructive-foreground: var(--paper-white);
+  --color-destructive-subtle: var(--vermillion-50);
 
   /* Accent */
   --color-accent: var(--vermillion-500);
@@ -57,6 +58,7 @@
   --color-inverse-foreground: var(--paper-white);
 
   /* States */
+  --color-disabled: var(--gray-100);
   --color-success: var(--green-500);
   --color-success-hover: var(--green-600);
   --color-warning: var(--amber-500);
@@ -84,6 +86,7 @@
     --color-destructive: var(--vermillion-dark);
     --color-destructive-hover: var(--vermillion-dark-hover);
     --color-destructive-foreground: var(--paper-white-inv);
+    --color-destructive-subtle: var(--vermillion-900);
 
     --color-accent: var(--vermillion-400);
     --color-accent-foreground: var(--gray-950);
@@ -95,6 +98,8 @@
     --color-ring-offset: var(--paper-warm-inv);
 
     --color-inverse-foreground: var(--paper-white-inv);
+
+    --color-disabled: var(--gray-900);
   }
 }
 
@@ -116,6 +121,7 @@
   --color-destructive: var(--vermillion-dark);
   --color-destructive-hover: var(--vermillion-dark-hover);
   --color-destructive-foreground: var(--paper-white-inv);
+  --color-destructive-subtle: var(--vermillion-900);
 
   --color-accent: var(--vermillion-400);
   --color-accent-foreground: var(--gray-950);
@@ -127,4 +133,6 @@
   --color-ring-offset: var(--paper-warm-inv);
 
   --color-inverse-foreground: var(--paper-white-inv);
+
+  --color-disabled: var(--gray-900);
 }

@@ -78,6 +78,9 @@ const preview: Preview = {
           body.classList.add('light')
         }
 
+        // Apply background color
+        body.style.backgroundColor = isDark ? '' : '#fff'
+
         // Apply season theme
         if (season && season !== 'none') {
           root.setAttribute('data-season', season)
@@ -87,10 +90,7 @@ const preview: Preview = {
       }, [isDark, season])
 
       return (
-        <div
-          className={`${isDark ? 'dark' : ''} p-8`}
-          style={{ backgroundColor: isDark ? undefined : '#fff' }}
-        >
+        <div className={`${isDark ? 'dark' : ''} p-8`}>
           <Story />
         </div>
       )

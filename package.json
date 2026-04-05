@@ -85,6 +85,7 @@
     "@changesets/cli": "^2.30.0",
     "@playwright/test": "^1.58.2",
     "@radix-ui/react-dialog": "^1.1.4",
+    "@storybook/addon-docs": "10.3.3",
     "@storybook/react-vite": "10.3.3",
     "@tailwindcss/vite": "^4.2.2",
     "@testing-library/jest-dom": "^6.9.1",
@@ -101,8 +102,7 @@
     "tailwindcss": "^4.2.2",
     "tsup": "^8.3.5",
     "typescript": "^5.7.2",
-    "vitest": "^2.1.8",
-    "@storybook/addon-docs": "10.3.3"
+    "vitest": "^2.1.8"
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.1.1",

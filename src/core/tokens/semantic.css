@@ -40,6 +40,7 @@
   --color-destructive: var(--vermillion);
   --color-destructive-hover: var(--vermillion-hover);
   --color-destructive-foreground: var(--paper-white);
+  --color-destructive-subtle: var(--vermillion-50);
 
   /* Accent */
   --color-accent: var(--vermillion-500);
@@ -84,6 +85,7 @@
     --color-destructive: var(--vermillion-dark);
     --color-destructive-hover: var(--vermillion-dark-hover);
     --color-destructive-foreground: var(--paper-white-inv);
+    --color-destructive-subtle: var(--vermillion-900);
 
     --color-accent: var(--vermillion-400);
     --color-accent-foreground: var(--gray-950);
@@ -116,6 +118,7 @@
   --color-destructive: var(--vermillion-dark);
   --color-destructive-hover: var(--vermillion-dark-hover);
   --color-destructive-foreground: var(--paper-white-inv);
+  --color-destructive-subtle: var(--vermillion-900);
 
   --color-accent: var(--vermillion-400);
   --color-accent-foreground: var(--gray-950);

@@ -42,6 +42,7 @@
   --color-destructive: var(--color-destructive);
   --color-destructive-hover: var(--color-destructive-hover);
   --color-destructive-foreground: var(--color-destructive-foreground);
+  --color-destructive-subtle: var(--color-destructive-subtle);
 
   /* Accent */
   --color-accent: var(--color-accent);
@@ -58,7 +59,7 @@
   /* Inverse */
   --color-inverse-foreground: var(--color-inverse-foreground);
 
-  /* Status */
+  /* States */
   --color-success: var(--color-success);
   --color-warning: var(--color-warning);
   --color-error: var(--color-error);

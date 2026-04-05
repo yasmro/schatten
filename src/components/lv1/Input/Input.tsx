@@ -17,6 +17,12 @@ export interface InputProps
 
 const dateTypes = new Set(['date', 'datetime-local', 'month', 'week', 'time'])
 
+const iconSizeMap = {
+  sm: 'size-3.5',
+  md: 'size-4',
+  lg: 'size-5',
+} as const
+
 export const Input = forwardRef<HTMLInputElement, InputProps>(
   (
     {
@@ -36,6 +42,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     const isDateType = dateTypes.has(type ?? '')
     const LeftIcon = !textLeft && iconLeft ? icons[iconLeft] : null
     const RightIcon = !textRight && iconRight ? icons[iconRight] : null
+    const iconSize = iconSizeMap[size ?? 'md']
 
     return (
       <div
@@ -50,7 +57,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
       >
         {textLeft && <span className="text-foreground-muted shrink-0">{textLeft}</span>}
         {LeftIcon && (
-          <LeftIcon className="text-foreground-muted shrink-0 size-4" aria-hidden="true" />
+          <LeftIcon className={`text-foreground-muted shrink-0 ${iconSize}`} aria-hidden="true" />
         )}
         <input
           type={type}
@@ -65,7 +72,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         />
         {textRight && <span className="text-foreground-muted shrink-0">{textRight}</span>}
         {RightIcon && (
-          <RightIcon className="text-foreground-muted shrink-0 size-4" aria-hidden="true" />
+          <RightIcon className={`text-foreground-muted shrink-0 ${iconSize}`} aria-hidden="true" />
         )}
       </div>
     )

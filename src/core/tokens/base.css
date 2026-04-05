@@ -60,7 +60,6 @@
   --color-inverse-foreground: var(--color-inverse-foreground);
 
   /* States */
-  --color-disabled: var(--color-disabled);
   --color-success: var(--color-success);
   --color-warning: var(--color-warning);
   --color-error: var(--color-error);

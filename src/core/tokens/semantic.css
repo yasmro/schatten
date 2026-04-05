@@ -58,7 +58,6 @@
   --color-inverse-foreground: var(--paper-white);
 
   /* States */
-  --color-disabled: var(--gray-100);
   --color-success: var(--green-500);
   --color-success-hover: var(--green-600);
   --color-warning: var(--amber-500);
@@ -98,8 +97,6 @@
     --color-ring-offset: var(--paper-warm-inv);
 
     --color-inverse-foreground: var(--paper-white-inv);
-
-    --color-disabled: var(--gray-900);
   }
 }
 
@@ -133,6 +130,4 @@
   --color-ring-offset: var(--paper-warm-inv);
 
   --color-inverse-foreground: var(--paper-white-inv);
-
-  --color-disabled: var(--gray-900);
 }

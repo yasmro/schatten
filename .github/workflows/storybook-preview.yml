@@ -1,0 +1,60 @@
+name: Storybook Preview
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+  pull-requests: write
+  actions: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Build Storybook
+        run: pnpm build:storybook
+
+      - name: Upload Storybook artifact
+        id: upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: storybook-preview-pr-${{ github.event.pull_request.number }}
+          path: storybook-static
+          retention-days: 30
+
+      - name: Find existing comment
+        id: find-comment
+        uses: peter-evans/find-comment@v3
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          comment-author: github-actions[bot]
+          body-includes: "<!-- storybook-preview -->"
+
+      - name: Post or update PR comment
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          comment-id: ${{ steps.find-comment.outputs.comment-id }}
+          edit-mode: replace
+          body: |
+            <!-- storybook-preview -->
+            📖 **Storybook Preview**
+
+            Storybook has been built for commit ${{ github.event.pull_request.head.sha }}.
+
+            **[Download artifact](${{ steps.upload.outputs.artifact-url }})** to preview locally, or find it in the [Actions run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}).
+
+            > Extract the downloaded zip and open `index.html` in your browser.

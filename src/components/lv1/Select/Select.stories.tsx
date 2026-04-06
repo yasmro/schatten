@@ -212,6 +212,28 @@ export const ManyItems: Story = {
   },
 }
 
+export const LongText: Story = {
+  name: 'Long Text',
+  render: () => (
+    <Select>
+      <SelectTrigger>
+        <SelectValue placeholder="Select an option" />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value="short">Short</SelectItem>
+        <SelectItem value="medium">A medium length option label</SelectItem>
+        <SelectItem value="long">
+          This is a very long option label that might cause layout issues in the dropdown
+        </SelectItem>
+        <SelectItem value="longer">
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
+          ut labore et dolore magna aliqua
+        </SelectItem>
+      </SelectContent>
+    </Select>
+  ),
+}
+
 export const DisabledItems: Story = {
   name: 'Disabled Items',
   render: () => (

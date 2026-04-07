@@ -1,5 +1,4 @@
 import * as CheckboxPrimitive from '@radix-ui/react-checkbox'
-import { Check, Minus } from 'lucide-react'
 import {
   type ComponentPropsWithoutRef,
   type ElementRef,
@@ -19,6 +18,35 @@ export interface CheckboxProps
   label?: ReactNode
 }
 
+const CheckIcon = () => (
+  <svg viewBox="0 0 16 16" fill="none" className="size-[62.5%]" aria-hidden="true">
+    <path
+      d="M3 8.5L6.5 12L13 4"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="animate-checkbox-stroke"
+      style={{ strokeDasharray: 1 }}
+      pathLength="1"
+    />
+  </svg>
+)
+
+const MinusIcon = () => (
+  <svg viewBox="0 0 16 16" fill="none" className="size-[62.5%]" aria-hidden="true">
+    <path
+      d="M3 8H13"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      className="animate-checkbox-stroke"
+      style={{ strokeDasharray: 1 }}
+      pathLength="1"
+    />
+  </svg>
+)
+
 export const Checkbox = forwardRef<ElementRef<typeof CheckboxPrimitive.Root>, CheckboxProps>(
   ({ className, size, isError = false, label, id: idProp, disabled, ...props }, ref) => {
     const autoId = useId()
@@ -30,8 +58,7 @@ export const Checkbox = forwardRef<ElementRef<typeof CheckboxPrimitive.Root>, Ch
         id={id}
         className={cn(
           checkboxVariants({ size }),
-          isError &&
-            'border-destructive data-[state=checked]:bg-destructive data-[state=indeterminate]:bg-destructive focus-visible:ring-destructive',
+          isError && 'border-destructive focus-visible:ring-destructive',
           !label && className,
         )}
         aria-invalid={isError || undefined}
@@ -39,14 +66,10 @@ export const Checkbox = forwardRef<ElementRef<typeof CheckboxPrimitive.Root>, Ch
         {...props}
       >
         <CheckboxPrimitive.Indicator
-          className="absolute inset-0 flex items-center justify-center text-current data-[state=unchecked]:hidden"
+          className="absolute inset-0 flex items-center justify-center text-foreground data-[state=unchecked]:hidden"
           forceMount
         >
-          {props.checked === 'indeterminate' ? (
-            <Minus aria-hidden="true" />
-          ) : (
-            <Check aria-hidden="true" />
-          )}
+          {props.checked === 'indeterminate' ? <MinusIcon /> : <CheckIcon />}
         </CheckboxPrimitive.Indicator>
       </CheckboxPrimitive.Root>
     )

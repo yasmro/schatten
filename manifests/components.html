@@ -576,13 +576,13 @@
 <header>
   <div class="wrap">
     <h1>Manifest Debugger</h1>
-    <div class="summary"><a class="filter-pill all" data-k="all" href="#filter-all">All</a><a class="filter-pill err" data-k="errors" href="#filter-errors">3/10 prop type errors</a><a class="filter-pill info" data-k="infos" href="#filter-infos">10/10 infos</a><span class="filter-pill ok" aria-disabled="true">47 stories ok</span></div>
+    <div class="summary"><a class="filter-pill all" data-k="all" href="#filter-all">All</a><a class="filter-pill err" data-k="errors" href="#filter-errors">3/11 prop type errors</a><a class="filter-pill info" data-k="infos" href="#filter-infos">11/11 infos</a><span class="filter-pill ok" aria-disabled="true">54 stories ok</span></div>
   </div>
 </header>
 <main>
   <div class="wrap">
     <div class="note ok" style="margin-bottom: 16px;">
-              Using <code>react-docgen-typescript</code>. Generation took <strong>2.4s</strong>.
+              Using <code>react-docgen-typescript</code>. Generation took <strong>2.5s</strong>.
             </div>
     <h2 class="section-title">Components</h2>
     <div class="grid" role="list">
@@ -1003,6 +1003,210 @@ variant?: &quot;primary&quot; | &quot;secondary&quot; | &quot;destructive&quot; 
 </article>
 <article
   class="card 
+  no-error 
+  has-info 
+  no-story-error
+  no-doc-error"
+  role="listitem"
+  aria-label="Checkbox">
+  <div class="head">
+    <div class="title">
+      <h2><span class="status-dot dot-ok"></span> Checkbox</h2>
+      <div class="badges">
+        <label for="c-2-components-lv1-checkbox-props" class="badge ok as-toggle">4 prop types</label>
+        <label for="c-2-components-lv1-checkbox-info" class="badge info as-toggle">1 info</label>
+        <label for="c-2-components-lv1-checkbox-stories" class="badge ok as-toggle">7 stories</label>
+        
+      </div>
+    </div>
+    <div class="meta" title="./src/components/lv1/Checkbox/Checkbox.stories.tsx">components-lv1-checkbox · ./src/components/lv1/Checkbox/Checkbox.stories.tsx</div>
+    
+    
+    
+  </div>
+
+  <!-- ⬇️ Hidden toggles must be siblings BEFORE .panels -->
+  
+  <input id="c-2-components-lv1-checkbox-info" class="tg tg-info" type="checkbox" hidden />
+  <input id="c-2-components-lv1-checkbox-stories" class="tg tg-stories" type="checkbox" hidden />
+  
+  <input id="c-2-components-lv1-checkbox-props" class="tg tg-props" type="checkbox" hidden />
+
+  <div class="panels">
+    
+    
+        <div class="panel panel-info">
+          
+    <div class="note info">
+      <div class="note-title">Info</div>
+      <div class="note-body">No description found. Write a jsdoc comment such as /** Component description */.</div>
+    </div>
+        </div>
+    
+        <div class="panel panel-props">
+          <div class="note ok">
+            <div class="row">
+              <span class="ex-name">Prop types <small>(react-docgen-typescript)</small></span>
+              <span class="badge ok">4 prop types</span>
+            </div>
+            <pre><code>Component: src/components/lv1/Checkbox/Checkbox.tsx::Checkbox</code></pre>
+            <pre><code>Props:</code></pre>
+            <pre><code>asChild?: boolean
+
+/**
+ * Displays the checkbox in an error state with destructive border and ring.
+ */
+isError?: boolean = false
+
+/**
+ * Label text displayed next to the checkbox. Automatically associates via id.
+ */
+label?: ReactNode
+
+size?: &quot;sm&quot; | &quot;md&quot; | &quot;lg&quot; | null</code></pre>
+          </div>
+        </div>
+    
+        <div class="panel panel-stories">
+          
+          
+          
+          <div class="note ok">
+                <div class="row">
+                  <span class="ex-name">Imports</span>
+                </div>
+                <pre><code>import { Checkbox } from "@yasmro/schatten";</code></pre>
+              </div>
+          
+          
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">Playground</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const Playground = () =&gt; &lt;Checkbox size=&quot;md&quot; label=&quot;Accept terms and conditions&quot; defaultChecked={false} /&gt;;</code></pre>
+            </div>
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">Sizes</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const Sizes = () =&gt; (
+  &lt;div className=&quot;flex flex-col gap-3&quot;&gt;
+    &lt;Checkbox size=&quot;sm&quot; label=&quot;Small&quot; defaultChecked /&gt;
+    &lt;Checkbox size=&quot;md&quot; label=&quot;Medium&quot; defaultChecked /&gt;
+    &lt;Checkbox size=&quot;lg&quot; label=&quot;Large&quot; defaultChecked /&gt;
+  &lt;/div&gt;
+);</code></pre>
+            </div>
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">States</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const States = () =&gt; (
+  &lt;div className=&quot;flex items-center gap-4&quot;&gt;
+    &lt;Checkbox /&gt;
+    &lt;Checkbox defaultChecked /&gt;
+    &lt;Checkbox checked=&quot;indeterminate&quot; /&gt;
+  &lt;/div&gt;
+);</code></pre>
+            </div>
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">With Labels</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const WithLabels = () =&gt; (
+  &lt;div className=&quot;flex flex-col gap-3&quot;&gt;
+    &lt;Checkbox label=&quot;Accept terms and conditions&quot; defaultChecked /&gt;
+    &lt;Checkbox label=&quot;Subscribe to newsletter&quot; /&gt;
+    &lt;Checkbox label=&quot;Unavailable option&quot; disabled /&gt;
+  &lt;/div&gt;
+);</code></pre>
+            </div>
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">Indeterminate</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const Indeterminate = function Render() {
+  const items = [&#39;Apple&#39;, &#39;Banana&#39;, &#39;Cherry&#39;]
+  const [selected, setSelected] = useState&lt;string[]&gt;([&#39;Apple&#39;])
+
+  const allChecked = selected.length === items.length
+  const someChecked = selected.length &gt; 0 &amp;&amp; !allChecked
+
+  return (
+    &lt;div className=&quot;flex flex-col gap-2&quot;&gt;
+      &lt;Checkbox
+        label=&quot;Select all&quot;
+        checked={allChecked ? true : someChecked ? &#39;indeterminate&#39; : false}
+        onCheckedChange={(checked) =&gt; {
+          setSelected(checked ? [...items] : [])
+        }}
+      /&gt;
+      &lt;div className=&quot;flex flex-col gap-2 ml-6&quot;&gt;
+        {items.map((item) =&gt; (
+          &lt;Checkbox
+            key={item}
+            label={item}
+            checked={selected.includes(item)}
+            onCheckedChange={(checked) =&gt; {
+              setSelected((prev) =&gt; (checked ? [...prev, item] : prev.filter((i) =&gt; i !== item)))
+            }}
+          /&gt;
+        ))}
+      &lt;/div&gt;
+    &lt;/div&gt;
+  )
+};</code></pre>
+            </div>
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">Error</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const ErrorState = () =&gt; (
+  &lt;div className=&quot;flex flex-col gap-3&quot;&gt;
+    &lt;Checkbox label=&quot;Unchecked error&quot; isError /&gt;
+    &lt;Checkbox label=&quot;Checked error&quot; isError defaultChecked /&gt;
+  &lt;/div&gt;
+);</code></pre>
+            </div>
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">Disabled</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const Disabled = () =&gt; (
+  &lt;div className=&quot;flex flex-col gap-3&quot;&gt;
+    &lt;Checkbox label=&quot;Disabled unchecked&quot; disabled /&gt;
+    &lt;Checkbox label=&quot;Disabled checked&quot; disabled defaultChecked /&gt;
+    &lt;Checkbox label=&quot;Disabled indeterminate&quot; disabled checked=&quot;indeterminate&quot; /&gt;
+  &lt;/div&gt;
+);</code></pre>
+            </div>
+        </div>
+    
+  </div>
+</article>
+<article
+  class="card 
   has-error 
   has-info 
   no-story-error
@@ -1013,9 +1217,9 @@ variant?: &quot;primary&quot; | &quot;secondary&quot; | &quot;destructive&quot; 
     <div class="title">
       <h2><span class="status-dot dot-err"></span> Color</h2>
       <div class="badges">
-        <label for="c-2-foundation-color-err" class="badge err as-toggle">prop type error</label>
-        <label for="c-2-foundation-color-info" class="badge info as-toggle">2 infos</label>
-        <label for="c-2-foundation-color-stories" class="badge ok as-toggle">1 story</label>
+        <label for="c-3-foundation-color-err" class="badge err as-toggle">prop type error</label>
+        <label for="c-3-foundation-color-info" class="badge info as-toggle">2 infos</label>
+        <label for="c-3-foundation-color-stories" class="badge ok as-toggle">1 story</label>
         
       </div>
     </div>
@@ -1026,9 +1230,9 @@ variant?: &quot;primary&quot; | &quot;secondary&quot; | &quot;destructive&quot; 
   </div>
 
   <!-- ⬇️ Hidden toggles must be siblings BEFORE .panels -->
-  <input id="c-2-foundation-color-err" class="tg tg-err" type="checkbox" hidden />
-  <input id="c-2-foundation-color-info" class="tg tg-info" type="checkbox" hidden />
-  <input id="c-2-foundation-color-stories" class="tg tg-stories" type="checkbox" hidden />
+  <input id="c-3-foundation-color-err" class="tg tg-err" type="checkbox" hidden />
+  <input id="c-3-foundation-color-info" class="tg tg-info" type="checkbox" hidden />
+  <input id="c-3-foundation-color-stories" class="tg tg-stories" type="checkbox" hidden />
   
   
 
@@ -1920,9 +2124,9 @@ export const Colors: Story = {
     <div class="title">
       <h2><span class="status-dot dot-ok"></span> Input</h2>
       <div class="badges">
-        <label for="c-3-components-lv1-input-props" class="badge ok as-toggle">6 prop types</label>
-        <label for="c-3-components-lv1-input-info" class="badge info as-toggle">1 info</label>
-        <label for="c-3-components-lv1-input-stories" class="badge ok as-toggle">8 stories</label>
+        <label for="c-4-components-lv1-input-props" class="badge ok as-toggle">6 prop types</label>
+        <label for="c-4-components-lv1-input-info" class="badge info as-toggle">1 info</label>
+        <label for="c-4-components-lv1-input-stories" class="badge ok as-toggle">8 stories</label>
         
       </div>
     </div>
@@ -1934,10 +2138,10 @@ export const Colors: Story = {
 
   <!-- ⬇️ Hidden toggles must be siblings BEFORE .panels -->
   
-  <input id="c-3-components-lv1-input-info" class="tg tg-info" type="checkbox" hidden />
-  <input id="c-3-components-lv1-input-stories" class="tg tg-stories" type="checkbox" hidden />
+  <input id="c-4-components-lv1-input-info" class="tg tg-info" type="checkbox" hidden />
+  <input id="c-4-components-lv1-input-stories" class="tg tg-stories" type="checkbox" hidden />
   
-  <input id="c-3-components-lv1-input-props" class="tg tg-props" type="checkbox" hidden />
+  <input id="c-4-components-lv1-input-props" class="tg tg-props" type="checkbox" hidden />
 
   <div class="panels">
     
@@ -2116,9 +2320,9 @@ textRight?: string</code></pre>
     <div class="title">
       <h2><span class="status-dot dot-ok"></span> SelectTrigger</h2>
       <div class="badges">
-        <label for="c-4-components-lv1-select-props" class="badge ok as-toggle">3 prop types</label>
-        <label for="c-4-components-lv1-select-info" class="badge info as-toggle">1 info</label>
-        <label for="c-4-components-lv1-select-stories" class="badge ok as-toggle">8 stories</label>
+        <label for="c-5-components-lv1-select-props" class="badge ok as-toggle">3 prop types</label>
+        <label for="c-5-components-lv1-select-info" class="badge info as-toggle">1 info</label>
+        <label for="c-5-components-lv1-select-stories" class="badge ok as-toggle">8 stories</label>
         
       </div>
     </div>
@@ -2130,10 +2334,10 @@ textRight?: string</code></pre>
 
   <!-- ⬇️ Hidden toggles must be siblings BEFORE .panels -->
   
-  <input id="c-4-components-lv1-select-info" class="tg tg-info" type="checkbox" hidden />
-  <input id="c-4-components-lv1-select-stories" class="tg tg-stories" type="checkbox" hidden />
+  <input id="c-5-components-lv1-select-info" class="tg tg-info" type="checkbox" hidden />
+  <input id="c-5-components-lv1-select-stories" class="tg tg-stories" type="checkbox" hidden />
   
-  <input id="c-4-components-lv1-select-props" class="tg tg-props" type="checkbox" hidden />
+  <input id="c-5-components-lv1-select-props" class="tg tg-props" type="checkbox" hidden />
 
   <div class="panels">
     
@@ -2422,9 +2626,9 @@ size?: &quot;sm&quot; | &quot;md&quot; | &quot;lg&quot; | null</code></pre>
     <div class="title">
       <h2><span class="status-dot dot-ok"></span> Spinner</h2>
       <div class="badges">
-        <label for="c-5-components-lv1-spinner-props" class="badge ok as-toggle">4 prop types</label>
-        <label for="c-5-components-lv1-spinner-info" class="badge info as-toggle">1 info</label>
-        <label for="c-5-components-lv1-spinner-stories" class="badge ok as-toggle">4 stories</label>
+        <label for="c-6-components-lv1-spinner-props" class="badge ok as-toggle">4 prop types</label>
+        <label for="c-6-components-lv1-spinner-info" class="badge info as-toggle">1 info</label>
+        <label for="c-6-components-lv1-spinner-stories" class="badge ok as-toggle">4 stories</label>
         
       </div>
     </div>
@@ -2436,10 +2640,10 @@ size?: &quot;sm&quot; | &quot;md&quot; | &quot;lg&quot; | null</code></pre>
 
   <!-- ⬇️ Hidden toggles must be siblings BEFORE .panels -->
   
-  <input id="c-5-components-lv1-spinner-info" class="tg tg-info" type="checkbox" hidden />
-  <input id="c-5-components-lv1-spinner-stories" class="tg tg-stories" type="checkbox" hidden />
+  <input id="c-6-components-lv1-spinner-info" class="tg tg-info" type="checkbox" hidden />
+  <input id="c-6-components-lv1-spinner-stories" class="tg tg-stories" type="checkbox" hidden />
   
-  <input id="c-5-components-lv1-spinner-props" class="tg tg-props" type="checkbox" hidden />
+  <input id="c-6-components-lv1-spinner-props" class="tg tg-props" type="checkbox" hidden />
 
   <div class="panels">
     
@@ -2556,9 +2760,9 @@ variant?: &quot;default&quot; | &quot;inverse&quot; | null</code></pre>
     <div class="title">
       <h2><span class="status-dot dot-ok"></span> Text</h2>
       <div class="badges">
-        <label for="c-6-components-lv1-text-props" class="badge ok as-toggle">7 prop types</label>
-        <label for="c-6-components-lv1-text-info" class="badge info as-toggle">1 info</label>
-        <label for="c-6-components-lv1-text-stories" class="badge ok as-toggle">6 stories</label>
+        <label for="c-7-components-lv1-text-props" class="badge ok as-toggle">7 prop types</label>
+        <label for="c-7-components-lv1-text-info" class="badge info as-toggle">1 info</label>
+        <label for="c-7-components-lv1-text-stories" class="badge ok as-toggle">6 stories</label>
         
       </div>
     </div>
@@ -2570,10 +2774,10 @@ variant?: &quot;default&quot; | &quot;inverse&quot; | null</code></pre>
 
   <!-- ⬇️ Hidden toggles must be siblings BEFORE .panels -->
   
-  <input id="c-6-components-lv1-text-info" class="tg tg-info" type="checkbox" hidden />
-  <input id="c-6-components-lv1-text-stories" class="tg tg-stories" type="checkbox" hidden />
+  <input id="c-7-components-lv1-text-info" class="tg tg-info" type="checkbox" hidden />
+  <input id="c-7-components-lv1-text-stories" class="tg tg-stories" type="checkbox" hidden />
   
-  <input id="c-6-components-lv1-text-props" class="tg tg-props" type="checkbox" hidden />
+  <input id="c-7-components-lv1-text-props" class="tg tg-props" type="checkbox" hidden />
 
   <div class="panels">
     
@@ -2756,9 +2960,9 @@ variant?: &quot;heading&quot; | &quot;label&quot; | &quot;body&quot; | null</cod
     <div class="title">
       <h2><span class="status-dot dot-ok"></span> Textarea</h2>
       <div class="badges">
-        <label for="c-7-components-lv1-textarea-props" class="badge ok as-toggle">2 prop types</label>
-        <label for="c-7-components-lv1-textarea-info" class="badge info as-toggle">1 info</label>
-        <label for="c-7-components-lv1-textarea-stories" class="badge ok as-toggle">4 stories</label>
+        <label for="c-8-components-lv1-textarea-props" class="badge ok as-toggle">2 prop types</label>
+        <label for="c-8-components-lv1-textarea-info" class="badge info as-toggle">1 info</label>
+        <label for="c-8-components-lv1-textarea-stories" class="badge ok as-toggle">4 stories</label>
         
       </div>
     </div>
@@ -2770,10 +2974,10 @@ variant?: &quot;heading&quot; | &quot;label&quot; | &quot;body&quot; | null</cod
 
   <!-- ⬇️ Hidden toggles must be siblings BEFORE .panels -->
   
-  <input id="c-7-components-lv1-textarea-info" class="tg tg-info" type="checkbox" hidden />
-  <input id="c-7-components-lv1-textarea-stories" class="tg tg-stories" type="checkbox" hidden />
+  <input id="c-8-components-lv1-textarea-info" class="tg tg-info" type="checkbox" hidden />
+  <input id="c-8-components-lv1-textarea-stories" class="tg tg-stories" type="checkbox" hidden />
   
-  <input id="c-7-components-lv1-textarea-props" class="tg tg-props" type="checkbox" hidden />
+  <input id="c-8-components-lv1-textarea-props" class="tg tg-props" type="checkbox" hidden />
 
   <div class="panels">
     
@@ -2880,9 +3084,9 @@ size?: &quot;sm&quot; | &quot;md&quot; | &quot;lg&quot; | null</code></pre>
     <div class="title">
       <h2><span class="status-dot dot-err"></span> Typography</h2>
       <div class="badges">
-        <label for="c-8-foundation-typography-err" class="badge err as-toggle">prop type error</label>
-        <label for="c-8-foundation-typography-info" class="badge info as-toggle">2 infos</label>
-        <label for="c-8-foundation-typography-stories" class="badge ok as-toggle">1 story</label>
+        <label for="c-9-foundation-typography-err" class="badge err as-toggle">prop type error</label>
+        <label for="c-9-foundation-typography-info" class="badge info as-toggle">2 infos</label>
+        <label for="c-9-foundation-typography-stories" class="badge ok as-toggle">1 story</label>
         
       </div>
     </div>
@@ -2893,9 +3097,9 @@ size?: &quot;sm&quot; | &quot;md&quot; | &quot;lg&quot; | null</code></pre>
   </div>
 
   <!-- ⬇️ Hidden toggles must be siblings BEFORE .panels -->
-  <input id="c-8-foundation-typography-err" class="tg tg-err" type="checkbox" hidden />
-  <input id="c-8-foundation-typography-info" class="tg tg-info" type="checkbox" hidden />
-  <input id="c-8-foundation-typography-stories" class="tg tg-stories" type="checkbox" hidden />
+  <input id="c-9-foundation-typography-err" class="tg tg-err" type="checkbox" hidden />
+  <input id="c-9-foundation-typography-info" class="tg tg-info" type="checkbox" hidden />
+  <input id="c-9-foundation-typography-stories" class="tg tg-stories" type="checkbox" hidden />
   
   
 
@@ -3645,9 +3849,9 @@ export const Typography: Story = {
     <div class="title">
       <h2><span class="status-dot dot-err"></span> Welcome</h2>
       <div class="badges">
-        <label for="c-9-welcome-err" class="badge err as-toggle">prop type error</label>
-        <label for="c-9-welcome-info" class="badge info as-toggle">1 info</label>
-        <label for="c-9-welcome-stories" class="badge ok as-toggle">1 story</label>
+        <label for="c-10-welcome-err" class="badge err as-toggle">prop type error</label>
+        <label for="c-10-welcome-info" class="badge info as-toggle">1 info</label>
+        <label for="c-10-welcome-stories" class="badge ok as-toggle">1 story</label>
         
       </div>
     </div>
@@ -3658,9 +3862,9 @@ export const Typography: Story = {
   </div>
 
   <!-- ⬇️ Hidden toggles must be siblings BEFORE .panels -->
-  <input id="c-9-welcome-err" class="tg tg-err" type="checkbox" hidden />
-  <input id="c-9-welcome-info" class="tg tg-info" type="checkbox" hidden />
-  <input id="c-9-welcome-stories" class="tg tg-stories" type="checkbox" hidden />
+  <input id="c-10-welcome-err" class="tg tg-err" type="checkbox" hidden />
+  <input id="c-10-welcome-info" class="tg tg-info" type="checkbox" hidden />
+  <input id="c-10-welcome-stories" class="tg tg-stories" type="checkbox" hidden />
   
   
 
@@ -3671,18 +3875,19 @@ export const Typography: Story = {
     <div class="note err">
       <div class="note-title">Prop type error</div>
       <div class="note-body"><pre><code>We could not detect the component from your story file. Specify meta.component.
-  14 | import { Textarea } from &#39;../components/lv1/Textarea&#39;
-  15 |
-&gt; 16 | const meta: Meta = {
+  15 | import { Textarea } from &#39;../components/lv1/Textarea&#39;
+  16 |
+&gt; 17 | const meta: Meta = {
      | ^
-  17 |   title: &#39;Welcome&#39;,
-  18 |   parameters: {
-  19 |     layout: &#39;fullscreen&#39;,
+  18 |   title: &#39;Welcome&#39;,
+  19 |   parameters: {
+  20 |     layout: &#39;fullscreen&#39;,
 
 ./src/docs/Welcome.stories.tsx:
 import type { Meta, StoryObj } from &#39;@storybook/react-vite&#39;
 import { Badge } from &#39;../components/lv1/Badge&#39;
 import { Button } from &#39;../components/lv1/Button&#39;
+import { Checkbox } from &#39;../components/lv1/Checkbox&#39;
 import { Input } from &#39;../components/lv1/Input&#39;
 import {
   Select,
@@ -3849,16 +4054,28 @@ export const Overview: Story = {
           &lt;/ComponentCard&gt;
 
           &lt;ComponentCard
+            name=&quot;Checkbox&quot;
+            description=&quot;Toggles a boolean value.&quot;
+            storyPath=&quot;components-lv1-checkbox&quot;
+          &gt;
+            &lt;div className=&quot;flex flex-col gap-2&quot;&gt;
+              &lt;Checkbox label=&quot;Option A&quot; defaultChecked /&gt;
+              &lt;Checkbox label=&quot;Option B&quot; /&gt;
+            &lt;/div&gt;
+          &lt;/ComponentCard&gt;
+
+          &lt;ComponentCard
             name=&quot;Select&quot;
             description=&quot;Picks one option from a list.&quot;
             storyPath=&quot;components-lv1-select&quot;
           &gt;
-            &lt;Select defaultValue=&quot;option&quot;&gt;
+            &lt;Select defaultValue=&quot;apple&quot;&gt;
               &lt;SelectTrigger className=&quot;w-40&quot;&gt;
                 &lt;SelectValue /&gt;
               &lt;/SelectTrigger&gt;
               &lt;SelectContent&gt;
-                &lt;SelectItem value=&quot;option&quot;&gt;Option&lt;/SelectItem&gt;
+                &lt;SelectItem value=&quot;apple&quot;&gt;Apple&lt;/SelectItem&gt;
+                &lt;SelectItem value=&quot;banana&quot;&gt;Banana&lt;/SelectItem&gt;
               &lt;/SelectContent&gt;
             &lt;/Select&gt;
           &lt;/ComponentCard&gt;
@@ -3931,6 +4148,7 @@ export const Overview: Story = {
                 <pre><code>import {
     Badge,
     Button,
+    Checkbox,
     Input,
     Select,
     SelectContent,
@@ -4059,16 +4277,28 @@ export const Overview: Story = {
         &lt;/ComponentCard&gt;
 
         &lt;ComponentCard
+          name=&quot;Checkbox&quot;
+          description=&quot;Toggles a boolean value.&quot;
+          storyPath=&quot;components-lv1-checkbox&quot;
+        &gt;
+          &lt;div className=&quot;flex flex-col gap-2&quot;&gt;
+            &lt;Checkbox label=&quot;Option A&quot; defaultChecked /&gt;
+            &lt;Checkbox label=&quot;Option B&quot; /&gt;
+          &lt;/div&gt;
+        &lt;/ComponentCard&gt;
+
+        &lt;ComponentCard
           name=&quot;Select&quot;
           description=&quot;Picks one option from a list.&quot;
           storyPath=&quot;components-lv1-select&quot;
         &gt;
-          &lt;Select defaultValue=&quot;option&quot;&gt;
+          &lt;Select defaultValue=&quot;apple&quot;&gt;
             &lt;SelectTrigger className=&quot;w-40&quot;&gt;
               &lt;SelectValue /&gt;
             &lt;/SelectTrigger&gt;
             &lt;SelectContent&gt;
-              &lt;SelectItem value=&quot;option&quot;&gt;Option&lt;/SelectItem&gt;
+              &lt;SelectItem value=&quot;apple&quot;&gt;Apple&lt;/SelectItem&gt;
+              &lt;SelectItem value=&quot;banana&quot;&gt;Banana&lt;/SelectItem&gt;
             &lt;/SelectContent&gt;
           &lt;/Select&gt;
         &lt;/ComponentCard&gt;
@@ -5841,18 +6071,19 @@ export const Typography: Story = {
     <div class="note err">
       <div class="note-title">Prop type error</div>
       <div class="note-body"><pre><code>We could not detect the component from your story file. Specify meta.component.
-  14 | import { Textarea } from &#39;../components/lv1/Textarea&#39;
-  15 |
-&gt; 16 | const meta: Meta = {
+  15 | import { Textarea } from &#39;../components/lv1/Textarea&#39;
+  16 |
+&gt; 17 | const meta: Meta = {
      | ^
-  17 |   title: &#39;Welcome&#39;,
-  18 |   parameters: {
-  19 |     layout: &#39;fullscreen&#39;,
+  18 |   title: &#39;Welcome&#39;,
+  19 |   parameters: {
+  20 |     layout: &#39;fullscreen&#39;,
 
 ./src/docs/Welcome.stories.tsx:
 import type { Meta, StoryObj } from &#39;@storybook/react-vite&#39;
 import { Badge } from &#39;../components/lv1/Badge&#39;
 import { Button } from &#39;../components/lv1/Button&#39;
+import { Checkbox } from &#39;../components/lv1/Checkbox&#39;
 import { Input } from &#39;../components/lv1/Input&#39;
 import {
   Select,
@@ -6019,16 +6250,28 @@ export const Overview: Story = {
           &lt;/ComponentCard&gt;
 
           &lt;ComponentCard
+            name=&quot;Checkbox&quot;
+            description=&quot;Toggles a boolean value.&quot;
+            storyPath=&quot;components-lv1-checkbox&quot;
+          &gt;
+            &lt;div className=&quot;flex flex-col gap-2&quot;&gt;
+              &lt;Checkbox label=&quot;Option A&quot; defaultChecked /&gt;
+              &lt;Checkbox label=&quot;Option B&quot; /&gt;
+            &lt;/div&gt;
+          &lt;/ComponentCard&gt;
+
+          &lt;ComponentCard
             name=&quot;Select&quot;
             description=&quot;Picks one option from a list.&quot;
             storyPath=&quot;components-lv1-select&quot;
           &gt;
-            &lt;Select defaultValue=&quot;option&quot;&gt;
+            &lt;Select defaultValue=&quot;apple&quot;&gt;
               &lt;SelectTrigger className=&quot;w-40&quot;&gt;
                 &lt;SelectValue /&gt;
               &lt;/SelectTrigger&gt;
               &lt;SelectContent&gt;
-                &lt;SelectItem value=&quot;option&quot;&gt;Option&lt;/SelectItem&gt;
+                &lt;SelectItem value=&quot;apple&quot;&gt;Apple&lt;/SelectItem&gt;
+                &lt;SelectItem value=&quot;banana&quot;&gt;Banana&lt;/SelectItem&gt;
               &lt;/SelectContent&gt;
             &lt;/Select&gt;
           &lt;/ComponentCard&gt;
@@ -6101,6 +6344,7 @@ export const Overview: Story = {
                 <pre><code>import {
     Badge,
     Button,
+    Checkbox,
     Input,
     Select,
     SelectContent,
@@ -6229,16 +6473,28 @@ export const Overview: Story = {
         &lt;/ComponentCard&gt;
 
         &lt;ComponentCard
+          name=&quot;Checkbox&quot;
+          description=&quot;Toggles a boolean value.&quot;
+          storyPath=&quot;components-lv1-checkbox&quot;
+        &gt;
+          &lt;div className=&quot;flex flex-col gap-2&quot;&gt;
+            &lt;Checkbox label=&quot;Option A&quot; defaultChecked /&gt;
+            &lt;Checkbox label=&quot;Option B&quot; /&gt;
+          &lt;/div&gt;
+        &lt;/ComponentCard&gt;
+
+        &lt;ComponentCard
           name=&quot;Select&quot;
           description=&quot;Picks one option from a list.&quot;
           storyPath=&quot;components-lv1-select&quot;
         &gt;
-          &lt;Select defaultValue=&quot;option&quot;&gt;
+          &lt;Select defaultValue=&quot;apple&quot;&gt;
             &lt;SelectTrigger className=&quot;w-40&quot;&gt;
               &lt;SelectValue /&gt;
             &lt;/SelectTrigger&gt;
             &lt;SelectContent&gt;
-              &lt;SelectItem value=&quot;option&quot;&gt;Option&lt;/SelectItem&gt;
+              &lt;SelectItem value=&quot;apple&quot;&gt;Apple&lt;/SelectItem&gt;
+              &lt;SelectItem value=&quot;banana&quot;&gt;Banana&lt;/SelectItem&gt;
             &lt;/SelectContent&gt;
           &lt;/Select&gt;
         &lt;/ComponentCard&gt;

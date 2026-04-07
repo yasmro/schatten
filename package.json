@@ -1,7 +1,7 @@
 {
   "name": "@yasmro/schatten",
   "version": "0.0.1",
-  "packageManager": "pnpm@9.15.0",
+  "packageManager": "pnpm@10.33.0+sha512.10568bb4a6afb58c9eb3630da90cc9516417abebd3fabbe6739f0ae795728da1491e9db5a544c76ad8eb7570f5c4bb3d6c637b2cb41bfdcdb47fa823c8649319",
   "description": "Design system with CSS variants and React components",
   "type": "module",
   "main": "./dist/index.js",
@@ -51,8 +51,7 @@
   ],
   "scripts": {
     "dev": "storybook dev -p 6006",
-    "build": "tsup && pnpm build:css",
-    "build:css": "mkdir -p dist/core/tokens dist/themes/default dist/themes/seasonal && cp src/core/tokens/*.css dist/core/tokens/ && cp src/themes/default/*.css dist/themes/default/ && cp src/themes/seasonal/*.css dist/themes/seasonal/",
+    "build": "tsup",
     "build:storybook": "storybook build",
     "test": "vitest",
     "test:ui": "vitest --ui",
@@ -101,8 +100,8 @@
     "storybook": "10.3.3",
     "tailwindcss": "^4.2.2",
     "tsup": "^8.3.5",
-    "typescript": "^5.7.2",
-    "vitest": "^2.1.8"
+    "typescript": "^5.8.3",
+    "vitest": "^3.2.4"
   },
   "dependencies": {
     "@radix-ui/react-checkbox": "^1.3.3",

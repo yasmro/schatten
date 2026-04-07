@@ -58,7 +58,7 @@ export const Checkbox = forwardRef<ElementRef<typeof CheckboxPrimitive.Root>, Ch
         id={id}
         className={cn(
           checkboxVariants({ size }),
-          isError && 'border-destructive focus-visible:ring-destructive',
+          isError && 'border-destructive bg-destructive-subtle focus-visible:ring-destructive',
           !label && className,
         )}
         aria-invalid={isError || undefined}

@@ -1,8 +1,17 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { Badge } from '../components/lv1/Badge'
 import { Button } from '../components/lv1/Button'
+import { Input } from '../components/lv1/Input'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '../components/lv1/Select'
 import { Spinner } from '../components/lv1/Spinner'
 import { Text } from '../components/lv1/Text'
+import { Textarea } from '../components/lv1/Textarea'
 
 const meta: Meta = {
   title: 'Welcome',
@@ -139,6 +148,37 @@ export const Overview: Story = {
             <Text variant="heading" size="lg">
               Heading
             </Text>
+          </ComponentCard>
+
+          <ComponentCard
+            name="Input"
+            description="Accepts user text input."
+            storyPath="components-lv1-input"
+          >
+            <Input placeholder="Enter text..." className="w-40" />
+          </ComponentCard>
+
+          <ComponentCard
+            name="Textarea"
+            description="Multi-line text input."
+            storyPath="components-lv1-textarea"
+          >
+            <Textarea placeholder="Write something..." className="w-40" rows={2} />
+          </ComponentCard>
+
+          <ComponentCard
+            name="Select"
+            description="Picks one option from a list."
+            storyPath="components-lv1-select"
+          >
+            <Select defaultValue="option">
+              <SelectTrigger className="w-40">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="option">Option</SelectItem>
+              </SelectContent>
+            </Select>
           </ComponentCard>
         </div>
       </div>

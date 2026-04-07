@@ -26,24 +26,13 @@ const CheckIcon = () => (
       strokeWidth="2.5"
       strokeLinecap="butt"
       strokeLinejoin="round"
-      className="animate-checkbox-stroke"
-      style={{ strokeDasharray: 1 }}
-      pathLength="1"
     />
   </svg>
 )
 
 const MinusIcon = () => (
   <svg viewBox="0 0 16 16" fill="none" className="size-[62.5%]" aria-hidden="true">
-    <path
-      d="M3 8H13"
-      stroke="currentColor"
-      strokeWidth="2.5"
-      strokeLinecap="butt"
-      className="animate-checkbox-stroke"
-      style={{ strokeDasharray: 1 }}
-      pathLength="1"
-    />
+    <path d="M3 8H13" stroke="currentColor" strokeWidth="2.5" strokeLinecap="butt" />
   </svg>
 )
 

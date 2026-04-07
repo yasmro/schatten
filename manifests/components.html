@@ -576,7 +576,7 @@
 <header>
   <div class="wrap">
     <h1>Manifest Debugger</h1>
-    <div class="summary"><a class="filter-pill all" data-k="all" href="#filter-all">All</a><a class="filter-pill err" data-k="errors" href="#filter-errors">3/9 prop type errors</a><a class="filter-pill info" data-k="infos" href="#filter-infos">9/9 infos</a><span class="filter-pill ok" aria-disabled="true">39 stories ok</span></div>
+    <div class="summary"><a class="filter-pill all" data-k="all" href="#filter-all">All</a><a class="filter-pill err" data-k="errors" href="#filter-errors">3/10 prop type errors</a><a class="filter-pill info" data-k="infos" href="#filter-infos">10/10 infos</a><span class="filter-pill ok" aria-disabled="true">47 stories ok</span></div>
   </div>
 </header>
 <main>
@@ -2111,14 +2111,320 @@ textRight?: string</code></pre>
   no-story-error
   no-doc-error"
   role="listitem"
+  aria-label="SelectTrigger">
+  <div class="head">
+    <div class="title">
+      <h2><span class="status-dot dot-ok"></span> SelectTrigger</h2>
+      <div class="badges">
+        <label for="c-4-components-lv1-select-props" class="badge ok as-toggle">3 prop types</label>
+        <label for="c-4-components-lv1-select-info" class="badge info as-toggle">1 info</label>
+        <label for="c-4-components-lv1-select-stories" class="badge ok as-toggle">8 stories</label>
+        
+      </div>
+    </div>
+    <div class="meta" title="./src/components/lv1/Select/Select.stories.tsx">components-lv1-select · ./src/components/lv1/Select/Select.stories.tsx</div>
+    
+    
+    
+  </div>
+
+  <!-- ⬇️ Hidden toggles must be siblings BEFORE .panels -->
+  
+  <input id="c-4-components-lv1-select-info" class="tg tg-info" type="checkbox" hidden />
+  <input id="c-4-components-lv1-select-stories" class="tg tg-stories" type="checkbox" hidden />
+  
+  <input id="c-4-components-lv1-select-props" class="tg tg-props" type="checkbox" hidden />
+
+  <div class="panels">
+    
+    
+        <div class="panel panel-info">
+          
+    <div class="note info">
+      <div class="note-title">Info</div>
+      <div class="note-body">No description found. Write a jsdoc comment such as /** Component description */.</div>
+    </div>
+        </div>
+    
+        <div class="panel panel-props">
+          <div class="note ok">
+            <div class="row">
+              <span class="ex-name">Prop types <small>(react-docgen-typescript)</small></span>
+              <span class="badge ok">3 prop types</span>
+            </div>
+            <pre><code>Component: src/components/lv1/Select/Select.tsx::SelectTrigger</code></pre>
+            <pre><code>Props:</code></pre>
+            <pre><code>asChild?: boolean
+
+isError?: boolean = false
+
+size?: &quot;sm&quot; | &quot;md&quot; | &quot;lg&quot; | null</code></pre>
+          </div>
+        </div>
+    
+        <div class="panel panel-stories">
+          
+          
+          
+          <div class="note ok">
+                <div class="row">
+                  <span class="ex-name">Imports</span>
+                </div>
+                <pre><code>import {
+    Select,
+    SelectContent,
+    SelectGroup,
+    SelectItem,
+    SelectLabel,
+    SelectSeparator,
+    SelectTrigger,
+    SelectValue,
+} from "@yasmro/schatten";</code></pre>
+              </div>
+          
+          
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">Playground</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const Playground = () =&gt; &lt;Select&gt;
+    &lt;SelectTrigger size=&quot;md&quot; isError={false} disabled={false}&gt;
+        &lt;SelectValue placeholder=&quot;Select a fruit&quot; /&gt;
+    &lt;/SelectTrigger&gt;
+    &lt;SelectContent&gt;
+        &lt;SelectItem value=&quot;apple&quot;&gt;Apple&lt;/SelectItem&gt;
+        &lt;SelectItem value=&quot;banana&quot;&gt;Banana&lt;/SelectItem&gt;
+        &lt;SelectItem value=&quot;cherry&quot;&gt;Cherry&lt;/SelectItem&gt;
+        &lt;SelectItem value=&quot;grape&quot;&gt;Grape&lt;/SelectItem&gt;
+        &lt;SelectItem value=&quot;orange&quot;&gt;Orange&lt;/SelectItem&gt;
+    &lt;/SelectContent&gt;
+&lt;/Select&gt;;</code></pre>
+            </div>
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">Sizes</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const Sizes = () =&gt; (
+  &lt;div className=&quot;flex flex-col gap-4&quot;&gt;
+    &lt;Select&gt;
+      &lt;SelectTrigger size=&quot;sm&quot;&gt;
+        &lt;SelectValue placeholder=&quot;Small&quot; /&gt;
+      &lt;/SelectTrigger&gt;
+      &lt;SelectContent&gt;
+        &lt;SelectItem value=&quot;apple&quot;&gt;Apple&lt;/SelectItem&gt;
+        &lt;SelectItem value=&quot;banana&quot;&gt;Banana&lt;/SelectItem&gt;
+      &lt;/SelectContent&gt;
+    &lt;/Select&gt;
+    &lt;Select&gt;
+      &lt;SelectTrigger size=&quot;md&quot;&gt;
+        &lt;SelectValue placeholder=&quot;Medium&quot; /&gt;
+      &lt;/SelectTrigger&gt;
+      &lt;SelectContent&gt;
+        &lt;SelectItem value=&quot;apple&quot;&gt;Apple&lt;/SelectItem&gt;
+        &lt;SelectItem value=&quot;banana&quot;&gt;Banana&lt;/SelectItem&gt;
+      &lt;/SelectContent&gt;
+    &lt;/Select&gt;
+    &lt;Select&gt;
+      &lt;SelectTrigger size=&quot;lg&quot;&gt;
+        &lt;SelectValue placeholder=&quot;Large&quot; /&gt;
+      &lt;/SelectTrigger&gt;
+      &lt;SelectContent&gt;
+        &lt;SelectItem value=&quot;apple&quot;&gt;Apple&lt;/SelectItem&gt;
+        &lt;SelectItem value=&quot;banana&quot;&gt;Banana&lt;/SelectItem&gt;
+      &lt;/SelectContent&gt;
+    &lt;/Select&gt;
+  &lt;/div&gt;
+);</code></pre>
+            </div>
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">With Groups</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const WithGroups = () =&gt; (
+  &lt;Select&gt;
+    &lt;SelectTrigger&gt;
+      &lt;SelectValue placeholder=&quot;Select a food&quot; /&gt;
+    &lt;/SelectTrigger&gt;
+    &lt;SelectContent&gt;
+      &lt;SelectGroup&gt;
+        &lt;SelectLabel&gt;Fruits&lt;/SelectLabel&gt;
+        &lt;SelectItem value=&quot;apple&quot;&gt;Apple&lt;/SelectItem&gt;
+        &lt;SelectItem value=&quot;banana&quot;&gt;Banana&lt;/SelectItem&gt;
+        &lt;SelectItem value=&quot;cherry&quot;&gt;Cherry&lt;/SelectItem&gt;
+      &lt;/SelectGroup&gt;
+      &lt;SelectSeparator /&gt;
+      &lt;SelectGroup&gt;
+        &lt;SelectLabel&gt;Vegetables&lt;/SelectLabel&gt;
+        &lt;SelectItem value=&quot;carrot&quot;&gt;Carrot&lt;/SelectItem&gt;
+        &lt;SelectItem value=&quot;broccoli&quot;&gt;Broccoli&lt;/SelectItem&gt;
+        &lt;SelectItem value=&quot;spinach&quot;&gt;Spinach&lt;/SelectItem&gt;
+      &lt;/SelectGroup&gt;
+    &lt;/SelectContent&gt;
+  &lt;/Select&gt;
+);</code></pre>
+            </div>
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">Error</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const ErrorState = () =&gt; (
+  &lt;div className=&quot;flex flex-col gap-4&quot;&gt;
+    &lt;Select&gt;
+      &lt;SelectTrigger isError&gt;
+        &lt;SelectValue placeholder=&quot;Error state&quot; /&gt;
+      &lt;/SelectTrigger&gt;
+      &lt;SelectContent&gt;
+        &lt;SelectItem value=&quot;apple&quot;&gt;Apple&lt;/SelectItem&gt;
+        &lt;SelectItem value=&quot;banana&quot;&gt;Banana&lt;/SelectItem&gt;
+      &lt;/SelectContent&gt;
+    &lt;/Select&gt;
+    &lt;Select defaultValue=&quot;apple&quot;&gt;
+      &lt;SelectTrigger isError&gt;
+        &lt;SelectValue /&gt;
+      &lt;/SelectTrigger&gt;
+      &lt;SelectContent&gt;
+        &lt;SelectItem value=&quot;apple&quot;&gt;Apple&lt;/SelectItem&gt;
+        &lt;SelectItem value=&quot;banana&quot;&gt;Banana&lt;/SelectItem&gt;
+      &lt;/SelectContent&gt;
+    &lt;/Select&gt;
+  &lt;/div&gt;
+);</code></pre>
+            </div>
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">Disabled</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const Disabled = () =&gt; (
+  &lt;div className=&quot;flex flex-col gap-4&quot;&gt;
+    &lt;Select disabled&gt;
+      &lt;SelectTrigger&gt;
+        &lt;SelectValue placeholder=&quot;Disabled&quot; /&gt;
+      &lt;/SelectTrigger&gt;
+      &lt;SelectContent&gt;
+        &lt;SelectItem value=&quot;apple&quot;&gt;Apple&lt;/SelectItem&gt;
+      &lt;/SelectContent&gt;
+    &lt;/Select&gt;
+    &lt;Select disabled defaultValue=&quot;apple&quot;&gt;
+      &lt;SelectTrigger&gt;
+        &lt;SelectValue /&gt;
+      &lt;/SelectTrigger&gt;
+      &lt;SelectContent&gt;
+        &lt;SelectItem value=&quot;apple&quot;&gt;Apple&lt;/SelectItem&gt;
+      &lt;/SelectContent&gt;
+    &lt;/Select&gt;
+  &lt;/div&gt;
+);</code></pre>
+            </div>
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">Many Items</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const ManyItems = () =&gt; {
+  const items = Array.from({ length: 50 }, (_, i) =&gt; `Item ${i + 1}`)
+  return (
+    &lt;Select&gt;
+      &lt;SelectTrigger&gt;
+        &lt;SelectValue placeholder=&quot;50 items&quot; /&gt;
+      &lt;/SelectTrigger&gt;
+      &lt;SelectContent&gt;
+        {items.map((item) =&gt; (
+          &lt;SelectItem key={item} value={item}&gt;
+            {item}
+          &lt;/SelectItem&gt;
+        ))}
+      &lt;/SelectContent&gt;
+    &lt;/Select&gt;
+  )
+};</code></pre>
+            </div>
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">Long Text</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const LongText = () =&gt; (
+  &lt;Select&gt;
+    &lt;SelectTrigger&gt;
+      &lt;SelectValue placeholder=&quot;Select an option&quot; /&gt;
+    &lt;/SelectTrigger&gt;
+    &lt;SelectContent&gt;
+      &lt;SelectItem value=&quot;short&quot;&gt;Short&lt;/SelectItem&gt;
+      &lt;SelectItem value=&quot;medium&quot;&gt;A medium length option label&lt;/SelectItem&gt;
+      &lt;SelectItem value=&quot;long&quot;&gt;
+        This is a very long option label that might cause layout issues in the dropdown
+      &lt;/SelectItem&gt;
+      &lt;SelectItem value=&quot;longer&quot;&gt;
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
+        ut labore et dolore magna aliqua
+      &lt;/SelectItem&gt;
+    &lt;/SelectContent&gt;
+  &lt;/Select&gt;
+);</code></pre>
+            </div>
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">Disabled Items</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const DisabledItems = () =&gt; (
+  &lt;Select&gt;
+    &lt;SelectTrigger&gt;
+      &lt;SelectValue placeholder=&quot;Some items disabled&quot; /&gt;
+    &lt;/SelectTrigger&gt;
+    &lt;SelectContent&gt;
+      &lt;SelectItem value=&quot;apple&quot;&gt;Apple&lt;/SelectItem&gt;
+      &lt;SelectItem value=&quot;banana&quot; disabled&gt;
+        Banana (sold out)
+      &lt;/SelectItem&gt;
+      &lt;SelectItem value=&quot;cherry&quot;&gt;Cherry&lt;/SelectItem&gt;
+      &lt;SelectItem value=&quot;grape&quot; disabled&gt;
+        Grape (sold out)
+      &lt;/SelectItem&gt;
+    &lt;/SelectContent&gt;
+  &lt;/Select&gt;
+);</code></pre>
+            </div>
+        </div>
+    
+  </div>
+</article>
+<article
+  class="card 
+  no-error 
+  has-info 
+  no-story-error
+  no-doc-error"
+  role="listitem"
   aria-label="Spinner">
   <div class="head">
     <div class="title">
       <h2><span class="status-dot dot-ok"></span> Spinner</h2>
       <div class="badges">
-        <label for="c-4-components-lv1-spinner-props" class="badge ok as-toggle">4 prop types</label>
-        <label for="c-4-components-lv1-spinner-info" class="badge info as-toggle">1 info</label>
-        <label for="c-4-components-lv1-spinner-stories" class="badge ok as-toggle">4 stories</label>
+        <label for="c-5-components-lv1-spinner-props" class="badge ok as-toggle">4 prop types</label>
+        <label for="c-5-components-lv1-spinner-info" class="badge info as-toggle">1 info</label>
+        <label for="c-5-components-lv1-spinner-stories" class="badge ok as-toggle">4 stories</label>
         
       </div>
     </div>
@@ -2130,10 +2436,10 @@ textRight?: string</code></pre>
 
   <!-- ⬇️ Hidden toggles must be siblings BEFORE .panels -->
   
-  <input id="c-4-components-lv1-spinner-info" class="tg tg-info" type="checkbox" hidden />
-  <input id="c-4-components-lv1-spinner-stories" class="tg tg-stories" type="checkbox" hidden />
+  <input id="c-5-components-lv1-spinner-info" class="tg tg-info" type="checkbox" hidden />
+  <input id="c-5-components-lv1-spinner-stories" class="tg tg-stories" type="checkbox" hidden />
   
-  <input id="c-4-components-lv1-spinner-props" class="tg tg-props" type="checkbox" hidden />
+  <input id="c-5-components-lv1-spinner-props" class="tg tg-props" type="checkbox" hidden />
 
   <div class="panels">
     
@@ -2250,9 +2556,9 @@ variant?: &quot;default&quot; | &quot;inverse&quot; | null</code></pre>
     <div class="title">
       <h2><span class="status-dot dot-ok"></span> Text</h2>
       <div class="badges">
-        <label for="c-5-components-lv1-text-props" class="badge ok as-toggle">7 prop types</label>
-        <label for="c-5-components-lv1-text-info" class="badge info as-toggle">1 info</label>
-        <label for="c-5-components-lv1-text-stories" class="badge ok as-toggle">6 stories</label>
+        <label for="c-6-components-lv1-text-props" class="badge ok as-toggle">7 prop types</label>
+        <label for="c-6-components-lv1-text-info" class="badge info as-toggle">1 info</label>
+        <label for="c-6-components-lv1-text-stories" class="badge ok as-toggle">6 stories</label>
         
       </div>
     </div>
@@ -2264,10 +2570,10 @@ variant?: &quot;default&quot; | &quot;inverse&quot; | null</code></pre>
 
   <!-- ⬇️ Hidden toggles must be siblings BEFORE .panels -->
   
-  <input id="c-5-components-lv1-text-info" class="tg tg-info" type="checkbox" hidden />
-  <input id="c-5-components-lv1-text-stories" class="tg tg-stories" type="checkbox" hidden />
+  <input id="c-6-components-lv1-text-info" class="tg tg-info" type="checkbox" hidden />
+  <input id="c-6-components-lv1-text-stories" class="tg tg-stories" type="checkbox" hidden />
   
-  <input id="c-5-components-lv1-text-props" class="tg tg-props" type="checkbox" hidden />
+  <input id="c-6-components-lv1-text-props" class="tg tg-props" type="checkbox" hidden />
 
   <div class="panels">
     
@@ -2288,7 +2594,7 @@ variant?: &quot;default&quot; | &quot;inverse&quot; | null</code></pre>
             </div>
             <pre><code>Component: src/components/lv1/Text/Text.tsx::Text</code></pre>
             <pre><code>Props:</code></pre>
-            <pre><code>align?: &quot;left&quot; | &quot;center&quot; | &quot;right&quot; | null
+            <pre><code>align?: &quot;center&quot; | &quot;right&quot; | &quot;left&quot; | null
 
 as?: TextElement
 
@@ -2450,9 +2756,9 @@ variant?: &quot;heading&quot; | &quot;label&quot; | &quot;body&quot; | null</cod
     <div class="title">
       <h2><span class="status-dot dot-ok"></span> Textarea</h2>
       <div class="badges">
-        <label for="c-6-components-lv1-textarea-props" class="badge ok as-toggle">2 prop types</label>
-        <label for="c-6-components-lv1-textarea-info" class="badge info as-toggle">1 info</label>
-        <label for="c-6-components-lv1-textarea-stories" class="badge ok as-toggle">4 stories</label>
+        <label for="c-7-components-lv1-textarea-props" class="badge ok as-toggle">2 prop types</label>
+        <label for="c-7-components-lv1-textarea-info" class="badge info as-toggle">1 info</label>
+        <label for="c-7-components-lv1-textarea-stories" class="badge ok as-toggle">4 stories</label>
         
       </div>
     </div>
@@ -2464,10 +2770,10 @@ variant?: &quot;heading&quot; | &quot;label&quot; | &quot;body&quot; | null</cod
 
   <!-- ⬇️ Hidden toggles must be siblings BEFORE .panels -->
   
-  <input id="c-6-components-lv1-textarea-info" class="tg tg-info" type="checkbox" hidden />
-  <input id="c-6-components-lv1-textarea-stories" class="tg tg-stories" type="checkbox" hidden />
+  <input id="c-7-components-lv1-textarea-info" class="tg tg-info" type="checkbox" hidden />
+  <input id="c-7-components-lv1-textarea-stories" class="tg tg-stories" type="checkbox" hidden />
   
-  <input id="c-6-components-lv1-textarea-props" class="tg tg-props" type="checkbox" hidden />
+  <input id="c-7-components-lv1-textarea-props" class="tg tg-props" type="checkbox" hidden />
 
   <div class="panels">
     
@@ -2574,9 +2880,9 @@ size?: &quot;sm&quot; | &quot;md&quot; | &quot;lg&quot; | null</code></pre>
     <div class="title">
       <h2><span class="status-dot dot-err"></span> Typography</h2>
       <div class="badges">
-        <label for="c-7-foundation-typography-err" class="badge err as-toggle">prop type error</label>
-        <label for="c-7-foundation-typography-info" class="badge info as-toggle">2 infos</label>
-        <label for="c-7-foundation-typography-stories" class="badge ok as-toggle">1 story</label>
+        <label for="c-8-foundation-typography-err" class="badge err as-toggle">prop type error</label>
+        <label for="c-8-foundation-typography-info" class="badge info as-toggle">2 infos</label>
+        <label for="c-8-foundation-typography-stories" class="badge ok as-toggle">1 story</label>
         
       </div>
     </div>
@@ -2587,9 +2893,9 @@ size?: &quot;sm&quot; | &quot;md&quot; | &quot;lg&quot; | null</code></pre>
   </div>
 
   <!-- ⬇️ Hidden toggles must be siblings BEFORE .panels -->
-  <input id="c-7-foundation-typography-err" class="tg tg-err" type="checkbox" hidden />
-  <input id="c-7-foundation-typography-info" class="tg tg-info" type="checkbox" hidden />
-  <input id="c-7-foundation-typography-stories" class="tg tg-stories" type="checkbox" hidden />
+  <input id="c-8-foundation-typography-err" class="tg tg-err" type="checkbox" hidden />
+  <input id="c-8-foundation-typography-info" class="tg tg-info" type="checkbox" hidden />
+  <input id="c-8-foundation-typography-stories" class="tg tg-stories" type="checkbox" hidden />
   
   
 
@@ -3339,9 +3645,9 @@ export const Typography: Story = {
     <div class="title">
       <h2><span class="status-dot dot-err"></span> Welcome</h2>
       <div class="badges">
-        <label for="c-8-welcome-err" class="badge err as-toggle">prop type error</label>
-        <label for="c-8-welcome-info" class="badge info as-toggle">1 info</label>
-        <label for="c-8-welcome-stories" class="badge ok as-toggle">1 story</label>
+        <label for="c-9-welcome-err" class="badge err as-toggle">prop type error</label>
+        <label for="c-9-welcome-info" class="badge info as-toggle">1 info</label>
+        <label for="c-9-welcome-stories" class="badge ok as-toggle">1 story</label>
         
       </div>
     </div>
@@ -3352,9 +3658,9 @@ export const Typography: Story = {
   </div>
 
   <!-- ⬇️ Hidden toggles must be siblings BEFORE .panels -->
-  <input id="c-8-welcome-err" class="tg tg-err" type="checkbox" hidden />
-  <input id="c-8-welcome-info" class="tg tg-info" type="checkbox" hidden />
-  <input id="c-8-welcome-stories" class="tg tg-stories" type="checkbox" hidden />
+  <input id="c-9-welcome-err" class="tg tg-err" type="checkbox" hidden />
+  <input id="c-9-welcome-info" class="tg tg-info" type="checkbox" hidden />
+  <input id="c-9-welcome-stories" class="tg tg-stories" type="checkbox" hidden />
   
   
 
@@ -3365,20 +3671,29 @@ export const Typography: Story = {
     <div class="note err">
       <div class="note-title">Prop type error</div>
       <div class="note-body"><pre><code>We could not detect the component from your story file. Specify meta.component.
-   5 | import { Text } from &#39;../components/lv1/Text&#39;
-   6 |
-&gt;  7 | const meta: Meta = {
+  14 | import { Textarea } from &#39;../components/lv1/Textarea&#39;
+  15 |
+&gt; 16 | const meta: Meta = {
      | ^
-   8 |   title: &#39;Welcome&#39;,
-   9 |   parameters: {
-  10 |     layout: &#39;fullscreen&#39;,
+  17 |   title: &#39;Welcome&#39;,
+  18 |   parameters: {
+  19 |     layout: &#39;fullscreen&#39;,
 
 ./src/docs/Welcome.stories.tsx:
 import type { Meta, StoryObj } from &#39;@storybook/react-vite&#39;
 import { Badge } from &#39;../components/lv1/Badge&#39;
 import { Button } from &#39;../components/lv1/Button&#39;
+import { Input } from &#39;../components/lv1/Input&#39;
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from &#39;../components/lv1/Select&#39;
 import { Spinner } from &#39;../components/lv1/Spinner&#39;
 import { Text } from &#39;../components/lv1/Text&#39;
+import { Textarea } from &#39;../components/lv1/Textarea&#39;
 
 const meta: Meta = {
   title: &#39;Welcome&#39;,
@@ -3516,6 +3831,37 @@ export const Overview: Story = {
               Heading
             &lt;/Text&gt;
           &lt;/ComponentCard&gt;
+
+          &lt;ComponentCard
+            name=&quot;Input&quot;
+            description=&quot;Accepts user text input.&quot;
+            storyPath=&quot;components-lv1-input&quot;
+          &gt;
+            &lt;Input placeholder=&quot;Enter text...&quot; className=&quot;w-40&quot; /&gt;
+          &lt;/ComponentCard&gt;
+
+          &lt;ComponentCard
+            name=&quot;Textarea&quot;
+            description=&quot;Multi-line text input.&quot;
+            storyPath=&quot;components-lv1-textarea&quot;
+          &gt;
+            &lt;Textarea placeholder=&quot;Write something...&quot; className=&quot;w-40&quot; rows={2} /&gt;
+          &lt;/ComponentCard&gt;
+
+          &lt;ComponentCard
+            name=&quot;Select&quot;
+            description=&quot;Picks one option from a list.&quot;
+            storyPath=&quot;components-lv1-select&quot;
+          &gt;
+            &lt;Select defaultValue=&quot;option&quot;&gt;
+              &lt;SelectTrigger className=&quot;w-40&quot;&gt;
+                &lt;SelectValue /&gt;
+              &lt;/SelectTrigger&gt;
+              &lt;SelectContent&gt;
+                &lt;SelectItem value=&quot;option&quot;&gt;Option&lt;/SelectItem&gt;
+              &lt;/SelectContent&gt;
+            &lt;/Select&gt;
+          &lt;/ComponentCard&gt;
         &lt;/div&gt;
       &lt;/div&gt;
 
@@ -3582,7 +3928,19 @@ export const Overview: Story = {
                 <div class="row">
                   <span class="ex-name">Imports</span>
                 </div>
-                <pre><code>import { Badge, Button, Spinner, Text } from "@yasmro/schatten";</code></pre>
+                <pre><code>import {
+    Badge,
+    Button,
+    Input,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+    Spinner,
+    Text,
+    Textarea,
+} from "@yasmro/schatten";</code></pre>
               </div>
           
           
@@ -3682,6 +4040,37 @@ export const Overview: Story = {
           &lt;Text variant=&quot;heading&quot; size=&quot;lg&quot;&gt;
             Heading
           &lt;/Text&gt;
+        &lt;/ComponentCard&gt;
+
+        &lt;ComponentCard
+          name=&quot;Input&quot;
+          description=&quot;Accepts user text input.&quot;
+          storyPath=&quot;components-lv1-input&quot;
+        &gt;
+          &lt;Input placeholder=&quot;Enter text...&quot; className=&quot;w-40&quot; /&gt;
+        &lt;/ComponentCard&gt;
+
+        &lt;ComponentCard
+          name=&quot;Textarea&quot;
+          description=&quot;Multi-line text input.&quot;
+          storyPath=&quot;components-lv1-textarea&quot;
+        &gt;
+          &lt;Textarea placeholder=&quot;Write something...&quot; className=&quot;w-40&quot; rows={2} /&gt;
+        &lt;/ComponentCard&gt;
+
+        &lt;ComponentCard
+          name=&quot;Select&quot;
+          description=&quot;Picks one option from a list.&quot;
+          storyPath=&quot;components-lv1-select&quot;
+        &gt;
+          &lt;Select defaultValue=&quot;option&quot;&gt;
+            &lt;SelectTrigger className=&quot;w-40&quot;&gt;
+              &lt;SelectValue /&gt;
+            &lt;/SelectTrigger&gt;
+            &lt;SelectContent&gt;
+              &lt;SelectItem value=&quot;option&quot;&gt;Option&lt;/SelectItem&gt;
+            &lt;/SelectContent&gt;
+          &lt;/Select&gt;
         &lt;/ComponentCard&gt;
       &lt;/div&gt;
     &lt;/div&gt;
@@ -5452,20 +5841,29 @@ export const Typography: Story = {
     <div class="note err">
       <div class="note-title">Prop type error</div>
       <div class="note-body"><pre><code>We could not detect the component from your story file. Specify meta.component.
-   5 | import { Text } from &#39;../components/lv1/Text&#39;
-   6 |
-&gt;  7 | const meta: Meta = {
+  14 | import { Textarea } from &#39;../components/lv1/Textarea&#39;
+  15 |
+&gt; 16 | const meta: Meta = {
      | ^
-   8 |   title: &#39;Welcome&#39;,
-   9 |   parameters: {
-  10 |     layout: &#39;fullscreen&#39;,
+  17 |   title: &#39;Welcome&#39;,
+  18 |   parameters: {
+  19 |     layout: &#39;fullscreen&#39;,
 
 ./src/docs/Welcome.stories.tsx:
 import type { Meta, StoryObj } from &#39;@storybook/react-vite&#39;
 import { Badge } from &#39;../components/lv1/Badge&#39;
 import { Button } from &#39;../components/lv1/Button&#39;
+import { Input } from &#39;../components/lv1/Input&#39;
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from &#39;../components/lv1/Select&#39;
 import { Spinner } from &#39;../components/lv1/Spinner&#39;
 import { Text } from &#39;../components/lv1/Text&#39;
+import { Textarea } from &#39;../components/lv1/Textarea&#39;
 
 const meta: Meta = {
   title: &#39;Welcome&#39;,
@@ -5603,6 +6001,37 @@ export const Overview: Story = {
               Heading
             &lt;/Text&gt;
           &lt;/ComponentCard&gt;
+
+          &lt;ComponentCard
+            name=&quot;Input&quot;
+            description=&quot;Accepts user text input.&quot;
+            storyPath=&quot;components-lv1-input&quot;
+          &gt;
+            &lt;Input placeholder=&quot;Enter text...&quot; className=&quot;w-40&quot; /&gt;
+          &lt;/ComponentCard&gt;
+
+          &lt;ComponentCard
+            name=&quot;Textarea&quot;
+            description=&quot;Multi-line text input.&quot;
+            storyPath=&quot;components-lv1-textarea&quot;
+          &gt;
+            &lt;Textarea placeholder=&quot;Write something...&quot; className=&quot;w-40&quot; rows={2} /&gt;
+          &lt;/ComponentCard&gt;
+
+          &lt;ComponentCard
+            name=&quot;Select&quot;
+            description=&quot;Picks one option from a list.&quot;
+            storyPath=&quot;components-lv1-select&quot;
+          &gt;
+            &lt;Select defaultValue=&quot;option&quot;&gt;
+              &lt;SelectTrigger className=&quot;w-40&quot;&gt;
+                &lt;SelectValue /&gt;
+              &lt;/SelectTrigger&gt;
+              &lt;SelectContent&gt;
+                &lt;SelectItem value=&quot;option&quot;&gt;Option&lt;/SelectItem&gt;
+              &lt;/SelectContent&gt;
+            &lt;/Select&gt;
+          &lt;/ComponentCard&gt;
         &lt;/div&gt;
       &lt;/div&gt;
 
@@ -5669,7 +6098,19 @@ export const Overview: Story = {
                 <div class="row">
                   <span class="ex-name">Imports</span>
                 </div>
-                <pre><code>import { Badge, Button, Spinner, Text } from "@yasmro/schatten";</code></pre>
+                <pre><code>import {
+    Badge,
+    Button,
+    Input,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+    Spinner,
+    Text,
+    Textarea,
+} from "@yasmro/schatten";</code></pre>
               </div>
           
           
@@ -5769,6 +6210,37 @@ export const Overview: Story = {
           &lt;Text variant=&quot;heading&quot; size=&quot;lg&quot;&gt;
             Heading
           &lt;/Text&gt;
+        &lt;/ComponentCard&gt;
+
+        &lt;ComponentCard
+          name=&quot;Input&quot;
+          description=&quot;Accepts user text input.&quot;
+          storyPath=&quot;components-lv1-input&quot;
+        &gt;
+          &lt;Input placeholder=&quot;Enter text...&quot; className=&quot;w-40&quot; /&gt;
+        &lt;/ComponentCard&gt;
+
+        &lt;ComponentCard
+          name=&quot;Textarea&quot;
+          description=&quot;Multi-line text input.&quot;
+          storyPath=&quot;components-lv1-textarea&quot;
+        &gt;
+          &lt;Textarea placeholder=&quot;Write something...&quot; className=&quot;w-40&quot; rows={2} /&gt;
+        &lt;/ComponentCard&gt;
+
+        &lt;ComponentCard
+          name=&quot;Select&quot;
+          description=&quot;Picks one option from a list.&quot;
+          storyPath=&quot;components-lv1-select&quot;
+        &gt;
+          &lt;Select defaultValue=&quot;option&quot;&gt;
+            &lt;SelectTrigger className=&quot;w-40&quot;&gt;
+              &lt;SelectValue /&gt;
+            &lt;/SelectTrigger&gt;
+            &lt;SelectContent&gt;
+              &lt;SelectItem value=&quot;option&quot;&gt;Option&lt;/SelectItem&gt;
+            &lt;/SelectContent&gt;
+          &lt;/Select&gt;
         &lt;/ComponentCard&gt;
       &lt;/div&gt;
     &lt;/div&gt;

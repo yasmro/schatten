@@ -51,7 +51,7 @@
   /* Paper inverted (for dark mode semantic mapping) */
   --paper-white-inv: #1a1a1a;
   --paper-warm-inv: #1e1e1c;
-  --paper-cream-inv: #252420;
+  --paper-cream-inv: #44403a;
 
   /* Accent: Vermillion (Japanese traditional, brand anchor: 600 ≈ #c53d43) */
   --vermillion-50: oklch(0.98 0.02 22);

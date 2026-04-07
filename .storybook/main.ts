@@ -15,7 +15,9 @@ const config: StorybookConfig = {
     config.plugins = config.plugins || []
     config.plugins.push(tailwindcss())
 
-    if (process.env.GITHUB_ACTIONS) {
+    if (process.env.STORYBOOK_BASE) {
+      config.base = process.env.STORYBOOK_BASE
+    } else if (process.env.GITHUB_ACTIONS) {
       config.base = '/schatten/'
     }
 

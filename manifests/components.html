@@ -576,13 +576,13 @@
 <header>
   <div class="wrap">
     <h1>Manifest Debugger</h1>
-    <div class="summary"><a class="filter-pill all" data-k="all" href="#filter-all">All</a><a class="filter-pill err" data-k="errors" href="#filter-errors">3/11 prop type errors</a><a class="filter-pill info" data-k="infos" href="#filter-infos">11/11 infos</a><span class="filter-pill ok" aria-disabled="true">54 stories ok</span></div>
+    <div class="summary"><a class="filter-pill all" data-k="all" href="#filter-all">All</a><a class="filter-pill err" data-k="errors" href="#filter-errors">3/12 prop type errors</a><a class="filter-pill info" data-k="infos" href="#filter-infos">12/12 infos</a><span class="filter-pill ok" aria-disabled="true">60 stories ok</span></div>
   </div>
 </header>
 <main>
   <div class="wrap">
     <div class="note ok" style="margin-bottom: 16px;">
-              Using <code>react-docgen-typescript</code>. Generation took <strong>2.5s</strong>.
+              Using <code>react-docgen-typescript</code>. Generation took <strong>2.8s</strong>.
             </div>
     <h2 class="section-title">Components</h2>
     <div class="grid" role="list">
@@ -2315,14 +2315,184 @@ textRight?: string</code></pre>
   no-story-error
   no-doc-error"
   role="listitem"
+  aria-label="Radio">
+  <div class="head">
+    <div class="title">
+      <h2><span class="status-dot dot-ok"></span> Radio</h2>
+      <div class="badges">
+        <label for="c-5-components-lv1-radio-props" class="badge ok as-toggle">4 prop types</label>
+        <label for="c-5-components-lv1-radio-info" class="badge info as-toggle">1 info</label>
+        <label for="c-5-components-lv1-radio-stories" class="badge ok as-toggle">6 stories</label>
+        
+      </div>
+    </div>
+    <div class="meta" title="./src/components/lv1/Radio/Radio.stories.tsx">components-lv1-radio · ./src/components/lv1/Radio/Radio.stories.tsx</div>
+    
+    
+    
+  </div>
+
+  <!-- ⬇️ Hidden toggles must be siblings BEFORE .panels -->
+  
+  <input id="c-5-components-lv1-radio-info" class="tg tg-info" type="checkbox" hidden />
+  <input id="c-5-components-lv1-radio-stories" class="tg tg-stories" type="checkbox" hidden />
+  
+  <input id="c-5-components-lv1-radio-props" class="tg tg-props" type="checkbox" hidden />
+
+  <div class="panels">
+    
+    
+        <div class="panel panel-info">
+          
+    <div class="note info">
+      <div class="note-title">Info</div>
+      <div class="note-body">No description found. Write a jsdoc comment such as /** Component description */.</div>
+    </div>
+        </div>
+    
+        <div class="panel panel-props">
+          <div class="note ok">
+            <div class="row">
+              <span class="ex-name">Prop types <small>(react-docgen-typescript)</small></span>
+              <span class="badge ok">4 prop types</span>
+            </div>
+            <pre><code>Component: src/components/lv1/Radio/Radio.tsx::Radio</code></pre>
+            <pre><code>Props:</code></pre>
+            <pre><code>asChild?: boolean
+
+/**
+ * Displays the radio in an error state with destructive border and ring.
+ */
+isError?: boolean = false
+
+/**
+ * Label text displayed next to the radio. Automatically associates via id.
+ */
+label?: ReactNode
+
+size?: &quot;sm&quot; | &quot;md&quot; | &quot;lg&quot; | null</code></pre>
+          </div>
+        </div>
+    
+        <div class="panel panel-stories">
+          
+          
+          
+          <div class="note ok">
+                <div class="row">
+                  <span class="ex-name">Imports</span>
+                </div>
+                <pre><code>import { Radio, RadioGroup } from "@yasmro/schatten";</code></pre>
+              </div>
+          
+          
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">Playground</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const Playground = () =&gt; &lt;Radio size=&quot;md&quot; label=&quot;Option A&quot; value=&quot;a&quot; /&gt;;</code></pre>
+            </div>
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">Sizes</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const Sizes = () =&gt; (
+  &lt;div className=&quot;flex flex-col gap-4&quot;&gt;
+    &lt;RadioGroup defaultValue=&quot;sm&quot;&gt;
+      &lt;Radio size=&quot;sm&quot; value=&quot;sm&quot; label=&quot;Small&quot; /&gt;
+    &lt;/RadioGroup&gt;
+    &lt;RadioGroup defaultValue=&quot;md&quot;&gt;
+      &lt;Radio size=&quot;md&quot; value=&quot;md&quot; label=&quot;Medium&quot; /&gt;
+    &lt;/RadioGroup&gt;
+    &lt;RadioGroup defaultValue=&quot;lg&quot;&gt;
+      &lt;Radio size=&quot;lg&quot; value=&quot;lg&quot; label=&quot;Large&quot; /&gt;
+    &lt;/RadioGroup&gt;
+  &lt;/div&gt;
+);</code></pre>
+            </div>
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">With Labels</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const WithLabels = () =&gt; (
+  &lt;RadioGroup defaultValue=&quot;comfortable&quot;&gt;
+    &lt;Radio value=&quot;default&quot; label=&quot;Default&quot; /&gt;
+    &lt;Radio value=&quot;comfortable&quot; label=&quot;Comfortable&quot; /&gt;
+    &lt;Radio value=&quot;compact&quot; label=&quot;Compact&quot; /&gt;
+  &lt;/RadioGroup&gt;
+);</code></pre>
+            </div>
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">Horizontal</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const Horizontal = () =&gt; (
+  &lt;RadioGroup defaultValue=&quot;option-1&quot; className=&quot;flex flex-row gap-4&quot;&gt;
+    &lt;Radio value=&quot;option-1&quot; label=&quot;Option 1&quot; /&gt;
+    &lt;Radio value=&quot;option-2&quot; label=&quot;Option 2&quot; /&gt;
+    &lt;Radio value=&quot;option-3&quot; label=&quot;Option 3&quot; /&gt;
+  &lt;/RadioGroup&gt;
+);</code></pre>
+            </div>
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">Error</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const ErrorState = () =&gt; (
+  &lt;RadioGroup defaultValue=&quot;error-selected&quot;&gt;
+    &lt;Radio value=&quot;error-unselected&quot; label=&quot;Unselected error&quot; isError /&gt;
+    &lt;Radio value=&quot;error-selected&quot; label=&quot;Selected error&quot; isError /&gt;
+  &lt;/RadioGroup&gt;
+);</code></pre>
+            </div>
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">Disabled</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const Disabled = () =&gt; (
+  &lt;RadioGroup defaultValue=&quot;disabled-selected&quot;&gt;
+    &lt;Radio value=&quot;disabled-unselected&quot; label=&quot;Disabled unselected&quot; disabled /&gt;
+    &lt;Radio value=&quot;disabled-selected&quot; label=&quot;Disabled selected&quot; disabled /&gt;
+  &lt;/RadioGroup&gt;
+);</code></pre>
+            </div>
+        </div>
+    
+  </div>
+</article>
+<article
+  class="card 
+  no-error 
+  has-info 
+  no-story-error
+  no-doc-error"
+  role="listitem"
   aria-label="SelectTrigger">
   <div class="head">
     <div class="title">
       <h2><span class="status-dot dot-ok"></span> SelectTrigger</h2>
       <div class="badges">
-        <label for="c-5-components-lv1-select-props" class="badge ok as-toggle">3 prop types</label>
-        <label for="c-5-components-lv1-select-info" class="badge info as-toggle">1 info</label>
-        <label for="c-5-components-lv1-select-stories" class="badge ok as-toggle">8 stories</label>
+        <label for="c-6-components-lv1-select-props" class="badge ok as-toggle">3 prop types</label>
+        <label for="c-6-components-lv1-select-info" class="badge info as-toggle">1 info</label>
+        <label for="c-6-components-lv1-select-stories" class="badge ok as-toggle">8 stories</label>
         
       </div>
     </div>
@@ -2334,10 +2504,10 @@ textRight?: string</code></pre>
 
   <!-- ⬇️ Hidden toggles must be siblings BEFORE .panels -->
   
-  <input id="c-5-components-lv1-select-info" class="tg tg-info" type="checkbox" hidden />
-  <input id="c-5-components-lv1-select-stories" class="tg tg-stories" type="checkbox" hidden />
+  <input id="c-6-components-lv1-select-info" class="tg tg-info" type="checkbox" hidden />
+  <input id="c-6-components-lv1-select-stories" class="tg tg-stories" type="checkbox" hidden />
   
-  <input id="c-5-components-lv1-select-props" class="tg tg-props" type="checkbox" hidden />
+  <input id="c-6-components-lv1-select-props" class="tg tg-props" type="checkbox" hidden />
 
   <div class="panels">
     
@@ -2626,9 +2796,9 @@ size?: &quot;sm&quot; | &quot;md&quot; | &quot;lg&quot; | null</code></pre>
     <div class="title">
       <h2><span class="status-dot dot-ok"></span> Spinner</h2>
       <div class="badges">
-        <label for="c-6-components-lv1-spinner-props" class="badge ok as-toggle">4 prop types</label>
-        <label for="c-6-components-lv1-spinner-info" class="badge info as-toggle">1 info</label>
-        <label for="c-6-components-lv1-spinner-stories" class="badge ok as-toggle">4 stories</label>
+        <label for="c-7-components-lv1-spinner-props" class="badge ok as-toggle">4 prop types</label>
+        <label for="c-7-components-lv1-spinner-info" class="badge info as-toggle">1 info</label>
+        <label for="c-7-components-lv1-spinner-stories" class="badge ok as-toggle">4 stories</label>
         
       </div>
     </div>
@@ -2640,10 +2810,10 @@ size?: &quot;sm&quot; | &quot;md&quot; | &quot;lg&quot; | null</code></pre>
 
   <!-- ⬇️ Hidden toggles must be siblings BEFORE .panels -->
   
-  <input id="c-6-components-lv1-spinner-info" class="tg tg-info" type="checkbox" hidden />
-  <input id="c-6-components-lv1-spinner-stories" class="tg tg-stories" type="checkbox" hidden />
+  <input id="c-7-components-lv1-spinner-info" class="tg tg-info" type="checkbox" hidden />
+  <input id="c-7-components-lv1-spinner-stories" class="tg tg-stories" type="checkbox" hidden />
   
-  <input id="c-6-components-lv1-spinner-props" class="tg tg-props" type="checkbox" hidden />
+  <input id="c-7-components-lv1-spinner-props" class="tg tg-props" type="checkbox" hidden />
 
   <div class="panels">
     
@@ -2760,9 +2930,9 @@ variant?: &quot;default&quot; | &quot;inverse&quot; | null</code></pre>
     <div class="title">
       <h2><span class="status-dot dot-ok"></span> Text</h2>
       <div class="badges">
-        <label for="c-7-components-lv1-text-props" class="badge ok as-toggle">7 prop types</label>
-        <label for="c-7-components-lv1-text-info" class="badge info as-toggle">1 info</label>
-        <label for="c-7-components-lv1-text-stories" class="badge ok as-toggle">6 stories</label>
+        <label for="c-8-components-lv1-text-props" class="badge ok as-toggle">7 prop types</label>
+        <label for="c-8-components-lv1-text-info" class="badge info as-toggle">1 info</label>
+        <label for="c-8-components-lv1-text-stories" class="badge ok as-toggle">6 stories</label>
         
       </div>
     </div>
@@ -2774,10 +2944,10 @@ variant?: &quot;default&quot; | &quot;inverse&quot; | null</code></pre>
 
   <!-- ⬇️ Hidden toggles must be siblings BEFORE .panels -->
   
-  <input id="c-7-components-lv1-text-info" class="tg tg-info" type="checkbox" hidden />
-  <input id="c-7-components-lv1-text-stories" class="tg tg-stories" type="checkbox" hidden />
+  <input id="c-8-components-lv1-text-info" class="tg tg-info" type="checkbox" hidden />
+  <input id="c-8-components-lv1-text-stories" class="tg tg-stories" type="checkbox" hidden />
   
-  <input id="c-7-components-lv1-text-props" class="tg tg-props" type="checkbox" hidden />
+  <input id="c-8-components-lv1-text-props" class="tg tg-props" type="checkbox" hidden />
 
   <div class="panels">
     
@@ -2960,9 +3130,9 @@ variant?: &quot;heading&quot; | &quot;label&quot; | &quot;body&quot; | null</cod
     <div class="title">
       <h2><span class="status-dot dot-ok"></span> Textarea</h2>
       <div class="badges">
-        <label for="c-8-components-lv1-textarea-props" class="badge ok as-toggle">2 prop types</label>
-        <label for="c-8-components-lv1-textarea-info" class="badge info as-toggle">1 info</label>
-        <label for="c-8-components-lv1-textarea-stories" class="badge ok as-toggle">4 stories</label>
+        <label for="c-9-components-lv1-textarea-props" class="badge ok as-toggle">2 prop types</label>
+        <label for="c-9-components-lv1-textarea-info" class="badge info as-toggle">1 info</label>
+        <label for="c-9-components-lv1-textarea-stories" class="badge ok as-toggle">4 stories</label>
         
       </div>
     </div>
@@ -2974,10 +3144,10 @@ variant?: &quot;heading&quot; | &quot;label&quot; | &quot;body&quot; | null</cod
 
   <!-- ⬇️ Hidden toggles must be siblings BEFORE .panels -->
   
-  <input id="c-8-components-lv1-textarea-info" class="tg tg-info" type="checkbox" hidden />
-  <input id="c-8-components-lv1-textarea-stories" class="tg tg-stories" type="checkbox" hidden />
+  <input id="c-9-components-lv1-textarea-info" class="tg tg-info" type="checkbox" hidden />
+  <input id="c-9-components-lv1-textarea-stories" class="tg tg-stories" type="checkbox" hidden />
   
-  <input id="c-8-components-lv1-textarea-props" class="tg tg-props" type="checkbox" hidden />
+  <input id="c-9-components-lv1-textarea-props" class="tg tg-props" type="checkbox" hidden />
 
   <div class="panels">
     
@@ -3084,9 +3254,9 @@ size?: &quot;sm&quot; | &quot;md&quot; | &quot;lg&quot; | null</code></pre>
     <div class="title">
       <h2><span class="status-dot dot-err"></span> Typography</h2>
       <div class="badges">
-        <label for="c-9-foundation-typography-err" class="badge err as-toggle">prop type error</label>
-        <label for="c-9-foundation-typography-info" class="badge info as-toggle">2 infos</label>
-        <label for="c-9-foundation-typography-stories" class="badge ok as-toggle">1 story</label>
+        <label for="c-10-foundation-typography-err" class="badge err as-toggle">prop type error</label>
+        <label for="c-10-foundation-typography-info" class="badge info as-toggle">2 infos</label>
+        <label for="c-10-foundation-typography-stories" class="badge ok as-toggle">1 story</label>
         
       </div>
     </div>
@@ -3097,9 +3267,9 @@ size?: &quot;sm&quot; | &quot;md&quot; | &quot;lg&quot; | null</code></pre>
   </div>
 
   <!-- ⬇️ Hidden toggles must be siblings BEFORE .panels -->
-  <input id="c-9-foundation-typography-err" class="tg tg-err" type="checkbox" hidden />
-  <input id="c-9-foundation-typography-info" class="tg tg-info" type="checkbox" hidden />
-  <input id="c-9-foundation-typography-stories" class="tg tg-stories" type="checkbox" hidden />
+  <input id="c-10-foundation-typography-err" class="tg tg-err" type="checkbox" hidden />
+  <input id="c-10-foundation-typography-info" class="tg tg-info" type="checkbox" hidden />
+  <input id="c-10-foundation-typography-stories" class="tg tg-stories" type="checkbox" hidden />
   
   
 
@@ -3849,9 +4019,9 @@ export const Typography: Story = {
     <div class="title">
       <h2><span class="status-dot dot-err"></span> Welcome</h2>
       <div class="badges">
-        <label for="c-10-welcome-err" class="badge err as-toggle">prop type error</label>
-        <label for="c-10-welcome-info" class="badge info as-toggle">1 info</label>
-        <label for="c-10-welcome-stories" class="badge ok as-toggle">1 story</label>
+        <label for="c-11-welcome-err" class="badge err as-toggle">prop type error</label>
+        <label for="c-11-welcome-info" class="badge info as-toggle">1 info</label>
+        <label for="c-11-welcome-stories" class="badge ok as-toggle">1 story</label>
         
       </div>
     </div>
@@ -3862,9 +4032,9 @@ export const Typography: Story = {
   </div>
 
   <!-- ⬇️ Hidden toggles must be siblings BEFORE .panels -->
-  <input id="c-10-welcome-err" class="tg tg-err" type="checkbox" hidden />
-  <input id="c-10-welcome-info" class="tg tg-info" type="checkbox" hidden />
-  <input id="c-10-welcome-stories" class="tg tg-stories" type="checkbox" hidden />
+  <input id="c-11-welcome-err" class="tg tg-err" type="checkbox" hidden />
+  <input id="c-11-welcome-info" class="tg tg-info" type="checkbox" hidden />
+  <input id="c-11-welcome-stories" class="tg tg-stories" type="checkbox" hidden />
   
   
 

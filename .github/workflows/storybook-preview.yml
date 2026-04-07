@@ -2,15 +2,16 @@ name: Storybook Preview
 
 on:
   pull_request:
+    types: [opened, synchronize, reopened, closed]
     branches: [main]
 
 permissions:
-  contents: read
+  contents: write
   pull-requests: write
-  actions: read
 
 jobs:
-  build:
+  deploy-preview:
+    if: github.event.action != 'closed'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -25,15 +26,16 @@ jobs:
       - run: pnpm install --frozen-lockfile
 
       - name: Build Storybook
+        env:
+          STORYBOOK_BASE: /schatten/pr/${{ github.event.pull_request.number }}/
         run: pnpm build:storybook
 
-      - name: Upload Storybook artifact
-        id: upload
-        uses: actions/upload-artifact@v4
+      - name: Deploy preview
+        uses: JamesIves/github-pages-deploy-action@v4
         with:
-          name: storybook-preview-pr-${{ github.event.pull_request.number }}
-          path: storybook-static
-          retention-days: 30
+          folder: storybook-static
+          target-folder: pr/${{ github.event.pull_request.number }}
+          clean: true
 
       - name: Find existing comment
         id: find-comment
@@ -53,8 +55,25 @@ jobs:
             <!-- storybook-preview -->
             📖 **Storybook Preview**
 
-            Storybook has been built for commit ${{ github.event.pull_request.head.sha }}.
+            Preview is available at:
+            🔗 https://yasmro.github.io/schatten/pr/${{ github.event.pull_request.number }}/
 
-            **[Download artifact](${{ steps.upload.outputs.artifact-url }})** to preview locally, or find it in the [Actions run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}).
+            _Updated for commit ${{ github.event.pull_request.head.sha }}_
 
-            > Extract the downloaded zip and open `index.html` in your browser.
+  cleanup-preview:
+    if: github.event.action == 'closed'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+
+      - name: Remove preview directory
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if [ -d "pr/${{ github.event.pull_request.number }}" ]; then
+            git rm -rf "pr/${{ github.event.pull_request.number }}"
+            git commit -m "chore: remove storybook preview for PR #${{ github.event.pull_request.number }}"
+            git push
+          fi

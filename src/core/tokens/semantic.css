@@ -37,8 +37,8 @@
   --color-solid-foreground-hover: var(--alabaster-300);
 
   /* Destructive */
-  --color-destructive: var(--vermillion);
-  --color-destructive-hover: var(--vermillion-hover);
+  --color-destructive: var(--vermillion-600);
+  --color-destructive-hover: var(--vermillion-700);
   --color-destructive-foreground: var(--paper-white);
   --color-destructive-subtle: var(--vermillion-50);
 
@@ -62,8 +62,6 @@
   --color-success-hover: var(--green-600);
   --color-warning: var(--amber-500);
   --color-warning-hover: var(--amber-600);
-  --color-error: var(--red-500);
-  --color-error-hover: var(--red-600);
 }
 
 /* Dark mode - System preference fallback */
@@ -82,8 +80,8 @@
     --color-solid-foreground: var(--alabaster-800);
     --color-solid-foreground-hover: var(--alabaster-700);
 
-    --color-destructive: var(--vermillion-dark);
-    --color-destructive-hover: var(--vermillion-dark-hover);
+    --color-destructive: var(--vermillion-500);
+    --color-destructive-hover: var(--vermillion-400);
     --color-destructive-foreground: var(--paper-white-inv);
     --color-destructive-subtle: var(--vermillion-900);
 
@@ -97,6 +95,12 @@
     --color-ring-offset: var(--paper-warm-inv);
 
     --color-inverse-foreground: var(--paper-white-inv);
+
+    /* States */
+    --color-success: var(--green-400);
+    --color-success-hover: var(--green-300);
+    --color-warning: var(--amber-400);
+    --color-warning-hover: var(--amber-300);
   }
 }
 
@@ -115,8 +119,8 @@
   --color-solid-foreground: var(--alabaster-800);
   --color-solid-foreground-hover: var(--alabaster-700);
 
-  --color-destructive: var(--vermillion-dark);
-  --color-destructive-hover: var(--vermillion-dark-hover);
+  --color-destructive: var(--vermillion-500);
+  --color-destructive-hover: var(--vermillion-400);
   --color-destructive-foreground: var(--paper-white-inv);
   --color-destructive-subtle: var(--vermillion-900);
 
@@ -130,4 +134,10 @@
   --color-ring-offset: var(--paper-warm-inv);
 
   --color-inverse-foreground: var(--paper-white-inv);
+
+  /* States */
+  --color-success: var(--green-400);
+  --color-success-hover: var(--green-300);
+  --color-warning: var(--amber-400);
+  --color-warning-hover: var(--amber-300);
 }

@@ -30,12 +30,16 @@ const MinusIcon = () => (
   </svg>
 )
 
+const labelSizeClasses = {
+  sm: 'text-xs',
+  md: 'text-sm',
+  lg: 'text-base',
+} as const
+
 export const Checkbox = forwardRef<ElementRef<typeof CheckboxPrimitive.Root>, CheckboxProps>(
-  ({ className, size, isError = false, label, id: idProp, disabled, ...props }, ref) => {
+  ({ className, size = 'md', isError = false, label, id: idProp, disabled, ...props }, ref) => {
     const autoId = useId()
     const id = idProp ?? autoId
-
-    const labelSizeClass = size === 'lg' ? 'text-base' : size === 'sm' ? 'text-xs' : 'text-sm'
 
     return (
       <div className={cn('inline-flex items-center gap-2', className)}>
@@ -61,7 +65,7 @@ export const Checkbox = forwardRef<ElementRef<typeof CheckboxPrimitive.Root>, Ch
           <label
             htmlFor={id}
             className={cn(
-              labelSizeClass,
+              labelSizeClasses[size ?? 'md'],
               'text-foreground cursor-pointer select-none',
               disabled && 'cursor-not-allowed opacity-50',
             )}

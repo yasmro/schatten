@@ -23,7 +23,7 @@ const CheckIcon = () => (
     <path
       d="M3 8.5L6.5 12L13 4"
       stroke="currentColor"
-      strokeWidth="2"
+      strokeWidth="2.5"
       strokeLinecap="round"
       strokeLinejoin="round"
       className="animate-checkbox-stroke"
@@ -38,7 +38,7 @@ const MinusIcon = () => (
     <path
       d="M3 8H13"
       stroke="currentColor"
-      strokeWidth="2"
+      strokeWidth="2.5"
       strokeLinecap="round"
       className="animate-checkbox-stroke"
       style={{ strokeDasharray: 1 }}

@@ -41,45 +41,40 @@ export const Checkbox = forwardRef<ElementRef<typeof CheckboxPrimitive.Root>, Ch
     const autoId = useId()
     const id = idProp ?? autoId
 
-    const checkbox = (
-      <CheckboxPrimitive.Root
-        ref={ref}
-        id={id}
-        className={cn(
-          checkboxVariants({ size }),
-          isError && 'border-destructive bg-destructive-subtle focus-visible:ring-destructive',
-          !label && className,
-        )}
-        aria-invalid={isError || undefined}
-        disabled={disabled}
-        {...props}
-      >
-        <CheckboxPrimitive.Indicator
-          className="absolute inset-0 flex items-center justify-center text-foreground data-[state=unchecked]:hidden"
-          forceMount
-        >
-          {props.checked === 'indeterminate' ? <MinusIcon /> : <CheckIcon />}
-        </CheckboxPrimitive.Indicator>
-      </CheckboxPrimitive.Root>
-    )
-
-    if (!label) return checkbox
-
     const labelSizeClass = size === 'lg' ? 'text-base' : size === 'sm' ? 'text-xs' : 'text-sm'
 
     return (
-      <div className={cn('flex items-center gap-2', className)}>
-        {checkbox}
-        <label
-          htmlFor={id}
+      <div className={cn('inline-flex items-center gap-2', className)}>
+        <CheckboxPrimitive.Root
+          ref={ref}
+          id={id}
           className={cn(
-            labelSizeClass,
-            'text-foreground cursor-pointer select-none',
-            disabled && 'cursor-not-allowed opacity-50',
+            checkboxVariants({ size }),
+            isError && 'border-destructive bg-destructive-subtle focus-visible:ring-destructive',
           )}
+          aria-invalid={isError || undefined}
+          disabled={disabled}
+          {...props}
         >
-          {label}
-        </label>
+          <CheckboxPrimitive.Indicator
+            className="absolute inset-0 flex items-center justify-center text-foreground data-[state=unchecked]:hidden"
+            forceMount
+          >
+            {props.checked === 'indeterminate' ? <MinusIcon /> : <CheckIcon />}
+          </CheckboxPrimitive.Indicator>
+        </CheckboxPrimitive.Root>
+        {label && (
+          <label
+            htmlFor={id}
+            className={cn(
+              labelSizeClass,
+              'text-foreground cursor-pointer select-none',
+              disabled && 'cursor-not-allowed opacity-50',
+            )}
+          >
+            {label}
+          </label>
+        )}
       </div>
     )
   },

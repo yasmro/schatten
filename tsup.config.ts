@@ -1,4 +1,17 @@
+import { copyFileSync, mkdirSync, readdirSync } from 'node:fs'
 import { defineConfig } from 'tsup'
+
+function copyCssAssets() {
+  const dirs = ['core/tokens', 'themes/default', 'themes/seasonal']
+  for (const dir of dirs) {
+    mkdirSync(`dist/${dir}`, { recursive: true })
+    for (const file of readdirSync(`src/${dir}`)) {
+      if (file.endsWith('.css')) {
+        copyFileSync(`src/${dir}/${file}`, `dist/${dir}/${file}`)
+      }
+    }
+  }
+}
 
 export default defineConfig([
   // Variants (CSS-only, for Astro)
@@ -25,7 +38,7 @@ export default defineConfig([
       options.jsx = 'automatic'
     },
   },
-  // Seasonal theme utilities
+  // Seasonal theme utilities + CSS asset copy
   {
     entry: {
       'themes/seasonal/index': 'src/themes/seasonal/index.ts',
@@ -33,5 +46,6 @@ export default defineConfig([
     format: ['esm', 'cjs'],
     dts: true,
     external: ['react', 'react-dom'],
+    onSuccess: copyCssAssets,
   },
 ])

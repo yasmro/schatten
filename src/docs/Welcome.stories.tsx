@@ -3,6 +3,7 @@ import { Badge } from '../components/lv1/Badge'
 import { Button } from '../components/lv1/Button'
 import { Checkbox } from '../components/lv1/Checkbox'
 import { Input } from '../components/lv1/Input'
+import { Radio, RadioGroup } from '../components/lv1/Radio'
 import {
   Select,
   SelectContent,
@@ -192,6 +193,17 @@ export const Overview: Story = {
                 <SelectItem value="banana">Banana</SelectItem>
               </SelectContent>
             </Select>
+          </ComponentCard>
+
+          <ComponentCard
+            name="Radio"
+            description="Selects one option from a group."
+            storyPath="components-lv1-radio"
+          >
+            <RadioGroup defaultValue="a">
+              <Radio value="a" label="Option A" />
+              <Radio value="b" label="Option B" />
+            </RadioGroup>
           </ComponentCard>
         </div>
       </div>

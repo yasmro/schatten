@@ -34,7 +34,7 @@ const SelectTrigger = forwardRef<ComponentRef<typeof SelectPrimitive.Trigger>, S
         className={cn(
           selectTriggerVariants({ size }),
           isError
-            ? 'border-destructive bg-destructive-subtle focus:ring-destructive'
+            ? 'border-destructive bg-destructive-subtle focus-visible:ring-destructive'
             : 'border-border-strong',
           className,
         )}
@@ -146,12 +146,12 @@ const SelectItem = forwardRef<
   <SelectPrimitive.Item
     ref={ref}
     className={cn(
-      'relative flex w-full cursor-pointer select-none items-center py-2.5 pl-8 pr-2 text-sm outline-none focus:bg-sumi-200 dark:focus:bg-sumi-700 data-disabled:cursor-not-allowed data-disabled:opacity-50',
+      'relative flex w-full cursor-pointer select-none items-center py-2.5 pl-8 pr-2 text-sm outline-none focus:bg-surface-hover data-disabled:cursor-not-allowed data-disabled:opacity-50',
       className,
     )}
     {...props}
   >
-    <span className="absolute left-2 flex size-3.5 items-center justify-center">
+    <span className="absolute left-2 flex size-4 items-center justify-center">
       <SelectPrimitive.ItemIndicator>
         <Check className="size-4" />
       </SelectPrimitive.ItemIndicator>

@@ -1,49 +1,86 @@
 import * as RadioGroupPrimitive from '@radix-ui/react-radio-group'
 import {
   type ComponentPropsWithoutRef,
+  createContext,
   type ElementRef,
   forwardRef,
   type ReactNode,
+  useContext,
   useId,
 } from 'react'
 import { cn } from '../../../lib/utils'
 import { type RadioVariants, radioVariants } from '../../../variants/radio'
 
+/* ----- RadioGroup Context ----- */
+
+interface RadioGroupContextValue {
+  isError: boolean
+  size?: RadioVariants['size']
+}
+
+const RadioGroupContext = createContext<RadioGroupContextValue>({
+  isError: false,
+})
+
+/* ----- RadioGroup ----- */
+
 export interface RadioGroupProps extends ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Root> {
-  /** Displays the radio group in an error state, propagated to all items. */
+  /** Displays all radio items in an error state. Propagated via context. */
   isError?: boolean
+  /** Size applied to all radio items. Can be overridden per item. */
+  size?: RadioVariants['size']
 }
 
 export const RadioGroup = forwardRef<ElementRef<typeof RadioGroupPrimitive.Root>, RadioGroupProps>(
-  ({ className, isError, children, ...props }, ref) => (
-    <RadioGroupPrimitive.Root
-      ref={ref}
-      className={cn('flex flex-col gap-2', className)}
-      data-error={isError || undefined}
-      {...props}
-    >
-      {children}
-    </RadioGroupPrimitive.Root>
+  ({ className, isError = false, size, children, ...props }, ref) => (
+    <RadioGroupContext.Provider value={{ isError, size }}>
+      <RadioGroupPrimitive.Root
+        ref={ref}
+        className={cn('flex flex-col gap-2', className)}
+        aria-invalid={isError || undefined}
+        {...props}
+      >
+        {children}
+      </RadioGroupPrimitive.Root>
+    </RadioGroupContext.Provider>
   ),
 )
 
 RadioGroup.displayName = 'RadioGroup'
 
+/* ----- Radio ----- */
+
 export interface RadioProps
   extends Omit<ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Item>, 'size'>,
     RadioVariants {
-  /** Displays the radio in an error state with destructive border and ring. */
+  /** Displays the radio in an error state. Inherited from RadioGroup if not set. */
   isError?: boolean
   /** Label text displayed next to the radio. Automatically associates via id. */
   label?: ReactNode
 }
 
+const labelSizeClasses = {
+  sm: 'text-xs',
+  md: 'text-sm',
+  lg: 'text-base',
+} as const
+
+const indicatorSizeClasses = {
+  sm: 'size-2.5',
+  md: 'size-3',
+  lg: 'size-4',
+} as const
+
 export const Radio = forwardRef<ElementRef<typeof RadioGroupPrimitive.Item>, RadioProps>(
-  ({ className, size, isError = false, label, id: idProp, disabled, ...props }, ref) => {
+  (
+    { className, size: sizeProp, isError: isErrorProp, label, id: idProp, disabled, ...props },
+    ref,
+  ) => {
+    const group = useContext(RadioGroupContext)
+    const size = sizeProp ?? group.size ?? 'md'
+    const isError = isErrorProp ?? group.isError
     const autoId = useId()
     const id = idProp ?? autoId
-
-    const labelSizeClass = size === 'lg' ? 'text-base' : size === 'sm' ? 'text-xs' : 'text-sm'
 
     return (
       <div className={cn('inline-flex items-center gap-2', className)}>
@@ -60,10 +97,7 @@ export const Radio = forwardRef<ElementRef<typeof RadioGroupPrimitive.Item>, Rad
         >
           <RadioGroupPrimitive.Indicator className="absolute inset-0 flex items-center justify-center">
             <span
-              className={cn(
-                'rounded-full bg-foreground',
-                size === 'lg' ? 'size-4' : size === 'sm' ? 'size-2.5' : 'size-3',
-              )}
+              className={cn('rounded-full', 'bg-foreground', indicatorSizeClasses[size ?? 'md'])}
             />
           </RadioGroupPrimitive.Indicator>
         </RadioGroupPrimitive.Item>
@@ -71,7 +105,7 @@ export const Radio = forwardRef<ElementRef<typeof RadioGroupPrimitive.Item>, Rad
           <label
             htmlFor={id}
             className={cn(
-              labelSizeClass,
+              labelSizeClasses[size ?? 'md'],
               'text-foreground cursor-pointer select-none',
               disabled && 'cursor-not-allowed opacity-50',
             )}

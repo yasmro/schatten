@@ -53,24 +53,18 @@
   --paper-warm-inv: #1e1e1c;
   --paper-cream-inv: #252420;
 
-  /* Accent: Vermillion (Japanese traditional) */
-  --vermillion-50: oklch(0.98 0.02 25);
-  --vermillion-100: oklch(0.96 0.04 25);
-  --vermillion-200: oklch(0.91 0.08 25);
-  --vermillion-300: oklch(0.83 0.12 25);
-  --vermillion-400: oklch(0.74 0.14 25);
-  --vermillion-500: oklch(0.64 0.16 25);
-  --vermillion-600: oklch(0.56 0.14 25);
-  --vermillion-700: oklch(0.46 0.12 25);
-  --vermillion-800: oklch(0.36 0.1 25);
-  --vermillion-900: oklch(0.27 0.08 25);
-  --vermillion-950: oklch(0.15 0.06 25);
-
-  /* Vermillion HEX fallbacks */
-  --vermillion: #c53d43;
-  --vermillion-hover: #a8333a;
-  --vermillion-dark: #e05a60;
-  --vermillion-dark-hover: #f07078;
+  /* Accent: Vermillion (Japanese traditional, brand anchor: 600 ≈ #c53d43) */
+  --vermillion-50: oklch(0.98 0.02 22);
+  --vermillion-100: oklch(0.96 0.04 22);
+  --vermillion-200: oklch(0.91 0.08 22);
+  --vermillion-300: oklch(0.83 0.13 22);
+  --vermillion-400: oklch(0.74 0.17 22);
+  --vermillion-500: oklch(0.64 0.18 22);
+  --vermillion-600: oklch(0.56 0.17 22);
+  --vermillion-700: oklch(0.46 0.14 22);
+  --vermillion-800: oklch(0.36 0.11 22);
+  --vermillion-900: oklch(0.27 0.07 22);
+  --vermillion-950: oklch(0.15 0.05 22);
 
   /* Blue scale (default primary) */
   --blue-50: oklch(0.98 0.01 250);

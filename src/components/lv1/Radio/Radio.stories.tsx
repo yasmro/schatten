@@ -112,9 +112,9 @@ export const Horizontal: Story = {
 export const ErrorState: Story = {
   name: 'Error',
   render: () => (
-    <RadioGroup defaultValue="error-selected">
-      <Radio value="error-unselected" label="Unselected error" isError />
-      <Radio value="error-selected" label="Selected error" isError />
+    <RadioGroup defaultValue="error-selected" isError>
+      <Radio value="error-unselected" label="Unselected error" />
+      <Radio value="error-selected" label="Selected error" />
     </RadioGroup>
   ),
 }

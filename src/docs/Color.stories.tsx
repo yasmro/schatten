@@ -152,7 +152,16 @@ export const Colors: Story = {
           description="Caution states that need attention"
           className="bg-warning"
         />
-        <ColorRow name="error" description="Error states" className="bg-error" />
+        <ColorRow
+          name="destructive"
+          description="Destructive actions and error states"
+          className="bg-destructive"
+        />
+        <ColorRow
+          name="destructive-subtle"
+          description="Subtle background for error states"
+          className="bg-destructive-subtle border border-border"
+        />
       </div>
 
       <SectionTitle>Primitive Palette</SectionTitle>

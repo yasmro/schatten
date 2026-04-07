@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { Badge } from '../components/lv1/Badge'
 import { Button } from '../components/lv1/Button'
+import { Checkbox } from '../components/lv1/Checkbox'
 import { Input } from '../components/lv1/Input'
 import {
   Select,
@@ -167,16 +168,28 @@ export const Overview: Story = {
           </ComponentCard>
 
           <ComponentCard
+            name="Checkbox"
+            description="Toggles a boolean value."
+            storyPath="components-lv1-checkbox"
+          >
+            <div className="flex flex-col gap-2">
+              <Checkbox label="Option A" defaultChecked />
+              <Checkbox label="Option B" />
+            </div>
+          </ComponentCard>
+
+          <ComponentCard
             name="Select"
             description="Picks one option from a list."
             storyPath="components-lv1-select"
           >
-            <Select defaultValue="option">
+            <Select defaultValue="apple">
               <SelectTrigger className="w-40">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="option">Option</SelectItem>
+                <SelectItem value="apple">Apple</SelectItem>
+                <SelectItem value="banana">Banana</SelectItem>
               </SelectContent>
             </Select>
           </ComponentCard>

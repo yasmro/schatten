@@ -1,5 +1,6 @@
 export { type BadgeVariants, badgeVariants } from './badge'
 export { type ButtonVariants, buttonVariants } from './button'
+export { type CheckboxVariants, checkboxVariants } from './checkbox'
 export { type InputVariants, inputVariants } from './input'
 export { type SelectTriggerVariants, selectTriggerVariants } from './select'
 export { type SpinnerVariants, spinnerVariants } from './spinner'

@@ -23,7 +23,7 @@
   /* Surfaces */
   --color-background: var(--paper-warm);
   --color-surface: var(--paper-white);
-  --color-surface-hover: var(--paper-cream);
+  --color-surface-hover: var(--alabaster-200);
 
   /* Foreground */
   --color-foreground: var(--ink-black);

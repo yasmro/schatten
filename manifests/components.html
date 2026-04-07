@@ -582,7 +582,7 @@
 <main>
   <div class="wrap">
     <div class="note ok" style="margin-bottom: 16px;">
-              Using <code>react-docgen-typescript</code>. Generation took <strong>2.8s</strong>.
+              Using <code>react-docgen-typescript</code>. Generation took <strong>2.7s</strong>.
             </div>
     <h2 class="section-title">Components</h2>
     <div class="grid" role="list">
@@ -1063,7 +1063,7 @@ isError?: boolean = false
  */
 label?: ReactNode
 
-size?: &quot;sm&quot; | &quot;md&quot; | &quot;lg&quot; | null</code></pre>
+size?: &quot;sm&quot; | &quot;md&quot; | &quot;lg&quot; | null = md</code></pre>
           </div>
         </div>
     
@@ -1406,7 +1406,16 @@ export const Colors: Story = {
           description=&quot;Caution states that need attention&quot;
           className=&quot;bg-warning&quot;
         /&gt;
-        &lt;ColorRow name=&quot;error&quot; description=&quot;Error states&quot; className=&quot;bg-error&quot; /&gt;
+        &lt;ColorRow
+          name=&quot;destructive&quot;
+          description=&quot;Destructive actions and error states&quot;
+          className=&quot;bg-destructive&quot;
+        /&gt;
+        &lt;ColorRow
+          name=&quot;destructive-subtle&quot;
+          description=&quot;Subtle background for error states&quot;
+          className=&quot;bg-destructive-subtle border border-border&quot;
+        /&gt;
       &lt;/div&gt;
 
       &lt;SectionTitle&gt;Primitive Palette&lt;/SectionTitle&gt;
@@ -1821,7 +1830,16 @@ export const Colors: Story = {
         description=&quot;Caution states that need attention&quot;
         className=&quot;bg-warning&quot;
       /&gt;
-      &lt;ColorRow name=&quot;error&quot; description=&quot;Error states&quot; className=&quot;bg-error&quot; /&gt;
+      &lt;ColorRow
+        name=&quot;destructive&quot;
+        description=&quot;Destructive actions and error states&quot;
+        className=&quot;bg-destructive&quot;
+      /&gt;
+      &lt;ColorRow
+        name=&quot;destructive-subtle&quot;
+        description=&quot;Subtle background for error states&quot;
+        className=&quot;bg-destructive-subtle border border-border&quot;
+      /&gt;
     &lt;/div&gt;
 
     &lt;SectionTitle&gt;Primitive Palette&lt;/SectionTitle&gt;
@@ -2361,7 +2379,7 @@ textRight?: string</code></pre>
             <pre><code>asChild?: boolean
 
 /**
- * Displays the radio in an error state with destructive border and ring.
+ * Displays the radio in an error state. Inherited from RadioGroup if not set.
  */
 isError?: boolean = false
 
@@ -2454,9 +2472,9 @@ size?: &quot;sm&quot; | &quot;md&quot; | &quot;lg&quot; | null</code></pre>
               
               
               <pre><code>const ErrorState = () =&gt; (
-  &lt;RadioGroup defaultValue=&quot;error-selected&quot;&gt;
-    &lt;Radio value=&quot;error-unselected&quot; label=&quot;Unselected error&quot; isError /&gt;
-    &lt;Radio value=&quot;error-selected&quot; label=&quot;Selected error&quot; isError /&gt;
+  &lt;RadioGroup defaultValue=&quot;error-selected&quot; isError&gt;
+    &lt;Radio value=&quot;error-unselected&quot; label=&quot;Unselected error&quot; /&gt;
+    &lt;Radio value=&quot;error-selected&quot; label=&quot;Selected error&quot; /&gt;
   &lt;/RadioGroup&gt;
 );</code></pre>
             </div>
@@ -4045,13 +4063,13 @@ export const Typography: Story = {
     <div class="note err">
       <div class="note-title">Prop type error</div>
       <div class="note-body"><pre><code>We could not detect the component from your story file. Specify meta.component.
-  15 | import { Textarea } from &#39;../components/lv1/Textarea&#39;
-  16 |
-&gt; 17 | const meta: Meta = {
+  16 | import { Textarea } from &#39;../components/lv1/Textarea&#39;
+  17 |
+&gt; 18 | const meta: Meta = {
      | ^
-  18 |   title: &#39;Welcome&#39;,
-  19 |   parameters: {
-  20 |     layout: &#39;fullscreen&#39;,
+  19 |   title: &#39;Welcome&#39;,
+  20 |   parameters: {
+  21 |     layout: &#39;fullscreen&#39;,
 
 ./src/docs/Welcome.stories.tsx:
 import type { Meta, StoryObj } from &#39;@storybook/react-vite&#39;
@@ -4059,6 +4077,7 @@ import { Badge } from &#39;../components/lv1/Badge&#39;
 import { Button } from &#39;../components/lv1/Button&#39;
 import { Checkbox } from &#39;../components/lv1/Checkbox&#39;
 import { Input } from &#39;../components/lv1/Input&#39;
+import { Radio, RadioGroup } from &#39;../components/lv1/Radio&#39;
 import {
   Select,
   SelectContent,
@@ -4249,6 +4268,17 @@ export const Overview: Story = {
               &lt;/SelectContent&gt;
             &lt;/Select&gt;
           &lt;/ComponentCard&gt;
+
+          &lt;ComponentCard
+            name=&quot;Radio&quot;
+            description=&quot;Selects one option from a group.&quot;
+            storyPath=&quot;components-lv1-radio&quot;
+          &gt;
+            &lt;RadioGroup defaultValue=&quot;a&quot;&gt;
+              &lt;Radio value=&quot;a&quot; label=&quot;Option A&quot; /&gt;
+              &lt;Radio value=&quot;b&quot; label=&quot;Option B&quot; /&gt;
+            &lt;/RadioGroup&gt;
+          &lt;/ComponentCard&gt;
         &lt;/div&gt;
       &lt;/div&gt;
 
@@ -4320,6 +4350,8 @@ export const Overview: Story = {
     Button,
     Checkbox,
     Input,
+    Radio,
+    RadioGroup,
     Select,
     SelectContent,
     SelectItem,
@@ -4471,6 +4503,17 @@ export const Overview: Story = {
               &lt;SelectItem value=&quot;banana&quot;&gt;Banana&lt;/SelectItem&gt;
             &lt;/SelectContent&gt;
           &lt;/Select&gt;
+        &lt;/ComponentCard&gt;
+
+        &lt;ComponentCard
+          name=&quot;Radio&quot;
+          description=&quot;Selects one option from a group.&quot;
+          storyPath=&quot;components-lv1-radio&quot;
+        &gt;
+          &lt;RadioGroup defaultValue=&quot;a&quot;&gt;
+            &lt;Radio value=&quot;a&quot; label=&quot;Option A&quot; /&gt;
+            &lt;Radio value=&quot;b&quot; label=&quot;Option B&quot; /&gt;
+          &lt;/RadioGroup&gt;
         &lt;/ComponentCard&gt;
       &lt;/div&gt;
     &lt;/div&gt;
@@ -4732,7 +4775,16 @@ export const Colors: Story = {
           description=&quot;Caution states that need attention&quot;
           className=&quot;bg-warning&quot;
         /&gt;
-        &lt;ColorRow name=&quot;error&quot; description=&quot;Error states&quot; className=&quot;bg-error&quot; /&gt;
+        &lt;ColorRow
+          name=&quot;destructive&quot;
+          description=&quot;Destructive actions and error states&quot;
+          className=&quot;bg-destructive&quot;
+        /&gt;
+        &lt;ColorRow
+          name=&quot;destructive-subtle&quot;
+          description=&quot;Subtle background for error states&quot;
+          className=&quot;bg-destructive-subtle border border-border&quot;
+        /&gt;
       &lt;/div&gt;
 
       &lt;SectionTitle&gt;Primitive Palette&lt;/SectionTitle&gt;
@@ -5147,7 +5199,16 @@ export const Colors: Story = {
         description=&quot;Caution states that need attention&quot;
         className=&quot;bg-warning&quot;
       /&gt;
-      &lt;ColorRow name=&quot;error&quot; description=&quot;Error states&quot; className=&quot;bg-error&quot; /&gt;
+      &lt;ColorRow
+        name=&quot;destructive&quot;
+        description=&quot;Destructive actions and error states&quot;
+        className=&quot;bg-destructive&quot;
+      /&gt;
+      &lt;ColorRow
+        name=&quot;destructive-subtle&quot;
+        description=&quot;Subtle background for error states&quot;
+        className=&quot;bg-destructive-subtle border border-border&quot;
+      /&gt;
     &lt;/div&gt;
 
     &lt;SectionTitle&gt;Primitive Palette&lt;/SectionTitle&gt;
@@ -6241,13 +6302,13 @@ export const Typography: Story = {
     <div class="note err">
       <div class="note-title">Prop type error</div>
       <div class="note-body"><pre><code>We could not detect the component from your story file. Specify meta.component.
-  15 | import { Textarea } from &#39;../components/lv1/Textarea&#39;
-  16 |
-&gt; 17 | const meta: Meta = {
+  16 | import { Textarea } from &#39;../components/lv1/Textarea&#39;
+  17 |
+&gt; 18 | const meta: Meta = {
      | ^
-  18 |   title: &#39;Welcome&#39;,
-  19 |   parameters: {
-  20 |     layout: &#39;fullscreen&#39;,
+  19 |   title: &#39;Welcome&#39;,
+  20 |   parameters: {
+  21 |     layout: &#39;fullscreen&#39;,
 
 ./src/docs/Welcome.stories.tsx:
 import type { Meta, StoryObj } from &#39;@storybook/react-vite&#39;
@@ -6255,6 +6316,7 @@ import { Badge } from &#39;../components/lv1/Badge&#39;
 import { Button } from &#39;../components/lv1/Button&#39;
 import { Checkbox } from &#39;../components/lv1/Checkbox&#39;
 import { Input } from &#39;../components/lv1/Input&#39;
+import { Radio, RadioGroup } from &#39;../components/lv1/Radio&#39;
 import {
   Select,
   SelectContent,
@@ -6445,6 +6507,17 @@ export const Overview: Story = {
               &lt;/SelectContent&gt;
             &lt;/Select&gt;
           &lt;/ComponentCard&gt;
+
+          &lt;ComponentCard
+            name=&quot;Radio&quot;
+            description=&quot;Selects one option from a group.&quot;
+            storyPath=&quot;components-lv1-radio&quot;
+          &gt;
+            &lt;RadioGroup defaultValue=&quot;a&quot;&gt;
+              &lt;Radio value=&quot;a&quot; label=&quot;Option A&quot; /&gt;
+              &lt;Radio value=&quot;b&quot; label=&quot;Option B&quot; /&gt;
+            &lt;/RadioGroup&gt;
+          &lt;/ComponentCard&gt;
         &lt;/div&gt;
       &lt;/div&gt;
 
@@ -6516,6 +6589,8 @@ export const Overview: Story = {
     Button,
     Checkbox,
     Input,
+    Radio,
+    RadioGroup,
     Select,
     SelectContent,
     SelectItem,
@@ -6667,6 +6742,17 @@ export const Overview: Story = {
               &lt;SelectItem value=&quot;banana&quot;&gt;Banana&lt;/SelectItem&gt;
             &lt;/SelectContent&gt;
           &lt;/Select&gt;
+        &lt;/ComponentCard&gt;
+
+        &lt;ComponentCard
+          name=&quot;Radio&quot;
+          description=&quot;Selects one option from a group.&quot;
+          storyPath=&quot;components-lv1-radio&quot;
+        &gt;
+          &lt;RadioGroup defaultValue=&quot;a&quot;&gt;
+            &lt;Radio value=&quot;a&quot; label=&quot;Option A&quot; /&gt;
+            &lt;Radio value=&quot;b&quot; label=&quot;Option B&quot; /&gt;
+          &lt;/RadioGroup&gt;
         &lt;/ComponentCard&gt;
       &lt;/div&gt;
     &lt;/div&gt;

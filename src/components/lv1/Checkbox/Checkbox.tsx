@@ -19,13 +19,13 @@ export interface CheckboxProps
 }
 
 const CheckIcon = () => (
-  <svg viewBox="0 0 16 16" fill="none" className="size-[62.5%]" aria-hidden="true">
+  <svg viewBox="0 0 16 16" fill="none" className="size-[75%]" aria-hidden="true">
     <path d="M2.5 8.5L3.5 7.5L6.5 10.5L12.5 3.5L13.5 4.5L6.5 12.5Z" fill="currentColor" />
   </svg>
 )
 
 const MinusIcon = () => (
-  <svg viewBox="0 0 16 16" fill="none" className="size-[62.5%]" aria-hidden="true">
+  <svg viewBox="0 0 16 16" fill="none" className="size-[75%]" aria-hidden="true">
     <path d="M3 8H13" stroke="currentColor" strokeWidth="2.5" strokeLinecap="butt" />
   </svg>
 )

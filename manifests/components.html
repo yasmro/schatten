@@ -4099,14 +4099,13 @@ const meta: Meta = {
 export default meta
 type Story = StoryObj
 
-const navigateToStory = (e: React.MouseEvent, storyPath: string) =&gt; {
+const navigateToStory = (e: React.MouseEvent, storyPath: string, suffix = &#39;docs&#39;) =&gt; {
   e.preventDefault()
-  const targetPath = `/docs/${storyPath}--docs`
-  if (window.parent !== window) {
-    window.parent.location.href = `${window.parent.location.origin}/?path=${targetPath}`
-  } else {
-    window.location.href = `/?path=${targetPath}`
-  }
+  const targetPath = `/docs/${storyPath}--${suffix}`
+  const top = window.parent !== window ? window.parent : window
+  const url = new URL(top.location.href)
+  url.searchParams.set(&#39;path&#39;, targetPath)
+  top.location.href = url.toString()
 }
 
 const ComponentCard = ({
@@ -4125,7 +4124,17 @@ const ComponentCard = ({
     onClick={(e) =&gt; navigateToStory(e, storyPath)}
     className=&quot;group block border border-border rounded-xl overflow-hidden no-underline transition-shadow duration-200 hover:shadow-md&quot;
   &gt;
-    &lt;div className=&quot;flex items-center justify-center h-40 bg-surface&quot;&gt;{children}&lt;/div&gt;
+    {/* biome-ignore lint/a11y/useKeyWithClickEvents: preview area blocks parent link navigation */}
+    {/* biome-ignore lint/a11y/noStaticElementInteractions: intentional click trap to prevent card navigation */}
+    &lt;div
+      className=&quot;flex items-center justify-center h-40 bg-surface&quot;
+      onClick={(e) =&gt; {
+        e.preventDefault()
+        e.stopPropagation()
+      }}
+    &gt;
+      {children}
+    &lt;/div&gt;
     &lt;div className=&quot;px-4 py-3 border-t border-border&quot;&gt;
       &lt;p className=&quot;text-sm font-semibold text-accent group-hover:underline&quot;&gt;{name}&lt;/p&gt;
       &lt;p className=&quot;text-xs text-foreground-muted mt-0.5&quot;&gt;{description}&lt;/p&gt;
@@ -4286,8 +4295,8 @@ export const Overview: Story = {
         &lt;h2 className=&quot;text-xl font-bold text-foreground mb-4&quot;&gt;Foundation&lt;/h2&gt;
         &lt;div className=&quot;grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4&quot;&gt;
           &lt;a
-            href=&quot;/docs/foundation-color--docs&quot;
-            onClick={(e) =&gt; navigateToStory(e, &#39;foundation-color&#39;)}
+            href=&quot;/docs/foundation-color--colors&quot;
+            onClick={(e) =&gt; navigateToStory(e, &#39;foundation-color&#39;, &#39;colors&#39;)}
             className=&quot;group block border border-border rounded-xl overflow-hidden no-underline transition-shadow duration-200 hover:shadow-md&quot;
           &gt;
             &lt;div className=&quot;flex items-center justify-center h-40 bg-surface&quot;&gt;
@@ -4304,8 +4313,8 @@ export const Overview: Story = {
           &lt;/a&gt;
 
           &lt;a
-            href=&quot;/docs/foundation-typography--docs&quot;
-            onClick={(e) =&gt; navigateToStory(e, &#39;foundation-typography&#39;)}
+            href=&quot;/docs/foundation-typography--typography&quot;
+            onClick={(e) =&gt; navigateToStory(e, &#39;foundation-typography&#39;, &#39;typography&#39;)}
             className=&quot;group block border border-border rounded-xl overflow-hidden no-underline transition-shadow duration-200 hover:shadow-md&quot;
           &gt;
             &lt;div className=&quot;flex items-center justify-center h-40 bg-surface&quot;&gt;
@@ -4522,8 +4531,8 @@ export const Overview: Story = {
       &lt;h2 className=&quot;text-xl font-bold text-foreground mb-4&quot;&gt;Foundation&lt;/h2&gt;
       &lt;div className=&quot;grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4&quot;&gt;
         &lt;a
-          href=&quot;/docs/foundation-color--docs&quot;
-          onClick={(e) =&gt; navigateToStory(e, &#39;foundation-color&#39;)}
+          href=&quot;/docs/foundation-color--colors&quot;
+          onClick={(e) =&gt; navigateToStory(e, &#39;foundation-color&#39;, &#39;colors&#39;)}
           className=&quot;group block border border-border rounded-xl overflow-hidden no-underline transition-shadow duration-200 hover:shadow-md&quot;
         &gt;
           &lt;div className=&quot;flex items-center justify-center h-40 bg-surface&quot;&gt;
@@ -4540,8 +4549,8 @@ export const Overview: Story = {
         &lt;/a&gt;
 
         &lt;a
-          href=&quot;/docs/foundation-typography--docs&quot;
-          onClick={(e) =&gt; navigateToStory(e, &#39;foundation-typography&#39;)}
+          href=&quot;/docs/foundation-typography--typography&quot;
+          onClick={(e) =&gt; navigateToStory(e, &#39;foundation-typography&#39;, &#39;typography&#39;)}
           className=&quot;group block border border-border rounded-xl overflow-hidden no-underline transition-shadow duration-200 hover:shadow-md&quot;
         &gt;
           &lt;div className=&quot;flex items-center justify-center h-40 bg-surface&quot;&gt;
@@ -6338,14 +6347,13 @@ const meta: Meta = {
 export default meta
 type Story = StoryObj
 
-const navigateToStory = (e: React.MouseEvent, storyPath: string) =&gt; {
+const navigateToStory = (e: React.MouseEvent, storyPath: string, suffix = &#39;docs&#39;) =&gt; {
   e.preventDefault()
-  const targetPath = `/docs/${storyPath}--docs`
-  if (window.parent !== window) {
-    window.parent.location.href = `${window.parent.location.origin}/?path=${targetPath}`
-  } else {
-    window.location.href = `/?path=${targetPath}`
-  }
+  const targetPath = `/docs/${storyPath}--${suffix}`
+  const top = window.parent !== window ? window.parent : window
+  const url = new URL(top.location.href)
+  url.searchParams.set(&#39;path&#39;, targetPath)
+  top.location.href = url.toString()
 }
 
 const ComponentCard = ({
@@ -6364,7 +6372,17 @@ const ComponentCard = ({
     onClick={(e) =&gt; navigateToStory(e, storyPath)}
     className=&quot;group block border border-border rounded-xl overflow-hidden no-underline transition-shadow duration-200 hover:shadow-md&quot;
   &gt;
-    &lt;div className=&quot;flex items-center justify-center h-40 bg-surface&quot;&gt;{children}&lt;/div&gt;
+    {/* biome-ignore lint/a11y/useKeyWithClickEvents: preview area blocks parent link navigation */}
+    {/* biome-ignore lint/a11y/noStaticElementInteractions: intentional click trap to prevent card navigation */}
+    &lt;div
+      className=&quot;flex items-center justify-center h-40 bg-surface&quot;
+      onClick={(e) =&gt; {
+        e.preventDefault()
+        e.stopPropagation()
+      }}
+    &gt;
+      {children}
+    &lt;/div&gt;
     &lt;div className=&quot;px-4 py-3 border-t border-border&quot;&gt;
       &lt;p className=&quot;text-sm font-semibold text-accent group-hover:underline&quot;&gt;{name}&lt;/p&gt;
       &lt;p className=&quot;text-xs text-foreground-muted mt-0.5&quot;&gt;{description}&lt;/p&gt;
@@ -6525,8 +6543,8 @@ export const Overview: Story = {
         &lt;h2 className=&quot;text-xl font-bold text-foreground mb-4&quot;&gt;Foundation&lt;/h2&gt;
         &lt;div className=&quot;grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4&quot;&gt;
           &lt;a
-            href=&quot;/docs/foundation-color--docs&quot;
-            onClick={(e) =&gt; navigateToStory(e, &#39;foundation-color&#39;)}
+            href=&quot;/docs/foundation-color--colors&quot;
+            onClick={(e) =&gt; navigateToStory(e, &#39;foundation-color&#39;, &#39;colors&#39;)}
             className=&quot;group block border border-border rounded-xl overflow-hidden no-underline transition-shadow duration-200 hover:shadow-md&quot;
           &gt;
             &lt;div className=&quot;flex items-center justify-center h-40 bg-surface&quot;&gt;
@@ -6543,8 +6561,8 @@ export const Overview: Story = {
           &lt;/a&gt;
 
           &lt;a
-            href=&quot;/docs/foundation-typography--docs&quot;
-            onClick={(e) =&gt; navigateToStory(e, &#39;foundation-typography&#39;)}
+            href=&quot;/docs/foundation-typography--typography&quot;
+            onClick={(e) =&gt; navigateToStory(e, &#39;foundation-typography&#39;, &#39;typography&#39;)}
             className=&quot;group block border border-border rounded-xl overflow-hidden no-underline transition-shadow duration-200 hover:shadow-md&quot;
           &gt;
             &lt;div className=&quot;flex items-center justify-center h-40 bg-surface&quot;&gt;
@@ -6761,8 +6779,8 @@ export const Overview: Story = {
       &lt;h2 className=&quot;text-xl font-bold text-foreground mb-4&quot;&gt;Foundation&lt;/h2&gt;
       &lt;div className=&quot;grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4&quot;&gt;
         &lt;a
-          href=&quot;/docs/foundation-color--docs&quot;
-          onClick={(e) =&gt; navigateToStory(e, &#39;foundation-color&#39;)}
+          href=&quot;/docs/foundation-color--colors&quot;
+          onClick={(e) =&gt; navigateToStory(e, &#39;foundation-color&#39;, &#39;colors&#39;)}
           className=&quot;group block border border-border rounded-xl overflow-hidden no-underline transition-shadow duration-200 hover:shadow-md&quot;
         &gt;
           &lt;div className=&quot;flex items-center justify-center h-40 bg-surface&quot;&gt;
@@ -6779,8 +6797,8 @@ export const Overview: Story = {
         &lt;/a&gt;
 
         &lt;a
-          href=&quot;/docs/foundation-typography--docs&quot;
-          onClick={(e) =&gt; navigateToStory(e, &#39;foundation-typography&#39;)}
+          href=&quot;/docs/foundation-typography--typography&quot;
+          onClick={(e) =&gt; navigateToStory(e, &#39;foundation-typography&#39;, &#39;typography&#39;)}
           className=&quot;group block border border-border rounded-xl overflow-hidden no-underline transition-shadow duration-200 hover:shadow-md&quot;
         &gt;
           &lt;div className=&quot;flex items-center justify-center h-40 bg-surface&quot;&gt;

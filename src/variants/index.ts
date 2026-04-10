@@ -5,5 +5,6 @@ export { type InputVariants, inputVariants, inputWrapperVariants } from './input
 export { type RadioVariants, radioVariants } from './radio'
 export { type SelectTriggerVariants, selectTriggerVariants } from './select'
 export { type SpinnerVariants, spinnerVariants } from './spinner'
+export { type SwitchVariants, switchThumbVariants, switchVariants } from './switch'
 export { type TextVariants, textVariants } from './text'
 export { type TextareaVariants, textareaVariants } from './textarea'

@@ -25,14 +25,13 @@ const meta: Meta = {
 export default meta
 type Story = StoryObj
 
-const navigateToStory = (e: React.MouseEvent, storyPath: string) => {
+const navigateToStory = (e: React.MouseEvent, storyPath: string, suffix = 'docs') => {
   e.preventDefault()
-  const targetPath = `/docs/${storyPath}--docs`
-  if (window.parent !== window) {
-    window.parent.location.href = `${window.parent.location.origin}/?path=${targetPath}`
-  } else {
-    window.location.href = `/?path=${targetPath}`
-  }
+  const targetPath = `/docs/${storyPath}--${suffix}`
+  const top = window.parent !== window ? window.parent : window
+  const url = new URL(top.location.href)
+  url.searchParams.set('path', targetPath)
+  top.location.href = url.toString()
 }
 
 const ComponentCard = ({
@@ -51,7 +50,17 @@ const ComponentCard = ({
     onClick={(e) => navigateToStory(e, storyPath)}
     className="group block border border-border rounded-xl overflow-hidden no-underline transition-shadow duration-200 hover:shadow-md"
   >
-    <div className="flex items-center justify-center h-40 bg-surface">{children}</div>
+    {/* biome-ignore lint/a11y/useKeyWithClickEvents: preview area blocks parent link navigation */}
+    {/* biome-ignore lint/a11y/noStaticElementInteractions: intentional click trap to prevent card navigation */}
+    <div
+      className="flex items-center justify-center h-40 bg-surface"
+      onClick={(e) => {
+        e.preventDefault()
+        e.stopPropagation()
+      }}
+    >
+      {children}
+    </div>
     <div className="px-4 py-3 border-t border-border">
       <p className="text-sm font-semibold text-accent group-hover:underline">{name}</p>
       <p className="text-xs text-foreground-muted mt-0.5">{description}</p>
@@ -212,8 +221,8 @@ export const Overview: Story = {
         <h2 className="text-xl font-bold text-foreground mb-4">Foundation</h2>
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
           <a
-            href="/docs/foundation-color--docs"
-            onClick={(e) => navigateToStory(e, 'foundation-color')}
+            href="/docs/foundation-color--colors"
+            onClick={(e) => navigateToStory(e, 'foundation-color', 'colors')}
             className="group block border border-border rounded-xl overflow-hidden no-underline transition-shadow duration-200 hover:shadow-md"
           >
             <div className="flex items-center justify-center h-40 bg-surface">
@@ -230,8 +239,8 @@ export const Overview: Story = {
           </a>
 
           <a
-            href="/docs/foundation-typography--docs"
-            onClick={(e) => navigateToStory(e, 'foundation-typography')}
+            href="/docs/foundation-typography--typography"
+            onClick={(e) => navigateToStory(e, 'foundation-typography', 'typography')}
             className="group block border border-border rounded-xl overflow-hidden no-underline transition-shadow duration-200 hover:shadow-md"
           >
             <div className="flex items-center justify-center h-40 bg-surface">

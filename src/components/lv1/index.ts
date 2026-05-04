@@ -30,7 +30,6 @@ export { Text, type TextProps } from './Text'
 export { Textarea, type TextareaProps } from './Textarea'
 export {
   Tooltip,
-  TooltipArrow,
   TooltipContent,
   type TooltipContentProps,
   TooltipPortal,

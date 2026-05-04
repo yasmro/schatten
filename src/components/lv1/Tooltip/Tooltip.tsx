@@ -70,14 +70,4 @@ const TooltipContent = forwardRef<
 ))
 TooltipContent.displayName = TooltipPrimitive.Content.displayName
 
-/* ----- Arrow ----- */
-
-const TooltipArrow = forwardRef<
-  ComponentRef<typeof TooltipPrimitive.Arrow>,
-  ComponentPropsWithoutRef<typeof TooltipPrimitive.Arrow>
->(({ className, ...props }, ref) => (
-  <TooltipPrimitive.Arrow ref={ref} className={cn('fill-background', className)} {...props} />
-))
-TooltipArrow.displayName = TooltipPrimitive.Arrow.displayName
-
-export { Tooltip, TooltipArrow, TooltipContent, TooltipPortal, TooltipProvider, TooltipTrigger }
+export { Tooltip, TooltipContent, TooltipPortal, TooltipProvider, TooltipTrigger }

@@ -1,6 +1,5 @@
 export {
   Tooltip,
-  TooltipArrow,
   TooltipContent,
   type TooltipContentProps,
   TooltipPortal,

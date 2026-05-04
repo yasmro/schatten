@@ -26,22 +26,6 @@ const meta: Meta<typeof TooltipContent> = {
         defaultValue: { summary: 'top' },
       },
     },
-    sideOffset: {
-      description: 'Distance in pixels from the trigger.',
-      control: 'number',
-      table: {
-        type: { summary: 'number' },
-        defaultValue: { summary: '4' },
-      },
-    },
-    hideArrow: {
-      description: 'Hide the arrow indicator.',
-      control: 'boolean',
-      table: {
-        type: { summary: 'boolean' },
-        defaultValue: { summary: 'false' },
-      },
-    },
     align: {
       description: 'The preferred alignment against the trigger.',
       control: 'select',
@@ -49,14 +33,6 @@ const meta: Meta<typeof TooltipContent> = {
       table: {
         type: { summary: '"start" | "center" | "end"' },
         defaultValue: { summary: 'center' },
-      },
-    },
-    alignOffset: {
-      description: 'An offset in pixels from the "start" or "end" alignment options.',
-      control: 'number',
-      table: {
-        type: { summary: 'number' },
-        defaultValue: { summary: '0' },
       },
     },
     children: {
@@ -77,9 +53,7 @@ export const Playground: Story = {
   args: {
     children: 'This is helpful information.',
     side: 'top',
-    sideOffset: 4,
     align: 'center',
-    hideArrow: false,
   },
   render: (args) => (
     <Tooltip>

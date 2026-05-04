@@ -27,21 +27,22 @@ const TooltipPortal = TooltipPrimitive.Portal
 /* ----- Content ----- */
 
 export interface TooltipContentProps
-  extends ComponentPropsWithoutRef<typeof TooltipPrimitive.Content> {
+  extends Omit<
+    ComponentPropsWithoutRef<typeof TooltipPrimitive.Content>,
+    'sideOffset' | 'alignOffset'
+  > {
   /** Portal container element */
   container?: TooltipPortalProps['container']
-  /** Hide the arrow indicator. @default false */
-  hideArrow?: boolean
 }
 
 const TooltipContent = forwardRef<
   ComponentRef<typeof TooltipPrimitive.Content>,
   TooltipContentProps
->(({ className, sideOffset = 4, container, children, hideArrow = false, ...props }, ref) => (
+>(({ className, container, children, ...props }, ref) => (
   <TooltipPrimitive.Portal container={container}>
     <TooltipPrimitive.Content
       ref={ref}
-      sideOffset={sideOffset}
+      sideOffset={4}
       className={cn(
         'tooltip-content z-50 bg-foreground px-3 py-1.5 text-sm text-background shadow-md',
         className,
@@ -49,7 +50,7 @@ const TooltipContent = forwardRef<
       {...props}
     >
       {children}
-      {!hideArrow && <TooltipPrimitive.Arrow className="fill-foreground" />}
+      <TooltipPrimitive.Arrow className="fill-foreground" />
     </TooltipPrimitive.Content>
   </TooltipPrimitive.Portal>
 ))

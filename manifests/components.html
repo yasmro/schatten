@@ -576,13 +576,13 @@
 <header>
   <div class="wrap">
     <h1>Manifest Debugger</h1>
-    <div class="summary"><a class="filter-pill all" data-k="all" href="#filter-all">All</a><a class="filter-pill err" data-k="errors" href="#filter-errors">3/13 prop type errors</a><a class="filter-pill info" data-k="infos" href="#filter-infos">13/13 infos</a><span class="filter-pill ok" aria-disabled="true">66 stories ok</span></div>
+    <div class="summary"><a class="filter-pill all" data-k="all" href="#filter-all">All</a><a class="filter-pill err" data-k="errors" href="#filter-errors">3/14 prop type errors</a><a class="filter-pill info" data-k="infos" href="#filter-infos">14/14 infos</a><span class="filter-pill ok" aria-disabled="true">77 stories ok</span></div>
   </div>
 </header>
 <main>
   <div class="wrap">
     <div class="note ok" style="margin-bottom: 16px;">
-              Using <code>react-docgen-typescript</code>. Generation took <strong>2.8s</strong>.
+              Using <code>react-docgen-typescript</code>. Generation took <strong>2.7s</strong>.
             </div>
     <h2 class="section-title">Components</h2>
     <div class="grid" role="list">
@@ -2137,14 +2137,366 @@ export const Colors: Story = {
   no-story-error
   no-doc-error"
   role="listitem"
+  aria-label="Field">
+  <div class="head">
+    <div class="title">
+      <h2><span class="status-dot dot-ok"></span> Field</h2>
+      <div class="badges">
+        <label for="c-4-components-lv1-field-props" class="badge ok as-toggle">8 prop types</label>
+        <label for="c-4-components-lv1-field-info" class="badge info as-toggle">1 info</label>
+        <label for="c-4-components-lv1-field-stories" class="badge ok as-toggle">11 stories</label>
+        
+      </div>
+    </div>
+    <div class="meta" title="./src/components/lv1/Field/Field.stories.tsx">components-lv1-field · ./src/components/lv1/Field/Field.stories.tsx</div>
+    
+    
+    
+  </div>
+
+  <!-- ⬇️ Hidden toggles must be siblings BEFORE .panels -->
+  
+  <input id="c-4-components-lv1-field-info" class="tg tg-info" type="checkbox" hidden />
+  <input id="c-4-components-lv1-field-stories" class="tg tg-stories" type="checkbox" hidden />
+  
+  <input id="c-4-components-lv1-field-props" class="tg tg-props" type="checkbox" hidden />
+
+  <div class="panels">
+    
+    
+        <div class="panel panel-info">
+          
+    <div class="note info">
+      <div class="note-title">Info</div>
+      <div class="note-body">No description found. Write a jsdoc comment such as /** Component description */.</div>
+    </div>
+        </div>
+    
+        <div class="panel panel-props">
+          <div class="note ok">
+            <div class="row">
+              <span class="ex-name">Prop types <small>(react-docgen-typescript)</small></span>
+              <span class="badge ok">8 prop types</span>
+            </div>
+            <pre><code>Component: src/components/lv1/Field/Field.tsx::Field</code></pre>
+            <pre><code>Props:</code></pre>
+            <pre><code>/**
+ * Field content (input element)
+ */
+children: ReactNode
+
+/**
+ * Additional CSS classes
+ */
+className?: string
+
+/**
+ * Description text displayed above the input
+ */
+description?: ReactNode
+
+/**
+ * Disable the field
+ */
+disabled?: boolean = false
+
+/**
+ * Error message to display
+ */
+error?: string
+
+/**
+ * Explicitly set error state. If not provided, derived from error prop
+ */
+isError?: boolean
+
+/**
+ * Label text for the field
+ */
+label?: ReactNode
+
+/**
+ * Show required indicator (*)
+ */
+required?: boolean = false</code></pre>
+          </div>
+        </div>
+    
+        <div class="panel panel-stories">
+          
+          
+          
+          <div class="note ok">
+                <div class="row">
+                  <span class="ex-name">Imports</span>
+                </div>
+                <pre><code>import {
+    Checkbox,
+    Field,
+    Input,
+    Radio,
+    RadioGroup,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+    Switch,
+    Textarea,
+} from "@yasmro/schatten";</code></pre>
+              </div>
+          
+          
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">Playground</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const Playground = () =&gt; &lt;Field label=&quot;Email&quot; description=&quot;We&#39;ll never share your email.&quot;&gt;
+    &lt;Input placeholder=&quot;you@example.com&quot; /&gt;
+&lt;/Field&gt;;</code></pre>
+            </div>
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">With Input</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const WithInput = () =&gt; (
+  &lt;div className=&quot;flex flex-col gap-6 w-80&quot;&gt;
+    &lt;Field label=&quot;Username&quot; description=&quot;Choose a unique username.&quot;&gt;
+      &lt;Input placeholder=&quot;johndoe&quot; /&gt;
+    &lt;/Field&gt;
+    &lt;Field label=&quot;Email&quot; required&gt;
+      &lt;Input type=&quot;email&quot; placeholder=&quot;you@example.com&quot; /&gt;
+    &lt;/Field&gt;
+  &lt;/div&gt;
+);</code></pre>
+            </div>
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">With Textarea</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const WithTextarea = () =&gt; (
+  &lt;div className=&quot;w-80&quot;&gt;
+    &lt;Field label=&quot;Bio&quot; description=&quot;Tell us about yourself.&quot;&gt;
+      &lt;Textarea placeholder=&quot;Write something...&quot; /&gt;
+    &lt;/Field&gt;
+  &lt;/div&gt;
+);</code></pre>
+            </div>
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">With Select</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const WithSelect = () =&gt; (
+  &lt;div className=&quot;w-80&quot;&gt;
+    &lt;Field label=&quot;Country&quot; description=&quot;Select your country.&quot;&gt;
+      &lt;Select&gt;
+        &lt;SelectTrigger&gt;
+          &lt;SelectValue placeholder=&quot;Select a country&quot; /&gt;
+        &lt;/SelectTrigger&gt;
+        &lt;SelectContent&gt;
+          &lt;SelectItem value=&quot;us&quot;&gt;United States&lt;/SelectItem&gt;
+          &lt;SelectItem value=&quot;uk&quot;&gt;United Kingdom&lt;/SelectItem&gt;
+          &lt;SelectItem value=&quot;jp&quot;&gt;Japan&lt;/SelectItem&gt;
+        &lt;/SelectContent&gt;
+      &lt;/Select&gt;
+    &lt;/Field&gt;
+  &lt;/div&gt;
+);</code></pre>
+            </div>
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">With Checkbox</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const WithCheckbox = () =&gt; (
+  &lt;div className=&quot;w-80&quot;&gt;
+    &lt;Field label=&quot;Interests&quot; description=&quot;Select your interests.&quot;&gt;
+      &lt;div className=&quot;flex flex-col gap-2&quot;&gt;
+        &lt;Checkbox label=&quot;Technology&quot; /&gt;
+        &lt;Checkbox label=&quot;Design&quot; /&gt;
+        &lt;Checkbox label=&quot;Business&quot; /&gt;
+      &lt;/div&gt;
+    &lt;/Field&gt;
+  &lt;/div&gt;
+);</code></pre>
+            </div>
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">With Switch</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const WithSwitch = () =&gt; (
+  &lt;div className=&quot;w-80&quot;&gt;
+    &lt;Field label=&quot;Notifications&quot; description=&quot;Enable push notifications.&quot;&gt;
+      &lt;Switch /&gt;
+    &lt;/Field&gt;
+  &lt;/div&gt;
+);</code></pre>
+            </div>
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">With RadioGroup</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const WithRadioGroup = () =&gt; (
+  &lt;div className=&quot;w-80&quot;&gt;
+    &lt;Field label=&quot;Plan&quot; description=&quot;Choose your subscription plan.&quot;&gt;
+      &lt;RadioGroup defaultValue=&quot;free&quot;&gt;
+        &lt;Radio value=&quot;free&quot; label=&quot;Free&quot; /&gt;
+        &lt;Radio value=&quot;pro&quot; label=&quot;Pro&quot; /&gt;
+        &lt;Radio value=&quot;enterprise&quot; label=&quot;Enterprise&quot; /&gt;
+      &lt;/RadioGroup&gt;
+    &lt;/Field&gt;
+  &lt;/div&gt;
+);</code></pre>
+            </div>
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">Error</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const ErrorState = () =&gt; (
+  &lt;div className=&quot;flex flex-col gap-6 w-80&quot;&gt;
+    &lt;Field label=&quot;Email&quot; error=&quot;Please enter a valid email address.&quot;&gt;
+      &lt;Input type=&quot;email&quot; defaultValue=&quot;invalid-email&quot; /&gt;
+    &lt;/Field&gt;
+    &lt;Field label=&quot;Password&quot; error=&quot;Password must be at least 8 characters.&quot; required&gt;
+      &lt;Input type=&quot;password&quot; defaultValue=&quot;123&quot; /&gt;
+    &lt;/Field&gt;
+  &lt;/div&gt;
+);</code></pre>
+            </div>
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">Disabled</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const Disabled = () =&gt; (
+  &lt;div className=&quot;flex flex-col gap-6 w-80&quot;&gt;
+    &lt;Field label=&quot;Username&quot; description=&quot;This field is disabled.&quot; disabled&gt;
+      &lt;Input placeholder=&quot;johndoe&quot; /&gt;
+    &lt;/Field&gt;
+    &lt;Field label=&quot;Notifications&quot; disabled&gt;
+      &lt;Switch /&gt;
+    &lt;/Field&gt;
+  &lt;/div&gt;
+);</code></pre>
+            </div>
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">Required</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const Required = () =&gt; (
+  &lt;div className=&quot;flex flex-col gap-6 w-80&quot;&gt;
+    &lt;Field label=&quot;Full Name&quot; required&gt;
+      &lt;Input placeholder=&quot;John Doe&quot; /&gt;
+    &lt;/Field&gt;
+    &lt;Field label=&quot;Email&quot; required description=&quot;Required field.&quot;&gt;
+      &lt;Input type=&quot;email&quot; placeholder=&quot;you@example.com&quot; /&gt;
+    &lt;/Field&gt;
+  &lt;/div&gt;
+);</code></pre>
+            </div>
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">Label Usage Patterns</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const LabelUsagePatterns = () =&gt; (
+  &lt;div className=&quot;flex flex-col gap-8 w-96&quot;&gt;
+    &lt;div&gt;
+      &lt;h3 className=&quot;text-sm font-semibold text-foreground-muted mb-3&quot;&gt;
+        Checkbox Group: Field.label for group, Checkbox.label for options
+      &lt;/h3&gt;
+      &lt;Field label=&quot;Notification settings&quot; description=&quot;Select all that apply.&quot;&gt;
+        &lt;div className=&quot;flex flex-col gap-2&quot;&gt;
+          &lt;Checkbox label=&quot;Email notifications&quot; /&gt;
+          &lt;Checkbox label=&quot;Push notifications&quot; /&gt;
+          &lt;Checkbox label=&quot;SMS notifications&quot; /&gt;
+        &lt;/div&gt;
+      &lt;/Field&gt;
+    &lt;/div&gt;
+
+    &lt;div&gt;
+      &lt;h3 className=&quot;text-sm font-semibold text-foreground-muted mb-3&quot;&gt;
+        RadioGroup: Field.label for group, Radio.label for options
+      &lt;/h3&gt;
+      &lt;Field label=&quot;Subscription plan&quot; description=&quot;Choose one plan.&quot;&gt;
+        &lt;RadioGroup defaultValue=&quot;free&quot;&gt;
+          &lt;Radio value=&quot;free&quot; label=&quot;Free - Basic features&quot; /&gt;
+          &lt;Radio value=&quot;pro&quot; label=&quot;Pro - Advanced features&quot; /&gt;
+          &lt;Radio value=&quot;enterprise&quot; label=&quot;Enterprise - Custom solutions&quot; /&gt;
+        &lt;/RadioGroup&gt;
+      &lt;/Field&gt;
+    &lt;/div&gt;
+
+    &lt;div&gt;
+      &lt;h3 className=&quot;text-sm font-semibold text-foreground-muted mb-3&quot;&gt;
+        Switch: Field.label only (single toggle)
+      &lt;/h3&gt;
+      &lt;Field label=&quot;Enable dark mode&quot; description=&quot;Apply dark theme to the interface.&quot;&gt;
+        &lt;Switch /&gt;
+      &lt;/Field&gt;
+    &lt;/div&gt;
+
+    &lt;div&gt;
+      &lt;h3 className=&quot;text-sm font-semibold text-foreground-muted mb-3&quot;&gt;
+        Standalone (without Field): Use component label
+      &lt;/h3&gt;
+      &lt;div className=&quot;flex flex-col gap-2&quot;&gt;
+        &lt;Checkbox label=&quot;Remember me&quot; /&gt;
+        &lt;Switch label=&quot;Dark mode&quot; /&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+);</code></pre>
+            </div>
+        </div>
+    
+  </div>
+</article>
+<article
+  class="card 
+  no-error 
+  has-info 
+  no-story-error
+  no-doc-error"
+  role="listitem"
   aria-label="Input">
   <div class="head">
     <div class="title">
       <h2><span class="status-dot dot-ok"></span> Input</h2>
       <div class="badges">
-        <label for="c-4-components-lv1-input-props" class="badge ok as-toggle">6 prop types</label>
-        <label for="c-4-components-lv1-input-info" class="badge info as-toggle">1 info</label>
-        <label for="c-4-components-lv1-input-stories" class="badge ok as-toggle">8 stories</label>
+        <label for="c-5-components-lv1-input-props" class="badge ok as-toggle">6 prop types</label>
+        <label for="c-5-components-lv1-input-info" class="badge info as-toggle">1 info</label>
+        <label for="c-5-components-lv1-input-stories" class="badge ok as-toggle">8 stories</label>
         
       </div>
     </div>
@@ -2156,10 +2508,10 @@ export const Colors: Story = {
 
   <!-- ⬇️ Hidden toggles must be siblings BEFORE .panels -->
   
-  <input id="c-4-components-lv1-input-info" class="tg tg-info" type="checkbox" hidden />
-  <input id="c-4-components-lv1-input-stories" class="tg tg-stories" type="checkbox" hidden />
+  <input id="c-5-components-lv1-input-info" class="tg tg-info" type="checkbox" hidden />
+  <input id="c-5-components-lv1-input-stories" class="tg tg-stories" type="checkbox" hidden />
   
-  <input id="c-4-components-lv1-input-props" class="tg tg-props" type="checkbox" hidden />
+  <input id="c-5-components-lv1-input-props" class="tg tg-props" type="checkbox" hidden />
 
   <div class="panels">
     
@@ -2338,9 +2690,9 @@ textRight?: string</code></pre>
     <div class="title">
       <h2><span class="status-dot dot-ok"></span> Radio</h2>
       <div class="badges">
-        <label for="c-5-components-lv1-radio-props" class="badge ok as-toggle">4 prop types</label>
-        <label for="c-5-components-lv1-radio-info" class="badge info as-toggle">1 info</label>
-        <label for="c-5-components-lv1-radio-stories" class="badge ok as-toggle">6 stories</label>
+        <label for="c-6-components-lv1-radio-props" class="badge ok as-toggle">4 prop types</label>
+        <label for="c-6-components-lv1-radio-info" class="badge info as-toggle">1 info</label>
+        <label for="c-6-components-lv1-radio-stories" class="badge ok as-toggle">6 stories</label>
         
       </div>
     </div>
@@ -2352,10 +2704,10 @@ textRight?: string</code></pre>
 
   <!-- ⬇️ Hidden toggles must be siblings BEFORE .panels -->
   
-  <input id="c-5-components-lv1-radio-info" class="tg tg-info" type="checkbox" hidden />
-  <input id="c-5-components-lv1-radio-stories" class="tg tg-stories" type="checkbox" hidden />
+  <input id="c-6-components-lv1-radio-info" class="tg tg-info" type="checkbox" hidden />
+  <input id="c-6-components-lv1-radio-stories" class="tg tg-stories" type="checkbox" hidden />
   
-  <input id="c-5-components-lv1-radio-props" class="tg tg-props" type="checkbox" hidden />
+  <input id="c-6-components-lv1-radio-props" class="tg tg-props" type="checkbox" hidden />
 
   <div class="panels">
     
@@ -2508,9 +2860,9 @@ size?: &quot;sm&quot; | &quot;md&quot; | &quot;lg&quot; | null</code></pre>
     <div class="title">
       <h2><span class="status-dot dot-ok"></span> SelectTrigger</h2>
       <div class="badges">
-        <label for="c-6-components-lv1-select-props" class="badge ok as-toggle">3 prop types</label>
-        <label for="c-6-components-lv1-select-info" class="badge info as-toggle">1 info</label>
-        <label for="c-6-components-lv1-select-stories" class="badge ok as-toggle">8 stories</label>
+        <label for="c-7-components-lv1-select-props" class="badge ok as-toggle">3 prop types</label>
+        <label for="c-7-components-lv1-select-info" class="badge info as-toggle">1 info</label>
+        <label for="c-7-components-lv1-select-stories" class="badge ok as-toggle">8 stories</label>
         
       </div>
     </div>
@@ -2522,10 +2874,10 @@ size?: &quot;sm&quot; | &quot;md&quot; | &quot;lg&quot; | null</code></pre>
 
   <!-- ⬇️ Hidden toggles must be siblings BEFORE .panels -->
   
-  <input id="c-6-components-lv1-select-info" class="tg tg-info" type="checkbox" hidden />
-  <input id="c-6-components-lv1-select-stories" class="tg tg-stories" type="checkbox" hidden />
+  <input id="c-7-components-lv1-select-info" class="tg tg-info" type="checkbox" hidden />
+  <input id="c-7-components-lv1-select-stories" class="tg tg-stories" type="checkbox" hidden />
   
-  <input id="c-6-components-lv1-select-props" class="tg tg-props" type="checkbox" hidden />
+  <input id="c-7-components-lv1-select-props" class="tg tg-props" type="checkbox" hidden />
 
   <div class="panels">
     
@@ -2814,9 +3166,9 @@ size?: &quot;sm&quot; | &quot;md&quot; | &quot;lg&quot; | null</code></pre>
     <div class="title">
       <h2><span class="status-dot dot-ok"></span> Spinner</h2>
       <div class="badges">
-        <label for="c-7-components-lv1-spinner-props" class="badge ok as-toggle">4 prop types</label>
-        <label for="c-7-components-lv1-spinner-info" class="badge info as-toggle">1 info</label>
-        <label for="c-7-components-lv1-spinner-stories" class="badge ok as-toggle">4 stories</label>
+        <label for="c-8-components-lv1-spinner-props" class="badge ok as-toggle">4 prop types</label>
+        <label for="c-8-components-lv1-spinner-info" class="badge info as-toggle">1 info</label>
+        <label for="c-8-components-lv1-spinner-stories" class="badge ok as-toggle">4 stories</label>
         
       </div>
     </div>
@@ -2828,10 +3180,10 @@ size?: &quot;sm&quot; | &quot;md&quot; | &quot;lg&quot; | null</code></pre>
 
   <!-- ⬇️ Hidden toggles must be siblings BEFORE .panels -->
   
-  <input id="c-7-components-lv1-spinner-info" class="tg tg-info" type="checkbox" hidden />
-  <input id="c-7-components-lv1-spinner-stories" class="tg tg-stories" type="checkbox" hidden />
+  <input id="c-8-components-lv1-spinner-info" class="tg tg-info" type="checkbox" hidden />
+  <input id="c-8-components-lv1-spinner-stories" class="tg tg-stories" type="checkbox" hidden />
   
-  <input id="c-7-components-lv1-spinner-props" class="tg tg-props" type="checkbox" hidden />
+  <input id="c-8-components-lv1-spinner-props" class="tg tg-props" type="checkbox" hidden />
 
   <div class="panels">
     
@@ -2948,9 +3300,9 @@ variant?: &quot;default&quot; | &quot;inverse&quot; | null</code></pre>
     <div class="title">
       <h2><span class="status-dot dot-ok"></span> Switch</h2>
       <div class="badges">
-        <label for="c-8-components-lv1-switch-props" class="badge ok as-toggle">4 prop types</label>
-        <label for="c-8-components-lv1-switch-info" class="badge info as-toggle">1 info</label>
-        <label for="c-8-components-lv1-switch-stories" class="badge ok as-toggle">6 stories</label>
+        <label for="c-9-components-lv1-switch-props" class="badge ok as-toggle">4 prop types</label>
+        <label for="c-9-components-lv1-switch-info" class="badge info as-toggle">1 info</label>
+        <label for="c-9-components-lv1-switch-stories" class="badge ok as-toggle">6 stories</label>
         
       </div>
     </div>
@@ -2962,10 +3314,10 @@ variant?: &quot;default&quot; | &quot;inverse&quot; | null</code></pre>
 
   <!-- ⬇️ Hidden toggles must be siblings BEFORE .panels -->
   
-  <input id="c-8-components-lv1-switch-info" class="tg tg-info" type="checkbox" hidden />
-  <input id="c-8-components-lv1-switch-stories" class="tg tg-stories" type="checkbox" hidden />
+  <input id="c-9-components-lv1-switch-info" class="tg tg-info" type="checkbox" hidden />
+  <input id="c-9-components-lv1-switch-stories" class="tg tg-stories" type="checkbox" hidden />
   
-  <input id="c-8-components-lv1-switch-props" class="tg tg-props" type="checkbox" hidden />
+  <input id="c-9-components-lv1-switch-props" class="tg tg-props" type="checkbox" hidden />
 
   <div class="panels">
     
@@ -3111,9 +3463,9 @@ size?: &quot;sm&quot; | &quot;md&quot; | &quot;lg&quot; | null = md</code></pre>
     <div class="title">
       <h2><span class="status-dot dot-ok"></span> Text</h2>
       <div class="badges">
-        <label for="c-9-components-lv1-text-props" class="badge ok as-toggle">7 prop types</label>
-        <label for="c-9-components-lv1-text-info" class="badge info as-toggle">1 info</label>
-        <label for="c-9-components-lv1-text-stories" class="badge ok as-toggle">6 stories</label>
+        <label for="c-10-components-lv1-text-props" class="badge ok as-toggle">7 prop types</label>
+        <label for="c-10-components-lv1-text-info" class="badge info as-toggle">1 info</label>
+        <label for="c-10-components-lv1-text-stories" class="badge ok as-toggle">6 stories</label>
         
       </div>
     </div>
@@ -3125,10 +3477,10 @@ size?: &quot;sm&quot; | &quot;md&quot; | &quot;lg&quot; | null = md</code></pre>
 
   <!-- ⬇️ Hidden toggles must be siblings BEFORE .panels -->
   
-  <input id="c-9-components-lv1-text-info" class="tg tg-info" type="checkbox" hidden />
-  <input id="c-9-components-lv1-text-stories" class="tg tg-stories" type="checkbox" hidden />
+  <input id="c-10-components-lv1-text-info" class="tg tg-info" type="checkbox" hidden />
+  <input id="c-10-components-lv1-text-stories" class="tg tg-stories" type="checkbox" hidden />
   
-  <input id="c-9-components-lv1-text-props" class="tg tg-props" type="checkbox" hidden />
+  <input id="c-10-components-lv1-text-props" class="tg tg-props" type="checkbox" hidden />
 
   <div class="panels">
     
@@ -3311,9 +3663,9 @@ variant?: &quot;heading&quot; | &quot;label&quot; | &quot;body&quot; | null</cod
     <div class="title">
       <h2><span class="status-dot dot-ok"></span> Textarea</h2>
       <div class="badges">
-        <label for="c-10-components-lv1-textarea-props" class="badge ok as-toggle">2 prop types</label>
-        <label for="c-10-components-lv1-textarea-info" class="badge info as-toggle">1 info</label>
-        <label for="c-10-components-lv1-textarea-stories" class="badge ok as-toggle">4 stories</label>
+        <label for="c-11-components-lv1-textarea-props" class="badge ok as-toggle">2 prop types</label>
+        <label for="c-11-components-lv1-textarea-info" class="badge info as-toggle">1 info</label>
+        <label for="c-11-components-lv1-textarea-stories" class="badge ok as-toggle">4 stories</label>
         
       </div>
     </div>
@@ -3325,10 +3677,10 @@ variant?: &quot;heading&quot; | &quot;label&quot; | &quot;body&quot; | null</cod
 
   <!-- ⬇️ Hidden toggles must be siblings BEFORE .panels -->
   
-  <input id="c-10-components-lv1-textarea-info" class="tg tg-info" type="checkbox" hidden />
-  <input id="c-10-components-lv1-textarea-stories" class="tg tg-stories" type="checkbox" hidden />
+  <input id="c-11-components-lv1-textarea-info" class="tg tg-info" type="checkbox" hidden />
+  <input id="c-11-components-lv1-textarea-stories" class="tg tg-stories" type="checkbox" hidden />
   
-  <input id="c-10-components-lv1-textarea-props" class="tg tg-props" type="checkbox" hidden />
+  <input id="c-11-components-lv1-textarea-props" class="tg tg-props" type="checkbox" hidden />
 
   <div class="panels">
     
@@ -3435,9 +3787,9 @@ size?: &quot;sm&quot; | &quot;md&quot; | &quot;lg&quot; | null</code></pre>
     <div class="title">
       <h2><span class="status-dot dot-err"></span> Typography</h2>
       <div class="badges">
-        <label for="c-11-foundation-typography-err" class="badge err as-toggle">prop type error</label>
-        <label for="c-11-foundation-typography-info" class="badge info as-toggle">2 infos</label>
-        <label for="c-11-foundation-typography-stories" class="badge ok as-toggle">1 story</label>
+        <label for="c-12-foundation-typography-err" class="badge err as-toggle">prop type error</label>
+        <label for="c-12-foundation-typography-info" class="badge info as-toggle">2 infos</label>
+        <label for="c-12-foundation-typography-stories" class="badge ok as-toggle">1 story</label>
         
       </div>
     </div>
@@ -3448,9 +3800,9 @@ size?: &quot;sm&quot; | &quot;md&quot; | &quot;lg&quot; | null</code></pre>
   </div>
 
   <!-- ⬇️ Hidden toggles must be siblings BEFORE .panels -->
-  <input id="c-11-foundation-typography-err" class="tg tg-err" type="checkbox" hidden />
-  <input id="c-11-foundation-typography-info" class="tg tg-info" type="checkbox" hidden />
-  <input id="c-11-foundation-typography-stories" class="tg tg-stories" type="checkbox" hidden />
+  <input id="c-12-foundation-typography-err" class="tg tg-err" type="checkbox" hidden />
+  <input id="c-12-foundation-typography-info" class="tg tg-info" type="checkbox" hidden />
+  <input id="c-12-foundation-typography-stories" class="tg tg-stories" type="checkbox" hidden />
   
   
 
@@ -4200,9 +4552,9 @@ export const Typography: Story = {
     <div class="title">
       <h2><span class="status-dot dot-err"></span> Welcome</h2>
       <div class="badges">
-        <label for="c-12-welcome-err" class="badge err as-toggle">prop type error</label>
-        <label for="c-12-welcome-info" class="badge info as-toggle">1 info</label>
-        <label for="c-12-welcome-stories" class="badge ok as-toggle">1 story</label>
+        <label for="c-13-welcome-err" class="badge err as-toggle">prop type error</label>
+        <label for="c-13-welcome-info" class="badge info as-toggle">1 info</label>
+        <label for="c-13-welcome-stories" class="badge ok as-toggle">1 story</label>
         
       </div>
     </div>
@@ -4213,9 +4565,9 @@ export const Typography: Story = {
   </div>
 
   <!-- ⬇️ Hidden toggles must be siblings BEFORE .panels -->
-  <input id="c-12-welcome-err" class="tg tg-err" type="checkbox" hidden />
-  <input id="c-12-welcome-info" class="tg tg-info" type="checkbox" hidden />
-  <input id="c-12-welcome-stories" class="tg tg-stories" type="checkbox" hidden />
+  <input id="c-13-welcome-err" class="tg tg-err" type="checkbox" hidden />
+  <input id="c-13-welcome-info" class="tg tg-info" type="checkbox" hidden />
+  <input id="c-13-welcome-stories" class="tg tg-stories" type="checkbox" hidden />
   
   
 
@@ -4226,19 +4578,20 @@ export const Typography: Story = {
     <div class="note err">
       <div class="note-title">Prop type error</div>
       <div class="note-body"><pre><code>We could not detect the component from your story file. Specify meta.component.
-  16 | import { Textarea } from &#39;../components/lv1/Textarea&#39;
-  17 |
-&gt; 18 | const meta: Meta = {
+  18 | import { Textarea } from &#39;../components/lv1/Textarea&#39;
+  19 |
+&gt; 20 | const meta: Meta = {
      | ^
-  19 |   title: &#39;Welcome&#39;,
-  20 |   parameters: {
-  21 |     layout: &#39;fullscreen&#39;,
+  21 |   title: &#39;Welcome&#39;,
+  22 |   parameters: {
+  23 |     layout: &#39;fullscreen&#39;,
 
 ./src/docs/Welcome.stories.tsx:
 import type { Meta, StoryObj } from &#39;@storybook/react-vite&#39;
 import { Badge } from &#39;../components/lv1/Badge&#39;
 import { Button } from &#39;../components/lv1/Button&#39;
 import { Checkbox } from &#39;../components/lv1/Checkbox&#39;
+import { Field } from &#39;../components/lv1/Field&#39;
 import { Input } from &#39;../components/lv1/Input&#39;
 import { Radio, RadioGroup } from &#39;../components/lv1/Radio&#39;
 import {
@@ -4249,6 +4602,7 @@ import {
   SelectValue,
 } from &#39;../components/lv1/Select&#39;
 import { Spinner } from &#39;../components/lv1/Spinner&#39;
+import { Switch } from &#39;../components/lv1/Switch&#39;
 import { Text } from &#39;../components/lv1/Text&#39;
 import { Textarea } from &#39;../components/lv1/Textarea&#39;
 
@@ -4359,7 +4713,7 @@ export const Overview: Story = {
       &lt;/div&gt;
 
       &lt;div className=&quot;mb-12&quot;&gt;
-        &lt;h2 className=&quot;text-xl font-bold text-foreground mb-4&quot;&gt;Components&lt;/h2&gt;
+        &lt;h2 className=&quot;text-xl font-bold text-foreground mb-4&quot;&gt;UI Components&lt;/h2&gt;
         &lt;div className=&quot;grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4&quot;&gt;
           &lt;ComponentCard
             name=&quot;Button&quot;
@@ -4397,6 +4751,21 @@ export const Overview: Story = {
               Heading
             &lt;/Text&gt;
           &lt;/ComponentCard&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+
+      &lt;div className=&quot;mb-12&quot;&gt;
+        &lt;h2 className=&quot;text-xl font-bold text-foreground mb-4&quot;&gt;Form Components&lt;/h2&gt;
+        &lt;div className=&quot;grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4&quot;&gt;
+          &lt;ComponentCard
+            name=&quot;Field&quot;
+            description=&quot;Wraps inputs with label and error.&quot;
+            storyPath=&quot;components-lv1-field&quot;
+          &gt;
+            &lt;Field label=&quot;Email&quot; description=&quot;Your email address.&quot;&gt;
+              &lt;Input placeholder=&quot;you@example.com&quot; className=&quot;w-40&quot; /&gt;
+            &lt;/Field&gt;
+          &lt;/ComponentCard&gt;
 
           &lt;ComponentCard
             name=&quot;Input&quot;
@@ -4412,17 +4781,6 @@ export const Overview: Story = {
             storyPath=&quot;components-lv1-textarea&quot;
           &gt;
             &lt;Textarea placeholder=&quot;Write something...&quot; className=&quot;w-40&quot; rows={2} /&gt;
-          &lt;/ComponentCard&gt;
-
-          &lt;ComponentCard
-            name=&quot;Checkbox&quot;
-            description=&quot;Toggles a boolean value.&quot;
-            storyPath=&quot;components-lv1-checkbox&quot;
-          &gt;
-            &lt;div className=&quot;flex flex-col gap-2&quot;&gt;
-              &lt;Checkbox label=&quot;Option A&quot; defaultChecked /&gt;
-              &lt;Checkbox label=&quot;Option B&quot; /&gt;
-            &lt;/div&gt;
           &lt;/ComponentCard&gt;
 
           &lt;ComponentCard
@@ -4442,6 +4800,17 @@ export const Overview: Story = {
           &lt;/ComponentCard&gt;
 
           &lt;ComponentCard
+            name=&quot;Checkbox&quot;
+            description=&quot;Toggles a boolean value.&quot;
+            storyPath=&quot;components-lv1-checkbox&quot;
+          &gt;
+            &lt;div className=&quot;flex flex-col gap-2&quot;&gt;
+              &lt;Checkbox label=&quot;Option A&quot; defaultChecked /&gt;
+              &lt;Checkbox label=&quot;Option B&quot; /&gt;
+            &lt;/div&gt;
+          &lt;/ComponentCard&gt;
+
+          &lt;ComponentCard
             name=&quot;Radio&quot;
             description=&quot;Selects one option from a group.&quot;
             storyPath=&quot;components-lv1-radio&quot;
@@ -4450,6 +4819,14 @@ export const Overview: Story = {
               &lt;Radio value=&quot;a&quot; label=&quot;Option A&quot; /&gt;
               &lt;Radio value=&quot;b&quot; label=&quot;Option B&quot; /&gt;
             &lt;/RadioGroup&gt;
+          &lt;/ComponentCard&gt;
+
+          &lt;ComponentCard
+            name=&quot;Switch&quot;
+            description=&quot;Toggles between on and off.&quot;
+            storyPath=&quot;components-lv1-switch&quot;
+          &gt;
+            &lt;Switch label=&quot;Enable&quot; defaultChecked /&gt;
           &lt;/ComponentCard&gt;
         &lt;/div&gt;
       &lt;/div&gt;
@@ -4521,6 +4898,7 @@ export const Overview: Story = {
     Badge,
     Button,
     Checkbox,
+    Field,
     Input,
     Radio,
     RadioGroup,
@@ -4530,6 +4908,7 @@ export const Overview: Story = {
     SelectTrigger,
     SelectValue,
     Spinner,
+    Switch,
     Text,
     Textarea,
 } from "@yasmro/schatten";</code></pre>
@@ -4595,7 +4974,7 @@ export const Overview: Story = {
     &lt;/div&gt;
 
     &lt;div className=&quot;mb-12&quot;&gt;
-      &lt;h2 className=&quot;text-xl font-bold text-foreground mb-4&quot;&gt;Components&lt;/h2&gt;
+      &lt;h2 className=&quot;text-xl font-bold text-foreground mb-4&quot;&gt;UI Components&lt;/h2&gt;
       &lt;div className=&quot;grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4&quot;&gt;
         &lt;ComponentCard
           name=&quot;Button&quot;
@@ -4633,6 +5012,21 @@ export const Overview: Story = {
             Heading
           &lt;/Text&gt;
         &lt;/ComponentCard&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+
+    &lt;div className=&quot;mb-12&quot;&gt;
+      &lt;h2 className=&quot;text-xl font-bold text-foreground mb-4&quot;&gt;Form Components&lt;/h2&gt;
+      &lt;div className=&quot;grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4&quot;&gt;
+        &lt;ComponentCard
+          name=&quot;Field&quot;
+          description=&quot;Wraps inputs with label and error.&quot;
+          storyPath=&quot;components-lv1-field&quot;
+        &gt;
+          &lt;Field label=&quot;Email&quot; description=&quot;Your email address.&quot;&gt;
+            &lt;Input placeholder=&quot;you@example.com&quot; className=&quot;w-40&quot; /&gt;
+          &lt;/Field&gt;
+        &lt;/ComponentCard&gt;
 
         &lt;ComponentCard
           name=&quot;Input&quot;
@@ -4648,17 +5042,6 @@ export const Overview: Story = {
           storyPath=&quot;components-lv1-textarea&quot;
         &gt;
           &lt;Textarea placeholder=&quot;Write something...&quot; className=&quot;w-40&quot; rows={2} /&gt;
-        &lt;/ComponentCard&gt;
-
-        &lt;ComponentCard
-          name=&quot;Checkbox&quot;
-          description=&quot;Toggles a boolean value.&quot;
-          storyPath=&quot;components-lv1-checkbox&quot;
-        &gt;
-          &lt;div className=&quot;flex flex-col gap-2&quot;&gt;
-            &lt;Checkbox label=&quot;Option A&quot; defaultChecked /&gt;
-            &lt;Checkbox label=&quot;Option B&quot; /&gt;
-          &lt;/div&gt;
         &lt;/ComponentCard&gt;
 
         &lt;ComponentCard
@@ -4678,6 +5061,17 @@ export const Overview: Story = {
         &lt;/ComponentCard&gt;
 
         &lt;ComponentCard
+          name=&quot;Checkbox&quot;
+          description=&quot;Toggles a boolean value.&quot;
+          storyPath=&quot;components-lv1-checkbox&quot;
+        &gt;
+          &lt;div className=&quot;flex flex-col gap-2&quot;&gt;
+            &lt;Checkbox label=&quot;Option A&quot; defaultChecked /&gt;
+            &lt;Checkbox label=&quot;Option B&quot; /&gt;
+          &lt;/div&gt;
+        &lt;/ComponentCard&gt;
+
+        &lt;ComponentCard
           name=&quot;Radio&quot;
           description=&quot;Selects one option from a group.&quot;
           storyPath=&quot;components-lv1-radio&quot;
@@ -4686,6 +5080,14 @@ export const Overview: Story = {
             &lt;Radio value=&quot;a&quot; label=&quot;Option A&quot; /&gt;
             &lt;Radio value=&quot;b&quot; label=&quot;Option B&quot; /&gt;
           &lt;/RadioGroup&gt;
+        &lt;/ComponentCard&gt;
+
+        &lt;ComponentCard
+          name=&quot;Switch&quot;
+          description=&quot;Toggles between on and off.&quot;
+          storyPath=&quot;components-lv1-switch&quot;
+        &gt;
+          &lt;Switch label=&quot;Enable&quot; defaultChecked /&gt;
         &lt;/ComponentCard&gt;
       &lt;/div&gt;
     &lt;/div&gt;
@@ -6474,19 +6876,20 @@ export const Typography: Story = {
     <div class="note err">
       <div class="note-title">Prop type error</div>
       <div class="note-body"><pre><code>We could not detect the component from your story file. Specify meta.component.
-  16 | import { Textarea } from &#39;../components/lv1/Textarea&#39;
-  17 |
-&gt; 18 | const meta: Meta = {
+  18 | import { Textarea } from &#39;../components/lv1/Textarea&#39;
+  19 |
+&gt; 20 | const meta: Meta = {
      | ^
-  19 |   title: &#39;Welcome&#39;,
-  20 |   parameters: {
-  21 |     layout: &#39;fullscreen&#39;,
+  21 |   title: &#39;Welcome&#39;,
+  22 |   parameters: {
+  23 |     layout: &#39;fullscreen&#39;,
 
 ./src/docs/Welcome.stories.tsx:
 import type { Meta, StoryObj } from &#39;@storybook/react-vite&#39;
 import { Badge } from &#39;../components/lv1/Badge&#39;
 import { Button } from &#39;../components/lv1/Button&#39;
 import { Checkbox } from &#39;../components/lv1/Checkbox&#39;
+import { Field } from &#39;../components/lv1/Field&#39;
 import { Input } from &#39;../components/lv1/Input&#39;
 import { Radio, RadioGroup } from &#39;../components/lv1/Radio&#39;
 import {
@@ -6497,6 +6900,7 @@ import {
   SelectValue,
 } from &#39;../components/lv1/Select&#39;
 import { Spinner } from &#39;../components/lv1/Spinner&#39;
+import { Switch } from &#39;../components/lv1/Switch&#39;
 import { Text } from &#39;../components/lv1/Text&#39;
 import { Textarea } from &#39;../components/lv1/Textarea&#39;
 
@@ -6607,7 +7011,7 @@ export const Overview: Story = {
       &lt;/div&gt;
 
       &lt;div className=&quot;mb-12&quot;&gt;
-        &lt;h2 className=&quot;text-xl font-bold text-foreground mb-4&quot;&gt;Components&lt;/h2&gt;
+        &lt;h2 className=&quot;text-xl font-bold text-foreground mb-4&quot;&gt;UI Components&lt;/h2&gt;
         &lt;div className=&quot;grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4&quot;&gt;
           &lt;ComponentCard
             name=&quot;Button&quot;
@@ -6645,6 +7049,21 @@ export const Overview: Story = {
               Heading
             &lt;/Text&gt;
           &lt;/ComponentCard&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+
+      &lt;div className=&quot;mb-12&quot;&gt;
+        &lt;h2 className=&quot;text-xl font-bold text-foreground mb-4&quot;&gt;Form Components&lt;/h2&gt;
+        &lt;div className=&quot;grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4&quot;&gt;
+          &lt;ComponentCard
+            name=&quot;Field&quot;
+            description=&quot;Wraps inputs with label and error.&quot;
+            storyPath=&quot;components-lv1-field&quot;
+          &gt;
+            &lt;Field label=&quot;Email&quot; description=&quot;Your email address.&quot;&gt;
+              &lt;Input placeholder=&quot;you@example.com&quot; className=&quot;w-40&quot; /&gt;
+            &lt;/Field&gt;
+          &lt;/ComponentCard&gt;
 
           &lt;ComponentCard
             name=&quot;Input&quot;
@@ -6660,17 +7079,6 @@ export const Overview: Story = {
             storyPath=&quot;components-lv1-textarea&quot;
           &gt;
             &lt;Textarea placeholder=&quot;Write something...&quot; className=&quot;w-40&quot; rows={2} /&gt;
-          &lt;/ComponentCard&gt;
-
-          &lt;ComponentCard
-            name=&quot;Checkbox&quot;
-            description=&quot;Toggles a boolean value.&quot;
-            storyPath=&quot;components-lv1-checkbox&quot;
-          &gt;
-            &lt;div className=&quot;flex flex-col gap-2&quot;&gt;
-              &lt;Checkbox label=&quot;Option A&quot; defaultChecked /&gt;
-              &lt;Checkbox label=&quot;Option B&quot; /&gt;
-            &lt;/div&gt;
           &lt;/ComponentCard&gt;
 
           &lt;ComponentCard
@@ -6690,6 +7098,17 @@ export const Overview: Story = {
           &lt;/ComponentCard&gt;
 
           &lt;ComponentCard
+            name=&quot;Checkbox&quot;
+            description=&quot;Toggles a boolean value.&quot;
+            storyPath=&quot;components-lv1-checkbox&quot;
+          &gt;
+            &lt;div className=&quot;flex flex-col gap-2&quot;&gt;
+              &lt;Checkbox label=&quot;Option A&quot; defaultChecked /&gt;
+              &lt;Checkbox label=&quot;Option B&quot; /&gt;
+            &lt;/div&gt;
+          &lt;/ComponentCard&gt;
+
+          &lt;ComponentCard
             name=&quot;Radio&quot;
             description=&quot;Selects one option from a group.&quot;
             storyPath=&quot;components-lv1-radio&quot;
@@ -6698,6 +7117,14 @@ export const Overview: Story = {
               &lt;Radio value=&quot;a&quot; label=&quot;Option A&quot; /&gt;
               &lt;Radio value=&quot;b&quot; label=&quot;Option B&quot; /&gt;
             &lt;/RadioGroup&gt;
+          &lt;/ComponentCard&gt;
+
+          &lt;ComponentCard
+            name=&quot;Switch&quot;
+            description=&quot;Toggles between on and off.&quot;
+            storyPath=&quot;components-lv1-switch&quot;
+          &gt;
+            &lt;Switch label=&quot;Enable&quot; defaultChecked /&gt;
           &lt;/ComponentCard&gt;
         &lt;/div&gt;
       &lt;/div&gt;
@@ -6769,6 +7196,7 @@ export const Overview: Story = {
     Badge,
     Button,
     Checkbox,
+    Field,
     Input,
     Radio,
     RadioGroup,
@@ -6778,6 +7206,7 @@ export const Overview: Story = {
     SelectTrigger,
     SelectValue,
     Spinner,
+    Switch,
     Text,
     Textarea,
 } from "@yasmro/schatten";</code></pre>
@@ -6843,7 +7272,7 @@ export const Overview: Story = {
     &lt;/div&gt;
 
     &lt;div className=&quot;mb-12&quot;&gt;
-      &lt;h2 className=&quot;text-xl font-bold text-foreground mb-4&quot;&gt;Components&lt;/h2&gt;
+      &lt;h2 className=&quot;text-xl font-bold text-foreground mb-4&quot;&gt;UI Components&lt;/h2&gt;
       &lt;div className=&quot;grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4&quot;&gt;
         &lt;ComponentCard
           name=&quot;Button&quot;
@@ -6881,6 +7310,21 @@ export const Overview: Story = {
             Heading
           &lt;/Text&gt;
         &lt;/ComponentCard&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+
+    &lt;div className=&quot;mb-12&quot;&gt;
+      &lt;h2 className=&quot;text-xl font-bold text-foreground mb-4&quot;&gt;Form Components&lt;/h2&gt;
+      &lt;div className=&quot;grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4&quot;&gt;
+        &lt;ComponentCard
+          name=&quot;Field&quot;
+          description=&quot;Wraps inputs with label and error.&quot;
+          storyPath=&quot;components-lv1-field&quot;
+        &gt;
+          &lt;Field label=&quot;Email&quot; description=&quot;Your email address.&quot;&gt;
+            &lt;Input placeholder=&quot;you@example.com&quot; className=&quot;w-40&quot; /&gt;
+          &lt;/Field&gt;
+        &lt;/ComponentCard&gt;
 
         &lt;ComponentCard
           name=&quot;Input&quot;
@@ -6896,17 +7340,6 @@ export const Overview: Story = {
           storyPath=&quot;components-lv1-textarea&quot;
         &gt;
           &lt;Textarea placeholder=&quot;Write something...&quot; className=&quot;w-40&quot; rows={2} /&gt;
-        &lt;/ComponentCard&gt;
-
-        &lt;ComponentCard
-          name=&quot;Checkbox&quot;
-          description=&quot;Toggles a boolean value.&quot;
-          storyPath=&quot;components-lv1-checkbox&quot;
-        &gt;
-          &lt;div className=&quot;flex flex-col gap-2&quot;&gt;
-            &lt;Checkbox label=&quot;Option A&quot; defaultChecked /&gt;
-            &lt;Checkbox label=&quot;Option B&quot; /&gt;
-          &lt;/div&gt;
         &lt;/ComponentCard&gt;
 
         &lt;ComponentCard
@@ -6926,6 +7359,17 @@ export const Overview: Story = {
         &lt;/ComponentCard&gt;
 
         &lt;ComponentCard
+          name=&quot;Checkbox&quot;
+          description=&quot;Toggles a boolean value.&quot;
+          storyPath=&quot;components-lv1-checkbox&quot;
+        &gt;
+          &lt;div className=&quot;flex flex-col gap-2&quot;&gt;
+            &lt;Checkbox label=&quot;Option A&quot; defaultChecked /&gt;
+            &lt;Checkbox label=&quot;Option B&quot; /&gt;
+          &lt;/div&gt;
+        &lt;/ComponentCard&gt;
+
+        &lt;ComponentCard
           name=&quot;Radio&quot;
           description=&quot;Selects one option from a group.&quot;
           storyPath=&quot;components-lv1-radio&quot;
@@ -6934,6 +7378,14 @@ export const Overview: Story = {
             &lt;Radio value=&quot;a&quot; label=&quot;Option A&quot; /&gt;
             &lt;Radio value=&quot;b&quot; label=&quot;Option B&quot; /&gt;
           &lt;/RadioGroup&gt;
+        &lt;/ComponentCard&gt;
+
+        &lt;ComponentCard
+          name=&quot;Switch&quot;
+          description=&quot;Toggles between on and off.&quot;
+          storyPath=&quot;components-lv1-switch&quot;
+        &gt;
+          &lt;Switch label=&quot;Enable&quot; defaultChecked /&gt;
         &lt;/ComponentCard&gt;
       &lt;/div&gt;
     &lt;/div&gt;

@@ -14,6 +14,7 @@
 @import "./semantic.css";
 @import "./typography.css";
 @import "./spacing.css";
+@import "./z-index.css";
 
 /*
  * Tailwind CSS v4 Theme Registration
@@ -277,4 +278,15 @@
   --shadow-md: var(--shadow-md);
   --shadow-lg: var(--shadow-lg);
   --shadow-xl: var(--shadow-xl);
+
+  /* Z-Index */
+  --z-base: var(--z-base);
+  --z-dropdown: var(--z-dropdown);
+  --z-sticky: var(--z-sticky);
+  --z-fixed: var(--z-fixed);
+  --z-modal-backdrop: var(--z-modal-backdrop);
+  --z-modal: var(--z-modal);
+  --z-popover: var(--z-popover);
+  --z-tooltip: var(--z-tooltip);
+  --z-toast: var(--z-toast);
 }

@@ -28,3 +28,12 @@ export { Spinner, type SpinnerProps } from './Spinner'
 export { Switch, type SwitchProps } from './Switch'
 export { Text, type TextProps } from './Text'
 export { Textarea, type TextareaProps } from './Textarea'
+export {
+  Tooltip,
+  TooltipContent,
+  type TooltipContentProps,
+  TooltipProvider,
+  type TooltipProviderProps,
+  TooltipTrigger,
+  type TooltipTriggerProps,
+} from './Tooltip'

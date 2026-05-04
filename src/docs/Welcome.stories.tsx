@@ -17,6 +17,7 @@ import { Spinner } from '../components/lv1/Spinner'
 import { Switch } from '../components/lv1/Switch'
 import { Text } from '../components/lv1/Text'
 import { Textarea } from '../components/lv1/Textarea'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../components/lv1/Tooltip'
 
 const meta: Meta = {
   title: 'Welcome',
@@ -162,6 +163,21 @@ export const Overview: Story = {
             <Text variant="heading" size="lg">
               Heading
             </Text>
+          </ComponentCard>
+
+          <ComponentCard
+            name="Tooltip"
+            description="Displays additional info on hover."
+            storyPath="components-lv1-tooltip"
+          >
+            <TooltipProvider>
+              <Tooltip defaultOpen>
+                <TooltipTrigger>
+                  <Button variant="secondary">Hover me</Button>
+                </TooltipTrigger>
+                <TooltipContent>Helpful info</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </ComponentCard>
         </div>
       </div>

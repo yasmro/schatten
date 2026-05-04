@@ -13,11 +13,30 @@ export interface FieldSetProps {
   isError?: boolean
   /** Disable all child fields */
   disabled?: boolean
+  /** Flex direction for children layout */
+  direction?: 'row' | 'column'
+  /** Enable flex wrap for children */
+  wrap?: boolean
+  /** Gap between children (Tailwind spacing scale: 0, 1, 2, 3, 4, etc.) */
+  gap?: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 8 | 10 | 12
   /** FieldSet content (Field elements) */
   children: ReactNode
   /** Additional CSS classes */
   className?: string
 }
+
+const gapClasses = {
+  0: 'gap-0',
+  1: 'gap-1',
+  2: 'gap-2',
+  3: 'gap-3',
+  4: 'gap-4',
+  5: 'gap-5',
+  6: 'gap-6',
+  8: 'gap-8',
+  10: 'gap-10',
+  12: 'gap-12',
+} as const
 
 export function FieldSet({
   legend,
@@ -25,6 +44,9 @@ export function FieldSet({
   error,
   isError: isErrorProp,
   disabled = false,
+  direction = 'column',
+  wrap = false,
+  gap = 4,
   children,
   className,
 }: FieldSetProps) {
@@ -59,7 +81,16 @@ export function FieldSet({
             {description}
           </p>
         )}
-        <div className="mt-4 flex flex-col gap-4">{children}</div>
+        <div
+          className={cn(
+            'mt-4 flex',
+            direction === 'row' ? 'flex-row' : 'flex-col',
+            wrap && 'flex-wrap',
+            gapClasses[gap],
+          )}
+        >
+          {children}
+        </div>
         {error && (
           <p id={errorId} className="mt-4 text-sm text-destructive">
             {error}

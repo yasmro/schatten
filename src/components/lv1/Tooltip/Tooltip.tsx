@@ -21,7 +21,14 @@ export interface TooltipTriggerProps
 const TooltipTrigger = forwardRef<
   ComponentRef<typeof TooltipPrimitive.Trigger>,
   TooltipTriggerProps
->((props, ref) => <TooltipPrimitive.Trigger ref={ref} asChild {...props} />)
+>(({ children, ...props }, ref) => {
+  const isTextOnly = typeof children === 'string' || typeof children === 'number'
+  return (
+    <TooltipPrimitive.Trigger ref={ref} asChild={!isTextOnly} {...props}>
+      {children}
+    </TooltipPrimitive.Trigger>
+  )
+})
 TooltipTrigger.displayName = TooltipPrimitive.Trigger.displayName
 
 /* ----- Portal ----- */

@@ -8,7 +8,17 @@ const renderTooltip = (ui: React.ReactNode) => {
 }
 
 describe('Tooltip', () => {
-  it('renders trigger element', () => {
+  it('renders trigger with text children', () => {
+    renderTooltip(
+      <Tooltip>
+        <TooltipTrigger>Hover me</TooltipTrigger>
+        <TooltipContent>Tooltip content</TooltipContent>
+      </Tooltip>,
+    )
+    expect(screen.getByText('Hover me')).toBeInTheDocument()
+  })
+
+  it('renders trigger with element children', () => {
     renderTooltip(
       <Tooltip>
         <TooltipTrigger>

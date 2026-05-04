@@ -8,6 +8,7 @@ import {
   useContext,
   useId,
 } from 'react'
+import { useFieldContext } from '../../../lib/field-context'
 import { cn } from '../../../lib/utils'
 import { type RadioVariants, radioVariants } from '../../../variants/radio'
 
@@ -32,18 +33,36 @@ export interface RadioGroupProps extends ComponentPropsWithoutRef<typeof RadioGr
 }
 
 export const RadioGroup = forwardRef<ElementRef<typeof RadioGroupPrimitive.Root>, RadioGroupProps>(
-  ({ className, isError = false, size, children, ...props }, ref) => (
-    <RadioGroupContext.Provider value={{ isError, size }}>
-      <RadioGroupPrimitive.Root
-        ref={ref}
-        className={cn('flex flex-col gap-2', className)}
-        aria-invalid={isError || undefined}
-        {...props}
-      >
-        {children}
-      </RadioGroupPrimitive.Root>
-    </RadioGroupContext.Provider>
-  ),
+  (
+    {
+      className,
+      isError: isErrorProp = false,
+      size,
+      children,
+      'aria-describedby': ariaDescribedByProp,
+      ...props
+    },
+    ref,
+  ) => {
+    const field = useFieldContext()
+
+    const isError = field?.isError ?? isErrorProp
+    const ariaDescribedBy = field?.describedBy ?? ariaDescribedByProp
+
+    return (
+      <RadioGroupContext.Provider value={{ isError, size }}>
+        <RadioGroupPrimitive.Root
+          ref={ref}
+          className={cn('flex flex-col gap-2', className)}
+          aria-invalid={isError || undefined}
+          aria-describedby={ariaDescribedBy}
+          {...props}
+        >
+          {children}
+        </RadioGroupPrimitive.Root>
+      </RadioGroupContext.Provider>
+    )
+  },
 )
 
 RadioGroup.displayName = 'RadioGroup'

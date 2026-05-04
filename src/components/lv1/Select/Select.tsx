@@ -1,6 +1,7 @@
 import * as SelectPrimitive from '@radix-ui/react-select'
 import { Check, ChevronDown, ChevronUp } from 'lucide-react'
-import { type ComponentPropsWithoutRef, type ComponentRef, forwardRef } from 'react'
+import { type ComponentPropsWithoutRef, type ComponentRef, forwardRef, useId } from 'react'
+import { useFieldContext } from '../../../lib/field-context'
 import { cn } from '../../../lib/utils'
 import { type SelectTriggerVariants, selectTriggerVariants } from '../../../variants/select'
 
@@ -25,12 +26,31 @@ export interface SelectTriggerProps
 }
 
 const SelectTrigger = forwardRef<ComponentRef<typeof SelectPrimitive.Trigger>, SelectTriggerProps>(
-  ({ className, size, isError = false, children, ...props }, ref) => {
+  (
+    {
+      className,
+      size,
+      isError: isErrorProp = false,
+      children,
+      id: idProp,
+      'aria-describedby': ariaDescribedByProp,
+      ...props
+    },
+    ref,
+  ) => {
+    const field = useFieldContext()
+    const autoId = useId()
+
+    const id = field?.id ?? idProp ?? autoId
+    const isError = field?.isError ?? isErrorProp
+    const ariaDescribedBy = field?.describedBy ?? ariaDescribedByProp
+
     const iconSize = size === 'lg' ? 'size-5' : size === 'sm' ? 'size-3.5' : 'size-4'
 
     return (
       <SelectPrimitive.Trigger
         ref={ref}
+        id={id}
         className={cn(
           selectTriggerVariants({ size }),
           isError
@@ -39,6 +59,7 @@ const SelectTrigger = forwardRef<ComponentRef<typeof SelectPrimitive.Trigger>, S
           className,
         )}
         aria-invalid={isError || undefined}
+        aria-describedby={ariaDescribedBy}
         {...props}
       >
         {children}

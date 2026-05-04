@@ -576,13 +576,13 @@
 <header>
   <div class="wrap">
     <h1>Manifest Debugger</h1>
-    <div class="summary"><a class="filter-pill all" data-k="all" href="#filter-all">All</a><a class="filter-pill err" data-k="errors" href="#filter-errors">3/15 prop type errors</a><a class="filter-pill info" data-k="infos" href="#filter-infos">15/15 infos</a><span class="filter-pill ok" aria-disabled="true">83 stories ok</span></div>
+    <div class="summary"><a class="filter-pill all" data-k="all" href="#filter-all">All</a><a class="filter-pill err" data-k="errors" href="#filter-errors">3/15 prop type errors</a><a class="filter-pill info" data-k="infos" href="#filter-infos">15/15 infos</a><span class="filter-pill ok" aria-disabled="true">85 stories ok</span></div>
   </div>
 </header>
 <main>
   <div class="wrap">
     <div class="note ok" style="margin-bottom: 16px;">
-              Using <code>react-docgen-typescript</code>. Generation took <strong>2.7s</strong>.
+              Using <code>react-docgen-typescript</code>. Generation took <strong>2.8s</strong>.
             </div>
     <h2 class="section-title">Components</h2>
     <div class="grid" role="list">
@@ -2496,7 +2496,7 @@ required?: boolean = false</code></pre>
       <div class="badges">
         <label for="c-5-components-lv1-fieldset-props" class="badge ok as-toggle">7 prop types</label>
         <label for="c-5-components-lv1-fieldset-info" class="badge info as-toggle">1 info</label>
-        <label for="c-5-components-lv1-fieldset-stories" class="badge ok as-toggle">6 stories</label>
+        <label for="c-5-components-lv1-fieldset-stories" class="badge ok as-toggle">8 stories</label>
         
       </div>
     </div>
@@ -2763,6 +2763,82 @@ legend: ReactNode</code></pre>
       &lt;/div&gt;
     &lt;/FieldSet&gt;
   &lt;/div&gt;
+);</code></pre>
+            </div>
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">Error Propagation</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const ErrorPropagation = () =&gt; (
+  &lt;div className=&quot;flex flex-col gap-8&quot;&gt;
+    &lt;div&gt;
+      &lt;p className=&quot;text-sm text-foreground-muted mb-4&quot;&gt;
+        When FieldSet has isError, all child Inputs show error styles automatically.
+      &lt;/p&gt;
+      &lt;FieldSet legend=&quot;Date Range&quot; isError error=&quot;End date must be after start date.&quot;&gt;
+        &lt;div className=&quot;flex gap-4&quot;&gt;
+          &lt;Field label=&quot;Start Date&quot;&gt;
+            &lt;Input type=&quot;date&quot; defaultValue=&quot;2024-12-31&quot; className=&quot;w-40&quot; /&gt;
+          &lt;/Field&gt;
+          &lt;Field label=&quot;End Date&quot;&gt;
+            &lt;Input type=&quot;date&quot; defaultValue=&quot;2024-01-01&quot; className=&quot;w-40&quot; /&gt;
+          &lt;/Field&gt;
+        &lt;/div&gt;
+      &lt;/FieldSet&gt;
+    &lt;/div&gt;
+
+    &lt;div&gt;
+      &lt;p className=&quot;text-sm text-foreground-muted mb-4&quot;&gt;
+        Individual Field can override FieldSet&amp;apos;s isError.
+      &lt;/p&gt;
+      &lt;FieldSet legend=&quot;Mixed States&quot; isError&gt;
+        &lt;div className=&quot;flex flex-col gap-4 w-80&quot;&gt;
+          &lt;Field label=&quot;Has Error (inherited)&quot;&gt;
+            &lt;Input placeholder=&quot;Error style from FieldSet&quot; /&gt;
+          &lt;/Field&gt;
+          &lt;Field label=&quot;No Error (overridden)&quot; isError={false}&gt;
+            &lt;Input placeholder=&quot;Explicitly set isError=false&quot; /&gt;
+          &lt;/Field&gt;
+        &lt;/div&gt;
+      &lt;/FieldSet&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+);</code></pre>
+            </div>
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">Nested FieldSets</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const NestedFieldSets = () =&gt; (
+  &lt;FieldSet legend=&quot;Checkout Form&quot; description=&quot;Complete your order.&quot;&gt;
+    &lt;FieldSet legend=&quot;Shipping Address&quot;&gt;
+      &lt;div className=&quot;flex flex-col gap-4 w-80&quot;&gt;
+        &lt;Field label=&quot;Street&quot; required&gt;
+          &lt;Input placeholder=&quot;123 Main St&quot; /&gt;
+        &lt;/Field&gt;
+        &lt;Field label=&quot;City&quot; required&gt;
+          &lt;Input placeholder=&quot;Tokyo&quot; /&gt;
+        &lt;/Field&gt;
+      &lt;/div&gt;
+    &lt;/FieldSet&gt;
+
+    &lt;FieldSet legend=&quot;Billing Address&quot; isError error=&quot;Please complete billing address.&quot;&gt;
+      &lt;div className=&quot;flex flex-col gap-4 w-80&quot;&gt;
+        &lt;Field label=&quot;Street&quot; required&gt;
+          &lt;Input placeholder=&quot;456 Oak Ave&quot; /&gt;
+        &lt;/Field&gt;
+        &lt;Field label=&quot;City&quot; required&gt;
+          &lt;Input placeholder=&quot;Osaka&quot; /&gt;
+        &lt;/Field&gt;
+      &lt;/div&gt;
+    &lt;/FieldSet&gt;
+  &lt;/FieldSet&gt;
 );</code></pre>
             </div>
         </div>

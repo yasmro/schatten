@@ -45,13 +45,13 @@ describe('Field', () => {
     expect(screen.getByText('Invalid email')).toBeInTheDocument()
   })
 
-  it('hides description when error is present', () => {
+  it('shows both description and error when both are present', () => {
     render(
       <Field label="Email" description="Enter your email" error="Invalid email">
         <input />
       </Field>,
     )
-    expect(screen.queryByText('Enter your email')).not.toBeInTheDocument()
+    expect(screen.getByText('Enter your email')).toBeInTheDocument()
     expect(screen.getByText('Invalid email')).toBeInTheDocument()
   })
 

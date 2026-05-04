@@ -81,7 +81,7 @@ export function Field({
             {required && <span className="text-destructive ml-0.5">*</span>}
           </label>
         )}
-        {description && !error && (
+        {description && (
           <label
             htmlFor={id}
             id={descriptionId}

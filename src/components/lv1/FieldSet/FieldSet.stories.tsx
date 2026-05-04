@@ -380,8 +380,8 @@ export const DescriptionWithError: Story = {
     <div className="flex flex-col gap-8">
       <div>
         <p className="text-sm text-foreground-muted mb-4">
-          <strong>FieldSet:</strong> Shows both description AND error. The description provides
-          context for the group, while the error indicates validation failure.
+          Both Field and FieldSet show description AND error together. Description appears above the
+          input, error appears below.
         </p>
         <FieldSet
           legend="Date Range"
@@ -399,23 +399,15 @@ export const DescriptionWithError: Story = {
       </div>
 
       <div>
-        <p className="text-sm text-foreground-muted mb-4">
-          <strong>Field:</strong> Shows description OR error (mutually exclusive). The error
-          replaces the helper text since they serve the same purpose for individual inputs.
-        </p>
-        <div className="flex gap-8">
-          <Field label="Email" description="We'll send a verification link." className="w-60">
-            <Input placeholder="No error" />
-          </Field>
-          <Field
-            label="Email"
-            description="We'll send a verification link."
-            error="Invalid email address."
-            className="w-60"
-          >
-            <Input placeholder="With error" />
-          </Field>
-        </div>
+        <p className="text-sm text-foreground-muted mb-4">Field with both description and error.</p>
+        <Field
+          label="Email"
+          description="We'll send a verification link."
+          error="Invalid email address."
+          className="w-60"
+        >
+          <Input defaultValue="invalid" />
+        </Field>
       </div>
     </div>
   ),

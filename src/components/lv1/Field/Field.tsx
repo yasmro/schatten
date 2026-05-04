@@ -17,17 +17,19 @@ export interface FieldProps {
   /** Disable the field */
   disabled?: boolean
   /** Flex grow factor for layout within FieldSet */
-  grow?: 0 | 1
+  flexGrow?: 0 | 1
   /** Flex shrink factor for layout within FieldSet */
-  shrink?: 0 | 1
+  flexShrink?: 0 | 1
+  /** Flex basis for layout within FieldSet (CSS value) */
+  flexBasis?: string
   /** Field content (input element) */
   children: ReactNode
   /** Additional CSS classes */
   className?: string
 }
 
-const growClasses = { 0: 'grow-0', 1: 'grow' } as const
-const shrinkClasses = { 0: 'shrink-0', 1: 'shrink' } as const
+const flexGrowClasses = { 0: 'grow-0', 1: 'grow' } as const
+const flexShrinkClasses = { 0: 'shrink-0', 1: 'shrink' } as const
 
 export function Field({
   label,
@@ -36,8 +38,9 @@ export function Field({
   isError: isErrorProp,
   required = false,
   disabled = false,
-  grow,
-  shrink,
+  flexGrow,
+  flexShrink,
+  flexBasis,
   children,
   className,
 }: FieldProps) {
@@ -65,10 +68,11 @@ export function Field({
       <div
         className={cn(
           'flex flex-col gap-1.5',
-          grow !== undefined && growClasses[grow],
-          shrink !== undefined && shrinkClasses[shrink],
+          flexGrow !== undefined && flexGrowClasses[flexGrow],
+          flexShrink !== undefined && flexShrinkClasses[flexShrink],
           className,
         )}
+        style={flexBasis ? { flexBasis } : undefined}
         data-disabled={disabled || undefined}
       >
         {label && (

@@ -127,10 +127,10 @@ export const Address: Story = {
         <Input placeholder="123 Main St" />
       </Field>
       <FieldSet direction="row" gap={4} legend="">
-        <Field label="City" required grow={1}>
+        <Field label="City" required flexGrow={1}>
           <Input placeholder="Tokyo" />
         </Field>
-        <Field label="Postal Code" required shrink={0}>
+        <Field label="Postal Code" required flexShrink={0}>
           <Input placeholder="100-0001" className="w-32" />
         </Field>
       </FieldSet>
@@ -313,10 +313,10 @@ export const LayoutVariants: Story = {
   render: () => (
     <div className="flex flex-col gap-8">
       <FieldSet legend="Row Direction" direction="row" gap={4}>
-        <Field label="First" grow={1}>
+        <Field label="First" flexGrow={1}>
           <Input placeholder="Grows to fill" />
         </Field>
-        <Field label="Second" shrink={0}>
+        <Field label="Second" flexShrink={0}>
           <Input placeholder="Fixed" className="w-24" />
         </Field>
       </FieldSet>

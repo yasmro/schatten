@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest'
 import { useFieldContext } from '../../../contexts/field'
 import { useFieldSetContext } from '../../../contexts/fieldset'
 import { Field } from '../Field/Field'
+import { Input } from '../Input/Input'
 import { FieldSet } from './FieldSet'
 
 // Test component to verify FieldSetContext values
@@ -220,6 +221,37 @@ describe('FieldSet', () => {
       const fieldset = container.querySelector('fieldset')
       expect(fieldset).toHaveAttribute('data-error', 'true')
     })
+
+    it('sets aria-invalid when isError is true', () => {
+      const { container } = render(
+        <FieldSet legend="Test" isError>
+          <input />
+        </FieldSet>,
+      )
+      const fieldset = container.querySelector('fieldset')
+      expect(fieldset).toHaveAttribute('aria-invalid', 'true')
+    })
+
+    it('does not set aria-invalid when isError is false', () => {
+      const { container } = render(
+        <FieldSet legend="Test">
+          <input />
+        </FieldSet>,
+      )
+      const fieldset = container.querySelector('fieldset')
+      expect(fieldset).not.toHaveAttribute('aria-invalid')
+    })
+
+    it('legend is direct first child of fieldset (HTML spec compliance)', () => {
+      const { container } = render(
+        <FieldSet legend="Test" description="Description">
+          <input />
+        </FieldSet>,
+      )
+      const fieldset = container.querySelector('fieldset')
+      const firstChild = fieldset?.firstElementChild
+      expect(firstChild?.tagName.toLowerCase()).toBe('legend')
+    })
   })
 
   describe('standalone Field', () => {
@@ -240,6 +272,83 @@ describe('FieldSet', () => {
         </Field>,
       )
       expect(screen.getByTestId('field-context-isError').textContent).toBe('true')
+    })
+  })
+
+  describe('nested FieldSet', () => {
+    it('inner FieldSet creates its own context', () => {
+      render(
+        <FieldSet legend="Outer" isError>
+          <FieldSet legend="Inner">
+            <FieldSetContextConsumer />
+          </FieldSet>
+        </FieldSet>,
+      )
+      // Inner FieldSet has its own context with isError=false
+      expect(screen.getByTestId('fieldset-context-isError').textContent).toBe('false')
+    })
+
+    it('inner FieldSet can override parent isError', () => {
+      render(
+        <FieldSet legend="Outer" isError={false}>
+          <FieldSet legend="Inner" isError>
+            <FieldSetContextConsumer />
+          </FieldSet>
+        </FieldSet>,
+      )
+      expect(screen.getByTestId('fieldset-context-isError').textContent).toBe('true')
+    })
+  })
+
+  describe('Input integration', () => {
+    it('Input receives isError through FieldSet → Field chain', () => {
+      render(
+        <FieldSet legend="Test" isError>
+          <Field label="Name">
+            <Input data-testid="input" />
+          </Field>
+        </FieldSet>,
+      )
+      const input = screen.getByTestId('input')
+      // Input wrapper should have error styles (aria-invalid is on the input element)
+      expect(input).toHaveAttribute('aria-invalid', 'true')
+    })
+
+    it('Field isError prop overrides FieldSet context for Input', () => {
+      render(
+        <FieldSet legend="Test" isError>
+          <Field label="Name" isError={false}>
+            <Input data-testid="input" />
+          </Field>
+        </FieldSet>,
+      )
+      const input = screen.getByTestId('input')
+      // Field's isError=false overrides FieldSet's isError=true
+      expect(input).not.toHaveAttribute('aria-invalid')
+    })
+  })
+
+  describe('className', () => {
+    it('applies className to fieldset element', () => {
+      const { container } = render(
+        <FieldSet legend="Test" className="custom-class">
+          <input />
+        </FieldSet>,
+      )
+      const fieldset = container.querySelector('fieldset')
+      expect(fieldset).toHaveClass('custom-class')
+    })
+  })
+
+  describe('description and error', () => {
+    it('shows both description and error when both are provided', () => {
+      render(
+        <FieldSet legend="Test" description="Help text" error="Error text">
+          <input />
+        </FieldSet>,
+      )
+      expect(screen.getByText('Help text')).toBeInTheDocument()
+      expect(screen.getByText('Error text')).toBeInTheDocument()
     })
   })
 })

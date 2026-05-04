@@ -46,23 +46,22 @@ export function FieldSet({
   return (
     <FieldSetContext.Provider value={contextValue}>
       <fieldset
-        className={cn('flex flex-col gap-4', className)}
+        className={cn('flex flex-col', className)}
         disabled={disabled}
         aria-describedby={describedBy}
+        aria-invalid={isError || undefined}
         data-disabled={disabled || undefined}
         data-error={isError || undefined}
       >
-        <div className="flex flex-col gap-0">
-          <legend className="text-base font-medium text-foreground">{legend}</legend>
-          {description && (
-            <p id={descriptionId} className="text-sm text-foreground-muted">
-              {description}
-            </p>
-          )}
-        </div>
-        {children}
+        <legend className="text-base font-medium text-foreground">{legend}</legend>
+        {description && (
+          <p id={descriptionId} className="text-sm text-foreground-muted">
+            {description}
+          </p>
+        )}
+        <div className="mt-4 flex flex-col gap-4">{children}</div>
         {error && (
-          <p id={errorId} className="text-sm text-destructive">
+          <p id={errorId} className="mt-4 text-sm text-destructive">
             {error}
           </p>
         )}

@@ -208,3 +208,71 @@ export const NestedFields: Story = {
     </div>
   ),
 }
+
+export const ErrorPropagation: Story = {
+  name: 'Error Propagation',
+  render: () => (
+    <div className="flex flex-col gap-8">
+      <div>
+        <p className="text-sm text-foreground-muted mb-4">
+          When FieldSet has isError, all child Inputs show error styles automatically.
+        </p>
+        <FieldSet legend="Date Range" isError error="End date must be after start date.">
+          <div className="flex gap-4">
+            <Field label="Start Date">
+              <Input type="date" defaultValue="2024-12-31" className="w-40" />
+            </Field>
+            <Field label="End Date">
+              <Input type="date" defaultValue="2024-01-01" className="w-40" />
+            </Field>
+          </div>
+        </FieldSet>
+      </div>
+
+      <div>
+        <p className="text-sm text-foreground-muted mb-4">
+          Individual Field can override FieldSet&apos;s isError.
+        </p>
+        <FieldSet legend="Mixed States" isError>
+          <div className="flex flex-col gap-4 w-80">
+            <Field label="Has Error (inherited)">
+              <Input placeholder="Error style from FieldSet" />
+            </Field>
+            <Field label="No Error (overridden)" isError={false}>
+              <Input placeholder="Explicitly set isError=false" />
+            </Field>
+          </div>
+        </FieldSet>
+      </div>
+    </div>
+  ),
+}
+
+export const NestedFieldSets: Story = {
+  name: 'Nested FieldSets',
+  render: () => (
+    <FieldSet legend="Checkout Form" description="Complete your order.">
+      <FieldSet legend="Shipping Address">
+        <div className="flex flex-col gap-4 w-80">
+          <Field label="Street" required>
+            <Input placeholder="123 Main St" />
+          </Field>
+          <Field label="City" required>
+            <Input placeholder="Tokyo" />
+          </Field>
+        </div>
+      </FieldSet>
+
+      <FieldSet legend="Billing Address" isError error="Please complete billing address.">
+        <div className="flex flex-col gap-4 w-80">
+          <Field label="Street" required>
+            <Input placeholder="456 Oak Ave" />
+          </Field>
+          <Field label="City" required>
+            <Input placeholder="Osaka" />
+          </Field>
+        </div>
+      </FieldSet>
+    </FieldSet>
+  ),
+}

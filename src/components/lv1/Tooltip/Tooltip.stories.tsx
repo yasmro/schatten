@@ -31,7 +31,15 @@ const meta: Meta<typeof TooltipContent> = {
       control: 'number',
       table: {
         type: { summary: 'number' },
-        defaultValue: { summary: '4' },
+        defaultValue: { summary: '6' },
+      },
+    },
+    hideArrow: {
+      description: 'Hide the arrow indicator.',
+      control: 'boolean',
+      table: {
+        type: { summary: 'boolean' },
+        defaultValue: { summary: 'false' },
       },
     },
     align: {
@@ -69,8 +77,9 @@ export const Playground: Story = {
   args: {
     children: 'This is helpful information.',
     side: 'top',
-    sideOffset: 4,
+    sideOffset: 6,
     align: 'center',
+    hideArrow: false,
   },
   render: (args) => (
     <Tooltip>
@@ -113,6 +122,48 @@ export const Sides: Story = {
         </TooltipTrigger>
         <TooltipContent side="left">Tooltip on left</TooltipContent>
       </Tooltip>
+    </div>
+  ),
+}
+
+export const Alignments: Story = {
+  name: 'Alignments',
+  render: () => (
+    <div className="flex flex-col gap-8">
+      <div className="flex gap-8">
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button variant="secondary" className="w-32">
+              Start
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side="bottom" align="start">
+            Aligned to start
+          </TooltipContent>
+        </Tooltip>
+
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button variant="secondary" className="w-32">
+              Center
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side="bottom" align="center">
+            Aligned to center
+          </TooltipContent>
+        </Tooltip>
+
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button variant="secondary" className="w-32">
+              End
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side="bottom" align="end">
+            Aligned to end
+          </TooltipContent>
+        </Tooltip>
+      </div>
     </div>
   ),
 }

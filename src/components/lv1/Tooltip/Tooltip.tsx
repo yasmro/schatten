@@ -27,13 +27,16 @@ const TooltipPortal = TooltipPrimitive.Portal
 
 export interface TooltipContentProps
   extends ComponentPropsWithoutRef<typeof TooltipPrimitive.Content> {
+  /** Portal container element */
   container?: TooltipPortalProps['container']
+  /** Hide the arrow indicator. @default false */
+  hideArrow?: boolean
 }
 
 const TooltipContent = forwardRef<
   ComponentRef<typeof TooltipPrimitive.Content>,
   TooltipContentProps
->(({ className, sideOffset = 4, container, children, ...props }, ref) => (
+>(({ className, sideOffset = 6, container, children, hideArrow = false, ...props }, ref) => (
   <TooltipPrimitive.Portal container={container}>
     <TooltipPrimitive.Content
       ref={ref}
@@ -48,6 +51,9 @@ const TooltipContent = forwardRef<
       {...props}
     >
       {children}
+      {!hideArrow && (
+        <TooltipPrimitive.Arrow className="fill-background drop-shadow-[0_1px_0_var(--color-border-strong)]" />
+      )}
     </TooltipPrimitive.Content>
   </TooltipPrimitive.Portal>
 ))

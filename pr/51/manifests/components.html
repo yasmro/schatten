@@ -582,7 +582,7 @@
 <main>
   <div class="wrap">
     <div class="note ok" style="margin-bottom: 16px;">
-              Using <code>react-docgen-typescript</code>. Generation took <strong>2.8s</strong>.
+              Using <code>react-docgen-typescript</code>. Generation took <strong>3.3s</strong>.
             </div>
     <h2 class="section-title">Components</h2>
     <div class="grid" role="list">
@@ -5368,13 +5368,13 @@ export const Typography: Story = {
     <div class="note err">
       <div class="note-title">Prop type error</div>
       <div class="note-body"><pre><code>We could not detect the component from your story file. Specify meta.component.
-  19 | import { Textarea } from &#39;../components/lv1/Textarea&#39;
-  20 |
-&gt; 21 | const meta: Meta = {
+  20 | import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from &#39;../components/lv1/Tooltip&#39;
+  21 |
+&gt; 22 | const meta: Meta = {
      | ^
-  22 |   title: &#39;Welcome&#39;,
-  23 |   parameters: {
-  24 |     layout: &#39;fullscreen&#39;,
+  23 |   title: &#39;Welcome&#39;,
+  24 |   parameters: {
+  25 |     layout: &#39;fullscreen&#39;,
 
 ./src/docs/Welcome.stories.tsx:
 import type { Meta, StoryObj } from &#39;@storybook/react-vite&#39;
@@ -5396,6 +5396,7 @@ import { Spinner } from &#39;../components/lv1/Spinner&#39;
 import { Switch } from &#39;../components/lv1/Switch&#39;
 import { Text } from &#39;../components/lv1/Text&#39;
 import { Textarea } from &#39;../components/lv1/Textarea&#39;
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from &#39;../components/lv1/Tooltip&#39;
 
 const meta: Meta = {
   title: &#39;Welcome&#39;,
@@ -5541,6 +5542,21 @@ export const Overview: Story = {
             &lt;Text variant=&quot;heading&quot; size=&quot;lg&quot;&gt;
               Heading
             &lt;/Text&gt;
+          &lt;/ComponentCard&gt;
+
+          &lt;ComponentCard
+            name=&quot;Tooltip&quot;
+            description=&quot;Displays additional info on hover.&quot;
+            storyPath=&quot;components-lv1-tooltip&quot;
+          &gt;
+            &lt;TooltipProvider&gt;
+              &lt;Tooltip defaultOpen&gt;
+                &lt;TooltipTrigger&gt;
+                  &lt;Button variant=&quot;secondary&quot;&gt;Hover me&lt;/Button&gt;
+                &lt;/TooltipTrigger&gt;
+                &lt;TooltipContent&gt;Helpful info&lt;/TooltipContent&gt;
+              &lt;/Tooltip&gt;
+            &lt;/TooltipProvider&gt;
           &lt;/ComponentCard&gt;
         &lt;/div&gt;
       &lt;/div&gt;
@@ -5715,6 +5731,10 @@ export const Overview: Story = {
     Switch,
     Text,
     Textarea,
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
 } from "@yasmro/schatten";</code></pre>
               </div>
           
@@ -5815,6 +5835,21 @@ export const Overview: Story = {
           &lt;Text variant=&quot;heading&quot; size=&quot;lg&quot;&gt;
             Heading
           &lt;/Text&gt;
+        &lt;/ComponentCard&gt;
+
+        &lt;ComponentCard
+          name=&quot;Tooltip&quot;
+          description=&quot;Displays additional info on hover.&quot;
+          storyPath=&quot;components-lv1-tooltip&quot;
+        &gt;
+          &lt;TooltipProvider&gt;
+            &lt;Tooltip defaultOpen&gt;
+              &lt;TooltipTrigger&gt;
+                &lt;Button variant=&quot;secondary&quot;&gt;Hover me&lt;/Button&gt;
+              &lt;/TooltipTrigger&gt;
+              &lt;TooltipContent&gt;Helpful info&lt;/TooltipContent&gt;
+            &lt;/Tooltip&gt;
+          &lt;/TooltipProvider&gt;
         &lt;/ComponentCard&gt;
       &lt;/div&gt;
     &lt;/div&gt;
@@ -7692,13 +7727,13 @@ export const Typography: Story = {
     <div class="note err">
       <div class="note-title">Prop type error</div>
       <div class="note-body"><pre><code>We could not detect the component from your story file. Specify meta.component.
-  19 | import { Textarea } from &#39;../components/lv1/Textarea&#39;
-  20 |
-&gt; 21 | const meta: Meta = {
+  20 | import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from &#39;../components/lv1/Tooltip&#39;
+  21 |
+&gt; 22 | const meta: Meta = {
      | ^
-  22 |   title: &#39;Welcome&#39;,
-  23 |   parameters: {
-  24 |     layout: &#39;fullscreen&#39;,
+  23 |   title: &#39;Welcome&#39;,
+  24 |   parameters: {
+  25 |     layout: &#39;fullscreen&#39;,
 
 ./src/docs/Welcome.stories.tsx:
 import type { Meta, StoryObj } from &#39;@storybook/react-vite&#39;
@@ -7720,6 +7755,7 @@ import { Spinner } from &#39;../components/lv1/Spinner&#39;
 import { Switch } from &#39;../components/lv1/Switch&#39;
 import { Text } from &#39;../components/lv1/Text&#39;
 import { Textarea } from &#39;../components/lv1/Textarea&#39;
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from &#39;../components/lv1/Tooltip&#39;
 
 const meta: Meta = {
   title: &#39;Welcome&#39;,
@@ -7865,6 +7901,21 @@ export const Overview: Story = {
             &lt;Text variant=&quot;heading&quot; size=&quot;lg&quot;&gt;
               Heading
             &lt;/Text&gt;
+          &lt;/ComponentCard&gt;
+
+          &lt;ComponentCard
+            name=&quot;Tooltip&quot;
+            description=&quot;Displays additional info on hover.&quot;
+            storyPath=&quot;components-lv1-tooltip&quot;
+          &gt;
+            &lt;TooltipProvider&gt;
+              &lt;Tooltip defaultOpen&gt;
+                &lt;TooltipTrigger&gt;
+                  &lt;Button variant=&quot;secondary&quot;&gt;Hover me&lt;/Button&gt;
+                &lt;/TooltipTrigger&gt;
+                &lt;TooltipContent&gt;Helpful info&lt;/TooltipContent&gt;
+              &lt;/Tooltip&gt;
+            &lt;/TooltipProvider&gt;
           &lt;/ComponentCard&gt;
         &lt;/div&gt;
       &lt;/div&gt;
@@ -8039,6 +8090,10 @@ export const Overview: Story = {
     Switch,
     Text,
     Textarea,
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
 } from "@yasmro/schatten";</code></pre>
               </div>
           
@@ -8139,6 +8194,21 @@ export const Overview: Story = {
           &lt;Text variant=&quot;heading&quot; size=&quot;lg&quot;&gt;
             Heading
           &lt;/Text&gt;
+        &lt;/ComponentCard&gt;
+
+        &lt;ComponentCard
+          name=&quot;Tooltip&quot;
+          description=&quot;Displays additional info on hover.&quot;
+          storyPath=&quot;components-lv1-tooltip&quot;
+        &gt;
+          &lt;TooltipProvider&gt;
+            &lt;Tooltip defaultOpen&gt;
+              &lt;TooltipTrigger&gt;
+                &lt;Button variant=&quot;secondary&quot;&gt;Hover me&lt;/Button&gt;
+              &lt;/TooltipTrigger&gt;
+              &lt;TooltipContent&gt;Helpful info&lt;/TooltipContent&gt;
+            &lt;/Tooltip&gt;
+          &lt;/TooltipProvider&gt;
         &lt;/ComponentCard&gt;
       &lt;/div&gt;
     &lt;/div&gt;

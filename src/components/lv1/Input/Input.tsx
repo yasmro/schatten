@@ -35,7 +35,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
       textRight,
       iconLeft,
       iconRight,
-      disabled,
+      disabled: disabledProp,
       id: idProp,
       'aria-describedby': ariaDescribedByProp,
       ...props
@@ -47,6 +47,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
 
     const id = field?.id ?? idProp ?? autoId
     const isError = field?.isError ?? isErrorProp
+    const disabled = field?.disabled ?? disabledProp
     const ariaDescribedBy = field?.describedBy ?? ariaDescribedByProp
 
     const isDateType = dateTypes.has(type ?? '')

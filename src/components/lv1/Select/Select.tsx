@@ -33,6 +33,7 @@ const SelectTrigger = forwardRef<ComponentRef<typeof SelectPrimitive.Trigger>, S
       isError: isErrorProp = false,
       children,
       id: idProp,
+      disabled: disabledProp,
       'aria-describedby': ariaDescribedByProp,
       ...props
     },
@@ -43,6 +44,7 @@ const SelectTrigger = forwardRef<ComponentRef<typeof SelectPrimitive.Trigger>, S
 
     const id = field?.id ?? idProp ?? autoId
     const isError = field?.isError ?? isErrorProp
+    const disabled = field?.disabled ?? disabledProp
     const ariaDescribedBy = field?.describedBy ?? ariaDescribedByProp
 
     const iconSize = size === 'lg' ? 'size-5' : size === 'sm' ? 'size-3.5' : 'size-4'
@@ -51,6 +53,7 @@ const SelectTrigger = forwardRef<ComponentRef<typeof SelectPrimitive.Trigger>, S
       <SelectPrimitive.Trigger
         ref={ref}
         id={id}
+        disabled={disabled}
         className={cn(
           selectTriggerVariants({ size }),
           isError

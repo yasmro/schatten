@@ -5,6 +5,8 @@ export interface FieldContextValue {
   id: string
   /** Error state */
   isError: boolean
+  /** Disabled state */
+  disabled: boolean
   /** aria-describedby id list */
   describedBy?: string
 }

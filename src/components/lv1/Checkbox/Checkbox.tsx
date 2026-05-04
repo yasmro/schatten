@@ -45,7 +45,7 @@ export const Checkbox = forwardRef<ElementRef<typeof CheckboxPrimitive.Root>, Ch
       isError: isErrorProp = false,
       label,
       id: idProp,
-      disabled,
+      disabled: disabledProp,
       'aria-describedby': ariaDescribedByProp,
       ...props
     },
@@ -56,6 +56,7 @@ export const Checkbox = forwardRef<ElementRef<typeof CheckboxPrimitive.Root>, Ch
 
     const id = field?.id ?? idProp ?? autoId
     const isError = field?.isError ?? isErrorProp
+    const disabled = field?.disabled ?? disabledProp
     const ariaDescribedBy = field?.describedBy ?? ariaDescribedByProp
 
     return (

@@ -45,7 +45,7 @@ export const Switch = forwardRef<ElementRef<typeof SwitchPrimitive.Root>, Switch
       isError: isErrorProp = false,
       label,
       id: idProp,
-      disabled,
+      disabled: disabledProp,
       'aria-describedby': ariaDescribedByProp,
       ...props
     },
@@ -56,6 +56,7 @@ export const Switch = forwardRef<ElementRef<typeof SwitchPrimitive.Root>, Switch
 
     const id = field?.id ?? idProp ?? autoId
     const isError = field?.isError ?? isErrorProp
+    const disabled = field?.disabled ?? disabledProp
     const ariaDescribedBy = field?.describedBy ?? ariaDescribedByProp
 
     return (

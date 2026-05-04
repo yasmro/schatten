@@ -15,7 +15,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
       className,
       size,
       isError: isErrorProp = false,
-      disabled,
+      disabled: disabledProp,
       id: idProp,
       'aria-describedby': ariaDescribedByProp,
       ...props
@@ -27,6 +27,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
 
     const id = field?.id ?? idProp ?? autoId
     const isError = field?.isError ?? isErrorProp
+    const disabled = field?.disabled ?? disabledProp
     const ariaDescribedBy = field?.describedBy ?? ariaDescribedByProp
 
     return (

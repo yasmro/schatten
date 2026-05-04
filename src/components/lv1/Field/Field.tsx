@@ -45,8 +45,8 @@ export function Field({
   }, [description, error, descriptionId, errorId])
 
   const contextValue = useMemo<FieldContextValue>(
-    () => ({ id, isError, describedBy }),
-    [id, isError, describedBy],
+    () => ({ id, isError, disabled, describedBy }),
+    [id, isError, disabled, describedBy],
   )
 
   return (

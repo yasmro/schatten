@@ -23,7 +23,7 @@ const meta: Meta<typeof Field> = {
       },
     },
     description: {
-      description: 'Description text displayed below the input.',
+      description: 'Description text displayed above the input.',
       control: 'text',
       table: {
         type: { summary: 'ReactNode' },
@@ -52,7 +52,7 @@ const meta: Meta<typeof Field> = {
       },
     },
     disabled: {
-      description: 'Disable the field.',
+      description: 'Disable the field. Propagates to child components via context.',
       control: 'boolean',
       table: {
         type: { summary: 'boolean' },
@@ -179,10 +179,10 @@ export const Disabled: Story = {
   render: () => (
     <div className="flex flex-col gap-6 w-80">
       <Field label="Username" description="This field is disabled." disabled>
-        <Input placeholder="johndoe" disabled />
+        <Input placeholder="johndoe" />
       </Field>
       <Field label="Notifications" disabled>
-        <Switch disabled />
+        <Switch />
       </Field>
     </div>
   ),

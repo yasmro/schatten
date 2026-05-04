@@ -142,17 +142,13 @@ describe('Field', () => {
     })
 
     it('provides describedBy with both ids when both are set', () => {
-      // Note: When both are set, only error is shown, but describedBy still references both
-      // Actually in current implementation, description is hidden when error exists
-      // So describedBy should only contain error id
       render(
         <Field label="Email" description="Help" error="Error">
           <ContextConsumer />
         </Field>,
       )
       const describedBy = screen.getByTestId('context-describedBy').textContent
-      // Since description is hidden when error exists, only error id is in DOM
-      // But describedBy calculation happens before render decision
+      expect(describedBy).toContain('-description')
       expect(describedBy).toContain('-error')
     })
   })

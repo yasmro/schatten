@@ -576,13 +576,13 @@
 <header>
   <div class="wrap">
     <h1>Manifest Debugger</h1>
-    <div class="summary"><a class="filter-pill all" data-k="all" href="#filter-all">All</a><a class="filter-pill err" data-k="errors" href="#filter-errors">3/14 prop type errors</a><a class="filter-pill info" data-k="infos" href="#filter-infos">14/14 infos</a><span class="filter-pill ok" aria-disabled="true">76 stories ok</span></div>
+    <div class="summary"><a class="filter-pill all" data-k="all" href="#filter-all">All</a><a class="filter-pill err" data-k="errors" href="#filter-errors">3/14 prop type errors</a><a class="filter-pill info" data-k="infos" href="#filter-infos">14/14 infos</a><span class="filter-pill ok" aria-disabled="true">77 stories ok</span></div>
   </div>
 </header>
 <main>
   <div class="wrap">
     <div class="note ok" style="margin-bottom: 16px;">
-              Using <code>react-docgen-typescript</code>. Generation took <strong>2.5s</strong>.
+              Using <code>react-docgen-typescript</code>. Generation took <strong>3.1s</strong>.
             </div>
     <h2 class="section-title">Components</h2>
     <div class="grid" role="list">
@@ -2144,7 +2144,7 @@ export const Colors: Story = {
       <div class="badges">
         <label for="c-4-components-lv1-field-props" class="badge ok as-toggle">8 prop types</label>
         <label for="c-4-components-lv1-field-info" class="badge info as-toggle">1 info</label>
-        <label for="c-4-components-lv1-field-stories" class="badge ok as-toggle">10 stories</label>
+        <label for="c-4-components-lv1-field-stories" class="badge ok as-toggle">11 stories</label>
         
       </div>
     </div>
@@ -2415,6 +2415,54 @@ required?: boolean = false</code></pre>
     &lt;Field label=&quot;Email&quot; required description=&quot;Required field.&quot;&gt;
       &lt;Input type=&quot;email&quot; placeholder=&quot;you@example.com&quot; /&gt;
     &lt;/Field&gt;
+  &lt;/div&gt;
+);</code></pre>
+            </div>
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">Label Usage Patterns</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const LabelUsagePatterns = () =&gt; (
+  &lt;div className=&quot;flex flex-col gap-8 w-96&quot;&gt;
+    &lt;div&gt;
+      &lt;h3 className=&quot;text-sm font-semibold text-foreground-muted mb-3&quot;&gt;
+        Checkbox / Switch: Use Field.label only
+      &lt;/h3&gt;
+      &lt;div className=&quot;flex flex-col gap-4&quot;&gt;
+        &lt;Field label=&quot;Enable notifications&quot; description=&quot;You will receive email updates.&quot;&gt;
+          &lt;Switch /&gt;
+        &lt;/Field&gt;
+        &lt;Field label=&quot;I agree to the terms&quot; required&gt;
+          &lt;Checkbox /&gt;
+        &lt;/Field&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+
+    &lt;div&gt;
+      &lt;h3 className=&quot;text-sm font-semibold text-foreground-muted mb-3&quot;&gt;
+        RadioGroup: Field.label for group, Radio.label for options
+      &lt;/h3&gt;
+      &lt;Field label=&quot;Subscription plan&quot; description=&quot;Choose your plan.&quot;&gt;
+        &lt;RadioGroup defaultValue=&quot;free&quot;&gt;
+          &lt;Radio value=&quot;free&quot; label=&quot;Free - Basic features&quot; /&gt;
+          &lt;Radio value=&quot;pro&quot; label=&quot;Pro - Advanced features&quot; /&gt;
+          &lt;Radio value=&quot;enterprise&quot; label=&quot;Enterprise - Custom solutions&quot; /&gt;
+        &lt;/RadioGroup&gt;
+      &lt;/Field&gt;
+    &lt;/div&gt;
+
+    &lt;div&gt;
+      &lt;h3 className=&quot;text-sm font-semibold text-foreground-muted mb-3&quot;&gt;
+        Standalone (without Field): Use component label
+      &lt;/h3&gt;
+      &lt;div className=&quot;flex flex-col gap-2&quot;&gt;
+        &lt;Checkbox label=&quot;Remember me&quot; /&gt;
+        &lt;Switch label=&quot;Dark mode&quot; /&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
   &lt;/div&gt;
 );</code></pre>
             </div>

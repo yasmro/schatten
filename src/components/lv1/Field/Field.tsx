@@ -62,7 +62,7 @@ export function Field({
           <label
             htmlFor={id}
             id={descriptionId}
-            className="-mt-1.5 mb-1 block text-sm text-foreground-muted cursor-pointer"
+            className="-mt-1.5 mb-1 block text-sm text-foreground-muted"
           >
             {description}
           </label>

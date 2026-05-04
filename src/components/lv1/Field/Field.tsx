@@ -1,5 +1,6 @@
 import { type ReactNode, useId, useMemo } from 'react'
 import { FieldContext, type FieldContextValue } from '../../../contexts/field'
+import { useFieldSetContext } from '../../../contexts/fieldset'
 import { cn } from '../../../lib/utils'
 
 export interface FieldProps {
@@ -31,11 +32,12 @@ export function Field({
   children,
   className,
 }: FieldProps) {
+  const fieldSet = useFieldSetContext()
   const id = useId()
   const descriptionId = `${id}-description`
   const errorId = `${id}-error`
 
-  const isError = isErrorProp ?? !!error
+  const isError = isErrorProp ?? (error ? true : undefined) ?? fieldSet?.isError ?? false
 
   const describedBy = useMemo(() => {
     const ids: string[] = []

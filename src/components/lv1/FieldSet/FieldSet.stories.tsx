@@ -299,26 +299,99 @@ export const LayoutVariants: Story = {
   name: 'Layout Variants',
   render: () => (
     <div className="flex flex-col gap-8">
-      <FieldSet legend="Row Direction" direction="row">
-        <Field label="First" flexGrow={1}>
-          <Input placeholder="Grows to fill" />
-        </Field>
-        <Field label="Second" flexShrink={0}>
-          <Input placeholder="Fixed" className="w-24" />
-        </Field>
-      </FieldSet>
+      <div>
+        <p className="text-sm text-foreground-muted mb-4">
+          Use direction=&quot;row&quot; with Field flex props for horizontal layouts.
+        </p>
+        <FieldSet legend="Row Direction" direction="row">
+          <Field label="First" flexGrow={1}>
+            <Input placeholder="Grows to fill" />
+          </Field>
+          <Field label="Second" flexShrink={0}>
+            <Input placeholder="Fixed" className="w-24" />
+          </Field>
+        </FieldSet>
+      </div>
 
-      <FieldSet legend="Row with Wrap" direction="row" wrap className="w-80">
-        <Field label="Field 1">
-          <Input placeholder="Input" className="w-32" />
-        </Field>
-        <Field label="Field 2">
-          <Input placeholder="Input" className="w-32" />
-        </Field>
-        <Field label="Field 3">
-          <Input placeholder="Input" className="w-32" />
-        </Field>
-      </FieldSet>
+      <div>
+        <p className="text-sm text-foreground-muted mb-4">
+          Use wrap for responsive layouts that wrap on smaller screens.
+        </p>
+        <FieldSet legend="Row with Wrap" direction="row" wrap className="w-80">
+          <Field label="Field 1">
+            <Input placeholder="Input" className="w-32" />
+          </Field>
+          <Field label="Field 2">
+            <Input placeholder="Input" className="w-32" />
+          </Field>
+          <Field label="Field 3">
+            <Input placeholder="Input" className="w-32" />
+          </Field>
+        </FieldSet>
+      </div>
+    </div>
+  ),
+}
+
+export const FlexPropsPatterns: Story = {
+  name: 'Flex Props Patterns',
+  render: () => (
+    <div className="flex flex-col gap-8">
+      <div>
+        <p className="text-sm text-foreground-muted mb-4">
+          <strong>flexGrow:</strong> Field expands to fill available space.
+        </p>
+        <FieldSet legend="flexGrow Example" direction="row" className="w-96">
+          <Field label="Flexible" flexGrow={1}>
+            <Input placeholder="flexGrow={1}" />
+          </Field>
+          <Field label="Fixed">
+            <Input placeholder="No flex props" className="w-24" />
+          </Field>
+        </FieldSet>
+      </div>
+
+      <div>
+        <p className="text-sm text-foreground-muted mb-4">
+          <strong>flexShrink:</strong> Prevent field from shrinking below its content.
+        </p>
+        <FieldSet legend="flexShrink Example" direction="row" className="w-64">
+          <Field label="Shrinks">
+            <Input placeholder="Shrinks" />
+          </Field>
+          <Field label="No Shrink" flexShrink={0}>
+            <Input placeholder="flexShrink={0}" className="w-32" />
+          </Field>
+        </FieldSet>
+      </div>
+
+      <div>
+        <p className="text-sm text-foreground-muted mb-4">
+          <strong>flexBasis:</strong> Set initial size before flex grow/shrink.
+        </p>
+        <FieldSet legend="flexBasis Example" direction="row" className="w-96">
+          <Field label="60%" flexBasis="60%">
+            <Input placeholder="flexBasis='60%'" />
+          </Field>
+          <Field label="40%" flexBasis="40%">
+            <Input placeholder="flexBasis='40%'" />
+          </Field>
+        </FieldSet>
+      </div>
+
+      <div>
+        <p className="text-sm text-foreground-muted mb-4">
+          <strong>Combined:</strong> Use multiple props for precise control.
+        </p>
+        <FieldSet legend="Combined Example" direction="row" className="w-96">
+          <Field label="Main" flexGrow={1} flexShrink={1}>
+            <Input placeholder="Flexible" />
+          </Field>
+          <Field label="Side" flexGrow={0} flexShrink={0} flexBasis="100px">
+            <Input placeholder="Fixed 100px" />
+          </Field>
+        </FieldSet>
+      </div>
     </div>
   ),
 }

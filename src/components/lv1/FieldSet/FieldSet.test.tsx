@@ -351,4 +351,59 @@ describe('FieldSet', () => {
       expect(screen.getByText('Error text')).toBeInTheDocument()
     })
   })
+
+  describe('layout props', () => {
+    it('applies flex-row when direction is row', () => {
+      const { container } = render(
+        <FieldSet legend="Test" direction="row">
+          <input />
+        </FieldSet>,
+      )
+      const childrenWrapper = container.querySelector('fieldset > div')
+      expect(childrenWrapper).toHaveClass('flex-row')
+      expect(childrenWrapper).not.toHaveClass('flex-col')
+    })
+
+    it('applies flex-col when direction is column (default)', () => {
+      const { container } = render(
+        <FieldSet legend="Test">
+          <input />
+        </FieldSet>,
+      )
+      const childrenWrapper = container.querySelector('fieldset > div')
+      expect(childrenWrapper).toHaveClass('flex-col')
+      expect(childrenWrapper).not.toHaveClass('flex-row')
+    })
+
+    it('applies flex-wrap when wrap is true', () => {
+      const { container } = render(
+        <FieldSet legend="Test" wrap>
+          <input />
+        </FieldSet>,
+      )
+      const childrenWrapper = container.querySelector('fieldset > div')
+      expect(childrenWrapper).toHaveClass('flex-wrap')
+    })
+
+    it('does not apply flex-wrap by default', () => {
+      const { container } = render(
+        <FieldSet legend="Test">
+          <input />
+        </FieldSet>,
+      )
+      const childrenWrapper = container.querySelector('fieldset > div')
+      expect(childrenWrapper).not.toHaveClass('flex-wrap')
+    })
+
+    it('combines direction and wrap props', () => {
+      const { container } = render(
+        <FieldSet legend="Test" direction="row" wrap>
+          <input />
+        </FieldSet>,
+      )
+      const childrenWrapper = container.querySelector('fieldset > div')
+      expect(childrenWrapper).toHaveClass('flex-row')
+      expect(childrenWrapper).toHaveClass('flex-wrap')
+    })
+  })
 })

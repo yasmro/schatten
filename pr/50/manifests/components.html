@@ -576,13 +576,13 @@
 <header>
   <div class="wrap">
     <h1>Manifest Debugger</h1>
-    <div class="summary"><a class="filter-pill all" data-k="all" href="#filter-all">All</a><a class="filter-pill err" data-k="errors" href="#filter-errors">3/15 prop type errors</a><a class="filter-pill info" data-k="infos" href="#filter-infos">15/15 infos</a><span class="filter-pill ok" aria-disabled="true">86 stories ok</span></div>
+    <div class="summary"><a class="filter-pill all" data-k="all" href="#filter-all">All</a><a class="filter-pill err" data-k="errors" href="#filter-errors">3/15 prop type errors</a><a class="filter-pill info" data-k="infos" href="#filter-infos">15/15 infos</a><span class="filter-pill ok" aria-disabled="true">87 stories ok</span></div>
   </div>
 </header>
 <main>
   <div class="wrap">
     <div class="note ok" style="margin-bottom: 16px;">
-              Using <code>react-docgen-typescript</code>. Generation took <strong>2.7s</strong>.
+              Using <code>react-docgen-typescript</code>. Generation took <strong>2.8s</strong>.
             </div>
     <h2 class="section-title">Components</h2>
     <div class="grid" role="list">
@@ -2511,7 +2511,7 @@ required?: boolean = false</code></pre>
       <div class="badges">
         <label for="c-5-components-lv1-fieldset-props" class="badge ok as-toggle">9 prop types</label>
         <label for="c-5-components-lv1-fieldset-info" class="badge info as-toggle">1 info</label>
-        <label for="c-5-components-lv1-fieldset-stories" class="badge ok as-toggle">9 stories</label>
+        <label for="c-5-components-lv1-fieldset-stories" class="badge ok as-toggle">10 stories</label>
         
       </div>
     </div>
@@ -2877,26 +2877,103 @@ wrap?: boolean = false</code></pre>
               
               <pre><code>const LayoutVariants = () =&gt; (
   &lt;div className=&quot;flex flex-col gap-8&quot;&gt;
-    &lt;FieldSet legend=&quot;Row Direction&quot; direction=&quot;row&quot;&gt;
-      &lt;Field label=&quot;First&quot; flexGrow={1}&gt;
-        &lt;Input placeholder=&quot;Grows to fill&quot; /&gt;
-      &lt;/Field&gt;
-      &lt;Field label=&quot;Second&quot; flexShrink={0}&gt;
-        &lt;Input placeholder=&quot;Fixed&quot; className=&quot;w-24&quot; /&gt;
-      &lt;/Field&gt;
-    &lt;/FieldSet&gt;
+    &lt;div&gt;
+      &lt;p className=&quot;text-sm text-foreground-muted mb-4&quot;&gt;
+        Use direction=&amp;quot;row&amp;quot; with Field flex props for horizontal layouts.
+      &lt;/p&gt;
+      &lt;FieldSet legend=&quot;Row Direction&quot; direction=&quot;row&quot;&gt;
+        &lt;Field label=&quot;First&quot; flexGrow={1}&gt;
+          &lt;Input placeholder=&quot;Grows to fill&quot; /&gt;
+        &lt;/Field&gt;
+        &lt;Field label=&quot;Second&quot; flexShrink={0}&gt;
+          &lt;Input placeholder=&quot;Fixed&quot; className=&quot;w-24&quot; /&gt;
+        &lt;/Field&gt;
+      &lt;/FieldSet&gt;
+    &lt;/div&gt;
 
-    &lt;FieldSet legend=&quot;Row with Wrap&quot; direction=&quot;row&quot; wrap className=&quot;w-80&quot;&gt;
-      &lt;Field label=&quot;Field 1&quot;&gt;
-        &lt;Input placeholder=&quot;Input&quot; className=&quot;w-32&quot; /&gt;
-      &lt;/Field&gt;
-      &lt;Field label=&quot;Field 2&quot;&gt;
-        &lt;Input placeholder=&quot;Input&quot; className=&quot;w-32&quot; /&gt;
-      &lt;/Field&gt;
-      &lt;Field label=&quot;Field 3&quot;&gt;
-        &lt;Input placeholder=&quot;Input&quot; className=&quot;w-32&quot; /&gt;
-      &lt;/Field&gt;
-    &lt;/FieldSet&gt;
+    &lt;div&gt;
+      &lt;p className=&quot;text-sm text-foreground-muted mb-4&quot;&gt;
+        Use wrap for responsive layouts that wrap on smaller screens.
+      &lt;/p&gt;
+      &lt;FieldSet legend=&quot;Row with Wrap&quot; direction=&quot;row&quot; wrap className=&quot;w-80&quot;&gt;
+        &lt;Field label=&quot;Field 1&quot;&gt;
+          &lt;Input placeholder=&quot;Input&quot; className=&quot;w-32&quot; /&gt;
+        &lt;/Field&gt;
+        &lt;Field label=&quot;Field 2&quot;&gt;
+          &lt;Input placeholder=&quot;Input&quot; className=&quot;w-32&quot; /&gt;
+        &lt;/Field&gt;
+        &lt;Field label=&quot;Field 3&quot;&gt;
+          &lt;Input placeholder=&quot;Input&quot; className=&quot;w-32&quot; /&gt;
+        &lt;/Field&gt;
+      &lt;/FieldSet&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+);</code></pre>
+            </div>
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">Flex Props Patterns</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const FlexPropsPatterns = () =&gt; (
+  &lt;div className=&quot;flex flex-col gap-8&quot;&gt;
+    &lt;div&gt;
+      &lt;p className=&quot;text-sm text-foreground-muted mb-4&quot;&gt;
+        &lt;strong&gt;flexGrow:&lt;/strong&gt; Field expands to fill available space.
+      &lt;/p&gt;
+      &lt;FieldSet legend=&quot;flexGrow Example&quot; direction=&quot;row&quot; className=&quot;w-96&quot;&gt;
+        &lt;Field label=&quot;Flexible&quot; flexGrow={1}&gt;
+          &lt;Input placeholder=&quot;flexGrow={1}&quot; /&gt;
+        &lt;/Field&gt;
+        &lt;Field label=&quot;Fixed&quot;&gt;
+          &lt;Input placeholder=&quot;No flex props&quot; className=&quot;w-24&quot; /&gt;
+        &lt;/Field&gt;
+      &lt;/FieldSet&gt;
+    &lt;/div&gt;
+
+    &lt;div&gt;
+      &lt;p className=&quot;text-sm text-foreground-muted mb-4&quot;&gt;
+        &lt;strong&gt;flexShrink:&lt;/strong&gt; Prevent field from shrinking below its content.
+      &lt;/p&gt;
+      &lt;FieldSet legend=&quot;flexShrink Example&quot; direction=&quot;row&quot; className=&quot;w-64&quot;&gt;
+        &lt;Field label=&quot;Shrinks&quot;&gt;
+          &lt;Input placeholder=&quot;Shrinks&quot; /&gt;
+        &lt;/Field&gt;
+        &lt;Field label=&quot;No Shrink&quot; flexShrink={0}&gt;
+          &lt;Input placeholder=&quot;flexShrink={0}&quot; className=&quot;w-32&quot; /&gt;
+        &lt;/Field&gt;
+      &lt;/FieldSet&gt;
+    &lt;/div&gt;
+
+    &lt;div&gt;
+      &lt;p className=&quot;text-sm text-foreground-muted mb-4&quot;&gt;
+        &lt;strong&gt;flexBasis:&lt;/strong&gt; Set initial size before flex grow/shrink.
+      &lt;/p&gt;
+      &lt;FieldSet legend=&quot;flexBasis Example&quot; direction=&quot;row&quot; className=&quot;w-96&quot;&gt;
+        &lt;Field label=&quot;60%&quot; flexBasis=&quot;60%&quot;&gt;
+          &lt;Input placeholder=&quot;flexBasis=&#39;60%&#39;&quot; /&gt;
+        &lt;/Field&gt;
+        &lt;Field label=&quot;40%&quot; flexBasis=&quot;40%&quot;&gt;
+          &lt;Input placeholder=&quot;flexBasis=&#39;40%&#39;&quot; /&gt;
+        &lt;/Field&gt;
+      &lt;/FieldSet&gt;
+    &lt;/div&gt;
+
+    &lt;div&gt;
+      &lt;p className=&quot;text-sm text-foreground-muted mb-4&quot;&gt;
+        &lt;strong&gt;Combined:&lt;/strong&gt; Use multiple props for precise control.
+      &lt;/p&gt;
+      &lt;FieldSet legend=&quot;Combined Example&quot; direction=&quot;row&quot; className=&quot;w-96&quot;&gt;
+        &lt;Field label=&quot;Main&quot; flexGrow={1} flexShrink={1}&gt;
+          &lt;Input placeholder=&quot;Flexible&quot; /&gt;
+        &lt;/Field&gt;
+        &lt;Field label=&quot;Side&quot; flexGrow={0} flexShrink={0} flexBasis=&quot;100px&quot;&gt;
+          &lt;Input placeholder=&quot;Fixed 100px&quot; /&gt;
+        &lt;/Field&gt;
+      &lt;/FieldSet&gt;
+    &lt;/div&gt;
   &lt;/div&gt;
 );</code></pre>
             </div>

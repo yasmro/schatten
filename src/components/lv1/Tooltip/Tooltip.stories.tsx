@@ -31,7 +31,7 @@ const meta: Meta<typeof TooltipContent> = {
       control: 'number',
       table: {
         type: { summary: 'number' },
-        defaultValue: { summary: '6' },
+        defaultValue: { summary: '4' },
       },
     },
     hideArrow: {
@@ -77,7 +77,7 @@ export const Playground: Story = {
   args: {
     children: 'This is helpful information.',
     side: 'top',
-    sideOffset: 6,
+    sideOffset: 4,
     align: 'center',
     hideArrow: false,
   },
@@ -222,9 +222,9 @@ export const RichContent: Story = {
       </TooltipTrigger>
       <TooltipContent className="max-w-xs">
         <p className="font-bold">Keyboard Shortcut</p>
-        <p className="text-foreground-muted">
-          Press <kbd className="px-1 bg-surface-hover rounded">Ctrl</kbd> +{' '}
-          <kbd className="px-1 bg-surface-hover rounded">S</kbd> to save
+        <p className="opacity-80">
+          Press <kbd className="px-1 bg-background/20 rounded">Ctrl</kbd> +{' '}
+          <kbd className="px-1 bg-background/20 rounded">S</kbd> to save
         </p>
       </TooltipContent>
     </Tooltip>

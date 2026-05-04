@@ -184,11 +184,10 @@ export const Overview: Story = {
             description="Groups related form fields."
             storyPath="components-lv1-fieldset"
           >
-            <FieldSet legend="Name">
-              <div className="flex gap-2">
-                <Input placeholder="First" className="w-20" />
-                <Input placeholder="Last" className="w-20" />
-              </div>
+            <FieldSet legend="Contact">
+              <Field label="Email">
+                <Input placeholder="you@example.com" className="w-40" />
+              </Field>
             </FieldSet>
           </ComponentCard>
 

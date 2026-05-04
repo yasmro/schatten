@@ -54,7 +54,8 @@ export const Checkbox = forwardRef<ElementRef<typeof CheckboxPrimitive.Root>, Ch
     const field = useFieldContext()
     const autoId = useId()
 
-    const id = field?.id ?? idProp ?? autoId
+    // Don't use field?.id - Checkbox has its own label and needs unique id per instance
+    const id = idProp ?? autoId
     const isError = field?.isError ?? isErrorProp
     const disabled = field?.disabled ?? disabledProp
     const ariaDescribedBy = field?.describedBy ?? ariaDescribedByProp

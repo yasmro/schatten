@@ -54,7 +54,8 @@ export const Switch = forwardRef<ElementRef<typeof SwitchPrimitive.Root>, Switch
     const field = useFieldContext()
     const autoId = useId()
 
-    const id = field?.id ?? idProp ?? autoId
+    // Don't use field?.id - Switch has its own label and needs unique id per instance
+    const id = idProp ?? autoId
     const isError = field?.isError ?? isErrorProp
     const disabled = field?.disabled ?? disabledProp
     const ariaDescribedBy = field?.describedBy ?? ariaDescribedByProp

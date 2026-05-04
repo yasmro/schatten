@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite'
 import { Badge } from '../components/lv1/Badge'
 import { Button } from '../components/lv1/Button'
 import { Checkbox } from '../components/lv1/Checkbox'
+import { Field } from '../components/lv1/Field'
 import { Input } from '../components/lv1/Input'
 import { Radio, RadioGroup } from '../components/lv1/Radio'
 import {
@@ -12,6 +13,7 @@ import {
   SelectValue,
 } from '../components/lv1/Select'
 import { Spinner } from '../components/lv1/Spinner'
+import { Switch } from '../components/lv1/Switch'
 import { Text } from '../components/lv1/Text'
 import { Textarea } from '../components/lv1/Textarea'
 
@@ -122,7 +124,7 @@ export const Overview: Story = {
       </div>
 
       <div className="mb-12">
-        <h2 className="text-xl font-bold text-foreground mb-4">Components</h2>
+        <h2 className="text-xl font-bold text-foreground mb-4">UI Components</h2>
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
           <ComponentCard
             name="Button"
@@ -160,6 +162,21 @@ export const Overview: Story = {
               Heading
             </Text>
           </ComponentCard>
+        </div>
+      </div>
+
+      <div className="mb-12">
+        <h2 className="text-xl font-bold text-foreground mb-4">Form Components</h2>
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+          <ComponentCard
+            name="Field"
+            description="Wraps inputs with label and error."
+            storyPath="components-lv1-field"
+          >
+            <Field label="Email" description="Your email address.">
+              <Input placeholder="you@example.com" className="w-40" />
+            </Field>
+          </ComponentCard>
 
           <ComponentCard
             name="Input"
@@ -175,17 +192,6 @@ export const Overview: Story = {
             storyPath="components-lv1-textarea"
           >
             <Textarea placeholder="Write something..." className="w-40" rows={2} />
-          </ComponentCard>
-
-          <ComponentCard
-            name="Checkbox"
-            description="Toggles a boolean value."
-            storyPath="components-lv1-checkbox"
-          >
-            <div className="flex flex-col gap-2">
-              <Checkbox label="Option A" defaultChecked />
-              <Checkbox label="Option B" />
-            </div>
           </ComponentCard>
 
           <ComponentCard
@@ -205,6 +211,17 @@ export const Overview: Story = {
           </ComponentCard>
 
           <ComponentCard
+            name="Checkbox"
+            description="Toggles a boolean value."
+            storyPath="components-lv1-checkbox"
+          >
+            <div className="flex flex-col gap-2">
+              <Checkbox label="Option A" defaultChecked />
+              <Checkbox label="Option B" />
+            </div>
+          </ComponentCard>
+
+          <ComponentCard
             name="Radio"
             description="Selects one option from a group."
             storyPath="components-lv1-radio"
@@ -213,6 +230,14 @@ export const Overview: Story = {
               <Radio value="a" label="Option A" />
               <Radio value="b" label="Option B" />
             </RadioGroup>
+          </ComponentCard>
+
+          <ComponentCard
+            name="Switch"
+            description="Toggles between on and off."
+            storyPath="components-lv1-switch"
+          >
+            <Switch label="Enable" defaultChecked />
           </ComponentCard>
         </div>
       </div>

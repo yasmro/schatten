@@ -6,6 +6,7 @@ import {
   type ReactNode,
   useId,
 } from 'react'
+import { useFieldContext } from '../../../contexts/field'
 import { cn } from '../../../lib/utils'
 import { type CheckboxVariants, checkboxVariants } from '../../../variants/checkbox'
 
@@ -37,9 +38,27 @@ const labelSizeClasses = {
 } as const
 
 export const Checkbox = forwardRef<ElementRef<typeof CheckboxPrimitive.Root>, CheckboxProps>(
-  ({ className, size = 'md', isError = false, label, id: idProp, disabled, ...props }, ref) => {
+  (
+    {
+      className,
+      size = 'md',
+      isError: isErrorProp = false,
+      label,
+      id: idProp,
+      disabled: disabledProp,
+      'aria-describedby': ariaDescribedByProp,
+      ...props
+    },
+    ref,
+  ) => {
+    const field = useFieldContext()
     const autoId = useId()
+
+    // Don't use field?.id - Checkbox has its own label and needs unique id per instance
     const id = idProp ?? autoId
+    const isError = field?.isError ?? isErrorProp
+    const disabled = field?.disabled ?? disabledProp
+    const ariaDescribedBy = field?.describedBy ?? ariaDescribedByProp
 
     return (
       <div className={cn('inline-flex items-center gap-2', className)}>
@@ -51,6 +70,7 @@ export const Checkbox = forwardRef<ElementRef<typeof CheckboxPrimitive.Root>, Ch
             isError && 'border-destructive bg-destructive-subtle focus-visible:ring-destructive',
           )}
           aria-invalid={isError || undefined}
+          aria-describedby={ariaDescribedBy}
           disabled={disabled}
           {...props}
         >

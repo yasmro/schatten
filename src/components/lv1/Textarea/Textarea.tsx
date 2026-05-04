@@ -1,4 +1,5 @@
-import { forwardRef, type TextareaHTMLAttributes } from 'react'
+import { forwardRef, type TextareaHTMLAttributes, useId } from 'react'
+import { useFieldContext } from '../../../contexts/field'
 import { cn } from '../../../lib/utils'
 import { type TextareaVariants, textareaVariants } from '../../../variants/textarea'
 
@@ -9,9 +10,29 @@ export interface TextareaProps
 }
 
 export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
-  ({ className, size, isError = false, disabled, ...props }, ref) => {
+  (
+    {
+      className,
+      size,
+      isError: isErrorProp = false,
+      disabled: disabledProp,
+      id: idProp,
+      'aria-describedby': ariaDescribedByProp,
+      ...props
+    },
+    ref,
+  ) => {
+    const field = useFieldContext()
+    const autoId = useId()
+
+    const id = field?.id ?? idProp ?? autoId
+    const isError = field?.isError ?? isErrorProp
+    const disabled = field?.disabled ?? disabledProp
+    const ariaDescribedBy = field?.describedBy ?? ariaDescribedByProp
+
     return (
       <textarea
+        id={id}
         className={cn(
           textareaVariants({ size }),
           isError
@@ -22,6 +43,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
         ref={ref}
         disabled={disabled}
         aria-invalid={isError || undefined}
+        aria-describedby={ariaDescribedBy}
         {...props}
       />
     )

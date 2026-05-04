@@ -1,5 +1,6 @@
 import { icons } from 'lucide-react'
-import { forwardRef, type InputHTMLAttributes } from 'react'
+import { forwardRef, type InputHTMLAttributes, useId } from 'react'
+import { useFieldContext } from '../../../contexts/field'
 import { cn } from '../../../lib/utils'
 import { type InputVariants, inputVariants, inputWrapperVariants } from '../../../variants/input'
 
@@ -28,17 +29,27 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     {
       className,
       size,
-      isError = false,
+      isError: isErrorProp = false,
       type,
       textLeft,
       textRight,
       iconLeft,
       iconRight,
-      disabled,
+      disabled: disabledProp,
+      id: idProp,
+      'aria-describedby': ariaDescribedByProp,
       ...props
     },
     ref,
   ) => {
+    const field = useFieldContext()
+    const autoId = useId()
+
+    const id = field?.id ?? idProp ?? autoId
+    const isError = field?.isError ?? isErrorProp
+    const disabled = field?.disabled ?? disabledProp
+    const ariaDescribedBy = field?.describedBy ?? ariaDescribedByProp
+
     const isDateType = dateTypes.has(type ?? '')
     const LeftIcon = !textLeft && iconLeft ? icons[iconLeft] : null
     const RightIcon = !textRight && iconRight ? icons[iconRight] : null
@@ -61,6 +72,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         )}
         <input
           type={type}
+          id={id}
           className={cn(
             inputVariants(),
             isDateType && '[&::-webkit-calendar-picker-indicator]:ml-auto',
@@ -68,6 +80,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           ref={ref}
           disabled={disabled}
           aria-invalid={isError || undefined}
+          aria-describedby={ariaDescribedBy}
           {...props}
         />
         {textRight && <span className="text-foreground-muted shrink-0">{textRight}</span>}

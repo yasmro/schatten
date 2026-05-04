@@ -8,6 +8,7 @@ import {
   useContext,
   useId,
 } from 'react'
+import { useFieldContext } from '../../../contexts/field'
 import { cn } from '../../../lib/utils'
 import { type RadioVariants, radioVariants } from '../../../variants/radio'
 
@@ -15,11 +16,13 @@ import { type RadioVariants, radioVariants } from '../../../variants/radio'
 
 interface RadioGroupContextValue {
   isError: boolean
+  disabled: boolean
   size?: RadioVariants['size']
 }
 
 const RadioGroupContext = createContext<RadioGroupContextValue>({
   isError: false,
+  disabled: false,
 })
 
 /* ----- RadioGroup ----- */
@@ -32,18 +35,39 @@ export interface RadioGroupProps extends ComponentPropsWithoutRef<typeof RadioGr
 }
 
 export const RadioGroup = forwardRef<ElementRef<typeof RadioGroupPrimitive.Root>, RadioGroupProps>(
-  ({ className, isError = false, size, children, ...props }, ref) => (
-    <RadioGroupContext.Provider value={{ isError, size }}>
-      <RadioGroupPrimitive.Root
-        ref={ref}
-        className={cn('flex flex-col gap-2', className)}
-        aria-invalid={isError || undefined}
-        {...props}
-      >
-        {children}
-      </RadioGroupPrimitive.Root>
-    </RadioGroupContext.Provider>
-  ),
+  (
+    {
+      className,
+      isError: isErrorProp = false,
+      size,
+      children,
+      disabled: disabledProp,
+      'aria-describedby': ariaDescribedByProp,
+      ...props
+    },
+    ref,
+  ) => {
+    const field = useFieldContext()
+
+    const isError = field?.isError ?? isErrorProp
+    const disabled = field?.disabled ?? disabledProp ?? false
+    const ariaDescribedBy = field?.describedBy ?? ariaDescribedByProp
+
+    return (
+      <RadioGroupContext.Provider value={{ isError, disabled, size }}>
+        <RadioGroupPrimitive.Root
+          ref={ref}
+          disabled={disabled}
+          className={cn('flex flex-col gap-2', className)}
+          aria-invalid={isError || undefined}
+          aria-describedby={ariaDescribedBy}
+          {...props}
+        >
+          {children}
+        </RadioGroupPrimitive.Root>
+      </RadioGroupContext.Provider>
+    )
+  },
 )
 
 RadioGroup.displayName = 'RadioGroup'
@@ -73,12 +97,21 @@ const indicatorSizeClasses = {
 
 export const Radio = forwardRef<ElementRef<typeof RadioGroupPrimitive.Item>, RadioProps>(
   (
-    { className, size: sizeProp, isError: isErrorProp, label, id: idProp, disabled, ...props },
+    {
+      className,
+      size: sizeProp,
+      isError: isErrorProp,
+      label,
+      id: idProp,
+      disabled: disabledProp,
+      ...props
+    },
     ref,
   ) => {
     const group = useContext(RadioGroupContext)
     const size = sizeProp ?? group.size ?? 'md'
     const isError = isErrorProp ?? group.isError
+    const disabled = disabledProp ?? group.disabled
     const autoId = useId()
     const id = idProp ?? autoId
 

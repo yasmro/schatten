@@ -576,13 +576,13 @@
 <header>
   <div class="wrap">
     <h1>Manifest Debugger</h1>
-    <div class="summary"><a class="filter-pill all" data-k="all" href="#filter-all">All</a><a class="filter-pill err" data-k="errors" href="#filter-errors">3/15 prop type errors</a><a class="filter-pill info" data-k="infos" href="#filter-infos">15/15 infos</a><span class="filter-pill ok" aria-disabled="true">89 stories ok</span></div>
+    <div class="summary"><a class="filter-pill all" data-k="all" href="#filter-all">All</a><a class="filter-pill err" data-k="errors" href="#filter-errors">3/16 prop type errors</a><a class="filter-pill info" data-k="infos" href="#filter-infos">16/16 infos</a><span class="filter-pill ok" aria-disabled="true">94 stories ok</span></div>
   </div>
 </header>
 <main>
   <div class="wrap">
     <div class="note ok" style="margin-bottom: 16px;">
-              Using <code>react-docgen-typescript</code>. Generation took <strong>3.1s</strong>.
+              Using <code>react-docgen-typescript</code>. Generation took <strong>2.6s</strong>.
             </div>
     <h2 class="section-title">Components</h2>
     <div class="grid" role="list">
@@ -4364,6 +4364,209 @@ size?: &quot;sm&quot; | &quot;md&quot; | &quot;lg&quot; | null</code></pre>
 </article>
 <article
   class="card 
+  no-error 
+  has-info 
+  no-story-error
+  no-doc-error"
+  role="listitem"
+  aria-label="TooltipContent">
+  <div class="head">
+    <div class="title">
+      <h2><span class="status-dot dot-ok"></span> TooltipContent</h2>
+      <div class="badges">
+        <label for="c-13-components-lv1-tooltip-props" class="badge ok as-toggle">2 prop types</label>
+        <label for="c-13-components-lv1-tooltip-info" class="badge info as-toggle">1 info</label>
+        <label for="c-13-components-lv1-tooltip-stories" class="badge ok as-toggle">5 stories</label>
+        
+      </div>
+    </div>
+    <div class="meta" title="./src/components/lv1/Tooltip/Tooltip.stories.tsx">components-lv1-tooltip · ./src/components/lv1/Tooltip/Tooltip.stories.tsx</div>
+    
+    
+    
+  </div>
+
+  <!-- ⬇️ Hidden toggles must be siblings BEFORE .panels -->
+  
+  <input id="c-13-components-lv1-tooltip-info" class="tg tg-info" type="checkbox" hidden />
+  <input id="c-13-components-lv1-tooltip-stories" class="tg tg-stories" type="checkbox" hidden />
+  
+  <input id="c-13-components-lv1-tooltip-props" class="tg tg-props" type="checkbox" hidden />
+
+  <div class="panels">
+    
+    
+        <div class="panel panel-info">
+          
+    <div class="note info">
+      <div class="note-title">Info</div>
+      <div class="note-body">No description found. Write a jsdoc comment such as /** Component description */.</div>
+    </div>
+        </div>
+    
+        <div class="panel panel-props">
+          <div class="note ok">
+            <div class="row">
+              <span class="ex-name">Prop types <small>(react-docgen-typescript)</small></span>
+              <span class="badge ok">2 prop types</span>
+            </div>
+            <pre><code>Component: src/components/lv1/Tooltip/Tooltip.tsx::TooltipContent</code></pre>
+            <pre><code>Props:</code></pre>
+            <pre><code>asChild?: boolean
+
+/**
+ * Portal container element
+ */
+container?: Element | DocumentFragment | null</code></pre>
+          </div>
+        </div>
+    
+        <div class="panel panel-stories">
+          
+          
+          
+          <div class="note ok">
+                <div class="row">
+                  <span class="ex-name">Imports</span>
+                </div>
+                <pre><code>import { Button, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@yasmro/schatten";</code></pre>
+              </div>
+          
+          
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">Playground</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const Playground = () =&gt; &lt;Tooltip&gt;
+    &lt;TooltipTrigger&gt;
+        &lt;Button variant=&quot;secondary&quot;&gt;Hover me&lt;/Button&gt;
+    &lt;/TooltipTrigger&gt;
+    &lt;TooltipContent side=&quot;top&quot;&gt;This is helpful information.&lt;/TooltipContent&gt;
+&lt;/Tooltip&gt;;</code></pre>
+            </div>
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">Sides</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const Sides = () =&gt; (
+  &lt;div className=&quot;flex gap-8&quot;&gt;
+    &lt;Tooltip&gt;
+      &lt;TooltipTrigger&gt;
+        &lt;Button variant=&quot;secondary&quot;&gt;Top&lt;/Button&gt;
+      &lt;/TooltipTrigger&gt;
+      &lt;TooltipContent side=&quot;top&quot;&gt;Tooltip on top&lt;/TooltipContent&gt;
+    &lt;/Tooltip&gt;
+
+    &lt;Tooltip&gt;
+      &lt;TooltipTrigger&gt;
+        &lt;Button variant=&quot;secondary&quot;&gt;Right&lt;/Button&gt;
+      &lt;/TooltipTrigger&gt;
+      &lt;TooltipContent side=&quot;right&quot;&gt;Tooltip on right&lt;/TooltipContent&gt;
+    &lt;/Tooltip&gt;
+
+    &lt;Tooltip&gt;
+      &lt;TooltipTrigger&gt;
+        &lt;Button variant=&quot;secondary&quot;&gt;Bottom&lt;/Button&gt;
+      &lt;/TooltipTrigger&gt;
+      &lt;TooltipContent side=&quot;bottom&quot;&gt;Tooltip on bottom&lt;/TooltipContent&gt;
+    &lt;/Tooltip&gt;
+
+    &lt;Tooltip&gt;
+      &lt;TooltipTrigger&gt;
+        &lt;Button variant=&quot;secondary&quot;&gt;Left&lt;/Button&gt;
+      &lt;/TooltipTrigger&gt;
+      &lt;TooltipContent side=&quot;left&quot;&gt;Tooltip on left&lt;/TooltipContent&gt;
+    &lt;/Tooltip&gt;
+  &lt;/div&gt;
+);</code></pre>
+            </div>
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">With Icon Button</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const WithIconButton = () =&gt; (
+  &lt;div className=&quot;flex gap-4&quot;&gt;
+    &lt;Tooltip&gt;
+      &lt;TooltipTrigger&gt;
+        &lt;Button icon=&quot;Info&quot; aria-label=&quot;Information&quot; /&gt;
+      &lt;/TooltipTrigger&gt;
+      &lt;TooltipContent&gt;View more information&lt;/TooltipContent&gt;
+    &lt;/Tooltip&gt;
+
+    &lt;Tooltip&gt;
+      &lt;TooltipTrigger&gt;
+        &lt;Button icon=&quot;Settings&quot; aria-label=&quot;Settings&quot; /&gt;
+      &lt;/TooltipTrigger&gt;
+      &lt;TooltipContent&gt;Open settings&lt;/TooltipContent&gt;
+    &lt;/Tooltip&gt;
+
+    &lt;Tooltip&gt;
+      &lt;TooltipTrigger&gt;
+        &lt;Button icon=&quot;Trash2&quot; variant=&quot;destructive&quot; aria-label=&quot;Delete&quot; /&gt;
+      &lt;/TooltipTrigger&gt;
+      &lt;TooltipContent&gt;Delete item&lt;/TooltipContent&gt;
+    &lt;/Tooltip&gt;
+  &lt;/div&gt;
+);</code></pre>
+            </div>
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">With Disabled Button</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const WithDisabledButton = () =&gt; (
+  &lt;Tooltip&gt;
+    &lt;TooltipTrigger&gt;
+      {/* biome-ignore lint/a11y/useSemanticElements: Wrapper for disabled button tooltip */}
+      &lt;span role=&quot;button&quot; tabIndex={0}&gt;
+        &lt;Button disabled style={{ pointerEvents: &#39;none&#39; }}&gt;
+          Disabled Button
+        &lt;/Button&gt;
+      &lt;/span&gt;
+    &lt;/TooltipTrigger&gt;
+    &lt;TooltipContent&gt;This action is currently unavailable&lt;/TooltipContent&gt;
+  &lt;/Tooltip&gt;
+);</code></pre>
+            </div>
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">Rich Content</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const RichContent = () =&gt; (
+  &lt;Tooltip&gt;
+    &lt;TooltipTrigger&gt;
+      &lt;Button variant=&quot;secondary&quot;&gt;Hover for details&lt;/Button&gt;
+    &lt;/TooltipTrigger&gt;
+    &lt;TooltipContent className=&quot;max-w-xs&quot;&gt;
+      &lt;p className=&quot;font-bold&quot;&gt;Keyboard Shortcut&lt;/p&gt;
+      &lt;p className=&quot;opacity-80&quot;&gt;
+        Press &lt;kbd className=&quot;px-1 bg-background/20 rounded&quot;&gt;Ctrl&lt;/kbd&gt; +{&#39; &#39;}
+        &lt;kbd className=&quot;px-1 bg-background/20 rounded&quot;&gt;S&lt;/kbd&gt; to save
+      &lt;/p&gt;
+    &lt;/TooltipContent&gt;
+  &lt;/Tooltip&gt;
+);</code></pre>
+            </div>
+        </div>
+    
+  </div>
+</article>
+<article
+  class="card 
   has-error 
   has-info 
   no-story-error
@@ -4374,9 +4577,9 @@ size?: &quot;sm&quot; | &quot;md&quot; | &quot;lg&quot; | null</code></pre>
     <div class="title">
       <h2><span class="status-dot dot-err"></span> Typography</h2>
       <div class="badges">
-        <label for="c-13-foundation-typography-err" class="badge err as-toggle">prop type error</label>
-        <label for="c-13-foundation-typography-info" class="badge info as-toggle">2 infos</label>
-        <label for="c-13-foundation-typography-stories" class="badge ok as-toggle">1 story</label>
+        <label for="c-14-foundation-typography-err" class="badge err as-toggle">prop type error</label>
+        <label for="c-14-foundation-typography-info" class="badge info as-toggle">2 infos</label>
+        <label for="c-14-foundation-typography-stories" class="badge ok as-toggle">1 story</label>
         
       </div>
     </div>
@@ -4387,9 +4590,9 @@ size?: &quot;sm&quot; | &quot;md&quot; | &quot;lg&quot; | null</code></pre>
   </div>
 
   <!-- ⬇️ Hidden toggles must be siblings BEFORE .panels -->
-  <input id="c-13-foundation-typography-err" class="tg tg-err" type="checkbox" hidden />
-  <input id="c-13-foundation-typography-info" class="tg tg-info" type="checkbox" hidden />
-  <input id="c-13-foundation-typography-stories" class="tg tg-stories" type="checkbox" hidden />
+  <input id="c-14-foundation-typography-err" class="tg tg-err" type="checkbox" hidden />
+  <input id="c-14-foundation-typography-info" class="tg tg-info" type="checkbox" hidden />
+  <input id="c-14-foundation-typography-stories" class="tg tg-stories" type="checkbox" hidden />
   
   
 
@@ -5139,9 +5342,9 @@ export const Typography: Story = {
     <div class="title">
       <h2><span class="status-dot dot-err"></span> Welcome</h2>
       <div class="badges">
-        <label for="c-14-welcome-err" class="badge err as-toggle">prop type error</label>
-        <label for="c-14-welcome-info" class="badge info as-toggle">1 info</label>
-        <label for="c-14-welcome-stories" class="badge ok as-toggle">1 story</label>
+        <label for="c-15-welcome-err" class="badge err as-toggle">prop type error</label>
+        <label for="c-15-welcome-info" class="badge info as-toggle">1 info</label>
+        <label for="c-15-welcome-stories" class="badge ok as-toggle">1 story</label>
         
       </div>
     </div>
@@ -5152,9 +5355,9 @@ export const Typography: Story = {
   </div>
 
   <!-- ⬇️ Hidden toggles must be siblings BEFORE .panels -->
-  <input id="c-14-welcome-err" class="tg tg-err" type="checkbox" hidden />
-  <input id="c-14-welcome-info" class="tg tg-info" type="checkbox" hidden />
-  <input id="c-14-welcome-stories" class="tg tg-stories" type="checkbox" hidden />
+  <input id="c-15-welcome-err" class="tg tg-err" type="checkbox" hidden />
+  <input id="c-15-welcome-info" class="tg tg-info" type="checkbox" hidden />
+  <input id="c-15-welcome-stories" class="tg tg-stories" type="checkbox" hidden />
   
   
 
@@ -5165,13 +5368,13 @@ export const Typography: Story = {
     <div class="note err">
       <div class="note-title">Prop type error</div>
       <div class="note-body"><pre><code>We could not detect the component from your story file. Specify meta.component.
-  19 | import { Textarea } from &#39;../components/lv1/Textarea&#39;
-  20 |
-&gt; 21 | const meta: Meta = {
+  20 | import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from &#39;../components/lv1/Tooltip&#39;
+  21 |
+&gt; 22 | const meta: Meta = {
      | ^
-  22 |   title: &#39;Welcome&#39;,
-  23 |   parameters: {
-  24 |     layout: &#39;fullscreen&#39;,
+  23 |   title: &#39;Welcome&#39;,
+  24 |   parameters: {
+  25 |     layout: &#39;fullscreen&#39;,
 
 ./src/docs/Welcome.stories.tsx:
 import type { Meta, StoryObj } from &#39;@storybook/react-vite&#39;
@@ -5193,6 +5396,7 @@ import { Spinner } from &#39;../components/lv1/Spinner&#39;
 import { Switch } from &#39;../components/lv1/Switch&#39;
 import { Text } from &#39;../components/lv1/Text&#39;
 import { Textarea } from &#39;../components/lv1/Textarea&#39;
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from &#39;../components/lv1/Tooltip&#39;
 
 const meta: Meta = {
   title: &#39;Welcome&#39;,
@@ -5338,6 +5542,21 @@ export const Overview: Story = {
             &lt;Text variant=&quot;heading&quot; size=&quot;lg&quot;&gt;
               Heading
             &lt;/Text&gt;
+          &lt;/ComponentCard&gt;
+
+          &lt;ComponentCard
+            name=&quot;Tooltip&quot;
+            description=&quot;Displays additional info on hover.&quot;
+            storyPath=&quot;components-lv1-tooltip&quot;
+          &gt;
+            &lt;TooltipProvider&gt;
+              &lt;Tooltip defaultOpen&gt;
+                &lt;TooltipTrigger&gt;
+                  &lt;Button variant=&quot;secondary&quot;&gt;Hover me&lt;/Button&gt;
+                &lt;/TooltipTrigger&gt;
+                &lt;TooltipContent&gt;Helpful info&lt;/TooltipContent&gt;
+              &lt;/Tooltip&gt;
+            &lt;/TooltipProvider&gt;
           &lt;/ComponentCard&gt;
         &lt;/div&gt;
       &lt;/div&gt;
@@ -5512,6 +5731,10 @@ export const Overview: Story = {
     Switch,
     Text,
     Textarea,
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
 } from "@yasmro/schatten";</code></pre>
               </div>
           
@@ -5612,6 +5835,21 @@ export const Overview: Story = {
           &lt;Text variant=&quot;heading&quot; size=&quot;lg&quot;&gt;
             Heading
           &lt;/Text&gt;
+        &lt;/ComponentCard&gt;
+
+        &lt;ComponentCard
+          name=&quot;Tooltip&quot;
+          description=&quot;Displays additional info on hover.&quot;
+          storyPath=&quot;components-lv1-tooltip&quot;
+        &gt;
+          &lt;TooltipProvider&gt;
+            &lt;Tooltip defaultOpen&gt;
+              &lt;TooltipTrigger&gt;
+                &lt;Button variant=&quot;secondary&quot;&gt;Hover me&lt;/Button&gt;
+              &lt;/TooltipTrigger&gt;
+              &lt;TooltipContent&gt;Helpful info&lt;/TooltipContent&gt;
+            &lt;/Tooltip&gt;
+          &lt;/TooltipProvider&gt;
         &lt;/ComponentCard&gt;
       &lt;/div&gt;
     &lt;/div&gt;
@@ -7489,13 +7727,13 @@ export const Typography: Story = {
     <div class="note err">
       <div class="note-title">Prop type error</div>
       <div class="note-body"><pre><code>We could not detect the component from your story file. Specify meta.component.
-  19 | import { Textarea } from &#39;../components/lv1/Textarea&#39;
-  20 |
-&gt; 21 | const meta: Meta = {
+  20 | import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from &#39;../components/lv1/Tooltip&#39;
+  21 |
+&gt; 22 | const meta: Meta = {
      | ^
-  22 |   title: &#39;Welcome&#39;,
-  23 |   parameters: {
-  24 |     layout: &#39;fullscreen&#39;,
+  23 |   title: &#39;Welcome&#39;,
+  24 |   parameters: {
+  25 |     layout: &#39;fullscreen&#39;,
 
 ./src/docs/Welcome.stories.tsx:
 import type { Meta, StoryObj } from &#39;@storybook/react-vite&#39;
@@ -7517,6 +7755,7 @@ import { Spinner } from &#39;../components/lv1/Spinner&#39;
 import { Switch } from &#39;../components/lv1/Switch&#39;
 import { Text } from &#39;../components/lv1/Text&#39;
 import { Textarea } from &#39;../components/lv1/Textarea&#39;
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from &#39;../components/lv1/Tooltip&#39;
 
 const meta: Meta = {
   title: &#39;Welcome&#39;,
@@ -7662,6 +7901,21 @@ export const Overview: Story = {
             &lt;Text variant=&quot;heading&quot; size=&quot;lg&quot;&gt;
               Heading
             &lt;/Text&gt;
+          &lt;/ComponentCard&gt;
+
+          &lt;ComponentCard
+            name=&quot;Tooltip&quot;
+            description=&quot;Displays additional info on hover.&quot;
+            storyPath=&quot;components-lv1-tooltip&quot;
+          &gt;
+            &lt;TooltipProvider&gt;
+              &lt;Tooltip defaultOpen&gt;
+                &lt;TooltipTrigger&gt;
+                  &lt;Button variant=&quot;secondary&quot;&gt;Hover me&lt;/Button&gt;
+                &lt;/TooltipTrigger&gt;
+                &lt;TooltipContent&gt;Helpful info&lt;/TooltipContent&gt;
+              &lt;/Tooltip&gt;
+            &lt;/TooltipProvider&gt;
           &lt;/ComponentCard&gt;
         &lt;/div&gt;
       &lt;/div&gt;
@@ -7836,6 +8090,10 @@ export const Overview: Story = {
     Switch,
     Text,
     Textarea,
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
 } from "@yasmro/schatten";</code></pre>
               </div>
           
@@ -7936,6 +8194,21 @@ export const Overview: Story = {
           &lt;Text variant=&quot;heading&quot; size=&quot;lg&quot;&gt;
             Heading
           &lt;/Text&gt;
+        &lt;/ComponentCard&gt;
+
+        &lt;ComponentCard
+          name=&quot;Tooltip&quot;
+          description=&quot;Displays additional info on hover.&quot;
+          storyPath=&quot;components-lv1-tooltip&quot;
+        &gt;
+          &lt;TooltipProvider&gt;
+            &lt;Tooltip defaultOpen&gt;
+              &lt;TooltipTrigger&gt;
+                &lt;Button variant=&quot;secondary&quot;&gt;Hover me&lt;/Button&gt;
+              &lt;/TooltipTrigger&gt;
+              &lt;TooltipContent&gt;Helpful info&lt;/TooltipContent&gt;
+            &lt;/Tooltip&gt;
+          &lt;/TooltipProvider&gt;
         &lt;/ComponentCard&gt;
       &lt;/div&gt;
     &lt;/div&gt;

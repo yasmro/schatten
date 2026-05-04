@@ -45,13 +45,13 @@ describe('Field', () => {
     expect(screen.getByText('Invalid email')).toBeInTheDocument()
   })
 
-  it('hides description when error is present', () => {
+  it('shows both description and error when both are present', () => {
     render(
       <Field label="Email" description="Enter your email" error="Invalid email">
         <input />
       </Field>,
     )
-    expect(screen.queryByText('Enter your email')).not.toBeInTheDocument()
+    expect(screen.getByText('Enter your email')).toBeInTheDocument()
     expect(screen.getByText('Invalid email')).toBeInTheDocument()
   })
 
@@ -142,17 +142,13 @@ describe('Field', () => {
     })
 
     it('provides describedBy with both ids when both are set', () => {
-      // Note: When both are set, only error is shown, but describedBy still references both
-      // Actually in current implementation, description is hidden when error exists
-      // So describedBy should only contain error id
       render(
         <Field label="Email" description="Help" error="Error">
           <ContextConsumer />
         </Field>,
       )
       const describedBy = screen.getByTestId('context-describedBy').textContent
-      // Since description is hidden when error exists, only error id is in DOM
-      // But describedBy calculation happens before render decision
+      expect(describedBy).toContain('-description')
       expect(describedBy).toContain('-error')
     })
   })
@@ -177,6 +173,102 @@ describe('Field', () => {
       )
       const fieldDiv = container.firstChild as HTMLElement
       expect(fieldDiv).toHaveAttribute('data-disabled', 'true')
+    })
+  })
+
+  describe('flex layout props', () => {
+    it('applies grow class when flexGrow is 1', () => {
+      const { container } = render(
+        <Field label="Email" flexGrow={1}>
+          <input />
+        </Field>,
+      )
+      const fieldDiv = container.firstChild as HTMLElement
+      expect(fieldDiv).toHaveClass('grow')
+    })
+
+    it('applies grow-0 class when flexGrow is 0', () => {
+      const { container } = render(
+        <Field label="Email" flexGrow={0}>
+          <input />
+        </Field>,
+      )
+      const fieldDiv = container.firstChild as HTMLElement
+      expect(fieldDiv).toHaveClass('grow-0')
+    })
+
+    it('does not apply grow class by default', () => {
+      const { container } = render(
+        <Field label="Email">
+          <input />
+        </Field>,
+      )
+      const fieldDiv = container.firstChild as HTMLElement
+      expect(fieldDiv).not.toHaveClass('grow')
+      expect(fieldDiv).not.toHaveClass('grow-0')
+    })
+
+    it('applies shrink-0 class when flexShrink is 0', () => {
+      const { container } = render(
+        <Field label="Email" flexShrink={0}>
+          <input />
+        </Field>,
+      )
+      const fieldDiv = container.firstChild as HTMLElement
+      expect(fieldDiv).toHaveClass('shrink-0')
+    })
+
+    it('applies shrink class when flexShrink is 1', () => {
+      const { container } = render(
+        <Field label="Email" flexShrink={1}>
+          <input />
+        </Field>,
+      )
+      const fieldDiv = container.firstChild as HTMLElement
+      expect(fieldDiv).toHaveClass('shrink')
+    })
+
+    it('does not apply shrink class by default', () => {
+      const { container } = render(
+        <Field label="Email">
+          <input />
+        </Field>,
+      )
+      const fieldDiv = container.firstChild as HTMLElement
+      expect(fieldDiv).not.toHaveClass('shrink')
+      expect(fieldDiv).not.toHaveClass('shrink-0')
+    })
+
+    it('applies flexBasis via inline style', () => {
+      const { container } = render(
+        <Field label="Email" flexBasis="200px">
+          <input />
+        </Field>,
+      )
+      const fieldDiv = container.firstChild as HTMLElement
+      expect(fieldDiv).toHaveStyle({ flexBasis: '200px' })
+    })
+
+    it('does not apply flexBasis style by default', () => {
+      const { container } = render(
+        <Field label="Email">
+          <input />
+        </Field>,
+      )
+      const fieldDiv = container.firstChild as HTMLElement
+      expect(fieldDiv.style.flexBasis).toBe('')
+    })
+
+    it('combines multiple flex props', () => {
+      const { container } = render(
+        <Field label="Email" flexGrow={1} flexShrink={0} flexBasis="50%">
+          <input />
+        </Field>,
+      )
+      const fieldDiv = container.firstChild as HTMLElement
+      expect(fieldDiv).toHaveClass('grow')
+      expect(fieldDiv).toHaveClass('shrink-0')
+      expect(fieldDiv).toHaveStyle({ flexBasis: '50%' })
     })
   })
 })

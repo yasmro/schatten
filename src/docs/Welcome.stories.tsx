@@ -3,6 +3,7 @@ import { Badge } from '../components/lv1/Badge'
 import { Button } from '../components/lv1/Button'
 import { Checkbox } from '../components/lv1/Checkbox'
 import { Field } from '../components/lv1/Field'
+import { FieldSet } from '../components/lv1/FieldSet'
 import { Input } from '../components/lv1/Input'
 import { Radio, RadioGroup } from '../components/lv1/Radio'
 import {
@@ -176,6 +177,18 @@ export const Overview: Story = {
             <Field label="Email" description="Your email address.">
               <Input placeholder="you@example.com" className="w-40" />
             </Field>
+          </ComponentCard>
+
+          <ComponentCard
+            name="FieldSet"
+            description="Groups related form fields."
+            storyPath="components-lv1-fieldset"
+          >
+            <FieldSet legend="Contact">
+              <Field label="Email">
+                <Input placeholder="you@example.com" className="w-40" />
+              </Field>
+            </FieldSet>
           </ComponentCard>
 
           <ComponentCard

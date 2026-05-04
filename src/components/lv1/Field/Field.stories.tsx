@@ -59,6 +59,29 @@ const meta: Meta<typeof Field> = {
         defaultValue: { summary: 'false' },
       },
     },
+    flexGrow: {
+      description: 'Flex grow factor for layout within FieldSet.',
+      control: 'select',
+      options: [undefined, 0, 1],
+      table: {
+        type: { summary: '0 | 1' },
+      },
+    },
+    flexShrink: {
+      description: 'Flex shrink factor for layout within FieldSet.',
+      control: 'select',
+      options: [undefined, 0, 1],
+      table: {
+        type: { summary: '0 | 1' },
+      },
+    },
+    flexBasis: {
+      description: 'Flex basis for layout within FieldSet (CSS value).',
+      control: 'text',
+      table: {
+        type: { summary: 'string' },
+      },
+    },
   },
 }
 

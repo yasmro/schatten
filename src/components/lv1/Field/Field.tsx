@@ -1,5 +1,6 @@
 import { type ReactNode, useId, useMemo } from 'react'
 import { FieldContext, type FieldContextValue } from '../../../contexts/field'
+import { useFieldSetContext } from '../../../contexts/fieldset'
 import { cn } from '../../../lib/utils'
 
 export interface FieldProps {
@@ -15,11 +16,20 @@ export interface FieldProps {
   required?: boolean
   /** Disable the field */
   disabled?: boolean
+  /** Flex grow factor for layout within FieldSet */
+  flexGrow?: 0 | 1
+  /** Flex shrink factor for layout within FieldSet */
+  flexShrink?: 0 | 1
+  /** Flex basis for layout within FieldSet (CSS value) */
+  flexBasis?: string
   /** Field content (input element) */
   children: ReactNode
   /** Additional CSS classes */
   className?: string
 }
+
+const flexGrowClasses = { 0: 'grow-0', 1: 'grow' } as const
+const flexShrinkClasses = { 0: 'shrink-0', 1: 'shrink' } as const
 
 export function Field({
   label,
@@ -28,14 +38,18 @@ export function Field({
   isError: isErrorProp,
   required = false,
   disabled = false,
+  flexGrow,
+  flexShrink,
+  flexBasis,
   children,
   className,
 }: FieldProps) {
+  const fieldSet = useFieldSetContext()
   const id = useId()
   const descriptionId = `${id}-description`
   const errorId = `${id}-error`
 
-  const isError = isErrorProp ?? !!error
+  const isError = isErrorProp ?? (error ? true : undefined) ?? fieldSet?.isError ?? false
 
   const describedBy = useMemo(() => {
     const ids: string[] = []
@@ -51,14 +65,23 @@ export function Field({
 
   return (
     <FieldContext.Provider value={contextValue}>
-      <div className={cn('flex flex-col gap-1.5', className)} data-disabled={disabled || undefined}>
+      <div
+        className={cn(
+          'flex flex-col gap-1.5',
+          flexGrow !== undefined && flexGrowClasses[flexGrow],
+          flexShrink !== undefined && flexShrinkClasses[flexShrink],
+          className,
+        )}
+        style={flexBasis ? { flexBasis } : undefined}
+        data-disabled={disabled || undefined}
+      >
         {label && (
-          <label htmlFor={id} className="text-base font-medium text-foreground">
+          <label htmlFor={id} className="text-base font-bold text-foreground">
             {label}
             {required && <span className="text-destructive ml-0.5">*</span>}
           </label>
         )}
-        {description && !error && (
+        {description && (
           <label
             htmlFor={id}
             id={descriptionId}

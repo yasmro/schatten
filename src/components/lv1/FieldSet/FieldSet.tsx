@@ -61,16 +61,9 @@ export function FieldSet({
         data-disabled={disabled || undefined}
         data-error={isError || undefined}
       >
-        {legend && (
-          <legend className={cn('text-lg font-bold text-foreground', disabled && 'opacity-50')}>
-            {legend}
-          </legend>
-        )}
+        {legend && <legend className="text-lg font-bold text-foreground">{legend}</legend>}
         {description && (
-          <p
-            id={descriptionId}
-            className={cn('text-sm text-foreground-muted', disabled && 'opacity-50')}
-          >
+          <p id={descriptionId} className="text-sm text-foreground-muted">
             {description}
           </p>
         )}

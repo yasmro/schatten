@@ -448,38 +448,4 @@ describe('FieldSet', () => {
       expect(childrenWrapper).toHaveClass('mt-4')
     })
   })
-
-  describe('disabled styling', () => {
-    it('applies opacity-50 to legend when disabled', () => {
-      const { container } = render(
-        <FieldSet legend="Test" disabled>
-          <input />
-        </FieldSet>,
-      )
-      const legend = container.querySelector('legend')
-      expect(legend).toHaveClass('opacity-50')
-    })
-
-    it('applies opacity-50 to description when disabled', () => {
-      render(
-        <FieldSet legend="Test" description="Help text" disabled>
-          <input />
-        </FieldSet>,
-      )
-      const description = screen.getByText('Help text')
-      expect(description).toHaveClass('opacity-50')
-    })
-
-    it('does not apply opacity-50 when not disabled', () => {
-      const { container } = render(
-        <FieldSet legend="Test" description="Help text">
-          <input />
-        </FieldSet>,
-      )
-      const legend = container.querySelector('legend')
-      const description = screen.getByText('Help text')
-      expect(legend).not.toHaveClass('opacity-50')
-      expect(description).not.toHaveClass('opacity-50')
-    })
-  })
 })

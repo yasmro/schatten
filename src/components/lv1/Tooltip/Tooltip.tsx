@@ -29,7 +29,7 @@ const TooltipPortal = TooltipPrimitive.Portal
 export interface TooltipContentProps
   extends Omit<
     ComponentPropsWithoutRef<typeof TooltipPrimitive.Content>,
-    'sideOffset' | 'alignOffset'
+    'sideOffset' | 'alignOffset' | 'align'
   > {
   /** Portal container element */
   container?: TooltipPortalProps['container']

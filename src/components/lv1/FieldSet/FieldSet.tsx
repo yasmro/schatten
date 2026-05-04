@@ -62,7 +62,7 @@ export function FieldSet({
         data-error={isError || undefined}
       >
         {legend && (
-          <legend className={cn('text-base font-medium text-foreground', disabled && 'opacity-50')}>
+          <legend className={cn('text-lg font-medium text-foreground', disabled && 'opacity-50')}>
             {legend}
           </legend>
         )}

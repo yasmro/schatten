@@ -59,9 +59,13 @@ export function Field({
           </label>
         )}
         {description && !error && (
-          <p id={descriptionId} className="-mt-1.5 mb-1 text-sm text-foreground-muted">
+          <label
+            htmlFor={id}
+            id={descriptionId}
+            className="-mt-1.5 mb-1 block text-sm text-foreground-muted cursor-pointer"
+          >
             {description}
-          </p>
+          </label>
         )}
         {children}
         {error && (

@@ -8,6 +8,13 @@
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
+    ".": {
+      "style": "./dist/schatten.css"
+    },
+    "./schatten.css": {
+      "import": "./dist/schatten.css",
+      "require": "./dist/schatten.css"
+    },
     "./core/tokens": {
       "import": "./dist/core/tokens/index.css",
       "require": "./dist/core/tokens/index.css"
@@ -51,7 +58,9 @@
   ],
   "scripts": {
     "dev": "storybook dev -p 6006",
-    "build": "tsup",
+    "build": "pnpm build:js && pnpm build:css",
+    "build:js": "tsup",
+    "build:css": "lightningcss src/schatten.css -o dist/schatten.css --minify --bundle",
     "build:storybook": "storybook build",
     "test": "vitest",
     "test:ui": "vitest --ui",
@@ -95,6 +104,7 @@
     "jsdom": "24",
     "lefthook": "^2.1.4",
     "lightningcss": "^1.28.2",
+    "lightningcss-cli": "^1.32.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "storybook": "10.3.3",

@@ -1,0 +1,54 @@
+/*
+ * Schatten CSS
+ *
+ * A standalone CSS file that can be used without any build tools.
+ * Just link this file via CDN or import it directly.
+ *
+ * Usage:
+ *   <link href="https://cdn.jsdelivr.net/npm/@yasmro/schatten/dist/schatten.css" rel="stylesheet" />
+ */
+
+/* === All @imports must come first === */
+
+/* Tokens */
+@import "./core/tokens/primitives.css";
+@import "./core/tokens/semantic.css";
+@import "./core/tokens/typography.css";
+@import "./core/tokens/spacing.css";
+
+/* Theme (Default) */
+@import "./themes/default/colors.css";
+
+/* Component Styles */
+@import "./components/lv1/Spinner/Spinner.css";
+
+/* === Styles === */
+
+/*
+ * Font Configuration
+ * Override --font-sans to use custom fonts:
+ *
+ *   :root {
+ *     --font-sans: "Your Font", var(--font-sans-fallback);
+ *   }
+ */
+:root {
+  --font-sans: var(--font-sans-fallback);
+}
+
+/* Base Styles */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans);
+  line-height: var(--leading-normal);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}

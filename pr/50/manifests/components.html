@@ -576,13 +576,13 @@
 <header>
   <div class="wrap">
     <h1>Manifest Debugger</h1>
-    <div class="summary"><a class="filter-pill all" data-k="all" href="#filter-all">All</a><a class="filter-pill err" data-k="errors" href="#filter-errors">3/15 prop type errors</a><a class="filter-pill info" data-k="infos" href="#filter-infos">15/15 infos</a><span class="filter-pill ok" aria-disabled="true">85 stories ok</span></div>
+    <div class="summary"><a class="filter-pill all" data-k="all" href="#filter-all">All</a><a class="filter-pill err" data-k="errors" href="#filter-errors">3/15 prop type errors</a><a class="filter-pill info" data-k="infos" href="#filter-infos">15/15 infos</a><span class="filter-pill ok" aria-disabled="true">86 stories ok</span></div>
   </div>
 </header>
 <main>
   <div class="wrap">
     <div class="note ok" style="margin-bottom: 16px;">
-              Using <code>react-docgen-typescript</code>. Generation took <strong>3.2s</strong>.
+              Using <code>react-docgen-typescript</code>. Generation took <strong>3.1s</strong>.
             </div>
     <h2 class="section-title">Components</h2>
     <div class="grid" role="list">
@@ -2142,7 +2142,7 @@ export const Colors: Story = {
     <div class="title">
       <h2><span class="status-dot dot-ok"></span> Field</h2>
       <div class="badges">
-        <label for="c-4-components-lv1-field-props" class="badge ok as-toggle">8 prop types</label>
+        <label for="c-4-components-lv1-field-props" class="badge ok as-toggle">10 prop types</label>
         <label for="c-4-components-lv1-field-info" class="badge info as-toggle">1 info</label>
         <label for="c-4-components-lv1-field-stories" class="badge ok as-toggle">11 stories</label>
         
@@ -2176,7 +2176,7 @@ export const Colors: Story = {
           <div class="note ok">
             <div class="row">
               <span class="ex-name">Prop types <small>(react-docgen-typescript)</small></span>
-              <span class="badge ok">8 prop types</span>
+              <span class="badge ok">10 prop types</span>
             </div>
             <pre><code>Component: src/components/lv1/Field/Field.tsx::Field</code></pre>
             <pre><code>Props:</code></pre>
@@ -2206,6 +2206,11 @@ disabled?: boolean = false
 error?: string
 
 /**
+ * Flex grow factor for layout within FieldSet
+ */
+grow?: 0 | 1
+
+/**
  * Explicitly set error state. If not provided, derived from error prop
  */
 isError?: boolean
@@ -2218,7 +2223,12 @@ label?: ReactNode
 /**
  * Show required indicator (*)
  */
-required?: boolean = false</code></pre>
+required?: boolean = false
+
+/**
+ * Flex shrink factor for layout within FieldSet
+ */
+shrink?: 0 | 1</code></pre>
           </div>
         </div>
     
@@ -2494,9 +2504,9 @@ required?: boolean = false</code></pre>
     <div class="title">
       <h2><span class="status-dot dot-ok"></span> FieldSet</h2>
       <div class="badges">
-        <label for="c-5-components-lv1-fieldset-props" class="badge ok as-toggle">7 prop types</label>
+        <label for="c-5-components-lv1-fieldset-props" class="badge ok as-toggle">10 prop types</label>
         <label for="c-5-components-lv1-fieldset-info" class="badge info as-toggle">1 info</label>
-        <label for="c-5-components-lv1-fieldset-stories" class="badge ok as-toggle">8 stories</label>
+        <label for="c-5-components-lv1-fieldset-stories" class="badge ok as-toggle">9 stories</label>
         
       </div>
     </div>
@@ -2528,7 +2538,7 @@ required?: boolean = false</code></pre>
           <div class="note ok">
             <div class="row">
               <span class="ex-name">Prop types <small>(react-docgen-typescript)</small></span>
-              <span class="badge ok">7 prop types</span>
+              <span class="badge ok">10 prop types</span>
             </div>
             <pre><code>Component: src/components/lv1/FieldSet/FieldSet.tsx::FieldSet</code></pre>
             <pre><code>Props:</code></pre>
@@ -2548,6 +2558,11 @@ className?: string
 description?: ReactNode
 
 /**
+ * Flex direction for children layout
+ */
+direction?: &quot;row&quot; | &quot;column&quot; = column
+
+/**
  * Disable all child fields
  */
 disabled?: boolean = false
@@ -2558,6 +2573,11 @@ disabled?: boolean = false
 error?: string
 
 /**
+ * Gap between children (Tailwind spacing scale: 0, 1, 2, 3, 4, etc.)
+ */
+gap?: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 8 | 10 | 12 = 4
+
+/**
  * Explicitly set error state. If not provided, derived from error prop
  */
 isError?: boolean
@@ -2565,7 +2585,12 @@ isError?: boolean
 /**
  * Legend text for the fieldset
  */
-legend: ReactNode</code></pre>
+legend: ReactNode
+
+/**
+ * Enable flex wrap for children
+ */
+wrap?: boolean = false</code></pre>
           </div>
         </div>
     
@@ -2599,15 +2624,16 @@ legend: ReactNode</code></pre>
               
               <pre><code>const Playground = () =&gt; &lt;FieldSet
     legend=&quot;Personal Information&quot;
-    description=&quot;Please enter your personal details.&quot;&gt;
-    &lt;div className=&quot;flex flex-col gap-4 w-80&quot;&gt;
-        &lt;Field label=&quot;First Name&quot;&gt;
-            &lt;Input placeholder=&quot;John&quot; /&gt;
-        &lt;/Field&gt;
-        &lt;Field label=&quot;Last Name&quot;&gt;
-            &lt;Input placeholder=&quot;Doe&quot; /&gt;
-        &lt;/Field&gt;
-    &lt;/div&gt;
+    description=&quot;Please enter your personal details.&quot;
+    direction=&quot;column&quot;
+    gap={4}
+    className=&quot;w-80&quot;&gt;
+    &lt;Field label=&quot;First Name&quot;&gt;
+        &lt;Input placeholder=&quot;John&quot; /&gt;
+    &lt;/Field&gt;
+    &lt;Field label=&quot;Last Name&quot;&gt;
+        &lt;Input placeholder=&quot;Doe&quot; /&gt;
+    &lt;/Field&gt;
 &lt;/FieldSet&gt;;</code></pre>
             </div>
             <div class="note ok">
@@ -2618,15 +2644,18 @@ legend: ReactNode</code></pre>
               
               
               <pre><code>const DateRange = () =&gt; (
-  &lt;FieldSet legend=&quot;Event Period&quot; description=&quot;Select the start and end dates for your event.&quot;&gt;
-    &lt;div className=&quot;flex gap-4&quot;&gt;
-      &lt;Field label=&quot;Start Date&quot;&gt;
-        &lt;Input type=&quot;date&quot; className=&quot;w-40&quot; /&gt;
-      &lt;/Field&gt;
-      &lt;Field label=&quot;End Date&quot;&gt;
-        &lt;Input type=&quot;date&quot; className=&quot;w-40&quot; /&gt;
-      &lt;/Field&gt;
-    &lt;/div&gt;
+  &lt;FieldSet
+    legend=&quot;Event Period&quot;
+    description=&quot;Select the start and end dates for your event.&quot;
+    direction=&quot;row&quot;
+    gap={4}
+  &gt;
+    &lt;Field label=&quot;Start Date&quot;&gt;
+      &lt;Input type=&quot;date&quot; className=&quot;w-40&quot; /&gt;
+    &lt;/Field&gt;
+    &lt;Field label=&quot;End Date&quot;&gt;
+      &lt;Input type=&quot;date&quot; className=&quot;w-40&quot; /&gt;
+    &lt;/Field&gt;
   &lt;/FieldSet&gt;
 );</code></pre>
             </div>
@@ -2638,32 +2667,30 @@ legend: ReactNode</code></pre>
               
               
               <pre><code>const Address = () =&gt; (
-  &lt;FieldSet legend=&quot;Shipping Address&quot; description=&quot;Enter your delivery address.&quot;&gt;
-    &lt;div className=&quot;flex flex-col gap-4 w-96&quot;&gt;
-      &lt;Field label=&quot;Street Address&quot; required&gt;
-        &lt;Input placeholder=&quot;123 Main St&quot; /&gt;
+  &lt;FieldSet legend=&quot;Shipping Address&quot; description=&quot;Enter your delivery address.&quot; className=&quot;w-96&quot;&gt;
+    &lt;Field label=&quot;Street Address&quot; required&gt;
+      &lt;Input placeholder=&quot;123 Main St&quot; /&gt;
+    &lt;/Field&gt;
+    &lt;FieldSet direction=&quot;row&quot; gap={4} legend=&quot;&quot;&gt;
+      &lt;Field label=&quot;City&quot; required grow={1}&gt;
+        &lt;Input placeholder=&quot;Tokyo&quot; /&gt;
       &lt;/Field&gt;
-      &lt;div className=&quot;flex gap-4&quot;&gt;
-        &lt;Field label=&quot;City&quot; required&gt;
-          &lt;Input placeholder=&quot;Tokyo&quot; /&gt;
-        &lt;/Field&gt;
-        &lt;Field label=&quot;Postal Code&quot; required&gt;
-          &lt;Input placeholder=&quot;100-0001&quot; className=&quot;w-32&quot; /&gt;
-        &lt;/Field&gt;
-      &lt;/div&gt;
-      &lt;Field label=&quot;Country&quot;&gt;
-        &lt;Select defaultValue=&quot;jp&quot;&gt;
-          &lt;SelectTrigger&gt;
-            &lt;SelectValue placeholder=&quot;Select a country&quot; /&gt;
-          &lt;/SelectTrigger&gt;
-          &lt;SelectContent&gt;
-            &lt;SelectItem value=&quot;jp&quot;&gt;Japan&lt;/SelectItem&gt;
-            &lt;SelectItem value=&quot;us&quot;&gt;United States&lt;/SelectItem&gt;
-            &lt;SelectItem value=&quot;uk&quot;&gt;United Kingdom&lt;/SelectItem&gt;
-          &lt;/SelectContent&gt;
-        &lt;/Select&gt;
+      &lt;Field label=&quot;Postal Code&quot; required shrink={0}&gt;
+        &lt;Input placeholder=&quot;100-0001&quot; className=&quot;w-32&quot; /&gt;
       &lt;/Field&gt;
-    &lt;/div&gt;
+    &lt;/FieldSet&gt;
+    &lt;Field label=&quot;Country&quot;&gt;
+      &lt;Select defaultValue=&quot;jp&quot;&gt;
+        &lt;SelectTrigger&gt;
+          &lt;SelectValue placeholder=&quot;Select a country&quot; /&gt;
+        &lt;/SelectTrigger&gt;
+        &lt;SelectContent&gt;
+          &lt;SelectItem value=&quot;jp&quot;&gt;Japan&lt;/SelectItem&gt;
+          &lt;SelectItem value=&quot;us&quot;&gt;United States&lt;/SelectItem&gt;
+          &lt;SelectItem value=&quot;uk&quot;&gt;United Kingdom&lt;/SelectItem&gt;
+        &lt;/SelectContent&gt;
+      &lt;/Select&gt;
+    &lt;/Field&gt;
   &lt;/FieldSet&gt;
 );</code></pre>
             </div>
@@ -2680,26 +2707,24 @@ legend: ReactNode</code></pre>
       legend=&quot;Date Range&quot;
       error=&quot;End date must be after start date.&quot;
       description=&quot;Select the start and end dates.&quot;
+      direction=&quot;row&quot;
+      gap={4}
     &gt;
-      &lt;div className=&quot;flex gap-4&quot;&gt;
-        &lt;Field label=&quot;Start Date&quot;&gt;
-          &lt;Input type=&quot;date&quot; defaultValue=&quot;2024-12-31&quot; className=&quot;w-40&quot; /&gt;
-        &lt;/Field&gt;
-        &lt;Field label=&quot;End Date&quot;&gt;
-          &lt;Input type=&quot;date&quot; defaultValue=&quot;2024-01-01&quot; className=&quot;w-40&quot; /&gt;
-        &lt;/Field&gt;
-      &lt;/div&gt;
+      &lt;Field label=&quot;Start Date&quot;&gt;
+        &lt;Input type=&quot;date&quot; defaultValue=&quot;2024-12-31&quot; className=&quot;w-40&quot; /&gt;
+      &lt;/Field&gt;
+      &lt;Field label=&quot;End Date&quot;&gt;
+        &lt;Input type=&quot;date&quot; defaultValue=&quot;2024-01-01&quot; className=&quot;w-40&quot; /&gt;
+      &lt;/Field&gt;
     &lt;/FieldSet&gt;
 
-    &lt;FieldSet legend=&quot;Password Confirmation&quot; error=&quot;Passwords do not match.&quot;&gt;
-      &lt;div className=&quot;flex flex-col gap-4 w-80&quot;&gt;
-        &lt;Field label=&quot;Password&quot;&gt;
-          &lt;Input type=&quot;password&quot; defaultValue=&quot;password123&quot; /&gt;
-        &lt;/Field&gt;
-        &lt;Field label=&quot;Confirm Password&quot;&gt;
-          &lt;Input type=&quot;password&quot; defaultValue=&quot;password456&quot; /&gt;
-        &lt;/Field&gt;
-      &lt;/div&gt;
+    &lt;FieldSet legend=&quot;Password Confirmation&quot; error=&quot;Passwords do not match.&quot; className=&quot;w-80&quot;&gt;
+      &lt;Field label=&quot;Password&quot;&gt;
+        &lt;Input type=&quot;password&quot; defaultValue=&quot;password123&quot; /&gt;
+      &lt;/Field&gt;
+      &lt;Field label=&quot;Confirm Password&quot;&gt;
+        &lt;Input type=&quot;password&quot; defaultValue=&quot;password456&quot; /&gt;
+      &lt;/Field&gt;
     &lt;/FieldSet&gt;
   &lt;/div&gt;
 );</code></pre>
@@ -2712,15 +2737,18 @@ legend: ReactNode</code></pre>
               
               
               <pre><code>const Disabled = () =&gt; (
-  &lt;FieldSet legend=&quot;Account Settings&quot; description=&quot;These settings are currently locked.&quot; disabled&gt;
-    &lt;div className=&quot;flex flex-col gap-4 w-80&quot;&gt;
-      &lt;Field label=&quot;Username&quot;&gt;
-        &lt;Input defaultValue=&quot;johndoe&quot; /&gt;
-      &lt;/Field&gt;
-      &lt;Field label=&quot;Email&quot;&gt;
-        &lt;Input type=&quot;email&quot; defaultValue=&quot;john@example.com&quot; /&gt;
-      &lt;/Field&gt;
-    &lt;/div&gt;
+  &lt;FieldSet
+    legend=&quot;Account Settings&quot;
+    description=&quot;These settings are currently locked.&quot;
+    disabled
+    className=&quot;w-80&quot;
+  &gt;
+    &lt;Field label=&quot;Username&quot;&gt;
+      &lt;Input defaultValue=&quot;johndoe&quot; /&gt;
+    &lt;/Field&gt;
+    &lt;Field label=&quot;Email&quot;&gt;
+      &lt;Input type=&quot;email&quot; defaultValue=&quot;john@example.com&quot; /&gt;
+    &lt;/Field&gt;
   &lt;/FieldSet&gt;
 );</code></pre>
             </div>
@@ -2733,34 +2761,34 @@ legend: ReactNode</code></pre>
               
               <pre><code>const NestedFields = () =&gt; (
   &lt;div className=&quot;flex flex-col gap-8&quot;&gt;
-    &lt;FieldSet legend=&quot;Contact Information&quot;&gt;
-      &lt;div className=&quot;flex flex-col gap-4 w-80&quot;&gt;
-        &lt;Field label=&quot;Email&quot; required description=&quot;We&#39;ll use this for account recovery.&quot;&gt;
-          &lt;Input type=&quot;email&quot; placeholder=&quot;you@example.com&quot; /&gt;
-        &lt;/Field&gt;
-        &lt;Field label=&quot;Phone&quot; description=&quot;Optional contact number.&quot;&gt;
-          &lt;Input type=&quot;tel&quot; placeholder=&quot;+81 90-1234-5678&quot; /&gt;
-        &lt;/Field&gt;
-      &lt;/div&gt;
+    &lt;FieldSet legend=&quot;Contact Information&quot; className=&quot;w-80&quot;&gt;
+      &lt;Field label=&quot;Email&quot; required description=&quot;We&#39;ll use this for account recovery.&quot;&gt;
+        &lt;Input type=&quot;email&quot; placeholder=&quot;you@example.com&quot; /&gt;
+      &lt;/Field&gt;
+      &lt;Field label=&quot;Phone&quot; description=&quot;Optional contact number.&quot;&gt;
+        &lt;Input type=&quot;tel&quot; placeholder=&quot;+81 90-1234-5678&quot; /&gt;
+      &lt;/Field&gt;
     &lt;/FieldSet&gt;
 
-    &lt;FieldSet legend=&quot;Billing Details&quot; description=&quot;Enter your payment information.&quot;&gt;
-      &lt;div className=&quot;flex flex-col gap-4 w-80&quot;&gt;
-        &lt;Field label=&quot;Cardholder Name&quot; required&gt;
-          &lt;Input placeholder=&quot;John Doe&quot; /&gt;
+    &lt;FieldSet
+      legend=&quot;Billing Details&quot;
+      description=&quot;Enter your payment information.&quot;
+      className=&quot;w-80&quot;
+    &gt;
+      &lt;Field label=&quot;Cardholder Name&quot; required&gt;
+        &lt;Input placeholder=&quot;John Doe&quot; /&gt;
+      &lt;/Field&gt;
+      &lt;Field label=&quot;Card Number&quot; required&gt;
+        &lt;Input placeholder=&quot;1234 5678 9012 3456&quot; /&gt;
+      &lt;/Field&gt;
+      &lt;FieldSet direction=&quot;row&quot; gap={4} legend=&quot;&quot;&gt;
+        &lt;Field label=&quot;Expiry&quot; required&gt;
+          &lt;Input placeholder=&quot;MM/YY&quot; className=&quot;w-24&quot; /&gt;
         &lt;/Field&gt;
-        &lt;Field label=&quot;Card Number&quot; required&gt;
-          &lt;Input placeholder=&quot;1234 5678 9012 3456&quot; /&gt;
+        &lt;Field label=&quot;CVV&quot; required&gt;
+          &lt;Input placeholder=&quot;123&quot; className=&quot;w-20&quot; /&gt;
         &lt;/Field&gt;
-        &lt;div className=&quot;flex gap-4&quot;&gt;
-          &lt;Field label=&quot;Expiry&quot; required&gt;
-            &lt;Input placeholder=&quot;MM/YY&quot; className=&quot;w-24&quot; /&gt;
-          &lt;/Field&gt;
-          &lt;Field label=&quot;CVV&quot; required&gt;
-            &lt;Input placeholder=&quot;123&quot; className=&quot;w-20&quot; /&gt;
-          &lt;/Field&gt;
-        &lt;/div&gt;
-      &lt;/div&gt;
+      &lt;/FieldSet&gt;
     &lt;/FieldSet&gt;
   &lt;/div&gt;
 );</code></pre>
@@ -2778,15 +2806,19 @@ legend: ReactNode</code></pre>
       &lt;p className=&quot;text-sm text-foreground-muted mb-4&quot;&gt;
         When FieldSet has isError, all child Inputs show error styles automatically.
       &lt;/p&gt;
-      &lt;FieldSet legend=&quot;Date Range&quot; isError error=&quot;End date must be after start date.&quot;&gt;
-        &lt;div className=&quot;flex gap-4&quot;&gt;
-          &lt;Field label=&quot;Start Date&quot;&gt;
-            &lt;Input type=&quot;date&quot; defaultValue=&quot;2024-12-31&quot; className=&quot;w-40&quot; /&gt;
-          &lt;/Field&gt;
-          &lt;Field label=&quot;End Date&quot;&gt;
-            &lt;Input type=&quot;date&quot; defaultValue=&quot;2024-01-01&quot; className=&quot;w-40&quot; /&gt;
-          &lt;/Field&gt;
-        &lt;/div&gt;
+      &lt;FieldSet
+        legend=&quot;Date Range&quot;
+        isError
+        error=&quot;End date must be after start date.&quot;
+        direction=&quot;row&quot;
+        gap={4}
+      &gt;
+        &lt;Field label=&quot;Start Date&quot;&gt;
+          &lt;Input type=&quot;date&quot; defaultValue=&quot;2024-12-31&quot; className=&quot;w-40&quot; /&gt;
+        &lt;/Field&gt;
+        &lt;Field label=&quot;End Date&quot;&gt;
+          &lt;Input type=&quot;date&quot; defaultValue=&quot;2024-01-01&quot; className=&quot;w-40&quot; /&gt;
+        &lt;/Field&gt;
       &lt;/FieldSet&gt;
     &lt;/div&gt;
 
@@ -2794,15 +2826,13 @@ legend: ReactNode</code></pre>
       &lt;p className=&quot;text-sm text-foreground-muted mb-4&quot;&gt;
         Individual Field can override FieldSet&amp;apos;s isError.
       &lt;/p&gt;
-      &lt;FieldSet legend=&quot;Mixed States&quot; isError&gt;
-        &lt;div className=&quot;flex flex-col gap-4 w-80&quot;&gt;
-          &lt;Field label=&quot;Has Error (inherited)&quot;&gt;
-            &lt;Input placeholder=&quot;Error style from FieldSet&quot; /&gt;
-          &lt;/Field&gt;
-          &lt;Field label=&quot;No Error (overridden)&quot; isError={false}&gt;
-            &lt;Input placeholder=&quot;Explicitly set isError=false&quot; /&gt;
-          &lt;/Field&gt;
-        &lt;/div&gt;
+      &lt;FieldSet legend=&quot;Mixed States&quot; isError className=&quot;w-80&quot;&gt;
+        &lt;Field label=&quot;Has Error (inherited)&quot;&gt;
+          &lt;Input placeholder=&quot;Error style from FieldSet&quot; /&gt;
+        &lt;/Field&gt;
+        &lt;Field label=&quot;No Error (overridden)&quot; isError={false}&gt;
+          &lt;Input placeholder=&quot;Explicitly set isError=false&quot; /&gt;
+        &lt;/Field&gt;
       &lt;/FieldSet&gt;
     &lt;/div&gt;
   &lt;/div&gt;
@@ -2817,28 +2847,70 @@ legend: ReactNode</code></pre>
               
               <pre><code>const NestedFieldSets = () =&gt; (
   &lt;FieldSet legend=&quot;Checkout Form&quot; description=&quot;Complete your order.&quot;&gt;
-    &lt;FieldSet legend=&quot;Shipping Address&quot;&gt;
-      &lt;div className=&quot;flex flex-col gap-4 w-80&quot;&gt;
-        &lt;Field label=&quot;Street&quot; required&gt;
-          &lt;Input placeholder=&quot;123 Main St&quot; /&gt;
-        &lt;/Field&gt;
-        &lt;Field label=&quot;City&quot; required&gt;
-          &lt;Input placeholder=&quot;Tokyo&quot; /&gt;
-        &lt;/Field&gt;
-      &lt;/div&gt;
+    &lt;FieldSet legend=&quot;Shipping Address&quot; className=&quot;w-80&quot;&gt;
+      &lt;Field label=&quot;Street&quot; required&gt;
+        &lt;Input placeholder=&quot;123 Main St&quot; /&gt;
+      &lt;/Field&gt;
+      &lt;Field label=&quot;City&quot; required&gt;
+        &lt;Input placeholder=&quot;Tokyo&quot; /&gt;
+      &lt;/Field&gt;
     &lt;/FieldSet&gt;
 
-    &lt;FieldSet legend=&quot;Billing Address&quot; isError error=&quot;Please complete billing address.&quot;&gt;
-      &lt;div className=&quot;flex flex-col gap-4 w-80&quot;&gt;
-        &lt;Field label=&quot;Street&quot; required&gt;
-          &lt;Input placeholder=&quot;456 Oak Ave&quot; /&gt;
-        &lt;/Field&gt;
-        &lt;Field label=&quot;City&quot; required&gt;
-          &lt;Input placeholder=&quot;Osaka&quot; /&gt;
-        &lt;/Field&gt;
-      &lt;/div&gt;
+    &lt;FieldSet
+      legend=&quot;Billing Address&quot;
+      isError
+      error=&quot;Please complete billing address.&quot;
+      className=&quot;w-80&quot;
+    &gt;
+      &lt;Field label=&quot;Street&quot; required&gt;
+        &lt;Input placeholder=&quot;456 Oak Ave&quot; /&gt;
+      &lt;/Field&gt;
+      &lt;Field label=&quot;City&quot; required&gt;
+        &lt;Input placeholder=&quot;Osaka&quot; /&gt;
+      &lt;/Field&gt;
     &lt;/FieldSet&gt;
   &lt;/FieldSet&gt;
+);</code></pre>
+            </div>
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">Layout Variants</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const LayoutVariants = () =&gt; (
+  &lt;div className=&quot;flex flex-col gap-8&quot;&gt;
+    &lt;FieldSet legend=&quot;Row Direction&quot; direction=&quot;row&quot; gap={4}&gt;
+      &lt;Field label=&quot;First&quot; grow={1}&gt;
+        &lt;Input placeholder=&quot;Grows to fill&quot; /&gt;
+      &lt;/Field&gt;
+      &lt;Field label=&quot;Second&quot; shrink={0}&gt;
+        &lt;Input placeholder=&quot;Fixed&quot; className=&quot;w-24&quot; /&gt;
+      &lt;/Field&gt;
+    &lt;/FieldSet&gt;
+
+    &lt;FieldSet legend=&quot;Row with Wrap&quot; direction=&quot;row&quot; wrap gap={4} className=&quot;w-80&quot;&gt;
+      &lt;Field label=&quot;Field 1&quot;&gt;
+        &lt;Input placeholder=&quot;Input&quot; className=&quot;w-32&quot; /&gt;
+      &lt;/Field&gt;
+      &lt;Field label=&quot;Field 2&quot;&gt;
+        &lt;Input placeholder=&quot;Input&quot; className=&quot;w-32&quot; /&gt;
+      &lt;/Field&gt;
+      &lt;Field label=&quot;Field 3&quot;&gt;
+        &lt;Input placeholder=&quot;Input&quot; className=&quot;w-32&quot; /&gt;
+      &lt;/Field&gt;
+    &lt;/FieldSet&gt;
+
+    &lt;FieldSet legend=&quot;Custom Gap (gap=2)&quot; gap={2} className=&quot;w-80&quot;&gt;
+      &lt;Field label=&quot;Tight spacing&quot;&gt;
+        &lt;Input placeholder=&quot;gap-2&quot; /&gt;
+      &lt;/Field&gt;
+      &lt;Field label=&quot;Between fields&quot;&gt;
+        &lt;Input placeholder=&quot;8px gap&quot; /&gt;
+      &lt;/Field&gt;
+    &lt;/FieldSet&gt;
+  &lt;/div&gt;
 );</code></pre>
             </div>
         </div>

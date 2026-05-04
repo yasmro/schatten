@@ -582,7 +582,7 @@
 <main>
   <div class="wrap">
     <div class="note ok" style="margin-bottom: 16px;">
-              Using <code>react-docgen-typescript</code>. Generation took <strong>2.8s</strong>.
+              Using <code>react-docgen-typescript</code>. Generation took <strong>3.2s</strong>.
             </div>
     <h2 class="section-title">Components</h2>
     <div class="grid" role="list">
@@ -4941,13 +4941,13 @@ export const Typography: Story = {
     <div class="note err">
       <div class="note-title">Prop type error</div>
       <div class="note-body"><pre><code>We could not detect the component from your story file. Specify meta.component.
-  18 | import { Textarea } from &#39;../components/lv1/Textarea&#39;
-  19 |
-&gt; 20 | const meta: Meta = {
+  19 | import { Textarea } from &#39;../components/lv1/Textarea&#39;
+  20 |
+&gt; 21 | const meta: Meta = {
      | ^
-  21 |   title: &#39;Welcome&#39;,
-  22 |   parameters: {
-  23 |     layout: &#39;fullscreen&#39;,
+  22 |   title: &#39;Welcome&#39;,
+  23 |   parameters: {
+  24 |     layout: &#39;fullscreen&#39;,
 
 ./src/docs/Welcome.stories.tsx:
 import type { Meta, StoryObj } from &#39;@storybook/react-vite&#39;
@@ -4955,6 +4955,7 @@ import { Badge } from &#39;../components/lv1/Badge&#39;
 import { Button } from &#39;../components/lv1/Button&#39;
 import { Checkbox } from &#39;../components/lv1/Checkbox&#39;
 import { Field } from &#39;../components/lv1/Field&#39;
+import { FieldSet } from &#39;../components/lv1/FieldSet&#39;
 import { Input } from &#39;../components/lv1/Input&#39;
 import { Radio, RadioGroup } from &#39;../components/lv1/Radio&#39;
 import {
@@ -5131,6 +5132,18 @@ export const Overview: Story = {
           &lt;/ComponentCard&gt;
 
           &lt;ComponentCard
+            name=&quot;FieldSet&quot;
+            description=&quot;Groups related form fields.&quot;
+            storyPath=&quot;components-lv1-fieldset&quot;
+          &gt;
+            &lt;FieldSet legend=&quot;Contact&quot;&gt;
+              &lt;Field label=&quot;Email&quot;&gt;
+                &lt;Input placeholder=&quot;you@example.com&quot; className=&quot;w-40&quot; /&gt;
+              &lt;/Field&gt;
+            &lt;/FieldSet&gt;
+          &lt;/ComponentCard&gt;
+
+          &lt;ComponentCard
             name=&quot;Input&quot;
             description=&quot;Accepts user text input.&quot;
             storyPath=&quot;components-lv1-input&quot;
@@ -5262,6 +5275,7 @@ export const Overview: Story = {
     Button,
     Checkbox,
     Field,
+    FieldSet,
     Input,
     Radio,
     RadioGroup,
@@ -5389,6 +5403,18 @@ export const Overview: Story = {
           &lt;Field label=&quot;Email&quot; description=&quot;Your email address.&quot;&gt;
             &lt;Input placeholder=&quot;you@example.com&quot; className=&quot;w-40&quot; /&gt;
           &lt;/Field&gt;
+        &lt;/ComponentCard&gt;
+
+        &lt;ComponentCard
+          name=&quot;FieldSet&quot;
+          description=&quot;Groups related form fields.&quot;
+          storyPath=&quot;components-lv1-fieldset&quot;
+        &gt;
+          &lt;FieldSet legend=&quot;Contact&quot;&gt;
+            &lt;Field label=&quot;Email&quot;&gt;
+              &lt;Input placeholder=&quot;you@example.com&quot; className=&quot;w-40&quot; /&gt;
+            &lt;/Field&gt;
+          &lt;/FieldSet&gt;
         &lt;/ComponentCard&gt;
 
         &lt;ComponentCard
@@ -7239,13 +7265,13 @@ export const Typography: Story = {
     <div class="note err">
       <div class="note-title">Prop type error</div>
       <div class="note-body"><pre><code>We could not detect the component from your story file. Specify meta.component.
-  18 | import { Textarea } from &#39;../components/lv1/Textarea&#39;
-  19 |
-&gt; 20 | const meta: Meta = {
+  19 | import { Textarea } from &#39;../components/lv1/Textarea&#39;
+  20 |
+&gt; 21 | const meta: Meta = {
      | ^
-  21 |   title: &#39;Welcome&#39;,
-  22 |   parameters: {
-  23 |     layout: &#39;fullscreen&#39;,
+  22 |   title: &#39;Welcome&#39;,
+  23 |   parameters: {
+  24 |     layout: &#39;fullscreen&#39;,
 
 ./src/docs/Welcome.stories.tsx:
 import type { Meta, StoryObj } from &#39;@storybook/react-vite&#39;
@@ -7253,6 +7279,7 @@ import { Badge } from &#39;../components/lv1/Badge&#39;
 import { Button } from &#39;../components/lv1/Button&#39;
 import { Checkbox } from &#39;../components/lv1/Checkbox&#39;
 import { Field } from &#39;../components/lv1/Field&#39;
+import { FieldSet } from &#39;../components/lv1/FieldSet&#39;
 import { Input } from &#39;../components/lv1/Input&#39;
 import { Radio, RadioGroup } from &#39;../components/lv1/Radio&#39;
 import {
@@ -7429,6 +7456,18 @@ export const Overview: Story = {
           &lt;/ComponentCard&gt;
 
           &lt;ComponentCard
+            name=&quot;FieldSet&quot;
+            description=&quot;Groups related form fields.&quot;
+            storyPath=&quot;components-lv1-fieldset&quot;
+          &gt;
+            &lt;FieldSet legend=&quot;Contact&quot;&gt;
+              &lt;Field label=&quot;Email&quot;&gt;
+                &lt;Input placeholder=&quot;you@example.com&quot; className=&quot;w-40&quot; /&gt;
+              &lt;/Field&gt;
+            &lt;/FieldSet&gt;
+          &lt;/ComponentCard&gt;
+
+          &lt;ComponentCard
             name=&quot;Input&quot;
             description=&quot;Accepts user text input.&quot;
             storyPath=&quot;components-lv1-input&quot;
@@ -7560,6 +7599,7 @@ export const Overview: Story = {
     Button,
     Checkbox,
     Field,
+    FieldSet,
     Input,
     Radio,
     RadioGroup,
@@ -7687,6 +7727,18 @@ export const Overview: Story = {
           &lt;Field label=&quot;Email&quot; description=&quot;Your email address.&quot;&gt;
             &lt;Input placeholder=&quot;you@example.com&quot; className=&quot;w-40&quot; /&gt;
           &lt;/Field&gt;
+        &lt;/ComponentCard&gt;
+
+        &lt;ComponentCard
+          name=&quot;FieldSet&quot;
+          description=&quot;Groups related form fields.&quot;
+          storyPath=&quot;components-lv1-fieldset&quot;
+        &gt;
+          &lt;FieldSet legend=&quot;Contact&quot;&gt;
+            &lt;Field label=&quot;Email&quot;&gt;
+              &lt;Input placeholder=&quot;you@example.com&quot; className=&quot;w-40&quot; /&gt;
+            &lt;/Field&gt;
+          &lt;/FieldSet&gt;
         &lt;/ComponentCard&gt;
 
         &lt;ComponentCard

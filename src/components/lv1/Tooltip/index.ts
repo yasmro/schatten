@@ -8,4 +8,5 @@ export {
   TooltipProvider,
   type TooltipProviderProps,
   TooltipTrigger,
+  type TooltipTriggerProps,
 } from './Tooltip'

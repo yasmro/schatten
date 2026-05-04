@@ -47,7 +47,7 @@ export const Playground: Story = {
   },
   render: (args) => (
     <Tooltip>
-      <TooltipTrigger asChild>
+      <TooltipTrigger>
         <Button variant="secondary">Hover me</Button>
       </TooltipTrigger>
       <TooltipContent {...args} />
@@ -60,28 +60,28 @@ export const Sides: Story = {
   render: () => (
     <div className="flex gap-8">
       <Tooltip>
-        <TooltipTrigger asChild>
+        <TooltipTrigger>
           <Button variant="secondary">Top</Button>
         </TooltipTrigger>
         <TooltipContent side="top">Tooltip on top</TooltipContent>
       </Tooltip>
 
       <Tooltip>
-        <TooltipTrigger asChild>
+        <TooltipTrigger>
           <Button variant="secondary">Right</Button>
         </TooltipTrigger>
         <TooltipContent side="right">Tooltip on right</TooltipContent>
       </Tooltip>
 
       <Tooltip>
-        <TooltipTrigger asChild>
+        <TooltipTrigger>
           <Button variant="secondary">Bottom</Button>
         </TooltipTrigger>
         <TooltipContent side="bottom">Tooltip on bottom</TooltipContent>
       </Tooltip>
 
       <Tooltip>
-        <TooltipTrigger asChild>
+        <TooltipTrigger>
           <Button variant="secondary">Left</Button>
         </TooltipTrigger>
         <TooltipContent side="left">Tooltip on left</TooltipContent>
@@ -95,21 +95,21 @@ export const WithIconButton: Story = {
   render: () => (
     <div className="flex gap-4">
       <Tooltip>
-        <TooltipTrigger asChild>
+        <TooltipTrigger>
           <Button icon="Info" aria-label="Information" />
         </TooltipTrigger>
         <TooltipContent>View more information</TooltipContent>
       </Tooltip>
 
       <Tooltip>
-        <TooltipTrigger asChild>
+        <TooltipTrigger>
           <Button icon="Settings" aria-label="Settings" />
         </TooltipTrigger>
         <TooltipContent>Open settings</TooltipContent>
       </Tooltip>
 
       <Tooltip>
-        <TooltipTrigger asChild>
+        <TooltipTrigger>
           <Button icon="Trash2" variant="destructive" aria-label="Delete" />
         </TooltipTrigger>
         <TooltipContent>Delete item</TooltipContent>
@@ -122,7 +122,7 @@ export const WithDisabledButton: Story = {
   name: 'With Disabled Button',
   render: () => (
     <Tooltip>
-      <TooltipTrigger asChild>
+      <TooltipTrigger>
         {/* biome-ignore lint/a11y/useSemanticElements: Wrapper for disabled button tooltip */}
         <span role="button" tabIndex={0}>
           <Button disabled style={{ pointerEvents: 'none' }}>
@@ -139,7 +139,7 @@ export const RichContent: Story = {
   name: 'Rich Content',
   render: () => (
     <Tooltip>
-      <TooltipTrigger asChild>
+      <TooltipTrigger>
         <Button variant="secondary">Hover for details</Button>
       </TooltipTrigger>
       <TooltipContent className="max-w-xs">

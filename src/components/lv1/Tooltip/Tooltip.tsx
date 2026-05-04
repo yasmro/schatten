@@ -15,7 +15,14 @@ const Tooltip = TooltipPrimitive.Root
 
 /* ----- Trigger ----- */
 
-const TooltipTrigger = TooltipPrimitive.Trigger
+export interface TooltipTriggerProps
+  extends Omit<ComponentPropsWithoutRef<typeof TooltipPrimitive.Trigger>, 'asChild'> {}
+
+const TooltipTrigger = forwardRef<
+  ComponentRef<typeof TooltipPrimitive.Trigger>,
+  TooltipTriggerProps
+>((props, ref) => <TooltipPrimitive.Trigger ref={ref} asChild {...props} />)
+TooltipTrigger.displayName = TooltipPrimitive.Trigger.displayName
 
 /* ----- Portal ----- */
 

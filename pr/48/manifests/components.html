@@ -582,7 +582,7 @@
 <main>
   <div class="wrap">
     <div class="note ok" style="margin-bottom: 16px;">
-              Using <code>react-docgen-typescript</code>. Generation took <strong>3.1s</strong>.
+              Using <code>react-docgen-typescript</code>. Generation took <strong>2.8s</strong>.
             </div>
     <h2 class="section-title">Components</h2>
     <div class="grid" role="list">
@@ -2324,8 +2324,12 @@ required?: boolean = false</code></pre>
               
               <pre><code>const WithCheckbox = () =&gt; (
   &lt;div className=&quot;w-80&quot;&gt;
-    &lt;Field label=&quot;Terms and Conditions&quot; description=&quot;Please read and accept.&quot; required&gt;
-      &lt;Checkbox /&gt;
+    &lt;Field label=&quot;Interests&quot; description=&quot;Select your interests.&quot;&gt;
+      &lt;div className=&quot;flex flex-col gap-2&quot;&gt;
+        &lt;Checkbox label=&quot;Technology&quot; /&gt;
+        &lt;Checkbox label=&quot;Design&quot; /&gt;
+        &lt;Checkbox label=&quot;Business&quot; /&gt;
+      &lt;/div&gt;
     &lt;/Field&gt;
   &lt;/div&gt;
 );</code></pre>
@@ -2429,28 +2433,36 @@ required?: boolean = false</code></pre>
   &lt;div className=&quot;flex flex-col gap-8 w-96&quot;&gt;
     &lt;div&gt;
       &lt;h3 className=&quot;text-sm font-semibold text-foreground-muted mb-3&quot;&gt;
-        Checkbox / Switch: Use Field.label only
+        Checkbox Group: Field.label for group, Checkbox.label for options
       &lt;/h3&gt;
-      &lt;div className=&quot;flex flex-col gap-4&quot;&gt;
-        &lt;Field label=&quot;Enable notifications&quot; description=&quot;You will receive email updates.&quot;&gt;
-          &lt;Switch /&gt;
-        &lt;/Field&gt;
-        &lt;Field label=&quot;I agree to the terms&quot; required&gt;
-          &lt;Checkbox /&gt;
-        &lt;/Field&gt;
-      &lt;/div&gt;
+      &lt;Field label=&quot;Notification settings&quot; description=&quot;Select all that apply.&quot;&gt;
+        &lt;div className=&quot;flex flex-col gap-2&quot;&gt;
+          &lt;Checkbox label=&quot;Email notifications&quot; /&gt;
+          &lt;Checkbox label=&quot;Push notifications&quot; /&gt;
+          &lt;Checkbox label=&quot;SMS notifications&quot; /&gt;
+        &lt;/div&gt;
+      &lt;/Field&gt;
     &lt;/div&gt;
 
     &lt;div&gt;
       &lt;h3 className=&quot;text-sm font-semibold text-foreground-muted mb-3&quot;&gt;
         RadioGroup: Field.label for group, Radio.label for options
       &lt;/h3&gt;
-      &lt;Field label=&quot;Subscription plan&quot; description=&quot;Choose your plan.&quot;&gt;
+      &lt;Field label=&quot;Subscription plan&quot; description=&quot;Choose one plan.&quot;&gt;
         &lt;RadioGroup defaultValue=&quot;free&quot;&gt;
           &lt;Radio value=&quot;free&quot; label=&quot;Free - Basic features&quot; /&gt;
           &lt;Radio value=&quot;pro&quot; label=&quot;Pro - Advanced features&quot; /&gt;
           &lt;Radio value=&quot;enterprise&quot; label=&quot;Enterprise - Custom solutions&quot; /&gt;
         &lt;/RadioGroup&gt;
+      &lt;/Field&gt;
+    &lt;/div&gt;
+
+    &lt;div&gt;
+      &lt;h3 className=&quot;text-sm font-semibold text-foreground-muted mb-3&quot;&gt;
+        Switch: Field.label only (single toggle)
+      &lt;/h3&gt;
+      &lt;Field label=&quot;Enable dark mode&quot; description=&quot;Apply dark theme to the interface.&quot;&gt;
+        &lt;Switch /&gt;
       &lt;/Field&gt;
     &lt;/div&gt;
 

@@ -127,8 +127,12 @@ export const WithCheckbox: Story = {
   name: 'With Checkbox',
   render: () => (
     <div className="w-80">
-      <Field label="Terms and Conditions" description="Please read and accept." required>
-        <Checkbox />
+      <Field label="Interests" description="Select your interests.">
+        <div className="flex flex-col gap-2">
+          <Checkbox label="Technology" />
+          <Checkbox label="Design" />
+          <Checkbox label="Business" />
+        </div>
       </Field>
     </div>
   ),
@@ -208,28 +212,36 @@ export const LabelUsagePatterns: Story = {
     <div className="flex flex-col gap-8 w-96">
       <div>
         <h3 className="text-sm font-semibold text-foreground-muted mb-3">
-          Checkbox / Switch: Use Field.label only
+          Checkbox Group: Field.label for group, Checkbox.label for options
         </h3>
-        <div className="flex flex-col gap-4">
-          <Field label="Enable notifications" description="You will receive email updates.">
-            <Switch />
-          </Field>
-          <Field label="I agree to the terms" required>
-            <Checkbox />
-          </Field>
-        </div>
+        <Field label="Notification settings" description="Select all that apply.">
+          <div className="flex flex-col gap-2">
+            <Checkbox label="Email notifications" />
+            <Checkbox label="Push notifications" />
+            <Checkbox label="SMS notifications" />
+          </div>
+        </Field>
       </div>
 
       <div>
         <h3 className="text-sm font-semibold text-foreground-muted mb-3">
           RadioGroup: Field.label for group, Radio.label for options
         </h3>
-        <Field label="Subscription plan" description="Choose your plan.">
+        <Field label="Subscription plan" description="Choose one plan.">
           <RadioGroup defaultValue="free">
             <Radio value="free" label="Free - Basic features" />
             <Radio value="pro" label="Pro - Advanced features" />
             <Radio value="enterprise" label="Enterprise - Custom solutions" />
           </RadioGroup>
+        </Field>
+      </div>
+
+      <div>
+        <h3 className="text-sm font-semibold text-foreground-muted mb-3">
+          Switch: Field.label only (single toggle)
+        </h3>
+        <Field label="Enable dark mode" description="Apply dark theme to the interface.">
+          <Switch />
         </Field>
       </div>
 

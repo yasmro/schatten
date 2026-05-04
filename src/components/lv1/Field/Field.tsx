@@ -76,7 +76,7 @@ export function Field({
         data-disabled={disabled || undefined}
       >
         {label && (
-          <label htmlFor={id} className="text-base font-medium text-foreground">
+          <label htmlFor={id} className="text-base font-bold text-foreground">
             {label}
             {required && <span className="text-destructive ml-0.5">*</span>}
           </label>

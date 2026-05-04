@@ -582,7 +582,7 @@
 <main>
   <div class="wrap">
     <div class="note ok" style="margin-bottom: 16px;">
-              Using <code>react-docgen-typescript</code>. Generation took <strong>3.0s</strong>.
+              Using <code>react-docgen-typescript</code>. Generation took <strong>2.7s</strong>.
             </div>
     <h2 class="section-title">Components</h2>
     <div class="grid" role="list">
@@ -2509,7 +2509,7 @@ required?: boolean = false</code></pre>
     <div class="title">
       <h2><span class="status-dot dot-ok"></span> FieldSet</h2>
       <div class="badges">
-        <label for="c-5-components-lv1-fieldset-props" class="badge ok as-toggle">10 prop types</label>
+        <label for="c-5-components-lv1-fieldset-props" class="badge ok as-toggle">9 prop types</label>
         <label for="c-5-components-lv1-fieldset-info" class="badge info as-toggle">1 info</label>
         <label for="c-5-components-lv1-fieldset-stories" class="badge ok as-toggle">9 stories</label>
         
@@ -2543,7 +2543,7 @@ required?: boolean = false</code></pre>
           <div class="note ok">
             <div class="row">
               <span class="ex-name">Prop types <small>(react-docgen-typescript)</small></span>
-              <span class="badge ok">10 prop types</span>
+              <span class="badge ok">9 prop types</span>
             </div>
             <pre><code>Component: src/components/lv1/FieldSet/FieldSet.tsx::FieldSet</code></pre>
             <pre><code>Props:</code></pre>
@@ -2576,11 +2576,6 @@ disabled?: boolean = false
  * Error message to display (group-level)
  */
 error?: string
-
-/**
- * Gap between children (Tailwind spacing scale: 0, 1, 2, 3, 4, etc.)
- */
-gap?: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 8 | 10 | 12 = 4
 
 /**
  * Explicitly set error state. If not provided, derived from error prop
@@ -2631,7 +2626,6 @@ wrap?: boolean = false</code></pre>
     legend=&quot;Personal Information&quot;
     description=&quot;Please enter your personal details.&quot;
     direction=&quot;column&quot;
-    gap={4}
     className=&quot;w-80&quot;&gt;
     &lt;Field label=&quot;First Name&quot;&gt;
         &lt;Input placeholder=&quot;John&quot; /&gt;
@@ -2653,7 +2647,6 @@ wrap?: boolean = false</code></pre>
     legend=&quot;Event Period&quot;
     description=&quot;Select the start and end dates for your event.&quot;
     direction=&quot;row&quot;
-    gap={4}
   &gt;
     &lt;Field label=&quot;Start Date&quot;&gt;
       &lt;Input type=&quot;date&quot; className=&quot;w-40&quot; /&gt;
@@ -2676,7 +2669,7 @@ wrap?: boolean = false</code></pre>
     &lt;Field label=&quot;Street Address&quot; required&gt;
       &lt;Input placeholder=&quot;123 Main St&quot; /&gt;
     &lt;/Field&gt;
-    &lt;FieldSet direction=&quot;row&quot; gap={4} legend=&quot;&quot;&gt;
+    &lt;FieldSet direction=&quot;row&quot; legend=&quot;&quot;&gt;
       &lt;Field label=&quot;City&quot; required flexGrow={1}&gt;
         &lt;Input placeholder=&quot;Tokyo&quot; /&gt;
       &lt;/Field&gt;
@@ -2713,7 +2706,6 @@ wrap?: boolean = false</code></pre>
       error=&quot;End date must be after start date.&quot;
       description=&quot;Select the start and end dates.&quot;
       direction=&quot;row&quot;
-      gap={4}
     &gt;
       &lt;Field label=&quot;Start Date&quot;&gt;
         &lt;Input type=&quot;date&quot; defaultValue=&quot;2024-12-31&quot; className=&quot;w-40&quot; /&gt;
@@ -2786,7 +2778,7 @@ wrap?: boolean = false</code></pre>
       &lt;Field label=&quot;Card Number&quot; required&gt;
         &lt;Input placeholder=&quot;1234 5678 9012 3456&quot; /&gt;
       &lt;/Field&gt;
-      &lt;FieldSet direction=&quot;row&quot; gap={4} legend=&quot;&quot;&gt;
+      &lt;FieldSet direction=&quot;row&quot; legend=&quot;&quot;&gt;
         &lt;Field label=&quot;Expiry&quot; required&gt;
           &lt;Input placeholder=&quot;MM/YY&quot; className=&quot;w-24&quot; /&gt;
         &lt;/Field&gt;
@@ -2816,7 +2808,6 @@ wrap?: boolean = false</code></pre>
         isError
         error=&quot;End date must be after start date.&quot;
         direction=&quot;row&quot;
-        gap={4}
       &gt;
         &lt;Field label=&quot;Start Date&quot;&gt;
           &lt;Input type=&quot;date&quot; defaultValue=&quot;2024-12-31&quot; className=&quot;w-40&quot; /&gt;
@@ -2886,7 +2877,7 @@ wrap?: boolean = false</code></pre>
               
               <pre><code>const LayoutVariants = () =&gt; (
   &lt;div className=&quot;flex flex-col gap-8&quot;&gt;
-    &lt;FieldSet legend=&quot;Row Direction&quot; direction=&quot;row&quot; gap={4}&gt;
+    &lt;FieldSet legend=&quot;Row Direction&quot; direction=&quot;row&quot;&gt;
       &lt;Field label=&quot;First&quot; flexGrow={1}&gt;
         &lt;Input placeholder=&quot;Grows to fill&quot; /&gt;
       &lt;/Field&gt;
@@ -2895,7 +2886,7 @@ wrap?: boolean = false</code></pre>
       &lt;/Field&gt;
     &lt;/FieldSet&gt;
 
-    &lt;FieldSet legend=&quot;Row with Wrap&quot; direction=&quot;row&quot; wrap gap={4} className=&quot;w-80&quot;&gt;
+    &lt;FieldSet legend=&quot;Row with Wrap&quot; direction=&quot;row&quot; wrap className=&quot;w-80&quot;&gt;
       &lt;Field label=&quot;Field 1&quot;&gt;
         &lt;Input placeholder=&quot;Input&quot; className=&quot;w-32&quot; /&gt;
       &lt;/Field&gt;
@@ -2904,15 +2895,6 @@ wrap?: boolean = false</code></pre>
       &lt;/Field&gt;
       &lt;Field label=&quot;Field 3&quot;&gt;
         &lt;Input placeholder=&quot;Input&quot; className=&quot;w-32&quot; /&gt;
-      &lt;/Field&gt;
-    &lt;/FieldSet&gt;
-
-    &lt;FieldSet legend=&quot;Custom Gap (gap=2)&quot; gap={2} className=&quot;w-80&quot;&gt;
-      &lt;Field label=&quot;Tight spacing&quot;&gt;
-        &lt;Input placeholder=&quot;gap-2&quot; /&gt;
-      &lt;/Field&gt;
-      &lt;Field label=&quot;Between fields&quot;&gt;
-        &lt;Input placeholder=&quot;8px gap&quot; /&gt;
       &lt;/Field&gt;
     &lt;/FieldSet&gt;
   &lt;/div&gt;

@@ -6,7 +6,7 @@ import {
   type ReactNode,
   useId,
 } from 'react'
-import { useFieldContext } from '../../../lib/field-context'
+import { useFieldContext } from '../../../contexts/field'
 import { cn } from '../../../lib/utils'
 import { type CheckboxVariants, checkboxVariants } from '../../../variants/checkbox'
 

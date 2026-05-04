@@ -58,7 +58,7 @@ const TooltipContent = forwardRef<
       ref={ref}
       sideOffset={4}
       className={cn(
-        'tooltip-content z-50 bg-foreground px-3 py-1.5 text-sm text-background shadow-md',
+        'tooltip-content z-[var(--z-tooltip)] bg-foreground px-3 py-1.5 text-sm text-background shadow-md',
         className,
       )}
       {...props}

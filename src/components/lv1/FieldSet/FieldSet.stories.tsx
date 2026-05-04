@@ -13,7 +13,7 @@ const meta: Meta<typeof FieldSet> = {
   tags: ['autodocs'],
   argTypes: {
     legend: {
-      description: 'Legend text for the fieldset.',
+      description: 'Legend text for the fieldset. Omit for layout-only grouping.',
       control: 'text',
       table: {
         type: { summary: 'ReactNode' },
@@ -115,7 +115,7 @@ export const Address: Story = {
       <Field label="Street Address" required>
         <Input placeholder="123 Main St" />
       </Field>
-      <FieldSet direction="row" legend="">
+      <FieldSet direction="row">
         <Field label="City" required flexGrow={1}>
           <Input placeholder="Tokyo" />
         </Field>
@@ -212,7 +212,7 @@ export const NestedFields: Story = {
         <Field label="Card Number" required>
           <Input placeholder="1234 5678 9012 3456" />
         </Field>
-        <FieldSet direction="row" legend="">
+        <FieldSet direction="row">
           <Field label="Expiry" required>
             <Input placeholder="MM/YY" className="w-24" />
           </Field>
@@ -328,6 +328,94 @@ export const LayoutVariants: Story = {
             <Input placeholder="Input" className="w-32" />
           </Field>
         </FieldSet>
+      </div>
+    </div>
+  ),
+}
+
+export const LayoutOnlyFieldSet: Story = {
+  name: 'Layout Only (No Legend)',
+  render: () => (
+    <div className="flex flex-col gap-8">
+      <div>
+        <p className="text-sm text-foreground-muted mb-4">
+          Omit legend for layout-only grouping. Useful for arranging fields in a row without
+          creating a semantic group.
+        </p>
+        <FieldSet direction="row">
+          <Field label="First Name" flexGrow={1}>
+            <Input placeholder="John" />
+          </Field>
+          <Field label="Last Name" flexGrow={1}>
+            <Input placeholder="Doe" />
+          </Field>
+        </FieldSet>
+      </div>
+
+      <div>
+        <p className="text-sm text-foreground-muted mb-4">
+          Nested layout-only FieldSet within a labeled FieldSet.
+        </p>
+        <FieldSet legend="Contact Information" className="w-96">
+          <Field label="Email">
+            <Input placeholder="you@example.com" />
+          </Field>
+          <FieldSet direction="row">
+            <Field label="Country Code" flexShrink={0}>
+              <Input placeholder="+81" className="w-16" />
+            </Field>
+            <Field label="Phone" flexGrow={1}>
+              <Input placeholder="90-1234-5678" />
+            </Field>
+          </FieldSet>
+        </FieldSet>
+      </div>
+    </div>
+  ),
+}
+
+export const DescriptionWithError: Story = {
+  name: 'Description with Error',
+  render: () => (
+    <div className="flex flex-col gap-8">
+      <div>
+        <p className="text-sm text-foreground-muted mb-4">
+          <strong>FieldSet:</strong> Shows both description AND error. The description provides
+          context for the group, while the error indicates validation failure.
+        </p>
+        <FieldSet
+          legend="Date Range"
+          description="Select the start and end dates for your event."
+          error="End date must be after start date."
+          direction="row"
+        >
+          <Field label="Start Date">
+            <Input type="date" defaultValue="2024-12-31" className="w-40" />
+          </Field>
+          <Field label="End Date">
+            <Input type="date" defaultValue="2024-01-01" className="w-40" />
+          </Field>
+        </FieldSet>
+      </div>
+
+      <div>
+        <p className="text-sm text-foreground-muted mb-4">
+          <strong>Field:</strong> Shows description OR error (mutually exclusive). The error
+          replaces the helper text since they serve the same purpose for individual inputs.
+        </p>
+        <div className="flex gap-8">
+          <Field label="Email" description="We'll send a verification link." className="w-60">
+            <Input placeholder="No error" />
+          </Field>
+          <Field
+            label="Email"
+            description="We'll send a verification link."
+            error="Invalid email address."
+            className="w-60"
+          >
+            <Input placeholder="With error" />
+          </Field>
+        </div>
       </div>
     </div>
   ),

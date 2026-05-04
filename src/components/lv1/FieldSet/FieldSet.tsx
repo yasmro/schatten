@@ -3,8 +3,8 @@ import { FieldSetContext, type FieldSetContextValue } from '../../../contexts/fi
 import { cn } from '../../../lib/utils'
 
 export interface FieldSetProps {
-  /** Legend text for the fieldset */
-  legend: ReactNode
+  /** Legend text for the fieldset. Omit for layout-only grouping. */
+  legend?: ReactNode
   /** Description text displayed below the legend */
   description?: ReactNode
   /** Error message to display (group-level) */
@@ -49,6 +49,8 @@ export function FieldSet({
 
   const contextValue = useMemo<FieldSetContextValue>(() => ({ isError }), [isError])
 
+  const hasHeader = legend || description
+
   return (
     <FieldSetContext.Provider value={contextValue}>
       <fieldset
@@ -59,15 +61,23 @@ export function FieldSet({
         data-disabled={disabled || undefined}
         data-error={isError || undefined}
       >
-        <legend className="text-base font-medium text-foreground">{legend}</legend>
+        {legend && (
+          <legend className={cn('text-base font-medium text-foreground', disabled && 'opacity-50')}>
+            {legend}
+          </legend>
+        )}
         {description && (
-          <p id={descriptionId} className="text-sm text-foreground-muted">
+          <p
+            id={descriptionId}
+            className={cn('text-sm text-foreground-muted', disabled && 'opacity-50')}
+          >
             {description}
           </p>
         )}
         <div
           className={cn(
-            'mt-4 flex gap-4',
+            'flex gap-4',
+            hasHeader && 'mt-4',
             direction === 'row' ? 'flex-row' : 'flex-col',
             wrap && 'flex-wrap',
           )}

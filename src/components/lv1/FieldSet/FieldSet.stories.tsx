@@ -65,15 +65,6 @@ const meta: Meta<typeof FieldSet> = {
         defaultValue: { summary: 'false' },
       },
     },
-    gap: {
-      description: 'Gap between children (Tailwind spacing scale).',
-      control: 'select',
-      options: [0, 1, 2, 3, 4, 5, 6, 8, 10, 12],
-      table: {
-        type: { summary: '0 | 1 | 2 | 3 | 4 | 5 | 6 | 8 | 10 | 12' },
-        defaultValue: { summary: '4' },
-      },
-    },
   },
 }
 
@@ -86,7 +77,6 @@ export const Playground: Story = {
     legend: 'Personal Information',
     description: 'Please enter your personal details.',
     direction: 'column',
-    gap: 4,
   },
   render: (args) => (
     <FieldSet {...args} className="w-80">
@@ -107,7 +97,6 @@ export const DateRange: Story = {
       legend="Event Period"
       description="Select the start and end dates for your event."
       direction="row"
-      gap={4}
     >
       <Field label="Start Date">
         <Input type="date" className="w-40" />
@@ -126,7 +115,7 @@ export const Address: Story = {
       <Field label="Street Address" required>
         <Input placeholder="123 Main St" />
       </Field>
-      <FieldSet direction="row" gap={4} legend="">
+      <FieldSet direction="row" legend="">
         <Field label="City" required flexGrow={1}>
           <Input placeholder="Tokyo" />
         </Field>
@@ -159,7 +148,6 @@ export const ErrorState: Story = {
         error="End date must be after start date."
         description="Select the start and end dates."
         direction="row"
-        gap={4}
       >
         <Field label="Start Date">
           <Input type="date" defaultValue="2024-12-31" className="w-40" />
@@ -224,7 +212,7 @@ export const NestedFields: Story = {
         <Field label="Card Number" required>
           <Input placeholder="1234 5678 9012 3456" />
         </Field>
-        <FieldSet direction="row" gap={4} legend="">
+        <FieldSet direction="row" legend="">
           <Field label="Expiry" required>
             <Input placeholder="MM/YY" className="w-24" />
           </Field>
@@ -250,7 +238,6 @@ export const ErrorPropagation: Story = {
           isError
           error="End date must be after start date."
           direction="row"
-          gap={4}
         >
           <Field label="Start Date">
             <Input type="date" defaultValue="2024-12-31" className="w-40" />
@@ -312,7 +299,7 @@ export const LayoutVariants: Story = {
   name: 'Layout Variants',
   render: () => (
     <div className="flex flex-col gap-8">
-      <FieldSet legend="Row Direction" direction="row" gap={4}>
+      <FieldSet legend="Row Direction" direction="row">
         <Field label="First" flexGrow={1}>
           <Input placeholder="Grows to fill" />
         </Field>
@@ -321,7 +308,7 @@ export const LayoutVariants: Story = {
         </Field>
       </FieldSet>
 
-      <FieldSet legend="Row with Wrap" direction="row" wrap gap={4} className="w-80">
+      <FieldSet legend="Row with Wrap" direction="row" wrap className="w-80">
         <Field label="Field 1">
           <Input placeholder="Input" className="w-32" />
         </Field>
@@ -330,15 +317,6 @@ export const LayoutVariants: Story = {
         </Field>
         <Field label="Field 3">
           <Input placeholder="Input" className="w-32" />
-        </Field>
-      </FieldSet>
-
-      <FieldSet legend="Custom Gap (gap=2)" gap={2} className="w-80">
-        <Field label="Tight spacing">
-          <Input placeholder="gap-2" />
-        </Field>
-        <Field label="Between fields">
-          <Input placeholder="8px gap" />
         </Field>
       </FieldSet>
     </div>

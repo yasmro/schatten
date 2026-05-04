@@ -576,13 +576,13 @@
 <header>
   <div class="wrap">
     <h1>Manifest Debugger</h1>
-    <div class="summary"><a class="filter-pill all" data-k="all" href="#filter-all">All</a><a class="filter-pill err" data-k="errors" href="#filter-errors">3/14 prop type errors</a><a class="filter-pill info" data-k="infos" href="#filter-infos">14/14 infos</a><span class="filter-pill ok" aria-disabled="true">77 stories ok</span></div>
+    <div class="summary"><a class="filter-pill all" data-k="all" href="#filter-all">All</a><a class="filter-pill err" data-k="errors" href="#filter-errors">3/15 prop type errors</a><a class="filter-pill info" data-k="infos" href="#filter-infos">15/15 infos</a><span class="filter-pill ok" aria-disabled="true">89 stories ok</span></div>
   </div>
 </header>
 <main>
   <div class="wrap">
     <div class="note ok" style="margin-bottom: 16px;">
-              Using <code>react-docgen-typescript</code>. Generation took <strong>2.7s</strong>.
+              Using <code>react-docgen-typescript</code>. Generation took <strong>3.1s</strong>.
             </div>
     <h2 class="section-title">Components</h2>
     <div class="grid" role="list">
@@ -2142,7 +2142,7 @@ export const Colors: Story = {
     <div class="title">
       <h2><span class="status-dot dot-ok"></span> Field</h2>
       <div class="badges">
-        <label for="c-4-components-lv1-field-props" class="badge ok as-toggle">8 prop types</label>
+        <label for="c-4-components-lv1-field-props" class="badge ok as-toggle">11 prop types</label>
         <label for="c-4-components-lv1-field-info" class="badge info as-toggle">1 info</label>
         <label for="c-4-components-lv1-field-stories" class="badge ok as-toggle">11 stories</label>
         
@@ -2176,7 +2176,7 @@ export const Colors: Story = {
           <div class="note ok">
             <div class="row">
               <span class="ex-name">Prop types <small>(react-docgen-typescript)</small></span>
-              <span class="badge ok">8 prop types</span>
+              <span class="badge ok">11 prop types</span>
             </div>
             <pre><code>Component: src/components/lv1/Field/Field.tsx::Field</code></pre>
             <pre><code>Props:</code></pre>
@@ -2204,6 +2204,21 @@ disabled?: boolean = false
  * Error message to display
  */
 error?: string
+
+/**
+ * Flex basis for layout within FieldSet (CSS value)
+ */
+flexBasis?: string
+
+/**
+ * Flex grow factor for layout within FieldSet
+ */
+flexGrow?: 0 | 1
+
+/**
+ * Flex shrink factor for layout within FieldSet
+ */
+flexShrink?: 0 | 1
 
 /**
  * Explicitly set error state. If not provided, derived from error prop
@@ -2489,14 +2504,586 @@ required?: boolean = false</code></pre>
   no-story-error
   no-doc-error"
   role="listitem"
+  aria-label="FieldSet">
+  <div class="head">
+    <div class="title">
+      <h2><span class="status-dot dot-ok"></span> FieldSet</h2>
+      <div class="badges">
+        <label for="c-5-components-lv1-fieldset-props" class="badge ok as-toggle">9 prop types</label>
+        <label for="c-5-components-lv1-fieldset-info" class="badge info as-toggle">1 info</label>
+        <label for="c-5-components-lv1-fieldset-stories" class="badge ok as-toggle">12 stories</label>
+        
+      </div>
+    </div>
+    <div class="meta" title="./src/components/lv1/FieldSet/FieldSet.stories.tsx">components-lv1-fieldset · ./src/components/lv1/FieldSet/FieldSet.stories.tsx</div>
+    
+    
+    
+  </div>
+
+  <!-- ⬇️ Hidden toggles must be siblings BEFORE .panels -->
+  
+  <input id="c-5-components-lv1-fieldset-info" class="tg tg-info" type="checkbox" hidden />
+  <input id="c-5-components-lv1-fieldset-stories" class="tg tg-stories" type="checkbox" hidden />
+  
+  <input id="c-5-components-lv1-fieldset-props" class="tg tg-props" type="checkbox" hidden />
+
+  <div class="panels">
+    
+    
+        <div class="panel panel-info">
+          
+    <div class="note info">
+      <div class="note-title">Info</div>
+      <div class="note-body">No description found. Write a jsdoc comment such as /** Component description */.</div>
+    </div>
+        </div>
+    
+        <div class="panel panel-props">
+          <div class="note ok">
+            <div class="row">
+              <span class="ex-name">Prop types <small>(react-docgen-typescript)</small></span>
+              <span class="badge ok">9 prop types</span>
+            </div>
+            <pre><code>Component: src/components/lv1/FieldSet/FieldSet.tsx::FieldSet</code></pre>
+            <pre><code>Props:</code></pre>
+            <pre><code>/**
+ * FieldSet content (Field elements)
+ */
+children: ReactNode
+
+/**
+ * Additional CSS classes
+ */
+className?: string
+
+/**
+ * Description text displayed below the legend
+ */
+description?: ReactNode
+
+/**
+ * Flex direction for children layout
+ */
+direction?: &quot;row&quot; | &quot;column&quot; = column
+
+/**
+ * Disable all child fields
+ */
+disabled?: boolean = false
+
+/**
+ * Error message to display (group-level)
+ */
+error?: string
+
+/**
+ * Explicitly set error state. If not provided, derived from error prop
+ */
+isError?: boolean
+
+/**
+ * Legend text for the fieldset. Omit for layout-only grouping.
+ */
+legend?: ReactNode
+
+/**
+ * Enable flex wrap for children
+ */
+wrap?: boolean = false</code></pre>
+          </div>
+        </div>
+    
+        <div class="panel panel-stories">
+          
+          
+          
+          <div class="note ok">
+                <div class="row">
+                  <span class="ex-name">Imports</span>
+                </div>
+                <pre><code>import {
+    Field,
+    FieldSet,
+    Input,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@yasmro/schatten";</code></pre>
+              </div>
+          
+          
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">Playground</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const Playground = () =&gt; &lt;FieldSet
+    legend=&quot;Personal Information&quot;
+    description=&quot;Please enter your personal details.&quot;
+    direction=&quot;column&quot;
+    className=&quot;w-80&quot;&gt;
+    &lt;Field label=&quot;First Name&quot;&gt;
+        &lt;Input placeholder=&quot;John&quot; /&gt;
+    &lt;/Field&gt;
+    &lt;Field label=&quot;Last Name&quot;&gt;
+        &lt;Input placeholder=&quot;Doe&quot; /&gt;
+    &lt;/Field&gt;
+&lt;/FieldSet&gt;;</code></pre>
+            </div>
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">Date Range</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const DateRange = () =&gt; (
+  &lt;FieldSet
+    legend=&quot;Event Period&quot;
+    description=&quot;Select the start and end dates for your event.&quot;
+    direction=&quot;row&quot;
+  &gt;
+    &lt;Field label=&quot;Start Date&quot;&gt;
+      &lt;Input type=&quot;date&quot; className=&quot;w-40&quot; /&gt;
+    &lt;/Field&gt;
+    &lt;Field label=&quot;End Date&quot;&gt;
+      &lt;Input type=&quot;date&quot; className=&quot;w-40&quot; /&gt;
+    &lt;/Field&gt;
+  &lt;/FieldSet&gt;
+);</code></pre>
+            </div>
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">Address</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const Address = () =&gt; (
+  &lt;FieldSet legend=&quot;Shipping Address&quot; description=&quot;Enter your delivery address.&quot; className=&quot;w-96&quot;&gt;
+    &lt;Field label=&quot;Street Address&quot; required&gt;
+      &lt;Input placeholder=&quot;123 Main St&quot; /&gt;
+    &lt;/Field&gt;
+    &lt;FieldSet direction=&quot;row&quot;&gt;
+      &lt;Field label=&quot;City&quot; required flexGrow={1}&gt;
+        &lt;Input placeholder=&quot;Tokyo&quot; /&gt;
+      &lt;/Field&gt;
+      &lt;Field label=&quot;Postal Code&quot; required flexShrink={0}&gt;
+        &lt;Input placeholder=&quot;100-0001&quot; className=&quot;w-32&quot; /&gt;
+      &lt;/Field&gt;
+    &lt;/FieldSet&gt;
+    &lt;Field label=&quot;Country&quot;&gt;
+      &lt;Select defaultValue=&quot;jp&quot;&gt;
+        &lt;SelectTrigger&gt;
+          &lt;SelectValue placeholder=&quot;Select a country&quot; /&gt;
+        &lt;/SelectTrigger&gt;
+        &lt;SelectContent&gt;
+          &lt;SelectItem value=&quot;jp&quot;&gt;Japan&lt;/SelectItem&gt;
+          &lt;SelectItem value=&quot;us&quot;&gt;United States&lt;/SelectItem&gt;
+          &lt;SelectItem value=&quot;uk&quot;&gt;United Kingdom&lt;/SelectItem&gt;
+        &lt;/SelectContent&gt;
+      &lt;/Select&gt;
+    &lt;/Field&gt;
+  &lt;/FieldSet&gt;
+);</code></pre>
+            </div>
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">Error</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const ErrorState = () =&gt; (
+  &lt;div className=&quot;flex flex-col gap-8&quot;&gt;
+    &lt;FieldSet
+      legend=&quot;Date Range&quot;
+      error=&quot;End date must be after start date.&quot;
+      description=&quot;Select the start and end dates.&quot;
+      direction=&quot;row&quot;
+    &gt;
+      &lt;Field label=&quot;Start Date&quot;&gt;
+        &lt;Input type=&quot;date&quot; defaultValue=&quot;2024-12-31&quot; className=&quot;w-40&quot; /&gt;
+      &lt;/Field&gt;
+      &lt;Field label=&quot;End Date&quot;&gt;
+        &lt;Input type=&quot;date&quot; defaultValue=&quot;2024-01-01&quot; className=&quot;w-40&quot; /&gt;
+      &lt;/Field&gt;
+    &lt;/FieldSet&gt;
+
+    &lt;FieldSet legend=&quot;Password Confirmation&quot; error=&quot;Passwords do not match.&quot; className=&quot;w-80&quot;&gt;
+      &lt;Field label=&quot;Password&quot;&gt;
+        &lt;Input type=&quot;password&quot; defaultValue=&quot;password123&quot; /&gt;
+      &lt;/Field&gt;
+      &lt;Field label=&quot;Confirm Password&quot;&gt;
+        &lt;Input type=&quot;password&quot; defaultValue=&quot;password456&quot; /&gt;
+      &lt;/Field&gt;
+    &lt;/FieldSet&gt;
+  &lt;/div&gt;
+);</code></pre>
+            </div>
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">Disabled</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const Disabled = () =&gt; (
+  &lt;FieldSet
+    legend=&quot;Account Settings&quot;
+    description=&quot;These settings are currently locked.&quot;
+    disabled
+    className=&quot;w-80&quot;
+  &gt;
+    &lt;Field label=&quot;Username&quot;&gt;
+      &lt;Input defaultValue=&quot;johndoe&quot; /&gt;
+    &lt;/Field&gt;
+    &lt;Field label=&quot;Email&quot;&gt;
+      &lt;Input type=&quot;email&quot; defaultValue=&quot;john@example.com&quot; /&gt;
+    &lt;/Field&gt;
+  &lt;/FieldSet&gt;
+);</code></pre>
+            </div>
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">Nested Fields</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const NestedFields = () =&gt; (
+  &lt;div className=&quot;flex flex-col gap-8&quot;&gt;
+    &lt;FieldSet legend=&quot;Contact Information&quot; className=&quot;w-80&quot;&gt;
+      &lt;Field label=&quot;Email&quot; required description=&quot;We&#39;ll use this for account recovery.&quot;&gt;
+        &lt;Input type=&quot;email&quot; placeholder=&quot;you@example.com&quot; /&gt;
+      &lt;/Field&gt;
+      &lt;Field label=&quot;Phone&quot; description=&quot;Optional contact number.&quot;&gt;
+        &lt;Input type=&quot;tel&quot; placeholder=&quot;+81 90-1234-5678&quot; /&gt;
+      &lt;/Field&gt;
+    &lt;/FieldSet&gt;
+
+    &lt;FieldSet
+      legend=&quot;Billing Details&quot;
+      description=&quot;Enter your payment information.&quot;
+      className=&quot;w-80&quot;
+    &gt;
+      &lt;Field label=&quot;Cardholder Name&quot; required&gt;
+        &lt;Input placeholder=&quot;John Doe&quot; /&gt;
+      &lt;/Field&gt;
+      &lt;Field label=&quot;Card Number&quot; required&gt;
+        &lt;Input placeholder=&quot;1234 5678 9012 3456&quot; /&gt;
+      &lt;/Field&gt;
+      &lt;FieldSet direction=&quot;row&quot;&gt;
+        &lt;Field label=&quot;Expiry&quot; required&gt;
+          &lt;Input placeholder=&quot;MM/YY&quot; className=&quot;w-24&quot; /&gt;
+        &lt;/Field&gt;
+        &lt;Field label=&quot;CVV&quot; required&gt;
+          &lt;Input placeholder=&quot;123&quot; className=&quot;w-20&quot; /&gt;
+        &lt;/Field&gt;
+      &lt;/FieldSet&gt;
+    &lt;/FieldSet&gt;
+  &lt;/div&gt;
+);</code></pre>
+            </div>
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">Error Propagation</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const ErrorPropagation = () =&gt; (
+  &lt;div className=&quot;flex flex-col gap-8&quot;&gt;
+    &lt;div&gt;
+      &lt;p className=&quot;text-sm text-foreground-muted mb-4&quot;&gt;
+        When FieldSet has isError, all child Inputs show error styles automatically.
+      &lt;/p&gt;
+      &lt;FieldSet
+        legend=&quot;Date Range&quot;
+        isError
+        error=&quot;End date must be after start date.&quot;
+        direction=&quot;row&quot;
+      &gt;
+        &lt;Field label=&quot;Start Date&quot;&gt;
+          &lt;Input type=&quot;date&quot; defaultValue=&quot;2024-12-31&quot; className=&quot;w-40&quot; /&gt;
+        &lt;/Field&gt;
+        &lt;Field label=&quot;End Date&quot;&gt;
+          &lt;Input type=&quot;date&quot; defaultValue=&quot;2024-01-01&quot; className=&quot;w-40&quot; /&gt;
+        &lt;/Field&gt;
+      &lt;/FieldSet&gt;
+    &lt;/div&gt;
+
+    &lt;div&gt;
+      &lt;p className=&quot;text-sm text-foreground-muted mb-4&quot;&gt;
+        Individual Field can override FieldSet&amp;apos;s isError.
+      &lt;/p&gt;
+      &lt;FieldSet legend=&quot;Mixed States&quot; isError className=&quot;w-80&quot;&gt;
+        &lt;Field label=&quot;Has Error (inherited)&quot;&gt;
+          &lt;Input placeholder=&quot;Error style from FieldSet&quot; /&gt;
+        &lt;/Field&gt;
+        &lt;Field label=&quot;No Error (overridden)&quot; isError={false}&gt;
+          &lt;Input placeholder=&quot;Explicitly set isError=false&quot; /&gt;
+        &lt;/Field&gt;
+      &lt;/FieldSet&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+);</code></pre>
+            </div>
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">Nested FieldSets</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const NestedFieldSets = () =&gt; (
+  &lt;FieldSet legend=&quot;Checkout Form&quot; description=&quot;Complete your order.&quot;&gt;
+    &lt;FieldSet legend=&quot;Shipping Address&quot; className=&quot;w-80&quot;&gt;
+      &lt;Field label=&quot;Street&quot; required&gt;
+        &lt;Input placeholder=&quot;123 Main St&quot; /&gt;
+      &lt;/Field&gt;
+      &lt;Field label=&quot;City&quot; required&gt;
+        &lt;Input placeholder=&quot;Tokyo&quot; /&gt;
+      &lt;/Field&gt;
+    &lt;/FieldSet&gt;
+
+    &lt;FieldSet
+      legend=&quot;Billing Address&quot;
+      isError
+      error=&quot;Please complete billing address.&quot;
+      className=&quot;w-80&quot;
+    &gt;
+      &lt;Field label=&quot;Street&quot; required&gt;
+        &lt;Input placeholder=&quot;456 Oak Ave&quot; /&gt;
+      &lt;/Field&gt;
+      &lt;Field label=&quot;City&quot; required&gt;
+        &lt;Input placeholder=&quot;Osaka&quot; /&gt;
+      &lt;/Field&gt;
+    &lt;/FieldSet&gt;
+  &lt;/FieldSet&gt;
+);</code></pre>
+            </div>
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">Layout Variants</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const LayoutVariants = () =&gt; (
+  &lt;div className=&quot;flex flex-col gap-8&quot;&gt;
+    &lt;div&gt;
+      &lt;p className=&quot;text-sm text-foreground-muted mb-4&quot;&gt;
+        Use direction=&amp;quot;row&amp;quot; with Field flex props for horizontal layouts.
+      &lt;/p&gt;
+      &lt;FieldSet legend=&quot;Row Direction&quot; direction=&quot;row&quot;&gt;
+        &lt;Field label=&quot;First&quot; flexGrow={1}&gt;
+          &lt;Input placeholder=&quot;Grows to fill&quot; /&gt;
+        &lt;/Field&gt;
+        &lt;Field label=&quot;Second&quot; flexShrink={0}&gt;
+          &lt;Input placeholder=&quot;Fixed&quot; className=&quot;w-24&quot; /&gt;
+        &lt;/Field&gt;
+      &lt;/FieldSet&gt;
+    &lt;/div&gt;
+
+    &lt;div&gt;
+      &lt;p className=&quot;text-sm text-foreground-muted mb-4&quot;&gt;
+        Use wrap for responsive layouts that wrap on smaller screens.
+      &lt;/p&gt;
+      &lt;FieldSet legend=&quot;Row with Wrap&quot; direction=&quot;row&quot; wrap className=&quot;w-80&quot;&gt;
+        &lt;Field label=&quot;Field 1&quot;&gt;
+          &lt;Input placeholder=&quot;Input&quot; className=&quot;w-32&quot; /&gt;
+        &lt;/Field&gt;
+        &lt;Field label=&quot;Field 2&quot;&gt;
+          &lt;Input placeholder=&quot;Input&quot; className=&quot;w-32&quot; /&gt;
+        &lt;/Field&gt;
+        &lt;Field label=&quot;Field 3&quot;&gt;
+          &lt;Input placeholder=&quot;Input&quot; className=&quot;w-32&quot; /&gt;
+        &lt;/Field&gt;
+      &lt;/FieldSet&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+);</code></pre>
+            </div>
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">Layout Only (No Legend)</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const LayoutOnlyFieldSet = () =&gt; (
+  &lt;div className=&quot;flex flex-col gap-8&quot;&gt;
+    &lt;div&gt;
+      &lt;p className=&quot;text-sm text-foreground-muted mb-4&quot;&gt;
+        Omit legend for layout-only grouping. Useful for arranging fields in a row without
+        creating a semantic group.
+      &lt;/p&gt;
+      &lt;FieldSet direction=&quot;row&quot;&gt;
+        &lt;Field label=&quot;First Name&quot; flexGrow={1}&gt;
+          &lt;Input placeholder=&quot;John&quot; /&gt;
+        &lt;/Field&gt;
+        &lt;Field label=&quot;Last Name&quot; flexGrow={1}&gt;
+          &lt;Input placeholder=&quot;Doe&quot; /&gt;
+        &lt;/Field&gt;
+      &lt;/FieldSet&gt;
+    &lt;/div&gt;
+
+    &lt;div&gt;
+      &lt;p className=&quot;text-sm text-foreground-muted mb-4&quot;&gt;
+        Nested layout-only FieldSet within a labeled FieldSet.
+      &lt;/p&gt;
+      &lt;FieldSet legend=&quot;Contact Information&quot; className=&quot;w-96&quot;&gt;
+        &lt;Field label=&quot;Email&quot;&gt;
+          &lt;Input placeholder=&quot;you@example.com&quot; /&gt;
+        &lt;/Field&gt;
+        &lt;FieldSet direction=&quot;row&quot;&gt;
+          &lt;Field label=&quot;Country Code&quot; flexShrink={0}&gt;
+            &lt;Input placeholder=&quot;+81&quot; className=&quot;w-16&quot; /&gt;
+          &lt;/Field&gt;
+          &lt;Field label=&quot;Phone&quot; flexGrow={1}&gt;
+            &lt;Input placeholder=&quot;90-1234-5678&quot; /&gt;
+          &lt;/Field&gt;
+        &lt;/FieldSet&gt;
+      &lt;/FieldSet&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+);</code></pre>
+            </div>
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">Description with Error</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const DescriptionWithError = () =&gt; (
+  &lt;div className=&quot;flex flex-col gap-8&quot;&gt;
+    &lt;div&gt;
+      &lt;p className=&quot;text-sm text-foreground-muted mb-4&quot;&gt;
+        Both Field and FieldSet show description AND error together. Description appears above the
+        input, error appears below.
+      &lt;/p&gt;
+      &lt;FieldSet
+        legend=&quot;Date Range&quot;
+        description=&quot;Select the start and end dates for your event.&quot;
+        error=&quot;End date must be after start date.&quot;
+        direction=&quot;row&quot;
+      &gt;
+        &lt;Field label=&quot;Start Date&quot;&gt;
+          &lt;Input type=&quot;date&quot; defaultValue=&quot;2024-12-31&quot; className=&quot;w-40&quot; /&gt;
+        &lt;/Field&gt;
+        &lt;Field label=&quot;End Date&quot;&gt;
+          &lt;Input type=&quot;date&quot; defaultValue=&quot;2024-01-01&quot; className=&quot;w-40&quot; /&gt;
+        &lt;/Field&gt;
+      &lt;/FieldSet&gt;
+    &lt;/div&gt;
+
+    &lt;div&gt;
+      &lt;p className=&quot;text-sm text-foreground-muted mb-4&quot;&gt;Field with both description and error.&lt;/p&gt;
+      &lt;Field
+        label=&quot;Email&quot;
+        description=&quot;We&#39;ll send a verification link.&quot;
+        error=&quot;Invalid email address.&quot;
+        className=&quot;w-60&quot;
+      &gt;
+        &lt;Input defaultValue=&quot;invalid&quot; /&gt;
+      &lt;/Field&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+);</code></pre>
+            </div>
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">Flex Props Patterns</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const FlexPropsPatterns = () =&gt; (
+  &lt;div className=&quot;flex flex-col gap-8&quot;&gt;
+    &lt;div&gt;
+      &lt;p className=&quot;text-sm text-foreground-muted mb-4&quot;&gt;
+        &lt;strong&gt;flexGrow:&lt;/strong&gt; Field expands to fill available space.
+      &lt;/p&gt;
+      &lt;FieldSet legend=&quot;flexGrow Example&quot; direction=&quot;row&quot; className=&quot;w-96&quot;&gt;
+        &lt;Field label=&quot;Flexible&quot; flexGrow={1}&gt;
+          &lt;Input placeholder=&quot;flexGrow={1}&quot; /&gt;
+        &lt;/Field&gt;
+        &lt;Field label=&quot;Fixed&quot;&gt;
+          &lt;Input placeholder=&quot;No flex props&quot; className=&quot;w-24&quot; /&gt;
+        &lt;/Field&gt;
+      &lt;/FieldSet&gt;
+    &lt;/div&gt;
+
+    &lt;div&gt;
+      &lt;p className=&quot;text-sm text-foreground-muted mb-4&quot;&gt;
+        &lt;strong&gt;flexShrink:&lt;/strong&gt; Prevent field from shrinking below its content.
+      &lt;/p&gt;
+      &lt;FieldSet legend=&quot;flexShrink Example&quot; direction=&quot;row&quot; className=&quot;w-64&quot;&gt;
+        &lt;Field label=&quot;Shrinks&quot;&gt;
+          &lt;Input placeholder=&quot;Shrinks&quot; /&gt;
+        &lt;/Field&gt;
+        &lt;Field label=&quot;No Shrink&quot; flexShrink={0}&gt;
+          &lt;Input placeholder=&quot;flexShrink={0}&quot; className=&quot;w-32&quot; /&gt;
+        &lt;/Field&gt;
+      &lt;/FieldSet&gt;
+    &lt;/div&gt;
+
+    &lt;div&gt;
+      &lt;p className=&quot;text-sm text-foreground-muted mb-4&quot;&gt;
+        &lt;strong&gt;flexBasis:&lt;/strong&gt; Set initial size before flex grow/shrink.
+      &lt;/p&gt;
+      &lt;FieldSet legend=&quot;flexBasis Example&quot; direction=&quot;row&quot; className=&quot;w-96&quot;&gt;
+        &lt;Field label=&quot;60%&quot; flexBasis=&quot;60%&quot;&gt;
+          &lt;Input placeholder=&quot;flexBasis=&#39;60%&#39;&quot; /&gt;
+        &lt;/Field&gt;
+        &lt;Field label=&quot;40%&quot; flexBasis=&quot;40%&quot;&gt;
+          &lt;Input placeholder=&quot;flexBasis=&#39;40%&#39;&quot; /&gt;
+        &lt;/Field&gt;
+      &lt;/FieldSet&gt;
+    &lt;/div&gt;
+
+    &lt;div&gt;
+      &lt;p className=&quot;text-sm text-foreground-muted mb-4&quot;&gt;
+        &lt;strong&gt;Combined:&lt;/strong&gt; Use multiple props for precise control.
+      &lt;/p&gt;
+      &lt;FieldSet legend=&quot;Combined Example&quot; direction=&quot;row&quot; className=&quot;w-96&quot;&gt;
+        &lt;Field label=&quot;Main&quot; flexGrow={1} flexShrink={1}&gt;
+          &lt;Input placeholder=&quot;Flexible&quot; /&gt;
+        &lt;/Field&gt;
+        &lt;Field label=&quot;Side&quot; flexGrow={0} flexShrink={0} flexBasis=&quot;100px&quot;&gt;
+          &lt;Input placeholder=&quot;Fixed 100px&quot; /&gt;
+        &lt;/Field&gt;
+      &lt;/FieldSet&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+);</code></pre>
+            </div>
+        </div>
+    
+  </div>
+</article>
+<article
+  class="card 
+  no-error 
+  has-info 
+  no-story-error
+  no-doc-error"
+  role="listitem"
   aria-label="Input">
   <div class="head">
     <div class="title">
       <h2><span class="status-dot dot-ok"></span> Input</h2>
       <div class="badges">
-        <label for="c-5-components-lv1-input-props" class="badge ok as-toggle">6 prop types</label>
-        <label for="c-5-components-lv1-input-info" class="badge info as-toggle">1 info</label>
-        <label for="c-5-components-lv1-input-stories" class="badge ok as-toggle">8 stories</label>
+        <label for="c-6-components-lv1-input-props" class="badge ok as-toggle">6 prop types</label>
+        <label for="c-6-components-lv1-input-info" class="badge info as-toggle">1 info</label>
+        <label for="c-6-components-lv1-input-stories" class="badge ok as-toggle">8 stories</label>
         
       </div>
     </div>
@@ -2508,10 +3095,10 @@ required?: boolean = false</code></pre>
 
   <!-- ⬇️ Hidden toggles must be siblings BEFORE .panels -->
   
-  <input id="c-5-components-lv1-input-info" class="tg tg-info" type="checkbox" hidden />
-  <input id="c-5-components-lv1-input-stories" class="tg tg-stories" type="checkbox" hidden />
+  <input id="c-6-components-lv1-input-info" class="tg tg-info" type="checkbox" hidden />
+  <input id="c-6-components-lv1-input-stories" class="tg tg-stories" type="checkbox" hidden />
   
-  <input id="c-5-components-lv1-input-props" class="tg tg-props" type="checkbox" hidden />
+  <input id="c-6-components-lv1-input-props" class="tg tg-props" type="checkbox" hidden />
 
   <div class="panels">
     
@@ -2690,9 +3277,9 @@ textRight?: string</code></pre>
     <div class="title">
       <h2><span class="status-dot dot-ok"></span> Radio</h2>
       <div class="badges">
-        <label for="c-6-components-lv1-radio-props" class="badge ok as-toggle">4 prop types</label>
-        <label for="c-6-components-lv1-radio-info" class="badge info as-toggle">1 info</label>
-        <label for="c-6-components-lv1-radio-stories" class="badge ok as-toggle">6 stories</label>
+        <label for="c-7-components-lv1-radio-props" class="badge ok as-toggle">4 prop types</label>
+        <label for="c-7-components-lv1-radio-info" class="badge info as-toggle">1 info</label>
+        <label for="c-7-components-lv1-radio-stories" class="badge ok as-toggle">6 stories</label>
         
       </div>
     </div>
@@ -2704,10 +3291,10 @@ textRight?: string</code></pre>
 
   <!-- ⬇️ Hidden toggles must be siblings BEFORE .panels -->
   
-  <input id="c-6-components-lv1-radio-info" class="tg tg-info" type="checkbox" hidden />
-  <input id="c-6-components-lv1-radio-stories" class="tg tg-stories" type="checkbox" hidden />
+  <input id="c-7-components-lv1-radio-info" class="tg tg-info" type="checkbox" hidden />
+  <input id="c-7-components-lv1-radio-stories" class="tg tg-stories" type="checkbox" hidden />
   
-  <input id="c-6-components-lv1-radio-props" class="tg tg-props" type="checkbox" hidden />
+  <input id="c-7-components-lv1-radio-props" class="tg tg-props" type="checkbox" hidden />
 
   <div class="panels">
     
@@ -2860,9 +3447,9 @@ size?: &quot;sm&quot; | &quot;md&quot; | &quot;lg&quot; | null</code></pre>
     <div class="title">
       <h2><span class="status-dot dot-ok"></span> SelectTrigger</h2>
       <div class="badges">
-        <label for="c-7-components-lv1-select-props" class="badge ok as-toggle">3 prop types</label>
-        <label for="c-7-components-lv1-select-info" class="badge info as-toggle">1 info</label>
-        <label for="c-7-components-lv1-select-stories" class="badge ok as-toggle">8 stories</label>
+        <label for="c-8-components-lv1-select-props" class="badge ok as-toggle">3 prop types</label>
+        <label for="c-8-components-lv1-select-info" class="badge info as-toggle">1 info</label>
+        <label for="c-8-components-lv1-select-stories" class="badge ok as-toggle">8 stories</label>
         
       </div>
     </div>
@@ -2874,10 +3461,10 @@ size?: &quot;sm&quot; | &quot;md&quot; | &quot;lg&quot; | null</code></pre>
 
   <!-- ⬇️ Hidden toggles must be siblings BEFORE .panels -->
   
-  <input id="c-7-components-lv1-select-info" class="tg tg-info" type="checkbox" hidden />
-  <input id="c-7-components-lv1-select-stories" class="tg tg-stories" type="checkbox" hidden />
+  <input id="c-8-components-lv1-select-info" class="tg tg-info" type="checkbox" hidden />
+  <input id="c-8-components-lv1-select-stories" class="tg tg-stories" type="checkbox" hidden />
   
-  <input id="c-7-components-lv1-select-props" class="tg tg-props" type="checkbox" hidden />
+  <input id="c-8-components-lv1-select-props" class="tg tg-props" type="checkbox" hidden />
 
   <div class="panels">
     
@@ -3166,9 +3753,9 @@ size?: &quot;sm&quot; | &quot;md&quot; | &quot;lg&quot; | null</code></pre>
     <div class="title">
       <h2><span class="status-dot dot-ok"></span> Spinner</h2>
       <div class="badges">
-        <label for="c-8-components-lv1-spinner-props" class="badge ok as-toggle">4 prop types</label>
-        <label for="c-8-components-lv1-spinner-info" class="badge info as-toggle">1 info</label>
-        <label for="c-8-components-lv1-spinner-stories" class="badge ok as-toggle">4 stories</label>
+        <label for="c-9-components-lv1-spinner-props" class="badge ok as-toggle">4 prop types</label>
+        <label for="c-9-components-lv1-spinner-info" class="badge info as-toggle">1 info</label>
+        <label for="c-9-components-lv1-spinner-stories" class="badge ok as-toggle">4 stories</label>
         
       </div>
     </div>
@@ -3180,10 +3767,10 @@ size?: &quot;sm&quot; | &quot;md&quot; | &quot;lg&quot; | null</code></pre>
 
   <!-- ⬇️ Hidden toggles must be siblings BEFORE .panels -->
   
-  <input id="c-8-components-lv1-spinner-info" class="tg tg-info" type="checkbox" hidden />
-  <input id="c-8-components-lv1-spinner-stories" class="tg tg-stories" type="checkbox" hidden />
+  <input id="c-9-components-lv1-spinner-info" class="tg tg-info" type="checkbox" hidden />
+  <input id="c-9-components-lv1-spinner-stories" class="tg tg-stories" type="checkbox" hidden />
   
-  <input id="c-8-components-lv1-spinner-props" class="tg tg-props" type="checkbox" hidden />
+  <input id="c-9-components-lv1-spinner-props" class="tg tg-props" type="checkbox" hidden />
 
   <div class="panels">
     
@@ -3300,9 +3887,9 @@ variant?: &quot;default&quot; | &quot;inverse&quot; | null</code></pre>
     <div class="title">
       <h2><span class="status-dot dot-ok"></span> Switch</h2>
       <div class="badges">
-        <label for="c-9-components-lv1-switch-props" class="badge ok as-toggle">4 prop types</label>
-        <label for="c-9-components-lv1-switch-info" class="badge info as-toggle">1 info</label>
-        <label for="c-9-components-lv1-switch-stories" class="badge ok as-toggle">6 stories</label>
+        <label for="c-10-components-lv1-switch-props" class="badge ok as-toggle">4 prop types</label>
+        <label for="c-10-components-lv1-switch-info" class="badge info as-toggle">1 info</label>
+        <label for="c-10-components-lv1-switch-stories" class="badge ok as-toggle">6 stories</label>
         
       </div>
     </div>
@@ -3314,10 +3901,10 @@ variant?: &quot;default&quot; | &quot;inverse&quot; | null</code></pre>
 
   <!-- ⬇️ Hidden toggles must be siblings BEFORE .panels -->
   
-  <input id="c-9-components-lv1-switch-info" class="tg tg-info" type="checkbox" hidden />
-  <input id="c-9-components-lv1-switch-stories" class="tg tg-stories" type="checkbox" hidden />
+  <input id="c-10-components-lv1-switch-info" class="tg tg-info" type="checkbox" hidden />
+  <input id="c-10-components-lv1-switch-stories" class="tg tg-stories" type="checkbox" hidden />
   
-  <input id="c-9-components-lv1-switch-props" class="tg tg-props" type="checkbox" hidden />
+  <input id="c-10-components-lv1-switch-props" class="tg tg-props" type="checkbox" hidden />
 
   <div class="panels">
     
@@ -3463,9 +4050,9 @@ size?: &quot;sm&quot; | &quot;md&quot; | &quot;lg&quot; | null = md</code></pre>
     <div class="title">
       <h2><span class="status-dot dot-ok"></span> Text</h2>
       <div class="badges">
-        <label for="c-10-components-lv1-text-props" class="badge ok as-toggle">7 prop types</label>
-        <label for="c-10-components-lv1-text-info" class="badge info as-toggle">1 info</label>
-        <label for="c-10-components-lv1-text-stories" class="badge ok as-toggle">6 stories</label>
+        <label for="c-11-components-lv1-text-props" class="badge ok as-toggle">7 prop types</label>
+        <label for="c-11-components-lv1-text-info" class="badge info as-toggle">1 info</label>
+        <label for="c-11-components-lv1-text-stories" class="badge ok as-toggle">6 stories</label>
         
       </div>
     </div>
@@ -3477,10 +4064,10 @@ size?: &quot;sm&quot; | &quot;md&quot; | &quot;lg&quot; | null = md</code></pre>
 
   <!-- ⬇️ Hidden toggles must be siblings BEFORE .panels -->
   
-  <input id="c-10-components-lv1-text-info" class="tg tg-info" type="checkbox" hidden />
-  <input id="c-10-components-lv1-text-stories" class="tg tg-stories" type="checkbox" hidden />
+  <input id="c-11-components-lv1-text-info" class="tg tg-info" type="checkbox" hidden />
+  <input id="c-11-components-lv1-text-stories" class="tg tg-stories" type="checkbox" hidden />
   
-  <input id="c-10-components-lv1-text-props" class="tg tg-props" type="checkbox" hidden />
+  <input id="c-11-components-lv1-text-props" class="tg tg-props" type="checkbox" hidden />
 
   <div class="panels">
     
@@ -3663,9 +4250,9 @@ variant?: &quot;heading&quot; | &quot;label&quot; | &quot;body&quot; | null</cod
     <div class="title">
       <h2><span class="status-dot dot-ok"></span> Textarea</h2>
       <div class="badges">
-        <label for="c-11-components-lv1-textarea-props" class="badge ok as-toggle">2 prop types</label>
-        <label for="c-11-components-lv1-textarea-info" class="badge info as-toggle">1 info</label>
-        <label for="c-11-components-lv1-textarea-stories" class="badge ok as-toggle">4 stories</label>
+        <label for="c-12-components-lv1-textarea-props" class="badge ok as-toggle">2 prop types</label>
+        <label for="c-12-components-lv1-textarea-info" class="badge info as-toggle">1 info</label>
+        <label for="c-12-components-lv1-textarea-stories" class="badge ok as-toggle">4 stories</label>
         
       </div>
     </div>
@@ -3677,10 +4264,10 @@ variant?: &quot;heading&quot; | &quot;label&quot; | &quot;body&quot; | null</cod
 
   <!-- ⬇️ Hidden toggles must be siblings BEFORE .panels -->
   
-  <input id="c-11-components-lv1-textarea-info" class="tg tg-info" type="checkbox" hidden />
-  <input id="c-11-components-lv1-textarea-stories" class="tg tg-stories" type="checkbox" hidden />
+  <input id="c-12-components-lv1-textarea-info" class="tg tg-info" type="checkbox" hidden />
+  <input id="c-12-components-lv1-textarea-stories" class="tg tg-stories" type="checkbox" hidden />
   
-  <input id="c-11-components-lv1-textarea-props" class="tg tg-props" type="checkbox" hidden />
+  <input id="c-12-components-lv1-textarea-props" class="tg tg-props" type="checkbox" hidden />
 
   <div class="panels">
     
@@ -3787,9 +4374,9 @@ size?: &quot;sm&quot; | &quot;md&quot; | &quot;lg&quot; | null</code></pre>
     <div class="title">
       <h2><span class="status-dot dot-err"></span> Typography</h2>
       <div class="badges">
-        <label for="c-12-foundation-typography-err" class="badge err as-toggle">prop type error</label>
-        <label for="c-12-foundation-typography-info" class="badge info as-toggle">2 infos</label>
-        <label for="c-12-foundation-typography-stories" class="badge ok as-toggle">1 story</label>
+        <label for="c-13-foundation-typography-err" class="badge err as-toggle">prop type error</label>
+        <label for="c-13-foundation-typography-info" class="badge info as-toggle">2 infos</label>
+        <label for="c-13-foundation-typography-stories" class="badge ok as-toggle">1 story</label>
         
       </div>
     </div>
@@ -3800,9 +4387,9 @@ size?: &quot;sm&quot; | &quot;md&quot; | &quot;lg&quot; | null</code></pre>
   </div>
 
   <!-- ⬇️ Hidden toggles must be siblings BEFORE .panels -->
-  <input id="c-12-foundation-typography-err" class="tg tg-err" type="checkbox" hidden />
-  <input id="c-12-foundation-typography-info" class="tg tg-info" type="checkbox" hidden />
-  <input id="c-12-foundation-typography-stories" class="tg tg-stories" type="checkbox" hidden />
+  <input id="c-13-foundation-typography-err" class="tg tg-err" type="checkbox" hidden />
+  <input id="c-13-foundation-typography-info" class="tg tg-info" type="checkbox" hidden />
+  <input id="c-13-foundation-typography-stories" class="tg tg-stories" type="checkbox" hidden />
   
   
 
@@ -4552,9 +5139,9 @@ export const Typography: Story = {
     <div class="title">
       <h2><span class="status-dot dot-err"></span> Welcome</h2>
       <div class="badges">
-        <label for="c-13-welcome-err" class="badge err as-toggle">prop type error</label>
-        <label for="c-13-welcome-info" class="badge info as-toggle">1 info</label>
-        <label for="c-13-welcome-stories" class="badge ok as-toggle">1 story</label>
+        <label for="c-14-welcome-err" class="badge err as-toggle">prop type error</label>
+        <label for="c-14-welcome-info" class="badge info as-toggle">1 info</label>
+        <label for="c-14-welcome-stories" class="badge ok as-toggle">1 story</label>
         
       </div>
     </div>
@@ -4565,9 +5152,9 @@ export const Typography: Story = {
   </div>
 
   <!-- ⬇️ Hidden toggles must be siblings BEFORE .panels -->
-  <input id="c-13-welcome-err" class="tg tg-err" type="checkbox" hidden />
-  <input id="c-13-welcome-info" class="tg tg-info" type="checkbox" hidden />
-  <input id="c-13-welcome-stories" class="tg tg-stories" type="checkbox" hidden />
+  <input id="c-14-welcome-err" class="tg tg-err" type="checkbox" hidden />
+  <input id="c-14-welcome-info" class="tg tg-info" type="checkbox" hidden />
+  <input id="c-14-welcome-stories" class="tg tg-stories" type="checkbox" hidden />
   
   
 
@@ -4578,13 +5165,13 @@ export const Typography: Story = {
     <div class="note err">
       <div class="note-title">Prop type error</div>
       <div class="note-body"><pre><code>We could not detect the component from your story file. Specify meta.component.
-  18 | import { Textarea } from &#39;../components/lv1/Textarea&#39;
-  19 |
-&gt; 20 | const meta: Meta = {
+  19 | import { Textarea } from &#39;../components/lv1/Textarea&#39;
+  20 |
+&gt; 21 | const meta: Meta = {
      | ^
-  21 |   title: &#39;Welcome&#39;,
-  22 |   parameters: {
-  23 |     layout: &#39;fullscreen&#39;,
+  22 |   title: &#39;Welcome&#39;,
+  23 |   parameters: {
+  24 |     layout: &#39;fullscreen&#39;,
 
 ./src/docs/Welcome.stories.tsx:
 import type { Meta, StoryObj } from &#39;@storybook/react-vite&#39;
@@ -4592,6 +5179,7 @@ import { Badge } from &#39;../components/lv1/Badge&#39;
 import { Button } from &#39;../components/lv1/Button&#39;
 import { Checkbox } from &#39;../components/lv1/Checkbox&#39;
 import { Field } from &#39;../components/lv1/Field&#39;
+import { FieldSet } from &#39;../components/lv1/FieldSet&#39;
 import { Input } from &#39;../components/lv1/Input&#39;
 import { Radio, RadioGroup } from &#39;../components/lv1/Radio&#39;
 import {
@@ -4768,6 +5356,18 @@ export const Overview: Story = {
           &lt;/ComponentCard&gt;
 
           &lt;ComponentCard
+            name=&quot;FieldSet&quot;
+            description=&quot;Groups related form fields.&quot;
+            storyPath=&quot;components-lv1-fieldset&quot;
+          &gt;
+            &lt;FieldSet legend=&quot;Contact&quot;&gt;
+              &lt;Field label=&quot;Email&quot;&gt;
+                &lt;Input placeholder=&quot;you@example.com&quot; className=&quot;w-40&quot; /&gt;
+              &lt;/Field&gt;
+            &lt;/FieldSet&gt;
+          &lt;/ComponentCard&gt;
+
+          &lt;ComponentCard
             name=&quot;Input&quot;
             description=&quot;Accepts user text input.&quot;
             storyPath=&quot;components-lv1-input&quot;
@@ -4899,6 +5499,7 @@ export const Overview: Story = {
     Button,
     Checkbox,
     Field,
+    FieldSet,
     Input,
     Radio,
     RadioGroup,
@@ -5026,6 +5627,18 @@ export const Overview: Story = {
           &lt;Field label=&quot;Email&quot; description=&quot;Your email address.&quot;&gt;
             &lt;Input placeholder=&quot;you@example.com&quot; className=&quot;w-40&quot; /&gt;
           &lt;/Field&gt;
+        &lt;/ComponentCard&gt;
+
+        &lt;ComponentCard
+          name=&quot;FieldSet&quot;
+          description=&quot;Groups related form fields.&quot;
+          storyPath=&quot;components-lv1-fieldset&quot;
+        &gt;
+          &lt;FieldSet legend=&quot;Contact&quot;&gt;
+            &lt;Field label=&quot;Email&quot;&gt;
+              &lt;Input placeholder=&quot;you@example.com&quot; className=&quot;w-40&quot; /&gt;
+            &lt;/Field&gt;
+          &lt;/FieldSet&gt;
         &lt;/ComponentCard&gt;
 
         &lt;ComponentCard
@@ -6876,13 +7489,13 @@ export const Typography: Story = {
     <div class="note err">
       <div class="note-title">Prop type error</div>
       <div class="note-body"><pre><code>We could not detect the component from your story file. Specify meta.component.
-  18 | import { Textarea } from &#39;../components/lv1/Textarea&#39;
-  19 |
-&gt; 20 | const meta: Meta = {
+  19 | import { Textarea } from &#39;../components/lv1/Textarea&#39;
+  20 |
+&gt; 21 | const meta: Meta = {
      | ^
-  21 |   title: &#39;Welcome&#39;,
-  22 |   parameters: {
-  23 |     layout: &#39;fullscreen&#39;,
+  22 |   title: &#39;Welcome&#39;,
+  23 |   parameters: {
+  24 |     layout: &#39;fullscreen&#39;,
 
 ./src/docs/Welcome.stories.tsx:
 import type { Meta, StoryObj } from &#39;@storybook/react-vite&#39;
@@ -6890,6 +7503,7 @@ import { Badge } from &#39;../components/lv1/Badge&#39;
 import { Button } from &#39;../components/lv1/Button&#39;
 import { Checkbox } from &#39;../components/lv1/Checkbox&#39;
 import { Field } from &#39;../components/lv1/Field&#39;
+import { FieldSet } from &#39;../components/lv1/FieldSet&#39;
 import { Input } from &#39;../components/lv1/Input&#39;
 import { Radio, RadioGroup } from &#39;../components/lv1/Radio&#39;
 import {
@@ -7066,6 +7680,18 @@ export const Overview: Story = {
           &lt;/ComponentCard&gt;
 
           &lt;ComponentCard
+            name=&quot;FieldSet&quot;
+            description=&quot;Groups related form fields.&quot;
+            storyPath=&quot;components-lv1-fieldset&quot;
+          &gt;
+            &lt;FieldSet legend=&quot;Contact&quot;&gt;
+              &lt;Field label=&quot;Email&quot;&gt;
+                &lt;Input placeholder=&quot;you@example.com&quot; className=&quot;w-40&quot; /&gt;
+              &lt;/Field&gt;
+            &lt;/FieldSet&gt;
+          &lt;/ComponentCard&gt;
+
+          &lt;ComponentCard
             name=&quot;Input&quot;
             description=&quot;Accepts user text input.&quot;
             storyPath=&quot;components-lv1-input&quot;
@@ -7197,6 +7823,7 @@ export const Overview: Story = {
     Button,
     Checkbox,
     Field,
+    FieldSet,
     Input,
     Radio,
     RadioGroup,
@@ -7324,6 +7951,18 @@ export const Overview: Story = {
           &lt;Field label=&quot;Email&quot; description=&quot;Your email address.&quot;&gt;
             &lt;Input placeholder=&quot;you@example.com&quot; className=&quot;w-40&quot; /&gt;
           &lt;/Field&gt;
+        &lt;/ComponentCard&gt;
+
+        &lt;ComponentCard
+          name=&quot;FieldSet&quot;
+          description=&quot;Groups related form fields.&quot;
+          storyPath=&quot;components-lv1-fieldset&quot;
+        &gt;
+          &lt;FieldSet legend=&quot;Contact&quot;&gt;
+            &lt;Field label=&quot;Email&quot;&gt;
+              &lt;Input placeholder=&quot;you@example.com&quot; className=&quot;w-40&quot; /&gt;
+            &lt;/Field&gt;
+          &lt;/FieldSet&gt;
         &lt;/ComponentCard&gt;
 
         &lt;ComponentCard

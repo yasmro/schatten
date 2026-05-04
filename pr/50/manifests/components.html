@@ -576,13 +576,13 @@
 <header>
   <div class="wrap">
     <h1>Manifest Debugger</h1>
-    <div class="summary"><a class="filter-pill all" data-k="all" href="#filter-all">All</a><a class="filter-pill err" data-k="errors" href="#filter-errors">3/15 prop type errors</a><a class="filter-pill info" data-k="infos" href="#filter-infos">15/15 infos</a><span class="filter-pill ok" aria-disabled="true">87 stories ok</span></div>
+    <div class="summary"><a class="filter-pill all" data-k="all" href="#filter-all">All</a><a class="filter-pill err" data-k="errors" href="#filter-errors">3/15 prop type errors</a><a class="filter-pill info" data-k="infos" href="#filter-infos">15/15 infos</a><span class="filter-pill ok" aria-disabled="true">89 stories ok</span></div>
   </div>
 </header>
 <main>
   <div class="wrap">
     <div class="note ok" style="margin-bottom: 16px;">
-              Using <code>react-docgen-typescript</code>. Generation took <strong>2.8s</strong>.
+              Using <code>react-docgen-typescript</code>. Generation took <strong>3.0s</strong>.
             </div>
     <h2 class="section-title">Components</h2>
     <div class="grid" role="list">
@@ -2511,7 +2511,7 @@ required?: boolean = false</code></pre>
       <div class="badges">
         <label for="c-5-components-lv1-fieldset-props" class="badge ok as-toggle">9 prop types</label>
         <label for="c-5-components-lv1-fieldset-info" class="badge info as-toggle">1 info</label>
-        <label for="c-5-components-lv1-fieldset-stories" class="badge ok as-toggle">10 stories</label>
+        <label for="c-5-components-lv1-fieldset-stories" class="badge ok as-toggle">12 stories</label>
         
       </div>
     </div>
@@ -2583,9 +2583,9 @@ error?: string
 isError?: boolean
 
 /**
- * Legend text for the fieldset
+ * Legend text for the fieldset. Omit for layout-only grouping.
  */
-legend: ReactNode
+legend?: ReactNode
 
 /**
  * Enable flex wrap for children
@@ -2669,7 +2669,7 @@ wrap?: boolean = false</code></pre>
     &lt;Field label=&quot;Street Address&quot; required&gt;
       &lt;Input placeholder=&quot;123 Main St&quot; /&gt;
     &lt;/Field&gt;
-    &lt;FieldSet direction=&quot;row&quot; legend=&quot;&quot;&gt;
+    &lt;FieldSet direction=&quot;row&quot;&gt;
       &lt;Field label=&quot;City&quot; required flexGrow={1}&gt;
         &lt;Input placeholder=&quot;Tokyo&quot; /&gt;
       &lt;/Field&gt;
@@ -2778,7 +2778,7 @@ wrap?: boolean = false</code></pre>
       &lt;Field label=&quot;Card Number&quot; required&gt;
         &lt;Input placeholder=&quot;1234 5678 9012 3456&quot; /&gt;
       &lt;/Field&gt;
-      &lt;FieldSet direction=&quot;row&quot; legend=&quot;&quot;&gt;
+      &lt;FieldSet direction=&quot;row&quot;&gt;
         &lt;Field label=&quot;Expiry&quot; required&gt;
           &lt;Input placeholder=&quot;MM/YY&quot; className=&quot;w-24&quot; /&gt;
         &lt;/Field&gt;
@@ -2906,6 +2906,102 @@ wrap?: boolean = false</code></pre>
           &lt;Input placeholder=&quot;Input&quot; className=&quot;w-32&quot; /&gt;
         &lt;/Field&gt;
       &lt;/FieldSet&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+);</code></pre>
+            </div>
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">Layout Only (No Legend)</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const LayoutOnlyFieldSet = () =&gt; (
+  &lt;div className=&quot;flex flex-col gap-8&quot;&gt;
+    &lt;div&gt;
+      &lt;p className=&quot;text-sm text-foreground-muted mb-4&quot;&gt;
+        Omit legend for layout-only grouping. Useful for arranging fields in a row without
+        creating a semantic group.
+      &lt;/p&gt;
+      &lt;FieldSet direction=&quot;row&quot;&gt;
+        &lt;Field label=&quot;First Name&quot; flexGrow={1}&gt;
+          &lt;Input placeholder=&quot;John&quot; /&gt;
+        &lt;/Field&gt;
+        &lt;Field label=&quot;Last Name&quot; flexGrow={1}&gt;
+          &lt;Input placeholder=&quot;Doe&quot; /&gt;
+        &lt;/Field&gt;
+      &lt;/FieldSet&gt;
+    &lt;/div&gt;
+
+    &lt;div&gt;
+      &lt;p className=&quot;text-sm text-foreground-muted mb-4&quot;&gt;
+        Nested layout-only FieldSet within a labeled FieldSet.
+      &lt;/p&gt;
+      &lt;FieldSet legend=&quot;Contact Information&quot; className=&quot;w-96&quot;&gt;
+        &lt;Field label=&quot;Email&quot;&gt;
+          &lt;Input placeholder=&quot;you@example.com&quot; /&gt;
+        &lt;/Field&gt;
+        &lt;FieldSet direction=&quot;row&quot;&gt;
+          &lt;Field label=&quot;Country Code&quot; flexShrink={0}&gt;
+            &lt;Input placeholder=&quot;+81&quot; className=&quot;w-16&quot; /&gt;
+          &lt;/Field&gt;
+          &lt;Field label=&quot;Phone&quot; flexGrow={1}&gt;
+            &lt;Input placeholder=&quot;90-1234-5678&quot; /&gt;
+          &lt;/Field&gt;
+        &lt;/FieldSet&gt;
+      &lt;/FieldSet&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+);</code></pre>
+            </div>
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">Description with Error</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const DescriptionWithError = () =&gt; (
+  &lt;div className=&quot;flex flex-col gap-8&quot;&gt;
+    &lt;div&gt;
+      &lt;p className=&quot;text-sm text-foreground-muted mb-4&quot;&gt;
+        &lt;strong&gt;FieldSet:&lt;/strong&gt; Shows both description AND error. The description provides
+        context for the group, while the error indicates validation failure.
+      &lt;/p&gt;
+      &lt;FieldSet
+        legend=&quot;Date Range&quot;
+        description=&quot;Select the start and end dates for your event.&quot;
+        error=&quot;End date must be after start date.&quot;
+        direction=&quot;row&quot;
+      &gt;
+        &lt;Field label=&quot;Start Date&quot;&gt;
+          &lt;Input type=&quot;date&quot; defaultValue=&quot;2024-12-31&quot; className=&quot;w-40&quot; /&gt;
+        &lt;/Field&gt;
+        &lt;Field label=&quot;End Date&quot;&gt;
+          &lt;Input type=&quot;date&quot; defaultValue=&quot;2024-01-01&quot; className=&quot;w-40&quot; /&gt;
+        &lt;/Field&gt;
+      &lt;/FieldSet&gt;
+    &lt;/div&gt;
+
+    &lt;div&gt;
+      &lt;p className=&quot;text-sm text-foreground-muted mb-4&quot;&gt;
+        &lt;strong&gt;Field:&lt;/strong&gt; Shows description OR error (mutually exclusive). The error
+        replaces the helper text since they serve the same purpose for individual inputs.
+      &lt;/p&gt;
+      &lt;div className=&quot;flex gap-8&quot;&gt;
+        &lt;Field label=&quot;Email&quot; description=&quot;We&#39;ll send a verification link.&quot; className=&quot;w-60&quot;&gt;
+          &lt;Input placeholder=&quot;No error&quot; /&gt;
+        &lt;/Field&gt;
+        &lt;Field
+          label=&quot;Email&quot;
+          description=&quot;We&#39;ll send a verification link.&quot;
+          error=&quot;Invalid email address.&quot;
+          className=&quot;w-60&quot;
+        &gt;
+          &lt;Input placeholder=&quot;With error&quot; /&gt;
+        &lt;/Field&gt;
+      &lt;/div&gt;
     &lt;/div&gt;
   &lt;/div&gt;
 );</code></pre>

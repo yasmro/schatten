@@ -582,7 +582,7 @@
 <main>
   <div class="wrap">
     <div class="note ok" style="margin-bottom: 16px;">
-              Using <code>react-docgen-typescript</code>. Generation took <strong>3.2s</strong>.
+              Using <code>react-docgen-typescript</code>. Generation took <strong>2.8s</strong>.
             </div>
     <h2 class="section-title">Components</h2>
     <div class="grid" role="list">
@@ -4518,19 +4518,20 @@ export const Typography: Story = {
     <div class="note err">
       <div class="note-title">Prop type error</div>
       <div class="note-body"><pre><code>We could not detect the component from your story file. Specify meta.component.
-  16 | import { Textarea } from &#39;../components/lv1/Textarea&#39;
-  17 |
-&gt; 18 | const meta: Meta = {
+  18 | import { Textarea } from &#39;../components/lv1/Textarea&#39;
+  19 |
+&gt; 20 | const meta: Meta = {
      | ^
-  19 |   title: &#39;Welcome&#39;,
-  20 |   parameters: {
-  21 |     layout: &#39;fullscreen&#39;,
+  21 |   title: &#39;Welcome&#39;,
+  22 |   parameters: {
+  23 |     layout: &#39;fullscreen&#39;,
 
 ./src/docs/Welcome.stories.tsx:
 import type { Meta, StoryObj } from &#39;@storybook/react-vite&#39;
 import { Badge } from &#39;../components/lv1/Badge&#39;
 import { Button } from &#39;../components/lv1/Button&#39;
 import { Checkbox } from &#39;../components/lv1/Checkbox&#39;
+import { Field } from &#39;../components/lv1/Field&#39;
 import { Input } from &#39;../components/lv1/Input&#39;
 import { Radio, RadioGroup } from &#39;../components/lv1/Radio&#39;
 import {
@@ -4541,6 +4542,7 @@ import {
   SelectValue,
 } from &#39;../components/lv1/Select&#39;
 import { Spinner } from &#39;../components/lv1/Spinner&#39;
+import { Switch } from &#39;../components/lv1/Switch&#39;
 import { Text } from &#39;../components/lv1/Text&#39;
 import { Textarea } from &#39;../components/lv1/Textarea&#39;
 
@@ -4651,7 +4653,7 @@ export const Overview: Story = {
       &lt;/div&gt;
 
       &lt;div className=&quot;mb-12&quot;&gt;
-        &lt;h2 className=&quot;text-xl font-bold text-foreground mb-4&quot;&gt;Components&lt;/h2&gt;
+        &lt;h2 className=&quot;text-xl font-bold text-foreground mb-4&quot;&gt;UI Components&lt;/h2&gt;
         &lt;div className=&quot;grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4&quot;&gt;
           &lt;ComponentCard
             name=&quot;Button&quot;
@@ -4689,6 +4691,21 @@ export const Overview: Story = {
               Heading
             &lt;/Text&gt;
           &lt;/ComponentCard&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+
+      &lt;div className=&quot;mb-12&quot;&gt;
+        &lt;h2 className=&quot;text-xl font-bold text-foreground mb-4&quot;&gt;Form Components&lt;/h2&gt;
+        &lt;div className=&quot;grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4&quot;&gt;
+          &lt;ComponentCard
+            name=&quot;Field&quot;
+            description=&quot;Wraps inputs with label and error.&quot;
+            storyPath=&quot;components-lv1-field&quot;
+          &gt;
+            &lt;Field label=&quot;Email&quot; description=&quot;Your email address.&quot;&gt;
+              &lt;Input placeholder=&quot;you@example.com&quot; className=&quot;w-40&quot; /&gt;
+            &lt;/Field&gt;
+          &lt;/ComponentCard&gt;
 
           &lt;ComponentCard
             name=&quot;Input&quot;
@@ -4704,17 +4721,6 @@ export const Overview: Story = {
             storyPath=&quot;components-lv1-textarea&quot;
           &gt;
             &lt;Textarea placeholder=&quot;Write something...&quot; className=&quot;w-40&quot; rows={2} /&gt;
-          &lt;/ComponentCard&gt;
-
-          &lt;ComponentCard
-            name=&quot;Checkbox&quot;
-            description=&quot;Toggles a boolean value.&quot;
-            storyPath=&quot;components-lv1-checkbox&quot;
-          &gt;
-            &lt;div className=&quot;flex flex-col gap-2&quot;&gt;
-              &lt;Checkbox label=&quot;Option A&quot; defaultChecked /&gt;
-              &lt;Checkbox label=&quot;Option B&quot; /&gt;
-            &lt;/div&gt;
           &lt;/ComponentCard&gt;
 
           &lt;ComponentCard
@@ -4734,6 +4740,17 @@ export const Overview: Story = {
           &lt;/ComponentCard&gt;
 
           &lt;ComponentCard
+            name=&quot;Checkbox&quot;
+            description=&quot;Toggles a boolean value.&quot;
+            storyPath=&quot;components-lv1-checkbox&quot;
+          &gt;
+            &lt;div className=&quot;flex flex-col gap-2&quot;&gt;
+              &lt;Checkbox label=&quot;Option A&quot; defaultChecked /&gt;
+              &lt;Checkbox label=&quot;Option B&quot; /&gt;
+            &lt;/div&gt;
+          &lt;/ComponentCard&gt;
+
+          &lt;ComponentCard
             name=&quot;Radio&quot;
             description=&quot;Selects one option from a group.&quot;
             storyPath=&quot;components-lv1-radio&quot;
@@ -4742,6 +4759,14 @@ export const Overview: Story = {
               &lt;Radio value=&quot;a&quot; label=&quot;Option A&quot; /&gt;
               &lt;Radio value=&quot;b&quot; label=&quot;Option B&quot; /&gt;
             &lt;/RadioGroup&gt;
+          &lt;/ComponentCard&gt;
+
+          &lt;ComponentCard
+            name=&quot;Switch&quot;
+            description=&quot;Toggles between on and off.&quot;
+            storyPath=&quot;components-lv1-switch&quot;
+          &gt;
+            &lt;Switch label=&quot;Enable&quot; defaultChecked /&gt;
           &lt;/ComponentCard&gt;
         &lt;/div&gt;
       &lt;/div&gt;
@@ -4813,6 +4838,7 @@ export const Overview: Story = {
     Badge,
     Button,
     Checkbox,
+    Field,
     Input,
     Radio,
     RadioGroup,
@@ -4822,6 +4848,7 @@ export const Overview: Story = {
     SelectTrigger,
     SelectValue,
     Spinner,
+    Switch,
     Text,
     Textarea,
 } from "@yasmro/schatten";</code></pre>
@@ -4887,7 +4914,7 @@ export const Overview: Story = {
     &lt;/div&gt;
 
     &lt;div className=&quot;mb-12&quot;&gt;
-      &lt;h2 className=&quot;text-xl font-bold text-foreground mb-4&quot;&gt;Components&lt;/h2&gt;
+      &lt;h2 className=&quot;text-xl font-bold text-foreground mb-4&quot;&gt;UI Components&lt;/h2&gt;
       &lt;div className=&quot;grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4&quot;&gt;
         &lt;ComponentCard
           name=&quot;Button&quot;
@@ -4925,6 +4952,21 @@ export const Overview: Story = {
             Heading
           &lt;/Text&gt;
         &lt;/ComponentCard&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+
+    &lt;div className=&quot;mb-12&quot;&gt;
+      &lt;h2 className=&quot;text-xl font-bold text-foreground mb-4&quot;&gt;Form Components&lt;/h2&gt;
+      &lt;div className=&quot;grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4&quot;&gt;
+        &lt;ComponentCard
+          name=&quot;Field&quot;
+          description=&quot;Wraps inputs with label and error.&quot;
+          storyPath=&quot;components-lv1-field&quot;
+        &gt;
+          &lt;Field label=&quot;Email&quot; description=&quot;Your email address.&quot;&gt;
+            &lt;Input placeholder=&quot;you@example.com&quot; className=&quot;w-40&quot; /&gt;
+          &lt;/Field&gt;
+        &lt;/ComponentCard&gt;
 
         &lt;ComponentCard
           name=&quot;Input&quot;
@@ -4940,17 +4982,6 @@ export const Overview: Story = {
           storyPath=&quot;components-lv1-textarea&quot;
         &gt;
           &lt;Textarea placeholder=&quot;Write something...&quot; className=&quot;w-40&quot; rows={2} /&gt;
-        &lt;/ComponentCard&gt;
-
-        &lt;ComponentCard
-          name=&quot;Checkbox&quot;
-          description=&quot;Toggles a boolean value.&quot;
-          storyPath=&quot;components-lv1-checkbox&quot;
-        &gt;
-          &lt;div className=&quot;flex flex-col gap-2&quot;&gt;
-            &lt;Checkbox label=&quot;Option A&quot; defaultChecked /&gt;
-            &lt;Checkbox label=&quot;Option B&quot; /&gt;
-          &lt;/div&gt;
         &lt;/ComponentCard&gt;
 
         &lt;ComponentCard
@@ -4970,6 +5001,17 @@ export const Overview: Story = {
         &lt;/ComponentCard&gt;
 
         &lt;ComponentCard
+          name=&quot;Checkbox&quot;
+          description=&quot;Toggles a boolean value.&quot;
+          storyPath=&quot;components-lv1-checkbox&quot;
+        &gt;
+          &lt;div className=&quot;flex flex-col gap-2&quot;&gt;
+            &lt;Checkbox label=&quot;Option A&quot; defaultChecked /&gt;
+            &lt;Checkbox label=&quot;Option B&quot; /&gt;
+          &lt;/div&gt;
+        &lt;/ComponentCard&gt;
+
+        &lt;ComponentCard
           name=&quot;Radio&quot;
           description=&quot;Selects one option from a group.&quot;
           storyPath=&quot;components-lv1-radio&quot;
@@ -4978,6 +5020,14 @@ export const Overview: Story = {
             &lt;Radio value=&quot;a&quot; label=&quot;Option A&quot; /&gt;
             &lt;Radio value=&quot;b&quot; label=&quot;Option B&quot; /&gt;
           &lt;/RadioGroup&gt;
+        &lt;/ComponentCard&gt;
+
+        &lt;ComponentCard
+          name=&quot;Switch&quot;
+          description=&quot;Toggles between on and off.&quot;
+          storyPath=&quot;components-lv1-switch&quot;
+        &gt;
+          &lt;Switch label=&quot;Enable&quot; defaultChecked /&gt;
         &lt;/ComponentCard&gt;
       &lt;/div&gt;
     &lt;/div&gt;
@@ -6766,19 +6816,20 @@ export const Typography: Story = {
     <div class="note err">
       <div class="note-title">Prop type error</div>
       <div class="note-body"><pre><code>We could not detect the component from your story file. Specify meta.component.
-  16 | import { Textarea } from &#39;../components/lv1/Textarea&#39;
-  17 |
-&gt; 18 | const meta: Meta = {
+  18 | import { Textarea } from &#39;../components/lv1/Textarea&#39;
+  19 |
+&gt; 20 | const meta: Meta = {
      | ^
-  19 |   title: &#39;Welcome&#39;,
-  20 |   parameters: {
-  21 |     layout: &#39;fullscreen&#39;,
+  21 |   title: &#39;Welcome&#39;,
+  22 |   parameters: {
+  23 |     layout: &#39;fullscreen&#39;,
 
 ./src/docs/Welcome.stories.tsx:
 import type { Meta, StoryObj } from &#39;@storybook/react-vite&#39;
 import { Badge } from &#39;../components/lv1/Badge&#39;
 import { Button } from &#39;../components/lv1/Button&#39;
 import { Checkbox } from &#39;../components/lv1/Checkbox&#39;
+import { Field } from &#39;../components/lv1/Field&#39;
 import { Input } from &#39;../components/lv1/Input&#39;
 import { Radio, RadioGroup } from &#39;../components/lv1/Radio&#39;
 import {
@@ -6789,6 +6840,7 @@ import {
   SelectValue,
 } from &#39;../components/lv1/Select&#39;
 import { Spinner } from &#39;../components/lv1/Spinner&#39;
+import { Switch } from &#39;../components/lv1/Switch&#39;
 import { Text } from &#39;../components/lv1/Text&#39;
 import { Textarea } from &#39;../components/lv1/Textarea&#39;
 
@@ -6899,7 +6951,7 @@ export const Overview: Story = {
       &lt;/div&gt;
 
       &lt;div className=&quot;mb-12&quot;&gt;
-        &lt;h2 className=&quot;text-xl font-bold text-foreground mb-4&quot;&gt;Components&lt;/h2&gt;
+        &lt;h2 className=&quot;text-xl font-bold text-foreground mb-4&quot;&gt;UI Components&lt;/h2&gt;
         &lt;div className=&quot;grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4&quot;&gt;
           &lt;ComponentCard
             name=&quot;Button&quot;
@@ -6937,6 +6989,21 @@ export const Overview: Story = {
               Heading
             &lt;/Text&gt;
           &lt;/ComponentCard&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+
+      &lt;div className=&quot;mb-12&quot;&gt;
+        &lt;h2 className=&quot;text-xl font-bold text-foreground mb-4&quot;&gt;Form Components&lt;/h2&gt;
+        &lt;div className=&quot;grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4&quot;&gt;
+          &lt;ComponentCard
+            name=&quot;Field&quot;
+            description=&quot;Wraps inputs with label and error.&quot;
+            storyPath=&quot;components-lv1-field&quot;
+          &gt;
+            &lt;Field label=&quot;Email&quot; description=&quot;Your email address.&quot;&gt;
+              &lt;Input placeholder=&quot;you@example.com&quot; className=&quot;w-40&quot; /&gt;
+            &lt;/Field&gt;
+          &lt;/ComponentCard&gt;
 
           &lt;ComponentCard
             name=&quot;Input&quot;
@@ -6952,17 +7019,6 @@ export const Overview: Story = {
             storyPath=&quot;components-lv1-textarea&quot;
           &gt;
             &lt;Textarea placeholder=&quot;Write something...&quot; className=&quot;w-40&quot; rows={2} /&gt;
-          &lt;/ComponentCard&gt;
-
-          &lt;ComponentCard
-            name=&quot;Checkbox&quot;
-            description=&quot;Toggles a boolean value.&quot;
-            storyPath=&quot;components-lv1-checkbox&quot;
-          &gt;
-            &lt;div className=&quot;flex flex-col gap-2&quot;&gt;
-              &lt;Checkbox label=&quot;Option A&quot; defaultChecked /&gt;
-              &lt;Checkbox label=&quot;Option B&quot; /&gt;
-            &lt;/div&gt;
           &lt;/ComponentCard&gt;
 
           &lt;ComponentCard
@@ -6982,6 +7038,17 @@ export const Overview: Story = {
           &lt;/ComponentCard&gt;
 
           &lt;ComponentCard
+            name=&quot;Checkbox&quot;
+            description=&quot;Toggles a boolean value.&quot;
+            storyPath=&quot;components-lv1-checkbox&quot;
+          &gt;
+            &lt;div className=&quot;flex flex-col gap-2&quot;&gt;
+              &lt;Checkbox label=&quot;Option A&quot; defaultChecked /&gt;
+              &lt;Checkbox label=&quot;Option B&quot; /&gt;
+            &lt;/div&gt;
+          &lt;/ComponentCard&gt;
+
+          &lt;ComponentCard
             name=&quot;Radio&quot;
             description=&quot;Selects one option from a group.&quot;
             storyPath=&quot;components-lv1-radio&quot;
@@ -6990,6 +7057,14 @@ export const Overview: Story = {
               &lt;Radio value=&quot;a&quot; label=&quot;Option A&quot; /&gt;
               &lt;Radio value=&quot;b&quot; label=&quot;Option B&quot; /&gt;
             &lt;/RadioGroup&gt;
+          &lt;/ComponentCard&gt;
+
+          &lt;ComponentCard
+            name=&quot;Switch&quot;
+            description=&quot;Toggles between on and off.&quot;
+            storyPath=&quot;components-lv1-switch&quot;
+          &gt;
+            &lt;Switch label=&quot;Enable&quot; defaultChecked /&gt;
           &lt;/ComponentCard&gt;
         &lt;/div&gt;
       &lt;/div&gt;
@@ -7061,6 +7136,7 @@ export const Overview: Story = {
     Badge,
     Button,
     Checkbox,
+    Field,
     Input,
     Radio,
     RadioGroup,
@@ -7070,6 +7146,7 @@ export const Overview: Story = {
     SelectTrigger,
     SelectValue,
     Spinner,
+    Switch,
     Text,
     Textarea,
 } from "@yasmro/schatten";</code></pre>
@@ -7135,7 +7212,7 @@ export const Overview: Story = {
     &lt;/div&gt;
 
     &lt;div className=&quot;mb-12&quot;&gt;
-      &lt;h2 className=&quot;text-xl font-bold text-foreground mb-4&quot;&gt;Components&lt;/h2&gt;
+      &lt;h2 className=&quot;text-xl font-bold text-foreground mb-4&quot;&gt;UI Components&lt;/h2&gt;
       &lt;div className=&quot;grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4&quot;&gt;
         &lt;ComponentCard
           name=&quot;Button&quot;
@@ -7173,6 +7250,21 @@ export const Overview: Story = {
             Heading
           &lt;/Text&gt;
         &lt;/ComponentCard&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+
+    &lt;div className=&quot;mb-12&quot;&gt;
+      &lt;h2 className=&quot;text-xl font-bold text-foreground mb-4&quot;&gt;Form Components&lt;/h2&gt;
+      &lt;div className=&quot;grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4&quot;&gt;
+        &lt;ComponentCard
+          name=&quot;Field&quot;
+          description=&quot;Wraps inputs with label and error.&quot;
+          storyPath=&quot;components-lv1-field&quot;
+        &gt;
+          &lt;Field label=&quot;Email&quot; description=&quot;Your email address.&quot;&gt;
+            &lt;Input placeholder=&quot;you@example.com&quot; className=&quot;w-40&quot; /&gt;
+          &lt;/Field&gt;
+        &lt;/ComponentCard&gt;
 
         &lt;ComponentCard
           name=&quot;Input&quot;
@@ -7188,17 +7280,6 @@ export const Overview: Story = {
           storyPath=&quot;components-lv1-textarea&quot;
         &gt;
           &lt;Textarea placeholder=&quot;Write something...&quot; className=&quot;w-40&quot; rows={2} /&gt;
-        &lt;/ComponentCard&gt;
-
-        &lt;ComponentCard
-          name=&quot;Checkbox&quot;
-          description=&quot;Toggles a boolean value.&quot;
-          storyPath=&quot;components-lv1-checkbox&quot;
-        &gt;
-          &lt;div className=&quot;flex flex-col gap-2&quot;&gt;
-            &lt;Checkbox label=&quot;Option A&quot; defaultChecked /&gt;
-            &lt;Checkbox label=&quot;Option B&quot; /&gt;
-          &lt;/div&gt;
         &lt;/ComponentCard&gt;
 
         &lt;ComponentCard
@@ -7218,6 +7299,17 @@ export const Overview: Story = {
         &lt;/ComponentCard&gt;
 
         &lt;ComponentCard
+          name=&quot;Checkbox&quot;
+          description=&quot;Toggles a boolean value.&quot;
+          storyPath=&quot;components-lv1-checkbox&quot;
+        &gt;
+          &lt;div className=&quot;flex flex-col gap-2&quot;&gt;
+            &lt;Checkbox label=&quot;Option A&quot; defaultChecked /&gt;
+            &lt;Checkbox label=&quot;Option B&quot; /&gt;
+          &lt;/div&gt;
+        &lt;/ComponentCard&gt;
+
+        &lt;ComponentCard
           name=&quot;Radio&quot;
           description=&quot;Selects one option from a group.&quot;
           storyPath=&quot;components-lv1-radio&quot;
@@ -7226,6 +7318,14 @@ export const Overview: Story = {
             &lt;Radio value=&quot;a&quot; label=&quot;Option A&quot; /&gt;
             &lt;Radio value=&quot;b&quot; label=&quot;Option B&quot; /&gt;
           &lt;/RadioGroup&gt;
+        &lt;/ComponentCard&gt;
+
+        &lt;ComponentCard
+          name=&quot;Switch&quot;
+          description=&quot;Toggles between on and off.&quot;
+          storyPath=&quot;components-lv1-switch&quot;
+        &gt;
+          &lt;Switch label=&quot;Enable&quot; defaultChecked /&gt;
         &lt;/ComponentCard&gt;
       &lt;/div&gt;
     &lt;/div&gt;

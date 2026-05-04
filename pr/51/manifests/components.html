@@ -576,13 +576,13 @@
 <header>
   <div class="wrap">
     <h1>Manifest Debugger</h1>
-    <div class="summary"><a class="filter-pill all" data-k="all" href="#filter-all">All</a><a class="filter-pill err" data-k="errors" href="#filter-errors">3/16 prop type errors</a><a class="filter-pill info" data-k="infos" href="#filter-infos">16/16 infos</a><span class="filter-pill ok" aria-disabled="true">95 stories ok</span></div>
+    <div class="summary"><a class="filter-pill all" data-k="all" href="#filter-all">All</a><a class="filter-pill err" data-k="errors" href="#filter-errors">3/16 prop type errors</a><a class="filter-pill info" data-k="infos" href="#filter-infos">16/16 infos</a><span class="filter-pill ok" aria-disabled="true">94 stories ok</span></div>
   </div>
 </header>
 <main>
   <div class="wrap">
     <div class="note ok" style="margin-bottom: 16px;">
-              Using <code>react-docgen-typescript</code>. Generation took <strong>2.5s</strong>.
+              Using <code>react-docgen-typescript</code>. Generation took <strong>2.9s</strong>.
             </div>
     <h2 class="section-title">Components</h2>
     <div class="grid" role="list">
@@ -4376,7 +4376,7 @@ size?: &quot;sm&quot; | &quot;md&quot; | &quot;lg&quot; | null</code></pre>
       <div class="badges">
         <label for="c-13-components-lv1-tooltip-props" class="badge ok as-toggle">2 prop types</label>
         <label for="c-13-components-lv1-tooltip-info" class="badge info as-toggle">1 info</label>
-        <label for="c-13-components-lv1-tooltip-stories" class="badge ok as-toggle">6 stories</label>
+        <label for="c-13-components-lv1-tooltip-stories" class="badge ok as-toggle">5 stories</label>
         
       </div>
     </div>
@@ -4444,7 +4444,7 @@ container?: Element | DocumentFragment | null</code></pre>
     &lt;TooltipTrigger asChild&gt;
         &lt;Button variant=&quot;secondary&quot;&gt;Hover me&lt;/Button&gt;
     &lt;/TooltipTrigger&gt;
-    &lt;TooltipContent side=&quot;top&quot; align=&quot;center&quot;&gt;This is helpful information.&lt;/TooltipContent&gt;
+    &lt;TooltipContent side=&quot;top&quot;&gt;This is helpful information.&lt;/TooltipContent&gt;
 &lt;/Tooltip&gt;;</code></pre>
             </div>
             <div class="note ok">
@@ -4483,52 +4483,6 @@ container?: Element | DocumentFragment | null</code></pre>
       &lt;/TooltipTrigger&gt;
       &lt;TooltipContent side=&quot;left&quot;&gt;Tooltip on left&lt;/TooltipContent&gt;
     &lt;/Tooltip&gt;
-  &lt;/div&gt;
-);</code></pre>
-            </div>
-            <div class="note ok">
-              <div class="row">
-                <span class="ex-name">Alignments</span>
-                <span class="badge ok">story ok</span>
-              </div>
-              
-              
-              <pre><code>const Alignments = () =&gt; (
-  &lt;div className=&quot;flex flex-col gap-8&quot;&gt;
-    &lt;div className=&quot;flex gap-8&quot;&gt;
-      &lt;Tooltip&gt;
-        &lt;TooltipTrigger asChild&gt;
-          &lt;Button variant=&quot;secondary&quot; className=&quot;w-32&quot;&gt;
-            Start
-          &lt;/Button&gt;
-        &lt;/TooltipTrigger&gt;
-        &lt;TooltipContent side=&quot;bottom&quot; align=&quot;start&quot;&gt;
-          Aligned to start
-        &lt;/TooltipContent&gt;
-      &lt;/Tooltip&gt;
-
-      &lt;Tooltip&gt;
-        &lt;TooltipTrigger asChild&gt;
-          &lt;Button variant=&quot;secondary&quot; className=&quot;w-32&quot;&gt;
-            Center
-          &lt;/Button&gt;
-        &lt;/TooltipTrigger&gt;
-        &lt;TooltipContent side=&quot;bottom&quot; align=&quot;center&quot;&gt;
-          Aligned to center
-        &lt;/TooltipContent&gt;
-      &lt;/Tooltip&gt;
-
-      &lt;Tooltip&gt;
-        &lt;TooltipTrigger asChild&gt;
-          &lt;Button variant=&quot;secondary&quot; className=&quot;w-32&quot;&gt;
-            End
-          &lt;/Button&gt;
-        &lt;/TooltipTrigger&gt;
-        &lt;TooltipContent side=&quot;bottom&quot; align=&quot;end&quot;&gt;
-          Aligned to end
-        &lt;/TooltipContent&gt;
-      &lt;/Tooltip&gt;
-    &lt;/div&gt;
   &lt;/div&gt;
 );</code></pre>
             </div>

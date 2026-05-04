@@ -32,8 +32,6 @@ export {
   Tooltip,
   TooltipContent,
   type TooltipContentProps,
-  TooltipPortal,
-  type TooltipPortalProps,
   TooltipProvider,
   type TooltipProviderProps,
   TooltipTrigger,

@@ -31,13 +31,6 @@ const TooltipTrigger = forwardRef<
 })
 TooltipTrigger.displayName = TooltipPrimitive.Trigger.displayName
 
-/* ----- Portal ----- */
-
-export interface TooltipPortalProps
-  extends ComponentPropsWithoutRef<typeof TooltipPrimitive.Portal> {}
-
-const TooltipPortal = TooltipPrimitive.Portal
-
 /* ----- Content ----- */
 
 export interface TooltipContentProps
@@ -46,7 +39,7 @@ export interface TooltipContentProps
     'sideOffset' | 'alignOffset' | 'align'
   > {
   /** Portal container element */
-  container?: TooltipPortalProps['container']
+  container?: ComponentPropsWithoutRef<typeof TooltipPrimitive.Portal>['container']
 }
 
 const TooltipContent = forwardRef<
@@ -70,4 +63,4 @@ const TooltipContent = forwardRef<
 ))
 TooltipContent.displayName = TooltipPrimitive.Content.displayName
 
-export { Tooltip, TooltipContent, TooltipPortal, TooltipProvider, TooltipTrigger }
+export { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger }

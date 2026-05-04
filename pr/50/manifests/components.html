@@ -582,7 +582,7 @@
 <main>
   <div class="wrap">
     <div class="note ok" style="margin-bottom: 16px;">
-              Using <code>react-docgen-typescript</code>. Generation took <strong>3.1s</strong>.
+              Using <code>react-docgen-typescript</code>. Generation took <strong>3.0s</strong>.
             </div>
     <h2 class="section-title">Components</h2>
     <div class="grid" role="list">
@@ -2142,7 +2142,7 @@ export const Colors: Story = {
     <div class="title">
       <h2><span class="status-dot dot-ok"></span> Field</h2>
       <div class="badges">
-        <label for="c-4-components-lv1-field-props" class="badge ok as-toggle">10 prop types</label>
+        <label for="c-4-components-lv1-field-props" class="badge ok as-toggle">11 prop types</label>
         <label for="c-4-components-lv1-field-info" class="badge info as-toggle">1 info</label>
         <label for="c-4-components-lv1-field-stories" class="badge ok as-toggle">11 stories</label>
         
@@ -2176,7 +2176,7 @@ export const Colors: Story = {
           <div class="note ok">
             <div class="row">
               <span class="ex-name">Prop types <small>(react-docgen-typescript)</small></span>
-              <span class="badge ok">10 prop types</span>
+              <span class="badge ok">11 prop types</span>
             </div>
             <pre><code>Component: src/components/lv1/Field/Field.tsx::Field</code></pre>
             <pre><code>Props:</code></pre>
@@ -2206,9 +2206,19 @@ disabled?: boolean = false
 error?: string
 
 /**
+ * Flex basis for layout within FieldSet (CSS value)
+ */
+flexBasis?: string
+
+/**
  * Flex grow factor for layout within FieldSet
  */
-grow?: 0 | 1
+flexGrow?: 0 | 1
+
+/**
+ * Flex shrink factor for layout within FieldSet
+ */
+flexShrink?: 0 | 1
 
 /**
  * Explicitly set error state. If not provided, derived from error prop
@@ -2223,12 +2233,7 @@ label?: ReactNode
 /**
  * Show required indicator (*)
  */
-required?: boolean = false
-
-/**
- * Flex shrink factor for layout within FieldSet
- */
-shrink?: 0 | 1</code></pre>
+required?: boolean = false</code></pre>
           </div>
         </div>
     
@@ -2672,10 +2677,10 @@ wrap?: boolean = false</code></pre>
       &lt;Input placeholder=&quot;123 Main St&quot; /&gt;
     &lt;/Field&gt;
     &lt;FieldSet direction=&quot;row&quot; gap={4} legend=&quot;&quot;&gt;
-      &lt;Field label=&quot;City&quot; required grow={1}&gt;
+      &lt;Field label=&quot;City&quot; required flexGrow={1}&gt;
         &lt;Input placeholder=&quot;Tokyo&quot; /&gt;
       &lt;/Field&gt;
-      &lt;Field label=&quot;Postal Code&quot; required shrink={0}&gt;
+      &lt;Field label=&quot;Postal Code&quot; required flexShrink={0}&gt;
         &lt;Input placeholder=&quot;100-0001&quot; className=&quot;w-32&quot; /&gt;
       &lt;/Field&gt;
     &lt;/FieldSet&gt;
@@ -2882,10 +2887,10 @@ wrap?: boolean = false</code></pre>
               <pre><code>const LayoutVariants = () =&gt; (
   &lt;div className=&quot;flex flex-col gap-8&quot;&gt;
     &lt;FieldSet legend=&quot;Row Direction&quot; direction=&quot;row&quot; gap={4}&gt;
-      &lt;Field label=&quot;First&quot; grow={1}&gt;
+      &lt;Field label=&quot;First&quot; flexGrow={1}&gt;
         &lt;Input placeholder=&quot;Grows to fill&quot; /&gt;
       &lt;/Field&gt;
-      &lt;Field label=&quot;Second&quot; shrink={0}&gt;
+      &lt;Field label=&quot;Second&quot; flexShrink={0}&gt;
         &lt;Input placeholder=&quot;Fixed&quot; className=&quot;w-24&quot; /&gt;
       &lt;/Field&gt;
     &lt;/FieldSet&gt;

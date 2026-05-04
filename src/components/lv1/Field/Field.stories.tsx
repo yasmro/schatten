@@ -201,3 +201,47 @@ export const Required: Story = {
     </div>
   ),
 }
+
+export const LabelUsagePatterns: Story = {
+  name: 'Label Usage Patterns',
+  render: () => (
+    <div className="flex flex-col gap-8 w-96">
+      <div>
+        <h3 className="text-sm font-semibold text-foreground-muted mb-3">
+          Checkbox / Switch: Use Field.label only
+        </h3>
+        <div className="flex flex-col gap-4">
+          <Field label="Enable notifications" description="You will receive email updates.">
+            <Switch />
+          </Field>
+          <Field label="I agree to the terms" required>
+            <Checkbox />
+          </Field>
+        </div>
+      </div>
+
+      <div>
+        <h3 className="text-sm font-semibold text-foreground-muted mb-3">
+          RadioGroup: Field.label for group, Radio.label for options
+        </h3>
+        <Field label="Subscription plan" description="Choose your plan.">
+          <RadioGroup defaultValue="free">
+            <Radio value="free" label="Free - Basic features" />
+            <Radio value="pro" label="Pro - Advanced features" />
+            <Radio value="enterprise" label="Enterprise - Custom solutions" />
+          </RadioGroup>
+        </Field>
+      </div>
+
+      <div>
+        <h3 className="text-sm font-semibold text-foreground-muted mb-3">
+          Standalone (without Field): Use component label
+        </h3>
+        <div className="flex flex-col gap-2">
+          <Checkbox label="Remember me" />
+          <Switch label="Dark mode" />
+        </div>
+      </div>
+    </div>
+  ),
+}

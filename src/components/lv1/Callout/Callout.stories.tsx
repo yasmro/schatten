@@ -61,6 +61,18 @@ const meta: Meta<typeof Callout> = {
       description: 'Body content. Any ReactNode (text, links, lists).',
       control: 'text',
     },
+    action: {
+      description:
+        'Free-form action node rendered to the right of the body (e.g. a Button or link).',
+      table: { type: { summary: 'ReactNode' } },
+      control: false,
+    },
+    onClose: {
+      description:
+        'When provided, a close (X) button is rendered and invokes this callback on click. Omit to render a non-dismissible callout.',
+      table: { type: { summary: '() => void' } },
+      control: false,
+    },
   },
 }
 

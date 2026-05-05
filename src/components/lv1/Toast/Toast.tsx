@@ -19,6 +19,15 @@ export function ToastItem({ toast }: ToastItemProps) {
     if (!open) dismiss(toast.id)
   }
 
+  // Action takes the slot when present; close is suppressed in that case so
+  // we never render two buttons. Action click also dismisses, so the toast
+  // is still removable.
+  const hasAction = !!toast.action
+  const handleActionClick = () => {
+    toast.action?.onClick()
+    dismiss(toast.id)
+  }
+
   return (
     <ToastPrimitive.Root
       open={toast.open}
@@ -26,7 +35,7 @@ export function ToastItem({ toast }: ToastItemProps) {
       duration={toast.duration}
       className={cn(toastVariants({ variant: toast.variant, treatment: toast.treatment }))}
     >
-      <div className="flex flex-1 flex-col gap-1">
+      <div className={cn('flex flex-col gap-1', hasAction ? 'pr-20' : 'pr-10')}>
         {toast.title && (
           <ToastPrimitive.Title className="text-sm font-semibold leading-tight">
             {toast.title}
@@ -39,23 +48,25 @@ export function ToastItem({ toast }: ToastItemProps) {
         )}
       </div>
 
-      {toast.action && (
-        <ToastPrimitive.Action
-          asChild
-          altText={
-            toast.action.altText ??
-            (typeof toast.action.label === 'string' ? toast.action.label : 'Action')
-          }
-        >
-          <Button variant="tertiary" size="sm" onClick={toast.action.onClick}>
-            {toast.action.label}
-          </Button>
-        </ToastPrimitive.Action>
-      )}
-
-      <ToastPrimitive.Close asChild>
-        <Button variant="tertiary" size="sm" icon="X" aria-label="Close" className="shrink-0" />
-      </ToastPrimitive.Close>
+      <div className="absolute top-2 right-2">
+        {hasAction && toast.action ? (
+          <ToastPrimitive.Action
+            asChild
+            altText={
+              toast.action.altText ??
+              (typeof toast.action.label === 'string' ? toast.action.label : 'Action')
+            }
+          >
+            <Button variant="tertiary" size="sm" onClick={handleActionClick}>
+              {toast.action.label}
+            </Button>
+          </ToastPrimitive.Action>
+        ) : (
+          <ToastPrimitive.Close asChild>
+            <Button variant="tertiary" size="sm" icon="X" aria-label="Close" />
+          </ToastPrimitive.Close>
+        )}
+      </div>
     </ToastPrimitive.Root>
   )
 }

@@ -2,7 +2,7 @@ import { cva, type VariantProps } from 'class-variance-authority'
 
 export const toastVariants = cva(
   [
-    'toast-item group pointer-events-auto relative flex w-full items-center gap-3 overflow-hidden rounded-lg border p-4 shadow-md',
+    'toast-item group pointer-events-auto relative w-full overflow-hidden rounded-lg border p-4 shadow-md',
     'data-[swipe=move]:transition-none',
     'data-[swipe=cancel]:translate-x-0 data-[swipe=cancel]:translate-y-0 data-[swipe=cancel]:transition-[transform_200ms_ease-out]',
   ].join(' '),

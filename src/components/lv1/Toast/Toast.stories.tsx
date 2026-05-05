@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { useEffect } from 'react'
+import { Fragment, useEffect } from 'react'
 import { Button } from '../Button'
 import { Toaster } from './Toaster'
 import { __resetToastStoreForTesting, toast } from './use-toast'
@@ -84,51 +84,127 @@ const meta: Meta<typeof Toaster> = {
 export default meta
 type Story = StoryObj<typeof Toaster>
 
+const VARIANTS = ['default', 'success', 'error', 'warning', 'info'] as const
+const TREATMENTS = ['subtle', 'solid'] as const
+
+const sampleByVariant: Record<(typeof VARIANTS)[number], { title: string; description: string }> = {
+  default: { title: 'Heads up', description: 'A neutral notification.' },
+  success: { title: 'Saved', description: 'Your changes have been saved.' },
+  error: { title: 'Error', description: 'Could not save your changes.' },
+  warning: { title: 'Warning', description: 'Disk space is running low.' },
+  info: { title: 'Update available', description: 'A new version is ready to install.' },
+}
+
 const Playground = (args: { position?: Parameters<typeof Toaster>[0]['position'] }) => (
-  <div className="min-h-screen p-8 flex flex-col gap-3 items-start">
-    <p className="text-sm text-foreground-muted">
-      Click any button below to fire a toast. The toaster mount lives at the bottom of this story.
-    </p>
-    <div className="flex flex-wrap gap-2">
-      <Button onClick={() => toast({ title: 'Default toast', description: 'A neutral message.' })}>
-        Default
-      </Button>
-      <Button
-        variant="secondary"
-        onClick={() =>
-          toast({ title: 'Saved', description: 'Your changes are saved.', variant: 'success' })
-        }
-      >
-        Success
-      </Button>
-      <Button
-        variant="destructive"
-        onClick={() =>
-          toast({ title: 'Error', description: 'Could not connect.', variant: 'error' })
-        }
-      >
-        Error
-      </Button>
-      <Button
-        variant="secondary"
-        onClick={() => toast({ title: 'Disk almost full', variant: 'warning', treatment: 'solid' })}
-      >
-        Warning (solid)
-      </Button>
-      <Button
-        variant="secondary"
-        onClick={() =>
-          toast({
-            title: 'Update available',
-            description: 'A new version is ready.',
-            variant: 'info',
-            action: { label: 'Reload', onClick: () => alert('reload') },
-          })
-        }
-      >
-        Info + action
-      </Button>
+  <div className="min-h-screen p-8 flex flex-col gap-6 items-start">
+    <div>
+      <h2 className="text-base font-semibold mb-1">Toast Playground</h2>
+      <p className="text-sm text-foreground-muted">
+        Use the matrix below to fire any variant × treatment combination, and the second row to try
+        toasts with an action. Switch the position via Controls. The <code>{'<Toaster />'}</code> is
+        mounted at the bottom of this story.
+      </p>
     </div>
+
+    <div>
+      <h3 className="text-sm font-semibold mb-2">Variant × Treatment</h3>
+      <div className="grid grid-cols-[auto_repeat(2,minmax(0,1fr))] gap-2 items-center">
+        <span className="text-xs font-mono text-foreground-muted" />
+        {TREATMENTS.map((t) => (
+          <span key={t} className="text-xs font-mono text-foreground-muted text-center">
+            {t}
+          </span>
+        ))}
+        {VARIANTS.map((variant) => (
+          <Fragment key={variant}>
+            <span className="text-xs font-mono text-foreground-muted">{variant}</span>
+            {TREATMENTS.map((treatment) => (
+              <Button
+                key={`${variant}-${treatment}`}
+                variant="secondary"
+                size="sm"
+                onClick={() =>
+                  toast({
+                    ...sampleByVariant[variant],
+                    variant,
+                    treatment,
+                  })
+                }
+              >
+                Fire
+              </Button>
+            ))}
+          </Fragment>
+        ))}
+      </div>
+    </div>
+
+    <div>
+      <h3 className="text-sm font-semibold mb-2">With Action (auto-dismisses on click)</h3>
+      <div className="grid grid-cols-[auto_repeat(2,minmax(0,1fr))] gap-2 items-center">
+        <span className="text-xs font-mono text-foreground-muted" />
+        {TREATMENTS.map((t) => (
+          <span key={t} className="text-xs font-mono text-foreground-muted text-center">
+            {t}
+          </span>
+        ))}
+        {VARIANTS.map((variant) => (
+          <Fragment key={`action-${variant}`}>
+            <span className="text-xs font-mono text-foreground-muted">{variant}</span>
+            {TREATMENTS.map((treatment) => (
+              <Button
+                key={`action-${variant}-${treatment}`}
+                variant="secondary"
+                size="sm"
+                onClick={() =>
+                  toast({
+                    ...sampleByVariant[variant],
+                    variant,
+                    treatment,
+                    action: {
+                      label: 'Undo',
+                      onClick: () => {
+                        // user-supplied callback
+                      },
+                    },
+                  })
+                }
+              >
+                Fire + action
+              </Button>
+            ))}
+          </Fragment>
+        ))}
+      </div>
+    </div>
+
+    <div>
+      <h3 className="text-sm font-semibold mb-2">Other</h3>
+      <div className="flex flex-wrap gap-2">
+        <Button
+          variant="secondary"
+          size="sm"
+          onClick={() => toast({ title: 'Title only', variant: 'success' })}
+        >
+          Title only
+        </Button>
+        <Button
+          variant="secondary"
+          size="sm"
+          onClick={() =>
+            toast({
+              title: 'Long content example',
+              description:
+                'This toast has a longer description to verify how the layout handles wrapping text alongside the floating top-right button.',
+              variant: 'warning',
+            })
+          }
+        >
+          Long content
+        </Button>
+      </div>
+    </div>
+
     <Toaster position={args.position} />
   </div>
 )

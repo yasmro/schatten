@@ -1,13 +1,17 @@
+import { Info } from 'lucide-react'
 import { type ReactNode, useId, useMemo } from 'react'
 import { FieldContext, type FieldContextValue } from '../../../contexts/field'
 import { useFieldSetContext } from '../../../contexts/fieldset'
 import { cn } from '../../../lib/utils'
+import { Tooltip, TooltipContent, TooltipTrigger } from '../Tooltip/Tooltip'
 
 export interface FieldProps {
   /** Label text for the field */
   label?: ReactNode
   /** Description text displayed above the input */
   description?: ReactNode
+  /** Tooltip content displayed on hover of info icon next to label */
+  tooltip?: ReactNode
   /** Error message to display */
   error?: string
   /** Explicitly set error state. If not provided, derived from error prop */
@@ -34,6 +38,7 @@ const flexShrinkClasses = { 0: 'shrink-0', 1: 'shrink' } as const
 export function Field({
   label,
   description,
+  tooltip,
   error,
   isError: isErrorProp,
   required = false,
@@ -76,10 +81,23 @@ export function Field({
         data-disabled={disabled || undefined}
       >
         {label && (
-          <label htmlFor={id} className="text-base font-bold text-foreground">
-            {label}
-            {required && <span className="text-destructive ml-0.5">*</span>}
-          </label>
+          <div className="flex items-center gap-1">
+            <label htmlFor={id} className="text-base font-bold text-foreground">
+              {label}
+              {required && <span className="text-destructive ml-0.5">*</span>}
+            </label>
+            {tooltip && (
+              <Tooltip>
+                <TooltipTrigger>
+                  <Info
+                    className="size-4 text-foreground-muted cursor-help"
+                    aria-label="More information"
+                  />
+                </TooltipTrigger>
+                <TooltipContent>{tooltip}</TooltipContent>
+              </Tooltip>
+            )}
+          </div>
         )}
         {description && (
           <label

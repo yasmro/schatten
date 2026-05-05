@@ -1,5 +1,11 @@
 export { Badge, type BadgeProps } from './Badge'
 export { Button, type ButtonProps } from './Button'
+export {
+  Callout,
+  type CalloutProps,
+  type CalloutTreatment,
+  type CalloutVariant,
+} from './Callout'
 export { Checkbox, type CheckboxProps } from './Checkbox'
 export { Field, type FieldContextValue, type FieldProps, useFieldContext } from './Field'
 export {

@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite'
 import { CircleCheck } from 'lucide-react'
 import { Badge } from '../components/lv1/Badge'
 import { Button } from '../components/lv1/Button'
+import { Callout } from '../components/lv1/Callout'
 import { Checkbox } from '../components/lv1/Checkbox'
 import { Field } from '../components/lv1/Field'
 import { FieldSet } from '../components/lv1/FieldSet'
@@ -198,6 +199,18 @@ export const Overview: Story = {
               >
                 ×
               </span>
+            </div>
+          </ComponentCard>
+
+          <ComponentCard
+            name="Callout"
+            description="Inline contextual notices."
+            storyPath="components-lv1-callout"
+          >
+            <div className="w-48 scale-90">
+              <Callout variant="info" title="Heads up">
+                A beta feature.
+              </Callout>
             </div>
           </ComponentCard>
         </div>

@@ -1489,6 +1489,58 @@ export const Colors: Story = {
         /&gt;
       &lt;/div&gt;
 
+      &lt;SubsectionTitle&gt;Filled Treatments (a11y audit)&lt;/SubsectionTitle&gt;
+      &lt;p className=&quot;text-sm text-foreground-muted mb-3&quot;&gt;
+        Each row shows a state&#39;s &lt;code&gt;bg-X&lt;/code&gt; with &lt;code&gt;text-X-foreground&lt;/code&gt; applied — the
+        canonical &quot;filled&quot; treatment used by Toast / Alert / Button. Toggle Storybook between light
+        and dark themes to verify text remains readable in both modes.
+      &lt;/p&gt;
+      &lt;div className=&quot;flex flex-col gap-2&quot;&gt;
+        {(
+          [
+            { name: &#39;destructive&#39;, bg: &#39;bg-destructive&#39;, fg: &#39;text-destructive-foreground&#39; },
+            { name: &#39;error&#39;, bg: &#39;bg-error&#39;, fg: &#39;text-error-foreground&#39; },
+            { name: &#39;success&#39;, bg: &#39;bg-success&#39;, fg: &#39;text-success-foreground&#39; },
+            { name: &#39;warning&#39;, bg: &#39;bg-warning&#39;, fg: &#39;text-warning-foreground&#39; },
+            { name: &#39;info&#39;, bg: &#39;bg-info&#39;, fg: &#39;text-info-foreground&#39; },
+          ] as const
+        ).map((s) =&gt; (
+          &lt;div
+            key={s.name}
+            className={`flex items-center gap-3 rounded-lg px-4 py-3 ${s.bg} ${s.fg}`}
+          &gt;
+            &lt;span className=&quot;font-mono text-xs opacity-70&quot;&gt;{s.name}&lt;/span&gt;
+            &lt;span className=&quot;text-sm font-medium&quot;&gt;The quick brown fox jumps over the lazy dog&lt;/span&gt;
+          &lt;/div&gt;
+        ))}
+      &lt;/div&gt;
+
+      &lt;SubsectionTitle&gt;Subtle Treatments (a11y audit)&lt;/SubsectionTitle&gt;
+      &lt;p className=&quot;text-sm text-foreground-muted mb-3&quot;&gt;
+        Each row shows a state&#39;s &lt;code&gt;bg-X-subtle&lt;/code&gt; with &lt;code&gt;text-X&lt;/code&gt; applied — the
+        &quot;soft&quot; treatment used by Input error background. Verify text remains readable in both
+        themes.
+      &lt;/p&gt;
+      &lt;div className=&quot;flex flex-col gap-2&quot;&gt;
+        {(
+          [
+            { name: &#39;destructive&#39;, bg: &#39;bg-destructive-subtle&#39;, fg: &#39;text-destructive&#39; },
+            { name: &#39;error&#39;, bg: &#39;bg-error-subtle&#39;, fg: &#39;text-error&#39; },
+            { name: &#39;success&#39;, bg: &#39;bg-success-subtle&#39;, fg: &#39;text-success&#39; },
+            { name: &#39;warning&#39;, bg: &#39;bg-warning-subtle&#39;, fg: &#39;text-warning&#39; },
+            { name: &#39;info&#39;, bg: &#39;bg-info-subtle&#39;, fg: &#39;text-info&#39; },
+          ] as const
+        ).map((s) =&gt; (
+          &lt;div
+            key={s.name}
+            className={`flex items-center gap-3 rounded-lg border border-border px-4 py-3 ${s.bg} ${s.fg}`}
+          &gt;
+            &lt;span className=&quot;font-mono text-xs opacity-70&quot;&gt;{s.name}&lt;/span&gt;
+            &lt;span className=&quot;text-sm font-medium&quot;&gt;The quick brown fox jumps over the lazy dog&lt;/span&gt;
+          &lt;/div&gt;
+        ))}
+      &lt;/div&gt;
+
       &lt;SectionTitle&gt;Primitive Palette&lt;/SectionTitle&gt;
       &lt;p className=&quot;text-sm text-foreground-muted mb-3&quot;&gt;
         Core brand colors inspired by Japanese calligraphy. These are fixed values that do not
@@ -1982,6 +2034,58 @@ export const Colors: Story = {
         description=&quot;Subtle background for info states&quot;
         className=&quot;bg-info-subtle border border-border&quot;
       /&gt;
+    &lt;/div&gt;
+
+    &lt;SubsectionTitle&gt;Filled Treatments (a11y audit)&lt;/SubsectionTitle&gt;
+    &lt;p className=&quot;text-sm text-foreground-muted mb-3&quot;&gt;
+      Each row shows a state&#39;s &lt;code&gt;bg-X&lt;/code&gt; with &lt;code&gt;text-X-foreground&lt;/code&gt; applied — the
+      canonical &quot;filled&quot; treatment used by Toast / Alert / Button. Toggle Storybook between light
+      and dark themes to verify text remains readable in both modes.
+    &lt;/p&gt;
+    &lt;div className=&quot;flex flex-col gap-2&quot;&gt;
+      {(
+        [
+          { name: &#39;destructive&#39;, bg: &#39;bg-destructive&#39;, fg: &#39;text-destructive-foreground&#39; },
+          { name: &#39;error&#39;, bg: &#39;bg-error&#39;, fg: &#39;text-error-foreground&#39; },
+          { name: &#39;success&#39;, bg: &#39;bg-success&#39;, fg: &#39;text-success-foreground&#39; },
+          { name: &#39;warning&#39;, bg: &#39;bg-warning&#39;, fg: &#39;text-warning-foreground&#39; },
+          { name: &#39;info&#39;, bg: &#39;bg-info&#39;, fg: &#39;text-info-foreground&#39; },
+        ] as const
+      ).map((s) =&gt; (
+        &lt;div
+          key={s.name}
+          className={`flex items-center gap-3 rounded-lg px-4 py-3 ${s.bg} ${s.fg}`}
+        &gt;
+          &lt;span className=&quot;font-mono text-xs opacity-70&quot;&gt;{s.name}&lt;/span&gt;
+          &lt;span className=&quot;text-sm font-medium&quot;&gt;The quick brown fox jumps over the lazy dog&lt;/span&gt;
+        &lt;/div&gt;
+      ))}
+    &lt;/div&gt;
+
+    &lt;SubsectionTitle&gt;Subtle Treatments (a11y audit)&lt;/SubsectionTitle&gt;
+    &lt;p className=&quot;text-sm text-foreground-muted mb-3&quot;&gt;
+      Each row shows a state&#39;s &lt;code&gt;bg-X-subtle&lt;/code&gt; with &lt;code&gt;text-X&lt;/code&gt; applied — the
+      &quot;soft&quot; treatment used by Input error background. Verify text remains readable in both
+      themes.
+    &lt;/p&gt;
+    &lt;div className=&quot;flex flex-col gap-2&quot;&gt;
+      {(
+        [
+          { name: &#39;destructive&#39;, bg: &#39;bg-destructive-subtle&#39;, fg: &#39;text-destructive&#39; },
+          { name: &#39;error&#39;, bg: &#39;bg-error-subtle&#39;, fg: &#39;text-error&#39; },
+          { name: &#39;success&#39;, bg: &#39;bg-success-subtle&#39;, fg: &#39;text-success&#39; },
+          { name: &#39;warning&#39;, bg: &#39;bg-warning-subtle&#39;, fg: &#39;text-warning&#39; },
+          { name: &#39;info&#39;, bg: &#39;bg-info-subtle&#39;, fg: &#39;text-info&#39; },
+        ] as const
+      ).map((s) =&gt; (
+        &lt;div
+          key={s.name}
+          className={`flex items-center gap-3 rounded-lg border border-border px-4 py-3 ${s.bg} ${s.fg}`}
+        &gt;
+          &lt;span className=&quot;font-mono text-xs opacity-70&quot;&gt;{s.name}&lt;/span&gt;
+          &lt;span className=&quot;text-sm font-medium&quot;&gt;The quick brown fox jumps over the lazy dog&lt;/span&gt;
+        &lt;/div&gt;
+      ))}
     &lt;/div&gt;
 
     &lt;SectionTitle&gt;Primitive Palette&lt;/SectionTitle&gt;
@@ -6454,6 +6558,58 @@ export const Colors: Story = {
         /&gt;
       &lt;/div&gt;
 
+      &lt;SubsectionTitle&gt;Filled Treatments (a11y audit)&lt;/SubsectionTitle&gt;
+      &lt;p className=&quot;text-sm text-foreground-muted mb-3&quot;&gt;
+        Each row shows a state&#39;s &lt;code&gt;bg-X&lt;/code&gt; with &lt;code&gt;text-X-foreground&lt;/code&gt; applied — the
+        canonical &quot;filled&quot; treatment used by Toast / Alert / Button. Toggle Storybook between light
+        and dark themes to verify text remains readable in both modes.
+      &lt;/p&gt;
+      &lt;div className=&quot;flex flex-col gap-2&quot;&gt;
+        {(
+          [
+            { name: &#39;destructive&#39;, bg: &#39;bg-destructive&#39;, fg: &#39;text-destructive-foreground&#39; },
+            { name: &#39;error&#39;, bg: &#39;bg-error&#39;, fg: &#39;text-error-foreground&#39; },
+            { name: &#39;success&#39;, bg: &#39;bg-success&#39;, fg: &#39;text-success-foreground&#39; },
+            { name: &#39;warning&#39;, bg: &#39;bg-warning&#39;, fg: &#39;text-warning-foreground&#39; },
+            { name: &#39;info&#39;, bg: &#39;bg-info&#39;, fg: &#39;text-info-foreground&#39; },
+          ] as const
+        ).map((s) =&gt; (
+          &lt;div
+            key={s.name}
+            className={`flex items-center gap-3 rounded-lg px-4 py-3 ${s.bg} ${s.fg}`}
+          &gt;
+            &lt;span className=&quot;font-mono text-xs opacity-70&quot;&gt;{s.name}&lt;/span&gt;
+            &lt;span className=&quot;text-sm font-medium&quot;&gt;The quick brown fox jumps over the lazy dog&lt;/span&gt;
+          &lt;/div&gt;
+        ))}
+      &lt;/div&gt;
+
+      &lt;SubsectionTitle&gt;Subtle Treatments (a11y audit)&lt;/SubsectionTitle&gt;
+      &lt;p className=&quot;text-sm text-foreground-muted mb-3&quot;&gt;
+        Each row shows a state&#39;s &lt;code&gt;bg-X-subtle&lt;/code&gt; with &lt;code&gt;text-X&lt;/code&gt; applied — the
+        &quot;soft&quot; treatment used by Input error background. Verify text remains readable in both
+        themes.
+      &lt;/p&gt;
+      &lt;div className=&quot;flex flex-col gap-2&quot;&gt;
+        {(
+          [
+            { name: &#39;destructive&#39;, bg: &#39;bg-destructive-subtle&#39;, fg: &#39;text-destructive&#39; },
+            { name: &#39;error&#39;, bg: &#39;bg-error-subtle&#39;, fg: &#39;text-error&#39; },
+            { name: &#39;success&#39;, bg: &#39;bg-success-subtle&#39;, fg: &#39;text-success&#39; },
+            { name: &#39;warning&#39;, bg: &#39;bg-warning-subtle&#39;, fg: &#39;text-warning&#39; },
+            { name: &#39;info&#39;, bg: &#39;bg-info-subtle&#39;, fg: &#39;text-info&#39; },
+          ] as const
+        ).map((s) =&gt; (
+          &lt;div
+            key={s.name}
+            className={`flex items-center gap-3 rounded-lg border border-border px-4 py-3 ${s.bg} ${s.fg}`}
+          &gt;
+            &lt;span className=&quot;font-mono text-xs opacity-70&quot;&gt;{s.name}&lt;/span&gt;
+            &lt;span className=&quot;text-sm font-medium&quot;&gt;The quick brown fox jumps over the lazy dog&lt;/span&gt;
+          &lt;/div&gt;
+        ))}
+      &lt;/div&gt;
+
       &lt;SectionTitle&gt;Primitive Palette&lt;/SectionTitle&gt;
       &lt;p className=&quot;text-sm text-foreground-muted mb-3&quot;&gt;
         Core brand colors inspired by Japanese calligraphy. These are fixed values that do not
@@ -6947,6 +7103,58 @@ export const Colors: Story = {
         description=&quot;Subtle background for info states&quot;
         className=&quot;bg-info-subtle border border-border&quot;
       /&gt;
+    &lt;/div&gt;
+
+    &lt;SubsectionTitle&gt;Filled Treatments (a11y audit)&lt;/SubsectionTitle&gt;
+    &lt;p className=&quot;text-sm text-foreground-muted mb-3&quot;&gt;
+      Each row shows a state&#39;s &lt;code&gt;bg-X&lt;/code&gt; with &lt;code&gt;text-X-foreground&lt;/code&gt; applied — the
+      canonical &quot;filled&quot; treatment used by Toast / Alert / Button. Toggle Storybook between light
+      and dark themes to verify text remains readable in both modes.
+    &lt;/p&gt;
+    &lt;div className=&quot;flex flex-col gap-2&quot;&gt;
+      {(
+        [
+          { name: &#39;destructive&#39;, bg: &#39;bg-destructive&#39;, fg: &#39;text-destructive-foreground&#39; },
+          { name: &#39;error&#39;, bg: &#39;bg-error&#39;, fg: &#39;text-error-foreground&#39; },
+          { name: &#39;success&#39;, bg: &#39;bg-success&#39;, fg: &#39;text-success-foreground&#39; },
+          { name: &#39;warning&#39;, bg: &#39;bg-warning&#39;, fg: &#39;text-warning-foreground&#39; },
+          { name: &#39;info&#39;, bg: &#39;bg-info&#39;, fg: &#39;text-info-foreground&#39; },
+        ] as const
+      ).map((s) =&gt; (
+        &lt;div
+          key={s.name}
+          className={`flex items-center gap-3 rounded-lg px-4 py-3 ${s.bg} ${s.fg}`}
+        &gt;
+          &lt;span className=&quot;font-mono text-xs opacity-70&quot;&gt;{s.name}&lt;/span&gt;
+          &lt;span className=&quot;text-sm font-medium&quot;&gt;The quick brown fox jumps over the lazy dog&lt;/span&gt;
+        &lt;/div&gt;
+      ))}
+    &lt;/div&gt;
+
+    &lt;SubsectionTitle&gt;Subtle Treatments (a11y audit)&lt;/SubsectionTitle&gt;
+    &lt;p className=&quot;text-sm text-foreground-muted mb-3&quot;&gt;
+      Each row shows a state&#39;s &lt;code&gt;bg-X-subtle&lt;/code&gt; with &lt;code&gt;text-X&lt;/code&gt; applied — the
+      &quot;soft&quot; treatment used by Input error background. Verify text remains readable in both
+      themes.
+    &lt;/p&gt;
+    &lt;div className=&quot;flex flex-col gap-2&quot;&gt;
+      {(
+        [
+          { name: &#39;destructive&#39;, bg: &#39;bg-destructive-subtle&#39;, fg: &#39;text-destructive&#39; },
+          { name: &#39;error&#39;, bg: &#39;bg-error-subtle&#39;, fg: &#39;text-error&#39; },
+          { name: &#39;success&#39;, bg: &#39;bg-success-subtle&#39;, fg: &#39;text-success&#39; },
+          { name: &#39;warning&#39;, bg: &#39;bg-warning-subtle&#39;, fg: &#39;text-warning&#39; },
+          { name: &#39;info&#39;, bg: &#39;bg-info-subtle&#39;, fg: &#39;text-info&#39; },
+        ] as const
+      ).map((s) =&gt; (
+        &lt;div
+          key={s.name}
+          className={`flex items-center gap-3 rounded-lg border border-border px-4 py-3 ${s.bg} ${s.fg}`}
+        &gt;
+          &lt;span className=&quot;font-mono text-xs opacity-70&quot;&gt;{s.name}&lt;/span&gt;
+          &lt;span className=&quot;text-sm font-medium&quot;&gt;The quick brown fox jumps over the lazy dog&lt;/span&gt;
+        &lt;/div&gt;
+      ))}
     &lt;/div&gt;
 
     &lt;SectionTitle&gt;Primitive Palette&lt;/SectionTitle&gt;

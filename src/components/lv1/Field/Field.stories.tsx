@@ -5,6 +5,7 @@ import { Radio, RadioGroup } from '../Radio/Radio'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../Select/Select'
 import { Switch } from '../Switch/Switch'
 import { Textarea } from '../Textarea/Textarea'
+import { TooltipProvider } from '../Tooltip/Tooltip'
 import { Field } from './Field'
 
 const meta: Meta<typeof Field> = {
@@ -14,6 +15,13 @@ const meta: Meta<typeof Field> = {
     layout: 'centered',
   },
   tags: ['autodocs'],
+  decorators: [
+    (Story) => (
+      <TooltipProvider delayDuration={100}>
+        <Story />
+      </TooltipProvider>
+    ),
+  ],
   argTypes: {
     label: {
       description: 'Label text for the field.',
@@ -24,6 +32,13 @@ const meta: Meta<typeof Field> = {
     },
     description: {
       description: 'Description text displayed above the input.',
+      control: 'text',
+      table: {
+        type: { summary: 'ReactNode' },
+      },
+    },
+    tooltip: {
+      description: 'Tooltip content displayed on hover of info icon next to label.',
       control: 'text',
       table: {
         type: { summary: 'ReactNode' },
@@ -182,6 +197,25 @@ export const WithRadioGroup: Story = {
           <Radio value="pro" label="Pro" />
           <Radio value="enterprise" label="Enterprise" />
         </RadioGroup>
+      </Field>
+    </div>
+  ),
+}
+
+export const WithTooltip: Story = {
+  name: 'With Tooltip',
+  render: () => (
+    <div className="flex flex-col gap-6 w-80">
+      <Field label="Email" tooltip="Used for account recovery and important notifications.">
+        <Input type="email" placeholder="you@example.com" />
+      </Field>
+      <Field
+        label="Password"
+        description="Must be at least 8 characters."
+        tooltip="Use a mix of letters, numbers, and symbols for better security."
+        required
+      >
+        <Input type="password" placeholder="Enter password" />
       </Field>
     </div>
   ),

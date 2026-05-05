@@ -576,13 +576,13 @@
 <header>
   <div class="wrap">
     <h1>Manifest Debugger</h1>
-    <div class="summary"><a class="filter-pill all" data-k="all" href="#filter-all">All</a><a class="filter-pill err" data-k="errors" href="#filter-errors">3/18 prop type errors</a><a class="filter-pill info" data-k="infos" href="#filter-infos">16/18 infos</a><span class="filter-pill ok" aria-disabled="true">110 stories ok</span></div>
+    <div class="summary"><a class="filter-pill all" data-k="all" href="#filter-all">All</a><a class="filter-pill err" data-k="errors" href="#filter-errors">3/18 prop type errors</a><a class="filter-pill info" data-k="infos" href="#filter-infos">16/18 infos</a><span class="filter-pill ok" aria-disabled="true">111 stories ok</span></div>
   </div>
 </header>
 <main>
   <div class="wrap">
     <div class="note ok" style="margin-bottom: 16px;">
-              Using <code>react-docgen-typescript</code>. Generation took <strong>3.1s</strong>.
+              Using <code>react-docgen-typescript</code>. Generation took <strong>3.2s</strong>.
             </div>
     <h2 class="section-title">Components</h2>
     <div class="grid" role="list">
@@ -1021,15 +1021,15 @@ variant?: &quot;primary&quot; | &quot;secondary&quot; | &quot;destructive&quot; 
     <div class="title">
       <h2><span class="status-dot dot-ok"></span> Callout</h2>
       <div class="badges">
-        <label for="c-2-components-lv1-callout-props" class="badge ok as-toggle">5 prop types</label>
+        <label for="c-2-components-lv1-callout-props" class="badge ok as-toggle">6 prop types</label>
         
-        <label for="c-2-components-lv1-callout-stories" class="badge ok as-toggle">9 stories</label>
+        <label for="c-2-components-lv1-callout-stories" class="badge ok as-toggle">10 stories</label>
         
       </div>
     </div>
     <div class="meta" title="./src/components/lv1/Callout/Callout.stories.tsx">components-lv1-callout · ./src/components/lv1/Callout/Callout.stories.tsx</div>
     
-    <div class="hint">Callout displays inline contextual information — beta notices, form warnings, page-level announcements. It mirrors {@link Toast}&#39;s five variants and two treatments so the visual language is shared, but lives in normal layout flow rather than overlaying the viewport. ## Action The `action` prop accepts any ReactNode, so you can drop in a Button, a link, or a more complex affordance. Unlike Toast (where action is a `{label, onClick}` shape), Callouts often persist on screen and may need richer UI. ## Dismissibility Pass `onClose` to render a close (X) button. Omit it for a static, non-dismissible callout. State management for the closed-or-not flag lives with the consumer. ## a11y No `role` is set by default. For dynamic callouts that should be announced when they appear, pass `role=&quot;status&quot;` (polite) or `role=&quot;alert&quot;` (assertive). Static informational callouts do not require a role.</div>
+    <div class="hint">Callout displays inline contextual information — beta notices, form warnings, page-level announcements. It mirrors `Toast`&#39;s five variants and two treatments so the visual language is shared, but lives in normal layout flow rather than overlaying the viewport. ## Body content Pass body content either as `children` (rich JSX) or as the `description` prop (plain text — matches Toast&#39;s API). If both are provided, `description` wins. ## Action The `action` prop accepts any ReactNode, so you can drop in a Button, a link, or a more complex affordance. Unlike Toast (where action is a `{label, onClick}` shape), Callouts often persist on screen and may need richer UI. **On `treatment=&quot;solid&quot;`, prefer `&lt;Button variant=&quot;inverted&quot;&gt;`** for action buttons so they remain legible on the saturated fill — see the &quot;Solid With Action&quot; story below. ## Dismissibility Pass `onClose` to render a close (X) button. Omit it for a static, non-dismissible callout. State management for the closed-or-not flag lives with the consumer. ## a11y No `role` is set by default. For dynamic callouts that should be announced when they appear, pass `role=&quot;status&quot;` (polite) or `role=&quot;alert&quot;` (assertive). Static informational callouts do not require a role.</div>
     
   </div>
 
@@ -1048,7 +1048,7 @@ variant?: &quot;primary&quot; | &quot;secondary&quot; | &quot;destructive&quot; 
           <div class="note ok">
             <div class="row">
               <span class="ex-name">Prop types <small>(react-docgen-typescript)</small></span>
-              <span class="badge ok">5 prop types</span>
+              <span class="badge ok">6 prop types</span>
             </div>
             <pre><code>Component: src/components/lv1/Callout/Callout.tsx::Callout</code></pre>
             <pre><code>Props:</code></pre>
@@ -1057,8 +1057,24 @@ variant?: &quot;primary&quot; | &quot;secondary&quot; | &quot;destructive&quot; 
  * or link). Use a ReactNode rather than a `{label, onClick}` object so
  * complex action UIs are possible — Callouts often persist on screen and
  * may need richer affordances than Toast actions.
+ * 
+ * Tip: when `treatment=&quot;solid&quot;`, prefer `&lt;Button variant=&quot;inverted&quot;&gt;`
+ * for action buttons so they remain legible against the saturated
+ * background.
  */
 action?: ReactNode
+
+/**
+ * Body content. Use this prop form when the body is plain text — it
+ * matches `Toast`&#39;s API shape, so callsites that already build
+ * `{ title, description }` objects (e.g. for shared notification
+ * factories) can hand them straight to Callout. For rich JSX content
+ * pass via `children` instead.
+ * 
+ * If both `description` and `children` are provided, `description`
+ * wins.
+ */
+description?: ReactNode
 
 /**
  * When provided, a close (X) button is rendered at the top-right and
@@ -1189,6 +1205,42 @@ variant?: &quot;default&quot; | &quot;success&quot; | &quot;error&quot; | &quot;
       title=&quot;Update available&quot;
       action={
         &lt;Button size=&quot;sm&quot; variant=&quot;secondary&quot;&gt;
+          Reload
+        &lt;/Button&gt;
+      }
+    &gt;
+      A newer version of this app is ready.
+    &lt;/Callout&gt;
+  &lt;/div&gt;
+);</code></pre>
+            </div>
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">Solid With Action</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const SolidWithAction = () =&gt; (
+  &lt;div className=&quot;flex flex-col gap-3 max-w-xl&quot;&gt;
+    &lt;Callout
+      variant=&quot;warning&quot;
+      treatment=&quot;solid&quot;
+      title=&quot;Unsaved changes&quot;
+      action={
+        &lt;Button variant=&quot;inverted&quot; size=&quot;sm&quot;&gt;
+          Save now
+        &lt;/Button&gt;
+      }
+    &gt;
+      Your changes will be lost if you leave this page.
+    &lt;/Callout&gt;
+    &lt;Callout
+      variant=&quot;info&quot;
+      treatment=&quot;solid&quot;
+      title=&quot;Update available&quot;
+      action={
+        &lt;Button variant=&quot;inverted&quot; size=&quot;sm&quot;&gt;
           Reload
         &lt;/Button&gt;
       }

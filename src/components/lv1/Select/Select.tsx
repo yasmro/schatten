@@ -57,7 +57,7 @@ const SelectTrigger = forwardRef<ComponentRef<typeof SelectPrimitive.Trigger>, S
         className={cn(
           selectTriggerVariants({ size }),
           isError
-            ? 'border-destructive bg-destructive-subtle focus-visible:ring-destructive'
+            ? 'border-error bg-error-subtle focus-visible:ring-error'
             : 'border-border-strong',
           className,
         )}

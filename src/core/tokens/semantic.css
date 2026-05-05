@@ -36,7 +36,7 @@
   --color-solid-foreground: var(--alabaster-100);
   --color-solid-foreground-hover: var(--alabaster-300);
 
-  /* Destructive */
+  /* Destructive — destructive actions (delete, remove). Shares vermillion with `error`. */
   --color-destructive: var(--vermillion-600);
   --color-destructive-hover: var(--vermillion-700);
   --color-destructive-foreground: var(--paper-white);
@@ -57,11 +57,37 @@
   /* Inverse (for content on dark-background containers) */
   --color-inverse-foreground: var(--paper-white);
 
-  /* States */
-  --color-success: var(--green-500);
-  --color-success-hover: var(--green-600);
-  --color-warning: var(--amber-500);
-  --color-warning-hover: var(--amber-600);
+  /*
+   * State tokens — each provides { base, hover, foreground, subtle }.
+   *   base       : main color (saturated)         — fills, borders, icons, text
+   *   hover      : darker/lighter sibling of base — interactive hover
+   *   foreground : on-base text/icon color        — readable atop base
+   *   subtle     : faint tinted background        — soft state surfaces
+   */
+
+  /* Error — form validation, error notifications (visually shares vermillion with destructive) */
+  --color-error: var(--vermillion-600);
+  --color-error-hover: var(--vermillion-700);
+  --color-error-foreground: var(--paper-white);
+  --color-error-subtle: var(--vermillion-50);
+
+  /* Success */
+  --color-success: var(--green-600);
+  --color-success-hover: var(--green-700);
+  --color-success-foreground: var(--paper-white);
+  --color-success-subtle: var(--green-50);
+
+  /* Warning */
+  --color-warning: var(--amber-600);
+  --color-warning-hover: var(--amber-700);
+  --color-warning-foreground: var(--paper-white);
+  --color-warning-subtle: var(--amber-50);
+
+  /* Info — references blue directly so themes that retune `primary` do not affect info */
+  --color-info: var(--blue-600);
+  --color-info-hover: var(--blue-700);
+  --color-info-foreground: var(--paper-white);
+  --color-info-subtle: var(--blue-50);
 }
 
 /* Dark mode - System preference fallback */
@@ -96,11 +122,27 @@
 
     --color-inverse-foreground: var(--paper-white-inv);
 
-    /* States */
-    --color-success: var(--green-400);
-    --color-success-hover: var(--green-300);
-    --color-warning: var(--amber-400);
-    --color-warning-hover: var(--amber-300);
+    /* State tokens — dark mode mappings */
+
+    --color-error: var(--vermillion-500);
+    --color-error-hover: var(--vermillion-400);
+    --color-error-foreground: var(--paper-white-inv);
+    --color-error-subtle: var(--vermillion-900);
+
+    --color-success: var(--green-500);
+    --color-success-hover: var(--green-400);
+    --color-success-foreground: var(--paper-white-inv);
+    --color-success-subtle: var(--green-900);
+
+    --color-warning: var(--amber-500);
+    --color-warning-hover: var(--amber-400);
+    --color-warning-foreground: var(--paper-white-inv);
+    --color-warning-subtle: var(--amber-900);
+
+    --color-info: var(--blue-500);
+    --color-info-hover: var(--blue-400);
+    --color-info-foreground: var(--paper-white-inv);
+    --color-info-subtle: var(--blue-900);
   }
 }
 
@@ -135,9 +177,25 @@
 
   --color-inverse-foreground: var(--paper-white-inv);
 
-  /* States */
-  --color-success: var(--green-400);
-  --color-success-hover: var(--green-300);
-  --color-warning: var(--amber-400);
-  --color-warning-hover: var(--amber-300);
+  /* State tokens — dark mode mappings */
+
+  --color-error: var(--vermillion-500);
+  --color-error-hover: var(--vermillion-400);
+  --color-error-foreground: var(--paper-white-inv);
+  --color-error-subtle: var(--vermillion-900);
+
+  --color-success: var(--green-500);
+  --color-success-hover: var(--green-400);
+  --color-success-foreground: var(--paper-white-inv);
+  --color-success-subtle: var(--green-900);
+
+  --color-warning: var(--amber-500);
+  --color-warning-hover: var(--amber-400);
+  --color-warning-foreground: var(--paper-white-inv);
+  --color-warning-subtle: var(--amber-900);
+
+  --color-info: var(--blue-500);
+  --color-info-hover: var(--blue-400);
+  --color-info-foreground: var(--paper-white-inv);
+  --color-info-subtle: var(--blue-900);
 }

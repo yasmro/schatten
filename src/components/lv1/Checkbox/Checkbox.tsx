@@ -13,7 +13,7 @@ import { type CheckboxVariants, checkboxVariants } from '../../../variants/check
 export interface CheckboxProps
   extends Omit<ComponentPropsWithoutRef<typeof CheckboxPrimitive.Root>, 'size'>,
     CheckboxVariants {
-  /** Displays the checkbox in an error state with destructive border and ring. */
+  /** Displays the checkbox in an error state with error border and ring. */
   isError?: boolean
   /** Label text displayed next to the checkbox. Automatically associates via id. */
   label?: ReactNode
@@ -67,7 +67,7 @@ export const Checkbox = forwardRef<ElementRef<typeof CheckboxPrimitive.Root>, Ch
           id={id}
           className={cn(
             checkboxVariants({ size }),
-            isError && 'border-destructive bg-destructive-subtle focus-visible:ring-destructive',
+            isError && 'border-error bg-error-subtle focus-visible:ring-error',
           )}
           aria-invalid={isError || undefined}
           aria-describedby={ariaDescribedBy}

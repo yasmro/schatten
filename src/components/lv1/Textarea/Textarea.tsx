@@ -36,7 +36,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
         className={cn(
           textareaVariants({ size }),
           isError
-            ? 'border-destructive bg-destructive-subtle focus-visible:ring-destructive'
+            ? 'border-error bg-error-subtle focus-visible:ring-error'
             : 'border-border-strong',
           className,
         )}

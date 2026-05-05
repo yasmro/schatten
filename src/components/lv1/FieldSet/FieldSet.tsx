@@ -81,7 +81,7 @@ export function FieldSet({
           {children}
         </div>
         {error && (
-          <p id={errorId} className="mt-4 text-sm text-destructive">
+          <p id={errorId} className="mt-4 text-sm text-error">
             {error}
           </p>
         )}

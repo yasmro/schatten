@@ -122,7 +122,7 @@ export const Radio = forwardRef<ElementRef<typeof RadioGroupPrimitive.Item>, Rad
           id={id}
           className={cn(
             radioVariants({ size }),
-            isError && 'border-destructive bg-destructive-subtle focus-visible:ring-destructive',
+            isError && 'border-error bg-error-subtle focus-visible:ring-error',
           )}
           aria-invalid={isError || undefined}
           disabled={disabled}

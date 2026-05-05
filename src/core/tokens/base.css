@@ -60,11 +60,26 @@
   /* Inverse */
   --color-inverse-foreground: var(--color-inverse-foreground);
 
-  /* States */
+  /* States — each provides { base, hover, foreground, subtle } */
+  --color-error: var(--color-error);
+  --color-error-hover: var(--color-error-hover);
+  --color-error-foreground: var(--color-error-foreground);
+  --color-error-subtle: var(--color-error-subtle);
+
   --color-success: var(--color-success);
   --color-success-hover: var(--color-success-hover);
+  --color-success-foreground: var(--color-success-foreground);
+  --color-success-subtle: var(--color-success-subtle);
+
   --color-warning: var(--color-warning);
   --color-warning-hover: var(--color-warning-hover);
+  --color-warning-foreground: var(--color-warning-foreground);
+  --color-warning-subtle: var(--color-warning-subtle);
+
+  --color-info: var(--color-info);
+  --color-info-hover: var(--color-info-hover);
+  --color-info-foreground: var(--color-info-foreground);
+  --color-info-subtle: var(--color-info-subtle);
 
   /* ===== Primitive Scales (for theme authoring & docs) ===== */
 

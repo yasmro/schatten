@@ -85,7 +85,7 @@ export function Field({
           <div className="flex items-center gap-1">
             <label htmlFor={id} className="text-base font-bold text-foreground">
               {label}
-              {required && <span className="text-destructive ml-0.5">*</span>}
+              {required && <span className="text-error ml-0.5">*</span>}
             </label>
             {tooltip && (
               <Tooltip>
@@ -111,7 +111,7 @@ export function Field({
         )}
         {children}
         {error && (
-          <p id={errorId} className="text-sm text-destructive">
+          <p id={errorId} className="text-sm text-error">
             {error}
           </p>
         )}

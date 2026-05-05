@@ -71,7 +71,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         className={cn(
           inputWrapperVariants({ size }),
           isError
-            ? 'border-destructive bg-destructive-subtle has-focus-visible:ring-destructive'
+            ? 'border-error bg-error-subtle has-focus-visible:ring-error'
             : 'border-border-strong',
           disabled ? 'cursor-not-allowed opacity-50' : 'cursor-text',
           className,

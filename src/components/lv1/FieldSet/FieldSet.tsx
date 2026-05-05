@@ -47,7 +47,10 @@ export function FieldSet({
     return ids.length > 0 ? ids.join(' ') : undefined
   }, [description, error, descriptionId, errorId])
 
-  const contextValue = useMemo<FieldSetContextValue>(() => ({ isError }), [isError])
+  const contextValue = useMemo<FieldSetContextValue>(
+    () => ({ isError, disabled }),
+    [isError, disabled],
+  )
 
   const hasHeader = legend || description
 

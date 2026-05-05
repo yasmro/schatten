@@ -112,6 +112,28 @@ describe('Toaster integration', () => {
     expect(onAction).toHaveBeenCalledOnce()
   })
 
+  it('clicking the action button also dismisses the toast', async () => {
+    const user = userEvent.setup()
+    render(<Toaster />)
+    act(() => {
+      toast({ title: 'Saved', action: { label: 'Undo', onClick: () => {} } })
+    })
+    await user.click(screen.getByRole('button', { name: 'Undo' }))
+    // Action click triggers a dismiss → store entry flips to open=false synchronously,
+    // and is removed after the exit animation buffer.
+    const { result } = renderHook(() => useToast())
+    expect(result.current.toasts[0].open).toBe(false)
+  })
+
+  it('hides the close button when an action is provided', () => {
+    render(<Toaster />)
+    act(() => {
+      toast({ title: 'Saved', action: { label: 'Undo', onClick: () => {} } })
+    })
+    expect(screen.getByRole('button', { name: 'Undo' })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Close' })).not.toBeInTheDocument()
+  })
+
   it('renders an accessible close button labeled "Close"', () => {
     render(<Toaster />)
     act(() => {

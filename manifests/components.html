@@ -576,13 +576,13 @@
 <header>
   <div class="wrap">
     <h1>Manifest Debugger</h1>
-    <div class="summary"><a class="filter-pill all" data-k="all" href="#filter-all">All</a><a class="filter-pill err" data-k="errors" href="#filter-errors">3/16 prop type errors</a><a class="filter-pill info" data-k="infos" href="#filter-infos">16/16 infos</a><span class="filter-pill ok" aria-disabled="true">95 stories ok</span></div>
+    <div class="summary"><a class="filter-pill all" data-k="all" href="#filter-all">All</a><a class="filter-pill err" data-k="errors" href="#filter-errors">3/17 prop type errors</a><a class="filter-pill info" data-k="infos" href="#filter-infos">16/17 infos</a><span class="filter-pill ok" aria-disabled="true">101 stories ok</span></div>
   </div>
 </header>
 <main>
   <div class="wrap">
     <div class="note ok" style="margin-bottom: 16px;">
-              Using <code>react-docgen-typescript</code>. Generation took <strong>2.8s</strong>.
+              Using <code>react-docgen-typescript</code>. Generation took <strong>2.3s</strong>.
             </div>
     <h2 class="section-title">Components</h2>
     <div class="grid" role="list">
@@ -824,7 +824,7 @@ isLoading?: boolean = false
 
 size?: &quot;sm&quot; | &quot;md&quot; | &quot;lg&quot; | null
 
-variant?: &quot;primary&quot; | &quot;secondary&quot; | &quot;destructive&quot; | &quot;link&quot; | &quot;tertiary&quot; | null = primary</code></pre>
+variant?: &quot;primary&quot; | &quot;secondary&quot; | &quot;destructive&quot; | &quot;link&quot; | &quot;tertiary&quot; | &quot;inverted&quot; | null = primary</code></pre>
           </div>
         </div>
     
@@ -857,11 +857,19 @@ variant?: &quot;primary&quot; | &quot;secondary&quot; | &quot;destructive&quot; 
               
               
               <pre><code>const AllVariants = () =&gt; (
-  &lt;div className=&quot;flex flex-wrap gap-4&quot;&gt;
-    &lt;Button variant=&quot;primary&quot;&gt;Primary&lt;/Button&gt;
-    &lt;Button variant=&quot;secondary&quot;&gt;Secondary&lt;/Button&gt;
-    &lt;Button variant=&quot;tertiary&quot;&gt;Tertiary&lt;/Button&gt;
-    &lt;Button variant=&quot;destructive&quot;&gt;Destructive&lt;/Button&gt;
+  &lt;div className=&quot;flex flex-col gap-4&quot;&gt;
+    &lt;div className=&quot;flex flex-wrap gap-4&quot;&gt;
+      &lt;Button variant=&quot;primary&quot;&gt;Primary&lt;/Button&gt;
+      &lt;Button variant=&quot;secondary&quot;&gt;Secondary&lt;/Button&gt;
+      &lt;Button variant=&quot;tertiary&quot;&gt;Tertiary&lt;/Button&gt;
+      &lt;Button variant=&quot;destructive&quot;&gt;Destructive&lt;/Button&gt;
+    &lt;/div&gt;
+    {/* `inverted` is intended for placement on a saturated surface; preview
+        it on a solid background so the contrast pattern is visible. */}
+    &lt;div className=&quot;flex flex-wrap gap-4 rounded-lg bg-solid p-4&quot;&gt;
+      &lt;Button variant=&quot;inverted&quot;&gt;Inverted&lt;/Button&gt;
+      &lt;Button variant=&quot;inverted&quot; icon=&quot;X&quot; aria-label=&quot;Close&quot; /&gt;
+    &lt;/div&gt;
   &lt;/div&gt;
 );</code></pre>
             </div>
@@ -4640,6 +4648,244 @@ size?: &quot;sm&quot; | &quot;md&quot; | &quot;lg&quot; | null</code></pre>
 <article
   class="card 
   no-error 
+  no-info 
+  no-story-error
+  no-doc-error"
+  role="listitem"
+  aria-label="Toaster">
+  <div class="head">
+    <div class="title">
+      <h2><span class="status-dot dot-ok"></span> Toaster</h2>
+      <div class="badges">
+        <label for="c-13-components-lv1-toast-props" class="badge ok as-toggle">3 prop types</label>
+        
+        <label for="c-13-components-lv1-toast-stories" class="badge ok as-toggle">6 stories</label>
+        
+      </div>
+    </div>
+    <div class="meta" title="./src/components/lv1/Toast/Toast.stories.tsx">components-lv1-toast · ./src/components/lv1/Toast/Toast.stories.tsx</div>
+    
+    <div class="hint">Mount once at the app root. Reads from the shared toast store and renders each currently-open toast inside a Radix Toast.Provider.</div>
+    
+  </div>
+
+  <!-- ⬇️ Hidden toggles must be siblings BEFORE .panels -->
+  
+  
+  <input id="c-13-components-lv1-toast-stories" class="tg tg-stories" type="checkbox" hidden />
+  
+  <input id="c-13-components-lv1-toast-props" class="tg tg-props" type="checkbox" hidden />
+
+  <div class="panels">
+    
+    
+    
+        <div class="panel panel-props">
+          <div class="note ok">
+            <div class="row">
+              <span class="ex-name">Prop types <small>(react-docgen-typescript)</small></span>
+              <span class="badge ok">3 prop types</span>
+            </div>
+            <pre><code>Component: src/components/lv1/Toast/Toaster.tsx::Toaster</code></pre>
+            <pre><code>Props:</code></pre>
+            <pre><code>/**
+ * Optional class applied to the viewport container.
+ */
+className?: string
+
+/**
+ * Default auto-dismiss duration in ms applied when a toast does not
+ * specify its own. Per-toast `duration` always wins. Default 5000.
+ */
+duration?: number
+
+/**
+ * Where the toast viewport sits on screen. Defaults to `bottom-center`.
+ */
+position?: ToastPosition = bottom-center</code></pre>
+          </div>
+        </div>
+    
+        <div class="panel panel-stories">
+          
+          
+          
+          <div class="note ok">
+                <div class="row">
+                  <span class="ex-name">Imports</span>
+                </div>
+                <pre><code>import { Button, Toaster } from "@yasmro/schatten";
+import { Fragment } from "react";</code></pre>
+              </div>
+          
+          
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">Playground</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const PlaygroundStory = () =&gt; &lt;Playground position=&quot;bottom-center&quot; /&gt;;</code></pre>
+            </div>
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">Subtle Treatments</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const SubtleTreatments = () =&gt; (
+  &lt;AutoFireDemo
+    inputs={[
+      {
+        variant: &#39;default&#39;,
+        treatment: &#39;subtle&#39;,
+        title: &#39;Default&#39;,
+        description: &#39;A neutral notification.&#39;,
+      },
+      {
+        variant: &#39;success&#39;,
+        treatment: &#39;subtle&#39;,
+        title: &#39;Success&#39;,
+        description: &#39;Your changes have been saved.&#39;,
+      },
+      {
+        variant: &#39;error&#39;,
+        treatment: &#39;subtle&#39;,
+        title: &#39;Error&#39;,
+        description: &#39;Could not save your changes.&#39;,
+      },
+      {
+        variant: &#39;warning&#39;,
+        treatment: &#39;subtle&#39;,
+        title: &#39;Warning&#39;,
+        description: &#39;Disk space is running low.&#39;,
+      },
+      {
+        variant: &#39;info&#39;,
+        treatment: &#39;subtle&#39;,
+        title: &#39;Info&#39;,
+        description: &#39;A new version is available.&#39;,
+      },
+    ]}
+  /&gt;
+);</code></pre>
+            </div>
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">Solid Treatments</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const SolidTreatments = () =&gt; (
+  &lt;AutoFireDemo
+    inputs={[
+      {
+        variant: &#39;default&#39;,
+        treatment: &#39;solid&#39;,
+        title: &#39;Default&#39;,
+        description: &#39;A neutral notification.&#39;,
+      },
+      {
+        variant: &#39;success&#39;,
+        treatment: &#39;solid&#39;,
+        title: &#39;Success&#39;,
+        description: &#39;Your changes have been saved.&#39;,
+      },
+      {
+        variant: &#39;error&#39;,
+        treatment: &#39;solid&#39;,
+        title: &#39;Error&#39;,
+        description: &#39;Could not save your changes.&#39;,
+      },
+      {
+        variant: &#39;warning&#39;,
+        treatment: &#39;solid&#39;,
+        title: &#39;Warning&#39;,
+        description: &#39;Disk space is running low.&#39;,
+      },
+      {
+        variant: &#39;info&#39;,
+        treatment: &#39;solid&#39;,
+        title: &#39;Info&#39;,
+        description: &#39;A new version is available.&#39;,
+      },
+    ]}
+  /&gt;
+);</code></pre>
+            </div>
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">With Action</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const WithAction = () =&gt; (
+  &lt;AutoFireDemo
+    inputs={[
+      {
+        variant: &#39;success&#39;,
+        title: &#39;Saved&#39;,
+        description: &#39;Your changes have been saved.&#39;,
+        action: { label: &#39;Undo&#39;, onClick: () =&gt; {} },
+      },
+      {
+        variant: &#39;info&#39;,
+        title: &#39;Update available&#39;,
+        description: &#39;A new version is ready to install.&#39;,
+        action: { label: &#39;Reload&#39;, onClick: () =&gt; {} },
+      },
+    ]}
+  /&gt;
+);</code></pre>
+            </div>
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">Title Only</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const TitleOnly = () =&gt; (
+  &lt;AutoFireDemo
+    inputs={[
+      { variant: &#39;success&#39;, title: &#39;Saved&#39; },
+      { variant: &#39;error&#39;, title: &#39;Could not connect&#39; },
+    ]}
+  /&gt;
+);</code></pre>
+            </div>
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">Long Content</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const LongContent = () =&gt; (
+  &lt;AutoFireDemo
+    inputs={[
+      {
+        variant: &#39;warning&#39;,
+        title: &#39;Heads up: long-running operation completed with warnings&#39;,
+        description:
+          &#39;Three records were skipped because they did not match the expected schema. You can retry the import after correcting the source file, or proceed with the partial data that has already been saved.&#39;,
+        action: { label: &#39;View details&#39;, onClick: () =&gt; {} },
+      },
+    ]}
+  /&gt;
+);</code></pre>
+            </div>
+        </div>
+    
+  </div>
+</article>
+<article
+  class="card 
+  no-error 
   has-info 
   no-story-error
   no-doc-error"
@@ -4649,9 +4895,9 @@ size?: &quot;sm&quot; | &quot;md&quot; | &quot;lg&quot; | null</code></pre>
     <div class="title">
       <h2><span class="status-dot dot-ok"></span> TooltipContent</h2>
       <div class="badges">
-        <label for="c-13-components-lv1-tooltip-props" class="badge ok as-toggle">2 prop types</label>
-        <label for="c-13-components-lv1-tooltip-info" class="badge info as-toggle">1 info</label>
-        <label for="c-13-components-lv1-tooltip-stories" class="badge ok as-toggle">5 stories</label>
+        <label for="c-14-components-lv1-tooltip-props" class="badge ok as-toggle">2 prop types</label>
+        <label for="c-14-components-lv1-tooltip-info" class="badge info as-toggle">1 info</label>
+        <label for="c-14-components-lv1-tooltip-stories" class="badge ok as-toggle">5 stories</label>
         
       </div>
     </div>
@@ -4663,10 +4909,10 @@ size?: &quot;sm&quot; | &quot;md&quot; | &quot;lg&quot; | null</code></pre>
 
   <!-- ⬇️ Hidden toggles must be siblings BEFORE .panels -->
   
-  <input id="c-13-components-lv1-tooltip-info" class="tg tg-info" type="checkbox" hidden />
-  <input id="c-13-components-lv1-tooltip-stories" class="tg tg-stories" type="checkbox" hidden />
+  <input id="c-14-components-lv1-tooltip-info" class="tg tg-info" type="checkbox" hidden />
+  <input id="c-14-components-lv1-tooltip-stories" class="tg tg-stories" type="checkbox" hidden />
   
-  <input id="c-13-components-lv1-tooltip-props" class="tg tg-props" type="checkbox" hidden />
+  <input id="c-14-components-lv1-tooltip-props" class="tg tg-props" type="checkbox" hidden />
 
   <div class="panels">
     
@@ -4852,9 +5098,9 @@ container?: Element | DocumentFragment | null</code></pre>
     <div class="title">
       <h2><span class="status-dot dot-err"></span> Typography</h2>
       <div class="badges">
-        <label for="c-14-foundation-typography-err" class="badge err as-toggle">prop type error</label>
-        <label for="c-14-foundation-typography-info" class="badge info as-toggle">2 infos</label>
-        <label for="c-14-foundation-typography-stories" class="badge ok as-toggle">1 story</label>
+        <label for="c-15-foundation-typography-err" class="badge err as-toggle">prop type error</label>
+        <label for="c-15-foundation-typography-info" class="badge info as-toggle">2 infos</label>
+        <label for="c-15-foundation-typography-stories" class="badge ok as-toggle">1 story</label>
         
       </div>
     </div>
@@ -4865,9 +5111,9 @@ container?: Element | DocumentFragment | null</code></pre>
   </div>
 
   <!-- ⬇️ Hidden toggles must be siblings BEFORE .panels -->
-  <input id="c-14-foundation-typography-err" class="tg tg-err" type="checkbox" hidden />
-  <input id="c-14-foundation-typography-info" class="tg tg-info" type="checkbox" hidden />
-  <input id="c-14-foundation-typography-stories" class="tg tg-stories" type="checkbox" hidden />
+  <input id="c-15-foundation-typography-err" class="tg tg-err" type="checkbox" hidden />
+  <input id="c-15-foundation-typography-info" class="tg tg-info" type="checkbox" hidden />
+  <input id="c-15-foundation-typography-stories" class="tg tg-stories" type="checkbox" hidden />
   
   
 
@@ -5617,9 +5863,9 @@ export const Typography: Story = {
     <div class="title">
       <h2><span class="status-dot dot-err"></span> Welcome</h2>
       <div class="badges">
-        <label for="c-15-welcome-err" class="badge err as-toggle">prop type error</label>
-        <label for="c-15-welcome-info" class="badge info as-toggle">1 info</label>
-        <label for="c-15-welcome-stories" class="badge ok as-toggle">1 story</label>
+        <label for="c-16-welcome-err" class="badge err as-toggle">prop type error</label>
+        <label for="c-16-welcome-info" class="badge info as-toggle">1 info</label>
+        <label for="c-16-welcome-stories" class="badge ok as-toggle">1 story</label>
         
       </div>
     </div>
@@ -5630,9 +5876,9 @@ export const Typography: Story = {
   </div>
 
   <!-- ⬇️ Hidden toggles must be siblings BEFORE .panels -->
-  <input id="c-15-welcome-err" class="tg tg-err" type="checkbox" hidden />
-  <input id="c-15-welcome-info" class="tg tg-info" type="checkbox" hidden />
-  <input id="c-15-welcome-stories" class="tg tg-stories" type="checkbox" hidden />
+  <input id="c-16-welcome-err" class="tg tg-err" type="checkbox" hidden />
+  <input id="c-16-welcome-info" class="tg tg-info" type="checkbox" hidden />
+  <input id="c-16-welcome-stories" class="tg tg-stories" type="checkbox" hidden />
   
   
 
@@ -5643,16 +5889,17 @@ export const Typography: Story = {
     <div class="note err">
       <div class="note-title">Prop type error</div>
       <div class="note-body"><pre><code>We could not detect the component from your story file. Specify meta.component.
-  20 | import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from &#39;../components/lv1/Tooltip&#39;
-  21 |
-&gt; 22 | const meta: Meta = {
+  21 | import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from &#39;../components/lv1/Tooltip&#39;
+  22 |
+&gt; 23 | const meta: Meta = {
      | ^
-  23 |   title: &#39;Welcome&#39;,
-  24 |   parameters: {
-  25 |     layout: &#39;fullscreen&#39;,
+  24 |   title: &#39;Welcome&#39;,
+  25 |   parameters: {
+  26 |     layout: &#39;fullscreen&#39;,
 
 ./src/docs/Welcome.stories.tsx:
 import type { Meta, StoryObj } from &#39;@storybook/react-vite&#39;
+import { CircleCheck } from &#39;lucide-react&#39;
 import { Badge } from &#39;../components/lv1/Badge&#39;
 import { Button } from &#39;../components/lv1/Button&#39;
 import { Checkbox } from &#39;../components/lv1/Checkbox&#39;
@@ -5833,6 +6080,26 @@ export const Overview: Story = {
               &lt;/Tooltip&gt;
             &lt;/TooltipProvider&gt;
           &lt;/ComponentCard&gt;
+
+          &lt;ComponentCard
+            name=&quot;Toast&quot;
+            description=&quot;Transient notifications with variants.&quot;
+            storyPath=&quot;components-lv1-toast&quot;
+          &gt;
+            &lt;div className=&quot;relative flex w-44 items-start gap-2 border border-success bg-success-subtle p-3 pr-8 text-xs text-success shadow-sm&quot;&gt;
+              &lt;CircleCheck className=&quot;mt-0.5 size-4 shrink-0&quot; aria-hidden /&gt;
+              &lt;div className=&quot;flex flex-col gap-0.5&quot;&gt;
+                &lt;div className=&quot;font-semibold leading-tight&quot;&gt;Saved&lt;/div&gt;
+                &lt;div className=&quot;leading-snug opacity-90&quot;&gt;Your changes have been saved.&lt;/div&gt;
+              &lt;/div&gt;
+              &lt;span
+                aria-hidden
+                className=&quot;absolute top-1 right-1 inline-flex size-5 items-center justify-center&quot;
+              &gt;
+                ×
+              &lt;/span&gt;
+            &lt;/div&gt;
+          &lt;/ComponentCard&gt;
         &lt;/div&gt;
       &lt;/div&gt;
 
@@ -6010,7 +6277,8 @@ export const Overview: Story = {
     TooltipContent,
     TooltipProvider,
     TooltipTrigger,
-} from "@yasmro/schatten";</code></pre>
+} from "@yasmro/schatten";
+import { CircleCheck } from "lucide-react";</code></pre>
               </div>
           
           
@@ -6125,6 +6393,26 @@ export const Overview: Story = {
               &lt;TooltipContent&gt;Helpful info&lt;/TooltipContent&gt;
             &lt;/Tooltip&gt;
           &lt;/TooltipProvider&gt;
+        &lt;/ComponentCard&gt;
+
+        &lt;ComponentCard
+          name=&quot;Toast&quot;
+          description=&quot;Transient notifications with variants.&quot;
+          storyPath=&quot;components-lv1-toast&quot;
+        &gt;
+          &lt;div className=&quot;relative flex w-44 items-start gap-2 border border-success bg-success-subtle p-3 pr-8 text-xs text-success shadow-sm&quot;&gt;
+            &lt;CircleCheck className=&quot;mt-0.5 size-4 shrink-0&quot; aria-hidden /&gt;
+            &lt;div className=&quot;flex flex-col gap-0.5&quot;&gt;
+              &lt;div className=&quot;font-semibold leading-tight&quot;&gt;Saved&lt;/div&gt;
+              &lt;div className=&quot;leading-snug opacity-90&quot;&gt;Your changes have been saved.&lt;/div&gt;
+            &lt;/div&gt;
+            &lt;span
+              aria-hidden
+              className=&quot;absolute top-1 right-1 inline-flex size-5 items-center justify-center&quot;
+            &gt;
+              ×
+            &lt;/span&gt;
+          &lt;/div&gt;
         &lt;/ComponentCard&gt;
       &lt;/div&gt;
     &lt;/div&gt;
@@ -8248,16 +8536,17 @@ export const Typography: Story = {
     <div class="note err">
       <div class="note-title">Prop type error</div>
       <div class="note-body"><pre><code>We could not detect the component from your story file. Specify meta.component.
-  20 | import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from &#39;../components/lv1/Tooltip&#39;
-  21 |
-&gt; 22 | const meta: Meta = {
+  21 | import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from &#39;../components/lv1/Tooltip&#39;
+  22 |
+&gt; 23 | const meta: Meta = {
      | ^
-  23 |   title: &#39;Welcome&#39;,
-  24 |   parameters: {
-  25 |     layout: &#39;fullscreen&#39;,
+  24 |   title: &#39;Welcome&#39;,
+  25 |   parameters: {
+  26 |     layout: &#39;fullscreen&#39;,
 
 ./src/docs/Welcome.stories.tsx:
 import type { Meta, StoryObj } from &#39;@storybook/react-vite&#39;
+import { CircleCheck } from &#39;lucide-react&#39;
 import { Badge } from &#39;../components/lv1/Badge&#39;
 import { Button } from &#39;../components/lv1/Button&#39;
 import { Checkbox } from &#39;../components/lv1/Checkbox&#39;
@@ -8438,6 +8727,26 @@ export const Overview: Story = {
               &lt;/Tooltip&gt;
             &lt;/TooltipProvider&gt;
           &lt;/ComponentCard&gt;
+
+          &lt;ComponentCard
+            name=&quot;Toast&quot;
+            description=&quot;Transient notifications with variants.&quot;
+            storyPath=&quot;components-lv1-toast&quot;
+          &gt;
+            &lt;div className=&quot;relative flex w-44 items-start gap-2 border border-success bg-success-subtle p-3 pr-8 text-xs text-success shadow-sm&quot;&gt;
+              &lt;CircleCheck className=&quot;mt-0.5 size-4 shrink-0&quot; aria-hidden /&gt;
+              &lt;div className=&quot;flex flex-col gap-0.5&quot;&gt;
+                &lt;div className=&quot;font-semibold leading-tight&quot;&gt;Saved&lt;/div&gt;
+                &lt;div className=&quot;leading-snug opacity-90&quot;&gt;Your changes have been saved.&lt;/div&gt;
+              &lt;/div&gt;
+              &lt;span
+                aria-hidden
+                className=&quot;absolute top-1 right-1 inline-flex size-5 items-center justify-center&quot;
+              &gt;
+                ×
+              &lt;/span&gt;
+            &lt;/div&gt;
+          &lt;/ComponentCard&gt;
         &lt;/div&gt;
       &lt;/div&gt;
 
@@ -8615,7 +8924,8 @@ export const Overview: Story = {
     TooltipContent,
     TooltipProvider,
     TooltipTrigger,
-} from "@yasmro/schatten";</code></pre>
+} from "@yasmro/schatten";
+import { CircleCheck } from "lucide-react";</code></pre>
               </div>
           
           
@@ -8730,6 +9040,26 @@ export const Overview: Story = {
               &lt;TooltipContent&gt;Helpful info&lt;/TooltipContent&gt;
             &lt;/Tooltip&gt;
           &lt;/TooltipProvider&gt;
+        &lt;/ComponentCard&gt;
+
+        &lt;ComponentCard
+          name=&quot;Toast&quot;
+          description=&quot;Transient notifications with variants.&quot;
+          storyPath=&quot;components-lv1-toast&quot;
+        &gt;
+          &lt;div className=&quot;relative flex w-44 items-start gap-2 border border-success bg-success-subtle p-3 pr-8 text-xs text-success shadow-sm&quot;&gt;
+            &lt;CircleCheck className=&quot;mt-0.5 size-4 shrink-0&quot; aria-hidden /&gt;
+            &lt;div className=&quot;flex flex-col gap-0.5&quot;&gt;
+              &lt;div className=&quot;font-semibold leading-tight&quot;&gt;Saved&lt;/div&gt;
+              &lt;div className=&quot;leading-snug opacity-90&quot;&gt;Your changes have been saved.&lt;/div&gt;
+            &lt;/div&gt;
+            &lt;span
+              aria-hidden
+              className=&quot;absolute top-1 right-1 inline-flex size-5 items-center justify-center&quot;
+            &gt;
+              ×
+            &lt;/span&gt;
+          &lt;/div&gt;
         &lt;/ComponentCard&gt;
       &lt;/div&gt;
     &lt;/div&gt;

@@ -576,13 +576,13 @@
 <header>
   <div class="wrap">
     <h1>Manifest Debugger</h1>
-    <div class="summary"><a class="filter-pill all" data-k="all" href="#filter-all">All</a><a class="filter-pill err" data-k="errors" href="#filter-errors">3/17 prop type errors</a><a class="filter-pill info" data-k="infos" href="#filter-infos">16/17 infos</a><span class="filter-pill ok" aria-disabled="true">101 stories ok</span></div>
+    <div class="summary"><a class="filter-pill all" data-k="all" href="#filter-all">All</a><a class="filter-pill err" data-k="errors" href="#filter-errors">3/18 prop type errors</a><a class="filter-pill info" data-k="infos" href="#filter-infos">16/18 infos</a><span class="filter-pill ok" aria-disabled="true">111 stories ok</span></div>
   </div>
 </header>
 <main>
   <div class="wrap">
     <div class="note ok" style="margin-bottom: 16px;">
-              Using <code>react-docgen-typescript</code>. Generation took <strong>2.3s</strong>.
+              Using <code>react-docgen-typescript</code>. Generation took <strong>3.4s</strong>.
             </div>
     <h2 class="section-title">Components</h2>
     <div class="grid" role="list">
@@ -1012,6 +1012,334 @@ variant?: &quot;primary&quot; | &quot;secondary&quot; | &quot;destructive&quot; 
 <article
   class="card 
   no-error 
+  no-info 
+  no-story-error
+  no-doc-error"
+  role="listitem"
+  aria-label="Callout">
+  <div class="head">
+    <div class="title">
+      <h2><span class="status-dot dot-ok"></span> Callout</h2>
+      <div class="badges">
+        <label for="c-2-components-lv1-callout-props" class="badge ok as-toggle">6 prop types</label>
+        
+        <label for="c-2-components-lv1-callout-stories" class="badge ok as-toggle">10 stories</label>
+        
+      </div>
+    </div>
+    <div class="meta" title="./src/components/lv1/Callout/Callout.stories.tsx">components-lv1-callout · ./src/components/lv1/Callout/Callout.stories.tsx</div>
+    
+    <div class="hint">Callout displays inline contextual information — beta notices, form warnings, page-level announcements. It mirrors `Toast`&#39;s five variants and two treatments so the visual language is shared, but lives in normal layout flow rather than overlaying the viewport. ## Body content Pass body content either as `children` (rich JSX) or as the `description` prop (plain text — matches Toast&#39;s API). If both are provided, `description` wins. ## Action The `action` prop accepts any ReactNode, so you can drop in a Button, a link, or a more complex affordance. Unlike Toast (where action is a `{label, onClick}` shape), Callouts often persist on screen and may need richer UI. **On `treatment=&quot;solid&quot;`, prefer `&lt;Button variant=&quot;inverted&quot;&gt;`** for action buttons so they remain legible on the saturated fill — see the &quot;Solid With Action&quot; story below. ## Dismissibility Pass `onClose` to render a close (X) button. Omit it for a static, non-dismissible callout. State management for the closed-or-not flag lives with the consumer. ## a11y No `role` is set by default. For dynamic callouts that should be announced when they appear, pass `role=&quot;status&quot;` (polite) or `role=&quot;alert&quot;` (assertive). Static informational callouts do not require a role.</div>
+    
+  </div>
+
+  <!-- ⬇️ Hidden toggles must be siblings BEFORE .panels -->
+  
+  
+  <input id="c-2-components-lv1-callout-stories" class="tg tg-stories" type="checkbox" hidden />
+  
+  <input id="c-2-components-lv1-callout-props" class="tg tg-props" type="checkbox" hidden />
+
+  <div class="panels">
+    
+    
+    
+        <div class="panel panel-props">
+          <div class="note ok">
+            <div class="row">
+              <span class="ex-name">Prop types <small>(react-docgen-typescript)</small></span>
+              <span class="badge ok">6 prop types</span>
+            </div>
+            <pre><code>Component: src/components/lv1/Callout/Callout.tsx::Callout</code></pre>
+            <pre><code>Props:</code></pre>
+            <pre><code>/**
+ * Free-form action area shown at the right of the callout (e.g. a Button
+ * or link). Use a ReactNode rather than a `{label, onClick}` object so
+ * complex action UIs are possible — Callouts often persist on screen and
+ * may need richer affordances than Toast actions.
+ * 
+ * Tip: when `treatment=&quot;solid&quot;`, prefer `&lt;Button variant=&quot;inverted&quot;&gt;`
+ * for action buttons so they remain legible against the saturated
+ * background.
+ */
+action?: ReactNode
+
+/**
+ * Body content. Use this prop form when the body is plain text — it
+ * matches `Toast`&#39;s API shape, so callsites that already build
+ * `{ title, description }` objects (e.g. for shared notification
+ * factories) can hand them straight to Callout. For rich JSX content
+ * pass via `children` instead.
+ * 
+ * If both `description` and `children` are provided, `description`
+ * wins.
+ */
+description?: ReactNode
+
+/**
+ * When provided, a close (X) button is rendered at the top-right and
+ * invokes this callback on click. Omit to render a non-dismissible
+ * callout.
+ */
+onClose?: (() =&gt; void)
+
+/**
+ * Optional heading rendered in bold above the body content.
+ */
+title?: ReactNode
+
+treatment?: &quot;subtle&quot; | &quot;solid&quot; | null = subtle
+
+variant?: &quot;default&quot; | &quot;success&quot; | &quot;error&quot; | &quot;warning&quot; | &quot;info&quot; | null = default</code></pre>
+          </div>
+        </div>
+    
+        <div class="panel panel-stories">
+          
+          
+          
+          <div class="note ok">
+                <div class="row">
+                  <span class="ex-name">Imports</span>
+                </div>
+                <pre><code>import { Button, Callout } from "@yasmro/schatten";</code></pre>
+              </div>
+          
+          
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">Playground</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const Playground = () =&gt; &lt;Callout variant=&quot;info&quot; treatment=&quot;subtle&quot; title=&quot;Heads up&quot;&gt;This is a beta feature. Behavior may change.&lt;/Callout&gt;;</code></pre>
+            </div>
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">Subtle Treatments</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const SubtleTreatments = () =&gt; (
+  &lt;div className=&quot;flex flex-col gap-3 max-w-xl&quot;&gt;
+    {VARIANTS.map((variant) =&gt; (
+      &lt;Callout key={variant} variant={variant} treatment=&quot;subtle&quot; title={variant.toUpperCase()}&gt;
+        The quick brown fox jumps over the lazy dog.
+      &lt;/Callout&gt;
+    ))}
+  &lt;/div&gt;
+);</code></pre>
+            </div>
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">Solid Treatments</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const SolidTreatments = () =&gt; (
+  &lt;div className=&quot;flex flex-col gap-3 max-w-xl&quot;&gt;
+    {VARIANTS.map((variant) =&gt; (
+      &lt;Callout key={variant} variant={variant} treatment=&quot;solid&quot; title={variant.toUpperCase()}&gt;
+        The quick brown fox jumps over the lazy dog.
+      &lt;/Callout&gt;
+    ))}
+  &lt;/div&gt;
+);</code></pre>
+            </div>
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">Title Only</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const TitleOnly = () =&gt; (
+  &lt;div className=&quot;flex flex-col gap-3 max-w-xl&quot;&gt;
+    &lt;Callout variant=&quot;success&quot; title=&quot;Saved&quot; /&gt;
+    &lt;Callout variant=&quot;error&quot; title=&quot;Could not connect&quot; /&gt;
+  &lt;/div&gt;
+);</code></pre>
+            </div>
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">Body Only</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const BodyOnly = () =&gt; (
+  &lt;div className=&quot;flex flex-col gap-3 max-w-xl&quot;&gt;
+    &lt;Callout variant=&quot;info&quot;&gt;
+      This feature is in &lt;strong&gt;beta&lt;/strong&gt;. Please share feedback.
+    &lt;/Callout&gt;
+    &lt;Callout variant=&quot;warning&quot;&gt;
+      Three records were skipped.{&#39; &#39;}
+      &lt;a href=&quot;#x&quot; className=&quot;underline&quot;&gt;
+        View details
+      &lt;/a&gt;
+    &lt;/Callout&gt;
+  &lt;/div&gt;
+);</code></pre>
+            </div>
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">With Action</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const WithAction = () =&gt; (
+  &lt;div className=&quot;flex flex-col gap-3 max-w-xl&quot;&gt;
+    &lt;Callout
+      variant=&quot;warning&quot;
+      title=&quot;Unsaved changes&quot;
+      action={&lt;Button size=&quot;sm&quot;&gt;Save now&lt;/Button&gt;}
+    &gt;
+      Your changes will be lost if you leave this page.
+    &lt;/Callout&gt;
+    &lt;Callout
+      variant=&quot;info&quot;
+      title=&quot;Update available&quot;
+      action={
+        &lt;Button size=&quot;sm&quot; variant=&quot;secondary&quot;&gt;
+          Reload
+        &lt;/Button&gt;
+      }
+    &gt;
+      A newer version of this app is ready.
+    &lt;/Callout&gt;
+  &lt;/div&gt;
+);</code></pre>
+            </div>
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">Solid With Action</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const SolidWithAction = () =&gt; (
+  &lt;div className=&quot;flex flex-col gap-3 max-w-xl&quot;&gt;
+    &lt;Callout
+      variant=&quot;warning&quot;
+      treatment=&quot;solid&quot;
+      title=&quot;Unsaved changes&quot;
+      action={
+        &lt;Button variant=&quot;inverted&quot; size=&quot;sm&quot;&gt;
+          Save now
+        &lt;/Button&gt;
+      }
+    &gt;
+      Your changes will be lost if you leave this page.
+    &lt;/Callout&gt;
+    &lt;Callout
+      variant=&quot;info&quot;
+      treatment=&quot;solid&quot;
+      title=&quot;Update available&quot;
+      action={
+        &lt;Button variant=&quot;inverted&quot; size=&quot;sm&quot;&gt;
+          Reload
+        &lt;/Button&gt;
+      }
+    &gt;
+      A newer version of this app is ready.
+    &lt;/Callout&gt;
+  &lt;/div&gt;
+);</code></pre>
+            </div>
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">Dismissible</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const Dismissible = () =&gt; {
+  const [shown, setShown] = useState({ a: true, b: true })
+  return (
+    &lt;div className=&quot;flex flex-col gap-3 max-w-xl&quot;&gt;
+      {shown.a &amp;&amp; (
+        &lt;Callout
+          variant=&quot;info&quot;
+          title=&quot;Heads up&quot;
+          onClose={() =&gt; setShown((s) =&gt; ({ ...s, a: false }))}
+        &gt;
+          Click the close button to dismiss this callout.
+        &lt;/Callout&gt;
+      )}
+      {shown.b &amp;&amp; (
+        &lt;Callout
+          variant=&quot;warning&quot;
+          title=&quot;With action and close&quot;
+          action={&lt;Button size=&quot;sm&quot;&gt;Acknowledge&lt;/Button&gt;}
+          onClose={() =&gt; setShown((s) =&gt; ({ ...s, b: false }))}
+        &gt;
+          Both action and close can coexist.
+        &lt;/Callout&gt;
+      )}
+      {!shown.a &amp;&amp; !shown.b &amp;&amp; (
+        &lt;Button onClick={() =&gt; setShown({ a: true, b: true })}&gt;Reset&lt;/Button&gt;
+      )}
+    &lt;/div&gt;
+  )
+};</code></pre>
+            </div>
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">Full Matrix</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const FullMatrix = () =&gt; (
+  &lt;div className=&quot;grid grid-cols-1 gap-3 max-w-2xl&quot;&gt;
+    {TREATMENTS.flatMap((treatment) =&gt;
+      VARIANTS.map((variant) =&gt; (
+        &lt;Callout
+          key={`${variant}-${treatment}`}
+          variant={variant}
+          treatment={treatment}
+          title={`${variant} / ${treatment}`}
+        &gt;
+          The quick brown fox jumps over the lazy dog.
+        &lt;/Callout&gt;
+      )),
+    )}
+  &lt;/div&gt;
+);</code></pre>
+            </div>
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">Long Content</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const LongContent = () =&gt; (
+  &lt;div className=&quot;max-w-xl&quot;&gt;
+    &lt;Callout
+      variant=&quot;warning&quot;
+      title=&quot;Heads up: long-running operation completed with warnings&quot;
+      action={&lt;Button size=&quot;sm&quot;&gt;View details&lt;/Button&gt;}
+      onClose={() =&gt; {}}
+    &gt;
+      Three records were skipped because they did not match the expected schema. You can retry the
+      import after correcting the source file, or proceed with the partial data that has already
+      been saved.
+    &lt;/Callout&gt;
+  &lt;/div&gt;
+);</code></pre>
+            </div>
+        </div>
+    
+  </div>
+</article>
+<article
+  class="card 
+  no-error 
   has-info 
   no-story-error
   no-doc-error"
@@ -1021,9 +1349,9 @@ variant?: &quot;primary&quot; | &quot;secondary&quot; | &quot;destructive&quot; 
     <div class="title">
       <h2><span class="status-dot dot-ok"></span> Checkbox</h2>
       <div class="badges">
-        <label for="c-2-components-lv1-checkbox-props" class="badge ok as-toggle">4 prop types</label>
-        <label for="c-2-components-lv1-checkbox-info" class="badge info as-toggle">1 info</label>
-        <label for="c-2-components-lv1-checkbox-stories" class="badge ok as-toggle">7 stories</label>
+        <label for="c-3-components-lv1-checkbox-props" class="badge ok as-toggle">4 prop types</label>
+        <label for="c-3-components-lv1-checkbox-info" class="badge info as-toggle">1 info</label>
+        <label for="c-3-components-lv1-checkbox-stories" class="badge ok as-toggle">7 stories</label>
         
       </div>
     </div>
@@ -1035,10 +1363,10 @@ variant?: &quot;primary&quot; | &quot;secondary&quot; | &quot;destructive&quot; 
 
   <!-- ⬇️ Hidden toggles must be siblings BEFORE .panels -->
   
-  <input id="c-2-components-lv1-checkbox-info" class="tg tg-info" type="checkbox" hidden />
-  <input id="c-2-components-lv1-checkbox-stories" class="tg tg-stories" type="checkbox" hidden />
+  <input id="c-3-components-lv1-checkbox-info" class="tg tg-info" type="checkbox" hidden />
+  <input id="c-3-components-lv1-checkbox-stories" class="tg tg-stories" type="checkbox" hidden />
   
-  <input id="c-2-components-lv1-checkbox-props" class="tg tg-props" type="checkbox" hidden />
+  <input id="c-3-components-lv1-checkbox-props" class="tg tg-props" type="checkbox" hidden />
 
   <div class="panels">
     
@@ -1225,9 +1553,9 @@ size?: &quot;sm&quot; | &quot;md&quot; | &quot;lg&quot; | null = md</code></pre>
     <div class="title">
       <h2><span class="status-dot dot-err"></span> Color</h2>
       <div class="badges">
-        <label for="c-3-foundation-color-err" class="badge err as-toggle">prop type error</label>
-        <label for="c-3-foundation-color-info" class="badge info as-toggle">2 infos</label>
-        <label for="c-3-foundation-color-stories" class="badge ok as-toggle">1 story</label>
+        <label for="c-4-foundation-color-err" class="badge err as-toggle">prop type error</label>
+        <label for="c-4-foundation-color-info" class="badge info as-toggle">2 infos</label>
+        <label for="c-4-foundation-color-stories" class="badge ok as-toggle">1 story</label>
         
       </div>
     </div>
@@ -1238,9 +1566,9 @@ size?: &quot;sm&quot; | &quot;md&quot; | &quot;lg&quot; | null = md</code></pre>
   </div>
 
   <!-- ⬇️ Hidden toggles must be siblings BEFORE .panels -->
-  <input id="c-3-foundation-color-err" class="tg tg-err" type="checkbox" hidden />
-  <input id="c-3-foundation-color-info" class="tg tg-info" type="checkbox" hidden />
-  <input id="c-3-foundation-color-stories" class="tg tg-stories" type="checkbox" hidden />
+  <input id="c-4-foundation-color-err" class="tg tg-err" type="checkbox" hidden />
+  <input id="c-4-foundation-color-info" class="tg tg-info" type="checkbox" hidden />
+  <input id="c-4-foundation-color-stories" class="tg tg-stories" type="checkbox" hidden />
   
   
 
@@ -2396,9 +2724,9 @@ export const Colors: Story = {
     <div class="title">
       <h2><span class="status-dot dot-ok"></span> Field</h2>
       <div class="badges">
-        <label for="c-4-components-lv1-field-props" class="badge ok as-toggle">12 prop types</label>
-        <label for="c-4-components-lv1-field-info" class="badge info as-toggle">1 info</label>
-        <label for="c-4-components-lv1-field-stories" class="badge ok as-toggle">12 stories</label>
+        <label for="c-5-components-lv1-field-props" class="badge ok as-toggle">12 prop types</label>
+        <label for="c-5-components-lv1-field-info" class="badge info as-toggle">1 info</label>
+        <label for="c-5-components-lv1-field-stories" class="badge ok as-toggle">12 stories</label>
         
       </div>
     </div>
@@ -2410,10 +2738,10 @@ export const Colors: Story = {
 
   <!-- ⬇️ Hidden toggles must be siblings BEFORE .panels -->
   
-  <input id="c-4-components-lv1-field-info" class="tg tg-info" type="checkbox" hidden />
-  <input id="c-4-components-lv1-field-stories" class="tg tg-stories" type="checkbox" hidden />
+  <input id="c-5-components-lv1-field-info" class="tg tg-info" type="checkbox" hidden />
+  <input id="c-5-components-lv1-field-stories" class="tg tg-stories" type="checkbox" hidden />
   
-  <input id="c-4-components-lv1-field-props" class="tg tg-props" type="checkbox" hidden />
+  <input id="c-5-components-lv1-field-props" class="tg tg-props" type="checkbox" hidden />
 
   <div class="panels">
     
@@ -2792,9 +3120,9 @@ tooltip?: ReactNode</code></pre>
     <div class="title">
       <h2><span class="status-dot dot-ok"></span> FieldSet</h2>
       <div class="badges">
-        <label for="c-5-components-lv1-fieldset-props" class="badge ok as-toggle">9 prop types</label>
-        <label for="c-5-components-lv1-fieldset-info" class="badge info as-toggle">1 info</label>
-        <label for="c-5-components-lv1-fieldset-stories" class="badge ok as-toggle">12 stories</label>
+        <label for="c-6-components-lv1-fieldset-props" class="badge ok as-toggle">9 prop types</label>
+        <label for="c-6-components-lv1-fieldset-info" class="badge info as-toggle">1 info</label>
+        <label for="c-6-components-lv1-fieldset-stories" class="badge ok as-toggle">12 stories</label>
         
       </div>
     </div>
@@ -2806,10 +3134,10 @@ tooltip?: ReactNode</code></pre>
 
   <!-- ⬇️ Hidden toggles must be siblings BEFORE .panels -->
   
-  <input id="c-5-components-lv1-fieldset-info" class="tg tg-info" type="checkbox" hidden />
-  <input id="c-5-components-lv1-fieldset-stories" class="tg tg-stories" type="checkbox" hidden />
+  <input id="c-6-components-lv1-fieldset-info" class="tg tg-info" type="checkbox" hidden />
+  <input id="c-6-components-lv1-fieldset-stories" class="tg tg-stories" type="checkbox" hidden />
   
-  <input id="c-5-components-lv1-fieldset-props" class="tg tg-props" type="checkbox" hidden />
+  <input id="c-6-components-lv1-fieldset-props" class="tg tg-props" type="checkbox" hidden />
 
   <div class="panels">
     
@@ -3364,9 +3692,9 @@ wrap?: boolean = false</code></pre>
     <div class="title">
       <h2><span class="status-dot dot-ok"></span> Input</h2>
       <div class="badges">
-        <label for="c-6-components-lv1-input-props" class="badge ok as-toggle">6 prop types</label>
-        <label for="c-6-components-lv1-input-info" class="badge info as-toggle">1 info</label>
-        <label for="c-6-components-lv1-input-stories" class="badge ok as-toggle">8 stories</label>
+        <label for="c-7-components-lv1-input-props" class="badge ok as-toggle">6 prop types</label>
+        <label for="c-7-components-lv1-input-info" class="badge info as-toggle">1 info</label>
+        <label for="c-7-components-lv1-input-stories" class="badge ok as-toggle">8 stories</label>
         
       </div>
     </div>
@@ -3378,10 +3706,10 @@ wrap?: boolean = false</code></pre>
 
   <!-- ⬇️ Hidden toggles must be siblings BEFORE .panels -->
   
-  <input id="c-6-components-lv1-input-info" class="tg tg-info" type="checkbox" hidden />
-  <input id="c-6-components-lv1-input-stories" class="tg tg-stories" type="checkbox" hidden />
+  <input id="c-7-components-lv1-input-info" class="tg tg-info" type="checkbox" hidden />
+  <input id="c-7-components-lv1-input-stories" class="tg tg-stories" type="checkbox" hidden />
   
-  <input id="c-6-components-lv1-input-props" class="tg tg-props" type="checkbox" hidden />
+  <input id="c-7-components-lv1-input-props" class="tg tg-props" type="checkbox" hidden />
 
   <div class="panels">
     
@@ -3560,9 +3888,9 @@ textRight?: string</code></pre>
     <div class="title">
       <h2><span class="status-dot dot-ok"></span> Radio</h2>
       <div class="badges">
-        <label for="c-7-components-lv1-radio-props" class="badge ok as-toggle">4 prop types</label>
-        <label for="c-7-components-lv1-radio-info" class="badge info as-toggle">1 info</label>
-        <label for="c-7-components-lv1-radio-stories" class="badge ok as-toggle">6 stories</label>
+        <label for="c-8-components-lv1-radio-props" class="badge ok as-toggle">4 prop types</label>
+        <label for="c-8-components-lv1-radio-info" class="badge info as-toggle">1 info</label>
+        <label for="c-8-components-lv1-radio-stories" class="badge ok as-toggle">6 stories</label>
         
       </div>
     </div>
@@ -3574,10 +3902,10 @@ textRight?: string</code></pre>
 
   <!-- ⬇️ Hidden toggles must be siblings BEFORE .panels -->
   
-  <input id="c-7-components-lv1-radio-info" class="tg tg-info" type="checkbox" hidden />
-  <input id="c-7-components-lv1-radio-stories" class="tg tg-stories" type="checkbox" hidden />
+  <input id="c-8-components-lv1-radio-info" class="tg tg-info" type="checkbox" hidden />
+  <input id="c-8-components-lv1-radio-stories" class="tg tg-stories" type="checkbox" hidden />
   
-  <input id="c-7-components-lv1-radio-props" class="tg tg-props" type="checkbox" hidden />
+  <input id="c-8-components-lv1-radio-props" class="tg tg-props" type="checkbox" hidden />
 
   <div class="panels">
     
@@ -3730,9 +4058,9 @@ size?: &quot;sm&quot; | &quot;md&quot; | &quot;lg&quot; | null</code></pre>
     <div class="title">
       <h2><span class="status-dot dot-ok"></span> SelectTrigger</h2>
       <div class="badges">
-        <label for="c-8-components-lv1-select-props" class="badge ok as-toggle">3 prop types</label>
-        <label for="c-8-components-lv1-select-info" class="badge info as-toggle">1 info</label>
-        <label for="c-8-components-lv1-select-stories" class="badge ok as-toggle">8 stories</label>
+        <label for="c-9-components-lv1-select-props" class="badge ok as-toggle">3 prop types</label>
+        <label for="c-9-components-lv1-select-info" class="badge info as-toggle">1 info</label>
+        <label for="c-9-components-lv1-select-stories" class="badge ok as-toggle">8 stories</label>
         
       </div>
     </div>
@@ -3744,10 +4072,10 @@ size?: &quot;sm&quot; | &quot;md&quot; | &quot;lg&quot; | null</code></pre>
 
   <!-- ⬇️ Hidden toggles must be siblings BEFORE .panels -->
   
-  <input id="c-8-components-lv1-select-info" class="tg tg-info" type="checkbox" hidden />
-  <input id="c-8-components-lv1-select-stories" class="tg tg-stories" type="checkbox" hidden />
+  <input id="c-9-components-lv1-select-info" class="tg tg-info" type="checkbox" hidden />
+  <input id="c-9-components-lv1-select-stories" class="tg tg-stories" type="checkbox" hidden />
   
-  <input id="c-8-components-lv1-select-props" class="tg tg-props" type="checkbox" hidden />
+  <input id="c-9-components-lv1-select-props" class="tg tg-props" type="checkbox" hidden />
 
   <div class="panels">
     
@@ -4036,9 +4364,9 @@ size?: &quot;sm&quot; | &quot;md&quot; | &quot;lg&quot; | null</code></pre>
     <div class="title">
       <h2><span class="status-dot dot-ok"></span> Spinner</h2>
       <div class="badges">
-        <label for="c-9-components-lv1-spinner-props" class="badge ok as-toggle">4 prop types</label>
-        <label for="c-9-components-lv1-spinner-info" class="badge info as-toggle">1 info</label>
-        <label for="c-9-components-lv1-spinner-stories" class="badge ok as-toggle">4 stories</label>
+        <label for="c-10-components-lv1-spinner-props" class="badge ok as-toggle">4 prop types</label>
+        <label for="c-10-components-lv1-spinner-info" class="badge info as-toggle">1 info</label>
+        <label for="c-10-components-lv1-spinner-stories" class="badge ok as-toggle">4 stories</label>
         
       </div>
     </div>
@@ -4050,10 +4378,10 @@ size?: &quot;sm&quot; | &quot;md&quot; | &quot;lg&quot; | null</code></pre>
 
   <!-- ⬇️ Hidden toggles must be siblings BEFORE .panels -->
   
-  <input id="c-9-components-lv1-spinner-info" class="tg tg-info" type="checkbox" hidden />
-  <input id="c-9-components-lv1-spinner-stories" class="tg tg-stories" type="checkbox" hidden />
+  <input id="c-10-components-lv1-spinner-info" class="tg tg-info" type="checkbox" hidden />
+  <input id="c-10-components-lv1-spinner-stories" class="tg tg-stories" type="checkbox" hidden />
   
-  <input id="c-9-components-lv1-spinner-props" class="tg tg-props" type="checkbox" hidden />
+  <input id="c-10-components-lv1-spinner-props" class="tg tg-props" type="checkbox" hidden />
 
   <div class="panels">
     
@@ -4170,9 +4498,9 @@ variant?: &quot;default&quot; | &quot;inverse&quot; | null</code></pre>
     <div class="title">
       <h2><span class="status-dot dot-ok"></span> Switch</h2>
       <div class="badges">
-        <label for="c-10-components-lv1-switch-props" class="badge ok as-toggle">4 prop types</label>
-        <label for="c-10-components-lv1-switch-info" class="badge info as-toggle">1 info</label>
-        <label for="c-10-components-lv1-switch-stories" class="badge ok as-toggle">6 stories</label>
+        <label for="c-11-components-lv1-switch-props" class="badge ok as-toggle">4 prop types</label>
+        <label for="c-11-components-lv1-switch-info" class="badge info as-toggle">1 info</label>
+        <label for="c-11-components-lv1-switch-stories" class="badge ok as-toggle">6 stories</label>
         
       </div>
     </div>
@@ -4184,10 +4512,10 @@ variant?: &quot;default&quot; | &quot;inverse&quot; | null</code></pre>
 
   <!-- ⬇️ Hidden toggles must be siblings BEFORE .panels -->
   
-  <input id="c-10-components-lv1-switch-info" class="tg tg-info" type="checkbox" hidden />
-  <input id="c-10-components-lv1-switch-stories" class="tg tg-stories" type="checkbox" hidden />
+  <input id="c-11-components-lv1-switch-info" class="tg tg-info" type="checkbox" hidden />
+  <input id="c-11-components-lv1-switch-stories" class="tg tg-stories" type="checkbox" hidden />
   
-  <input id="c-10-components-lv1-switch-props" class="tg tg-props" type="checkbox" hidden />
+  <input id="c-11-components-lv1-switch-props" class="tg tg-props" type="checkbox" hidden />
 
   <div class="panels">
     
@@ -4333,9 +4661,9 @@ size?: &quot;sm&quot; | &quot;md&quot; | &quot;lg&quot; | null = md</code></pre>
     <div class="title">
       <h2><span class="status-dot dot-ok"></span> Text</h2>
       <div class="badges">
-        <label for="c-11-components-lv1-text-props" class="badge ok as-toggle">7 prop types</label>
-        <label for="c-11-components-lv1-text-info" class="badge info as-toggle">1 info</label>
-        <label for="c-11-components-lv1-text-stories" class="badge ok as-toggle">6 stories</label>
+        <label for="c-12-components-lv1-text-props" class="badge ok as-toggle">7 prop types</label>
+        <label for="c-12-components-lv1-text-info" class="badge info as-toggle">1 info</label>
+        <label for="c-12-components-lv1-text-stories" class="badge ok as-toggle">6 stories</label>
         
       </div>
     </div>
@@ -4347,10 +4675,10 @@ size?: &quot;sm&quot; | &quot;md&quot; | &quot;lg&quot; | null = md</code></pre>
 
   <!-- ⬇️ Hidden toggles must be siblings BEFORE .panels -->
   
-  <input id="c-11-components-lv1-text-info" class="tg tg-info" type="checkbox" hidden />
-  <input id="c-11-components-lv1-text-stories" class="tg tg-stories" type="checkbox" hidden />
+  <input id="c-12-components-lv1-text-info" class="tg tg-info" type="checkbox" hidden />
+  <input id="c-12-components-lv1-text-stories" class="tg tg-stories" type="checkbox" hidden />
   
-  <input id="c-11-components-lv1-text-props" class="tg tg-props" type="checkbox" hidden />
+  <input id="c-12-components-lv1-text-props" class="tg tg-props" type="checkbox" hidden />
 
   <div class="panels">
     
@@ -4533,9 +4861,9 @@ variant?: &quot;heading&quot; | &quot;label&quot; | &quot;body&quot; | null</cod
     <div class="title">
       <h2><span class="status-dot dot-ok"></span> Textarea</h2>
       <div class="badges">
-        <label for="c-12-components-lv1-textarea-props" class="badge ok as-toggle">2 prop types</label>
-        <label for="c-12-components-lv1-textarea-info" class="badge info as-toggle">1 info</label>
-        <label for="c-12-components-lv1-textarea-stories" class="badge ok as-toggle">4 stories</label>
+        <label for="c-13-components-lv1-textarea-props" class="badge ok as-toggle">2 prop types</label>
+        <label for="c-13-components-lv1-textarea-info" class="badge info as-toggle">1 info</label>
+        <label for="c-13-components-lv1-textarea-stories" class="badge ok as-toggle">4 stories</label>
         
       </div>
     </div>
@@ -4547,10 +4875,10 @@ variant?: &quot;heading&quot; | &quot;label&quot; | &quot;body&quot; | null</cod
 
   <!-- ⬇️ Hidden toggles must be siblings BEFORE .panels -->
   
-  <input id="c-12-components-lv1-textarea-info" class="tg tg-info" type="checkbox" hidden />
-  <input id="c-12-components-lv1-textarea-stories" class="tg tg-stories" type="checkbox" hidden />
+  <input id="c-13-components-lv1-textarea-info" class="tg tg-info" type="checkbox" hidden />
+  <input id="c-13-components-lv1-textarea-stories" class="tg tg-stories" type="checkbox" hidden />
   
-  <input id="c-12-components-lv1-textarea-props" class="tg tg-props" type="checkbox" hidden />
+  <input id="c-13-components-lv1-textarea-props" class="tg tg-props" type="checkbox" hidden />
 
   <div class="panels">
     
@@ -4657,9 +4985,9 @@ size?: &quot;sm&quot; | &quot;md&quot; | &quot;lg&quot; | null</code></pre>
     <div class="title">
       <h2><span class="status-dot dot-ok"></span> Toaster</h2>
       <div class="badges">
-        <label for="c-13-components-lv1-toast-props" class="badge ok as-toggle">3 prop types</label>
+        <label for="c-14-components-lv1-toast-props" class="badge ok as-toggle">3 prop types</label>
         
-        <label for="c-13-components-lv1-toast-stories" class="badge ok as-toggle">6 stories</label>
+        <label for="c-14-components-lv1-toast-stories" class="badge ok as-toggle">6 stories</label>
         
       </div>
     </div>
@@ -4672,9 +5000,9 @@ size?: &quot;sm&quot; | &quot;md&quot; | &quot;lg&quot; | null</code></pre>
   <!-- ⬇️ Hidden toggles must be siblings BEFORE .panels -->
   
   
-  <input id="c-13-components-lv1-toast-stories" class="tg tg-stories" type="checkbox" hidden />
+  <input id="c-14-components-lv1-toast-stories" class="tg tg-stories" type="checkbox" hidden />
   
-  <input id="c-13-components-lv1-toast-props" class="tg tg-props" type="checkbox" hidden />
+  <input id="c-14-components-lv1-toast-props" class="tg tg-props" type="checkbox" hidden />
 
   <div class="panels">
     
@@ -4895,9 +5223,9 @@ import { Fragment } from "react";</code></pre>
     <div class="title">
       <h2><span class="status-dot dot-ok"></span> TooltipContent</h2>
       <div class="badges">
-        <label for="c-14-components-lv1-tooltip-props" class="badge ok as-toggle">2 prop types</label>
-        <label for="c-14-components-lv1-tooltip-info" class="badge info as-toggle">1 info</label>
-        <label for="c-14-components-lv1-tooltip-stories" class="badge ok as-toggle">5 stories</label>
+        <label for="c-15-components-lv1-tooltip-props" class="badge ok as-toggle">2 prop types</label>
+        <label for="c-15-components-lv1-tooltip-info" class="badge info as-toggle">1 info</label>
+        <label for="c-15-components-lv1-tooltip-stories" class="badge ok as-toggle">5 stories</label>
         
       </div>
     </div>
@@ -4909,10 +5237,10 @@ import { Fragment } from "react";</code></pre>
 
   <!-- ⬇️ Hidden toggles must be siblings BEFORE .panels -->
   
-  <input id="c-14-components-lv1-tooltip-info" class="tg tg-info" type="checkbox" hidden />
-  <input id="c-14-components-lv1-tooltip-stories" class="tg tg-stories" type="checkbox" hidden />
+  <input id="c-15-components-lv1-tooltip-info" class="tg tg-info" type="checkbox" hidden />
+  <input id="c-15-components-lv1-tooltip-stories" class="tg tg-stories" type="checkbox" hidden />
   
-  <input id="c-14-components-lv1-tooltip-props" class="tg tg-props" type="checkbox" hidden />
+  <input id="c-15-components-lv1-tooltip-props" class="tg tg-props" type="checkbox" hidden />
 
   <div class="panels">
     
@@ -5098,9 +5426,9 @@ container?: Element | DocumentFragment | null</code></pre>
     <div class="title">
       <h2><span class="status-dot dot-err"></span> Typography</h2>
       <div class="badges">
-        <label for="c-15-foundation-typography-err" class="badge err as-toggle">prop type error</label>
-        <label for="c-15-foundation-typography-info" class="badge info as-toggle">2 infos</label>
-        <label for="c-15-foundation-typography-stories" class="badge ok as-toggle">1 story</label>
+        <label for="c-16-foundation-typography-err" class="badge err as-toggle">prop type error</label>
+        <label for="c-16-foundation-typography-info" class="badge info as-toggle">2 infos</label>
+        <label for="c-16-foundation-typography-stories" class="badge ok as-toggle">1 story</label>
         
       </div>
     </div>
@@ -5111,9 +5439,9 @@ container?: Element | DocumentFragment | null</code></pre>
   </div>
 
   <!-- ⬇️ Hidden toggles must be siblings BEFORE .panels -->
-  <input id="c-15-foundation-typography-err" class="tg tg-err" type="checkbox" hidden />
-  <input id="c-15-foundation-typography-info" class="tg tg-info" type="checkbox" hidden />
-  <input id="c-15-foundation-typography-stories" class="tg tg-stories" type="checkbox" hidden />
+  <input id="c-16-foundation-typography-err" class="tg tg-err" type="checkbox" hidden />
+  <input id="c-16-foundation-typography-info" class="tg tg-info" type="checkbox" hidden />
+  <input id="c-16-foundation-typography-stories" class="tg tg-stories" type="checkbox" hidden />
   
   
 
@@ -5863,9 +6191,9 @@ export const Typography: Story = {
     <div class="title">
       <h2><span class="status-dot dot-err"></span> Welcome</h2>
       <div class="badges">
-        <label for="c-16-welcome-err" class="badge err as-toggle">prop type error</label>
-        <label for="c-16-welcome-info" class="badge info as-toggle">1 info</label>
-        <label for="c-16-welcome-stories" class="badge ok as-toggle">1 story</label>
+        <label for="c-17-welcome-err" class="badge err as-toggle">prop type error</label>
+        <label for="c-17-welcome-info" class="badge info as-toggle">1 info</label>
+        <label for="c-17-welcome-stories" class="badge ok as-toggle">1 story</label>
         
       </div>
     </div>
@@ -5876,9 +6204,9 @@ export const Typography: Story = {
   </div>
 
   <!-- ⬇️ Hidden toggles must be siblings BEFORE .panels -->
-  <input id="c-16-welcome-err" class="tg tg-err" type="checkbox" hidden />
-  <input id="c-16-welcome-info" class="tg tg-info" type="checkbox" hidden />
-  <input id="c-16-welcome-stories" class="tg tg-stories" type="checkbox" hidden />
+  <input id="c-17-welcome-err" class="tg tg-err" type="checkbox" hidden />
+  <input id="c-17-welcome-info" class="tg tg-info" type="checkbox" hidden />
+  <input id="c-17-welcome-stories" class="tg tg-stories" type="checkbox" hidden />
   
   
 
@@ -5889,19 +6217,20 @@ export const Typography: Story = {
     <div class="note err">
       <div class="note-title">Prop type error</div>
       <div class="note-body"><pre><code>We could not detect the component from your story file. Specify meta.component.
-  21 | import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from &#39;../components/lv1/Tooltip&#39;
-  22 |
-&gt; 23 | const meta: Meta = {
+  22 | import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from &#39;../components/lv1/Tooltip&#39;
+  23 |
+&gt; 24 | const meta: Meta = {
      | ^
-  24 |   title: &#39;Welcome&#39;,
-  25 |   parameters: {
-  26 |     layout: &#39;fullscreen&#39;,
+  25 |   title: &#39;Welcome&#39;,
+  26 |   parameters: {
+  27 |     layout: &#39;fullscreen&#39;,
 
 ./src/docs/Welcome.stories.tsx:
 import type { Meta, StoryObj } from &#39;@storybook/react-vite&#39;
 import { CircleCheck } from &#39;lucide-react&#39;
 import { Badge } from &#39;../components/lv1/Badge&#39;
 import { Button } from &#39;../components/lv1/Button&#39;
+import { Callout } from &#39;../components/lv1/Callout&#39;
 import { Checkbox } from &#39;../components/lv1/Checkbox&#39;
 import { Field } from &#39;../components/lv1/Field&#39;
 import { FieldSet } from &#39;../components/lv1/FieldSet&#39;
@@ -6100,6 +6429,18 @@ export const Overview: Story = {
               &lt;/span&gt;
             &lt;/div&gt;
           &lt;/ComponentCard&gt;
+
+          &lt;ComponentCard
+            name=&quot;Callout&quot;
+            description=&quot;Inline contextual notices.&quot;
+            storyPath=&quot;components-lv1-callout&quot;
+          &gt;
+            &lt;div className=&quot;w-48 scale-90&quot;&gt;
+              &lt;Callout variant=&quot;info&quot; title=&quot;Heads up&quot;&gt;
+                A beta feature.
+              &lt;/Callout&gt;
+            &lt;/div&gt;
+          &lt;/ComponentCard&gt;
         &lt;/div&gt;
       &lt;/div&gt;
 
@@ -6258,6 +6599,7 @@ export const Overview: Story = {
                 <pre><code>import {
     Badge,
     Button,
+    Callout,
     Checkbox,
     Field,
     FieldSet,
@@ -6412,6 +6754,18 @@ import { CircleCheck } from "lucide-react";</code></pre>
             &gt;
               ×
             &lt;/span&gt;
+          &lt;/div&gt;
+        &lt;/ComponentCard&gt;
+
+        &lt;ComponentCard
+          name=&quot;Callout&quot;
+          description=&quot;Inline contextual notices.&quot;
+          storyPath=&quot;components-lv1-callout&quot;
+        &gt;
+          &lt;div className=&quot;w-48 scale-90&quot;&gt;
+            &lt;Callout variant=&quot;info&quot; title=&quot;Heads up&quot;&gt;
+              A beta feature.
+            &lt;/Callout&gt;
           &lt;/div&gt;
         &lt;/ComponentCard&gt;
       &lt;/div&gt;
@@ -8536,19 +8890,20 @@ export const Typography: Story = {
     <div class="note err">
       <div class="note-title">Prop type error</div>
       <div class="note-body"><pre><code>We could not detect the component from your story file. Specify meta.component.
-  21 | import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from &#39;../components/lv1/Tooltip&#39;
-  22 |
-&gt; 23 | const meta: Meta = {
+  22 | import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from &#39;../components/lv1/Tooltip&#39;
+  23 |
+&gt; 24 | const meta: Meta = {
      | ^
-  24 |   title: &#39;Welcome&#39;,
-  25 |   parameters: {
-  26 |     layout: &#39;fullscreen&#39;,
+  25 |   title: &#39;Welcome&#39;,
+  26 |   parameters: {
+  27 |     layout: &#39;fullscreen&#39;,
 
 ./src/docs/Welcome.stories.tsx:
 import type { Meta, StoryObj } from &#39;@storybook/react-vite&#39;
 import { CircleCheck } from &#39;lucide-react&#39;
 import { Badge } from &#39;../components/lv1/Badge&#39;
 import { Button } from &#39;../components/lv1/Button&#39;
+import { Callout } from &#39;../components/lv1/Callout&#39;
 import { Checkbox } from &#39;../components/lv1/Checkbox&#39;
 import { Field } from &#39;../components/lv1/Field&#39;
 import { FieldSet } from &#39;../components/lv1/FieldSet&#39;
@@ -8747,6 +9102,18 @@ export const Overview: Story = {
               &lt;/span&gt;
             &lt;/div&gt;
           &lt;/ComponentCard&gt;
+
+          &lt;ComponentCard
+            name=&quot;Callout&quot;
+            description=&quot;Inline contextual notices.&quot;
+            storyPath=&quot;components-lv1-callout&quot;
+          &gt;
+            &lt;div className=&quot;w-48 scale-90&quot;&gt;
+              &lt;Callout variant=&quot;info&quot; title=&quot;Heads up&quot;&gt;
+                A beta feature.
+              &lt;/Callout&gt;
+            &lt;/div&gt;
+          &lt;/ComponentCard&gt;
         &lt;/div&gt;
       &lt;/div&gt;
 
@@ -8905,6 +9272,7 @@ export const Overview: Story = {
                 <pre><code>import {
     Badge,
     Button,
+    Callout,
     Checkbox,
     Field,
     FieldSet,
@@ -9059,6 +9427,18 @@ import { CircleCheck } from "lucide-react";</code></pre>
             &gt;
               ×
             &lt;/span&gt;
+          &lt;/div&gt;
+        &lt;/ComponentCard&gt;
+
+        &lt;ComponentCard
+          name=&quot;Callout&quot;
+          description=&quot;Inline contextual notices.&quot;
+          storyPath=&quot;components-lv1-callout&quot;
+        &gt;
+          &lt;div className=&quot;w-48 scale-90&quot;&gt;
+            &lt;Callout variant=&quot;info&quot; title=&quot;Heads up&quot;&gt;
+              A beta feature.
+            &lt;/Callout&gt;
           &lt;/div&gt;
         &lt;/ComponentCard&gt;
       &lt;/div&gt;

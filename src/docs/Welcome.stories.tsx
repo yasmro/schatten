@@ -179,6 +179,23 @@ export const Overview: Story = {
               </Tooltip>
             </TooltipProvider>
           </ComponentCard>
+
+          <ComponentCard
+            name="Toast"
+            description="Transient notifications with variants."
+            storyPath="components-lv1-toast"
+          >
+            <div className="relative w-44 border border-success bg-success-subtle p-3 pr-8 text-xs text-success shadow-sm">
+              <div className="font-semibold leading-tight">Saved</div>
+              <div className="leading-snug opacity-90">Your changes have been saved.</div>
+              <span
+                aria-hidden
+                className="absolute top-1 right-1 inline-flex size-5 items-center justify-center"
+              >
+                ×
+              </span>
+            </div>
+          </ComponentCard>
         </div>
       </div>
 

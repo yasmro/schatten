@@ -28,6 +28,10 @@ export function ToastItem({ toast }: ToastItemProps) {
     dismiss(toast.id)
   }
 
+  // Solid toasts have a saturated fill, so the action/close button needs an
+  // inverse foreground to stay legible against the bg.
+  const buttonVariant = toast.treatment === 'solid' ? 'inverted' : 'tertiary'
+
   return (
     <ToastPrimitive.Root
       open={toast.open}
@@ -57,13 +61,13 @@ export function ToastItem({ toast }: ToastItemProps) {
               (typeof toast.action.label === 'string' ? toast.action.label : 'Action')
             }
           >
-            <Button variant="tertiary" size="sm" onClick={handleActionClick}>
+            <Button variant={buttonVariant} size="sm" onClick={handleActionClick}>
               {toast.action.label}
             </Button>
           </ToastPrimitive.Action>
         ) : (
           <ToastPrimitive.Close asChild>
-            <Button variant="tertiary" size="sm" icon="X" aria-label="Close" />
+            <Button variant={buttonVariant} size="sm" icon="X" aria-label="Close" />
           </ToastPrimitive.Close>
         )}
       </div>

@@ -105,7 +105,11 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
             size="sm"
             className="size-[1em]"
             label="Loading"
-            variant={variant === 'primary' || variant === 'destructive' ? 'inverse' : 'default'}
+            variant={
+              variant === 'primary' || variant === 'destructive' || variant === 'inverted'
+                ? 'inverse'
+                : 'default'
+            }
           />
         </span>
         <span

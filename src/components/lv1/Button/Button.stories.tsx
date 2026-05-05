@@ -12,9 +12,11 @@ const meta: Meta<typeof Button> = {
     variant: {
       description: 'Visual style of the button.',
       control: 'select',
-      options: ['primary', 'secondary', 'tertiary', 'destructive', 'link'],
+      options: ['primary', 'secondary', 'tertiary', 'inverted', 'destructive', 'link'],
       table: {
-        type: { summary: '"primary" | "secondary" | "tertiary" | "destructive" | "link"' },
+        type: {
+          summary: '"primary" | "secondary" | "tertiary" | "inverted" | "destructive" | "link"',
+        },
         defaultValue: { summary: 'primary' },
       },
     },
@@ -93,11 +95,19 @@ export const Playground: Story = {
 export const AllVariants: Story = {
   name: 'All Variants',
   render: () => (
-    <div className="flex flex-wrap gap-4">
-      <Button variant="primary">Primary</Button>
-      <Button variant="secondary">Secondary</Button>
-      <Button variant="tertiary">Tertiary</Button>
-      <Button variant="destructive">Destructive</Button>
+    <div className="flex flex-col gap-4">
+      <div className="flex flex-wrap gap-4">
+        <Button variant="primary">Primary</Button>
+        <Button variant="secondary">Secondary</Button>
+        <Button variant="tertiary">Tertiary</Button>
+        <Button variant="destructive">Destructive</Button>
+      </div>
+      {/* `inverted` is intended for placement on a saturated surface; preview
+          it on a solid background so the contrast pattern is visible. */}
+      <div className="flex flex-wrap gap-4 rounded-lg bg-solid p-4">
+        <Button variant="inverted">Inverted</Button>
+        <Button variant="inverted" icon="X" aria-label="Close" />
+      </div>
     </div>
   ),
 }

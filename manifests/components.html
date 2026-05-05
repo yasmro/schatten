@@ -576,13 +576,13 @@
 <header>
   <div class="wrap">
     <h1>Manifest Debugger</h1>
-    <div class="summary"><a class="filter-pill all" data-k="all" href="#filter-all">All</a><a class="filter-pill err" data-k="errors" href="#filter-errors">3/16 prop type errors</a><a class="filter-pill info" data-k="infos" href="#filter-infos">16/16 infos</a><span class="filter-pill ok" aria-disabled="true">94 stories ok</span></div>
+    <div class="summary"><a class="filter-pill all" data-k="all" href="#filter-all">All</a><a class="filter-pill err" data-k="errors" href="#filter-errors">3/16 prop type errors</a><a class="filter-pill info" data-k="infos" href="#filter-infos">16/16 infos</a><span class="filter-pill ok" aria-disabled="true">95 stories ok</span></div>
   </div>
 </header>
 <main>
   <div class="wrap">
     <div class="note ok" style="margin-bottom: 16px;">
-              Using <code>react-docgen-typescript</code>. Generation took <strong>2.1s</strong>.
+              Using <code>react-docgen-typescript</code>. Generation took <strong>2.8s</strong>.
             </div>
     <h2 class="section-title">Components</h2>
     <div class="grid" role="list">
@@ -2142,9 +2142,9 @@ export const Colors: Story = {
     <div class="title">
       <h2><span class="status-dot dot-ok"></span> Field</h2>
       <div class="badges">
-        <label for="c-4-components-lv1-field-props" class="badge ok as-toggle">11 prop types</label>
+        <label for="c-4-components-lv1-field-props" class="badge ok as-toggle">12 prop types</label>
         <label for="c-4-components-lv1-field-info" class="badge info as-toggle">1 info</label>
-        <label for="c-4-components-lv1-field-stories" class="badge ok as-toggle">11 stories</label>
+        <label for="c-4-components-lv1-field-stories" class="badge ok as-toggle">12 stories</label>
         
       </div>
     </div>
@@ -2176,7 +2176,7 @@ export const Colors: Story = {
           <div class="note ok">
             <div class="row">
               <span class="ex-name">Prop types <small>(react-docgen-typescript)</small></span>
-              <span class="badge ok">11 prop types</span>
+              <span class="badge ok">12 prop types</span>
             </div>
             <pre><code>Component: src/components/lv1/Field/Field.tsx::Field</code></pre>
             <pre><code>Props:</code></pre>
@@ -2233,7 +2233,12 @@ label?: ReactNode
 /**
  * Show required indicator (*)
  */
-required?: boolean = false</code></pre>
+required?: boolean = false
+
+/**
+ * Tooltip content displayed on hover of info icon next to label
+ */
+tooltip?: ReactNode</code></pre>
           </div>
         </div>
     
@@ -2258,6 +2263,7 @@ required?: boolean = false</code></pre>
     SelectValue,
     Switch,
     Textarea,
+    TooltipProvider,
 } from "@yasmro/schatten";</code></pre>
               </div>
           
@@ -2379,6 +2385,29 @@ required?: boolean = false</code></pre>
         &lt;Radio value=&quot;pro&quot; label=&quot;Pro&quot; /&gt;
         &lt;Radio value=&quot;enterprise&quot; label=&quot;Enterprise&quot; /&gt;
       &lt;/RadioGroup&gt;
+    &lt;/Field&gt;
+  &lt;/div&gt;
+);</code></pre>
+            </div>
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">With Tooltip</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const WithTooltip = () =&gt; (
+  &lt;div className=&quot;flex flex-col gap-6 w-80&quot;&gt;
+    &lt;Field label=&quot;Email&quot; tooltip=&quot;Used for account recovery and important notifications.&quot;&gt;
+      &lt;Input type=&quot;email&quot; placeholder=&quot;you@example.com&quot; /&gt;
+    &lt;/Field&gt;
+    &lt;Field
+      label=&quot;Password&quot;
+      description=&quot;Must be at least 8 characters.&quot;
+      tooltip=&quot;Use a mix of letters, numbers, and symbols for better security.&quot;
+      required
+    &gt;
+      &lt;Input type=&quot;password&quot; placeholder=&quot;Enter password&quot; /&gt;
     &lt;/Field&gt;
   &lt;/div&gt;
 );</code></pre>

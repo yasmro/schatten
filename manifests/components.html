@@ -582,7 +582,7 @@
 <main>
   <div class="wrap">
     <div class="note ok" style="margin-bottom: 16px;">
-              Using <code>react-docgen-typescript</code>. Generation took <strong>3.2s</strong>.
+              Using <code>react-docgen-typescript</code>. Generation took <strong>2.8s</strong>.
             </div>
     <h2 class="section-title">Components</h2>
     <div class="grid" role="list">
@@ -1054,7 +1054,7 @@ variant?: &quot;primary&quot; | &quot;secondary&quot; | &quot;destructive&quot; 
             <pre><code>asChild?: boolean
 
 /**
- * Displays the checkbox in an error state with destructive border and ring.
+ * Displays the checkbox in an error state with error border and ring.
  */
 isError?: boolean = false
 
@@ -1398,24 +1398,147 @@ export const Colors: Story = {
         &lt;ColorRow name=&quot;ring&quot; description=&quot;Focus ring color&quot; className=&quot;bg-ring&quot; /&gt;
       &lt;/div&gt;
 
-      &lt;SubsectionTitle&gt;Status&lt;/SubsectionTitle&gt;
+      &lt;SubsectionTitle&gt;State Tokens&lt;/SubsectionTitle&gt;
+      &lt;p className=&quot;text-sm text-foreground-muted mb-3&quot;&gt;
+        Each state provides four tokens — &lt;code&gt;base&lt;/code&gt; (main color), &lt;code&gt;hover&lt;/code&gt;{&#39; &#39;}
+        (interactive sibling), &lt;code&gt;foreground&lt;/code&gt; (text on base) and &lt;code&gt;subtle&lt;/code&gt; (faint
+        tinted background).
+      &lt;/p&gt;
+
+      &lt;SubsectionTitle&gt;Error&lt;/SubsectionTitle&gt;
+      &lt;p className=&quot;text-sm text-foreground-muted mb-3&quot;&gt;
+        Form validation and error notifications. Visually shares vermillion with{&#39; &#39;}
+        &lt;code&gt;destructive&lt;/code&gt;, but is semantically distinct.
+      &lt;/p&gt;
       &lt;div className=&quot;border border-border rounded-xl px-5&quot;&gt;
-        &lt;ColorRow name=&quot;success&quot; description=&quot;Positive actions and states&quot; className=&quot;bg-success&quot; /&gt;
+        &lt;ColorRow name=&quot;error&quot; description=&quot;Error base color&quot; className=&quot;bg-error&quot; /&gt;
         &lt;ColorRow
-          name=&quot;warning&quot;
-          description=&quot;Caution states that need attention&quot;
-          className=&quot;bg-warning&quot;
+          name=&quot;error-hover&quot;
+          description=&quot;Hover state for error&quot;
+          className=&quot;bg-error-hover&quot;
         /&gt;
         &lt;ColorRow
-          name=&quot;destructive&quot;
-          description=&quot;Destructive actions and error states&quot;
-          className=&quot;bg-destructive&quot;
+          name=&quot;error-foreground&quot;
+          description=&quot;Text on error base&quot;
+          className=&quot;bg-error-foreground border border-border&quot;
         /&gt;
         &lt;ColorRow
-          name=&quot;destructive-subtle&quot;
+          name=&quot;error-subtle&quot;
           description=&quot;Subtle background for error states&quot;
-          className=&quot;bg-destructive-subtle border border-border&quot;
+          className=&quot;bg-error-subtle border border-border&quot;
         /&gt;
+      &lt;/div&gt;
+
+      &lt;SubsectionTitle&gt;Success&lt;/SubsectionTitle&gt;
+      &lt;div className=&quot;border border-border rounded-xl px-5&quot;&gt;
+        &lt;ColorRow name=&quot;success&quot; description=&quot;Success base color&quot; className=&quot;bg-success&quot; /&gt;
+        &lt;ColorRow
+          name=&quot;success-hover&quot;
+          description=&quot;Hover state for success&quot;
+          className=&quot;bg-success-hover&quot;
+        /&gt;
+        &lt;ColorRow
+          name=&quot;success-foreground&quot;
+          description=&quot;Text on success base&quot;
+          className=&quot;bg-success-foreground border border-border&quot;
+        /&gt;
+        &lt;ColorRow
+          name=&quot;success-subtle&quot;
+          description=&quot;Subtle background for success states&quot;
+          className=&quot;bg-success-subtle border border-border&quot;
+        /&gt;
+      &lt;/div&gt;
+
+      &lt;SubsectionTitle&gt;Warning&lt;/SubsectionTitle&gt;
+      &lt;div className=&quot;border border-border rounded-xl px-5&quot;&gt;
+        &lt;ColorRow name=&quot;warning&quot; description=&quot;Warning base color&quot; className=&quot;bg-warning&quot; /&gt;
+        &lt;ColorRow
+          name=&quot;warning-hover&quot;
+          description=&quot;Hover state for warning&quot;
+          className=&quot;bg-warning-hover&quot;
+        /&gt;
+        &lt;ColorRow
+          name=&quot;warning-foreground&quot;
+          description=&quot;Text on warning base&quot;
+          className=&quot;bg-warning-foreground border border-border&quot;
+        /&gt;
+        &lt;ColorRow
+          name=&quot;warning-subtle&quot;
+          description=&quot;Subtle background for warning states&quot;
+          className=&quot;bg-warning-subtle border border-border&quot;
+        /&gt;
+      &lt;/div&gt;
+
+      &lt;SubsectionTitle&gt;Info&lt;/SubsectionTitle&gt;
+      &lt;p className=&quot;text-sm text-foreground-muted mb-3&quot;&gt;
+        Informational notifications. References blue directly so themes that retune{&#39; &#39;}
+        &lt;code&gt;primary&lt;/code&gt; do not affect info.
+      &lt;/p&gt;
+      &lt;div className=&quot;border border-border rounded-xl px-5&quot;&gt;
+        &lt;ColorRow name=&quot;info&quot; description=&quot;Info base color&quot; className=&quot;bg-info&quot; /&gt;
+        &lt;ColorRow name=&quot;info-hover&quot; description=&quot;Hover state for info&quot; className=&quot;bg-info-hover&quot; /&gt;
+        &lt;ColorRow
+          name=&quot;info-foreground&quot;
+          description=&quot;Text on info base&quot;
+          className=&quot;bg-info-foreground border border-border&quot;
+        /&gt;
+        &lt;ColorRow
+          name=&quot;info-subtle&quot;
+          description=&quot;Subtle background for info states&quot;
+          className=&quot;bg-info-subtle border border-border&quot;
+        /&gt;
+      &lt;/div&gt;
+
+      &lt;SubsectionTitle&gt;Filled Treatments (a11y audit)&lt;/SubsectionTitle&gt;
+      &lt;p className=&quot;text-sm text-foreground-muted mb-3&quot;&gt;
+        Each row shows a state&#39;s &lt;code&gt;bg-X&lt;/code&gt; with &lt;code&gt;text-X-foreground&lt;/code&gt; applied — the
+        canonical &quot;filled&quot; treatment used by Toast / Alert / Button. Toggle Storybook between light
+        and dark themes to verify text remains readable in both modes.
+      &lt;/p&gt;
+      &lt;div className=&quot;flex flex-col gap-2&quot;&gt;
+        {(
+          [
+            { name: &#39;destructive&#39;, bg: &#39;bg-destructive&#39;, fg: &#39;text-destructive-foreground&#39; },
+            { name: &#39;error&#39;, bg: &#39;bg-error&#39;, fg: &#39;text-error-foreground&#39; },
+            { name: &#39;success&#39;, bg: &#39;bg-success&#39;, fg: &#39;text-success-foreground&#39; },
+            { name: &#39;warning&#39;, bg: &#39;bg-warning&#39;, fg: &#39;text-warning-foreground&#39; },
+            { name: &#39;info&#39;, bg: &#39;bg-info&#39;, fg: &#39;text-info-foreground&#39; },
+          ] as const
+        ).map((s) =&gt; (
+          &lt;div
+            key={s.name}
+            className={`flex items-center gap-3 rounded-lg px-4 py-3 ${s.bg} ${s.fg}`}
+          &gt;
+            &lt;span className=&quot;font-mono text-xs opacity-70&quot;&gt;{s.name}&lt;/span&gt;
+            &lt;span className=&quot;text-sm font-medium&quot;&gt;The quick brown fox jumps over the lazy dog&lt;/span&gt;
+          &lt;/div&gt;
+        ))}
+      &lt;/div&gt;
+
+      &lt;SubsectionTitle&gt;Subtle Treatments (a11y audit)&lt;/SubsectionTitle&gt;
+      &lt;p className=&quot;text-sm text-foreground-muted mb-3&quot;&gt;
+        Each row shows a state&#39;s &lt;code&gt;bg-X-subtle&lt;/code&gt; with &lt;code&gt;text-X&lt;/code&gt; applied — the
+        &quot;soft&quot; treatment used by Input error background. Verify text remains readable in both
+        themes.
+      &lt;/p&gt;
+      &lt;div className=&quot;flex flex-col gap-2&quot;&gt;
+        {(
+          [
+            { name: &#39;destructive&#39;, bg: &#39;bg-destructive-subtle&#39;, fg: &#39;text-destructive&#39; },
+            { name: &#39;error&#39;, bg: &#39;bg-error-subtle&#39;, fg: &#39;text-error&#39; },
+            { name: &#39;success&#39;, bg: &#39;bg-success-subtle&#39;, fg: &#39;text-success&#39; },
+            { name: &#39;warning&#39;, bg: &#39;bg-warning-subtle&#39;, fg: &#39;text-warning&#39; },
+            { name: &#39;info&#39;, bg: &#39;bg-info-subtle&#39;, fg: &#39;text-info&#39; },
+          ] as const
+        ).map((s) =&gt; (
+          &lt;div
+            key={s.name}
+            className={`flex items-center gap-3 rounded-lg border border-border px-4 py-3 ${s.bg} ${s.fg}`}
+          &gt;
+            &lt;span className=&quot;font-mono text-xs opacity-70&quot;&gt;{s.name}&lt;/span&gt;
+            &lt;span className=&quot;text-sm font-medium&quot;&gt;The quick brown fox jumps over the lazy dog&lt;/span&gt;
+          &lt;/div&gt;
+        ))}
       &lt;/div&gt;
 
       &lt;SectionTitle&gt;Primitive Palette&lt;/SectionTitle&gt;
@@ -1822,24 +1945,147 @@ export const Colors: Story = {
       &lt;ColorRow name=&quot;ring&quot; description=&quot;Focus ring color&quot; className=&quot;bg-ring&quot; /&gt;
     &lt;/div&gt;
 
-    &lt;SubsectionTitle&gt;Status&lt;/SubsectionTitle&gt;
+    &lt;SubsectionTitle&gt;State Tokens&lt;/SubsectionTitle&gt;
+    &lt;p className=&quot;text-sm text-foreground-muted mb-3&quot;&gt;
+      Each state provides four tokens — &lt;code&gt;base&lt;/code&gt; (main color), &lt;code&gt;hover&lt;/code&gt;{&#39; &#39;}
+      (interactive sibling), &lt;code&gt;foreground&lt;/code&gt; (text on base) and &lt;code&gt;subtle&lt;/code&gt; (faint
+      tinted background).
+    &lt;/p&gt;
+
+    &lt;SubsectionTitle&gt;Error&lt;/SubsectionTitle&gt;
+    &lt;p className=&quot;text-sm text-foreground-muted mb-3&quot;&gt;
+      Form validation and error notifications. Visually shares vermillion with{&#39; &#39;}
+      &lt;code&gt;destructive&lt;/code&gt;, but is semantically distinct.
+    &lt;/p&gt;
     &lt;div className=&quot;border border-border rounded-xl px-5&quot;&gt;
-      &lt;ColorRow name=&quot;success&quot; description=&quot;Positive actions and states&quot; className=&quot;bg-success&quot; /&gt;
+      &lt;ColorRow name=&quot;error&quot; description=&quot;Error base color&quot; className=&quot;bg-error&quot; /&gt;
       &lt;ColorRow
-        name=&quot;warning&quot;
-        description=&quot;Caution states that need attention&quot;
-        className=&quot;bg-warning&quot;
+        name=&quot;error-hover&quot;
+        description=&quot;Hover state for error&quot;
+        className=&quot;bg-error-hover&quot;
       /&gt;
       &lt;ColorRow
-        name=&quot;destructive&quot;
-        description=&quot;Destructive actions and error states&quot;
-        className=&quot;bg-destructive&quot;
+        name=&quot;error-foreground&quot;
+        description=&quot;Text on error base&quot;
+        className=&quot;bg-error-foreground border border-border&quot;
       /&gt;
       &lt;ColorRow
-        name=&quot;destructive-subtle&quot;
+        name=&quot;error-subtle&quot;
         description=&quot;Subtle background for error states&quot;
-        className=&quot;bg-destructive-subtle border border-border&quot;
+        className=&quot;bg-error-subtle border border-border&quot;
       /&gt;
+    &lt;/div&gt;
+
+    &lt;SubsectionTitle&gt;Success&lt;/SubsectionTitle&gt;
+    &lt;div className=&quot;border border-border rounded-xl px-5&quot;&gt;
+      &lt;ColorRow name=&quot;success&quot; description=&quot;Success base color&quot; className=&quot;bg-success&quot; /&gt;
+      &lt;ColorRow
+        name=&quot;success-hover&quot;
+        description=&quot;Hover state for success&quot;
+        className=&quot;bg-success-hover&quot;
+      /&gt;
+      &lt;ColorRow
+        name=&quot;success-foreground&quot;
+        description=&quot;Text on success base&quot;
+        className=&quot;bg-success-foreground border border-border&quot;
+      /&gt;
+      &lt;ColorRow
+        name=&quot;success-subtle&quot;
+        description=&quot;Subtle background for success states&quot;
+        className=&quot;bg-success-subtle border border-border&quot;
+      /&gt;
+    &lt;/div&gt;
+
+    &lt;SubsectionTitle&gt;Warning&lt;/SubsectionTitle&gt;
+    &lt;div className=&quot;border border-border rounded-xl px-5&quot;&gt;
+      &lt;ColorRow name=&quot;warning&quot; description=&quot;Warning base color&quot; className=&quot;bg-warning&quot; /&gt;
+      &lt;ColorRow
+        name=&quot;warning-hover&quot;
+        description=&quot;Hover state for warning&quot;
+        className=&quot;bg-warning-hover&quot;
+      /&gt;
+      &lt;ColorRow
+        name=&quot;warning-foreground&quot;
+        description=&quot;Text on warning base&quot;
+        className=&quot;bg-warning-foreground border border-border&quot;
+      /&gt;
+      &lt;ColorRow
+        name=&quot;warning-subtle&quot;
+        description=&quot;Subtle background for warning states&quot;
+        className=&quot;bg-warning-subtle border border-border&quot;
+      /&gt;
+    &lt;/div&gt;
+
+    &lt;SubsectionTitle&gt;Info&lt;/SubsectionTitle&gt;
+    &lt;p className=&quot;text-sm text-foreground-muted mb-3&quot;&gt;
+      Informational notifications. References blue directly so themes that retune{&#39; &#39;}
+      &lt;code&gt;primary&lt;/code&gt; do not affect info.
+    &lt;/p&gt;
+    &lt;div className=&quot;border border-border rounded-xl px-5&quot;&gt;
+      &lt;ColorRow name=&quot;info&quot; description=&quot;Info base color&quot; className=&quot;bg-info&quot; /&gt;
+      &lt;ColorRow name=&quot;info-hover&quot; description=&quot;Hover state for info&quot; className=&quot;bg-info-hover&quot; /&gt;
+      &lt;ColorRow
+        name=&quot;info-foreground&quot;
+        description=&quot;Text on info base&quot;
+        className=&quot;bg-info-foreground border border-border&quot;
+      /&gt;
+      &lt;ColorRow
+        name=&quot;info-subtle&quot;
+        description=&quot;Subtle background for info states&quot;
+        className=&quot;bg-info-subtle border border-border&quot;
+      /&gt;
+    &lt;/div&gt;
+
+    &lt;SubsectionTitle&gt;Filled Treatments (a11y audit)&lt;/SubsectionTitle&gt;
+    &lt;p className=&quot;text-sm text-foreground-muted mb-3&quot;&gt;
+      Each row shows a state&#39;s &lt;code&gt;bg-X&lt;/code&gt; with &lt;code&gt;text-X-foreground&lt;/code&gt; applied — the
+      canonical &quot;filled&quot; treatment used by Toast / Alert / Button. Toggle Storybook between light
+      and dark themes to verify text remains readable in both modes.
+    &lt;/p&gt;
+    &lt;div className=&quot;flex flex-col gap-2&quot;&gt;
+      {(
+        [
+          { name: &#39;destructive&#39;, bg: &#39;bg-destructive&#39;, fg: &#39;text-destructive-foreground&#39; },
+          { name: &#39;error&#39;, bg: &#39;bg-error&#39;, fg: &#39;text-error-foreground&#39; },
+          { name: &#39;success&#39;, bg: &#39;bg-success&#39;, fg: &#39;text-success-foreground&#39; },
+          { name: &#39;warning&#39;, bg: &#39;bg-warning&#39;, fg: &#39;text-warning-foreground&#39; },
+          { name: &#39;info&#39;, bg: &#39;bg-info&#39;, fg: &#39;text-info-foreground&#39; },
+        ] as const
+      ).map((s) =&gt; (
+        &lt;div
+          key={s.name}
+          className={`flex items-center gap-3 rounded-lg px-4 py-3 ${s.bg} ${s.fg}`}
+        &gt;
+          &lt;span className=&quot;font-mono text-xs opacity-70&quot;&gt;{s.name}&lt;/span&gt;
+          &lt;span className=&quot;text-sm font-medium&quot;&gt;The quick brown fox jumps over the lazy dog&lt;/span&gt;
+        &lt;/div&gt;
+      ))}
+    &lt;/div&gt;
+
+    &lt;SubsectionTitle&gt;Subtle Treatments (a11y audit)&lt;/SubsectionTitle&gt;
+    &lt;p className=&quot;text-sm text-foreground-muted mb-3&quot;&gt;
+      Each row shows a state&#39;s &lt;code&gt;bg-X-subtle&lt;/code&gt; with &lt;code&gt;text-X&lt;/code&gt; applied — the
+      &quot;soft&quot; treatment used by Input error background. Verify text remains readable in both
+      themes.
+    &lt;/p&gt;
+    &lt;div className=&quot;flex flex-col gap-2&quot;&gt;
+      {(
+        [
+          { name: &#39;destructive&#39;, bg: &#39;bg-destructive-subtle&#39;, fg: &#39;text-destructive&#39; },
+          { name: &#39;error&#39;, bg: &#39;bg-error-subtle&#39;, fg: &#39;text-error&#39; },
+          { name: &#39;success&#39;, bg: &#39;bg-success-subtle&#39;, fg: &#39;text-success&#39; },
+          { name: &#39;warning&#39;, bg: &#39;bg-warning-subtle&#39;, fg: &#39;text-warning&#39; },
+          { name: &#39;info&#39;, bg: &#39;bg-info-subtle&#39;, fg: &#39;text-info&#39; },
+        ] as const
+      ).map((s) =&gt; (
+        &lt;div
+          key={s.name}
+          className={`flex items-center gap-3 rounded-lg border border-border px-4 py-3 ${s.bg} ${s.fg}`}
+        &gt;
+          &lt;span className=&quot;font-mono text-xs opacity-70&quot;&gt;{s.name}&lt;/span&gt;
+          &lt;span className=&quot;text-sm font-medium&quot;&gt;The quick brown fox jumps over the lazy dog&lt;/span&gt;
+        &lt;/div&gt;
+      ))}
     &lt;/div&gt;
 
     &lt;SectionTitle&gt;Primitive Palette&lt;/SectionTitle&gt;
@@ -3957,7 +4203,7 @@ variant?: &quot;default&quot; | &quot;inverse&quot; | null</code></pre>
             <pre><code>asChild?: boolean
 
 /**
- * Displays the switch in an error state with destructive border and ring.
+ * Displays the switch in an error state with error border and ring.
  */
 isError?: boolean = false
 
@@ -6221,24 +6467,147 @@ export const Colors: Story = {
         &lt;ColorRow name=&quot;ring&quot; description=&quot;Focus ring color&quot; className=&quot;bg-ring&quot; /&gt;
       &lt;/div&gt;
 
-      &lt;SubsectionTitle&gt;Status&lt;/SubsectionTitle&gt;
+      &lt;SubsectionTitle&gt;State Tokens&lt;/SubsectionTitle&gt;
+      &lt;p className=&quot;text-sm text-foreground-muted mb-3&quot;&gt;
+        Each state provides four tokens — &lt;code&gt;base&lt;/code&gt; (main color), &lt;code&gt;hover&lt;/code&gt;{&#39; &#39;}
+        (interactive sibling), &lt;code&gt;foreground&lt;/code&gt; (text on base) and &lt;code&gt;subtle&lt;/code&gt; (faint
+        tinted background).
+      &lt;/p&gt;
+
+      &lt;SubsectionTitle&gt;Error&lt;/SubsectionTitle&gt;
+      &lt;p className=&quot;text-sm text-foreground-muted mb-3&quot;&gt;
+        Form validation and error notifications. Visually shares vermillion with{&#39; &#39;}
+        &lt;code&gt;destructive&lt;/code&gt;, but is semantically distinct.
+      &lt;/p&gt;
       &lt;div className=&quot;border border-border rounded-xl px-5&quot;&gt;
-        &lt;ColorRow name=&quot;success&quot; description=&quot;Positive actions and states&quot; className=&quot;bg-success&quot; /&gt;
+        &lt;ColorRow name=&quot;error&quot; description=&quot;Error base color&quot; className=&quot;bg-error&quot; /&gt;
         &lt;ColorRow
-          name=&quot;warning&quot;
-          description=&quot;Caution states that need attention&quot;
-          className=&quot;bg-warning&quot;
+          name=&quot;error-hover&quot;
+          description=&quot;Hover state for error&quot;
+          className=&quot;bg-error-hover&quot;
         /&gt;
         &lt;ColorRow
-          name=&quot;destructive&quot;
-          description=&quot;Destructive actions and error states&quot;
-          className=&quot;bg-destructive&quot;
+          name=&quot;error-foreground&quot;
+          description=&quot;Text on error base&quot;
+          className=&quot;bg-error-foreground border border-border&quot;
         /&gt;
         &lt;ColorRow
-          name=&quot;destructive-subtle&quot;
+          name=&quot;error-subtle&quot;
           description=&quot;Subtle background for error states&quot;
-          className=&quot;bg-destructive-subtle border border-border&quot;
+          className=&quot;bg-error-subtle border border-border&quot;
         /&gt;
+      &lt;/div&gt;
+
+      &lt;SubsectionTitle&gt;Success&lt;/SubsectionTitle&gt;
+      &lt;div className=&quot;border border-border rounded-xl px-5&quot;&gt;
+        &lt;ColorRow name=&quot;success&quot; description=&quot;Success base color&quot; className=&quot;bg-success&quot; /&gt;
+        &lt;ColorRow
+          name=&quot;success-hover&quot;
+          description=&quot;Hover state for success&quot;
+          className=&quot;bg-success-hover&quot;
+        /&gt;
+        &lt;ColorRow
+          name=&quot;success-foreground&quot;
+          description=&quot;Text on success base&quot;
+          className=&quot;bg-success-foreground border border-border&quot;
+        /&gt;
+        &lt;ColorRow
+          name=&quot;success-subtle&quot;
+          description=&quot;Subtle background for success states&quot;
+          className=&quot;bg-success-subtle border border-border&quot;
+        /&gt;
+      &lt;/div&gt;
+
+      &lt;SubsectionTitle&gt;Warning&lt;/SubsectionTitle&gt;
+      &lt;div className=&quot;border border-border rounded-xl px-5&quot;&gt;
+        &lt;ColorRow name=&quot;warning&quot; description=&quot;Warning base color&quot; className=&quot;bg-warning&quot; /&gt;
+        &lt;ColorRow
+          name=&quot;warning-hover&quot;
+          description=&quot;Hover state for warning&quot;
+          className=&quot;bg-warning-hover&quot;
+        /&gt;
+        &lt;ColorRow
+          name=&quot;warning-foreground&quot;
+          description=&quot;Text on warning base&quot;
+          className=&quot;bg-warning-foreground border border-border&quot;
+        /&gt;
+        &lt;ColorRow
+          name=&quot;warning-subtle&quot;
+          description=&quot;Subtle background for warning states&quot;
+          className=&quot;bg-warning-subtle border border-border&quot;
+        /&gt;
+      &lt;/div&gt;
+
+      &lt;SubsectionTitle&gt;Info&lt;/SubsectionTitle&gt;
+      &lt;p className=&quot;text-sm text-foreground-muted mb-3&quot;&gt;
+        Informational notifications. References blue directly so themes that retune{&#39; &#39;}
+        &lt;code&gt;primary&lt;/code&gt; do not affect info.
+      &lt;/p&gt;
+      &lt;div className=&quot;border border-border rounded-xl px-5&quot;&gt;
+        &lt;ColorRow name=&quot;info&quot; description=&quot;Info base color&quot; className=&quot;bg-info&quot; /&gt;
+        &lt;ColorRow name=&quot;info-hover&quot; description=&quot;Hover state for info&quot; className=&quot;bg-info-hover&quot; /&gt;
+        &lt;ColorRow
+          name=&quot;info-foreground&quot;
+          description=&quot;Text on info base&quot;
+          className=&quot;bg-info-foreground border border-border&quot;
+        /&gt;
+        &lt;ColorRow
+          name=&quot;info-subtle&quot;
+          description=&quot;Subtle background for info states&quot;
+          className=&quot;bg-info-subtle border border-border&quot;
+        /&gt;
+      &lt;/div&gt;
+
+      &lt;SubsectionTitle&gt;Filled Treatments (a11y audit)&lt;/SubsectionTitle&gt;
+      &lt;p className=&quot;text-sm text-foreground-muted mb-3&quot;&gt;
+        Each row shows a state&#39;s &lt;code&gt;bg-X&lt;/code&gt; with &lt;code&gt;text-X-foreground&lt;/code&gt; applied — the
+        canonical &quot;filled&quot; treatment used by Toast / Alert / Button. Toggle Storybook between light
+        and dark themes to verify text remains readable in both modes.
+      &lt;/p&gt;
+      &lt;div className=&quot;flex flex-col gap-2&quot;&gt;
+        {(
+          [
+            { name: &#39;destructive&#39;, bg: &#39;bg-destructive&#39;, fg: &#39;text-destructive-foreground&#39; },
+            { name: &#39;error&#39;, bg: &#39;bg-error&#39;, fg: &#39;text-error-foreground&#39; },
+            { name: &#39;success&#39;, bg: &#39;bg-success&#39;, fg: &#39;text-success-foreground&#39; },
+            { name: &#39;warning&#39;, bg: &#39;bg-warning&#39;, fg: &#39;text-warning-foreground&#39; },
+            { name: &#39;info&#39;, bg: &#39;bg-info&#39;, fg: &#39;text-info-foreground&#39; },
+          ] as const
+        ).map((s) =&gt; (
+          &lt;div
+            key={s.name}
+            className={`flex items-center gap-3 rounded-lg px-4 py-3 ${s.bg} ${s.fg}`}
+          &gt;
+            &lt;span className=&quot;font-mono text-xs opacity-70&quot;&gt;{s.name}&lt;/span&gt;
+            &lt;span className=&quot;text-sm font-medium&quot;&gt;The quick brown fox jumps over the lazy dog&lt;/span&gt;
+          &lt;/div&gt;
+        ))}
+      &lt;/div&gt;
+
+      &lt;SubsectionTitle&gt;Subtle Treatments (a11y audit)&lt;/SubsectionTitle&gt;
+      &lt;p className=&quot;text-sm text-foreground-muted mb-3&quot;&gt;
+        Each row shows a state&#39;s &lt;code&gt;bg-X-subtle&lt;/code&gt; with &lt;code&gt;text-X&lt;/code&gt; applied — the
+        &quot;soft&quot; treatment used by Input error background. Verify text remains readable in both
+        themes.
+      &lt;/p&gt;
+      &lt;div className=&quot;flex flex-col gap-2&quot;&gt;
+        {(
+          [
+            { name: &#39;destructive&#39;, bg: &#39;bg-destructive-subtle&#39;, fg: &#39;text-destructive&#39; },
+            { name: &#39;error&#39;, bg: &#39;bg-error-subtle&#39;, fg: &#39;text-error&#39; },
+            { name: &#39;success&#39;, bg: &#39;bg-success-subtle&#39;, fg: &#39;text-success&#39; },
+            { name: &#39;warning&#39;, bg: &#39;bg-warning-subtle&#39;, fg: &#39;text-warning&#39; },
+            { name: &#39;info&#39;, bg: &#39;bg-info-subtle&#39;, fg: &#39;text-info&#39; },
+          ] as const
+        ).map((s) =&gt; (
+          &lt;div
+            key={s.name}
+            className={`flex items-center gap-3 rounded-lg border border-border px-4 py-3 ${s.bg} ${s.fg}`}
+          &gt;
+            &lt;span className=&quot;font-mono text-xs opacity-70&quot;&gt;{s.name}&lt;/span&gt;
+            &lt;span className=&quot;text-sm font-medium&quot;&gt;The quick brown fox jumps over the lazy dog&lt;/span&gt;
+          &lt;/div&gt;
+        ))}
       &lt;/div&gt;
 
       &lt;SectionTitle&gt;Primitive Palette&lt;/SectionTitle&gt;
@@ -6645,24 +7014,147 @@ export const Colors: Story = {
       &lt;ColorRow name=&quot;ring&quot; description=&quot;Focus ring color&quot; className=&quot;bg-ring&quot; /&gt;
     &lt;/div&gt;
 
-    &lt;SubsectionTitle&gt;Status&lt;/SubsectionTitle&gt;
+    &lt;SubsectionTitle&gt;State Tokens&lt;/SubsectionTitle&gt;
+    &lt;p className=&quot;text-sm text-foreground-muted mb-3&quot;&gt;
+      Each state provides four tokens — &lt;code&gt;base&lt;/code&gt; (main color), &lt;code&gt;hover&lt;/code&gt;{&#39; &#39;}
+      (interactive sibling), &lt;code&gt;foreground&lt;/code&gt; (text on base) and &lt;code&gt;subtle&lt;/code&gt; (faint
+      tinted background).
+    &lt;/p&gt;
+
+    &lt;SubsectionTitle&gt;Error&lt;/SubsectionTitle&gt;
+    &lt;p className=&quot;text-sm text-foreground-muted mb-3&quot;&gt;
+      Form validation and error notifications. Visually shares vermillion with{&#39; &#39;}
+      &lt;code&gt;destructive&lt;/code&gt;, but is semantically distinct.
+    &lt;/p&gt;
     &lt;div className=&quot;border border-border rounded-xl px-5&quot;&gt;
-      &lt;ColorRow name=&quot;success&quot; description=&quot;Positive actions and states&quot; className=&quot;bg-success&quot; /&gt;
+      &lt;ColorRow name=&quot;error&quot; description=&quot;Error base color&quot; className=&quot;bg-error&quot; /&gt;
       &lt;ColorRow
-        name=&quot;warning&quot;
-        description=&quot;Caution states that need attention&quot;
-        className=&quot;bg-warning&quot;
+        name=&quot;error-hover&quot;
+        description=&quot;Hover state for error&quot;
+        className=&quot;bg-error-hover&quot;
       /&gt;
       &lt;ColorRow
-        name=&quot;destructive&quot;
-        description=&quot;Destructive actions and error states&quot;
-        className=&quot;bg-destructive&quot;
+        name=&quot;error-foreground&quot;
+        description=&quot;Text on error base&quot;
+        className=&quot;bg-error-foreground border border-border&quot;
       /&gt;
       &lt;ColorRow
-        name=&quot;destructive-subtle&quot;
+        name=&quot;error-subtle&quot;
         description=&quot;Subtle background for error states&quot;
-        className=&quot;bg-destructive-subtle border border-border&quot;
+        className=&quot;bg-error-subtle border border-border&quot;
       /&gt;
+    &lt;/div&gt;
+
+    &lt;SubsectionTitle&gt;Success&lt;/SubsectionTitle&gt;
+    &lt;div className=&quot;border border-border rounded-xl px-5&quot;&gt;
+      &lt;ColorRow name=&quot;success&quot; description=&quot;Success base color&quot; className=&quot;bg-success&quot; /&gt;
+      &lt;ColorRow
+        name=&quot;success-hover&quot;
+        description=&quot;Hover state for success&quot;
+        className=&quot;bg-success-hover&quot;
+      /&gt;
+      &lt;ColorRow
+        name=&quot;success-foreground&quot;
+        description=&quot;Text on success base&quot;
+        className=&quot;bg-success-foreground border border-border&quot;
+      /&gt;
+      &lt;ColorRow
+        name=&quot;success-subtle&quot;
+        description=&quot;Subtle background for success states&quot;
+        className=&quot;bg-success-subtle border border-border&quot;
+      /&gt;
+    &lt;/div&gt;
+
+    &lt;SubsectionTitle&gt;Warning&lt;/SubsectionTitle&gt;
+    &lt;div className=&quot;border border-border rounded-xl px-5&quot;&gt;
+      &lt;ColorRow name=&quot;warning&quot; description=&quot;Warning base color&quot; className=&quot;bg-warning&quot; /&gt;
+      &lt;ColorRow
+        name=&quot;warning-hover&quot;
+        description=&quot;Hover state for warning&quot;
+        className=&quot;bg-warning-hover&quot;
+      /&gt;
+      &lt;ColorRow
+        name=&quot;warning-foreground&quot;
+        description=&quot;Text on warning base&quot;
+        className=&quot;bg-warning-foreground border border-border&quot;
+      /&gt;
+      &lt;ColorRow
+        name=&quot;warning-subtle&quot;
+        description=&quot;Subtle background for warning states&quot;
+        className=&quot;bg-warning-subtle border border-border&quot;
+      /&gt;
+    &lt;/div&gt;
+
+    &lt;SubsectionTitle&gt;Info&lt;/SubsectionTitle&gt;
+    &lt;p className=&quot;text-sm text-foreground-muted mb-3&quot;&gt;
+      Informational notifications. References blue directly so themes that retune{&#39; &#39;}
+      &lt;code&gt;primary&lt;/code&gt; do not affect info.
+    &lt;/p&gt;
+    &lt;div className=&quot;border border-border rounded-xl px-5&quot;&gt;
+      &lt;ColorRow name=&quot;info&quot; description=&quot;Info base color&quot; className=&quot;bg-info&quot; /&gt;
+      &lt;ColorRow name=&quot;info-hover&quot; description=&quot;Hover state for info&quot; className=&quot;bg-info-hover&quot; /&gt;
+      &lt;ColorRow
+        name=&quot;info-foreground&quot;
+        description=&quot;Text on info base&quot;
+        className=&quot;bg-info-foreground border border-border&quot;
+      /&gt;
+      &lt;ColorRow
+        name=&quot;info-subtle&quot;
+        description=&quot;Subtle background for info states&quot;
+        className=&quot;bg-info-subtle border border-border&quot;
+      /&gt;
+    &lt;/div&gt;
+
+    &lt;SubsectionTitle&gt;Filled Treatments (a11y audit)&lt;/SubsectionTitle&gt;
+    &lt;p className=&quot;text-sm text-foreground-muted mb-3&quot;&gt;
+      Each row shows a state&#39;s &lt;code&gt;bg-X&lt;/code&gt; with &lt;code&gt;text-X-foreground&lt;/code&gt; applied — the
+      canonical &quot;filled&quot; treatment used by Toast / Alert / Button. Toggle Storybook between light
+      and dark themes to verify text remains readable in both modes.
+    &lt;/p&gt;
+    &lt;div className=&quot;flex flex-col gap-2&quot;&gt;
+      {(
+        [
+          { name: &#39;destructive&#39;, bg: &#39;bg-destructive&#39;, fg: &#39;text-destructive-foreground&#39; },
+          { name: &#39;error&#39;, bg: &#39;bg-error&#39;, fg: &#39;text-error-foreground&#39; },
+          { name: &#39;success&#39;, bg: &#39;bg-success&#39;, fg: &#39;text-success-foreground&#39; },
+          { name: &#39;warning&#39;, bg: &#39;bg-warning&#39;, fg: &#39;text-warning-foreground&#39; },
+          { name: &#39;info&#39;, bg: &#39;bg-info&#39;, fg: &#39;text-info-foreground&#39; },
+        ] as const
+      ).map((s) =&gt; (
+        &lt;div
+          key={s.name}
+          className={`flex items-center gap-3 rounded-lg px-4 py-3 ${s.bg} ${s.fg}`}
+        &gt;
+          &lt;span className=&quot;font-mono text-xs opacity-70&quot;&gt;{s.name}&lt;/span&gt;
+          &lt;span className=&quot;text-sm font-medium&quot;&gt;The quick brown fox jumps over the lazy dog&lt;/span&gt;
+        &lt;/div&gt;
+      ))}
+    &lt;/div&gt;
+
+    &lt;SubsectionTitle&gt;Subtle Treatments (a11y audit)&lt;/SubsectionTitle&gt;
+    &lt;p className=&quot;text-sm text-foreground-muted mb-3&quot;&gt;
+      Each row shows a state&#39;s &lt;code&gt;bg-X-subtle&lt;/code&gt; with &lt;code&gt;text-X&lt;/code&gt; applied — the
+      &quot;soft&quot; treatment used by Input error background. Verify text remains readable in both
+      themes.
+    &lt;/p&gt;
+    &lt;div className=&quot;flex flex-col gap-2&quot;&gt;
+      {(
+        [
+          { name: &#39;destructive&#39;, bg: &#39;bg-destructive-subtle&#39;, fg: &#39;text-destructive&#39; },
+          { name: &#39;error&#39;, bg: &#39;bg-error-subtle&#39;, fg: &#39;text-error&#39; },
+          { name: &#39;success&#39;, bg: &#39;bg-success-subtle&#39;, fg: &#39;text-success&#39; },
+          { name: &#39;warning&#39;, bg: &#39;bg-warning-subtle&#39;, fg: &#39;text-warning&#39; },
+          { name: &#39;info&#39;, bg: &#39;bg-info-subtle&#39;, fg: &#39;text-info&#39; },
+        ] as const
+      ).map((s) =&gt; (
+        &lt;div
+          key={s.name}
+          className={`flex items-center gap-3 rounded-lg border border-border px-4 py-3 ${s.bg} ${s.fg}`}
+        &gt;
+          &lt;span className=&quot;font-mono text-xs opacity-70&quot;&gt;{s.name}&lt;/span&gt;
+          &lt;span className=&quot;text-sm font-medium&quot;&gt;The quick brown fox jumps over the lazy dog&lt;/span&gt;
+        &lt;/div&gt;
+      ))}
     &lt;/div&gt;
 
     &lt;SectionTitle&gt;Primitive Palette&lt;/SectionTitle&gt;

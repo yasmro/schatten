@@ -55,6 +55,7 @@ export function Field({
   const errorId = `${id}-error`
 
   const isError = isErrorProp ?? (error ? true : undefined) ?? fieldSet?.isError ?? false
+  const effectiveDisabled = disabled || fieldSet?.disabled || false
 
   const describedBy = useMemo(() => {
     const ids: string[] = []
@@ -64,8 +65,8 @@ export function Field({
   }, [description, error, descriptionId, errorId])
 
   const contextValue = useMemo<FieldContextValue>(
-    () => ({ id, isError, disabled, describedBy }),
-    [id, isError, disabled, describedBy],
+    () => ({ id, isError, disabled: effectiveDisabled, describedBy }),
+    [id, isError, effectiveDisabled, describedBy],
   )
 
   return (
@@ -78,7 +79,7 @@ export function Field({
           className,
         )}
         style={flexBasis ? { flexBasis } : undefined}
-        data-disabled={disabled || undefined}
+        data-disabled={effectiveDisabled || undefined}
       >
         {label && (
           <div className="flex items-center gap-1">

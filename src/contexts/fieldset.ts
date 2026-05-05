@@ -3,6 +3,8 @@ import { createContext, useContext } from 'react'
 export interface FieldSetContextValue {
   /** Error state from the parent FieldSet */
   isError: boolean
+  /** Disabled state from the parent FieldSet */
+  disabled: boolean
 }
 
 export const FieldSetContext = createContext<FieldSetContextValue | null>(null)

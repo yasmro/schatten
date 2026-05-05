@@ -27,7 +27,18 @@ PR をセルフレビューし、デザインシステムとして堅牢かチ�
 - [ ] Fallback パターン: `field?.value ?? propValue ?? defaultValue`
 - [ ] standalone / Field 内両方で動作するか
 
-### 3. アクセシビリティ (a11y)
+### 3. デザインシステムの堅牢性
+
+- [ ] デザイントークン (CSS 変数) を使用しているか (ハードコード値を避ける)
+- [ ] 既存コンポーネントと variant/size の命名が一貫しているか
+- [ ] CVA パターンに従っているか (`src/variants/` に定義)
+- [ ] 類似コンポーネントと Props API が統一されているか
+  - 例: `isError`, `disabled`, `size` の命名と型
+- [ ] スペーシング・タイポグラフィが Tailwind のスケールに沿っているか
+- [ ] ダークモード対応: `text-foreground`, `bg-background` などセマンティックカラーを使用
+- [ ] 破壊的変更がないか (既存 API の互換性)
+
+### 4. アクセシビリティ (a11y)
 
 - [ ] `aria-*` 属性が適切に設定されているか
 - [ ] `aria-describedby` で description/error がリンクされているか
@@ -35,20 +46,20 @@ PR をセルフレビューし、デザインシステムとして堅牢かチ�
 - [ ] キーボード操作が可能か
 - [ ] フォーカス管理が適切か
 
-### 4. Storybook
+### 5. Storybook
 
 - [ ] `Playground` story が最初にあるか
 - [ ] `argTypes` の description が正確か (実際の挙動と一致)
 - [ ] 必要なパターンが網羅されているか (variants, sizes, states)
 - [ ] 英語で記述されているか
 
-### 5. テスト
+### 6. テスト
 
 - [ ] 主要な機能にテストがあるか
 - [ ] Context 連携のテストがあるか
 - [ ] エッジケースが考慮されているか
 
-### 6. ドキュメント
+### 7. ドキュメント
 
 - [ ] PR body が最新の実装を反映しているか
 - [ ] 必要に応じて Claude rules が更新されているか

@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
+import { CircleCheck } from 'lucide-react'
 import { Badge } from '../components/lv1/Badge'
 import { Button } from '../components/lv1/Button'
 import { Checkbox } from '../components/lv1/Checkbox'
@@ -185,9 +186,12 @@ export const Overview: Story = {
             description="Transient notifications with variants."
             storyPath="components-lv1-toast"
           >
-            <div className="relative w-44 border border-success bg-success-subtle p-3 pr-8 text-xs text-success shadow-sm">
-              <div className="font-semibold leading-tight">Saved</div>
-              <div className="leading-snug opacity-90">Your changes have been saved.</div>
+            <div className="relative flex w-44 items-start gap-2 border border-success bg-success-subtle p-3 pr-8 text-xs text-success shadow-sm">
+              <CircleCheck className="mt-0.5 size-4 shrink-0" aria-hidden />
+              <div className="flex flex-col gap-0.5">
+                <div className="font-semibold leading-tight">Saved</div>
+                <div className="leading-snug opacity-90">Your changes have been saved.</div>
+              </div>
               <span
                 aria-hidden
                 className="absolute top-1 right-1 inline-flex size-5 items-center justify-center"

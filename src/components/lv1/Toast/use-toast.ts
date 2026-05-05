@@ -44,6 +44,13 @@ interface State {
   toasts: ToastData[]
 }
 
+/**
+ * Module-scoped store. Designed for client-side use — `toast()` is invoked
+ * in response to user interaction, so this state is always empty during
+ * SSR and on initial hydration. Do not call `toast()` from server code:
+ * because the module is shared across requests in long-lived Node
+ * processes, server-side mutations would leak between users.
+ */
 let memoryState: State = { toasts: [] }
 const listeners = new Set<(state: State) => void>()
 

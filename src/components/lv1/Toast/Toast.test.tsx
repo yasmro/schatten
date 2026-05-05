@@ -134,6 +134,21 @@ describe('Toaster integration', () => {
     expect(screen.queryByRole('button', { name: 'Close' })).not.toBeInTheDocument()
   })
 
+  it('handle.update() can change the treatment mid-life and the toast re-renders', () => {
+    render(<Toaster />)
+    let handle: ReturnType<typeof toast>
+    act(() => {
+      handle = toast({ title: 'Saved', variant: 'success', treatment: 'subtle' })
+    })
+    const initialClass = document.querySelector('li.toast-item')?.className ?? ''
+    expect(initialClass).toContain('bg-success-subtle')
+
+    act(() => handle.update({ treatment: 'solid' }))
+    const updatedClass = document.querySelector('li.toast-item')?.className ?? ''
+    expect(updatedClass).toContain('bg-success')
+    expect(updatedClass).not.toContain('bg-success-subtle')
+  })
+
   it('renders an accessible close button labeled "Close"', () => {
     render(<Toaster />)
     act(() => {

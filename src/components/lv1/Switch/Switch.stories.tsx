@@ -42,7 +42,7 @@ const meta: Meta<typeof Switch> = {
       },
     },
     isError: {
-      description: 'Displays the switch in an error state with destructive border and ring.',
+      description: 'Displays the switch in an error state with error border and ring.',
       control: 'boolean',
       table: {
         type: { summary: 'boolean' },

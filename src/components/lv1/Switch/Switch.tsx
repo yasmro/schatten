@@ -13,7 +13,7 @@ import { type SwitchVariants, switchThumbVariants, switchVariants } from '../../
 export interface SwitchProps
   extends Omit<ComponentPropsWithoutRef<typeof SwitchPrimitive.Root>, 'size'>,
     SwitchVariants {
-  /** Displays the switch in an error state with destructive border and ring. */
+  /** Displays the switch in an error state with error border and ring. */
   isError?: boolean
   /** Label text displayed next to the switch. Automatically associates via id. */
   label?: ReactNode
@@ -75,7 +75,7 @@ export const Switch = forwardRef<ElementRef<typeof SwitchPrimitive.Root>, Switch
             'group',
             switchVariants({ size }),
             isError &&
-              'border-destructive bg-destructive-subtle focus-visible:ring-destructive data-[state=checked]:border-destructive data-[state=checked]:bg-destructive',
+              'border-error bg-error-subtle focus-visible:ring-error data-[state=checked]:border-error data-[state=checked]:bg-error',
           )}
           aria-invalid={isError || undefined}
           aria-describedby={ariaDescribedBy}

@@ -8,6 +8,7 @@ const stories = [
   'title-only',
   'body-only',
   'with-action',
+  'solid-with-action',
   'long-content',
 ] as const
 

@@ -5,7 +5,7 @@ import { Button } from '../Button'
 import { Callout } from './Callout'
 
 describe('Callout', () => {
-  it('renders title and body', () => {
+  it('renders title and body (children form)', () => {
     render(
       <Callout title="Heads up" variant="info">
         Body content
@@ -13,6 +13,21 @@ describe('Callout', () => {
     )
     expect(screen.getByText('Heads up')).toBeInTheDocument()
     expect(screen.getByText('Body content')).toBeInTheDocument()
+  })
+
+  it('renders body via the `description` prop', () => {
+    render(<Callout title="Heads up" description="From the prop" />)
+    expect(screen.getByText('From the prop')).toBeInTheDocument()
+  })
+
+  it('prefers `description` over `children` when both are provided', () => {
+    render(
+      <Callout title="Heads up" description="from prop">
+        from children
+      </Callout>,
+    )
+    expect(screen.getByText('from prop')).toBeInTheDocument()
+    expect(screen.queryByText('from children')).not.toBeInTheDocument()
   })
 
   it('renders the variant icon (decorative, aria-hidden)', () => {

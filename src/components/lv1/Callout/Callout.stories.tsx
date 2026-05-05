@@ -5,15 +5,24 @@ import { Callout } from './Callout'
 
 /**
  * Callout displays inline contextual information — beta notices, form
- * warnings, page-level announcements. It mirrors {@link Toast}'s five
+ * warnings, page-level announcements. It mirrors `Toast`'s five
  * variants and two treatments so the visual language is shared, but lives
  * in normal layout flow rather than overlaying the viewport.
+ *
+ * ## Body content
+ * Pass body content either as `children` (rich JSX) or as the
+ * `description` prop (plain text — matches Toast's API). If both are
+ * provided, `description` wins.
  *
  * ## Action
  * The `action` prop accepts any ReactNode, so you can drop in a Button,
  * a link, or a more complex affordance. Unlike Toast (where action is a
  * `{label, onClick}` shape), Callouts often persist on screen and may
  * need richer UI.
+ *
+ * **On `treatment="solid"`, prefer `<Button variant="inverted">`** for
+ * action buttons so they remain legible on the saturated fill — see the
+ * "Solid With Action" story below.
  *
  * ## Dismissibility
  * Pass `onClose` to render a close (X) button. Omit it for a static,
@@ -161,6 +170,46 @@ export const WithAction: Story = {
         title="Update available"
         action={
           <Button size="sm" variant="secondary">
+            Reload
+          </Button>
+        }
+      >
+        A newer version of this app is ready.
+      </Callout>
+    </div>
+  ),
+}
+
+export const SolidWithAction: Story = {
+  name: 'Solid With Action',
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'On `treatment="solid"` the saturated background can clash with default Button variants. Pass `<Button variant="inverted">` so the action stays legible.',
+      },
+    },
+  },
+  render: () => (
+    <div className="flex flex-col gap-3 max-w-xl">
+      <Callout
+        variant="warning"
+        treatment="solid"
+        title="Unsaved changes"
+        action={
+          <Button variant="inverted" size="sm">
+            Save now
+          </Button>
+        }
+      >
+        Your changes will be lost if you leave this page.
+      </Callout>
+      <Callout
+        variant="info"
+        treatment="solid"
+        title="Update available"
+        action={
+          <Button variant="inverted" size="sm">
             Reload
           </Button>
         }

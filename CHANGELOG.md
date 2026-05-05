@@ -1,5 +1,11 @@
 # @yasmro/schatten
 
+## 0.2.1
+
+### Patch Changes
+
+- Fix: FieldSet `disabled` prop now propagates to all child Field components via context.
+
 ## 0.2.0
 
 ### Minor Changes

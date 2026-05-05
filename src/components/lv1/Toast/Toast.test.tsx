@@ -140,13 +140,19 @@ describe('Toaster integration', () => {
     act(() => {
       handle = toast({ title: 'Saved', variant: 'success', treatment: 'subtle' })
     })
+    // `border-success` only appears in the subtle compound variant; `border-transparent`
+    // only appears in the solid one. Use those as discriminators rather than `bg-success`
+    // which is a substring of `bg-success-subtle`.
     const initialClass = document.querySelector('li.toast-item')?.className ?? ''
     expect(initialClass).toContain('bg-success-subtle')
+    expect(initialClass).toContain('border-success')
+    expect(initialClass).not.toContain('border-transparent')
 
     act(() => handle.update({ treatment: 'solid' }))
     const updatedClass = document.querySelector('li.toast-item')?.className ?? ''
-    expect(updatedClass).toContain('bg-success')
     expect(updatedClass).not.toContain('bg-success-subtle')
+    expect(updatedClass).toContain('border-transparent')
+    expect(updatedClass).toContain('text-success-foreground')
   })
 
   it('renders an accessible close button labeled "Close"', () => {

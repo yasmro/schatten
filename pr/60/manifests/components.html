@@ -582,7 +582,7 @@
 <main>
   <div class="wrap">
     <div class="note ok" style="margin-bottom: 16px;">
-              Using <code>react-docgen-typescript</code>. Generation took <strong>3.0s</strong>.
+              Using <code>react-docgen-typescript</code>. Generation took <strong>2.8s</strong>.
             </div>
     <h2 class="section-title">Components</h2>
     <div class="grid" role="list">
@@ -5889,16 +5889,17 @@ export const Typography: Story = {
     <div class="note err">
       <div class="note-title">Prop type error</div>
       <div class="note-body"><pre><code>We could not detect the component from your story file. Specify meta.component.
-  20 | import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from &#39;../components/lv1/Tooltip&#39;
-  21 |
-&gt; 22 | const meta: Meta = {
+  21 | import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from &#39;../components/lv1/Tooltip&#39;
+  22 |
+&gt; 23 | const meta: Meta = {
      | ^
-  23 |   title: &#39;Welcome&#39;,
-  24 |   parameters: {
-  25 |     layout: &#39;fullscreen&#39;,
+  24 |   title: &#39;Welcome&#39;,
+  25 |   parameters: {
+  26 |     layout: &#39;fullscreen&#39;,
 
 ./src/docs/Welcome.stories.tsx:
 import type { Meta, StoryObj } from &#39;@storybook/react-vite&#39;
+import { CircleCheck } from &#39;lucide-react&#39;
 import { Badge } from &#39;../components/lv1/Badge&#39;
 import { Button } from &#39;../components/lv1/Button&#39;
 import { Checkbox } from &#39;../components/lv1/Checkbox&#39;
@@ -6085,9 +6086,12 @@ export const Overview: Story = {
             description=&quot;Transient notifications with variants.&quot;
             storyPath=&quot;components-lv1-toast&quot;
           &gt;
-            &lt;div className=&quot;relative w-44 border border-success bg-success-subtle p-3 pr-8 text-xs text-success shadow-sm&quot;&gt;
-              &lt;div className=&quot;font-semibold leading-tight&quot;&gt;Saved&lt;/div&gt;
-              &lt;div className=&quot;leading-snug opacity-90&quot;&gt;Your changes have been saved.&lt;/div&gt;
+            &lt;div className=&quot;relative flex w-44 items-start gap-2 border border-success bg-success-subtle p-3 pr-8 text-xs text-success shadow-sm&quot;&gt;
+              &lt;CircleCheck className=&quot;mt-0.5 size-4 shrink-0&quot; aria-hidden /&gt;
+              &lt;div className=&quot;flex flex-col gap-0.5&quot;&gt;
+                &lt;div className=&quot;font-semibold leading-tight&quot;&gt;Saved&lt;/div&gt;
+                &lt;div className=&quot;leading-snug opacity-90&quot;&gt;Your changes have been saved.&lt;/div&gt;
+              &lt;/div&gt;
               &lt;span
                 aria-hidden
                 className=&quot;absolute top-1 right-1 inline-flex size-5 items-center justify-center&quot;
@@ -6273,7 +6277,8 @@ export const Overview: Story = {
     TooltipContent,
     TooltipProvider,
     TooltipTrigger,
-} from "@yasmro/schatten";</code></pre>
+} from "@yasmro/schatten";
+import { CircleCheck } from "lucide-react";</code></pre>
               </div>
           
           
@@ -6395,9 +6400,12 @@ export const Overview: Story = {
           description=&quot;Transient notifications with variants.&quot;
           storyPath=&quot;components-lv1-toast&quot;
         &gt;
-          &lt;div className=&quot;relative w-44 border border-success bg-success-subtle p-3 pr-8 text-xs text-success shadow-sm&quot;&gt;
-            &lt;div className=&quot;font-semibold leading-tight&quot;&gt;Saved&lt;/div&gt;
-            &lt;div className=&quot;leading-snug opacity-90&quot;&gt;Your changes have been saved.&lt;/div&gt;
+          &lt;div className=&quot;relative flex w-44 items-start gap-2 border border-success bg-success-subtle p-3 pr-8 text-xs text-success shadow-sm&quot;&gt;
+            &lt;CircleCheck className=&quot;mt-0.5 size-4 shrink-0&quot; aria-hidden /&gt;
+            &lt;div className=&quot;flex flex-col gap-0.5&quot;&gt;
+              &lt;div className=&quot;font-semibold leading-tight&quot;&gt;Saved&lt;/div&gt;
+              &lt;div className=&quot;leading-snug opacity-90&quot;&gt;Your changes have been saved.&lt;/div&gt;
+            &lt;/div&gt;
             &lt;span
               aria-hidden
               className=&quot;absolute top-1 right-1 inline-flex size-5 items-center justify-center&quot;
@@ -8528,16 +8536,17 @@ export const Typography: Story = {
     <div class="note err">
       <div class="note-title">Prop type error</div>
       <div class="note-body"><pre><code>We could not detect the component from your story file. Specify meta.component.
-  20 | import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from &#39;../components/lv1/Tooltip&#39;
-  21 |
-&gt; 22 | const meta: Meta = {
+  21 | import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from &#39;../components/lv1/Tooltip&#39;
+  22 |
+&gt; 23 | const meta: Meta = {
      | ^
-  23 |   title: &#39;Welcome&#39;,
-  24 |   parameters: {
-  25 |     layout: &#39;fullscreen&#39;,
+  24 |   title: &#39;Welcome&#39;,
+  25 |   parameters: {
+  26 |     layout: &#39;fullscreen&#39;,
 
 ./src/docs/Welcome.stories.tsx:
 import type { Meta, StoryObj } from &#39;@storybook/react-vite&#39;
+import { CircleCheck } from &#39;lucide-react&#39;
 import { Badge } from &#39;../components/lv1/Badge&#39;
 import { Button } from &#39;../components/lv1/Button&#39;
 import { Checkbox } from &#39;../components/lv1/Checkbox&#39;
@@ -8724,9 +8733,12 @@ export const Overview: Story = {
             description=&quot;Transient notifications with variants.&quot;
             storyPath=&quot;components-lv1-toast&quot;
           &gt;
-            &lt;div className=&quot;relative w-44 border border-success bg-success-subtle p-3 pr-8 text-xs text-success shadow-sm&quot;&gt;
-              &lt;div className=&quot;font-semibold leading-tight&quot;&gt;Saved&lt;/div&gt;
-              &lt;div className=&quot;leading-snug opacity-90&quot;&gt;Your changes have been saved.&lt;/div&gt;
+            &lt;div className=&quot;relative flex w-44 items-start gap-2 border border-success bg-success-subtle p-3 pr-8 text-xs text-success shadow-sm&quot;&gt;
+              &lt;CircleCheck className=&quot;mt-0.5 size-4 shrink-0&quot; aria-hidden /&gt;
+              &lt;div className=&quot;flex flex-col gap-0.5&quot;&gt;
+                &lt;div className=&quot;font-semibold leading-tight&quot;&gt;Saved&lt;/div&gt;
+                &lt;div className=&quot;leading-snug opacity-90&quot;&gt;Your changes have been saved.&lt;/div&gt;
+              &lt;/div&gt;
               &lt;span
                 aria-hidden
                 className=&quot;absolute top-1 right-1 inline-flex size-5 items-center justify-center&quot;
@@ -8912,7 +8924,8 @@ export const Overview: Story = {
     TooltipContent,
     TooltipProvider,
     TooltipTrigger,
-} from "@yasmro/schatten";</code></pre>
+} from "@yasmro/schatten";
+import { CircleCheck } from "lucide-react";</code></pre>
               </div>
           
           
@@ -9034,9 +9047,12 @@ export const Overview: Story = {
           description=&quot;Transient notifications with variants.&quot;
           storyPath=&quot;components-lv1-toast&quot;
         &gt;
-          &lt;div className=&quot;relative w-44 border border-success bg-success-subtle p-3 pr-8 text-xs text-success shadow-sm&quot;&gt;
-            &lt;div className=&quot;font-semibold leading-tight&quot;&gt;Saved&lt;/div&gt;
-            &lt;div className=&quot;leading-snug opacity-90&quot;&gt;Your changes have been saved.&lt;/div&gt;
+          &lt;div className=&quot;relative flex w-44 items-start gap-2 border border-success bg-success-subtle p-3 pr-8 text-xs text-success shadow-sm&quot;&gt;
+            &lt;CircleCheck className=&quot;mt-0.5 size-4 shrink-0&quot; aria-hidden /&gt;
+            &lt;div className=&quot;flex flex-col gap-0.5&quot;&gt;
+              &lt;div className=&quot;font-semibold leading-tight&quot;&gt;Saved&lt;/div&gt;
+              &lt;div className=&quot;leading-snug opacity-90&quot;&gt;Your changes have been saved.&lt;/div&gt;
+            &lt;/div&gt;
             &lt;span
               aria-hidden
               className=&quot;absolute top-1 right-1 inline-flex size-5 items-center justify-center&quot;

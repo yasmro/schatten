@@ -235,6 +235,58 @@ export const Colors: Story = {
         />
       </div>
 
+      <SubsectionTitle>Filled Treatments (a11y audit)</SubsectionTitle>
+      <p className="text-sm text-foreground-muted mb-3">
+        Each row shows a state's <code>bg-X</code> with <code>text-X-foreground</code> applied — the
+        canonical "filled" treatment used by Toast / Alert / Button. Toggle Storybook between light
+        and dark themes to verify text remains readable in both modes.
+      </p>
+      <div className="flex flex-col gap-2">
+        {(
+          [
+            { name: 'destructive', bg: 'bg-destructive', fg: 'text-destructive-foreground' },
+            { name: 'error', bg: 'bg-error', fg: 'text-error-foreground' },
+            { name: 'success', bg: 'bg-success', fg: 'text-success-foreground' },
+            { name: 'warning', bg: 'bg-warning', fg: 'text-warning-foreground' },
+            { name: 'info', bg: 'bg-info', fg: 'text-info-foreground' },
+          ] as const
+        ).map((s) => (
+          <div
+            key={s.name}
+            className={`flex items-center gap-3 rounded-lg px-4 py-3 ${s.bg} ${s.fg}`}
+          >
+            <span className="font-mono text-xs opacity-70">{s.name}</span>
+            <span className="text-sm font-medium">The quick brown fox jumps over the lazy dog</span>
+          </div>
+        ))}
+      </div>
+
+      <SubsectionTitle>Subtle Treatments (a11y audit)</SubsectionTitle>
+      <p className="text-sm text-foreground-muted mb-3">
+        Each row shows a state's <code>bg-X-subtle</code> with <code>text-X</code> applied — the
+        "soft" treatment used by Input error background. Verify text remains readable in both
+        themes.
+      </p>
+      <div className="flex flex-col gap-2">
+        {(
+          [
+            { name: 'destructive', bg: 'bg-destructive-subtle', fg: 'text-destructive' },
+            { name: 'error', bg: 'bg-error-subtle', fg: 'text-error' },
+            { name: 'success', bg: 'bg-success-subtle', fg: 'text-success' },
+            { name: 'warning', bg: 'bg-warning-subtle', fg: 'text-warning' },
+            { name: 'info', bg: 'bg-info-subtle', fg: 'text-info' },
+          ] as const
+        ).map((s) => (
+          <div
+            key={s.name}
+            className={`flex items-center gap-3 rounded-lg border border-border px-4 py-3 ${s.bg} ${s.fg}`}
+          >
+            <span className="font-mono text-xs opacity-70">{s.name}</span>
+            <span className="text-sm font-medium">The quick brown fox jumps over the lazy dog</span>
+          </div>
+        ))}
+      </div>
+
       <SectionTitle>Primitive Palette</SectionTitle>
       <p className="text-sm text-foreground-muted mb-3">
         Core brand colors inspired by Japanese calligraphy. These are fixed values that do not

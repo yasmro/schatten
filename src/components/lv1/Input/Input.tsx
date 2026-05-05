@@ -1,6 +1,7 @@
 import { icons } from 'lucide-react'
-import { forwardRef, type InputHTMLAttributes, useId } from 'react'
+import { forwardRef, type InputHTMLAttributes, useId, useRef } from 'react'
 import { useFieldContext } from '../../../contexts/field'
+import { mergeRefs } from '../../../lib/merge-refs'
 import { cn } from '../../../lib/utils'
 import { type InputVariants, inputVariants, inputWrapperVariants } from '../../../variants/input'
 
@@ -50,12 +51,22 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     const disabled = field?.disabled ?? disabledProp
     const ariaDescribedBy = field?.describedBy ?? ariaDescribedByProp
 
+    const inputRef = useRef<HTMLInputElement>(null)
+
     const isDateType = dateTypes.has(type ?? '')
     const LeftIcon = !textLeft && iconLeft ? icons[iconLeft] : null
     const RightIcon = !textRight && iconRight ? icons[iconRight] : null
     const iconSize = iconSizeMap[size ?? 'md']
 
+    const handleWrapperClick = () => {
+      if (!disabled) {
+        inputRef.current?.focus()
+      }
+    }
+
     return (
+      // biome-ignore lint/a11y/noStaticElementInteractions: Wrapper delegates focus to input
+      // biome-ignore lint/a11y/useKeyWithClickEvents: Input handles keyboard events
       <div
         className={cn(
           inputWrapperVariants({ size }),
@@ -65,6 +76,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           disabled && 'cursor-not-allowed opacity-50',
           className,
         )}
+        onClick={handleWrapperClick}
       >
         {textLeft && <span className="text-foreground-muted shrink-0">{textLeft}</span>}
         {LeftIcon && (
@@ -77,7 +89,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             inputVariants(),
             isDateType && '[&::-webkit-calendar-picker-indicator]:ml-auto',
           )}
-          ref={ref}
+          ref={mergeRefs(ref, inputRef)}
           disabled={disabled}
           aria-invalid={isError || undefined}
           aria-describedby={ariaDescribedBy}

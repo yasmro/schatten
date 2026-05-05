@@ -582,7 +582,7 @@
 <main>
   <div class="wrap">
     <div class="note ok" style="margin-bottom: 16px;">
-              Using <code>react-docgen-typescript</code>. Generation took <strong>2.7s</strong>.
+              Using <code>react-docgen-typescript</code>. Generation took <strong>2.2s</strong>.
             </div>
     <h2 class="section-title">Components</h2>
     <div class="grid" role="list">
@@ -824,7 +824,7 @@ isLoading?: boolean = false
 
 size?: &quot;sm&quot; | &quot;md&quot; | &quot;lg&quot; | null
 
-variant?: &quot;primary&quot; | &quot;secondary&quot; | &quot;destructive&quot; | &quot;link&quot; | &quot;tertiary&quot; | null = primary</code></pre>
+variant?: &quot;primary&quot; | &quot;secondary&quot; | &quot;destructive&quot; | &quot;link&quot; | &quot;tertiary&quot; | &quot;inverted&quot; | null = primary</code></pre>
           </div>
         </div>
     
@@ -857,11 +857,19 @@ variant?: &quot;primary&quot; | &quot;secondary&quot; | &quot;destructive&quot; 
               
               
               <pre><code>const AllVariants = () =&gt; (
-  &lt;div className=&quot;flex flex-wrap gap-4&quot;&gt;
-    &lt;Button variant=&quot;primary&quot;&gt;Primary&lt;/Button&gt;
-    &lt;Button variant=&quot;secondary&quot;&gt;Secondary&lt;/Button&gt;
-    &lt;Button variant=&quot;tertiary&quot;&gt;Tertiary&lt;/Button&gt;
-    &lt;Button variant=&quot;destructive&quot;&gt;Destructive&lt;/Button&gt;
+  &lt;div className=&quot;flex flex-col gap-4&quot;&gt;
+    &lt;div className=&quot;flex flex-wrap gap-4&quot;&gt;
+      &lt;Button variant=&quot;primary&quot;&gt;Primary&lt;/Button&gt;
+      &lt;Button variant=&quot;secondary&quot;&gt;Secondary&lt;/Button&gt;
+      &lt;Button variant=&quot;tertiary&quot;&gt;Tertiary&lt;/Button&gt;
+      &lt;Button variant=&quot;destructive&quot;&gt;Destructive&lt;/Button&gt;
+    &lt;/div&gt;
+    {/* `inverted` is intended for placement on a saturated surface; preview
+        it on a solid background so the contrast pattern is visible. */}
+    &lt;div className=&quot;flex flex-wrap gap-4 rounded-lg bg-solid p-4&quot;&gt;
+      &lt;Button variant=&quot;inverted&quot;&gt;Inverted&lt;/Button&gt;
+      &lt;Button variant=&quot;inverted&quot; icon=&quot;X&quot; aria-label=&quot;Close&quot; /&gt;
+    &lt;/div&gt;
   &lt;/div&gt;
 );</code></pre>
             </div>
@@ -6071,6 +6079,23 @@ export const Overview: Story = {
               &lt;/Tooltip&gt;
             &lt;/TooltipProvider&gt;
           &lt;/ComponentCard&gt;
+
+          &lt;ComponentCard
+            name=&quot;Toast&quot;
+            description=&quot;Transient notifications with variants.&quot;
+            storyPath=&quot;components-lv1-toast&quot;
+          &gt;
+            &lt;div className=&quot;relative w-44 border border-success bg-success-subtle p-3 pr-8 text-xs text-success shadow-sm&quot;&gt;
+              &lt;div className=&quot;font-semibold leading-tight&quot;&gt;Saved&lt;/div&gt;
+              &lt;div className=&quot;leading-snug opacity-90&quot;&gt;Your changes have been saved.&lt;/div&gt;
+              &lt;span
+                aria-hidden
+                className=&quot;absolute top-1 right-1 inline-flex size-5 items-center justify-center&quot;
+              &gt;
+                ×
+              &lt;/span&gt;
+            &lt;/div&gt;
+          &lt;/ComponentCard&gt;
         &lt;/div&gt;
       &lt;/div&gt;
 
@@ -6363,6 +6388,23 @@ export const Overview: Story = {
               &lt;TooltipContent&gt;Helpful info&lt;/TooltipContent&gt;
             &lt;/Tooltip&gt;
           &lt;/TooltipProvider&gt;
+        &lt;/ComponentCard&gt;
+
+        &lt;ComponentCard
+          name=&quot;Toast&quot;
+          description=&quot;Transient notifications with variants.&quot;
+          storyPath=&quot;components-lv1-toast&quot;
+        &gt;
+          &lt;div className=&quot;relative w-44 border border-success bg-success-subtle p-3 pr-8 text-xs text-success shadow-sm&quot;&gt;
+            &lt;div className=&quot;font-semibold leading-tight&quot;&gt;Saved&lt;/div&gt;
+            &lt;div className=&quot;leading-snug opacity-90&quot;&gt;Your changes have been saved.&lt;/div&gt;
+            &lt;span
+              aria-hidden
+              className=&quot;absolute top-1 right-1 inline-flex size-5 items-center justify-center&quot;
+            &gt;
+              ×
+            &lt;/span&gt;
+          &lt;/div&gt;
         &lt;/ComponentCard&gt;
       &lt;/div&gt;
     &lt;/div&gt;
@@ -8676,6 +8718,23 @@ export const Overview: Story = {
               &lt;/Tooltip&gt;
             &lt;/TooltipProvider&gt;
           &lt;/ComponentCard&gt;
+
+          &lt;ComponentCard
+            name=&quot;Toast&quot;
+            description=&quot;Transient notifications with variants.&quot;
+            storyPath=&quot;components-lv1-toast&quot;
+          &gt;
+            &lt;div className=&quot;relative w-44 border border-success bg-success-subtle p-3 pr-8 text-xs text-success shadow-sm&quot;&gt;
+              &lt;div className=&quot;font-semibold leading-tight&quot;&gt;Saved&lt;/div&gt;
+              &lt;div className=&quot;leading-snug opacity-90&quot;&gt;Your changes have been saved.&lt;/div&gt;
+              &lt;span
+                aria-hidden
+                className=&quot;absolute top-1 right-1 inline-flex size-5 items-center justify-center&quot;
+              &gt;
+                ×
+              &lt;/span&gt;
+            &lt;/div&gt;
+          &lt;/ComponentCard&gt;
         &lt;/div&gt;
       &lt;/div&gt;
 
@@ -8968,6 +9027,23 @@ export const Overview: Story = {
               &lt;TooltipContent&gt;Helpful info&lt;/TooltipContent&gt;
             &lt;/Tooltip&gt;
           &lt;/TooltipProvider&gt;
+        &lt;/ComponentCard&gt;
+
+        &lt;ComponentCard
+          name=&quot;Toast&quot;
+          description=&quot;Transient notifications with variants.&quot;
+          storyPath=&quot;components-lv1-toast&quot;
+        &gt;
+          &lt;div className=&quot;relative w-44 border border-success bg-success-subtle p-3 pr-8 text-xs text-success shadow-sm&quot;&gt;
+            &lt;div className=&quot;font-semibold leading-tight&quot;&gt;Saved&lt;/div&gt;
+            &lt;div className=&quot;leading-snug opacity-90&quot;&gt;Your changes have been saved.&lt;/div&gt;
+            &lt;span
+              aria-hidden
+              className=&quot;absolute top-1 right-1 inline-flex size-5 items-center justify-center&quot;
+            &gt;
+              ×
+            &lt;/span&gt;
+          &lt;/div&gt;
         &lt;/ComponentCard&gt;
       &lt;/div&gt;
     &lt;/div&gt;

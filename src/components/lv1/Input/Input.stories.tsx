@@ -19,7 +19,7 @@ const meta: Meta<typeof Input> = {
       },
     },
     isError: {
-      description: 'Displays the input in an error state with destructive border and ring.',
+      description: 'Displays the input in an error state with error border and ring.',
       control: 'boolean',
       table: {
         type: { summary: 'boolean' },

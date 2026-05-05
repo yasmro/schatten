@@ -144,23 +144,94 @@ export const Colors: Story = {
         <ColorRow name="ring" description="Focus ring color" className="bg-ring" />
       </div>
 
-      <SubsectionTitle>Status</SubsectionTitle>
+      <SubsectionTitle>State Tokens</SubsectionTitle>
+      <p className="text-sm text-foreground-muted mb-3">
+        Each state provides four tokens — <code>base</code> (main color), <code>hover</code>{' '}
+        (interactive sibling), <code>foreground</code> (text on base) and <code>subtle</code> (faint
+        tinted background).
+      </p>
+
+      <SubsectionTitle>Error</SubsectionTitle>
+      <p className="text-sm text-foreground-muted mb-3">
+        Form validation and error notifications. Visually shares vermillion with{' '}
+        <code>destructive</code>, but is semantically distinct.
+      </p>
       <div className="border border-border rounded-xl px-5">
-        <ColorRow name="success" description="Positive actions and states" className="bg-success" />
+        <ColorRow name="error" description="Error base color" className="bg-error" />
         <ColorRow
-          name="warning"
-          description="Caution states that need attention"
-          className="bg-warning"
+          name="error-hover"
+          description="Hover state for error"
+          className="bg-error-hover"
         />
         <ColorRow
-          name="destructive"
-          description="Destructive actions and error states"
-          className="bg-destructive"
+          name="error-foreground"
+          description="Text on error base"
+          className="bg-error-foreground border border-border"
         />
         <ColorRow
-          name="destructive-subtle"
+          name="error-subtle"
           description="Subtle background for error states"
-          className="bg-destructive-subtle border border-border"
+          className="bg-error-subtle border border-border"
+        />
+      </div>
+
+      <SubsectionTitle>Success</SubsectionTitle>
+      <div className="border border-border rounded-xl px-5">
+        <ColorRow name="success" description="Success base color" className="bg-success" />
+        <ColorRow
+          name="success-hover"
+          description="Hover state for success"
+          className="bg-success-hover"
+        />
+        <ColorRow
+          name="success-foreground"
+          description="Text on success base"
+          className="bg-success-foreground border border-border"
+        />
+        <ColorRow
+          name="success-subtle"
+          description="Subtle background for success states"
+          className="bg-success-subtle border border-border"
+        />
+      </div>
+
+      <SubsectionTitle>Warning</SubsectionTitle>
+      <div className="border border-border rounded-xl px-5">
+        <ColorRow name="warning" description="Warning base color" className="bg-warning" />
+        <ColorRow
+          name="warning-hover"
+          description="Hover state for warning"
+          className="bg-warning-hover"
+        />
+        <ColorRow
+          name="warning-foreground"
+          description="Text on warning base"
+          className="bg-warning-foreground border border-border"
+        />
+        <ColorRow
+          name="warning-subtle"
+          description="Subtle background for warning states"
+          className="bg-warning-subtle border border-border"
+        />
+      </div>
+
+      <SubsectionTitle>Info</SubsectionTitle>
+      <p className="text-sm text-foreground-muted mb-3">
+        Informational notifications. References blue directly so themes that retune{' '}
+        <code>primary</code> do not affect info.
+      </p>
+      <div className="border border-border rounded-xl px-5">
+        <ColorRow name="info" description="Info base color" className="bg-info" />
+        <ColorRow name="info-hover" description="Hover state for info" className="bg-info-hover" />
+        <ColorRow
+          name="info-foreground"
+          description="Text on info base"
+          className="bg-info-foreground border border-border"
+        />
+        <ColorRow
+          name="info-subtle"
+          description="Subtle background for info states"
+          className="bg-info-subtle border border-border"
         />
       </div>
 

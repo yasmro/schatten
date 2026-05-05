@@ -19,7 +19,7 @@ const meta: Meta<typeof Textarea> = {
       },
     },
     isError: {
-      description: 'Displays the textarea in an error state with destructive border and ring.',
+      description: 'Displays the textarea in an error state with error border and ring.',
       control: 'boolean',
       table: {
         type: { summary: 'boolean' },

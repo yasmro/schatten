@@ -21,6 +21,7 @@
 
 /* Component Styles */
 @import "./components/lv1/Spinner/Spinner.css";
+@import "./components/lv1/Toast/Toast.css";
 
 /* === Styles === */
 

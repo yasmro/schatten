@@ -11,14 +11,17 @@ export interface BadgeProps extends HTMLAttributes<HTMLDivElement>, BadgeVariant
 }
 
 export const Badge = forwardRef<HTMLDivElement, BadgeProps>(
-  ({ className, variant, size, icon, iconPosition = 'start', children, ...props }, ref) => {
+  (
+    { className, variant, treatment, size, icon, iconPosition = 'start', children, ...props },
+    ref,
+  ) => {
     const IconComponent = icon ? icons[icon] : null
     const isIconOnly = !children && !!icon
 
     return (
       <div
         className={cn(
-          badgeVariants({ variant, size }),
+          badgeVariants({ variant, treatment, size }),
           isIconOnly && 'aspect-square p-1',
           className,
         )}

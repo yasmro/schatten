@@ -8,9 +8,10 @@ import { Badge } from './Badge'
  * - **`variant`** — semantic state (`default` / `success` / `error` /
  *   `warning` / `info`). Reuses the same state semantic tokens as
  *   Toast and Callout.
- * - **`treatment`** — visual fill (`solid` / `subtle` / `outline`).
- *   Pick `solid` for emphasis, `subtle` for soft tinted tags, and
- *   `outline` for the lightest, most ambient style.
+ * - **`treatment`** — visual fill (`subtle` (default) / `solid` /
+ *   `outline`). Reach for `subtle` for ambient list rows and status
+ *   tags, `solid` for emphasis, and `outline` for the lightest,
+ *   border-only style.
  *
  * Badge is intentionally state-oriented (no `destructive` variant) —
  * use `error` for "failed/invalid" tags. For destructive *actions*,
@@ -37,12 +38,12 @@ const meta: Meta<typeof Badge> = {
     },
     treatment: {
       description:
-        'Visual treatment — `solid` for filled emphasis, `subtle` for soft tinted background, `outline` for outline-only.',
+        'Visual treatment — `subtle` for soft tinted background (default), `solid` for filled emphasis, `outline` for outline-only.',
       control: 'select',
       options: ['solid', 'subtle', 'outline'],
       table: {
         type: { summary: '"solid" | "subtle" | "outline"' },
-        defaultValue: { summary: 'solid' },
+        defaultValue: { summary: 'subtle' },
       },
     },
     size: {
@@ -91,7 +92,7 @@ export const Playground: Story = {
   name: 'Playground',
   args: {
     variant: 'default',
-    treatment: 'solid',
+    treatment: 'subtle',
     size: 'md',
     children: 'Badge',
   },
@@ -168,7 +169,7 @@ export const States: Story = {
     docs: {
       description: {
         story:
-          'Typical status-tag use cases. Pick `treatment="subtle"` for ambient list rows, `solid` for prominent emphasis.',
+          'Typical status-tag use cases. The default `subtle` treatment (top row) sits comfortably in list rows and tables; `solid` (bottom row) draws more attention when a status needs emphasis.',
       },
     },
   },
@@ -189,16 +190,16 @@ export const States: Story = {
         </Badge>
       </div>
       <div className="flex flex-wrap gap-4">
-        <Badge variant="success" treatment="subtle" icon="Check">
+        <Badge variant="success" treatment="solid" icon="Check">
           Active
         </Badge>
-        <Badge variant="warning" treatment="subtle" icon="Clock">
+        <Badge variant="warning" treatment="solid" icon="Clock">
           Pending
         </Badge>
-        <Badge variant="error" treatment="subtle" icon="X">
+        <Badge variant="error" treatment="solid" icon="X">
           Failed
         </Badge>
-        <Badge variant="info" treatment="subtle" icon="Sparkles">
+        <Badge variant="info" treatment="solid" icon="Sparkles">
           Beta
         </Badge>
       </div>

@@ -86,7 +86,7 @@ export const badgeVariants = cva(
     ],
     defaultVariants: {
       variant: 'default',
-      treatment: 'solid',
+      treatment: 'subtle',
       size: 'md',
     },
   },

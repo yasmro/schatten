@@ -12,7 +12,9 @@ Badge now mirrors Toast / Callout's two-axis API:
 
 - **`variant`**: `default` | `success` | `error` | `warning` | `info`
   (state semantic, default `default`)
-- **`treatment`**: `solid` | `subtle` | `outline` (default `solid`)
+- **`treatment`**: `subtle` | `solid` | `outline` (default `subtle` —
+  picked because soft state tags blend better in list rows and tables;
+  reach for `solid` when a Badge needs to stand out)
 - **`size`**: unchanged (`sm` | `md` | `lg`, default `md`)
 
 Badge is now state-oriented — there is no `destructive` variant. Use
@@ -21,13 +23,15 @@ Badge is now state-oriented — there is no `destructive` variant. Use
 
 **Migration:**
 
-| Before                                | After                                                |
-| ------------------------------------- | ---------------------------------------------------- |
-| `<Badge>` / `variant="primary"`       | `<Badge>` (default+solid is the new default)         |
-| `<Badge variant="secondary">`         | `<Badge treatment="subtle">`                         |
-| `<Badge variant="outline">`           | `<Badge treatment="outline">`                        |
-| `<Badge variant="destructive">`       | `<Badge variant="error">`                            |
-| `<Badge variant="success/warning/info">` | unchanged (treatment defaults to `solid`)         |
+| Before                                | After                                                  |
+| ------------------------------------- | ------------------------------------------------------ |
+| `<Badge>` / `variant="primary"`       | `<Badge treatment="solid">` (filled neutral)           |
+| `<Badge variant="secondary">`         | `<Badge>` (default+subtle is the new default)          |
+| `<Badge variant="outline">`           | `<Badge treatment="outline">`                          |
+| `<Badge variant="destructive">`       | `<Badge variant="error" treatment="solid">`            |
+| `<Badge variant="success">` (etc.)    | `<Badge variant="success" treatment="solid">` for the  |
+|                                       | old filled look, or omit `treatment` for the new soft  |
+|                                       | default                                                |
 
 The new shape unlocks combinations that weren't previously possible —
 e.g. `variant="error" treatment="subtle"` for a soft "Failed" tag in

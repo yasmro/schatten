@@ -43,7 +43,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       return (
         <Comp
           className={cn(
-            'inline underline underline-offset-4 text-foreground not-disabled:hover:text-foreground-subtle not-disabled:hover:no-underline not-disabled:hover:cursor-pointer transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0 disabled:cursor-not-allowed disabled:opacity-50',
+            'inline underline underline-offset-4 text-foreground not-disabled:hover:text-foreground-muted not-disabled:hover:no-underline not-disabled:hover:cursor-pointer transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0 disabled:cursor-not-allowed disabled:opacity-50',
             linkSizeClass,
             className,
           )}

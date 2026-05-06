@@ -4,7 +4,7 @@ export const spinnerVariants = cva('inline-flex items-center justify-center', {
   variants: {
     variant: {
       default: 'text-foreground',
-      inverse: 'text-inverse-foreground',
+      inverted: 'text-inverted-foreground',
     },
     size: {
       sm: 'size-4',

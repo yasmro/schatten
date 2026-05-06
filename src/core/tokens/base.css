@@ -57,10 +57,10 @@
   --color-ring: var(--color-ring);
   --color-ring-offset: var(--color-ring-offset);
 
-  /* Inverse */
-  --color-inverse-foreground: var(--color-inverse-foreground);
-  --color-inverse-foreground-muted: var(--color-inverse-foreground-muted);
-  --color-inverse-foreground-subtle: var(--color-inverse-foreground-subtle);
+  /* Inverted */
+  --color-inverted-foreground: var(--color-inverted-foreground);
+  --color-inverted-foreground-muted: var(--color-inverted-foreground-muted);
+  --color-inverted-foreground-subtle: var(--color-inverted-foreground-subtle);
 
   /* States — each provides { base, hover, foreground, subtle } */
   --color-error: var(--color-error);

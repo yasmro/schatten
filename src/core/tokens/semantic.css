@@ -60,15 +60,15 @@
   --color-ring-offset: var(--paper-warm);
 
   /*
-   * Inverse foreground tiers — for text on saturated / dark-background
+   * Inverted foreground tiers — for text on saturated / dark-background
    * containers (solid Toast / Callout, primary-colored fills, …).
    * Each tier becomes progressively less prominent against the
    * saturated background, mirroring the foreground / -muted / -subtle
    * hierarchy.
    */
-  --color-inverse-foreground: var(--paper-white);
-  --color-inverse-foreground-muted: var(--alabaster-300);
-  --color-inverse-foreground-subtle: var(--alabaster-400);
+  --color-inverted-foreground: var(--paper-white);
+  --color-inverted-foreground-muted: var(--alabaster-300);
+  --color-inverted-foreground-subtle: var(--alabaster-400);
 
   /*
    * State tokens — each provides { base, hover, foreground, subtle }.
@@ -106,13 +106,13 @@
 /* Dark mode - System preference fallback */
 @media (prefers-color-scheme: dark) {
   :root:not(.light) {
-    --color-background: var(--paper-warm-inv);
-    --color-surface: var(--paper-white-inv);
-    --color-surface-hover: var(--paper-cream-inv);
+    --color-background: var(--paper-warm-inverted);
+    --color-surface: var(--paper-white-inverted);
+    --color-surface-hover: var(--paper-cream-inverted);
 
-    --color-foreground: var(--ink-black-inv);
-    --color-foreground-muted: var(--ink-light-inv);
-    --color-foreground-subtle: var(--ink-subtle-inv);
+    --color-foreground: var(--ink-black-inverted);
+    --color-foreground-muted: var(--ink-light-inverted);
+    --color-foreground-subtle: var(--ink-subtle-inverted);
 
     --color-solid: var(--alabaster-300);
     --color-solid-hover: var(--alabaster-100);
@@ -121,55 +121,55 @@
 
     --color-destructive: var(--vermillion-500);
     --color-destructive-hover: var(--vermillion-400);
-    --color-destructive-foreground: var(--paper-white-inv);
+    --color-destructive-foreground: var(--paper-white-inverted);
     --color-destructive-subtle: var(--vermillion-900);
 
     --color-accent: var(--vermillion-400);
     --color-accent-foreground: var(--gray-950);
 
     --color-border: var(--gray-700);
-    --color-border-strong: var(--ink-black-inv);
+    --color-border-strong: var(--ink-black-inverted);
 
-    --color-ring: var(--ink-black-inv);
-    --color-ring-offset: var(--paper-warm-inv);
+    --color-ring: var(--ink-black-inverted);
+    --color-ring-offset: var(--paper-warm-inverted);
 
-    --color-inverse-foreground: var(--paper-white-inv);
-    --color-inverse-foreground-muted: var(--alabaster-700);
-    --color-inverse-foreground-subtle: var(--alabaster-600);
+    --color-inverted-foreground: var(--paper-white-inverted);
+    --color-inverted-foreground-muted: var(--alabaster-700);
+    --color-inverted-foreground-subtle: var(--alabaster-600);
 
     /* State tokens — dark mode mappings */
 
     --color-error: var(--vermillion-500);
     --color-error-hover: var(--vermillion-400);
-    --color-error-foreground: var(--paper-white-inv);
+    --color-error-foreground: var(--paper-white-inverted);
     --color-error-subtle: var(--vermillion-900);
 
     --color-success: var(--green-500);
     --color-success-hover: var(--green-400);
-    --color-success-foreground: var(--paper-white-inv);
+    --color-success-foreground: var(--paper-white-inverted);
     --color-success-subtle: var(--green-900);
 
     --color-warning: var(--amber-500);
     --color-warning-hover: var(--amber-400);
-    --color-warning-foreground: var(--paper-white-inv);
+    --color-warning-foreground: var(--paper-white-inverted);
     --color-warning-subtle: var(--amber-900);
 
     --color-info: var(--blue-500);
     --color-info-hover: var(--blue-400);
-    --color-info-foreground: var(--paper-white-inv);
+    --color-info-foreground: var(--paper-white-inverted);
     --color-info-subtle: var(--blue-900);
   }
 }
 
 /* Dark mode - Explicit class */
 .dark {
-  --color-background: var(--paper-warm-inv);
-  --color-surface: var(--paper-white-inv);
-  --color-surface-hover: var(--paper-cream-inv);
+  --color-background: var(--paper-warm-inverted);
+  --color-surface: var(--paper-white-inverted);
+  --color-surface-hover: var(--paper-cream-inverted);
 
-  --color-foreground: var(--ink-black-inv);
-  --color-foreground-muted: var(--ink-light-inv);
-  --color-foreground-subtle: var(--ink-subtle-inv);
+  --color-foreground: var(--ink-black-inverted);
+  --color-foreground-muted: var(--ink-light-inverted);
+  --color-foreground-subtle: var(--ink-subtle-inverted);
 
   --color-solid: var(--alabaster-300);
   --color-solid-hover: var(--alabaster-100);
@@ -178,41 +178,41 @@
 
   --color-destructive: var(--vermillion-500);
   --color-destructive-hover: var(--vermillion-400);
-  --color-destructive-foreground: var(--paper-white-inv);
+  --color-destructive-foreground: var(--paper-white-inverted);
   --color-destructive-subtle: var(--vermillion-900);
 
   --color-accent: var(--vermillion-400);
   --color-accent-foreground: var(--gray-950);
 
   --color-border: var(--gray-700);
-  --color-border-strong: var(--ink-black-inv);
+  --color-border-strong: var(--ink-black-inverted);
 
-  --color-ring: var(--ink-black-inv);
-  --color-ring-offset: var(--paper-warm-inv);
+  --color-ring: var(--ink-black-inverted);
+  --color-ring-offset: var(--paper-warm-inverted);
 
-  --color-inverse-foreground: var(--paper-white-inv);
-  --color-inverse-foreground-muted: var(--alabaster-700);
-  --color-inverse-foreground-subtle: var(--alabaster-600);
+  --color-inverted-foreground: var(--paper-white-inverted);
+  --color-inverted-foreground-muted: var(--alabaster-700);
+  --color-inverted-foreground-subtle: var(--alabaster-600);
 
   /* State tokens — dark mode mappings */
 
   --color-error: var(--vermillion-500);
   --color-error-hover: var(--vermillion-400);
-  --color-error-foreground: var(--paper-white-inv);
+  --color-error-foreground: var(--paper-white-inverted);
   --color-error-subtle: var(--vermillion-900);
 
   --color-success: var(--green-500);
   --color-success-hover: var(--green-400);
-  --color-success-foreground: var(--paper-white-inv);
+  --color-success-foreground: var(--paper-white-inverted);
   --color-success-subtle: var(--green-900);
 
   --color-warning: var(--amber-500);
   --color-warning-hover: var(--amber-400);
-  --color-warning-foreground: var(--paper-white-inv);
+  --color-warning-foreground: var(--paper-white-inverted);
   --color-warning-subtle: var(--amber-900);
 
   --color-info: var(--blue-500);
   --color-info-hover: var(--blue-400);
-  --color-info-foreground: var(--paper-white-inv);
+  --color-info-foreground: var(--paper-white-inverted);
   --color-info-subtle: var(--blue-900);
 }

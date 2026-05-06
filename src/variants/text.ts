@@ -24,9 +24,9 @@ export const textVariants = cva('text-foreground antialiased', {
       success: 'text-success',
       warning: 'text-warning',
       info: 'text-info',
-      inverted: 'text-inverse-foreground',
-      'inverted-muted': 'text-inverse-foreground-muted',
-      'inverted-subtle': 'text-inverse-foreground-subtle',
+      inverted: 'text-inverted-foreground',
+      'inverted-muted': 'text-inverted-foreground-muted',
+      'inverted-subtle': 'text-inverted-foreground-subtle',
       inherit: 'text-inherit',
     },
     align: {

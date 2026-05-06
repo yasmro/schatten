@@ -71,9 +71,9 @@ Each state shifts shades between modes:
 | Mode | `base` | `hover` | `foreground` | `subtle` |
 |---|---|---|---|---|
 | Light | `*-600` | `*-700` | `paper-white` | `*-50` |
-| Dark | `*-500` | `*-400` | `paper-white-inv` | `*-900` |
+| Dark | `*-500` | `*-400` | `paper-white-inverted` | `*-900` |
 
-The dark-mode `foreground = paper-white-inv` (`#1a1a1a`) is intentional: in dark mode the
+The dark-mode `foreground = paper-white-inverted` (`#1a1a1a`) is intentional: in dark mode the
 state `base` shifts brighter (e.g. `vermillion-500`), and dark text on a bright saturated
 fill achieves higher WCAG contrast than white-on-bright. Verify visually in `Foundation/Color`
 → "Filled Treatments (a11y audit)" before introducing new state-driven UI.

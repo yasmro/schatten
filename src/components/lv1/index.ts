@@ -7,6 +7,13 @@ export {
   type CalloutVariant,
 } from './Callout'
 export { Checkbox, type CheckboxProps } from './Checkbox'
+export {
+  Dialog,
+  type DialogActionButton,
+  type DialogCancelButton,
+  type DialogProps,
+  type DialogSubActionButton,
+} from './Dialog'
 export { Field, type FieldContextValue, type FieldProps, useFieldContext } from './Field'
 export {
   FieldSet,

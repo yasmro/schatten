@@ -77,6 +77,113 @@ export interface DialogProps {
   children?: ReactNode
 }
 
+/* ----- Internal section components -----------------------------------------
+ * File-private — not exported. Pure code-organization split, no a11y
+ * implication: `<header>` / `<footer>` HTML elements would lose their
+ * landmark roles inside a Dialog anyway, and Radix already wires
+ * `aria-labelledby` (Title) / `aria-describedby` (Description) to Content.
+ * ------------------------------------------------------------------------- */
+
+function Header({ title, description }: { title: string; description?: string }) {
+  return (
+    <div className="shrink-0 flex flex-col gap-1.5 pr-8">
+      <DialogPrimitive.Title className="text-lg font-semibold leading-tight text-foreground">
+        {title}
+      </DialogPrimitive.Title>
+      {description && (
+        <DialogPrimitive.Description className="text-sm text-foreground-muted">
+          {description}
+        </DialogPrimitive.Description>
+      )}
+    </div>
+  )
+}
+
+function Body({ children }: { children: ReactNode }) {
+  return <div className="min-h-0 overflow-y-auto text-sm text-foreground">{children}</div>
+}
+
+function Footer({
+  actionButton,
+  cancelButton,
+  subActionButton,
+  isLoading,
+}: {
+  actionButton: DialogActionButton
+  cancelButton?: DialogCancelButton
+  subActionButton?: DialogSubActionButton
+  isLoading: boolean
+}) {
+  // DOM order is action → cancel → separator → subAction so that Radix's
+  // default `onOpenAutoFocus` (focus first tabbable inside Content) lands
+  // on the action button. CSS `order` utilities recover the desired visual
+  // layout — see `tab order` JSDoc on `DialogProps['children']` for the
+  // resulting Tab-vs-visual relationship.
+  return (
+    <div
+      className={cn(
+        'shrink-0 flex flex-col gap-2',
+        'sm:flex-row sm:items-center sm:gap-2 sm:justify-end',
+      )}
+    >
+      <Button
+        variant={actionButton.variant ?? 'primary'}
+        isLoading={isLoading}
+        onClick={actionButton.onClick}
+        icon={actionButton.icon}
+        className="order-1 sm:order-3"
+      >
+        {actionButton.label}
+      </Button>
+
+      {cancelButton && (
+        <DialogPrimitive.Close asChild>
+          <Button
+            variant="secondary"
+            disabled={isLoading}
+            onClick={cancelButton.onClick}
+            icon={cancelButton.icon}
+            className="order-2"
+          >
+            {cancelButton.label}
+          </Button>
+        </DialogPrimitive.Close>
+      )}
+
+      {subActionButton && (
+        <Separator className="order-3 my-2 sm:my-0 sm:hidden" aria-hidden="true" />
+      )}
+
+      {subActionButton && (
+        <Button
+          variant="tertiary"
+          disabled={isLoading}
+          onClick={subActionButton.onClick}
+          icon={subActionButton.icon}
+          className="order-4 sm:order-1 sm:mr-auto"
+        >
+          {subActionButton.label}
+        </Button>
+      )}
+    </div>
+  )
+}
+
+function CloseButton({ isLoading }: { isLoading: boolean }) {
+  // Wrap in an absolutely-positioned div: Button's own className ends with
+  // `relative` (positioning context for its spinner), which tailwind-merges
+  // away any `absolute` we'd pass on the Button itself.
+  return (
+    <div className="absolute right-4 top-4">
+      <DialogPrimitive.Close asChild>
+        <Button variant="tertiary" size="sm" icon="X" aria-label="Close" disabled={isLoading} />
+      </DialogPrimitive.Close>
+    </div>
+  )
+}
+
+/* ----- Public Dialog component -------------------------------------------- */
+
 export const Dialog = ({
   isOpen,
   onOpenChange,
@@ -136,92 +243,15 @@ export const Dialog = ({
             'flex flex-col gap-6 p-6',
           )}
         >
-          <div className="shrink-0 flex flex-col gap-1.5 pr-8">
-            <DialogPrimitive.Title className="text-lg font-semibold leading-tight text-foreground">
-              {title}
-            </DialogPrimitive.Title>
-            {description && (
-              <DialogPrimitive.Description className="text-sm text-foreground-muted">
-                {description}
-              </DialogPrimitive.Description>
-            )}
-          </div>
-
-          {children && (
-            <div className="min-h-0 overflow-y-auto text-sm text-foreground">{children}</div>
-          )}
-
-          {/*
-            DOM order is action → cancel → separator → subAction so that
-            Radix's default `onOpenAutoFocus` (focus first tabbable inside
-            Content) lands on the action button. CSS `order` utilities
-            recover the desired visual layout — see `tab order` JSDoc on
-            `children` for the resulting Tab-vs-visual relationship.
-          */}
-          <div
-            className={cn(
-              'shrink-0 flex flex-col gap-2',
-              'sm:flex-row sm:items-center sm:gap-2 sm:justify-end',
-            )}
-          >
-            <Button
-              variant={actionButton.variant ?? 'primary'}
-              isLoading={isLoading}
-              onClick={actionButton.onClick}
-              icon={actionButton.icon}
-              className="order-1 sm:order-3"
-            >
-              {actionButton.label}
-            </Button>
-
-            {cancelButton && (
-              <DialogPrimitive.Close asChild>
-                <Button
-                  variant="secondary"
-                  disabled={isLoading}
-                  onClick={cancelButton.onClick}
-                  icon={cancelButton.icon}
-                  className="order-2"
-                >
-                  {cancelButton.label}
-                </Button>
-              </DialogPrimitive.Close>
-            )}
-
-            {subActionButton && (
-              <Separator className="order-3 my-2 sm:my-0 sm:hidden" aria-hidden="true" />
-            )}
-
-            {subActionButton && (
-              <Button
-                variant="tertiary"
-                disabled={isLoading}
-                onClick={subActionButton.onClick}
-                icon={subActionButton.icon}
-                className="order-4 sm:order-1 sm:mr-auto"
-              >
-                {subActionButton.label}
-              </Button>
-            )}
-          </div>
-
-          {isCloseButtonVisible && (
-            // Wrap in an absolutely-positioned div: Button's own className
-            // ends with `relative` (positioning context for its spinner),
-            // which tailwind-merges away any `absolute` we'd pass on the
-            // Button itself. The wrapper keeps Button's classes intact.
-            <div className="absolute right-4 top-4">
-              <DialogPrimitive.Close asChild>
-                <Button
-                  variant="tertiary"
-                  size="sm"
-                  icon="X"
-                  aria-label="Close"
-                  disabled={isLoading}
-                />
-              </DialogPrimitive.Close>
-            </div>
-          )}
+          <Header title={title} description={description} />
+          {children && <Body>{children}</Body>}
+          <Footer
+            actionButton={actionButton}
+            cancelButton={cancelButton}
+            subActionButton={subActionButton}
+            isLoading={isLoading}
+          />
+          {isCloseButtonVisible && <CloseButton isLoading={isLoading} />}
         </DialogPrimitive.Content>
       </DialogPrimitive.Portal>
     </DialogPrimitive.Root>

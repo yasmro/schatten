@@ -1,5 +1,5 @@
 import * as DialogPrimitive from '@radix-ui/react-dialog'
-import { type ReactNode, useCallback } from 'react'
+import { type ReactNode, useCallback, useEffect, useRef } from 'react'
 import { cn } from '../../../lib/utils'
 import { Button, type IconName } from '../Button'
 import { Separator } from '../Separator'
@@ -34,16 +34,39 @@ export interface DialogProps {
    * disabled, and ESC / overlay click / close ✕ are blocked. Parent owns
    * this state — set it true before awaiting the async action and back to
    * false (or close the dialog) when settled.
+   *
+   * Errors are the parent's responsibility — `actionButton.onClick`
+   * rejections are not caught by Dialog. Wrap your async handler in
+   * `try/catch` (or `.catch`) and reset `isLoading` in the failure path
+   * to avoid the dialog getting stuck.
    */
   isLoading?: boolean
   title: string
   description?: string
   /** Default: true. */
   isCloseButtonVisible?: boolean
+  /**
+   * Required primary action. When `variant: 'destructive'` and a
+   * `cancelButton` is provided, initial focus is auto-routed to Cancel
+   * (WCAG-recommended safeguard for irreversible actions).
+   *
+   * Note: if `onClick` is omitted the action button is a no-op — the
+   * dialog will not close. A development-mode warning is logged in this
+   * case.
+   */
   actionButton: DialogActionButton
   cancelButton?: DialogCancelButton
   subActionButton?: DialogSubActionButton
-  /** Body content rendered between the header and the footer. */
+  /**
+   * Body content. Long content scrolls inside the dialog automatically
+   * (the dialog caps its height to the viewport).
+   *
+   * Note on tab order: with the responsive footer layout, mobile visual
+   * order is `Action / Cancel / SubAction` but tab order follows DOM
+   * order (`SubAction → Cancel → Action`). This is a known trade-off
+   * with CSS `order` and is consistent with shadcn/ui and Radix patterns.
+   * Desktop tab order matches visual order.
+   */
   children?: ReactNode
 }
 
@@ -59,11 +82,43 @@ export const Dialog = ({
   subActionButton,
   children,
 }: DialogProps) => {
+  const cancelRef = useRef<HTMLButtonElement>(null)
+
+  // Dev-only footgun warning: a missing onClick silently does nothing,
+  // which is hard to diagnose at the call-site. Surfacing it explicitly
+  // saves debugging time without affecting production behavior.
+  useEffect(() => {
+    if (process.env.NODE_ENV !== 'production' && isOpen && !actionButton.onClick) {
+      console.warn(
+        'Dialog: `actionButton.onClick` is undefined. Clicking the action button will be a no-op. ' +
+          'Provide `onClick` (and call `onOpenChange(false)` if you want the dialog to close on success).',
+      )
+    }
+  }, [isOpen, actionButton.onClick])
+
   const blockWhileLoading = useCallback(
     (event: Event) => {
       if (isLoading) event.preventDefault()
     },
     [isLoading],
+  )
+
+  // For destructive actions, redirect initial focus to Cancel
+  // (WCAG-recommended safeguard for irreversible actions). When no
+  // cancelButton exists, fall back to Radix's default first-tabbable
+  // behavior so the dialog still has a sensible focus target.
+  const handleOpenAutoFocus = useCallback(
+    (event: Event) => {
+      if (
+        actionButton.variant === 'destructive' &&
+        cancelButton !== undefined &&
+        cancelRef.current
+      ) {
+        event.preventDefault()
+        cancelRef.current.focus()
+      }
+    },
+    [actionButton.variant, cancelButton],
   )
 
   return (
@@ -76,6 +131,7 @@ export const Dialog = ({
           onEscapeKeyDown={blockWhileLoading}
           onPointerDownOutside={blockWhileLoading}
           onInteractOutside={blockWhileLoading}
+          onOpenAutoFocus={handleOpenAutoFocus}
           // When no description is rendered, opt out of Radix's dev-only
           // "missing Description" warning. Spread conditionally so the prop
           // is omitted (and Radix's auto-wiring stays intact) when a
@@ -85,11 +141,16 @@ export const Dialog = ({
             'dialog-content fixed left-1/2 top-1/2 z-(--z-modal)',
             '-translate-x-1/2 -translate-y-1/2',
             'w-[calc(100vw-2rem)] max-w-md',
+            // Cap height to viewport so very long bodies don't push the
+            // dialog off-screen. `overflow-hidden` here, plus `min-h-0
+            // overflow-y-auto` on the body below, makes the body the only
+            // scrolling region; header / footer stay pinned.
+            'max-h-[calc(100vh-2rem)] overflow-hidden',
             'bg-background border border-border-strong shadow-lg',
             'flex flex-col gap-6 p-6',
           )}
         >
-          <div className="flex flex-col gap-1.5 pr-8">
+          <div className="shrink-0 flex flex-col gap-1.5 pr-8">
             <DialogPrimitive.Title className="text-lg font-semibold leading-tight text-foreground">
               {title}
             </DialogPrimitive.Title>
@@ -100,11 +161,13 @@ export const Dialog = ({
             )}
           </div>
 
-          {children && <div className="text-sm text-foreground">{children}</div>}
+          {children && (
+            <div className="min-h-0 overflow-y-auto text-sm text-foreground">{children}</div>
+          )}
 
           <div
             className={cn(
-              'flex flex-col gap-2',
+              'shrink-0 flex flex-col gap-2',
               'sm:flex-row sm:items-center sm:gap-2 sm:justify-end',
             )}
           >
@@ -127,6 +190,7 @@ export const Dialog = ({
             {cancelButton && (
               <DialogPrimitive.Close asChild>
                 <Button
+                  ref={cancelRef}
                   variant="secondary"
                   disabled={isLoading}
                   onClick={cancelButton.onClick}

@@ -360,6 +360,14 @@ export const InfoOnly: Story = {
 
 export const LongContent: Story = {
   name: 'Long Content',
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Dialog caps its height at the viewport (`max-h-[calc(100vh-2rem)]`) and the body region scrolls internally. No consumer-side `max-height` / `overflow` is needed — header and footer stay pinned.',
+      },
+    },
+  },
   render: () => {
     const [isOpen, setIsOpen] = useState(false)
     return (
@@ -373,20 +381,17 @@ export const LongContent: Story = {
           actionButton={{ label: 'Accept', onClick: () => setIsOpen(false) }}
           cancelButton={{ label: 'Decline' }}
         >
-          <div className="flex flex-col gap-3 max-h-[40vh] overflow-y-auto">
-            <p>
-              We have updated our privacy policy to reflect changes in how we handle user data. The
-              updates clarify our practices around analytics, third-party integrations, and the
-              retention of session-level information.
-            </p>
-            <p>
-              By accepting, you acknowledge that you have read and understood the changes. You can
-              review the full policy at any time from your account settings.
-            </p>
-            <p>
-              If you have questions, please reach out to support before accepting. Declining will
-              return you to the previous screen without applying any changes.
-            </p>
+          <div className="flex flex-col gap-3">
+            {Array.from({ length: 8 }).map((_, i) => (
+              // biome-ignore lint/suspicious/noArrayIndexKey: stable static fixture content
+              <p key={i}>
+                We have updated our privacy policy to reflect changes in how we handle user data.
+                The updates clarify our practices around analytics, third-party integrations, and
+                the retention of session-level information. By accepting, you acknowledge that you
+                have read and understood the changes. You can review the full policy at any time
+                from your account settings.
+              </p>
+            ))}
           </div>
         </Dialog>
       </>

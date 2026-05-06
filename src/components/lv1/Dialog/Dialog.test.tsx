@@ -16,7 +16,9 @@ const Controlled = ({
       isOpen={isOpen}
       onOpenChange={setIsOpen}
       title="Test dialog"
-      actionButton={{ label: 'Confirm' }}
+      // Provide an explicit (no-op) onClick so the dev warning for
+      // missing onClick doesn't fire across the whole test file.
+      actionButton={{ label: 'Confirm', onClick: () => {} }}
       {...overrides}
     />
   )
@@ -167,8 +169,59 @@ describe('Dialog', () => {
   })
 
   it('uses destructive action variant when specified', () => {
-    render(<Controlled actionButton={{ label: 'Delete', variant: 'destructive' }} />)
+    render(
+      <Controlled actionButton={{ label: 'Delete', variant: 'destructive', onClick: () => {} }} />,
+    )
     const action = screen.getByRole('button', { name: 'Delete' })
     expect(action.className).toContain('bg-destructive')
+  })
+
+  it('caps body height with overflow-y-auto so long content scrolls inside the dialog', () => {
+    render(
+      <Controlled>
+        <p data-testid="dialog-body">long content</p>
+      </Controlled>,
+    )
+    const body = screen.getByTestId('dialog-body').parentElement
+    expect(body).toHaveClass('overflow-y-auto')
+    expect(body).toHaveClass('min-h-0')
+  })
+
+  it('auto-focuses cancelButton when actionButton.variant is destructive', async () => {
+    render(
+      <Controlled
+        actionButton={{ label: 'Delete', variant: 'destructive', onClick: () => {} }}
+        cancelButton={{ label: 'Cancel' }}
+      />,
+    )
+    // Radix dispatches onOpenAutoFocus on next microtask after mount.
+    await Promise.resolve()
+    expect(screen.getByRole('button', { name: 'Cancel' })).toHaveFocus()
+  })
+
+  it('falls back to default focus when destructive but no cancelButton', async () => {
+    render(
+      <Controlled actionButton={{ label: 'Delete', variant: 'destructive', onClick: () => {} }} />,
+    )
+    await Promise.resolve()
+    // Without cancel, our handler doesn't preventDefault — Radix's default
+    // (first tabbable inside Content) takes effect. Our `data-cancel-ref`
+    // hook doesn't fire, so no focus override happens.
+    expect(screen.queryByRole('button', { name: 'Cancel' })).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Delete' })).toBeInTheDocument()
+  })
+
+  it('warns in development when actionButton.onClick is undefined', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    render(<Controlled actionButton={{ label: 'Confirm' }} />)
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('actionButton.onClick'))
+    warn.mockRestore()
+  })
+
+  it('does not warn when actionButton.onClick is provided', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    render(<Controlled actionButton={{ label: 'Confirm', onClick: () => {} }} />)
+    expect(warn).not.toHaveBeenCalled()
+    warn.mockRestore()
   })
 })

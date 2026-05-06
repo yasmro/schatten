@@ -582,7 +582,7 @@
 <main>
   <div class="wrap">
     <div class="note ok" style="margin-bottom: 16px;">
-              Using <code>react-docgen-typescript</code>. Generation took <strong>3.0s</strong>.
+              Using <code>react-docgen-typescript</code>. Generation took <strong>2.8s</strong>.
             </div>
     <h2 class="section-title">Components</h2>
     <div class="grid" role="list">
@@ -607,7 +607,7 @@
     </div>
     <div class="meta" title="./src/components/lv1/Badge/Badge.stories.tsx">components-lv1-badge · ./src/components/lv1/Badge/Badge.stories.tsx</div>
     
-    <div class="hint">Badge displays small status descriptors. Two axes drive its appearance: - **`variant`** — semantic state (`default` / `success` / `error` / `warning` / `info`). Reuses the same state semantic tokens as Toast and Callout. - **`treatment`** — visual fill (`solid` / `subtle` / `outline`). Pick `solid` for emphasis, `subtle` for soft tinted tags, and `outline` for the lightest, most ambient style. Badge is intentionally state-oriented (no `destructive` variant) — use `error` for &quot;failed/invalid&quot; tags. For destructive *actions*, use `&lt;Button variant=&quot;destructive&quot;&gt;`.</div>
+    <div class="hint">Badge displays small status descriptors. Two axes drive its appearance: - **`variant`** — semantic state (`default` / `success` / `error` / `warning` / `info`). Reuses the same state semantic tokens as Toast and Callout. - **`treatment`** — visual fill (`subtle` (default) / `solid` / `outline`). Reach for `subtle` for ambient list rows and status tags, `solid` for emphasis, and `outline` for the lightest, border-only style. Badge is intentionally state-oriented (no `destructive` variant) — use `error` for &quot;failed/invalid&quot; tags. For destructive *actions*, use `&lt;Button variant=&quot;destructive&quot;&gt;`.</div>
     
   </div>
 
@@ -661,7 +661,7 @@ variant?: &quot;default&quot; | &quot;success&quot; | &quot;error&quot; | &quot;
               </div>
               
               
-              <pre><code>const Playground = () =&gt; &lt;Badge variant=&quot;default&quot; treatment=&quot;solid&quot; size=&quot;md&quot;&gt;Badge&lt;/Badge&gt;;</code></pre>
+              <pre><code>const Playground = () =&gt; &lt;Badge variant=&quot;default&quot; treatment=&quot;subtle&quot; size=&quot;md&quot;&gt;Badge&lt;/Badge&gt;;</code></pre>
             </div>
             <div class="note ok">
               <div class="row">
@@ -760,16 +760,16 @@ variant?: &quot;default&quot; | &quot;success&quot; | &quot;error&quot; | &quot;
       &lt;/Badge&gt;
     &lt;/div&gt;
     &lt;div className=&quot;flex flex-wrap gap-4&quot;&gt;
-      &lt;Badge variant=&quot;success&quot; treatment=&quot;subtle&quot; icon=&quot;Check&quot;&gt;
+      &lt;Badge variant=&quot;success&quot; treatment=&quot;solid&quot; icon=&quot;Check&quot;&gt;
         Active
       &lt;/Badge&gt;
-      &lt;Badge variant=&quot;warning&quot; treatment=&quot;subtle&quot; icon=&quot;Clock&quot;&gt;
+      &lt;Badge variant=&quot;warning&quot; treatment=&quot;solid&quot; icon=&quot;Clock&quot;&gt;
         Pending
       &lt;/Badge&gt;
-      &lt;Badge variant=&quot;error&quot; treatment=&quot;subtle&quot; icon=&quot;X&quot;&gt;
+      &lt;Badge variant=&quot;error&quot; treatment=&quot;solid&quot; icon=&quot;X&quot;&gt;
         Failed
       &lt;/Badge&gt;
-      &lt;Badge variant=&quot;info&quot; treatment=&quot;subtle&quot; icon=&quot;Sparkles&quot;&gt;
+      &lt;Badge variant=&quot;info&quot; treatment=&quot;solid&quot; icon=&quot;Sparkles&quot;&gt;
         Beta
       &lt;/Badge&gt;
     &lt;/div&gt;

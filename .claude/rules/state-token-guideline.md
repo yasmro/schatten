@@ -50,7 +50,7 @@ distinct**:
 | | `destructive` | `error` |
 |---|---|---|
 | Meaning | An action with destructive intent | A state representing an error |
-| Used by | Button(destructive), Badge(destructive) | Input/Textarea/Select/Radio/Checkbox/Switch (`isError`), Field error msg + required `*`, FieldSet error msg, Toast(error) |
+| Used by | Button(destructive) | Input/Textarea/Select/Radio/Checkbox/Switch (`isError`), Field error msg + required `*`, FieldSet error msg, Toast(error), Badge(error), Callout(error) |
 
 If we ever decide error red ≠ destructive red, only the semantic mapping needs to change —
 no component churn.

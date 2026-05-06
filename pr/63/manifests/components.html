@@ -576,13 +576,13 @@
 <header>
   <div class="wrap">
     <h1>Manifest Debugger</h1>
-    <div class="summary"><a class="filter-pill all" data-k="all" href="#filter-all">All</a><a class="filter-pill err" data-k="errors" href="#filter-errors">3/18 prop type errors</a><a class="filter-pill info" data-k="infos" href="#filter-infos">15/18 infos</a><span class="filter-pill ok" aria-disabled="true">117 stories ok</span></div>
+    <div class="summary"><a class="filter-pill all" data-k="all" href="#filter-all">All</a><a class="filter-pill err" data-k="errors" href="#filter-errors">3/18 prop type errors</a><a class="filter-pill info" data-k="infos" href="#filter-infos">14/18 infos</a><span class="filter-pill ok" aria-disabled="true">117 stories ok</span></div>
   </div>
 </header>
 <main>
   <div class="wrap">
     <div class="note ok" style="margin-bottom: 16px;">
-              Using <code>react-docgen-typescript</code>. Generation took <strong>2.8s</strong>.
+              Using <code>react-docgen-typescript</code>. Generation took <strong>3.0s</strong>.
             </div>
     <h2 class="section-title">Components</h2>
     <div class="grid" role="list">
@@ -4802,7 +4802,7 @@ size?: &quot;sm&quot; | &quot;md&quot; | &quot;lg&quot; | null = md</code></pre>
 <article
   class="card 
   no-error 
-  has-info 
+  no-info 
   no-story-error
   no-doc-error"
   role="listitem"
@@ -4812,20 +4812,20 @@ size?: &quot;sm&quot; | &quot;md&quot; | &quot;lg&quot; | null = md</code></pre>
       <h2><span class="status-dot dot-ok"></span> Text</h2>
       <div class="badges">
         <label for="c-12-components-lv1-text-props" class="badge ok as-toggle">7 prop types</label>
-        <label for="c-12-components-lv1-text-info" class="badge info as-toggle">1 info</label>
+        
         <label for="c-12-components-lv1-text-stories" class="badge ok as-toggle">8 stories</label>
         
       </div>
     </div>
     <div class="meta" title="./src/components/lv1/Text/Text.stories.tsx">components-lv1-text · ./src/components/lv1/Text/Text.stories.tsx</div>
     
-    
+    <div class="hint">Text renders semantic typography (`body` / `label` / `heading`) at predefined sizes, with color, alignment, and truncation as orthogonal axes. ## `color` is grouped into three parallel hierarchies - **Foreground** (most → least prominent): `default` / `muted` / `subtle` — primary, secondary/helper, and tertiary text. Reach for these for ordinary on-page typography. - **State**: `error` / `success` / `warning` / `info` — inline status text such as form errors, success notes, or beta callouts. References the same state semantic tokens as Toast / Callout / Badge. - **Inverted** (most → least prominent): `inverted` / `inverted-muted` / `inverted-subtle` — for text placed on saturated surfaces (a solid Toast or Callout, a primary-colored fill, …). Mirrors the foreground hierarchy. Plus `accent` (one-off emphasis), and `inherit` (delegates to the parent&#39;s color). ## Element selection `as` controls the rendered tag. By default `body` and `heading` render `&lt;p&gt;`, and `label` renders `&lt;label&gt;`. Pass `asChild` (Radix Slot) to merge Text&#39;s classes onto an existing child element.</div>
     
   </div>
 
   <!-- ⬇️ Hidden toggles must be siblings BEFORE .panels -->
   
-  <input id="c-12-components-lv1-text-info" class="tg tg-info" type="checkbox" hidden />
+  
   <input id="c-12-components-lv1-text-stories" class="tg tg-stories" type="checkbox" hidden />
   
   <input id="c-12-components-lv1-text-props" class="tg tg-props" type="checkbox" hidden />
@@ -4833,13 +4833,6 @@ size?: &quot;sm&quot; | &quot;md&quot; | &quot;lg&quot; | null = md</code></pre>
   <div class="panels">
     
     
-        <div class="panel panel-info">
-          
-    <div class="note info">
-      <div class="note-title">Info</div>
-      <div class="note-body">No description found. Write a jsdoc comment such as /** Component description */.</div>
-    </div>
-        </div>
     
         <div class="panel panel-props">
           <div class="note ok">

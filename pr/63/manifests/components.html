@@ -582,7 +582,7 @@
 <main>
   <div class="wrap">
     <div class="note ok" style="margin-bottom: 16px;">
-              Using <code>react-docgen-typescript</code>. Generation took <strong>2.9s</strong>.
+              Using <code>react-docgen-typescript</code>. Generation took <strong>2.7s</strong>.
             </div>
     <h2 class="section-title">Components</h2>
     <div class="grid" role="list">
@@ -1706,13 +1706,36 @@ export const Colors: Story = {
         &lt;ColorRow name=&quot;foreground&quot; description=&quot;Primary text color&quot; className=&quot;bg-foreground&quot; /&gt;
         &lt;ColorRow
           name=&quot;foreground-muted&quot;
-          description=&quot;Secondary/helper text&quot;
+          description=&quot;Secondary / helper text — less prominent than default&quot;
           className=&quot;bg-foreground-muted&quot;
         /&gt;
         &lt;ColorRow
           name=&quot;foreground-subtle&quot;
-          description=&quot;Tertiary text&quot;
+          description=&quot;Tertiary text — faintest of the three&quot;
           className=&quot;bg-foreground-subtle&quot;
+        /&gt;
+      &lt;/div&gt;
+
+      &lt;SubsectionTitle&gt;Inverse Foreground&lt;/SubsectionTitle&gt;
+      &lt;p className=&quot;text-sm text-foreground-muted mb-3&quot;&gt;
+        For text placed on saturated / dark-background containers (solid Toast or Callout, primary
+        fills, …). Mirrors the foreground hierarchy.
+      &lt;/p&gt;
+      &lt;div className=&quot;border border-border rounded-xl px-5&quot;&gt;
+        &lt;ColorRow
+          name=&quot;inverse-foreground&quot;
+          description=&quot;Primary text on saturated surface&quot;
+          className=&quot;bg-inverse-foreground border border-border&quot;
+        /&gt;
+        &lt;ColorRow
+          name=&quot;inverse-foreground-muted&quot;
+          description=&quot;Secondary / helper text on saturated surface&quot;
+          className=&quot;bg-inverse-foreground-muted border border-border&quot;
+        /&gt;
+        &lt;ColorRow
+          name=&quot;inverse-foreground-subtle&quot;
+          description=&quot;Tertiary text on saturated surface&quot;
+          className=&quot;bg-inverse-foreground-subtle border border-border&quot;
         /&gt;
       &lt;/div&gt;
 
@@ -1931,6 +1954,11 @@ export const Colors: Story = {
           name=&quot;--ink-light&quot;
           description=&quot;#6b6b6b — Light ink&quot;
           style={{ backgroundColor: &#39;var(--ink-light)&#39; }}
+        /&gt;
+        &lt;ColorRow
+          name=&quot;--ink-subtle&quot;
+          description=&quot;Faintest ink — used by foreground-subtle (tertiary text)&quot;
+          style={{ backgroundColor: &#39;var(--ink-subtle)&#39; }}
         /&gt;
         &lt;ColorRow
           name=&quot;--paper-white&quot;
@@ -2253,13 +2281,36 @@ export const Colors: Story = {
       &lt;ColorRow name=&quot;foreground&quot; description=&quot;Primary text color&quot; className=&quot;bg-foreground&quot; /&gt;
       &lt;ColorRow
         name=&quot;foreground-muted&quot;
-        description=&quot;Secondary/helper text&quot;
+        description=&quot;Secondary / helper text — less prominent than default&quot;
         className=&quot;bg-foreground-muted&quot;
       /&gt;
       &lt;ColorRow
         name=&quot;foreground-subtle&quot;
-        description=&quot;Tertiary text&quot;
+        description=&quot;Tertiary text — faintest of the three&quot;
         className=&quot;bg-foreground-subtle&quot;
+      /&gt;
+    &lt;/div&gt;
+
+    &lt;SubsectionTitle&gt;Inverse Foreground&lt;/SubsectionTitle&gt;
+    &lt;p className=&quot;text-sm text-foreground-muted mb-3&quot;&gt;
+      For text placed on saturated / dark-background containers (solid Toast or Callout, primary
+      fills, …). Mirrors the foreground hierarchy.
+    &lt;/p&gt;
+    &lt;div className=&quot;border border-border rounded-xl px-5&quot;&gt;
+      &lt;ColorRow
+        name=&quot;inverse-foreground&quot;
+        description=&quot;Primary text on saturated surface&quot;
+        className=&quot;bg-inverse-foreground border border-border&quot;
+      /&gt;
+      &lt;ColorRow
+        name=&quot;inverse-foreground-muted&quot;
+        description=&quot;Secondary / helper text on saturated surface&quot;
+        className=&quot;bg-inverse-foreground-muted border border-border&quot;
+      /&gt;
+      &lt;ColorRow
+        name=&quot;inverse-foreground-subtle&quot;
+        description=&quot;Tertiary text on saturated surface&quot;
+        className=&quot;bg-inverse-foreground-subtle border border-border&quot;
       /&gt;
     &lt;/div&gt;
 
@@ -2478,6 +2529,11 @@ export const Colors: Story = {
         name=&quot;--ink-light&quot;
         description=&quot;#6b6b6b — Light ink&quot;
         style={{ backgroundColor: &#39;var(--ink-light)&#39; }}
+      /&gt;
+      &lt;ColorRow
+        name=&quot;--ink-subtle&quot;
+        description=&quot;Faintest ink — used by foreground-subtle (tertiary text)&quot;
+        style={{ backgroundColor: &#39;var(--ink-subtle)&#39; }}
       /&gt;
       &lt;ColorRow
         name=&quot;--paper-white&quot;
@@ -4732,7 +4788,7 @@ as?: TextElement
 
 asChild?: boolean = false
 
-color?: &quot;success&quot; | &quot;warning&quot; | &quot;info&quot; | &quot;inherit&quot; | &quot;inverted&quot; | &quot;default&quot; | &quot;error&quot; | &quot;muted&quot; | &quot;accent&quot; | null
+color?: &quot;success&quot; | &quot;warning&quot; | &quot;info&quot; | &quot;inherit&quot; | &quot;inverted&quot; | &quot;default&quot; | &quot;error&quot; | &quot;subtle&quot; | &quot;muted&quot; | &quot;accent&quot; | &quot;inverted-muted&quot; | &quot;inverted-subtle&quot; | null
 
 size?: &quot;sm&quot; | &quot;md&quot; | &quot;lg&quot; | &quot;xs&quot; | &quot;xl&quot; | &quot;2xl&quot; | null
 
@@ -4847,8 +4903,9 @@ variant?: &quot;heading&quot; | &quot;label&quot; | &quot;body&quot; | null</cod
               
               <pre><code>const Colors = () =&gt; (
   &lt;div className=&quot;flex flex-col gap-3&quot;&gt;
-    &lt;Text color=&quot;default&quot;&gt;Default color&lt;/Text&gt;
-    &lt;Text color=&quot;muted&quot;&gt;Muted color&lt;/Text&gt;
+    &lt;Text color=&quot;default&quot;&gt;Default — primary text&lt;/Text&gt;
+    &lt;Text color=&quot;muted&quot;&gt;Muted — secondary / helper text&lt;/Text&gt;
+    &lt;Text color=&quot;subtle&quot;&gt;Subtle — tertiary text, faintest of the three&lt;/Text&gt;
     &lt;Text color=&quot;accent&quot;&gt;Accent color&lt;/Text&gt;
     &lt;div className=&quot;text-blue-500&quot;&gt;
       &lt;Text color=&quot;inherit&quot;&gt;Inherit color (from parent)&lt;/Text&gt;
@@ -4881,14 +4938,26 @@ variant?: &quot;heading&quot; | &quot;label&quot; | &quot;body&quot; | null</cod
               
               <pre><code>const InvertedColor = () =&gt; (
   &lt;div className=&quot;flex flex-col gap-3&quot;&gt;
-    &lt;div className=&quot;rounded-md bg-solid p-4&quot;&gt;
-      &lt;Text color=&quot;inverted&quot;&gt;On a primary surface — readable inverse foreground.&lt;/Text&gt;
+    &lt;div className=&quot;flex flex-col gap-1 rounded-md bg-solid p-4&quot;&gt;
+      &lt;Text color=&quot;inverted&quot;&gt;Inverted — primary text on a primary surface&lt;/Text&gt;
+      &lt;Text color=&quot;inverted-muted&quot; size=&quot;sm&quot;&gt;
+        Inverted muted — secondary / helper text
+      &lt;/Text&gt;
+      &lt;Text color=&quot;inverted-subtle&quot; size=&quot;sm&quot;&gt;
+        Inverted subtle — tertiary text, faintest of the three
+      &lt;/Text&gt;
     &lt;/div&gt;
-    &lt;div className=&quot;rounded-md bg-success p-4&quot;&gt;
-      &lt;Text color=&quot;inverted&quot;&gt;On a success surface.&lt;/Text&gt;
+    &lt;div className=&quot;flex flex-col gap-1 rounded-md bg-success p-4&quot;&gt;
+      &lt;Text color=&quot;inverted&quot;&gt;Inverted on a success surface&lt;/Text&gt;
+      &lt;Text color=&quot;inverted-muted&quot; size=&quot;sm&quot;&gt;
+        Secondary on the same surface
+      &lt;/Text&gt;
     &lt;/div&gt;
-    &lt;div className=&quot;rounded-md bg-error p-4&quot;&gt;
-      &lt;Text color=&quot;inverted&quot;&gt;On an error surface.&lt;/Text&gt;
+    &lt;div className=&quot;flex flex-col gap-1 rounded-md bg-error p-4&quot;&gt;
+      &lt;Text color=&quot;inverted&quot;&gt;Inverted on an error surface&lt;/Text&gt;
+      &lt;Text color=&quot;inverted-subtle&quot; size=&quot;sm&quot;&gt;
+        Tertiary on the same surface
+      &lt;/Text&gt;
     &lt;/div&gt;
   &lt;/div&gt;
 );</code></pre>
@@ -7118,13 +7187,36 @@ export const Colors: Story = {
         &lt;ColorRow name=&quot;foreground&quot; description=&quot;Primary text color&quot; className=&quot;bg-foreground&quot; /&gt;
         &lt;ColorRow
           name=&quot;foreground-muted&quot;
-          description=&quot;Secondary/helper text&quot;
+          description=&quot;Secondary / helper text — less prominent than default&quot;
           className=&quot;bg-foreground-muted&quot;
         /&gt;
         &lt;ColorRow
           name=&quot;foreground-subtle&quot;
-          description=&quot;Tertiary text&quot;
+          description=&quot;Tertiary text — faintest of the three&quot;
           className=&quot;bg-foreground-subtle&quot;
+        /&gt;
+      &lt;/div&gt;
+
+      &lt;SubsectionTitle&gt;Inverse Foreground&lt;/SubsectionTitle&gt;
+      &lt;p className=&quot;text-sm text-foreground-muted mb-3&quot;&gt;
+        For text placed on saturated / dark-background containers (solid Toast or Callout, primary
+        fills, …). Mirrors the foreground hierarchy.
+      &lt;/p&gt;
+      &lt;div className=&quot;border border-border rounded-xl px-5&quot;&gt;
+        &lt;ColorRow
+          name=&quot;inverse-foreground&quot;
+          description=&quot;Primary text on saturated surface&quot;
+          className=&quot;bg-inverse-foreground border border-border&quot;
+        /&gt;
+        &lt;ColorRow
+          name=&quot;inverse-foreground-muted&quot;
+          description=&quot;Secondary / helper text on saturated surface&quot;
+          className=&quot;bg-inverse-foreground-muted border border-border&quot;
+        /&gt;
+        &lt;ColorRow
+          name=&quot;inverse-foreground-subtle&quot;
+          description=&quot;Tertiary text on saturated surface&quot;
+          className=&quot;bg-inverse-foreground-subtle border border-border&quot;
         /&gt;
       &lt;/div&gt;
 
@@ -7343,6 +7435,11 @@ export const Colors: Story = {
           name=&quot;--ink-light&quot;
           description=&quot;#6b6b6b — Light ink&quot;
           style={{ backgroundColor: &#39;var(--ink-light)&#39; }}
+        /&gt;
+        &lt;ColorRow
+          name=&quot;--ink-subtle&quot;
+          description=&quot;Faintest ink — used by foreground-subtle (tertiary text)&quot;
+          style={{ backgroundColor: &#39;var(--ink-subtle)&#39; }}
         /&gt;
         &lt;ColorRow
           name=&quot;--paper-white&quot;
@@ -7665,13 +7762,36 @@ export const Colors: Story = {
       &lt;ColorRow name=&quot;foreground&quot; description=&quot;Primary text color&quot; className=&quot;bg-foreground&quot; /&gt;
       &lt;ColorRow
         name=&quot;foreground-muted&quot;
-        description=&quot;Secondary/helper text&quot;
+        description=&quot;Secondary / helper text — less prominent than default&quot;
         className=&quot;bg-foreground-muted&quot;
       /&gt;
       &lt;ColorRow
         name=&quot;foreground-subtle&quot;
-        description=&quot;Tertiary text&quot;
+        description=&quot;Tertiary text — faintest of the three&quot;
         className=&quot;bg-foreground-subtle&quot;
+      /&gt;
+    &lt;/div&gt;
+
+    &lt;SubsectionTitle&gt;Inverse Foreground&lt;/SubsectionTitle&gt;
+    &lt;p className=&quot;text-sm text-foreground-muted mb-3&quot;&gt;
+      For text placed on saturated / dark-background containers (solid Toast or Callout, primary
+      fills, …). Mirrors the foreground hierarchy.
+    &lt;/p&gt;
+    &lt;div className=&quot;border border-border rounded-xl px-5&quot;&gt;
+      &lt;ColorRow
+        name=&quot;inverse-foreground&quot;
+        description=&quot;Primary text on saturated surface&quot;
+        className=&quot;bg-inverse-foreground border border-border&quot;
+      /&gt;
+      &lt;ColorRow
+        name=&quot;inverse-foreground-muted&quot;
+        description=&quot;Secondary / helper text on saturated surface&quot;
+        className=&quot;bg-inverse-foreground-muted border border-border&quot;
+      /&gt;
+      &lt;ColorRow
+        name=&quot;inverse-foreground-subtle&quot;
+        description=&quot;Tertiary text on saturated surface&quot;
+        className=&quot;bg-inverse-foreground-subtle border border-border&quot;
       /&gt;
     &lt;/div&gt;
 
@@ -7890,6 +8010,11 @@ export const Colors: Story = {
         name=&quot;--ink-light&quot;
         description=&quot;#6b6b6b — Light ink&quot;
         style={{ backgroundColor: &#39;var(--ink-light)&#39; }}
+      /&gt;
+      &lt;ColorRow
+        name=&quot;--ink-subtle&quot;
+        description=&quot;Faintest ink — used by foreground-subtle (tertiary text)&quot;
+        style={{ backgroundColor: &#39;var(--ink-subtle)&#39; }}
       /&gt;
       &lt;ColorRow
         name=&quot;--paper-white&quot;

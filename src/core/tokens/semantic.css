@@ -127,7 +127,7 @@
     --color-accent: var(--vermillion-400);
     --color-accent-foreground: var(--gray-950);
 
-    --color-border: var(--gray-800);
+    --color-border: var(--gray-700);
     --color-border-strong: var(--ink-black-inv);
 
     --color-ring: var(--ink-black-inv);
@@ -184,7 +184,7 @@
   --color-accent: var(--vermillion-400);
   --color-accent-foreground: var(--gray-950);
 
-  --color-border: var(--gray-800);
+  --color-border: var(--gray-700);
   --color-border-strong: var(--ink-black-inv);
 
   --color-ring: var(--ink-black-inv);

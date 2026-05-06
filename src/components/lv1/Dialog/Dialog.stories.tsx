@@ -275,7 +275,7 @@ export const Loading: Story = {
           onOpenChange={setIsOpen}
           title="Saving…"
           description="Please wait while we save your changes."
-          actionButton={{ label: 'Save', isLoading: true }}
+          actionButton={{ label: 'Save', onClick: () => {}, isLoading: true }}
           cancelButton={{ label: 'Cancel' }}
         />
       </>
@@ -303,9 +303,9 @@ export const SubActionLoading: Story = {
           onOpenChange={setIsOpen}
           title="Publish article?"
           description="Saving as draft…"
-          actionButton={{ label: 'Publish' }}
+          actionButton={{ label: 'Publish', onClick: () => {} }}
           cancelButton={{ label: 'Cancel' }}
-          subActionButton={{ label: 'Save as draft', isLoading: true }}
+          subActionButton={{ label: 'Save as draft', onClick: () => {}, isLoading: true }}
         />
       </>
     )

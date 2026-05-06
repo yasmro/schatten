@@ -65,7 +65,22 @@ export interface DialogProps {
    * case.
    */
   actionButton: DialogActionButton
+  /**
+   * Optional cancel button (secondary variant). Clicking it closes the
+   * dialog automatically — the parent does *not* need to call
+   * `onOpenChange(false)`. If `onClick` is provided, it's invoked
+   * alongside the close (useful for cleanup / analytics). Cancel is
+   * always synchronous; for a "going back" path that needs awaiting,
+   * use `subActionButton` instead.
+   */
   cancelButton?: DialogCancelButton
+  /**
+   * Optional tertiary alternative — typically "Save as draft" or a
+   * non-primary commit path. Placed at the far left on desktop, below
+   * a separator on mobile. Like `actionButton`, set `isLoading: true`
+   * for async sub-action handlers; the same dismissal-blocking and
+   * sibling-disabling rules apply.
+   */
   subActionButton?: DialogSubActionButton
   /**
    * Body content. Long content scrolls inside the dialog automatically

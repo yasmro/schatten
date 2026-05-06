@@ -582,7 +582,7 @@
 <main>
   <div class="wrap">
     <div class="note ok" style="margin-bottom: 16px;">
-              Using <code>react-docgen-typescript</code>. Generation took <strong>3.1s</strong>.
+              Using <code>react-docgen-typescript</code>. Generation took <strong>2.7s</strong>.
             </div>
     <h2 class="section-title">Components</h2>
     <div class="grid" role="list">
@@ -2996,10 +2996,21 @@ title: string</code></pre>
                 title=&quot;Delete account&quot;
                 description=&quot;This action cannot be undone.&quot;
                 isCloseButtonVisible
-                actionButton={{ label: &#39;Delete&#39;, variant: &#39;destructive&#39; }}
                 cancelButton={{ label: &#39;Cancel&#39; }}
                 isOpen={isOpen}
-                onOpenChange={setIsOpen}&gt;All data associated with this account will be permanently removed.&lt;/Dialog&gt;
+                onOpenChange={setIsOpen}
+                // Wire interactive close handlers in render so the Playground
+                // is usable out of the box. Cancel auto-closes via Radix&#39;s
+                // DialogClose; action and sub-action close the dialog on click.
+                actionButton={{
+                  ...args.actionButton,
+                  onClick: () =&gt; setIsOpen(false),
+                }}
+                subActionButton={
+                  args.subActionButton
+                    ? { ...args.subActionButton, onClick: () =&gt; setIsOpen(false) }
+                    : undefined
+                }&gt;All data associated with this account will be permanently removed.&lt;/Dialog&gt;
         &lt;/&gt;
     );
 };</code></pre>

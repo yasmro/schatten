@@ -582,7 +582,7 @@
 <main>
   <div class="wrap">
     <div class="note ok" style="margin-bottom: 16px;">
-              Using <code>react-docgen-typescript</code>. Generation took <strong>3.1s</strong>.
+              Using <code>react-docgen-typescript</code>. Generation took <strong>3.0s</strong>.
             </div>
     <h2 class="section-title">Components</h2>
     <div class="grid" role="list">
@@ -2905,12 +2905,28 @@ export const Colors: Story = {
             </div>
             <pre><code>Component: src/components/lv1/Dialog/Dialog.tsx::Dialog</code></pre>
             <pre><code>Props:</code></pre>
-            <pre><code>actionButton: DialogActionButton
+            <pre><code>/**
+ * Required primary action. When `variant: &#39;destructive&#39;` and a
+ * `cancelButton` is provided, initial focus is auto-routed to Cancel
+ * (WCAG-recommended safeguard for irreversible actions).
+ * 
+ * Note: if `onClick` is omitted the action button is a no-op — the
+ * dialog will not close. A development-mode warning is logged in this
+ * case.
+ */
+actionButton: DialogActionButton
 
 cancelButton?: DialogCancelButton
 
 /**
- * Body content rendered between the header and the footer.
+ * Body content. Long content scrolls inside the dialog automatically
+ * (the dialog caps its height to the viewport).
+ * 
+ * Note on tab order: with the responsive footer layout, mobile visual
+ * order is `Action / Cancel / SubAction` but tab order follows DOM
+ * order (`SubAction → Cancel → Action`). This is a known trade-off
+ * with CSS `order` and is consistent with shadcn/ui and Radix patterns.
+ * Desktop tab order matches visual order.
  */
 children?: ReactNode
 
@@ -2926,6 +2942,11 @@ isCloseButtonVisible?: boolean = true
  * disabled, and ESC / overlay click / close ✕ are blocked. Parent owns
  * this state — set it true before awaiting the async action and back to
  * false (or close the dialog) when settled.
+ * 
+ * Errors are the parent&#39;s responsibility — `actionButton.onClick`
+ * rejections are not caught by Dialog. Wrap your async handler in
+ * `try/catch` (or `.catch`) and reset `isLoading` in the failure path
+ * to avoid the dialog getting stuck.
  */
 isLoading?: boolean = false
 
@@ -3189,24 +3210,20 @@ title: string</code></pre>
         actionButton={{ label: &#39;Accept&#39;, onClick: () =&gt; setIsOpen(false) }}
         cancelButton={{ label: &#39;Decline&#39; }}
       &gt;
-        &lt;div className=&quot;flex flex-col gap-3 max-h-[40vh] overflow-y-auto&quot;&gt;
-          &lt;p&gt;
-            We have updated our privacy policy to reflect changes in how we handle user data. The
-            updates clarify our practices around analytics, third-party integrations, and the
-            retention of session-level information.
-          &lt;/p&gt;
-          &lt;p&gt;
-            By accepting, you acknowledge that you have read and understood the changes. You can
-            review the full policy at any time from your account settings.
-          &lt;/p&gt;
-          &lt;p&gt;
-            If you have questions, please reach out to support before accepting. Declining will
-            return you to the previous screen without applying any changes.
-          &lt;/p&gt;
+        &lt;div className=&quot;flex flex-col gap-3&quot;&gt;
+          {Array.from({ length: 8 }).map((_, i) =&gt; (
+            // biome-ignore lint/suspicious/noArrayIndexKey: stable static fixture content
+            (&lt;p key={i}&gt;We have updated our privacy policy to reflect changes in how we handle user data.
+                              The updates clarify our practices around analytics, third-party integrations, and
+                              the retention of session-level information. By accepting, you acknowledge that you
+                              have read and understood the changes. You can review the full policy at any time
+                              from your account settings.
+                            &lt;/p&gt;)
+          ))}
         &lt;/div&gt;
       &lt;/Dialog&gt;
     &lt;/&gt;
-  )
+  );
 };</code></pre>
             </div>
         </div>

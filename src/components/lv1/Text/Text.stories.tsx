@@ -1,6 +1,35 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { Text } from './Text'
 
+/**
+ * Text renders semantic typography (`body` / `label` / `heading`) at
+ * predefined sizes, with color, alignment, and truncation as
+ * orthogonal axes.
+ *
+ * ## `color` is grouped into three parallel hierarchies
+ *
+ * - **Foreground** (most → least prominent): `default` / `muted` /
+ *   `subtle` — primary, secondary/helper, and tertiary text. Reach for
+ *   these for ordinary on-page typography.
+ * - **State**: `error` / `success` / `warning` / `info` — inline
+ *   status text such as form errors, success notes, or beta callouts.
+ *   References the same state semantic tokens as Toast / Callout /
+ *   Badge.
+ * - **Inverted** (most → least prominent): `inverted` / `inverted-muted`
+ *   / `inverted-subtle` — for text placed on saturated surfaces (a
+ *   solid Toast or Callout, a primary-colored fill, …). Mirrors the
+ *   foreground hierarchy.
+ *
+ * Plus `accent` (one-off emphasis), and `inherit` (delegates to the
+ * parent's color).
+ *
+ * ## Element selection
+ *
+ * `as` controls the rendered tag. By default `body` and `heading`
+ * render `<p>`, and `label` renders `<label>`. Pass `asChild` (Radix
+ * Slot) to merge Text's classes onto an existing child element.
+ */
+
 const meta: Meta<typeof Text> = {
   title: 'Components/lv1/Text',
   component: Text,

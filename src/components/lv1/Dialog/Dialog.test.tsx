@@ -116,32 +116,54 @@ describe('Dialog', () => {
     expect(screen.queryByText('Test dialog')).not.toBeInTheDocument()
   })
 
-  it('disables cancel and sub-action buttons when isLoading', () => {
+  it('disables cancel / sub-action / close ✕ when actionButton is loading', () => {
     render(
       <Controlled
-        isLoading
+        actionButton={{ label: 'Confirm', onClick: () => {}, isLoading: true }}
         cancelButton={{ label: 'Cancel' }}
         subActionButton={{ label: 'Save as draft' }}
       />,
     )
     expect(screen.getByRole('button', { name: 'Cancel' })).toBeDisabled()
     expect(screen.getByRole('button', { name: 'Save as draft' })).toBeDisabled()
-  })
-
-  it('disables close (X) button when isLoading', () => {
-    render(<Controlled isLoading />)
     expect(screen.getByRole('button', { name: 'Close' })).toBeDisabled()
   })
 
-  it('blocks ESC key dismissal when isLoading', async () => {
+  it('disables action / cancel / close ✕ when subActionButton is loading', () => {
+    render(
+      <Controlled
+        actionButton={{ label: 'Confirm', onClick: () => {} }}
+        cancelButton={{ label: 'Cancel' }}
+        subActionButton={{ label: 'Save as draft', isLoading: true }}
+      />,
+    )
+    expect(screen.getByRole('button', { name: 'Confirm' })).toBeDisabled()
+    expect(screen.getByRole('button', { name: 'Cancel' })).toBeDisabled()
+    expect(screen.getByRole('button', { name: 'Close' })).toBeDisabled()
+  })
+
+  it('blocks ESC key dismissal when actionButton is loading', async () => {
     const user = userEvent.setup()
-    render(<Controlled isLoading />)
+    render(<Controlled actionButton={{ label: 'Confirm', onClick: () => {}, isLoading: true }} />)
 
     await user.keyboard('{Escape}')
     expect(screen.getByText('Test dialog')).toBeInTheDocument()
   })
 
-  it('closes on ESC when not loading', async () => {
+  it('blocks ESC key dismissal when subActionButton is loading', async () => {
+    const user = userEvent.setup()
+    render(
+      <Controlled
+        actionButton={{ label: 'Confirm', onClick: () => {} }}
+        subActionButton={{ label: 'Save as draft', isLoading: true }}
+      />,
+    )
+
+    await user.keyboard('{Escape}')
+    expect(screen.getByText('Test dialog')).toBeInTheDocument()
+  })
+
+  it('closes on ESC when no footer button is loading', async () => {
     const user = userEvent.setup()
     render(<Controlled />)
 
@@ -149,8 +171,8 @@ describe('Dialog', () => {
     expect(screen.queryByText('Test dialog')).not.toBeInTheDocument()
   })
 
-  it('blocks overlay click dismissal when isLoading', () => {
-    render(<Controlled isLoading />)
+  it('blocks overlay click dismissal when a footer button is loading', () => {
+    render(<Controlled actionButton={{ label: 'Confirm', onClick: () => {}, isLoading: true }} />)
 
     const overlay = document.querySelector('.dialog-overlay')
     if (!overlay) throw new Error('overlay element not found')

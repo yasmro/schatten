@@ -7,6 +7,7 @@ const stories = [
   'destructive',
   'with-sub-action',
   'loading',
+  'sub-action-loading',
   'without-close-button',
   'info-only',
   'long-content',

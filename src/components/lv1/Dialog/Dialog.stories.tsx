@@ -28,14 +28,16 @@ import { Dialog } from './Dialog'
  *
  * ## Async actions
  *
- * The parent owns `isLoading`. While true:
- * - `actionButton` shows a spinner
- * - `cancelButton` / `subActionButton` are disabled
+ * Set `isLoading: true` on the slot whose handler is in flight
+ * (`actionButton` or `subActionButton`). While any footer button is
+ * loading:
+ * - That button shows a spinner
+ * - The other footer buttons (and close ✕) are disabled
  * - ESC, overlay click, and the close ✕ are blocked
  *
- * Set `isLoading` to true before awaiting your async action, and back to
- * false (or close the dialog) when the promise settles. Errors are the
- * parent's responsibility — the dialog stays open on rejection.
+ * Flip `isLoading` true before awaiting and back to false (or close the
+ * dialog) when the promise settles. Errors are the parent's
+ * responsibility — the dialog stays open on rejection.
  *
  * ## Footer slots
  *
@@ -70,15 +72,6 @@ const meta: Meta<typeof Dialog> = {
       table: { type: { summary: '(isOpen: boolean) => void' } },
       control: false,
     },
-    isLoading: {
-      description:
-        'When true: action shows spinner, cancel/sub disabled, ESC / overlay / ✕ blocked.',
-      control: 'boolean',
-      table: {
-        type: { summary: 'boolean' },
-        defaultValue: { summary: 'false' },
-      },
-    },
     title: {
       description: 'Dialog heading. Required.',
       control: 'text',
@@ -98,7 +91,8 @@ const meta: Meta<typeof Dialog> = {
       },
     },
     actionButton: {
-      description: 'Primary action button. Required.',
+      description:
+        'Primary action button. Required. Set `isLoading: true` on this slot to show a spinner; Dialog will disable the other footer buttons and block dismissal.',
       table: { type: { summary: 'DialogActionButton' } },
       control: false,
     },
@@ -108,7 +102,8 @@ const meta: Meta<typeof Dialog> = {
       control: false,
     },
     subActionButton: {
-      description: 'Sub-action button (tertiary variant) — placed at the far left on desktop.',
+      description:
+        'Sub-action button (tertiary variant) — placed at the far left on desktop. Like `actionButton`, accepts `isLoading` for async sub-action handlers.',
       table: { type: { summary: 'DialogSubActionButton' } },
       control: false,
     },
@@ -129,7 +124,6 @@ export const Playground: Story = {
     isOpen: false,
     title: 'Delete account',
     description: 'This action cannot be undone.',
-    isLoading: false,
     isCloseButtonVisible: true,
     actionButton: { label: 'Delete', variant: 'destructive' },
     cancelButton: { label: 'Cancel' },
@@ -241,7 +235,7 @@ export const Loading: Story = {
     docs: {
       description: {
         story:
-          'When `isLoading` is true, the action button shows a spinner, the cancel and sub-action buttons are disabled, and dismissal (ESC / overlay click / ✕) is blocked. The parent owns this state.',
+          'When the action slot has `isLoading: true`, the action button shows a spinner, the cancel and sub-action buttons (and close ✕) are disabled, and dismissal (ESC / overlay click / ✕) is blocked. The parent owns this state.',
       },
     },
   },
@@ -253,11 +247,39 @@ export const Loading: Story = {
         <Dialog
           isOpen={isOpen}
           onOpenChange={setIsOpen}
-          isLoading
           title="Saving…"
           description="Please wait while we save your changes."
-          actionButton={{ label: 'Save' }}
+          actionButton={{ label: 'Save', isLoading: true }}
           cancelButton={{ label: 'Cancel' }}
+        />
+      </>
+    )
+  },
+}
+
+export const SubActionLoading: Story = {
+  name: 'Sub-Action Loading',
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'When `subActionButton.isLoading` is true, the sub-action button shows the spinner; the action button (and cancel) are disabled in turn.',
+      },
+    },
+  },
+  render: () => {
+    const [isOpen, setIsOpen] = useState(false)
+    return (
+      <>
+        <Button onClick={() => setIsOpen(true)}>Open</Button>
+        <Dialog
+          isOpen={isOpen}
+          onOpenChange={setIsOpen}
+          title="Publish article?"
+          description="Saving as draft…"
+          actionButton={{ label: 'Publish' }}
+          cancelButton={{ label: 'Cancel' }}
+          subActionButton={{ label: 'Save as draft', isLoading: true }}
         />
       </>
     )
@@ -270,7 +292,7 @@ export const AsyncAction: Story = {
     docs: {
       description: {
         story:
-          'Pattern for awaiting an async action. The parent flips `isLoading` true → awaits → flips false (or closes the dialog).',
+          'Pattern for awaiting an async primary action. The parent flips `actionButton.isLoading` true → awaits → flips false (or closes the dialog).',
       },
     },
   },
@@ -291,11 +313,62 @@ export const AsyncAction: Story = {
         <Dialog
           isOpen={isOpen}
           onOpenChange={setIsOpen}
-          isLoading={isLoading}
           title="Submit form?"
           description="This will submit your form to the server."
-          actionButton={{ label: 'Submit', onClick: handleSave }}
+          actionButton={{ label: 'Submit', onClick: handleSave, isLoading }}
           cancelButton={{ label: 'Cancel' }}
+        />
+      </>
+    )
+  },
+}
+
+export const AsyncSubAction: Story = {
+  name: 'Async Sub-Action',
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Sub-action handlers can be async too — set `isLoading: true` on `subActionButton` instead. The action button (and cancel) are disabled while the sub-action is in flight.',
+      },
+    },
+  },
+  render: () => {
+    const [isOpen, setIsOpen] = useState(false)
+    const [loadingSlot, setLoadingSlot] = useState<'action' | 'sub' | null>(null)
+
+    const handlePublish = async () => {
+      setLoadingSlot('action')
+      await new Promise((resolve) => setTimeout(resolve, 1500))
+      setLoadingSlot(null)
+      setIsOpen(false)
+    }
+    const handleSaveDraft = async () => {
+      setLoadingSlot('sub')
+      await new Promise((resolve) => setTimeout(resolve, 1500))
+      setLoadingSlot(null)
+      setIsOpen(false)
+    }
+
+    return (
+      <>
+        <Button onClick={() => setIsOpen(true)}>Open</Button>
+        <Dialog
+          isOpen={isOpen}
+          onOpenChange={setIsOpen}
+          title="Publish article?"
+          description="Try clicking Save as draft — only the sub-action shows a spinner."
+          actionButton={{
+            label: 'Publish',
+            onClick: handlePublish,
+            isLoading: loadingSlot === 'action',
+          }}
+          cancelButton={{ label: 'Cancel' }}
+          subActionButton={{
+            label: 'Save as draft',
+            onClick: handleSaveDraft,
+            isLoading: loadingSlot === 'sub',
+          }}
         />
       </>
     )

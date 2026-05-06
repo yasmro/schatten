@@ -10,18 +10,30 @@ export type DialogActionButton = {
   variant?: 'primary' | 'destructive'
   onClick?: () => void | Promise<void>
   icon?: IconName
+  /**
+   * When true, this button shows a spinner. The Dialog disables the
+   * other footer buttons (cancel / sub-action) and blocks ESC / overlay
+   * click / close ✕ dismissal while *any* footer button is loading.
+   * Parent owns this state.
+   */
+  isLoading?: boolean
 }
 
 export type DialogCancelButton = {
   label: string
   onClick?: () => void
   icon?: IconName
+  // Cancel is always synchronous (closes the dialog) — no `isLoading`
+  // here on purpose. If you have an async cleanup on cancel, fire it
+  // and let the dialog close immediately.
 }
 
 export type DialogSubActionButton = {
   label: string
-  onClick?: () => void
+  onClick?: () => void | Promise<void>
   icon?: IconName
+  /** See `DialogActionButton.isLoading`. */
+  isLoading?: boolean
 }
 
 export interface DialogProps {
@@ -29,29 +41,24 @@ export interface DialogProps {
   isOpen: boolean
   /** Called when the open state changes (close ✕, ESC, overlay click, cancel button). */
   onOpenChange: (isOpen: boolean) => void
-  /**
-   * When true, the action button shows a spinner, cancel / sub-action are
-   * disabled, and ESC / overlay click / close ✕ are blocked. Parent owns
-   * this state — set it true before awaiting the async action and back to
-   * false (or close the dialog) when settled.
-   *
-   * Errors are the parent's responsibility — `actionButton.onClick`
-   * rejections are not caught by Dialog. Wrap your async handler in
-   * `try/catch` (or `.catch`) and reset `isLoading` in the failure path
-   * to avoid the dialog getting stuck.
-   */
-  isLoading?: boolean
   title: string
   description?: string
   /** Default: true. */
   isCloseButtonVisible?: boolean
   /**
-   * Required primary action.
+   * Required primary action. Set `isLoading: true` on the slot to show
+   * a spinner (Dialog will also disable cancel / sub-action and block
+   * dismissal while any footer button is loading).
    *
    * On open, Radix focuses the first tabbable element inside Content;
    * the footer is structured so that the action button is the first
    * tabbable in the footer region. If the body (`children`) contains
    * focusable elements (e.g. form inputs), those will be focused first.
+   *
+   * Async-handler errors are the parent's responsibility — `onClick`
+   * rejections are not caught by Dialog. Wrap your handler in
+   * `try/catch` (or `.catch`) and reset `isLoading` in the failure path
+   * to avoid the dialog getting stuck.
    *
    * Note: if `onClick` is omitted the action button is a no-op — the
    * dialog will not close. A development-mode warning is logged in this
@@ -107,18 +114,27 @@ function Footer({
   actionButton,
   cancelButton,
   subActionButton,
-  isLoading,
+  anyLoading,
 }: {
   actionButton: DialogActionButton
   cancelButton?: DialogCancelButton
   subActionButton?: DialogSubActionButton
-  isLoading: boolean
+  anyLoading: boolean
 }) {
   // DOM order is action → cancel → separator → subAction so that Radix's
   // default `onOpenAutoFocus` (focus first tabbable inside Content) lands
   // on the action button. CSS `order` utilities recover the desired visual
   // layout — see `tab order` JSDoc on `DialogProps['children']` for the
   // resulting Tab-vs-visual relationship.
+  //
+  // Per-button states:
+  //   - The button whose own `isLoading` is true shows the spinner
+  //     (Button auto-disables itself when isLoading).
+  //   - Other footer buttons receive `disabled` so they're frozen while
+  //     any sibling is mid-async.
+  const isActionLoading = !!actionButton.isLoading
+  const isSubActionLoading = !!subActionButton?.isLoading
+
   return (
     <div
       className={cn(
@@ -128,7 +144,8 @@ function Footer({
     >
       <Button
         variant={actionButton.variant ?? 'primary'}
-        isLoading={isLoading}
+        isLoading={isActionLoading}
+        disabled={isSubActionLoading}
         onClick={actionButton.onClick}
         icon={actionButton.icon}
         className="order-1 sm:order-3"
@@ -140,7 +157,7 @@ function Footer({
         <DialogPrimitive.Close asChild>
           <Button
             variant="secondary"
-            disabled={isLoading}
+            disabled={anyLoading}
             onClick={cancelButton.onClick}
             icon={cancelButton.icon}
             className="order-2"
@@ -157,7 +174,8 @@ function Footer({
       {subActionButton && (
         <Button
           variant="tertiary"
-          disabled={isLoading}
+          isLoading={isSubActionLoading}
+          disabled={isActionLoading}
           onClick={subActionButton.onClick}
           icon={subActionButton.icon}
           className="order-4 sm:order-1 sm:mr-auto"
@@ -169,14 +187,14 @@ function Footer({
   )
 }
 
-function CloseButton({ isLoading }: { isLoading: boolean }) {
+function CloseButton({ disabled }: { disabled: boolean }) {
   // Wrap in an absolutely-positioned div: Button's own className ends with
   // `relative` (positioning context for its spinner), which tailwind-merges
   // away any `absolute` we'd pass on the Button itself.
   return (
     <div className="absolute right-4 top-4">
       <DialogPrimitive.Close asChild>
-        <Button variant="tertiary" size="sm" icon="X" aria-label="Close" disabled={isLoading} />
+        <Button variant="tertiary" size="sm" icon="X" aria-label="Close" disabled={disabled} />
       </DialogPrimitive.Close>
     </div>
   )
@@ -187,7 +205,6 @@ function CloseButton({ isLoading }: { isLoading: boolean }) {
 export const Dialog = ({
   isOpen,
   onOpenChange,
-  isLoading = false,
   title,
   description,
   isCloseButtonVisible = true,
@@ -208,11 +225,15 @@ export const Dialog = ({
     }
   }, [isOpen, actionButton.onClick])
 
+  // Any footer button being in a loading state freezes dismissal (ESC,
+  // overlay, close ✕) and disables the *other* footer buttons.
+  const anyLoading = !!actionButton.isLoading || !!subActionButton?.isLoading
+
   const blockWhileLoading = useCallback(
     (event: Event) => {
-      if (isLoading) event.preventDefault()
+      if (anyLoading) event.preventDefault()
     },
-    [isLoading],
+    [anyLoading],
   )
 
   return (
@@ -249,9 +270,9 @@ export const Dialog = ({
             actionButton={actionButton}
             cancelButton={cancelButton}
             subActionButton={subActionButton}
-            isLoading={isLoading}
+            anyLoading={anyLoading}
           />
-          {isCloseButtonVisible && <CloseButton isLoading={isLoading} />}
+          {isCloseButtonVisible && <CloseButton disabled={anyLoading} />}
         </DialogPrimitive.Content>
       </DialogPrimitive.Portal>
     </DialogPrimitive.Root>

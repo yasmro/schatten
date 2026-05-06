@@ -107,7 +107,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
             label="Loading"
             variant={
               variant === 'primary' || variant === 'destructive' || variant === 'inverted'
-                ? 'inverse'
+                ? 'inverted'
                 : 'default'
             }
           />

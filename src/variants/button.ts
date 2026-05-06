@@ -13,10 +13,10 @@ export const buttonVariants = cva(
         /**
          * Borderless ghost button intended for use *on top of* a saturated
          * surface (e.g. solid Toast, primary-colored banner). Inherits the
-         * inverse foreground color and hover-tints with a translucent
+         * inverted foreground color and hover-tints with a translucent
          * overlay so it stays legible regardless of the surrounding fill.
          */
-        inverted: 'text-inverse-foreground not-disabled:hover:bg-current/10',
+        inverted: 'text-inverted-foreground not-disabled:hover:bg-current/10',
         destructive:
           'bg-destructive text-destructive-foreground not-disabled:hover:bg-destructive-hover',
         link: '',

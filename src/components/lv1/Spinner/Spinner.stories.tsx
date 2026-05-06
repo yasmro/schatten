@@ -12,9 +12,9 @@ const meta: Meta<typeof Spinner> = {
     variant: {
       description: 'Color variant of the spinner.',
       control: 'select',
-      options: ['default', 'inverse'],
+      options: ['default', 'inverted'],
       table: {
-        type: { summary: '"default" | "inverse"' },
+        type: { summary: '"default" | "inverted"' },
         defaultValue: { summary: 'default' },
       },
     },
@@ -84,8 +84,8 @@ export const OnDarkBackground: Story = {
   name: 'On Dark Background',
   render: () => (
     <div className="flex items-center gap-8 rounded-lg bg-solid p-8">
-      <Spinner variant="inverse" type="default" />
-      <Spinner variant="inverse" type="ripple" />
+      <Spinner variant="inverted" type="default" />
+      <Spinner variant="inverted" type="ripple" />
     </div>
   ),
 }

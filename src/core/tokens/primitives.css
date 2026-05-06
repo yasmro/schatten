@@ -44,16 +44,16 @@
   --paper-cream: #f0ede8;
 
   /* Ink inverted (for dark mode semantic mapping) */
-  --ink-black-inv: var(--alabaster-200);
-  --ink-dark-inv: var(--alabaster-300);
-  --ink-medium-inv: var(--alabaster-400);
-  --ink-light-inv: var(--alabaster-500);
-  --ink-subtle-inv: var(--alabaster-600);
+  --ink-black-inverted: var(--alabaster-200);
+  --ink-dark-inverted: var(--alabaster-300);
+  --ink-medium-inverted: var(--alabaster-400);
+  --ink-light-inverted: var(--alabaster-500);
+  --ink-subtle-inverted: var(--alabaster-600);
 
   /* Paper inverted (for dark mode semantic mapping) */
-  --paper-white-inv: #1a1a1a;
-  --paper-warm-inv: #1e1e1c;
-  --paper-cream-inv: #44403a;
+  --paper-white-inverted: #1a1a1a;
+  --paper-warm-inverted: #1e1e1c;
+  --paper-cream-inverted: #44403a;
 
   /* Accent: Vermillion (Japanese traditional, brand anchor: 600 ≈ #c53d43) */
   --vermillion-50: oklch(0.98 0.02 22);

@@ -99,26 +99,26 @@ export const Colors: Story = {
         />
       </div>
 
-      <SubsectionTitle>Inverse Foreground</SubsectionTitle>
+      <SubsectionTitle>Inverted Foreground</SubsectionTitle>
       <p className="text-sm text-foreground-muted mb-3">
         For text placed on saturated / dark-background containers (solid Toast or Callout, primary
         fills, …). Mirrors the foreground hierarchy.
       </p>
       <div className="border border-border rounded-xl px-5">
         <ColorRow
-          name="inverse-foreground"
+          name="inverted-foreground"
           description="Primary text on saturated surface"
-          className="bg-inverse-foreground border border-border"
+          className="bg-inverted-foreground border border-border"
         />
         <ColorRow
-          name="inverse-foreground-muted"
+          name="inverted-foreground-muted"
           description="Secondary / helper text on saturated surface"
-          className="bg-inverse-foreground-muted border border-border"
+          className="bg-inverted-foreground-muted border border-border"
         />
         <ColorRow
-          name="inverse-foreground-subtle"
+          name="inverted-foreground-subtle"
           description="Tertiary text on saturated surface"
-          className="bg-inverse-foreground-subtle border border-border"
+          className="bg-inverted-foreground-subtle border border-border"
         />
       </div>
 

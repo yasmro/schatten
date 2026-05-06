@@ -38,7 +38,7 @@ export function ToastItem({ toast }: ToastItemProps) {
   }
 
   // Solid toasts have a saturated fill, so the action/close button needs an
-  // inverse foreground to stay legible against the bg.
+  // inverted foreground to stay legible against the bg.
   const buttonVariant = toast.treatment === 'solid' ? 'inverted' : 'tertiary'
 
   const Icon = iconByVariant[toast.variant ?? 'default']

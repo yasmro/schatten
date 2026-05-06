@@ -112,10 +112,10 @@ describe('Callout', () => {
       <Callout variant="error" treatment="solid" onClose={() => {}} title="Failed" />,
     )
     const closeBtn = container.querySelector('button[aria-label="Close"]')
-    // The inverted Button variant adds `text-inverse-foreground`; the
+    // The inverted Button variant adds `text-inverted-foreground`; the
     // tertiary variant uses `text-foreground`. Asserting against the
     // inverted token is enough to discriminate.
-    expect(closeBtn?.className).toContain('text-inverse-foreground')
+    expect(closeBtn?.className).toContain('text-inverted-foreground')
   })
 
   it('uses the tertiary Button variant for the close button on subtle treatment', () => {
@@ -124,7 +124,7 @@ describe('Callout', () => {
     )
     const closeBtn = container.querySelector('button[aria-label="Close"]')
     expect(closeBtn?.className).toContain('text-foreground')
-    expect(closeBtn?.className).not.toContain('text-inverse-foreground')
+    expect(closeBtn?.className).not.toContain('text-inverted-foreground')
   })
 
   it('passes through arbitrary HTML attributes (role, data-*)', () => {

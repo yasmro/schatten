@@ -23,6 +23,7 @@
   --ink-dark: var(--sumi-700);
   --ink-medium: var(--sumi-600);
   --ink-light: var(--sumi-400);
+  --ink-subtle: var(--sumi-300);
 
   /* Alabaster (アラバスター) - warm white scale */
   --alabaster-50: oklch(0.98 0.005 70);
@@ -47,6 +48,7 @@
   --ink-dark-inv: var(--alabaster-300);
   --ink-medium-inv: var(--alabaster-400);
   --ink-light-inv: var(--alabaster-500);
+  --ink-subtle-inv: var(--alabaster-600);
 
   /* Paper inverted (for dark mode semantic mapping) */
   --paper-white-inv: #1a1a1a;

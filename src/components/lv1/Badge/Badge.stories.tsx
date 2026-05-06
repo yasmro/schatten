@@ -1,6 +1,23 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { Badge } from './Badge'
 
+/**
+ * Badge displays small status descriptors. Two axes drive its
+ * appearance:
+ *
+ * - **`variant`** — semantic state (`default` / `success` / `error` /
+ *   `warning` / `info`). Reuses the same state semantic tokens as
+ *   Toast and Callout.
+ * - **`treatment`** — visual fill (`subtle` (default) / `solid` /
+ *   `outline`). Reach for `subtle` for ambient list rows and status
+ *   tags, `solid` for emphasis, and `outline` for the lightest,
+ *   border-only style.
+ *
+ * Badge is intentionally state-oriented (no `destructive` variant) —
+ * use `error` for "failed/invalid" tags. For destructive *actions*,
+ * use `<Button variant="destructive">`.
+ */
+
 const meta: Meta<typeof Badge> = {
   title: 'Components/lv1/Badge',
   component: Badge,
@@ -10,12 +27,23 @@ const meta: Meta<typeof Badge> = {
   tags: ['autodocs'],
   argTypes: {
     variant: {
-      description: 'Visual style of the badge.',
+      description:
+        'Semantic state of the badge. State variants share the same state semantic tokens as Toast and Callout.',
       control: 'select',
-      options: ['primary', 'secondary', 'destructive', 'outline'],
+      options: ['default', 'success', 'error', 'warning', 'info'],
       table: {
-        type: { summary: '"primary" | "secondary" | "destructive" | "outline"' },
-        defaultValue: { summary: 'primary' },
+        type: { summary: '"default" | "success" | "error" | "warning" | "info"' },
+        defaultValue: { summary: 'default' },
+      },
+    },
+    treatment: {
+      description:
+        'Visual treatment — `subtle` for soft tinted background (default), `solid` for filled emphasis, `outline` for outline-only.',
+      control: 'select',
+      options: ['solid', 'subtle', 'outline'],
+      table: {
+        type: { summary: '"solid" | "subtle" | "outline"' },
+        defaultValue: { summary: 'subtle' },
       },
     },
     size: {
@@ -57,23 +85,124 @@ const meta: Meta<typeof Badge> = {
 export default meta
 type Story = StoryObj<typeof Badge>
 
+const VARIANTS = ['default', 'success', 'error', 'warning', 'info'] as const
+const TREATMENTS = ['solid', 'subtle', 'outline'] as const
+
 export const Playground: Story = {
   name: 'Playground',
   args: {
-    variant: 'primary',
+    variant: 'default',
+    treatment: 'subtle',
     size: 'md',
     children: 'Badge',
   },
 }
 
-export const AllVariants: Story = {
-  name: 'All Variants',
+export const SolidTreatments: Story = {
+  name: 'Solid Treatments',
   render: () => (
     <div className="flex flex-wrap gap-4">
-      <Badge variant="primary">Primary</Badge>
-      <Badge variant="secondary">Secondary</Badge>
-      <Badge variant="destructive">Destructive</Badge>
-      <Badge variant="outline">Outline</Badge>
+      {VARIANTS.map((variant) => (
+        <Badge key={variant} variant={variant} treatment="solid">
+          {variant}
+        </Badge>
+      ))}
+    </div>
+  ),
+}
+
+export const SubtleTreatments: Story = {
+  name: 'Subtle Treatments',
+  render: () => (
+    <div className="flex flex-wrap gap-4">
+      {VARIANTS.map((variant) => (
+        <Badge key={variant} variant={variant} treatment="subtle">
+          {variant}
+        </Badge>
+      ))}
+    </div>
+  ),
+}
+
+export const OutlineTreatments: Story = {
+  name: 'Outline Treatments',
+  render: () => (
+    <div className="flex flex-wrap gap-4">
+      {VARIANTS.map((variant) => (
+        <Badge key={variant} variant={variant} treatment="outline">
+          {variant}
+        </Badge>
+      ))}
+    </div>
+  ),
+}
+
+export const FullMatrix: Story = {
+  name: 'Full Matrix',
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Every combination of `variant` × `treatment`. Use this view to pick a Badge style that matches the prominence and tone of the surrounding UI.',
+      },
+    },
+  },
+  render: () => (
+    <div className="flex flex-col gap-3">
+      {TREATMENTS.map((treatment) => (
+        <div key={treatment} className="flex flex-wrap items-center gap-3">
+          <span className="w-20 text-xs font-mono text-foreground-muted">{treatment}</span>
+          {VARIANTS.map((variant) => (
+            <Badge key={`${treatment}-${variant}`} variant={variant} treatment={treatment}>
+              {variant}
+            </Badge>
+          ))}
+        </div>
+      ))}
+    </div>
+  ),
+}
+
+export const States: Story = {
+  name: 'States',
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Typical status-tag use cases. The default `subtle` treatment (top row) sits comfortably in list rows and tables; `solid` (bottom row) draws more attention when a status needs emphasis.',
+      },
+    },
+  },
+  render: () => (
+    <div className="flex flex-col gap-4">
+      <div className="flex flex-wrap gap-4">
+        <Badge variant="success" icon="Check">
+          Active
+        </Badge>
+        <Badge variant="warning" icon="Clock">
+          Pending
+        </Badge>
+        <Badge variant="error" icon="X">
+          Failed
+        </Badge>
+        <Badge variant="info" icon="Sparkles">
+          Beta
+        </Badge>
+      </div>
+      <div className="flex flex-wrap gap-4">
+        <Badge variant="success" treatment="solid" icon="Check">
+          Active
+        </Badge>
+        <Badge variant="warning" treatment="solid" icon="Clock">
+          Pending
+        </Badge>
+        <Badge variant="error" treatment="solid" icon="X">
+          Failed
+        </Badge>
+        <Badge variant="info" treatment="solid" icon="Sparkles">
+          Beta
+        </Badge>
+      </div>
     </div>
   ),
 }
@@ -93,14 +222,16 @@ export const Icons: Story = {
   name: 'Icons',
   render: () => (
     <div className="flex flex-wrap gap-4">
-      <Badge icon="Check">Success</Badge>
-      <Badge variant="destructive" icon="AlertCircle">
+      <Badge variant="success" icon="Check">
+        Success
+      </Badge>
+      <Badge variant="error" icon="AlertCircle">
         Error
       </Badge>
-      <Badge variant="secondary" icon="Clock">
+      <Badge variant="default" treatment="subtle" icon="Clock">
         Pending
       </Badge>
-      <Badge variant="outline" icon="Tag">
+      <Badge variant="default" treatment="outline" icon="Tag">
         Label
       </Badge>
     </div>
@@ -126,8 +257,8 @@ export const IconOnly: Story = {
       <Badge icon="Check" size="sm" aria-label="Success" />
       <Badge icon="Check" aria-label="Success" />
       <Badge icon="Check" size="lg" aria-label="Success" />
-      <Badge variant="destructive" icon="X" aria-label="Error" />
-      <Badge variant="outline" icon="Star" aria-label="Starred" />
+      <Badge variant="error" icon="X" aria-label="Error" />
+      <Badge variant="default" treatment="outline" icon="Star" aria-label="Starred" />
     </div>
   ),
 }

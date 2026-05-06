@@ -1,6 +1,35 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { Text } from './Text'
 
+/**
+ * Text renders semantic typography (`body` / `label` / `heading`) at
+ * predefined sizes, with color, alignment, and truncation as
+ * orthogonal axes.
+ *
+ * ## `color` is grouped into three parallel hierarchies
+ *
+ * - **Foreground** (most → least prominent): `default` / `muted` /
+ *   `subtle` — primary, secondary/helper, and tertiary text. Reach for
+ *   these for ordinary on-page typography.
+ * - **State**: `error` / `success` / `warning` / `info` — inline
+ *   status text such as form errors, success notes, or beta callouts.
+ *   References the same state semantic tokens as Toast / Callout /
+ *   Badge.
+ * - **Inverted** (most → least prominent): `inverted` / `inverted-muted`
+ *   / `inverted-subtle` — for text placed on saturated surfaces (a
+ *   solid Toast or Callout, a primary-colored fill, …). Mirrors the
+ *   foreground hierarchy.
+ *
+ * Plus `accent` (one-off emphasis), and `inherit` (delegates to the
+ * parent's color).
+ *
+ * ## Element selection
+ *
+ * `as` controls the rendered tag. By default `body` and `heading`
+ * render `<p>`, and `label` renders `<label>`. Pass `asChild` (Radix
+ * Slot) to merge Text's classes onto an existing child element.
+ */
+
 const meta: Meta<typeof Text> = {
   title: 'Components/lv1/Text',
   component: Text,
@@ -28,11 +57,28 @@ const meta: Meta<typeof Text> = {
       },
     },
     color: {
-      description: 'Color of the text.',
+      description:
+        'Color of the text.\n\n- `default` / `muted` / `subtle` form the primary → tertiary foreground hierarchy (most → least prominent).\n- State colors (`error` / `success` / `warning` / `info`) reference the corresponding state semantic tokens — use them for inline status text such as form errors or success notes.\n- `inverted` / `inverted-muted` / `inverted-subtle` mirror the foreground hierarchy on saturated surfaces (e.g. text inside a solid Toast or Callout, or on a primary-colored fill).',
       control: 'select',
-      options: ['default', 'muted', 'accent', 'inherit'],
+      options: [
+        'default',
+        'muted',
+        'subtle',
+        'accent',
+        'error',
+        'success',
+        'warning',
+        'info',
+        'inverted',
+        'inverted-muted',
+        'inverted-subtle',
+        'inherit',
+      ],
       table: {
-        type: { summary: '"default" | "muted" | "accent" | "inherit"' },
+        type: {
+          summary:
+            '"default" | "muted" | "subtle" | "accent" | "error" | "success" | "warning" | "info" | "inverted" | "inverted-muted" | "inverted-subtle" | "inherit"',
+        },
         defaultValue: { summary: 'default' },
       },
     },
@@ -157,13 +203,79 @@ export const HeadingSizes: Story = {
 
 export const Colors: Story = {
   name: 'Colors',
+  parameters: {
+    docs: {
+      description: {
+        story:
+          '`default`, `muted`, and `subtle` form the foreground hierarchy from most prominent (primary text) to least prominent (tertiary helper / placeholder-like text).',
+      },
+    },
+  },
   render: () => (
     <div className="flex flex-col gap-3">
-      <Text color="default">Default color</Text>
-      <Text color="muted">Muted color</Text>
+      <Text color="default">Default — primary text</Text>
+      <Text color="muted">Muted — secondary / helper text</Text>
+      <Text color="subtle">Subtle — tertiary text, faintest of the three</Text>
       <Text color="accent">Accent color</Text>
       <div className="text-blue-500">
         <Text color="inherit">Inherit color (from parent)</Text>
+      </div>
+    </div>
+  ),
+}
+
+export const StateColors: Story = {
+  name: 'State Colors',
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'State colors reference the same `error` / `success` / `warning` / `info` semantic tokens used by Toast and Callout. Use these for inline status text — for example a "Saved" confirmation note or a "3 items failed" summary.',
+      },
+    },
+  },
+  render: () => (
+    <div className="flex flex-col gap-3">
+      <Text color="error">Error — Could not save your changes.</Text>
+      <Text color="success">Success — Your changes were saved.</Text>
+      <Text color="warning">Warning — 3 items were skipped.</Text>
+      <Text color="info">Info — Beta features may change.</Text>
+    </div>
+  ),
+}
+
+export const InvertedColor: Story = {
+  name: 'Inverted Color',
+  parameters: {
+    docs: {
+      description: {
+        story:
+          '`inverted` / `inverted-muted` / `inverted-subtle` mirror the `default` / `muted` / `subtle` hierarchy but for text placed on saturated surfaces (a solid Toast / Callout, a primary-colored fill, …). Each step is progressively less prominent against the saturated background.',
+      },
+    },
+  },
+  render: () => (
+    <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-1 rounded-md bg-solid p-4">
+        <Text color="inverted">Inverted — primary text on a primary surface</Text>
+        <Text color="inverted-muted" size="sm">
+          Inverted muted — secondary / helper text
+        </Text>
+        <Text color="inverted-subtle" size="sm">
+          Inverted subtle — tertiary text, faintest of the three
+        </Text>
+      </div>
+      <div className="flex flex-col gap-1 rounded-md bg-success p-4">
+        <Text color="inverted">Inverted on a success surface</Text>
+        <Text color="inverted-muted" size="sm">
+          Secondary on the same surface
+        </Text>
+      </div>
+      <div className="flex flex-col gap-1 rounded-md bg-error p-4">
+        <Text color="inverted">Inverted on an error surface</Text>
+        <Text color="inverted-subtle" size="sm">
+          Tertiary on the same surface
+        </Text>
       </div>
     </div>
   ),

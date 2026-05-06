@@ -59,6 +59,8 @@
 
   /* Inverse */
   --color-inverse-foreground: var(--color-inverse-foreground);
+  --color-inverse-foreground-muted: var(--color-inverse-foreground-muted);
+  --color-inverse-foreground-subtle: var(--color-inverse-foreground-subtle);
 
   /* States — each provides { base, hover, foreground, subtle } */
   --color-error: var(--color-error);

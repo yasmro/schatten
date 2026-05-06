@@ -5,10 +5,16 @@ export const badgeVariants = cva(
   {
     variants: {
       variant: {
-        primary: 'border-transparent bg-solid text-solid-foreground',
-        secondary: 'border-transparent bg-surface-hover text-foreground',
-        destructive: 'border-transparent bg-destructive text-destructive-foreground',
-        outline: 'text-foreground',
+        default: '',
+        success: '',
+        error: '',
+        warning: '',
+        info: '',
+      },
+      treatment: {
+        solid: '',
+        subtle: '',
+        outline: '',
       },
       size: {
         sm: 'px-2 py-1 text-[10px] gap-1',
@@ -16,8 +22,71 @@ export const badgeVariants = cva(
         lg: 'px-3 py-1.5 text-sm gap-1.5',
       },
     },
+    compoundVariants: [
+      // default — neutral state
+      {
+        variant: 'default',
+        treatment: 'solid',
+        class: 'border-transparent bg-solid text-solid-foreground',
+      },
+      {
+        variant: 'default',
+        treatment: 'subtle',
+        class: 'bg-surface-hover text-foreground border-border-strong',
+      },
+      { variant: 'default', treatment: 'outline', class: 'text-foreground border-border-strong' },
+      // success
+      {
+        variant: 'success',
+        treatment: 'solid',
+        class: 'border-transparent bg-success text-success-foreground',
+      },
+      {
+        variant: 'success',
+        treatment: 'subtle',
+        class: 'bg-success-subtle text-success border-success',
+      },
+      { variant: 'success', treatment: 'outline', class: 'text-success border-success' },
+      // error
+      {
+        variant: 'error',
+        treatment: 'solid',
+        class: 'border-transparent bg-error text-error-foreground',
+      },
+      {
+        variant: 'error',
+        treatment: 'subtle',
+        class: 'bg-error-subtle text-error border-error',
+      },
+      { variant: 'error', treatment: 'outline', class: 'text-error border-error' },
+      // warning
+      {
+        variant: 'warning',
+        treatment: 'solid',
+        class: 'border-transparent bg-warning text-warning-foreground',
+      },
+      {
+        variant: 'warning',
+        treatment: 'subtle',
+        class: 'bg-warning-subtle text-warning border-warning',
+      },
+      { variant: 'warning', treatment: 'outline', class: 'text-warning border-warning' },
+      // info
+      {
+        variant: 'info',
+        treatment: 'solid',
+        class: 'border-transparent bg-info text-info-foreground',
+      },
+      {
+        variant: 'info',
+        treatment: 'subtle',
+        class: 'bg-info-subtle text-info border-info',
+      },
+      { variant: 'info', treatment: 'outline', class: 'text-info border-info' },
+    ],
     defaultVariants: {
-      variant: 'primary',
+      variant: 'default',
+      treatment: 'subtle',
       size: 'md',
     },
   },

@@ -89,13 +89,36 @@ export const Colors: Story = {
         <ColorRow name="foreground" description="Primary text color" className="bg-foreground" />
         <ColorRow
           name="foreground-muted"
-          description="Secondary/helper text"
+          description="Secondary / helper text — less prominent than default"
           className="bg-foreground-muted"
         />
         <ColorRow
           name="foreground-subtle"
-          description="Tertiary text"
+          description="Tertiary text — faintest of the three"
           className="bg-foreground-subtle"
+        />
+      </div>
+
+      <SubsectionTitle>Inverse Foreground</SubsectionTitle>
+      <p className="text-sm text-foreground-muted mb-3">
+        For text placed on saturated / dark-background containers (solid Toast or Callout, primary
+        fills, …). Mirrors the foreground hierarchy.
+      </p>
+      <div className="border border-border rounded-xl px-5">
+        <ColorRow
+          name="inverse-foreground"
+          description="Primary text on saturated surface"
+          className="bg-inverse-foreground border border-border"
+        />
+        <ColorRow
+          name="inverse-foreground-muted"
+          description="Secondary / helper text on saturated surface"
+          className="bg-inverse-foreground-muted border border-border"
+        />
+        <ColorRow
+          name="inverse-foreground-subtle"
+          description="Tertiary text on saturated surface"
+          className="bg-inverse-foreground-subtle border border-border"
         />
       </div>
 
@@ -314,6 +337,11 @@ export const Colors: Story = {
           name="--ink-light"
           description="#6b6b6b — Light ink"
           style={{ backgroundColor: 'var(--ink-light)' }}
+        />
+        <ColorRow
+          name="--ink-subtle"
+          description="Faintest ink — used by foreground-subtle (tertiary text)"
+          style={{ backgroundColor: 'var(--ink-subtle)' }}
         />
         <ColorRow
           name="--paper-white"

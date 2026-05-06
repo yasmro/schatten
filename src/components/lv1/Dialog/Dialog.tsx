@@ -131,7 +131,7 @@ export const Dialog = ({
                   disabled={isLoading}
                   onClick={cancelButton.onClick}
                   icon={cancelButton.icon}
-                  className="order-2 sm:order-2"
+                  className="order-2"
                 >
                   {cancelButton.label}
                 </Button>

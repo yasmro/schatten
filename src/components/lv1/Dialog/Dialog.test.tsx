@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { fireEvent, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { useState } from 'react'
 import { describe, expect, it, vi } from 'vitest'
@@ -87,6 +87,15 @@ describe('Dialog', () => {
     expect(onClick).toHaveBeenCalledTimes(1)
   })
 
+  it('calls subActionButton.onClick when clicked', async () => {
+    const onClick = vi.fn()
+    const user = userEvent.setup()
+    render(<Controlled subActionButton={{ label: 'Save as draft', onClick }} />)
+
+    await user.click(screen.getByRole('button', { name: 'Save as draft' }))
+    expect(onClick).toHaveBeenCalledTimes(1)
+  })
+
   it('renders close (X) button by default', () => {
     render(<Controlled />)
     expect(screen.getByRole('button', { name: 'Close' })).toBeInTheDocument()
@@ -136,6 +145,18 @@ describe('Dialog', () => {
 
     await user.keyboard('{Escape}')
     expect(screen.queryByText('Test dialog')).not.toBeInTheDocument()
+  })
+
+  it('blocks overlay click dismissal when isLoading', () => {
+    render(<Controlled isLoading />)
+
+    const overlay = document.querySelector('.dialog-overlay')
+    if (!overlay) throw new Error('overlay element not found')
+
+    fireEvent.pointerDown(overlay)
+    fireEvent.pointerUp(overlay)
+
+    expect(screen.getByText('Test dialog')).toBeInTheDocument()
   })
 
   it('uses primary action variant by default', () => {

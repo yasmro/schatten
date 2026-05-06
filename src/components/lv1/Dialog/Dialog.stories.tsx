@@ -45,7 +45,7 @@ import { Dialog } from './Dialog'
  *
  * Layout:
  * - Desktop: `[SubAction] ────── [Cancel] [Action]`
- * - Mobile:  `[Action] / [SubAction] / ── ── ── / [Cancel]`
+ * - Mobile:  `[Action] / [Cancel] / ── ── ── / [SubAction]`
  *   (separator only when `subActionButton` is provided)
  */
 
@@ -212,7 +212,7 @@ export const WithSubAction: Story = {
     docs: {
       description: {
         story:
-          '`subActionButton` provides a tertiary alternative — for example "Save as draft". On desktop it sits at the far left; on mobile it stacks above a separator and the cancel button.',
+          '`subActionButton` provides a tertiary alternative — for example "Save as draft". On desktop it sits at the far left; on mobile it stacks below a separator at the bottom of the footer, after Action and Cancel.',
       },
     },
   },

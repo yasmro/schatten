@@ -582,7 +582,7 @@
 <main>
   <div class="wrap">
     <div class="note ok" style="margin-bottom: 16px;">
-              Using <code>react-docgen-typescript</code>. Generation took <strong>2.7s</strong>.
+              Using <code>react-docgen-typescript</code>. Generation took <strong>3.1s</strong>.
             </div>
     <h2 class="section-title">Components</h2>
     <div class="grid" role="list">
@@ -2926,6 +2926,14 @@ export const Colors: Story = {
  */
 actionButton: DialogActionButton
 
+/**
+ * Optional cancel button (secondary variant). Clicking it closes the
+ * dialog automatically — the parent does *not* need to call
+ * `onOpenChange(false)`. If `onClick` is provided, it&#39;s invoked
+ * alongside the close (useful for cleanup / analytics). Cancel is
+ * always synchronous; for a &quot;going back&quot; path that needs awaiting,
+ * use `subActionButton` instead.
+ */
 cancelButton?: DialogCancelButton
 
 /**
@@ -2961,6 +2969,13 @@ isOpen: boolean
  */
 onOpenChange: (isOpen: boolean) =&gt; void
 
+/**
+ * Optional tertiary alternative — typically &quot;Save as draft&quot; or a
+ * non-primary commit path. Placed at the far left on desktop, below
+ * a separator on mobile. Like `actionButton`, set `isLoading: true`
+ * for async sub-action handlers; the same dismissal-blocking and
+ * sibling-disabling rules apply.
+ */
 subActionButton?: DialogSubActionButton
 
 title: string</code></pre>
@@ -3111,7 +3126,7 @@ title: string</code></pre>
         onOpenChange={setIsOpen}
         title=&quot;Saving…&quot;
         description=&quot;Please wait while we save your changes.&quot;
-        actionButton={{ label: &#39;Save&#39;, isLoading: true }}
+        actionButton={{ label: &#39;Save&#39;, onClick: () =&gt; {}, isLoading: true }}
         cancelButton={{ label: &#39;Cancel&#39; }}
       /&gt;
     &lt;/&gt;
@@ -3135,9 +3150,9 @@ title: string</code></pre>
         onOpenChange={setIsOpen}
         title=&quot;Publish article?&quot;
         description=&quot;Saving as draft…&quot;
-        actionButton={{ label: &#39;Publish&#39; }}
+        actionButton={{ label: &#39;Publish&#39;, onClick: () =&gt; {} }}
         cancelButton={{ label: &#39;Cancel&#39; }}
-        subActionButton={{ label: &#39;Save as draft&#39;, isLoading: true }}
+        subActionButton={{ label: &#39;Save as draft&#39;, onClick: () =&gt; {}, isLoading: true }}
       /&gt;
     &lt;/&gt;
   )

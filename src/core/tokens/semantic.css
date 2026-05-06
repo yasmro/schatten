@@ -25,10 +25,15 @@
   --color-surface: var(--paper-white);
   --color-surface-hover: var(--alabaster-200);
 
-  /* Foreground */
+  /*
+   * Foreground tiers (most → least prominent)
+   *   foreground         primary text
+   *   foreground-muted   secondary / helper text
+   *   foreground-subtle  tertiary text (genuinely faint, lighter than muted)
+   */
   --color-foreground: var(--ink-black);
   --color-foreground-muted: var(--ink-light);
-  --color-foreground-subtle: var(--ink-medium);
+  --color-foreground-subtle: var(--ink-subtle);
 
   /* Solid (filled component backgrounds) */
   --color-solid: var(--alabaster-700);
@@ -54,8 +59,16 @@
   --color-ring: var(--ink-black);
   --color-ring-offset: var(--paper-warm);
 
-  /* Inverse (for content on dark-background containers) */
+  /*
+   * Inverse foreground tiers — for text on saturated / dark-background
+   * containers (solid Toast / Callout, primary-colored fills, …).
+   * Each tier becomes progressively less prominent against the
+   * saturated background, mirroring the foreground / -muted / -subtle
+   * hierarchy.
+   */
   --color-inverse-foreground: var(--paper-white);
+  --color-inverse-foreground-muted: var(--alabaster-300);
+  --color-inverse-foreground-subtle: var(--alabaster-400);
 
   /*
    * State tokens — each provides { base, hover, foreground, subtle }.
@@ -99,7 +112,7 @@
 
     --color-foreground: var(--ink-black-inv);
     --color-foreground-muted: var(--ink-light-inv);
-    --color-foreground-subtle: var(--ink-medium-inv);
+    --color-foreground-subtle: var(--ink-subtle-inv);
 
     --color-solid: var(--alabaster-300);
     --color-solid-hover: var(--alabaster-100);
@@ -121,6 +134,8 @@
     --color-ring-offset: var(--paper-warm-inv);
 
     --color-inverse-foreground: var(--paper-white-inv);
+    --color-inverse-foreground-muted: var(--alabaster-700);
+    --color-inverse-foreground-subtle: var(--alabaster-600);
 
     /* State tokens — dark mode mappings */
 
@@ -154,7 +169,7 @@
 
   --color-foreground: var(--ink-black-inv);
   --color-foreground-muted: var(--ink-light-inv);
-  --color-foreground-subtle: var(--ink-medium-inv);
+  --color-foreground-subtle: var(--ink-subtle-inv);
 
   --color-solid: var(--alabaster-300);
   --color-solid-hover: var(--alabaster-100);
@@ -176,6 +191,8 @@
   --color-ring-offset: var(--paper-warm-inv);
 
   --color-inverse-foreground: var(--paper-white-inv);
+  --color-inverse-foreground-muted: var(--alabaster-700);
+  --color-inverse-foreground-subtle: var(--alabaster-600);
 
   /* State tokens — dark mode mappings */
 

@@ -29,23 +29,26 @@ const meta: Meta<typeof Text> = {
     },
     color: {
       description:
-        'Color of the text. State colors (`error` / `success` / `warning` / `info`) reference the corresponding state semantic tokens and are intended for inline status text such as form errors or success notes. `inverted` resolves to `text-inverse-foreground` and is intended for use on saturated surfaces (e.g. text inside a solid Toast or Callout, or a primary Button-like fill).',
+        'Color of the text.\n\n- `default` / `muted` / `subtle` form the primary → tertiary foreground hierarchy (most → least prominent).\n- State colors (`error` / `success` / `warning` / `info`) reference the corresponding state semantic tokens — use them for inline status text such as form errors or success notes.\n- `inverted` / `inverted-muted` / `inverted-subtle` mirror the foreground hierarchy on saturated surfaces (e.g. text inside a solid Toast or Callout, or on a primary-colored fill).',
       control: 'select',
       options: [
         'default',
         'muted',
+        'subtle',
         'accent',
         'error',
         'success',
         'warning',
         'info',
         'inverted',
+        'inverted-muted',
+        'inverted-subtle',
         'inherit',
       ],
       table: {
         type: {
           summary:
-            '"default" | "muted" | "accent" | "error" | "success" | "warning" | "info" | "inverted" | "inherit"',
+            '"default" | "muted" | "subtle" | "accent" | "error" | "success" | "warning" | "info" | "inverted" | "inverted-muted" | "inverted-subtle" | "inherit"',
         },
         defaultValue: { summary: 'default' },
       },
@@ -171,10 +174,19 @@ export const HeadingSizes: Story = {
 
 export const Colors: Story = {
   name: 'Colors',
+  parameters: {
+    docs: {
+      description: {
+        story:
+          '`default`, `muted`, and `subtle` form the foreground hierarchy from most prominent (primary text) to least prominent (tertiary helper / placeholder-like text).',
+      },
+    },
+  },
   render: () => (
     <div className="flex flex-col gap-3">
-      <Text color="default">Default color</Text>
-      <Text color="muted">Muted color</Text>
+      <Text color="default">Default — primary text</Text>
+      <Text color="muted">Muted — secondary / helper text</Text>
+      <Text color="subtle">Subtle — tertiary text, faintest of the three</Text>
       <Text color="accent">Accent color</Text>
       <div className="text-blue-500">
         <Text color="inherit">Inherit color (from parent)</Text>
@@ -209,20 +221,32 @@ export const InvertedColor: Story = {
     docs: {
       description: {
         story:
-          '`color="inverted"` resolves to `text-inverse-foreground` so the text remains legible on saturated surfaces. Reach for it when placing Text inside a solid Toast / Callout, on a primary-colored fill, or on any other state `solid` background.',
+          '`inverted` / `inverted-muted` / `inverted-subtle` mirror the `default` / `muted` / `subtle` hierarchy but for text placed on saturated surfaces (a solid Toast / Callout, a primary-colored fill, …). Each step is progressively less prominent against the saturated background.',
       },
     },
   },
   render: () => (
     <div className="flex flex-col gap-3">
-      <div className="rounded-md bg-solid p-4">
-        <Text color="inverted">On a primary surface — readable inverse foreground.</Text>
+      <div className="flex flex-col gap-1 rounded-md bg-solid p-4">
+        <Text color="inverted">Inverted — primary text on a primary surface</Text>
+        <Text color="inverted-muted" size="sm">
+          Inverted muted — secondary / helper text
+        </Text>
+        <Text color="inverted-subtle" size="sm">
+          Inverted subtle — tertiary text, faintest of the three
+        </Text>
       </div>
-      <div className="rounded-md bg-success p-4">
-        <Text color="inverted">On a success surface.</Text>
+      <div className="flex flex-col gap-1 rounded-md bg-success p-4">
+        <Text color="inverted">Inverted on a success surface</Text>
+        <Text color="inverted-muted" size="sm">
+          Secondary on the same surface
+        </Text>
       </div>
-      <div className="rounded-md bg-error p-4">
-        <Text color="inverted">On an error surface.</Text>
+      <div className="flex flex-col gap-1 rounded-md bg-error p-4">
+        <Text color="inverted">Inverted on an error surface</Text>
+        <Text color="inverted-subtle" size="sm">
+          Tertiary on the same surface
+        </Text>
       </div>
     </div>
   ),

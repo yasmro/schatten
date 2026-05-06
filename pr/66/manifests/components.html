@@ -582,7 +582,7 @@
 <main>
   <div class="wrap">
     <div class="note ok" style="margin-bottom: 16px;">
-              Using <code>react-docgen-typescript</code>. Generation took <strong>3.0s</strong>.
+              Using <code>react-docgen-typescript</code>. Generation took <strong>3.1s</strong>.
             </div>
     <h2 class="section-title">Components</h2>
     <div class="grid" role="list">
@@ -2906,9 +2906,12 @@ export const Colors: Story = {
             <pre><code>Component: src/components/lv1/Dialog/Dialog.tsx::Dialog</code></pre>
             <pre><code>Props:</code></pre>
             <pre><code>/**
- * Required primary action. When `variant: &#39;destructive&#39;` and a
- * `cancelButton` is provided, initial focus is auto-routed to Cancel
- * (WCAG-recommended safeguard for irreversible actions).
+ * Required primary action.
+ * 
+ * On open, Radix focuses the first tabbable element inside Content;
+ * the footer is structured so that the action button is the first
+ * tabbable in the footer region. If the body (`children`) contains
+ * focusable elements (e.g. form inputs), those will be focused first.
  * 
  * Note: if `onClick` is omitted the action button is a no-op — the
  * dialog will not close. A development-mode warning is logged in this
@@ -2922,11 +2925,15 @@ cancelButton?: DialogCancelButton
  * Body content. Long content scrolls inside the dialog automatically
  * (the dialog caps its height to the viewport).
  * 
- * Note on tab order: with the responsive footer layout, mobile visual
- * order is `Action / Cancel / SubAction` but tab order follows DOM
- * order (`SubAction → Cancel → Action`). This is a known trade-off
- * with CSS `order` and is consistent with shadcn/ui and Radix patterns.
- * Desktop tab order matches visual order.
+ * Note on tab order: footer DOM order is
+ * `Action → Cancel → SubAction` so that Radix&#39;s default focus
+ * (first tabbable) lands on the action button.
+ * - Mobile (vertical stack): visual order is also
+ *   `Action / Cancel / SubAction` ✓ tab order matches visual.
+ * - Desktop (horizontal): visual order is `SubAction … Cancel Action`
+ *   (left-to-right) so tab order is the reverse of left-to-right
+ *   reading order. This is a deliberate trade-off — keyboard
+ *   confirmation lands on the primary action immediately.
  */
 children?: ReactNode
 

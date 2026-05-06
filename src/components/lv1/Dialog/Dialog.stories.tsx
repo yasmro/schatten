@@ -125,8 +125,18 @@ export const Playground: Story = {
     title: 'Delete account',
     description: 'This action cannot be undone.',
     isCloseButtonVisible: true,
-    actionButton: { label: 'Delete', variant: 'destructive' },
+    actionButton: {
+      label: 'Delete',
+      variant: 'destructive',
+      // isLoading is editable via the Controls panel — flip to true to
+      // see the spinner-on-action / disabled-everything-else state.
+      isLoading: false,
+    },
     cancelButton: { label: 'Cancel' },
+    subActionButton: {
+      label: 'Save as draft',
+      isLoading: false,
+    },
     children: 'All data associated with this account will be permanently removed.',
   },
   render: (args) => {
@@ -134,7 +144,23 @@ export const Playground: Story = {
     return (
       <>
         <Button onClick={() => setIsOpen(true)}>Open dialog</Button>
-        <Dialog {...args} isOpen={isOpen} onOpenChange={setIsOpen} />
+        <Dialog
+          {...args}
+          isOpen={isOpen}
+          onOpenChange={setIsOpen}
+          // Wire interactive close handlers in render so the Playground
+          // is usable out of the box. Cancel auto-closes via Radix's
+          // DialogClose; action and sub-action close the dialog on click.
+          actionButton={{
+            ...args.actionButton,
+            onClick: () => setIsOpen(false),
+          }}
+          subActionButton={
+            args.subActionButton
+              ? { ...args.subActionButton, onClick: () => setIsOpen(false) }
+              : undefined
+          }
+        />
       </>
     )
   },

@@ -8,6 +8,9 @@ export const badgeVariants = cva(
         primary: 'border-transparent bg-solid text-solid-foreground',
         secondary: 'border-transparent bg-surface-hover text-foreground',
         destructive: 'border-transparent bg-destructive text-destructive-foreground',
+        success: 'border-transparent bg-success text-success-foreground',
+        warning: 'border-transparent bg-warning text-warning-foreground',
+        info: 'border-transparent bg-info text-info-foreground',
         outline: 'text-foreground',
       },
       size: {

@@ -28,11 +28,25 @@ const meta: Meta<typeof Text> = {
       },
     },
     color: {
-      description: 'Color of the text.',
+      description:
+        'Color of the text. State colors (`error` / `success` / `warning` / `info`) reference the corresponding state semantic tokens and are intended for inline status text such as form errors or success notes. `inverted` resolves to `text-inverse-foreground` and is intended for use on saturated surfaces (e.g. text inside a solid Toast or Callout, or a primary Button-like fill).',
       control: 'select',
-      options: ['default', 'muted', 'accent', 'inherit'],
+      options: [
+        'default',
+        'muted',
+        'accent',
+        'error',
+        'success',
+        'warning',
+        'info',
+        'inverted',
+        'inherit',
+      ],
       table: {
-        type: { summary: '"default" | "muted" | "accent" | "inherit"' },
+        type: {
+          summary:
+            '"default" | "muted" | "accent" | "error" | "success" | "warning" | "info" | "inverted" | "inherit"',
+        },
         defaultValue: { summary: 'default' },
       },
     },
@@ -164,6 +178,51 @@ export const Colors: Story = {
       <Text color="accent">Accent color</Text>
       <div className="text-blue-500">
         <Text color="inherit">Inherit color (from parent)</Text>
+      </div>
+    </div>
+  ),
+}
+
+export const StateColors: Story = {
+  name: 'State Colors',
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'State colors reference the same `error` / `success` / `warning` / `info` semantic tokens used by Toast and Callout. Use these for inline status text — for example a "Saved" confirmation note or a "3 items failed" summary.',
+      },
+    },
+  },
+  render: () => (
+    <div className="flex flex-col gap-3">
+      <Text color="error">Error — Could not save your changes.</Text>
+      <Text color="success">Success — Your changes were saved.</Text>
+      <Text color="warning">Warning — 3 items were skipped.</Text>
+      <Text color="info">Info — Beta features may change.</Text>
+    </div>
+  ),
+}
+
+export const InvertedColor: Story = {
+  name: 'Inverted Color',
+  parameters: {
+    docs: {
+      description: {
+        story:
+          '`color="inverted"` resolves to `text-inverse-foreground` so the text remains legible on saturated surfaces. Reach for it when placing Text inside a solid Toast / Callout, on a primary-colored fill, or on any other state `solid` background.',
+      },
+    },
+  },
+  render: () => (
+    <div className="flex flex-col gap-3">
+      <div className="rounded-md bg-solid p-4">
+        <Text color="inverted">On a primary surface — readable inverse foreground.</Text>
+      </div>
+      <div className="rounded-md bg-success p-4">
+        <Text color="inverted">On a success surface.</Text>
+      </div>
+      <div className="rounded-md bg-error p-4">
+        <Text color="inverted">On an error surface.</Text>
       </div>
     </div>
   ),

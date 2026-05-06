@@ -19,6 +19,11 @@ export const textVariants = cva('text-foreground antialiased', {
       default: 'text-foreground',
       muted: 'text-foreground-muted',
       accent: 'text-accent',
+      error: 'text-error',
+      success: 'text-success',
+      warning: 'text-warning',
+      info: 'text-info',
+      inverted: 'text-inverse-foreground',
       inherit: 'text-inherit',
     },
     align: {

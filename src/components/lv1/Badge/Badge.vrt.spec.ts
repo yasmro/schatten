@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test'
 
 const STORY_ID_PREFIX = 'components-lv1-badge'
 
-const stories = ['all-variants', 'sizes', 'icons', 'icon-positions', 'icon-only'] as const
+const stories = ['all-variants', 'states', 'sizes', 'icons', 'icon-positions', 'icon-only'] as const
 
 const themes = ['light', 'dark'] as const
 

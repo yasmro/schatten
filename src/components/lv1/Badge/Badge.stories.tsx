@@ -10,11 +10,15 @@ const meta: Meta<typeof Badge> = {
   tags: ['autodocs'],
   argTypes: {
     variant: {
-      description: 'Visual style of the badge.',
+      description:
+        'Visual style of the badge. State variants (`success` / `warning` / `info`) share the same filled treatment as `destructive` and reference the corresponding state semantic tokens.',
       control: 'select',
-      options: ['primary', 'secondary', 'destructive', 'outline'],
+      options: ['primary', 'secondary', 'destructive', 'success', 'warning', 'info', 'outline'],
       table: {
-        type: { summary: '"primary" | "secondary" | "destructive" | "outline"' },
+        type: {
+          summary:
+            '"primary" | "secondary" | "destructive" | "success" | "warning" | "info" | "outline"',
+        },
         defaultValue: { summary: 'primary' },
       },
     },
@@ -73,7 +77,38 @@ export const AllVariants: Story = {
       <Badge variant="primary">Primary</Badge>
       <Badge variant="secondary">Secondary</Badge>
       <Badge variant="destructive">Destructive</Badge>
+      <Badge variant="success">Success</Badge>
+      <Badge variant="warning">Warning</Badge>
+      <Badge variant="info">Info</Badge>
       <Badge variant="outline">Outline</Badge>
+    </div>
+  ),
+}
+
+export const States: Story = {
+  name: 'States',
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'State variants are intended for status tags such as "Active", "Pending", or "Failed". They share the four-token state semantic shape (`error` / `success` / `warning` / `info`) used by Toast and Callout. `destructive` remains the action-oriented red and is also shown here for comparison.',
+      },
+    },
+  },
+  render: () => (
+    <div className="flex flex-wrap gap-4">
+      <Badge variant="success" icon="Check">
+        Active
+      </Badge>
+      <Badge variant="warning" icon="Clock">
+        Pending
+      </Badge>
+      <Badge variant="destructive" icon="X">
+        Failed
+      </Badge>
+      <Badge variant="info" icon="Sparkles">
+        Beta
+      </Badge>
     </div>
   ),
 }

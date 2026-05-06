@@ -1,5 +1,5 @@
 import * as DialogPrimitive from '@radix-ui/react-dialog'
-import { type ReactNode, useCallback, useEffect, useRef } from 'react'
+import { type ReactNode, useCallback, useEffect } from 'react'
 import { cn } from '../../../lib/utils'
 import { Button, type IconName } from '../Button'
 import { Separator } from '../Separator'
@@ -46,9 +46,12 @@ export interface DialogProps {
   /** Default: true. */
   isCloseButtonVisible?: boolean
   /**
-   * Required primary action. When `variant: 'destructive'` and a
-   * `cancelButton` is provided, initial focus is auto-routed to Cancel
-   * (WCAG-recommended safeguard for irreversible actions).
+   * Required primary action.
+   *
+   * On open, Radix focuses the first tabbable element inside Content;
+   * the footer is structured so that the action button is the first
+   * tabbable in the footer region. If the body (`children`) contains
+   * focusable elements (e.g. form inputs), those will be focused first.
    *
    * Note: if `onClick` is omitted the action button is a no-op — the
    * dialog will not close. A development-mode warning is logged in this
@@ -61,11 +64,15 @@ export interface DialogProps {
    * Body content. Long content scrolls inside the dialog automatically
    * (the dialog caps its height to the viewport).
    *
-   * Note on tab order: with the responsive footer layout, mobile visual
-   * order is `Action / Cancel / SubAction` but tab order follows DOM
-   * order (`SubAction → Cancel → Action`). This is a known trade-off
-   * with CSS `order` and is consistent with shadcn/ui and Radix patterns.
-   * Desktop tab order matches visual order.
+   * Note on tab order: footer DOM order is
+   * `Action → Cancel → SubAction` so that Radix's default focus
+   * (first tabbable) lands on the action button.
+   * - Mobile (vertical stack): visual order is also
+   *   `Action / Cancel / SubAction` ✓ tab order matches visual.
+   * - Desktop (horizontal): visual order is `SubAction … Cancel Action`
+   *   (left-to-right) so tab order is the reverse of left-to-right
+   *   reading order. This is a deliberate trade-off — keyboard
+   *   confirmation lands on the primary action immediately.
    */
   children?: ReactNode
 }
@@ -82,8 +89,6 @@ export const Dialog = ({
   subActionButton,
   children,
 }: DialogProps) => {
-  const cancelRef = useRef<HTMLButtonElement>(null)
-
   // Dev-only footgun warning: a missing onClick silently does nothing,
   // which is hard to diagnose at the call-site. Surfacing it explicitly
   // saves debugging time without affecting production behavior.
@@ -103,24 +108,6 @@ export const Dialog = ({
     [isLoading],
   )
 
-  // For destructive actions, redirect initial focus to Cancel
-  // (WCAG-recommended safeguard for irreversible actions). When no
-  // cancelButton exists, fall back to Radix's default first-tabbable
-  // behavior so the dialog still has a sensible focus target.
-  const handleOpenAutoFocus = useCallback(
-    (event: Event) => {
-      if (
-        actionButton.variant === 'destructive' &&
-        cancelButton !== undefined &&
-        cancelRef.current
-      ) {
-        event.preventDefault()
-        cancelRef.current.focus()
-      }
-    },
-    [actionButton.variant, cancelButton],
-  )
-
   return (
     <DialogPrimitive.Root open={isOpen} onOpenChange={onOpenChange}>
       <DialogPrimitive.Portal>
@@ -131,7 +118,6 @@ export const Dialog = ({
           onEscapeKeyDown={blockWhileLoading}
           onPointerDownOutside={blockWhileLoading}
           onInteractOutside={blockWhileLoading}
-          onOpenAutoFocus={handleOpenAutoFocus}
           // When no description is rendered, opt out of Radix's dev-only
           // "missing Description" warning. Spread conditionally so the prop
           // is omitted (and Radix's auto-wiring stays intact) when a
@@ -165,32 +151,32 @@ export const Dialog = ({
             <div className="min-h-0 overflow-y-auto text-sm text-foreground">{children}</div>
           )}
 
+          {/*
+            DOM order is action → cancel → separator → subAction so that
+            Radix's default `onOpenAutoFocus` (focus first tabbable inside
+            Content) lands on the action button. CSS `order` utilities
+            recover the desired visual layout — see `tab order` JSDoc on
+            `children` for the resulting Tab-vs-visual relationship.
+          */}
           <div
             className={cn(
               'shrink-0 flex flex-col gap-2',
               'sm:flex-row sm:items-center sm:gap-2 sm:justify-end',
             )}
           >
-            {subActionButton && (
-              <Button
-                variant="tertiary"
-                disabled={isLoading}
-                onClick={subActionButton.onClick}
-                icon={subActionButton.icon}
-                className="order-4 sm:order-1 sm:mr-auto"
-              >
-                {subActionButton.label}
-              </Button>
-            )}
-
-            {subActionButton && (
-              <Separator className="order-3 my-2 sm:my-0 sm:hidden" aria-hidden="true" />
-            )}
+            <Button
+              variant={actionButton.variant ?? 'primary'}
+              isLoading={isLoading}
+              onClick={actionButton.onClick}
+              icon={actionButton.icon}
+              className="order-1 sm:order-3"
+            >
+              {actionButton.label}
+            </Button>
 
             {cancelButton && (
               <DialogPrimitive.Close asChild>
                 <Button
-                  ref={cancelRef}
                   variant="secondary"
                   disabled={isLoading}
                   onClick={cancelButton.onClick}
@@ -202,15 +188,21 @@ export const Dialog = ({
               </DialogPrimitive.Close>
             )}
 
-            <Button
-              variant={actionButton.variant ?? 'primary'}
-              isLoading={isLoading}
-              onClick={actionButton.onClick}
-              icon={actionButton.icon}
-              className="order-1 sm:order-3"
-            >
-              {actionButton.label}
-            </Button>
+            {subActionButton && (
+              <Separator className="order-3 my-2 sm:my-0 sm:hidden" aria-hidden="true" />
+            )}
+
+            {subActionButton && (
+              <Button
+                variant="tertiary"
+                disabled={isLoading}
+                onClick={subActionButton.onClick}
+                icon={subActionButton.icon}
+                className="order-4 sm:order-1 sm:mr-auto"
+              >
+                {subActionButton.label}
+              </Button>
+            )}
           </div>
 
           {isCloseButtonVisible && (

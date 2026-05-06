@@ -187,30 +187,6 @@ describe('Dialog', () => {
     expect(body).toHaveClass('min-h-0')
   })
 
-  it('auto-focuses cancelButton when actionButton.variant is destructive', async () => {
-    render(
-      <Controlled
-        actionButton={{ label: 'Delete', variant: 'destructive', onClick: () => {} }}
-        cancelButton={{ label: 'Cancel' }}
-      />,
-    )
-    // Radix dispatches onOpenAutoFocus on next microtask after mount.
-    await Promise.resolve()
-    expect(screen.getByRole('button', { name: 'Cancel' })).toHaveFocus()
-  })
-
-  it('falls back to default focus when destructive but no cancelButton', async () => {
-    render(
-      <Controlled actionButton={{ label: 'Delete', variant: 'destructive', onClick: () => {} }} />,
-    )
-    await Promise.resolve()
-    // Without cancel, our handler doesn't preventDefault — Radix's default
-    // (first tabbable inside Content) takes effect. Our `data-cancel-ref`
-    // hook doesn't fire, so no focus override happens.
-    expect(screen.queryByRole('button', { name: 'Cancel' })).not.toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Delete' })).toBeInTheDocument()
-  })
-
   it('warns in development when actionButton.onClick is undefined', () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
     render(<Controlled actionButton={{ label: 'Confirm' }} />)

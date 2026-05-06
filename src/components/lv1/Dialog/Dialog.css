@@ -1,0 +1,72 @@
+/* Dialog enter / exit animations */
+
+@keyframes dialog-overlay-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes dialog-overlay-fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+/*
+ * Animate `scale` / `opacity` only — Tailwind v4 emits centering via the
+ * standalone `translate:` CSS property (not `transform: translate(...)`),
+ * so the element stays at translate(-50%, -50%) throughout. Putting a
+ * `translate(-50%, -50%)` inside `transform` here would compose on top of
+ * Tailwind's `translate:` property and double the offset, jittering the
+ * dialog into the corner during the animation.
+ */
+@keyframes dialog-content-zoom-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes dialog-content-zoom-out {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+}
+
+.dialog-overlay[data-state="open"] {
+  animation: dialog-overlay-fade-in 200ms ease-out;
+}
+
+.dialog-overlay[data-state="closed"] {
+  animation: dialog-overlay-fade-out 150ms ease-in;
+}
+
+.dialog-content[data-state="open"] {
+  animation: dialog-content-zoom-in 200ms ease-out;
+}
+
+.dialog-content[data-state="closed"] {
+  animation: dialog-content-zoom-out 150ms ease-in;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dialog-overlay,
+  .dialog-content {
+    animation: none;
+  }
+}

@@ -576,13 +576,13 @@
 <header>
   <div class="wrap">
     <h1>Manifest Debugger</h1>
-    <div class="summary"><a class="filter-pill all" data-k="all" href="#filter-all">All</a><a class="filter-pill err" data-k="errors" href="#filter-errors">3/18 prop type errors</a><a class="filter-pill info" data-k="infos" href="#filter-infos">16/18 infos</a><span class="filter-pill ok" aria-disabled="true">111 stories ok</span></div>
+    <div class="summary"><a class="filter-pill all" data-k="all" href="#filter-all">All</a><a class="filter-pill err" data-k="errors" href="#filter-errors">3/18 prop type errors</a><a class="filter-pill info" data-k="infos" href="#filter-infos">14/18 infos</a><span class="filter-pill ok" aria-disabled="true">117 stories ok</span></div>
   </div>
 </header>
 <main>
   <div class="wrap">
     <div class="note ok" style="margin-bottom: 16px;">
-              Using <code>react-docgen-typescript</code>. Generation took <strong>3.4s</strong>.
+              Using <code>react-docgen-typescript</code>. Generation took <strong>3.1s</strong>.
             </div>
     <h2 class="section-title">Components</h2>
     <div class="grid" role="list">
@@ -590,7 +590,7 @@
 <article
   class="card 
   no-error 
-  has-info 
+  no-info 
   no-story-error
   no-doc-error"
   role="listitem"
@@ -599,21 +599,21 @@
     <div class="title">
       <h2><span class="status-dot dot-ok"></span> Badge</h2>
       <div class="badges">
-        <label for="c-0-components-lv1-badge-props" class="badge ok as-toggle">4 prop types</label>
-        <label for="c-0-components-lv1-badge-info" class="badge info as-toggle">1 info</label>
-        <label for="c-0-components-lv1-badge-stories" class="badge ok as-toggle">6 stories</label>
+        <label for="c-0-components-lv1-badge-props" class="badge ok as-toggle">5 prop types</label>
+        
+        <label for="c-0-components-lv1-badge-stories" class="badge ok as-toggle">10 stories</label>
         
       </div>
     </div>
     <div class="meta" title="./src/components/lv1/Badge/Badge.stories.tsx">components-lv1-badge · ./src/components/lv1/Badge/Badge.stories.tsx</div>
     
-    
+    <div class="hint">Badge displays small status descriptors. Two axes drive its appearance: - **`variant`** — semantic state (`default` / `success` / `error` / `warning` / `info`). Reuses the same state semantic tokens as Toast and Callout. - **`treatment`** — visual fill (`subtle` (default) / `solid` / `outline`). Reach for `subtle` for ambient list rows and status tags, `solid` for emphasis, and `outline` for the lightest, border-only style. Badge is intentionally state-oriented (no `destructive` variant) — use `error` for &quot;failed/invalid&quot; tags. For destructive *actions*, use `&lt;Button variant=&quot;destructive&quot;&gt;`.</div>
     
   </div>
 
   <!-- ⬇️ Hidden toggles must be siblings BEFORE .panels -->
   
-  <input id="c-0-components-lv1-badge-info" class="tg tg-info" type="checkbox" hidden />
+  
   <input id="c-0-components-lv1-badge-stories" class="tg tg-stories" type="checkbox" hidden />
   
   <input id="c-0-components-lv1-badge-props" class="tg tg-props" type="checkbox" hidden />
@@ -621,19 +621,12 @@
   <div class="panels">
     
     
-        <div class="panel panel-info">
-          
-    <div class="note info">
-      <div class="note-title">Info</div>
-      <div class="note-body">No description found. Write a jsdoc comment such as /** Component description */.</div>
-    </div>
-        </div>
     
         <div class="panel panel-props">
           <div class="note ok">
             <div class="row">
               <span class="ex-name">Prop types <small>(react-docgen-typescript)</small></span>
-              <span class="badge ok">4 prop types</span>
+              <span class="badge ok">5 prop types</span>
             </div>
             <pre><code>Component: src/components/lv1/Badge/Badge.tsx::Badge</code></pre>
             <pre><code>Props:</code></pre>
@@ -643,7 +636,9 @@ iconPosition?: &quot;start&quot; | &quot;end&quot; = start
 
 size?: &quot;sm&quot; | &quot;md&quot; | &quot;lg&quot; | null
 
-variant?: &quot;primary&quot; | &quot;secondary&quot; | &quot;destructive&quot; | &quot;outline&quot; | null</code></pre>
+treatment?: &quot;solid&quot; | &quot;subtle&quot; | &quot;outline&quot; | null
+
+variant?: &quot;default&quot; | &quot;success&quot; | &quot;error&quot; | &quot;warning&quot; | &quot;info&quot; | null</code></pre>
           </div>
         </div>
     
@@ -666,21 +661,118 @@ variant?: &quot;primary&quot; | &quot;secondary&quot; | &quot;destructive&quot; 
               </div>
               
               
-              <pre><code>const Playground = () =&gt; &lt;Badge variant=&quot;primary&quot; size=&quot;md&quot;&gt;Badge&lt;/Badge&gt;;</code></pre>
+              <pre><code>const Playground = () =&gt; &lt;Badge variant=&quot;default&quot; treatment=&quot;subtle&quot; size=&quot;md&quot;&gt;Badge&lt;/Badge&gt;;</code></pre>
             </div>
             <div class="note ok">
               <div class="row">
-                <span class="ex-name">All Variants</span>
+                <span class="ex-name">Solid Treatments</span>
                 <span class="badge ok">story ok</span>
               </div>
               
               
-              <pre><code>const AllVariants = () =&gt; (
+              <pre><code>const SolidTreatments = () =&gt; (
   &lt;div className=&quot;flex flex-wrap gap-4&quot;&gt;
-    &lt;Badge variant=&quot;primary&quot;&gt;Primary&lt;/Badge&gt;
-    &lt;Badge variant=&quot;secondary&quot;&gt;Secondary&lt;/Badge&gt;
-    &lt;Badge variant=&quot;destructive&quot;&gt;Destructive&lt;/Badge&gt;
-    &lt;Badge variant=&quot;outline&quot;&gt;Outline&lt;/Badge&gt;
+    {VARIANTS.map((variant) =&gt; (
+      &lt;Badge key={variant} variant={variant} treatment=&quot;solid&quot;&gt;
+        {variant}
+      &lt;/Badge&gt;
+    ))}
+  &lt;/div&gt;
+);</code></pre>
+            </div>
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">Subtle Treatments</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const SubtleTreatments = () =&gt; (
+  &lt;div className=&quot;flex flex-wrap gap-4&quot;&gt;
+    {VARIANTS.map((variant) =&gt; (
+      &lt;Badge key={variant} variant={variant} treatment=&quot;subtle&quot;&gt;
+        {variant}
+      &lt;/Badge&gt;
+    ))}
+  &lt;/div&gt;
+);</code></pre>
+            </div>
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">Outline Treatments</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const OutlineTreatments = () =&gt; (
+  &lt;div className=&quot;flex flex-wrap gap-4&quot;&gt;
+    {VARIANTS.map((variant) =&gt; (
+      &lt;Badge key={variant} variant={variant} treatment=&quot;outline&quot;&gt;
+        {variant}
+      &lt;/Badge&gt;
+    ))}
+  &lt;/div&gt;
+);</code></pre>
+            </div>
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">Full Matrix</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const FullMatrix = () =&gt; (
+  &lt;div className=&quot;flex flex-col gap-3&quot;&gt;
+    {TREATMENTS.map((treatment) =&gt; (
+      &lt;div key={treatment} className=&quot;flex flex-wrap items-center gap-3&quot;&gt;
+        &lt;span className=&quot;w-20 text-xs font-mono text-foreground-muted&quot;&gt;{treatment}&lt;/span&gt;
+        {VARIANTS.map((variant) =&gt; (
+          &lt;Badge key={`${treatment}-${variant}`} variant={variant} treatment={treatment}&gt;
+            {variant}
+          &lt;/Badge&gt;
+        ))}
+      &lt;/div&gt;
+    ))}
+  &lt;/div&gt;
+);</code></pre>
+            </div>
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">States</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const States = () =&gt; (
+  &lt;div className=&quot;flex flex-col gap-4&quot;&gt;
+    &lt;div className=&quot;flex flex-wrap gap-4&quot;&gt;
+      &lt;Badge variant=&quot;success&quot; icon=&quot;Check&quot;&gt;
+        Active
+      &lt;/Badge&gt;
+      &lt;Badge variant=&quot;warning&quot; icon=&quot;Clock&quot;&gt;
+        Pending
+      &lt;/Badge&gt;
+      &lt;Badge variant=&quot;error&quot; icon=&quot;X&quot;&gt;
+        Failed
+      &lt;/Badge&gt;
+      &lt;Badge variant=&quot;info&quot; icon=&quot;Sparkles&quot;&gt;
+        Beta
+      &lt;/Badge&gt;
+    &lt;/div&gt;
+    &lt;div className=&quot;flex flex-wrap gap-4&quot;&gt;
+      &lt;Badge variant=&quot;success&quot; treatment=&quot;solid&quot; icon=&quot;Check&quot;&gt;
+        Active
+      &lt;/Badge&gt;
+      &lt;Badge variant=&quot;warning&quot; treatment=&quot;solid&quot; icon=&quot;Clock&quot;&gt;
+        Pending
+      &lt;/Badge&gt;
+      &lt;Badge variant=&quot;error&quot; treatment=&quot;solid&quot; icon=&quot;X&quot;&gt;
+        Failed
+      &lt;/Badge&gt;
+      &lt;Badge variant=&quot;info&quot; treatment=&quot;solid&quot; icon=&quot;Sparkles&quot;&gt;
+        Beta
+      &lt;/Badge&gt;
+    &lt;/div&gt;
   &lt;/div&gt;
 );</code></pre>
             </div>
@@ -708,14 +800,16 @@ variant?: &quot;primary&quot; | &quot;secondary&quot; | &quot;destructive&quot; 
               
               <pre><code>const Icons = () =&gt; (
   &lt;div className=&quot;flex flex-wrap gap-4&quot;&gt;
-    &lt;Badge icon=&quot;Check&quot;&gt;Success&lt;/Badge&gt;
-    &lt;Badge variant=&quot;destructive&quot; icon=&quot;AlertCircle&quot;&gt;
+    &lt;Badge variant=&quot;success&quot; icon=&quot;Check&quot;&gt;
+      Success
+    &lt;/Badge&gt;
+    &lt;Badge variant=&quot;error&quot; icon=&quot;AlertCircle&quot;&gt;
       Error
     &lt;/Badge&gt;
-    &lt;Badge variant=&quot;secondary&quot; icon=&quot;Clock&quot;&gt;
+    &lt;Badge variant=&quot;default&quot; treatment=&quot;subtle&quot; icon=&quot;Clock&quot;&gt;
       Pending
     &lt;/Badge&gt;
-    &lt;Badge variant=&quot;outline&quot; icon=&quot;Tag&quot;&gt;
+    &lt;Badge variant=&quot;default&quot; treatment=&quot;outline&quot; icon=&quot;Tag&quot;&gt;
       Label
     &lt;/Badge&gt;
   &lt;/div&gt;
@@ -749,8 +843,8 @@ variant?: &quot;primary&quot; | &quot;secondary&quot; | &quot;destructive&quot; 
     &lt;Badge icon=&quot;Check&quot; size=&quot;sm&quot; aria-label=&quot;Success&quot; /&gt;
     &lt;Badge icon=&quot;Check&quot; aria-label=&quot;Success&quot; /&gt;
     &lt;Badge icon=&quot;Check&quot; size=&quot;lg&quot; aria-label=&quot;Success&quot; /&gt;
-    &lt;Badge variant=&quot;destructive&quot; icon=&quot;X&quot; aria-label=&quot;Error&quot; /&gt;
-    &lt;Badge variant=&quot;outline&quot; icon=&quot;Star&quot; aria-label=&quot;Starred&quot; /&gt;
+    &lt;Badge variant=&quot;error&quot; icon=&quot;X&quot; aria-label=&quot;Error&quot; /&gt;
+    &lt;Badge variant=&quot;default&quot; treatment=&quot;outline&quot; icon=&quot;Star&quot; aria-label=&quot;Starred&quot; /&gt;
   &lt;/div&gt;
 );</code></pre>
             </div>
@@ -824,7 +918,7 @@ isLoading?: boolean = false
 
 size?: &quot;sm&quot; | &quot;md&quot; | &quot;lg&quot; | null
 
-variant?: &quot;primary&quot; | &quot;secondary&quot; | &quot;destructive&quot; | &quot;link&quot; | &quot;tertiary&quot; | &quot;inverted&quot; | null = primary</code></pre>
+variant?: &quot;link&quot; | &quot;primary&quot; | &quot;secondary&quot; | &quot;tertiary&quot; | &quot;inverted&quot; | &quot;destructive&quot; | null = primary</code></pre>
           </div>
         </div>
     
@@ -1088,7 +1182,7 @@ onClose?: (() =&gt; void)
  */
 title?: ReactNode
 
-treatment?: &quot;subtle&quot; | &quot;solid&quot; | null = subtle
+treatment?: &quot;solid&quot; | &quot;subtle&quot; | null = subtle
 
 variant?: &quot;default&quot; | &quot;success&quot; | &quot;error&quot; | &quot;warning&quot; | &quot;info&quot; | null = default</code></pre>
           </div>
@@ -1679,13 +1773,36 @@ export const Colors: Story = {
         &lt;ColorRow name=&quot;foreground&quot; description=&quot;Primary text color&quot; className=&quot;bg-foreground&quot; /&gt;
         &lt;ColorRow
           name=&quot;foreground-muted&quot;
-          description=&quot;Secondary/helper text&quot;
+          description=&quot;Secondary / helper text — less prominent than default&quot;
           className=&quot;bg-foreground-muted&quot;
         /&gt;
         &lt;ColorRow
           name=&quot;foreground-subtle&quot;
-          description=&quot;Tertiary text&quot;
+          description=&quot;Tertiary text — faintest of the three&quot;
           className=&quot;bg-foreground-subtle&quot;
+        /&gt;
+      &lt;/div&gt;
+
+      &lt;SubsectionTitle&gt;Inverse Foreground&lt;/SubsectionTitle&gt;
+      &lt;p className=&quot;text-sm text-foreground-muted mb-3&quot;&gt;
+        For text placed on saturated / dark-background containers (solid Toast or Callout, primary
+        fills, …). Mirrors the foreground hierarchy.
+      &lt;/p&gt;
+      &lt;div className=&quot;border border-border rounded-xl px-5&quot;&gt;
+        &lt;ColorRow
+          name=&quot;inverse-foreground&quot;
+          description=&quot;Primary text on saturated surface&quot;
+          className=&quot;bg-inverse-foreground border border-border&quot;
+        /&gt;
+        &lt;ColorRow
+          name=&quot;inverse-foreground-muted&quot;
+          description=&quot;Secondary / helper text on saturated surface&quot;
+          className=&quot;bg-inverse-foreground-muted border border-border&quot;
+        /&gt;
+        &lt;ColorRow
+          name=&quot;inverse-foreground-subtle&quot;
+          description=&quot;Tertiary text on saturated surface&quot;
+          className=&quot;bg-inverse-foreground-subtle border border-border&quot;
         /&gt;
       &lt;/div&gt;
 
@@ -1904,6 +2021,11 @@ export const Colors: Story = {
           name=&quot;--ink-light&quot;
           description=&quot;#6b6b6b — Light ink&quot;
           style={{ backgroundColor: &#39;var(--ink-light)&#39; }}
+        /&gt;
+        &lt;ColorRow
+          name=&quot;--ink-subtle&quot;
+          description=&quot;Faintest ink — used by foreground-subtle (tertiary text)&quot;
+          style={{ backgroundColor: &#39;var(--ink-subtle)&#39; }}
         /&gt;
         &lt;ColorRow
           name=&quot;--paper-white&quot;
@@ -2226,13 +2348,36 @@ export const Colors: Story = {
       &lt;ColorRow name=&quot;foreground&quot; description=&quot;Primary text color&quot; className=&quot;bg-foreground&quot; /&gt;
       &lt;ColorRow
         name=&quot;foreground-muted&quot;
-        description=&quot;Secondary/helper text&quot;
+        description=&quot;Secondary / helper text — less prominent than default&quot;
         className=&quot;bg-foreground-muted&quot;
       /&gt;
       &lt;ColorRow
         name=&quot;foreground-subtle&quot;
-        description=&quot;Tertiary text&quot;
+        description=&quot;Tertiary text — faintest of the three&quot;
         className=&quot;bg-foreground-subtle&quot;
+      /&gt;
+    &lt;/div&gt;
+
+    &lt;SubsectionTitle&gt;Inverse Foreground&lt;/SubsectionTitle&gt;
+    &lt;p className=&quot;text-sm text-foreground-muted mb-3&quot;&gt;
+      For text placed on saturated / dark-background containers (solid Toast or Callout, primary
+      fills, …). Mirrors the foreground hierarchy.
+    &lt;/p&gt;
+    &lt;div className=&quot;border border-border rounded-xl px-5&quot;&gt;
+      &lt;ColorRow
+        name=&quot;inverse-foreground&quot;
+        description=&quot;Primary text on saturated surface&quot;
+        className=&quot;bg-inverse-foreground border border-border&quot;
+      /&gt;
+      &lt;ColorRow
+        name=&quot;inverse-foreground-muted&quot;
+        description=&quot;Secondary / helper text on saturated surface&quot;
+        className=&quot;bg-inverse-foreground-muted border border-border&quot;
+      /&gt;
+      &lt;ColorRow
+        name=&quot;inverse-foreground-subtle&quot;
+        description=&quot;Tertiary text on saturated surface&quot;
+        className=&quot;bg-inverse-foreground-subtle border border-border&quot;
       /&gt;
     &lt;/div&gt;
 
@@ -2451,6 +2596,11 @@ export const Colors: Story = {
         name=&quot;--ink-light&quot;
         description=&quot;#6b6b6b — Light ink&quot;
         style={{ backgroundColor: &#39;var(--ink-light)&#39; }}
+      /&gt;
+      &lt;ColorRow
+        name=&quot;--ink-subtle&quot;
+        description=&quot;Faintest ink — used by foreground-subtle (tertiary text)&quot;
+        style={{ backgroundColor: &#39;var(--ink-subtle)&#39; }}
       /&gt;
       &lt;ColorRow
         name=&quot;--paper-white&quot;
@@ -4652,7 +4802,7 @@ size?: &quot;sm&quot; | &quot;md&quot; | &quot;lg&quot; | null = md</code></pre>
 <article
   class="card 
   no-error 
-  has-info 
+  no-info 
   no-story-error
   no-doc-error"
   role="listitem"
@@ -4662,20 +4812,20 @@ size?: &quot;sm&quot; | &quot;md&quot; | &quot;lg&quot; | null = md</code></pre>
       <h2><span class="status-dot dot-ok"></span> Text</h2>
       <div class="badges">
         <label for="c-12-components-lv1-text-props" class="badge ok as-toggle">7 prop types</label>
-        <label for="c-12-components-lv1-text-info" class="badge info as-toggle">1 info</label>
-        <label for="c-12-components-lv1-text-stories" class="badge ok as-toggle">6 stories</label>
+        
+        <label for="c-12-components-lv1-text-stories" class="badge ok as-toggle">8 stories</label>
         
       </div>
     </div>
     <div class="meta" title="./src/components/lv1/Text/Text.stories.tsx">components-lv1-text · ./src/components/lv1/Text/Text.stories.tsx</div>
     
-    
+    <div class="hint">Text renders semantic typography (`body` / `label` / `heading`) at predefined sizes, with color, alignment, and truncation as orthogonal axes. ## `color` is grouped into three parallel hierarchies - **Foreground** (most → least prominent): `default` / `muted` / `subtle` — primary, secondary/helper, and tertiary text. Reach for these for ordinary on-page typography. - **State**: `error` / `success` / `warning` / `info` — inline status text such as form errors, success notes, or beta callouts. References the same state semantic tokens as Toast / Callout / Badge. - **Inverted** (most → least prominent): `inverted` / `inverted-muted` / `inverted-subtle` — for text placed on saturated surfaces (a solid Toast or Callout, a primary-colored fill, …). Mirrors the foreground hierarchy. Plus `accent` (one-off emphasis), and `inherit` (delegates to the parent&#39;s color). ## Element selection `as` controls the rendered tag. By default `body` and `heading` render `&lt;p&gt;`, and `label` renders `&lt;label&gt;`. Pass `asChild` (Radix Slot) to merge Text&#39;s classes onto an existing child element.</div>
     
   </div>
 
   <!-- ⬇️ Hidden toggles must be siblings BEFORE .panels -->
   
-  <input id="c-12-components-lv1-text-info" class="tg tg-info" type="checkbox" hidden />
+  
   <input id="c-12-components-lv1-text-stories" class="tg tg-stories" type="checkbox" hidden />
   
   <input id="c-12-components-lv1-text-props" class="tg tg-props" type="checkbox" hidden />
@@ -4683,13 +4833,6 @@ size?: &quot;sm&quot; | &quot;md&quot; | &quot;lg&quot; | null = md</code></pre>
   <div class="panels">
     
     
-        <div class="panel panel-info">
-          
-    <div class="note info">
-      <div class="note-title">Info</div>
-      <div class="note-body">No description found. Write a jsdoc comment such as /** Component description */.</div>
-    </div>
-        </div>
     
         <div class="panel panel-props">
           <div class="note ok">
@@ -4705,7 +4848,7 @@ as?: TextElement
 
 asChild?: boolean = false
 
-color?: &quot;inherit&quot; | &quot;default&quot; | &quot;muted&quot; | &quot;accent&quot; | null
+color?: &quot;default&quot; | &quot;success&quot; | &quot;error&quot; | &quot;warning&quot; | &quot;info&quot; | &quot;subtle&quot; | &quot;inherit&quot; | &quot;inverted&quot; | &quot;muted&quot; | &quot;accent&quot; | &quot;inverted-muted&quot; | &quot;inverted-subtle&quot; | null
 
 size?: &quot;sm&quot; | &quot;md&quot; | &quot;lg&quot; | &quot;xs&quot; | &quot;xl&quot; | &quot;2xl&quot; | null
 
@@ -4820,11 +4963,61 @@ variant?: &quot;heading&quot; | &quot;label&quot; | &quot;body&quot; | null</cod
               
               <pre><code>const Colors = () =&gt; (
   &lt;div className=&quot;flex flex-col gap-3&quot;&gt;
-    &lt;Text color=&quot;default&quot;&gt;Default color&lt;/Text&gt;
-    &lt;Text color=&quot;muted&quot;&gt;Muted color&lt;/Text&gt;
+    &lt;Text color=&quot;default&quot;&gt;Default — primary text&lt;/Text&gt;
+    &lt;Text color=&quot;muted&quot;&gt;Muted — secondary / helper text&lt;/Text&gt;
+    &lt;Text color=&quot;subtle&quot;&gt;Subtle — tertiary text, faintest of the three&lt;/Text&gt;
     &lt;Text color=&quot;accent&quot;&gt;Accent color&lt;/Text&gt;
     &lt;div className=&quot;text-blue-500&quot;&gt;
       &lt;Text color=&quot;inherit&quot;&gt;Inherit color (from parent)&lt;/Text&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+);</code></pre>
+            </div>
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">State Colors</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const StateColors = () =&gt; (
+  &lt;div className=&quot;flex flex-col gap-3&quot;&gt;
+    &lt;Text color=&quot;error&quot;&gt;Error — Could not save your changes.&lt;/Text&gt;
+    &lt;Text color=&quot;success&quot;&gt;Success — Your changes were saved.&lt;/Text&gt;
+    &lt;Text color=&quot;warning&quot;&gt;Warning — 3 items were skipped.&lt;/Text&gt;
+    &lt;Text color=&quot;info&quot;&gt;Info — Beta features may change.&lt;/Text&gt;
+  &lt;/div&gt;
+);</code></pre>
+            </div>
+            <div class="note ok">
+              <div class="row">
+                <span class="ex-name">Inverted Color</span>
+                <span class="badge ok">story ok</span>
+              </div>
+              
+              
+              <pre><code>const InvertedColor = () =&gt; (
+  &lt;div className=&quot;flex flex-col gap-3&quot;&gt;
+    &lt;div className=&quot;flex flex-col gap-1 rounded-md bg-solid p-4&quot;&gt;
+      &lt;Text color=&quot;inverted&quot;&gt;Inverted — primary text on a primary surface&lt;/Text&gt;
+      &lt;Text color=&quot;inverted-muted&quot; size=&quot;sm&quot;&gt;
+        Inverted muted — secondary / helper text
+      &lt;/Text&gt;
+      &lt;Text color=&quot;inverted-subtle&quot; size=&quot;sm&quot;&gt;
+        Inverted subtle — tertiary text, faintest of the three
+      &lt;/Text&gt;
+    &lt;/div&gt;
+    &lt;div className=&quot;flex flex-col gap-1 rounded-md bg-success p-4&quot;&gt;
+      &lt;Text color=&quot;inverted&quot;&gt;Inverted on a success surface&lt;/Text&gt;
+      &lt;Text color=&quot;inverted-muted&quot; size=&quot;sm&quot;&gt;
+        Secondary on the same surface
+      &lt;/Text&gt;
+    &lt;/div&gt;
+    &lt;div className=&quot;flex flex-col gap-1 rounded-md bg-error p-4&quot;&gt;
+      &lt;Text color=&quot;inverted&quot;&gt;Inverted on an error surface&lt;/Text&gt;
+      &lt;Text color=&quot;inverted-subtle&quot; size=&quot;sm&quot;&gt;
+        Tertiary on the same surface
+      &lt;/Text&gt;
     &lt;/div&gt;
   &lt;/div&gt;
 );</code></pre>
@@ -6373,7 +6566,10 @@ export const Overview: Story = {
           &gt;
             &lt;div className=&quot;flex gap-2&quot;&gt;
               &lt;Badge&gt;Default&lt;/Badge&gt;
-              &lt;Badge variant=&quot;outline&quot;&gt;Outline&lt;/Badge&gt;
+              &lt;Badge variant=&quot;success&quot; treatment=&quot;subtle&quot;&gt;
+                Active
+              &lt;/Badge&gt;
+              &lt;Badge treatment=&quot;outline&quot;&gt;Outline&lt;/Badge&gt;
             &lt;/div&gt;
           &lt;/ComponentCard&gt;
 
@@ -6700,7 +6896,10 @@ import { CircleCheck } from "lucide-react";</code></pre>
         &gt;
           &lt;div className=&quot;flex gap-2&quot;&gt;
             &lt;Badge&gt;Default&lt;/Badge&gt;
-            &lt;Badge variant=&quot;outline&quot;&gt;Outline&lt;/Badge&gt;
+            &lt;Badge variant=&quot;success&quot; treatment=&quot;subtle&quot;&gt;
+              Active
+            &lt;/Badge&gt;
+            &lt;Badge treatment=&quot;outline&quot;&gt;Outline&lt;/Badge&gt;
           &lt;/div&gt;
         &lt;/ComponentCard&gt;
 
@@ -7054,13 +7253,36 @@ export const Colors: Story = {
         &lt;ColorRow name=&quot;foreground&quot; description=&quot;Primary text color&quot; className=&quot;bg-foreground&quot; /&gt;
         &lt;ColorRow
           name=&quot;foreground-muted&quot;
-          description=&quot;Secondary/helper text&quot;
+          description=&quot;Secondary / helper text — less prominent than default&quot;
           className=&quot;bg-foreground-muted&quot;
         /&gt;
         &lt;ColorRow
           name=&quot;foreground-subtle&quot;
-          description=&quot;Tertiary text&quot;
+          description=&quot;Tertiary text — faintest of the three&quot;
           className=&quot;bg-foreground-subtle&quot;
+        /&gt;
+      &lt;/div&gt;
+
+      &lt;SubsectionTitle&gt;Inverse Foreground&lt;/SubsectionTitle&gt;
+      &lt;p className=&quot;text-sm text-foreground-muted mb-3&quot;&gt;
+        For text placed on saturated / dark-background containers (solid Toast or Callout, primary
+        fills, …). Mirrors the foreground hierarchy.
+      &lt;/p&gt;
+      &lt;div className=&quot;border border-border rounded-xl px-5&quot;&gt;
+        &lt;ColorRow
+          name=&quot;inverse-foreground&quot;
+          description=&quot;Primary text on saturated surface&quot;
+          className=&quot;bg-inverse-foreground border border-border&quot;
+        /&gt;
+        &lt;ColorRow
+          name=&quot;inverse-foreground-muted&quot;
+          description=&quot;Secondary / helper text on saturated surface&quot;
+          className=&quot;bg-inverse-foreground-muted border border-border&quot;
+        /&gt;
+        &lt;ColorRow
+          name=&quot;inverse-foreground-subtle&quot;
+          description=&quot;Tertiary text on saturated surface&quot;
+          className=&quot;bg-inverse-foreground-subtle border border-border&quot;
         /&gt;
       &lt;/div&gt;
 
@@ -7279,6 +7501,11 @@ export const Colors: Story = {
           name=&quot;--ink-light&quot;
           description=&quot;#6b6b6b — Light ink&quot;
           style={{ backgroundColor: &#39;var(--ink-light)&#39; }}
+        /&gt;
+        &lt;ColorRow
+          name=&quot;--ink-subtle&quot;
+          description=&quot;Faintest ink — used by foreground-subtle (tertiary text)&quot;
+          style={{ backgroundColor: &#39;var(--ink-subtle)&#39; }}
         /&gt;
         &lt;ColorRow
           name=&quot;--paper-white&quot;
@@ -7601,13 +7828,36 @@ export const Colors: Story = {
       &lt;ColorRow name=&quot;foreground&quot; description=&quot;Primary text color&quot; className=&quot;bg-foreground&quot; /&gt;
       &lt;ColorRow
         name=&quot;foreground-muted&quot;
-        description=&quot;Secondary/helper text&quot;
+        description=&quot;Secondary / helper text — less prominent than default&quot;
         className=&quot;bg-foreground-muted&quot;
       /&gt;
       &lt;ColorRow
         name=&quot;foreground-subtle&quot;
-        description=&quot;Tertiary text&quot;
+        description=&quot;Tertiary text — faintest of the three&quot;
         className=&quot;bg-foreground-subtle&quot;
+      /&gt;
+    &lt;/div&gt;
+
+    &lt;SubsectionTitle&gt;Inverse Foreground&lt;/SubsectionTitle&gt;
+    &lt;p className=&quot;text-sm text-foreground-muted mb-3&quot;&gt;
+      For text placed on saturated / dark-background containers (solid Toast or Callout, primary
+      fills, …). Mirrors the foreground hierarchy.
+    &lt;/p&gt;
+    &lt;div className=&quot;border border-border rounded-xl px-5&quot;&gt;
+      &lt;ColorRow
+        name=&quot;inverse-foreground&quot;
+        description=&quot;Primary text on saturated surface&quot;
+        className=&quot;bg-inverse-foreground border border-border&quot;
+      /&gt;
+      &lt;ColorRow
+        name=&quot;inverse-foreground-muted&quot;
+        description=&quot;Secondary / helper text on saturated surface&quot;
+        className=&quot;bg-inverse-foreground-muted border border-border&quot;
+      /&gt;
+      &lt;ColorRow
+        name=&quot;inverse-foreground-subtle&quot;
+        description=&quot;Tertiary text on saturated surface&quot;
+        className=&quot;bg-inverse-foreground-subtle border border-border&quot;
       /&gt;
     &lt;/div&gt;
 
@@ -7826,6 +8076,11 @@ export const Colors: Story = {
         name=&quot;--ink-light&quot;
         description=&quot;#6b6b6b — Light ink&quot;
         style={{ backgroundColor: &#39;var(--ink-light)&#39; }}
+      /&gt;
+      &lt;ColorRow
+        name=&quot;--ink-subtle&quot;
+        description=&quot;Faintest ink — used by foreground-subtle (tertiary text)&quot;
+        style={{ backgroundColor: &#39;var(--ink-subtle)&#39; }}
       /&gt;
       &lt;ColorRow
         name=&quot;--paper-white&quot;
@@ -9046,7 +9301,10 @@ export const Overview: Story = {
           &gt;
             &lt;div className=&quot;flex gap-2&quot;&gt;
               &lt;Badge&gt;Default&lt;/Badge&gt;
-              &lt;Badge variant=&quot;outline&quot;&gt;Outline&lt;/Badge&gt;
+              &lt;Badge variant=&quot;success&quot; treatment=&quot;subtle&quot;&gt;
+                Active
+              &lt;/Badge&gt;
+              &lt;Badge treatment=&quot;outline&quot;&gt;Outline&lt;/Badge&gt;
             &lt;/div&gt;
           &lt;/ComponentCard&gt;
 
@@ -9373,7 +9631,10 @@ import { CircleCheck } from "lucide-react";</code></pre>
         &gt;
           &lt;div className=&quot;flex gap-2&quot;&gt;
             &lt;Badge&gt;Default&lt;/Badge&gt;
-            &lt;Badge variant=&quot;outline&quot;&gt;Outline&lt;/Badge&gt;
+            &lt;Badge variant=&quot;success&quot; treatment=&quot;subtle&quot;&gt;
+              Active
+            &lt;/Badge&gt;
+            &lt;Badge treatment=&quot;outline&quot;&gt;Outline&lt;/Badge&gt;
           &lt;/div&gt;
         &lt;/ComponentCard&gt;
 

@@ -1,0 +1,111 @@
+# Schatten
+
+[![npm](https://img.shields.io/npm/v/@yasmro/schatten.svg)](https://www.npmjs.com/package/@yasmro/schatten)
+
+Design system component library based on [shadcn/ui](https://ui.shadcn.com/), customized for the Schatten brand.
+
+Built on Radix UI primitives, styled with Tailwind CSS, and authored with `class-variance-authority` (CVA). Ships React components, CVA variants, and a layered token system (primitive → semantic → component).
+
+## Tech Stack
+
+- **Framework**: React 18 / 19 + TypeScript
+- **Styling**: Tailwind CSS v4 + class-variance-authority (CVA)
+- **Primitives**: Radix UI
+- **Storybook**: Component documentation & visual testing
+- **Build**: tsup + Lightning CSS
+- **Lint / Format**: Biome
+- **Test**: Vitest
+- **VRT**: Playwright
+- **Git Hooks**: lefthook
+- **Release**: Changesets
+- **Package Manager**: pnpm
+
+## Installation
+
+```sh
+pnpm add @yasmro/schatten
+# or
+npm install @yasmro/schatten
+```
+
+`react` and `react-dom` (`^18` or `^19`) are required as peer dependencies.
+
+## Usage
+
+Import the bundled stylesheet once at your app entry, then use any component:
+
+```tsx
+import '@yasmro/schatten/schatten.css'
+import { Button } from '@yasmro/schatten/components/lv1'
+
+export function App() {
+  return <Button variant="primary">Click me</Button>
+}
+```
+
+### Token-only usage
+
+If you want only the design tokens (CSS custom properties) without components, import the token bundle:
+
+```tsx
+import '@yasmro/schatten/core/tokens'
+import '@yasmro/schatten/themes/default'
+```
+
+### Seasonal themes
+
+```tsx
+import '@yasmro/schatten/themes/seasonal/themes.css'
+```
+
+## Components
+
+Primitive components live under `src/components/lv1/`:
+
+Badge · Button · Callout · Checkbox · Dialog · Field · FieldSet · Input · Radio · Select · Separator · Spinner · Switch · Text · Textarea · Toast · Tooltip
+
+See Storybook for live examples and prop documentation.
+
+## Project Structure
+
+```
+src/
+├── components/lv1/   # Primitive components
+├── components/lv2/   # Composite components
+├── contexts/         # React contexts (Field, FieldSet, …)
+├── core/tokens/      # Primitive & semantic CSS tokens
+├── themes/           # Default and seasonal themes
+├── variants/         # CVA variant definitions
+├── lib/              # Shared utilities (cn, etc.)
+└── docs/             # Storybook docs (Color, Typography, …)
+```
+
+## Development
+
+```sh
+pnpm install
+
+pnpm dev               # Start Storybook on :6006
+pnpm build             # Build JS + CSS into dist/
+pnpm build:storybook   # Build static Storybook
+
+pnpm test              # Run Vitest
+pnpm test:vrt          # Run Playwright VRT
+pnpm test:vrt:update   # Update VRT snapshots
+
+pnpm lint              # Biome CI checks
+pnpm lint:fix          # Biome auto-fix
+pnpm typecheck         # tsc --noEmit
+```
+
+## Release
+
+This package uses [Changesets](https://github.com/changesets/changesets). When introducing a user-facing change, add a changeset:
+
+```sh
+pnpm changeset
+```
+
+## License
+
+MIT

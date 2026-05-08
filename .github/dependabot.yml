@@ -4,8 +4,17 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+      day: "monday"
     open-pull-requests-limit: 10
     groups:
+      storybook:
+        patterns: ["@storybook/*", "storybook"]
+      vitest:
+        patterns: ["vitest", "@vitest/*"]
+      types:
+        patterns: ["@types/*"]
+      tailwind:
+        patterns: ["tailwindcss", "@tailwindcss/*"]
       prod-minor-patch:
         dependency-type: "production"
         update-types: ["minor", "patch"]
@@ -22,6 +31,7 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+      day: "monday"
     groups:
       actions:
         patterns: ["*"]

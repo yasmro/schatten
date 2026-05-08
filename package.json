@@ -102,7 +102,7 @@
     "@types/node": "^25.5.0",
     "@types/react": "^19.0.2",
     "@types/react-dom": "^19.0.2",
-    "jsdom": "24",
+    "jsdom": "29",
     "lefthook": "^2.1.4",
     "lightningcss": "^1.28.2",
     "lightningcss-cli": "^1.32.0",

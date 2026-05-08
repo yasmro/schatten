@@ -21,7 +21,7 @@ src/components/lv1/ComponentName/
 ## Template
 
 ```typescript
-import { expect, test } from '@playwright/test'
+import { expect, test } from '../../../test/vrt'
 
 const STORY_ID_PREFIX = 'components-lv1-componentname'
 
@@ -134,3 +134,20 @@ Snapshots are named `{story}-{theme}.png`:
 - Timeout is set to 10s to handle slower CI environments
 - Use `networkidle` wait state for consistent font loading
 - Always test both light and dark themes
+
+## Why specs import from `src/test/vrt`
+
+The shared fixture at `src/test/vrt.ts` aborts requests to
+`fonts.googleapis.com` / `fonts.gstatic.com` so VRT runs do not depend on
+external network access. This avoids two failure modes:
+
+- **CI hangs**: Google Fonts CSS is loaded via `<link rel="stylesheet">` in
+  `preview-head.html`, which is parser-blocking. When the fonts CDN is slow
+  or unreachable from a CI runner, deferred module scripts (Storybook's
+  iframe bundle) never execute and `#storybook-root` stays hidden.
+- **Snapshot drift**: snapshots taken with Google Fonts loaded shift when
+  the CDN serves different glyphs over time.
+
+Snapshots are therefore captured with system fallback fonts, which makes
+them deterministic across machines and CI environments. Always use the
+shared fixture; do not import from `@playwright/test` directly.

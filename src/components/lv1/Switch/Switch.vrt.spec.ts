@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test'
+import { expect, test } from '../../../test/vrt'
 
 const STORY_ID_PREFIX = 'components-lv1-switch'
 

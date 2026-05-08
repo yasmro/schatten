@@ -21,6 +21,8 @@ jobs:
 
       - run: pnpm exec playwright install chromium
 
+      - run: pnpm build:storybook
+
       - run: pnpm test:vrt
         id: vrt
 

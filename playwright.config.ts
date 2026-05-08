@@ -17,7 +17,7 @@ export default defineConfig({
     },
   },
   webServer: {
-    command: 'pnpm dev',
+    command: process.env.CI ? 'pnpm serve:storybook' : 'pnpm dev',
     url: 'http://localhost:6006',
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,

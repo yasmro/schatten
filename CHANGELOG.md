@@ -1,5 +1,96 @@
 # @yasmro/schatten
 
+## 0.4.0
+
+### Minor Changes
+
+- [#66](https://github.com/yasmro/schatten/pull/66) [`14a2a88`](https://github.com/yasmro/schatten/commit/14a2a88253d1212dbd37c5d9b949ddd7b626408c) Thanks [@yasmro](https://github.com/yasmro)! - Add `Dialog` component — modal overlay for confirmations, form input, and
+  detail views. The API is **flat**: state, header, and footer are passed as
+  props; only the body is `children`.
+
+  ```tsx
+  <Dialog
+    isOpen={isOpen}
+    onOpenChange={setIsOpen}
+    title="Delete account"
+    description="This action cannot be undone."
+    actionButton={{
+      label: "Delete",
+      variant: "destructive",
+      onClick: handleDelete,
+      isLoading: isDeleting,
+    }}
+    cancelButton={{ label: "Cancel" }}
+    subActionButton={{ label: "Save as draft", onClick: handleDraft }}
+  >
+    <p>All data will be permanently removed.</p>
+  </Dialog>
+  ```
+
+  **Highlights:**
+
+  - **Controlled-only** open state — parent owns `isOpen` / `onOpenChange`.
+    No `<DialogTrigger>`; any button can open the dialog.
+  - **Per-slot `isLoading`** — set `isLoading: true` on `actionButton` or
+    `subActionButton` to show a spinner on that button. Dialog disables
+    the other footer buttons (and close ✕) and blocks ESC / overlay click
+    / close ✕ dismissal while _any_ footer button is loading. Parent owns
+    the state; symmetric with `Button.isLoading`.
+  - **Three footer slots** with constrained variants:
+    - `actionButton` (required): `primary | destructive`
+    - `cancelButton` (optional): `secondary` (fixed)
+    - `subActionButton` (optional): `tertiary` (fixed)
+  - **Responsive footer layout**:
+    - Desktop: `[SubAction] ────── [Cancel] [Action]`
+    - Mobile: `[Action] / [Cancel] / ── separator ── / [SubAction]`
+      (separator only when `subActionButton` is present)
+  - **Long body content** scrolls inside the dialog automatically — Content
+    caps at `calc(100vh - 2rem)` and the body region is the only scrolling
+    surface (header / footer stay pinned).
+  - **Built on** `@radix-ui/react-dialog` for focus trap, scroll lock, and
+    a11y wiring (`aria-modal`, `aria-labelledby`, `aria-describedby`).
+
+- [#65](https://github.com/yasmro/schatten/pull/65) [`4719c9c`](https://github.com/yasmro/schatten/commit/4719c9cd412fae571b3c4cb31c8d69222b8a0e19) Thanks [@yasmro](https://github.com/yasmro)! - Unify naming of "inverted" color treatment across tokens, primitives, and
+  component variants. Previously the codebase had three forms — `inverse`
+  (semantic tokens, Spinner variant), `inverted` (Button / Text / Callout /
+  Toast variants), and the `-inv` suffix (primitive variables) — for the
+  same concept. They are now all `inverted`.
+
+  **Token renames** (Tailwind utilities, CSS custom properties):
+
+  - `--color-inverse-foreground{,-muted,-subtle}` →
+    `--color-inverted-foreground{,-muted,-subtle}`
+  - Tailwind utilities: `bg-inverse-foreground` / `text-inverse-foreground`
+    / `border-inverse-foreground` (and `-muted` / `-subtle` variants) →
+    `bg-inverted-foreground` etc.
+
+  **Component variant renames:**
+
+  - `Spinner` `variant="inverse"` → `variant="inverted"`
+
+  **Primitive renames** (internal — components should not consume these
+  directly per the layer rules in `state-token-guideline.md`):
+
+  - `--ink-{black,dark,medium,light,subtle}-inv` →
+    `--ink-{...}-inverted`
+  - `--paper-{white,warm,cream}-inv` → `--paper-{...}-inverted`
+
+  Other component variant names (`Button` `variant="inverted"`, `Text`
+  `color="inverted" | "inverted-muted" | "inverted-subtle"`) were already
+  on the `inverted` form and are unchanged.
+
+- [#75](https://github.com/yasmro/schatten/pull/75) [`23d816e`](https://github.com/yasmro/schatten/commit/23d816e5478ca310d6c2469befaf7d034836ac35) Thanks [@dependabot](https://github.com/apps/dependabot)! - Upgrade `tailwind-merge` from v2 to v3 for native Tailwind CSS v4
+  alignment. Public API is unchanged; the internal `cn()` utility
+  (`twMerge(clsx(...))`) continues to work exactly as before.
+
+  **Consumer impact:** the bundled `tailwind-merge` peer/runtime
+  resolution shifts from `^2.x` to `^3.x`. Apps that import
+  `tailwind-merge` directly alongside `@yasmro/schatten` will now
+  resolve to v3 — review the [tailwind-merge v3 migration notes](https://github.com/dcastil/tailwind-merge/releases/tag/v3.0.0)
+  if you rely on advanced configuration (custom validators,
+  `extendTailwindMerge`, etc.). Default `twMerge` behavior is
+  preserved.
+
 ## 0.3.0
 
 ### Minor Changes

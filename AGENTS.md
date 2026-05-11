@@ -1,0 +1,79 @@
+# AGENTS.md
+
+> **What is this file?**
+>
+> Common entry point for AI coding assistants (Codex / Cursor / Aider / OpenHands, etc.). Claude Code reads [CLAUDE.md](CLAUDE.md) instead — that file is Claude Code-specific. Both files share the same source of truth in [`.claude/rules/`](.claude/rules).
+
+## About this repo
+
+**Schatten** is a design system component library based on [shadcn/ui](https://ui.shadcn.com/), customized for the Schatten brand. Components are built on Radix UI primitives, styled with Tailwind CSS v4, and authored with `class-variance-authority` (CVA).
+
+- **Framework**: React 18 / 19 + TypeScript
+- **Styling**: Tailwind CSS v4 + CVA
+- **Primitives**: Radix UI
+- **Build / Test / VRT**: tsup + Lightning CSS / Vitest / Playwright
+- **Lint / Format**: Biome
+- **Release**: Changesets
+- **Package manager**: pnpm
+
+Layout:
+
+```
+src/
+├── components/lv1/   # Primitive components (Button, Input, …)
+├── components/lv2/   # Composite components
+├── contexts/         # React contexts (Field, FieldSet, …)
+├── core/tokens/      # Primitive & semantic CSS tokens (3-layer system)
+├── themes/           # Default and seasonal themes
+├── variants/         # CVA variant definitions
+├── lib/              # Shared utilities (cn, etc.)
+└── docs/             # Storybook docs (Color, Typography, …)
+```
+
+## Required reading
+
+Before adding or modifying components, read the guideline files under [`.claude/rules/`](.claude/rules):
+
+- [`storybook-guideline.md`](.claude/rules/storybook-guideline.md) — Story structure (`Playground` story first, group by prop), `argTypes`, English-only labels.
+- [`state-token-guideline.md`](.claude/rules/state-token-guideline.md) — 3-layer token system, state semantic tokens (`error` / `success` / `warning` / `info` / `destructive`) and the 4-token shape (`base` / `hover` / `foreground` / `subtle`).
+- [`field-context-guideline.md`](.claude/rules/field-context-guideline.md) — `FieldContext` integration patterns for form components (Input / Checkbox / Switch / Radio / Select / Textarea).
+- [`vrt-spec-guideline.md`](.claude/rules/vrt-spec-guideline.md) — Playwright VRT spec template, story-id mapping, snapshot naming.
+
+## Main commands
+
+```sh
+pnpm dev               # Start Storybook on :6006
+pnpm build             # Build JS + CSS into dist/
+pnpm test              # Run Vitest
+pnpm test:vrt          # Run Playwright VRT
+pnpm test:vrt:update   # Update VRT snapshots
+pnpm lint              # Biome CI checks
+pnpm lint:fix          # Biome auto-fix
+pnpm typecheck         # tsc --noEmit
+pnpm changeset         # Create a changeset for user-facing changes
+```
+
+## Things you MUST NOT do
+
+- **Do not** write primitive color classes (`bg-red-500`, `text-blue-700`, `bg-vermillion-600`, …) directly in JSX or CSS. Use **state semantic tokens** (`bg-error`, `text-error-foreground`, `bg-error-subtle`, `bg-destructive`, …) so light/dark and seasonal themes stay correct. See [state-token-guideline](.claude/rules/state-token-guideline.md).
+- **Do not** confuse `destructive` and `error`. They share the same primitive (vermillion) but are semantically distinct — `destructive` is for actions (e.g. `<Button variant="destructive">`), `error` is for form/notification state (e.g. `<Input isError>`). See [state-token-guideline](.claude/rules/state-token-guideline.md#destructive-vs-error).
+- **Do not** build new components with ad-hoc styles outside the design system. Compose existing `lv1` primitives, or extend the variant definitions in `src/variants/`.
+- **Do not** add a new `lv1` / `lv2` component without **Storybook story + Vitest test + VRT spec** alongside it. Follow the Storybook conventions (Playground story first, group by prop) and place the VRT spec at `ComponentName.vrt.spec.ts` next to the component.
+- **Do not** create individual stories for every prop value (`Default`, `Secondary`, `Outline` as separate exports). Group them into render stories (`AllVariants`, `Sizes`, `Disabled`, …). See [storybook-guideline](.claude/rules/storybook-guideline.md).
+- **Do not** write Storybook `description`, `argTypes`, button labels, etc. in Japanese — Storybook surfaces use **English only**.
+- **Do not** ship user-facing changes without a changeset entry. Run `pnpm changeset` and pick the appropriate semver bump.
+
+## Resource Map
+
+| File | One-liner |
+|---|---|
+| [CLAUDE.md](CLAUDE.md) | Claude Code-specific tech stack and rule index. |
+| [README.md](README.md) | Public-facing overview, installation, and usage. |
+| [.claude/rules/storybook-guideline.md](.claude/rules/storybook-guideline.md) | Storybook conventions — Playground story, `argTypes`, grouping. |
+| [.claude/rules/state-token-guideline.md](.claude/rules/state-token-guideline.md) | 3-layer token system, 4-token shape, `destructive` vs `error`. |
+| [.claude/rules/field-context-guideline.md](.claude/rules/field-context-guideline.md) | `FieldContext` patterns for form components. |
+| [.claude/rules/vrt-spec-guideline.md](.claude/rules/vrt-spec-guideline.md) | Playwright VRT spec template and snapshot naming. |
+
+## Maintenance
+
+When you add or remove a file under [`.claude/rules/`](.claude/rules), update **Required reading** and **Resource Map** above so AI agents pick it up automatically. CLAUDE.md's `Guidelines` section also lists the same files — keep both indexes in sync.

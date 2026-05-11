@@ -58,6 +58,22 @@ import '@yasmro/schatten/themes/default'
 import '@yasmro/schatten/themes/seasonal/themes.css'
 ```
 
+### Typed token references
+
+Prefer Tailwind utilities (`bg-error`, `text-foreground-muted`, …) for everyday styling. When you need a CSS variable reference in inline style or CSS-in-JS, the `tokens` export provides typed pointers:
+
+```tsx
+import { tokens, type ColorToken } from '@yasmro/schatten/tokens'
+
+function Banner({ tone }: { tone: ColorToken }) {
+  return <div style={{ background: tokens.color[tone] }}>...</div>
+}
+
+<div style={{ background: tokens.color.errorSubtle, color: tokens.color.error }}>
+  Something went wrong
+</div>
+```
+
 ## Components
 
 Primitive components live under `src/components/lv1/`:

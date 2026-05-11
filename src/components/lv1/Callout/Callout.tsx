@@ -18,6 +18,17 @@ const iconByVariant: Record<CalloutVariant, LucideIcon> = {
 export interface CalloutProps
   extends Omit<HTMLAttributes<HTMLDivElement>, 'title'>,
     CalloutVariants {
+  /**
+   * State variant. Drives the icon, color treatment, and accent.
+   * Shares the state semantic tokens with `Toast` and `Badge`.
+   * @default 'default'
+   */
+  variant?: CalloutVariants['variant']
+  /**
+   * Visual treatment — `subtle` for soft tinted background, `solid` for filled.
+   * @default 'subtle'
+   */
+  treatment?: CalloutVariants['treatment']
   /** Optional heading rendered in bold above the body content. */
   title?: ReactNode
   /**

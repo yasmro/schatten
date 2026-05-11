@@ -38,7 +38,12 @@ export interface TooltipContentProps
     ComponentPropsWithoutRef<typeof TooltipPrimitive.Content>,
     'sideOffset' | 'alignOffset' | 'align'
   > {
-  /** Portal container element */
+  /**
+   * The preferred side of the trigger to render the tooltip.
+   * @default 'top'
+   */
+  side?: ComponentPropsWithoutRef<typeof TooltipPrimitive.Content>['side']
+  /** Custom container element for the portal. Useful for rendering inside a Dialog. */
   container?: ComponentPropsWithoutRef<typeof TooltipPrimitive.Portal>['container']
 }
 

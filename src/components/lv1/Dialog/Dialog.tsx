@@ -41,9 +41,14 @@ export interface DialogProps {
   isOpen: boolean
   /** Called when the open state changes (close ✕, ESC, overlay click, cancel button). */
   onOpenChange: (isOpen: boolean) => void
+  /** Dialog heading. Rendered as the accessible name via Radix `aria-labelledby`. */
   title: string
+  /** Optional supporting text rendered below the title. */
   description?: string
-  /** Default: true. */
+  /**
+   * Whether the close (✕) button in the top-right is rendered.
+   * @default true
+   */
   isCloseButtonVisible?: boolean
   /**
    * Required primary action. Set `isLoading: true` on the slot to show

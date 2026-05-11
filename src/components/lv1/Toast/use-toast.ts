@@ -4,19 +4,39 @@ export type ToastVariant = 'default' | 'success' | 'error' | 'warning' | 'info'
 export type ToastTreatment = 'subtle' | 'solid'
 
 export interface ToastAction {
+  /** Action button label. */
   label: ReactNode
+  /** Invoked when the action button is clicked. The toast is also dismissed automatically. */
   onClick: () => void
   /** Screen reader text. Required when `label` is not a string. */
   altText?: string
 }
 
 export interface ToastInput {
+  /** Optional bold heading shown at the top of the toast. */
   title?: ReactNode
+  /** Body text rendered below the title. */
   description?: ReactNode
+  /**
+   * State variant. Drives the icon, color treatment, and accent.
+   * Shares the state semantic tokens with `Callout` and `Badge`.
+   * @default 'default'
+   */
   variant?: ToastVariant
+  /**
+   * Visual treatment — `subtle` for soft tinted background, `solid` for filled.
+   * @default 'subtle'
+   */
   treatment?: ToastTreatment
-  /** Auto-dismiss after this many ms. Default 5000. */
+  /**
+   * Auto-dismiss after this many milliseconds.
+   * @default 5000
+   */
   duration?: number
+  /**
+   * Optional action button rendered on the right. When present, the close (✕) button is suppressed
+   * — clicking the action also dismisses the toast.
+   */
   action?: ToastAction
 }
 

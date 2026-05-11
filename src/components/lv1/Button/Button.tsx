@@ -8,11 +8,40 @@ import { Spinner } from '../Spinner'
 export type IconName = keyof typeof icons
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement>, ButtonVariants {
-  /** Render as child element using Radix Slot. Note: `isLoading` is ignored when `asChild` is true. */
+  /**
+   * Visual style of the button.
+   * - `primary` — solid fill, main CTA
+   * - `secondary` — outlined, secondary actions
+   * - `tertiary` — text only, low-priority actions
+   * - `inverted` — ghost button intended for saturated surfaces (e.g. on top of a solid Toast or banner)
+   * - `destructive` — for delete/remove actions (red)
+   * - `link` — inline text link with button semantics
+   * @default 'primary'
+   */
+  variant?: ButtonVariants['variant']
+  /**
+   * Size of the button.
+   * @default 'md'
+   */
+  size?: ButtonVariants['size']
+  /**
+   * Delegates props to the child element via Radix Slot.
+   * Note: `isLoading` is ignored when `asChild` is true.
+   * @default false
+   */
   asChild?: boolean
+  /** Lucide icon name in PascalCase (e.g. `"Search"`, `"ArrowRight"`). */
   icon?: IconName
+  /**
+   * Position of the icon relative to the label text.
+   * @default 'start'
+   */
   iconPosition?: 'start' | 'end'
-  /** Shows a loading spinner and disables the button. Ignored when `asChild` is true. */
+  /**
+   * Shows a loading spinner and disables the button.
+   * Ignored when `asChild` is true.
+   * @default false
+   */
   isLoading?: boolean
 }
 

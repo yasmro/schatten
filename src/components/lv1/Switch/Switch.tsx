@@ -13,9 +13,18 @@ import { type SwitchVariants, switchThumbVariants, switchVariants } from '../../
 export interface SwitchProps
   extends Omit<ComponentPropsWithoutRef<typeof SwitchPrimitive.Root>, 'size'>,
     SwitchVariants {
-  /** Displays the switch in an error state with error border and ring. */
+  /**
+   * Size of the switch.
+   * @default 'md'
+   */
+  size?: SwitchVariants['size']
+  /**
+   * Displays the switch in an error state with error border and ring.
+   * When used inside a `<Field>`, the field's error state takes precedence.
+   * @default false
+   */
   isError?: boolean
-  /** Label text displayed next to the switch. Automatically associates via id. */
+  /** Label text displayed next to the switch. Automatically associates via `htmlFor`. */
   label?: ReactNode
 }
 

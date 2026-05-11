@@ -22,6 +22,16 @@ const SelectValue = SelectPrimitive.Value
 export interface SelectTriggerProps
   extends Omit<ComponentPropsWithoutRef<typeof SelectPrimitive.Trigger>, 'size'>,
     SelectTriggerVariants {
+  /**
+   * Size of the select trigger.
+   * @default 'md'
+   */
+  size?: SelectTriggerVariants['size']
+  /**
+   * Displays the select trigger in an error state with error border and ring.
+   * When used inside a `<Field>`, the field's error state takes precedence.
+   * @default false
+   */
   isError?: boolean
 }
 
@@ -111,6 +121,10 @@ SelectScrollDownButton.displayName = SelectPrimitive.ScrollDownButton.displayNam
 
 export interface SelectContentProps
   extends ComponentPropsWithoutRef<typeof SelectPrimitive.Content> {
+  /**
+   * Custom container element for the portal. Useful for rendering inside
+   * a Dialog or Drawer.
+   */
   container?: ComponentPropsWithoutRef<typeof SelectPrimitive.Portal>['container']
 }
 

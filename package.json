@@ -37,6 +37,11 @@
       "import": "./dist/variants/index.js",
       "require": "./dist/variants/index.cjs"
     },
+    "./tokens": {
+      "types": "./dist/tokens/index.d.ts",
+      "import": "./dist/tokens/index.js",
+      "require": "./dist/tokens/index.cjs"
+    },
     "./components": {
       "types": "./dist/components/index.d.ts",
       "import": "./dist/components/index.js",

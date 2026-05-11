@@ -14,10 +14,11 @@ function copyCssAssets() {
 }
 
 export default defineConfig([
-  // Variants (CSS-only, for Astro)
+  // Variants & tokens (no React, for Astro / non-React consumers)
   {
     entry: {
       'variants/index': 'src/variants/index.ts',
+      'tokens/index': 'src/tokens.ts',
     },
     format: ['esm', 'cjs'],
     dts: true,

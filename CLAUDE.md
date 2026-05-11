@@ -3,6 +3,8 @@
 Design system component library based on [shadcn/ui](https://ui.shadcn.com/), customized for the Schatten brand.
 When adding or modifying components, follow shadcn/ui conventions (Radix UI + CVA + cn utility) as the baseline.
 
+> Non-Claude-Code AI tools (Codex / Cursor / Aider / OpenHands, etc.) should read [AGENTS.md](AGENTS.md) — a tool-agnostic mirror of this file that also covers main commands, anti-patterns, and a resource map.
+
 ## Tech Stack
 
 - **Base**: shadcn/ui

@@ -6,17 +6,17 @@ import { useToast } from './use-toast'
 
 export interface ToasterProps {
   /**
-   * Where the toast viewport sits on screen. Defaults to `bottom-center`.
+   * Where the toast viewport sits on screen.
+   * @default 'bottom-center'
    */
   position?: ToastPosition
   /**
    * Default auto-dismiss duration in ms applied when a toast does not
-   * specify its own. Per-toast `duration` always wins. Default 5000.
+   * specify its own. Per-toast `duration` always wins.
+   * @default 5000
    */
   duration?: number
-  /**
-   * Optional class applied to the viewport container.
-   */
+  /** Optional class applied to the viewport container. */
   className?: string
 }
 

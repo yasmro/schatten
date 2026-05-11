@@ -13,9 +13,18 @@ import { type CheckboxVariants, checkboxVariants } from '../../../variants/check
 export interface CheckboxProps
   extends Omit<ComponentPropsWithoutRef<typeof CheckboxPrimitive.Root>, 'size'>,
     CheckboxVariants {
-  /** Displays the checkbox in an error state with error border and ring. */
+  /**
+   * Size of the checkbox.
+   * @default 'md'
+   */
+  size?: CheckboxVariants['size']
+  /**
+   * Displays the checkbox in an error state with error border and ring.
+   * When used inside a `<Field>`, the field's error state takes precedence.
+   * @default false
+   */
   isError?: boolean
-  /** Label text displayed next to the checkbox. Automatically associates via id. */
+  /** Label text displayed next to the checkbox. Automatically associates via `htmlFor`. */
   label?: ReactNode
 }
 

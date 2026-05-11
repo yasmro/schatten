@@ -4,9 +4,27 @@ import { type SpinnerVariants, spinnerVariants } from '../../../variants/spinner
 import './Spinner.css'
 
 export interface SpinnerProps extends HTMLAttributes<HTMLDivElement>, SpinnerVariants {
-  /** Accessible label for screen readers. */
+  /**
+   * Color variant. Use `inverted` when placing the spinner on top of a saturated surface.
+   * @default 'default'
+   */
+  variant?: SpinnerVariants['variant']
+  /**
+   * Size of the spinner.
+   * @default 'md'
+   */
+  size?: SpinnerVariants['size']
+  /**
+   * Accessible label for screen readers (rendered via a visually-hidden span).
+   * @default 'Loading'
+   */
   label?: string
-  /** Spinner animation type. */
+  /**
+   * Spinner animation type.
+   * - `default` — circular spinner that rotates
+   * - `ripple` — concentric pulsing rings
+   * @default 'default'
+   */
   type?: 'default' | 'ripple'
 }
 

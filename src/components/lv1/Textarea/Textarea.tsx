@@ -6,6 +6,16 @@ import { type TextareaVariants, textareaVariants } from '../../../variants/texta
 export interface TextareaProps
   extends Omit<TextareaHTMLAttributes<HTMLTextAreaElement>, 'size'>,
     TextareaVariants {
+  /**
+   * Size of the textarea.
+   * @default 'md'
+   */
+  size?: TextareaVariants['size']
+  /**
+   * Displays the textarea in an error state with error border and ring.
+   * When used inside a `<Field>`, the field's error state takes precedence.
+   * @default false
+   */
   isError?: boolean
 }
 

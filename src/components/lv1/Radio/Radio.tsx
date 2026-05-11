@@ -28,9 +28,16 @@ const RadioGroupContext = createContext<RadioGroupContextValue>({
 /* ----- RadioGroup ----- */
 
 export interface RadioGroupProps extends ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Root> {
-  /** Displays all radio items in an error state. Propagated via context. */
+  /**
+   * Displays all radio items in an error state. Propagated to children via context.
+   * When used inside a `<Field>`, the field's error state takes precedence.
+   * @default false
+   */
   isError?: boolean
-  /** Size applied to all radio items. Can be overridden per item. */
+  /**
+   * Size applied to all radio items. Can be overridden per item.
+   * @default 'md'
+   */
   size?: RadioVariants['size']
 }
 
@@ -77,9 +84,17 @@ RadioGroup.displayName = 'RadioGroup'
 export interface RadioProps
   extends Omit<ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Item>, 'size'>,
     RadioVariants {
-  /** Displays the radio in an error state. Inherited from RadioGroup if not set. */
+  /**
+   * Size of the radio button. Inherited from the parent `RadioGroup` if not set.
+   * @default 'md'
+   */
+  size?: RadioVariants['size']
+  /**
+   * Displays the radio in an error state. Inherited from the parent `RadioGroup` if not set.
+   * @default false
+   */
   isError?: boolean
-  /** Label text displayed next to the radio. Automatically associates via id. */
+  /** Label text displayed next to the radio. Automatically associates via `htmlFor`. */
   label?: ReactNode
 }
 

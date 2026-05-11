@@ -10,10 +10,24 @@ export type IconName = keyof typeof icons
 export interface InputProps
   extends Omit<InputHTMLAttributes<HTMLInputElement>, 'size'>,
     InputVariants {
+  /**
+   * Size of the input.
+   * @default 'md'
+   */
+  size?: InputVariants['size']
+  /**
+   * Displays the input in an error state with error border and ring.
+   * When used inside a `<Field>`, the field's error state takes precedence.
+   * @default false
+   */
   isError?: boolean
+  /** Text displayed before the input. Takes priority over `iconLeft`. */
   textLeft?: string
+  /** Text displayed after the input. Takes priority over `iconRight`. */
   textRight?: string
+  /** Lucide icon name rendered before the input. Ignored when `textLeft` is set. */
   iconLeft?: IconName
+  /** Lucide icon name rendered after the input. Ignored when `textRight` is set. */
   iconRight?: IconName
 }
 

@@ -5,21 +5,31 @@ import { cn } from '../../../lib/utils'
 export interface FieldSetProps {
   /** Legend text for the fieldset. Omit for layout-only grouping. */
   legend?: ReactNode
-  /** Description text displayed below the legend */
+  /** Description text displayed below the legend. */
   description?: ReactNode
-  /** Error message to display (group-level) */
+  /** Group-level error message displayed below the children. Setting this also implies `isError`. */
   error?: string
-  /** Explicitly set error state. If not provided, derived from error prop */
+  /** Explicitly set error state. If not provided, derived from `error` prop presence. */
   isError?: boolean
-  /** Disable all child fields */
+  /**
+   * Disable all child fields. Uses native `<fieldset disabled>` behavior, so all descendant
+   * form controls are disabled.
+   * @default false
+   */
   disabled?: boolean
-  /** Flex direction for children layout */
+  /**
+   * Flex direction for children layout.
+   * @default 'column'
+   */
   direction?: 'row' | 'column'
-  /** Enable flex wrap for children */
+  /**
+   * Enable flex wrap for children. Useful with `direction="row"` for responsive layouts.
+   * @default false
+   */
   wrap?: boolean
-  /** FieldSet content (Field elements) */
+  /** FieldSet content — typically `Field` elements (or nested `FieldSet`s). */
   children: ReactNode
-  /** Additional CSS classes */
+  /** Additional CSS classes applied to the outer `<fieldset>`. */
   className?: string
 }
 

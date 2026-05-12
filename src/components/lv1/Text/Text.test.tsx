@@ -1,0 +1,126 @@
+import { render, screen } from '@testing-library/react'
+import { describe, expect, it } from 'vitest'
+import { Text } from './Text'
+
+describe('Text', () => {
+  it('renders children as text', () => {
+    render(<Text>Hello</Text>)
+    expect(screen.getByText('Hello')).toBeInTheDocument()
+  })
+
+  describe('default element', () => {
+    it('renders <p> for variant="body" by default', () => {
+      const { container } = render(<Text>Body</Text>)
+      expect(container.firstElementChild?.tagName.toLowerCase()).toBe('p')
+    })
+
+    it('renders <p> for variant="heading" by default (caller must pass `as`)', () => {
+      const { container } = render(<Text variant="heading">Title</Text>)
+      expect(container.firstElementChild?.tagName.toLowerCase()).toBe('p')
+    })
+
+    it('renders <label> for variant="label" by default', () => {
+      const { container } = render(<Text variant="label">Field</Text>)
+      expect(container.firstElementChild?.tagName.toLowerCase()).toBe('label')
+    })
+  })
+
+  describe('as prop', () => {
+    it.each([
+      'h1',
+      'h2',
+      'h3',
+      'h4',
+      'h5',
+      'h6',
+      'span',
+      'p',
+    ] as const)('renders an <%s> element when as="%s"', (tag) => {
+      const { container } = render(
+        <Text variant="heading" as={tag}>
+          Heading
+        </Text>,
+      )
+      expect(container.firstElementChild?.tagName.toLowerCase()).toBe(tag)
+    })
+  })
+
+  describe('asChild', () => {
+    it('delegates rendering to child via Slot when asChild is true', () => {
+      render(
+        <Text asChild>
+          <a href="/foo">Link</a>
+        </Text>,
+      )
+      const link = screen.getByRole('link', { name: 'Link' })
+      expect(link.tagName.toLowerCase()).toBe('a')
+      expect(link).toHaveAttribute('href', '/foo')
+    })
+
+    it('merges Text classes onto the child element', () => {
+      render(
+        <Text asChild color="error">
+          <a href="/foo">Link</a>
+        </Text>,
+      )
+      const link = screen.getByRole('link')
+      expect(link).toHaveClass('text-error')
+    })
+  })
+
+  describe('color', () => {
+    it('applies semantic color classes', () => {
+      const { container, rerender } = render(<Text color="error">x</Text>)
+      const getEl = () => container.firstElementChild as HTMLElement
+      expect(getEl()).toHaveClass('text-error')
+
+      rerender(<Text color="success">x</Text>)
+      expect(getEl()).toHaveClass('text-success')
+
+      rerender(<Text color="muted">x</Text>)
+      expect(getEl()).toHaveClass('text-foreground-muted')
+
+      rerender(<Text color="inherit">x</Text>)
+      expect(getEl()).toHaveClass('text-inherit')
+    })
+  })
+
+  describe('align', () => {
+    it('applies alignment classes', () => {
+      const { container, rerender } = render(<Text align="center">x</Text>)
+      const getEl = () => container.firstElementChild as HTMLElement
+      expect(getEl()).toHaveClass('text-center')
+
+      rerender(<Text align="right">x</Text>)
+      expect(getEl()).toHaveClass('text-right')
+    })
+  })
+
+  describe('truncate', () => {
+    it('applies truncate class when truncate is true', () => {
+      const { container } = render(<Text truncate>long</Text>)
+      expect(container.firstElementChild).toHaveClass('truncate')
+    })
+
+    it('does not apply truncate class by default', () => {
+      const { container } = render(<Text>short</Text>)
+      expect(container.firstElementChild).not.toHaveClass('truncate')
+    })
+  })
+
+  it('forwards className', () => {
+    const { container } = render(<Text className="custom-class">x</Text>)
+    expect(container.firstElementChild).toHaveClass('custom-class')
+  })
+
+  it('forwards arbitrary HTML attributes', () => {
+    const { container } = render(
+      <Text data-testid="t" id="my-id">
+        x
+      </Text>,
+    )
+    const el = container.firstElementChild as HTMLElement
+    expect(el.getAttribute('data-testid')).toBe('t')
+    expect(el.id).toBe('my-id')
+  })
+})

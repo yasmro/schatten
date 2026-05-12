@@ -18,4 +18,8 @@ if (typeof Element !== 'undefined') {
   if (!Element.prototype.releasePointerCapture) {
     Element.prototype.releasePointerCapture = () => {}
   }
+  // Radix Select calls scrollIntoView on the active item when opening.
+  if (!Element.prototype.scrollIntoView) {
+    Element.prototype.scrollIntoView = () => {}
+  }
 }

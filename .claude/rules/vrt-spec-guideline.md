@@ -102,6 +102,41 @@ await page.addStyleTag({
 })
 ```
 
+## Components rendered into a Portal
+
+Components like `Tooltip`, `Dialog`, and `Toast` use Radix Portals — their
+content renders into `document.body`, **outside** `#storybook-root`. A normal
+`expect(root).toHaveScreenshot()` would miss the portaled content entirely.
+
+There are three strategies, in order of preference:
+
+1. **Pin open state + screenshot the full page** (recommended for `Tooltip`,
+   `Dialog`, `Toast`). Add a story that forces the open state (`open` /
+   `defaultOpen` / fired-on-mount), then:
+   ```typescript
+   await expect(page).toHaveScreenshot(`${story}-${theme}.png`, { fullPage: true })
+   ```
+   Hover/focus-driven components (e.g. Tooltip) need a dedicated story with
+   `<Tooltip open>` — there is no reliable way to simulate hover in a way that
+   matches both Playwright's screenshot timing and the browser's animation
+   cycle. Using controlled `open` is preferred over `defaultOpen` because it
+   is unaffected by stray pointer events during page load.
+
+2. **Pass `container={'#storybook-root'}` to the Portal** (only if the
+   component exposes a `container` prop AND the portal's positioning logic
+   works inside an arbitrary scroll/overflow container). Schatten's Tooltip
+   exposes `container`, but most positioning math assumes `body` as the
+   reference — verify visually before going this route.
+
+3. **Click a trigger inside the story to open the portal** (used by Dialog
+   today). Less ideal because it splits "the story" across Storybook and the
+   spec file, but unavoidable when an open-by-default state breaks the docs
+   page (e.g. ten dialogs stacking).
+
+In all three cases, **pause animations** with the `addStyleTag` snippet from
+the "Handling Animations" section before taking the screenshot — Tooltip,
+Dialog, and Toast all animate on enter/exit.
+
 ## Story Selection
 
 Only include stories that represent distinct visual states:

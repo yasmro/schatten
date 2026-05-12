@@ -154,3 +154,78 @@ export const RichContent: Story = {
     </Tooltip>
   ),
 }
+
+/* ---------- Open-state stories (primarily for VRT) ----------
+ * Tooltip Content is hover/focus driven, which doesn't translate to a stable
+ * snapshot. These stories pin `open` so the tooltip is always rendered, both
+ * as a visual reference in docs and as a deterministic target for VRT.
+ */
+
+export const OpenAllSides: Story = {
+  name: 'Open / All Sides',
+  parameters: { layout: 'padded' },
+  render: () => (
+    <div className="grid grid-cols-2 gap-24 p-24 place-items-center">
+      <Tooltip open>
+        <TooltipTrigger>
+          <Button variant="secondary">Top</Button>
+        </TooltipTrigger>
+        <TooltipContent side="top">Tooltip on top</TooltipContent>
+      </Tooltip>
+
+      <Tooltip open>
+        <TooltipTrigger>
+          <Button variant="secondary">Right</Button>
+        </TooltipTrigger>
+        <TooltipContent side="right">Tooltip on right</TooltipContent>
+      </Tooltip>
+
+      <Tooltip open>
+        <TooltipTrigger>
+          <Button variant="secondary">Bottom</Button>
+        </TooltipTrigger>
+        <TooltipContent side="bottom">Tooltip on bottom</TooltipContent>
+      </Tooltip>
+
+      <Tooltip open>
+        <TooltipTrigger>
+          <Button variant="secondary">Left</Button>
+        </TooltipTrigger>
+        <TooltipContent side="left">Tooltip on left</TooltipContent>
+      </Tooltip>
+    </div>
+  ),
+}
+
+export const OpenLongContent: Story = {
+  name: 'Open / Long Content',
+  render: () => (
+    <Tooltip open>
+      <TooltipTrigger>
+        <Button variant="secondary">Hover me</Button>
+      </TooltipTrigger>
+      <TooltipContent side="bottom" className="max-w-xs">
+        This is a longer tooltip that wraps onto multiple lines so the layout and `max-w-*`
+        constraints stay covered by visual regression tests.
+      </TooltipContent>
+    </Tooltip>
+  ),
+}
+
+export const OpenRichContent: Story = {
+  name: 'Open / Rich Content',
+  render: () => (
+    <Tooltip open>
+      <TooltipTrigger>
+        <Button variant="secondary">Hover for details</Button>
+      </TooltipTrigger>
+      <TooltipContent side="bottom" className="max-w-xs">
+        <p className="font-bold">Keyboard Shortcut</p>
+        <p className="opacity-80">
+          Press <kbd className="px-1 bg-background/20 rounded">Ctrl</kbd> +{' '}
+          <kbd className="px-1 bg-background/20 rounded">S</kbd> to save
+        </p>
+      </TooltipContent>
+    </Tooltip>
+  ),
+}

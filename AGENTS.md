@@ -61,7 +61,7 @@ pnpm changeset         # Create a changeset for user-facing changes
 - **Do not** add a new `lv1` / `lv2` component without **Storybook story + Vitest test + VRT spec** alongside it. Follow the Storybook conventions (Playground story first, group by prop) and place the VRT spec at `ComponentName.vrt.spec.ts` next to the component.
 - **Do not** create individual stories for every prop value (`Default`, `Secondary`, `Outline` as separate exports). Group them into render stories (`AllVariants`, `Sizes`, `Disabled`, …). See [storybook-guideline](.claude/rules/storybook-guideline.md).
 - **Do not** write Storybook `description`, `argTypes`, button labels, etc. in Japanese — Storybook surfaces use **English only**.
-- **Do not** ship user-facing changes without a changeset entry. Run `pnpm changeset` and pick the appropriate semver bump.
+- **Do not** ship user-facing changes without a changeset entry. Run `pnpm changeset` and pick the appropriate semver bump. CI enforces this via `changeset status --since=origin/main`. For internal-only PRs (`.github/` workflow changes, docs, test-only additions), apply the `no-changeset` label to skip the check; dependabot PRs are auto-skipped.
 
 ## Resource Map
 

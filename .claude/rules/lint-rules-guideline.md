@@ -76,10 +76,11 @@ into its users' browsers.
 
 `console.warn` and `console.error` are explicitly allowed because we use them
 to surface *misuses of a component* back to developers — e.g.
-[Button.tsx:102](../../src/components/lv1/Button/Button.tsx#L102) warns when
-`isLoading` is combined with `asChild` (an unsupported combination), and
-[Dialog.tsx:241](../../src/components/lv1/Dialog/Dialog.tsx#L241) warns when
-required props are missing. That's a feature, not noise.
+[Button](../../src/components/lv1/Button/Button.tsx) warns when `isLoading`
+is combined with `asChild` (an unsupported combination), and
+[Dialog](../../src/components/lv1/Dialog/Dialog.tsx) warns when
+`actionButton.onClick` is undefined (a footgun — clicking the action button
+becomes a silent no-op). That's a feature, not noise.
 
 ## Rules deliberately **not** added
 

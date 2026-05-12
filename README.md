@@ -122,6 +122,18 @@ This package uses [Changesets](https://github.com/changesets/changesets). When i
 pnpm changeset
 ```
 
+CI runs `changeset status --since=origin/main` on every PR and fails when source
+changes ship without a changeset. The check is automatically skipped for:
+
+- PRs authored by `dependabot[bot]`
+- PRs labeled **`no-changeset`** — use this for `.github/` workflow changes,
+  docs-only edits, test-only PRs, and other internal work that does not affect
+  the published package
+
+If the check fails and the PR is genuinely user-facing, run `pnpm changeset` and
+commit the generated file. If the PR is internal, apply the `no-changeset`
+label and re-run the job.
+
 ## License
 
 MIT

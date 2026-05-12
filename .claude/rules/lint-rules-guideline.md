@@ -27,9 +27,7 @@ ref or a setter from `useState` that's stable by contract), add an inline
 `// biome-ignore lint/correctness/useExhaustiveDependencies: <reason>` rather
 than silencing the rule globally.
 
-### `correctness/noUnusedImports` — `error`
-
-### `correctness/noUnusedVariables` — `error`
+### `correctness/noUnusedImports` / `noUnusedVariables` — `error`
 
 **Why:** Dead imports/variables accumulate fast in a component library where
 prop types, variant tuples, and Radix primitives are constantly being
@@ -40,9 +38,7 @@ strictly downside — bigger bundles, noisier diffs, harder PR reviews.
 to prefix intentional unused names with `_` (e.g. `_event`) — Biome treats
 that prefix as "intentionally unused" and skips the rule.
 
-### `style/useImportType` — `error`
-
-### `style/useExportType` — `error`
+### `style/useImportType` / `useExportType` — `error`
 
 **Why:** TypeScript erases type-only imports at compile time, but only when
 the import is explicitly marked `import type` (or per-symbol `import { type X }`).

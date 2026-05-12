@@ -24,7 +24,6 @@ describe('Spinner', () => {
   describe('type', () => {
     it('renders the default (spinning circle) SVG by default', () => {
       const { container } = render(<Spinner data-testid="s" />)
-      // The default spinner uses `animate-spin` on its <svg>.
       const svg = container.querySelector('svg')
       expect(svg).toBeInTheDocument()
       expect(svg?.classList.contains('animate-spin')).toBe(true)

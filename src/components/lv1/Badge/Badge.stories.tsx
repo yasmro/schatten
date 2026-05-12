@@ -56,7 +56,7 @@ const meta: Meta<typeof Badge> = {
       },
     },
     icon: {
-      description: 'Lucide icon name in PascalCase (e.g. "Check", "AlertCircle").',
+      description: 'Lucide icon name in PascalCase (e.g. "Check", "CircleAlert").',
       control: 'text',
       table: {
         type: { summary: 'IconName' },
@@ -225,7 +225,7 @@ export const Icons: Story = {
       <Badge variant="success" icon="Check">
         Success
       </Badge>
-      <Badge variant="error" icon="AlertCircle">
+      <Badge variant="error" icon="CircleAlert">
         Error
       </Badge>
       <Badge variant="default" treatment="subtle" icon="Clock">

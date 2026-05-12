@@ -34,7 +34,6 @@ const meta: Meta<typeof TooltipContent> = {
       },
     },
     container: { table: { disable: true } },
-    hideArrow: { table: { disable: true } },
     asChild: { table: { disable: true } },
   },
 }

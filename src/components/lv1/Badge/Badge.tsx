@@ -25,7 +25,7 @@ export interface BadgeProps extends HTMLAttributes<HTMLDivElement>, BadgeVariant
    * @default 'md'
    */
   size?: BadgeVariants['size']
-  /** Lucide icon name in PascalCase (e.g. `"Check"`, `"AlertCircle"`). */
+  /** Lucide icon name in PascalCase (e.g. `"Check"`, `"CircleAlert"`). */
   icon?: IconName
   /**
    * Position of the icon relative to the label text.

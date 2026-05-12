@@ -2,10 +2,10 @@ import { expect, test } from '@playwright/test'
 
 const STORY_ID_PREFIX = 'components-lv1-tooltip'
 
-// Tooltip stories that pin `open` (see Tooltip.stories.tsx → "Open / *").
+// Tooltip stories that pin `open` (see Tooltip.stories.tsx — Sides / LongContent / RichContent).
 // Tooltip Content portals out of `#storybook-root` into `document.body`, so
 // these tests screenshot the full page rather than the root locator.
-const stories = ['open-all-sides', 'open-long-content', 'open-rich-content'] as const
+const stories = ['sides', 'long-content', 'rich-content'] as const
 
 const themes = ['light', 'dark'] as const
 

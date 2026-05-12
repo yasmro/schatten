@@ -57,32 +57,39 @@ export const Playground: Story = {
   ),
 }
 
+/**
+ * Sides demonstrates all four placement options. `open` is pinned so the
+ * popover is visible without hovering — both as a static visual reference
+ * and as a deterministic VRT target. Use the Playground story to test
+ * hover / focus behavior interactively.
+ */
 export const Sides: Story = {
   name: 'Sides',
+  parameters: { layout: 'padded' },
   render: () => (
-    <div className="flex gap-8">
-      <Tooltip>
+    <div className="grid grid-cols-2 gap-24 p-24 place-items-center">
+      <Tooltip open>
         <TooltipTrigger>
           <Button variant="secondary">Top</Button>
         </TooltipTrigger>
         <TooltipContent side="top">Tooltip on top</TooltipContent>
       </Tooltip>
 
-      <Tooltip>
+      <Tooltip open>
         <TooltipTrigger>
           <Button variant="secondary">Right</Button>
         </TooltipTrigger>
         <TooltipContent side="right">Tooltip on right</TooltipContent>
       </Tooltip>
 
-      <Tooltip>
+      <Tooltip open>
         <TooltipTrigger>
           <Button variant="secondary">Bottom</Button>
         </TooltipTrigger>
         <TooltipContent side="bottom">Tooltip on bottom</TooltipContent>
       </Tooltip>
 
-      <Tooltip>
+      <Tooltip open>
         <TooltipTrigger>
           <Button variant="secondary">Left</Button>
         </TooltipTrigger>
@@ -137,68 +144,8 @@ export const WithDisabledButton: Story = {
   ),
 }
 
-export const RichContent: Story = {
-  name: 'Rich Content',
-  render: () => (
-    <Tooltip>
-      <TooltipTrigger>
-        <Button variant="secondary">Hover for details</Button>
-      </TooltipTrigger>
-      <TooltipContent className="max-w-xs">
-        <p className="font-bold">Keyboard Shortcut</p>
-        <p className="opacity-80">
-          Press <kbd className="px-1 bg-background/20 rounded">Ctrl</kbd> +{' '}
-          <kbd className="px-1 bg-background/20 rounded">S</kbd> to save
-        </p>
-      </TooltipContent>
-    </Tooltip>
-  ),
-}
-
-/* ---------- Open-state stories (primarily for VRT) ----------
- * Tooltip Content is hover/focus driven, which doesn't translate to a stable
- * snapshot. These stories pin `open` so the tooltip is always rendered, both
- * as a visual reference in docs and as a deterministic target for VRT.
- */
-
-export const OpenAllSides: Story = {
-  name: 'Open / All Sides',
-  parameters: { layout: 'padded' },
-  render: () => (
-    <div className="grid grid-cols-2 gap-24 p-24 place-items-center">
-      <Tooltip open>
-        <TooltipTrigger>
-          <Button variant="secondary">Top</Button>
-        </TooltipTrigger>
-        <TooltipContent side="top">Tooltip on top</TooltipContent>
-      </Tooltip>
-
-      <Tooltip open>
-        <TooltipTrigger>
-          <Button variant="secondary">Right</Button>
-        </TooltipTrigger>
-        <TooltipContent side="right">Tooltip on right</TooltipContent>
-      </Tooltip>
-
-      <Tooltip open>
-        <TooltipTrigger>
-          <Button variant="secondary">Bottom</Button>
-        </TooltipTrigger>
-        <TooltipContent side="bottom">Tooltip on bottom</TooltipContent>
-      </Tooltip>
-
-      <Tooltip open>
-        <TooltipTrigger>
-          <Button variant="secondary">Left</Button>
-        </TooltipTrigger>
-        <TooltipContent side="left">Tooltip on left</TooltipContent>
-      </Tooltip>
-    </div>
-  ),
-}
-
-export const OpenLongContent: Story = {
-  name: 'Open / Long Content',
+export const LongContent: Story = {
+  name: 'Long Content',
   render: () => (
     <Tooltip open>
       <TooltipTrigger>
@@ -212,8 +159,8 @@ export const OpenLongContent: Story = {
   ),
 }
 
-export const OpenRichContent: Story = {
-  name: 'Open / Rich Content',
+export const RichContent: Story = {
+  name: 'Rich Content',
   render: () => (
     <Tooltip open>
       <TooltipTrigger>

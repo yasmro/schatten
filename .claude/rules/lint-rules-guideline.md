@@ -86,6 +86,17 @@ becomes a silent no-op). That's a feature, not noise.
 - **Custom rule banning primitive color classes (`bg-red-*`, …)** — planned
   for v0.8.0. The convention is enforced today via [state-token-guideline](state-token-guideline.md)
   and code review; a Biome custom rule will make it mechanical.
+- **Custom rule enforcing the component API contract** — planned for v0.8.0
+  alongside the primitive-color rule above. [component-api-conventions](component-api-conventions.md)
+  defines two patterns (Role-based for `Button`; Tone × Shape for
+  `Badge` / `Callout` / `Toast`) and a per-component variant matrix, but
+  today the contract is only enforced via TS unions and code review —
+  nothing stops a Pattern A component from sprouting an `appearance` prop,
+  or a matrix-violating CVA variant from slipping in. A Biome custom rule
+  would mechanize the check (e.g. reject `appearance` on `Button`'s
+  variant definition, reject CVA `variants.variant` keys outside the
+  matrix). Until then, the contract document plus reviewer attention is
+  the line of defense.
 
 ## When adding a new rule
 

@@ -146,9 +146,11 @@ For these components:
   uniquely identifies it without needing a testid.
 
 - **Toast is imperative.** The `toast({...})` API does not accept JSX, so
-  there is no direct `data-testid` hook on individual toasts. E2E tests should
-  query via role (`role="status"` for non-error variants, `role="alert"` for
-  error) plus accessible name.
+  there is no direct `data-testid` hook on individual toasts. Radix renders
+  every toast with `role="status"` (regardless of variant — the variant only
+  shifts `aria-live` between `assertive` and `polite`), so E2E tests should
+  query by role + accessible name, e.g.
+  `page.getByRole('status', { name: 'Saved successfully' })`.
 
 If you find a component that *should* be testid-addressable but currently
 isn't, file an issue rather than hacking around it.

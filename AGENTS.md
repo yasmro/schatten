@@ -34,6 +34,8 @@ src/
 
 Before adding or modifying components, read the guideline files under [`.claude/rules/`](.claude/rules):
 
+- [`component-architecture.md`](.claude/rules/component-architecture.md) — lv1 vs lv2 folder responsibilities, compound vs flat, `asChild` default-off for new lv1s + hard exclusions on form inputs / portal content (complements `component-api-conventions.md` §`asChild`; `buttonVariants` / `textVariants` are the preferred alternative), polymorphic `as` not adopted, unified `FieldContext` consumption, one-way dependency direction (lv1 → lv2 forbidden, no barrel laundering), when an lv1-local `.css` file is allowed.
+- [`component-api-conventions.md`](.claude/rules/component-api-conventions.md) — Public prop API shape: two patterns (**Role-based** for action components like `Button`; **Tone × Shape** for state components like `Badge` / `Callout` / `Toast`), per-component matrix, common props (`size` / `isError` / `isLoading` / `disabled` / `readOnly`), and `asChild` adoption criteria.
 - [`storybook-guideline.md`](.claude/rules/storybook-guideline.md) — Story structure (`Playground` story first, group by prop), `argTypes`, English-only labels.
 - [`state-token-guideline.md`](.claude/rules/state-token-guideline.md) — 3-layer token system, state semantic tokens (`error` / `success` / `warning` / `info` / `destructive`) and the 4-token shape (`base` / `hover` / `foreground` / `subtle`).
 - [`spacing-conventions.md`](.claude/rules/spacing-conventions.md) — Canonical `gap` / `padding` / `margin` scale, half-scale exception for library internals, no Stack/HStack rationale.
@@ -71,6 +73,8 @@ pnpm changeset         # Create a changeset for user-facing changes
 |---|---|
 | [CLAUDE.md](CLAUDE.md) | Claude Code-specific tech stack and rule index. |
 | [README.md](README.md) | Public-facing overview, installation, and usage. |
+| [.claude/rules/component-architecture.md](.claude/rules/component-architecture.md) | Component-level design choices — lv1 / lv2 folders, compound vs flat, `asChild` default-off for new lv1s + hard exclusions, unified context consumption, one-way dependency direction, lv1-local `.css` criteria. |
+| [.claude/rules/component-api-conventions.md](.claude/rules/component-api-conventions.md) | Public prop API shape — Role-based (Button) vs Tone × Shape (Badge/Callout/Toast) patterns, common props, `asChild` criteria. |
 | [.claude/rules/storybook-guideline.md](.claude/rules/storybook-guideline.md) | Storybook conventions — Playground story, `argTypes`, grouping. |
 | [.claude/rules/state-token-guideline.md](.claude/rules/state-token-guideline.md) | 3-layer token system, 4-token shape, `destructive` vs `error`. |
 | [.claude/rules/spacing-conventions.md](.claude/rules/spacing-conventions.md) | Canonical spacing scale, half-scale exception for library internals. |

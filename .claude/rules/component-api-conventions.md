@@ -1,0 +1,280 @@
+# Component API Conventions
+
+## Overview
+
+This document is the **source of truth** for the public prop API shape of every
+`lv1` / `lv2` component. It locks down naming, types, and the matrix of valid
+values per component, so that:
+
+- AI coding assistants do not invent variants that don't exist
+  (`<Button variant="success">` is not a thing; `<Badge variant="primary">` is
+  not a thing either — each component subscribes to one of two patterns
+  described below).
+- Components stay predictable: once a developer learns the vocabulary in one
+  component, the same vocabulary applies to every component in its pattern.
+- Breaking changes are intentional and one-shot, not slow drift.
+
+The implementation work that brings every component into compliance is tracked
+in [#108](https://github.com/yasmro/schatten/issues/108) (v0.7.0). The scope
+of that work is mostly the **state-component rename** (`treatment` →
+`appearance`, `default` → `neutral` / `accent`); `Button` requires no
+significant change.
+
+## Two patterns
+
+The Schatten variant system has **two distinct patterns**, and every
+component picks exactly one. Mixing them in a single component is forbidden.
+
+| Pattern | Used by | Shape | Rationale |
+|---|---|---|---|
+| **A. Role-based (single-axis)** | Action components — `Button`. | `variant` only. Each value names a complete role (color × shape baked together). | Action components have a small, well-known set of UX roles ("primary", "destructive", "link"). Decomposing them into color × shape produces nonsense combinations (`destructive + link`?) and worsens ergonomics for the common case. shadcn/ui — the project base — also keeps Button single-axis. |
+| **B. Tone × Shape (two-axis)** | State / notification components — `Badge`, `Callout`, `Toast`. | `variant` (tone) × `appearance` (shape). Each axis is meaningful in isolation. | Components that signal *state* genuinely need both axes: an "error filled Toast" and an "error soft Callout" both exist, with the same meaning but different visual weight. Naming each pair (e.g. `error-filled`, `error-soft`) would explode the vocabulary. |
+
+**How to choose a pattern when designing a new component.** Ask:
+"Do I want a user to dial color independently of visual weight?"
+
+- **No** — the component has a few UX roles each with their own look. → Pattern A.
+- **Yes** — the same color can appear at multiple weights, and the same weight at multiple colors. → Pattern B.
+
+Form components (`Input`, `Textarea`, `Select`, `Checkbox`, `Radio`, `Switch`)
+sit outside both patterns: they have no `variant` at all (always neutral),
+and error state is communicated via the `isError` boolean. `Text` is also
+out-of-pattern — it re-uses `variant` for typography role (`body | label |
+heading`), the **only** approved deviation from these conventions.
+
+## Pattern A — Role-based (single-axis)
+
+For action components, `variant` is a single enum where each value names a
+**role** — i.e. a (color × shape) preset that a UX role-name like "primary"
+or "destructive" already implies.
+
+### Button vocabulary
+
+| `variant` | Role | Visual |
+|---|---|---|
+| `primary` *(default)* | Main CTA. | Brand-accent filled. |
+| `secondary` | Secondary action. | Neutral outlined. |
+| `tertiary` | Low-priority action. | Neutral ghost (no border, transparent bg). |
+| `destructive` | Destructive intent (delete, remove). | `destructive-*` filled. |
+| `inverted` | Ghost button intended for placement on a saturated surface (e.g. solid `Toast`, banner). | Transparent bg + inverted foreground; hover tints with `current/10`. |
+| `link` | Inline text-link styling. | Underline, no padding. |
+
+Rationale notes:
+- **`destructive` stays distinct from `error`.** Even though both ultimately
+  reference vermillion, `destructive` is an *action's intent*, `error` is
+  a *state*. Keeping them as separate names lets us retune them
+  independently. See [state-token-guideline](state-token-guideline.md#destructive-vs-error).
+- **No `success` / `warning` / `info` variants on Button.** Buttons are
+  actions, not state surfaces. State communication belongs on Badge,
+  Callout, Toast.
+- **No `appearance` prop.** Pattern A doesn't expose `appearance`. If you
+  want an outlined-accent button, that's a UX decision that belongs in
+  the role vocabulary — propose a new role (`primary-outline`?) via
+  issue, don't sneak in a second axis.
+
+### When to add a new role
+
+If a real, recurring UX use case doesn't fit the table above, add a new
+role entry rather than reaching for a `appearance` workaround. The roster
+should stay small (target ≤ 8 roles) — if it bloats, that's a sign the
+component should split into two.
+
+## Pattern B — Tone × Shape (two-axis)
+
+For state / notification components, two orthogonal props:
+
+- `variant` → **tone** (what does this mean?)
+- `appearance` → **shape / weight** (how strongly is it presented?)
+
+### Tone vocabulary (`variant`)
+
+| Value | Meaning | Token family |
+|---|---|---|
+| `neutral` *(default)* | No semantic meaning. The "this is just a chip / banner / toast" baseline. | `foreground` / `border-strong` / `surface-hover` |
+| `accent` | Brand accent — highlighted, "look here" without state semantics. | `solid` (brand-accent role token) |
+| `success` | Positive state (completed, saved). | `success-*` |
+| `error` | Error state (form invalid, request failed). | `error-*` |
+| `warning` | Caution state. | `warning-*` |
+| `info` | Informational state. | `info-*` |
+
+Tone vocabulary does **not** include `destructive` — Pattern B components
+are not actions, so destructive intent doesn't apply.
+
+### Shape vocabulary (`appearance`)
+
+| Value | Description |
+|---|---|
+| `filled` | Saturated background fill + `*-foreground` text. High visual weight. |
+| `outlined` | Transparent background + colored border. Medium weight. |
+| `soft` *(default for state surfaces)* | Subtle tinted background (`*-subtle`) + tone-colored text. Low weight. |
+
+Names map to existing tokens via the 4-token shape — `filled` uses `base +
+foreground`, `soft` uses `subtle + base`, `outlined` uses `base` for border
+and text. Never hard-code primitive colors; consume semantic tokens. See
+[state-token-guideline](state-token-guideline.md).
+
+Pattern B intentionally **does not** include `ghost` or `link` in the
+`appearance` vocabulary — those belong to Pattern A (action) and don't make
+sense for chips/banners.
+
+## Per-component matrix
+
+The authoritative table of which pattern (and which subset of values) each
+component uses.
+
+| Component | Pattern | Supported `variant` | Supported `appearance` | Notes |
+|---|---|---|---|---|
+| `Button` | A | `primary` · `secondary` · `tertiary` · `destructive` · `inverted` · `link` | — | No `appearance` prop. See Pattern A vocabulary. |
+| `Badge` | B | `neutral` · `accent` · `success` · `error` · `warning` · `info` | `filled` · `outlined` · `soft` | All three shapes meaningful (chip, ring, soft fill). |
+| `Callout` | B | `neutral` · `accent` · `success` · `error` · `warning` · `info` | `filled` · `soft` | No `outlined` — Callouts need a tinted surface to convey state. |
+| `Toast` | B | `neutral` · `accent` · `success` · `error` · `warning` · `info` | `filled` · `soft` | Same shape subset as `Callout`. |
+| `Spinner` | — | (none — single neutral color) | — | Inherits color from the nearest `text-*` ancestor via `currentColor`. The legacy `variant: 'inverted'` will be removed; callers wanting an "on saturated surface" spinner should style the *parent* with `text-*-foreground`. |
+| `Input` · `Textarea` · `Select` · `Checkbox` · `Radio` · `Switch` | — | (none — always neutral) | — | Error state via the `isError` prop, not `variant`. |
+| `Text` | (exception) | re-used for typography role: `body` \| `label` \| `heading` | — | Typography is structural, not chrome — color lives on a separate `color` prop. The **only** approved re-use of the `variant` prop name with different semantics. |
+| `Tooltip` · `Dialog` · `Separator` · `Field` · `FieldSet` | — | n/a — no color variants by design | — | Tooltip/Dialog are surfaces; Separator/Field/FieldSet are layout. |
+
+If a new component doesn't fit any pattern, **stop and discuss first** —
+either it really wants Pattern A (add to the table) or it's signaling that
+the component should be decomposed into smaller primitives.
+
+## Removed legacy variants
+
+These names appeared in pre-v0.7.0 components and will be removed by
+[#108](https://github.com/yasmro/schatten/issues/108). They must not be
+reintroduced.
+
+| Legacy | Replacement | Notes |
+|---|---|---|
+| `Badge/Callout/Toast variant="default"` *(soft / outlined cases)* | `variant="neutral"` | Rename only. |
+| `Badge/Callout/Toast variant="default" treatment="solid"` *(filled case)* | `variant="accent" appearance="filled"` | The legacy `default + solid` used the brand-accent `bg-solid` token, so the filled case migrates to `accent`, **not** `neutral`. Going forward `neutral + filled` is a gray-ish surface and `accent + filled` is the brand color. |
+| `Badge/Callout/Toast treatment="solid"` | `appearance="filled"` | Rename across the shape axis. |
+| `Badge/Callout/Toast treatment="subtle"` | `appearance="soft"` | |
+| `Badge treatment="outline"` | `appearance="outlined"` | |
+| `treatment` (prop name) | `appearance` | Across the board. |
+| `Spinner variant="inverted"` | (removed) | Style the parent with `text-{state}-foreground` (or any `text-*` utility); Spinner inherits via `currentColor`. |
+
+`Button`'s vocabulary (`primary` / `secondary` / `tertiary` / `destructive` /
+`inverted` / `link`) is **kept as-is**. That was the original intent of
+single-axis Pattern A: the existing role names are already correct, so
+#108's Button scope shrinks to "remove ad-hoc `appearance` mentions in
+TSDoc / stories" (none to remove today).
+
+## Common props (across all components)
+
+These prop names and types are reserved and must not be reused with
+different semantics in any component.
+
+| Prop | Type | Semantics | Where it applies |
+|---|---|---|---|
+| `variant` | union — vocabulary depends on the component's pattern | Pattern A: role. Pattern B: tone. | Components that have a variant axis. |
+| `appearance` | union (see Pattern B shape vocabulary) | Visual weight / shape. | **Pattern B components only.** Never on Pattern A. |
+| `size` | `'sm' \| 'md' \| 'lg'` | Sizing. Always these three; never `xs` / `xl` on chrome (typography has its own scale). Default `'md'`. | Universal where applicable. |
+| `isError` | `boolean` | Form-state error indication. | Form components only — `Input`, `Textarea`, `Select`, `Checkbox`, `Radio`, `Switch`, `RadioGroup`. |
+| `isLoading` | `boolean` | Async action in flight; component disables itself and shows a spinner. | Action components — `Button`. `Dialog` exposes the same semantics nested as `actionButton.isLoading` / `subActionButton.isLoading`. |
+| `disabled` | `boolean` | HTML standard. No `is` prefix. | All interactive components. |
+| `readOnly` | `boolean` | HTML standard. No `is` prefix. | Form components that can be displayed without editing. |
+| `required` | `boolean` | HTML standard. No `is` prefix. | Form components inside a `<Field>`. |
+| `id` | `string` | HTML standard. When inside `<Field>`, the field's `id` wins for label-association components (`Input` / `Textarea` / `Select`) — see [field-context-guideline](field-context-guideline.md). |
+| `asChild` | `boolean` | Delegates rendering to the child via Radix `Slot`. **Adoption criteria below.** | Only components that satisfy the criteria. |
+
+### Boolean prop naming
+
+- **`is*` prefix** for schatten-specific state booleans: `isError`,
+  `isLoading`. These describe a component state we own, where adding the
+  prefix makes the flag read clearly as state (`error?: boolean` vs
+  `isError?: boolean`).
+- **No prefix** for HTML-native attributes: `disabled`, `readOnly`,
+  `required`, `checked`, `open`. Matching the HTML name lets developers
+  and AI tools rely on prior knowledge.
+
+If a new boolean prop is needed and doesn't map to an HTML attribute,
+prefer the `is*` form unless the unprefixed name is unambiguous and
+idiomatic in React (e.g. `multiline`, not `isMultiline`).
+
+## `asChild` adoption criteria
+
+`asChild` (Radix `Slot`) lets a component delegate its rendering to its
+child, merging props onto the child element. It is powerful but introduces
+an invisible API contract: every consumer needs to remember which props
+are *forwarded* and which are *consumed* by the wrapper.
+
+Adopt `asChild` **only** when the component satisfies all three:
+
+1. **There is a real reason to render as a different element.** The most
+   common case is a `<Button>` that should actually be a Next.js `<Link>`
+   or an `<a>` for accessibility / SEO — the *behavior* is button-like
+   but the *element* must be an anchor. Without this need, `asChild` is
+   just ceremony.
+2. **The component's internal state does not break when the element
+   changes.** A component that injects a `<Spinner>` overlay or renders
+   multiple children internally (icon + label + spinner) **must**
+   disable `asChild` features that don't compose — see how
+   [`Button.tsx`](../../src/components/lv1/Button/Button.tsx) ignores
+   `isLoading` when `asChild` is true and emits a `console.warn` to tell
+   the developer.
+3. **The component is a leaf-ish primitive.** `asChild` on structural /
+   container components (a Field, a Dialog body) tends to break layout
+   assumptions. Keep it on small primitives (`Button`,
+   `Tooltip.Trigger`, `Dialog.Trigger`).
+
+Components that currently expose `asChild`: `Button`, `Tooltip.Trigger`,
+`Dialog.Trigger`, `Dialog.Close`, `Select.Trigger`, `Text`.
+
+**Do not** add `asChild` to: `Input`, `Textarea`, `Checkbox`, `Radio`,
+`Switch`, `Badge`, `Callout`, `Toast` — none of them need to render as
+a non-default element, and Radix Slot composition with form-control
+internals is a footgun.
+
+## TSDoc on Props
+
+Every public prop on the `Props` interface MUST carry a TSDoc comment
+(`/** ... */`). TSDoc is the source of truth — Storybook
+`argTypes.description` mirrors it. For full guidance see
+[storybook-guideline](storybook-guideline.md#tsdoc-on-props-source-of-truth).
+
+For `variant` (both patterns) and `appearance` (Pattern B), list each
+option's purpose with a bullet list inside the TSDoc, and add `@default`
+matching the CVA `defaultVariants` value.
+
+## Defaults
+
+| Prop | Default |
+|---|---|
+| `variant` (Pattern A — Button) | `'primary'`. |
+| `variant` (Pattern B — Badge/Callout/Toast) | `'neutral'`. |
+| `appearance` (Pattern B) | `'soft'` for state surfaces (Callout, Toast). `Badge` also defaults to `'soft'` (current behavior). |
+| `size` | `'md'`. |
+| `isError`, `isLoading`, `disabled`, `readOnly`, `required` | `false`. |
+
+Defaults are encoded in the CVA `defaultVariants` for visual props, and
+in the destructuring default of the React component for booleans. Keep
+the two in sync — when you change the CVA default, update the
+component's destructuring default in the same commit.
+
+## When adding a new component
+
+1. **Pick a pattern first.** Run the "does color move independently of
+   weight?" test from the *Two patterns* section. Document the decision
+   in the component's TSDoc header.
+2. **Look up vocabularies, don't invent.** For Pattern A: re-use existing
+   roles where possible (`primary` / `secondary` / …). For Pattern B:
+   use the canonical tone (`neutral` / `accent` / `success` / `error` /
+   `warning` / `info`) and shape (`filled` / `outlined` / `soft`)
+   vocabularies. **Subsetting is encouraged; extending requires
+   discussion.**
+3. **Reuse existing tokens.** Never reach for primitive scales — go
+   through semantic tokens (`bg-error`, `text-error-foreground`, …). See
+   [state-token-guideline](state-token-guideline.md).
+4. **Reuse existing common-prop names.** `size` is `'sm' | 'md' | 'lg'`,
+   not `'small' | 'medium' | 'large'`. Boolean error is `isError`, not
+   `error`.
+5. **Write the Props interface with TSDoc first.** Storybook `argTypes`,
+   tests, and stories all hang off the same prop names — getting them
+   right the first time saves churn.
+6. **Add stories per the [storybook-guideline](storybook-guideline.md).**
+   Always include a `Playground` story; group the rest by prop axis
+   (`AllVariants` for Pattern A; `Variants`, `Appearances`, `Combinations`
+   for Pattern B).
+7. **If the new component genuinely needs vocabulary not in this
+   document** (e.g. a `pulse` shape for an animated badge), update this
+   document in the same PR. Don't introduce dialect.

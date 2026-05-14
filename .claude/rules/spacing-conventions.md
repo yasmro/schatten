@@ -18,8 +18,8 @@ The rule applies differently depending on **who is writing the class**:
 
 | Surface | Examples | Half-scale (`*-1.5`, `*-2.5`, …) | Off-scale (`*-5`, `*-7`, `*-9`, `*-11`) | Arbitrary (`*-[10px]`) |
 |---|---|---|---|---|
-| **Consumer** — app code using Schatten | `<div className="flex gap-3 p-4">…</div>` in a downstream app | ❌ | ❌ | ❌ |
-| **Implementer** — Schatten library code | [`src/variants/*.ts`](../../src/variants), `src/components/lv1/**/*.tsx` JSX | ✅ allowed for visual fine-tuning, VRT-verified | ❌ (avoid; migrate when possible) | ❌ |
+| **Consumer** — app code using Schatten | `<div className="flex gap-3 p-4">…</div>` in a downstream app | No | No | No |
+| **Implementer** — Schatten library code | [`src/variants/*.ts`](../../src/variants), `src/components/lv1/**/*.tsx` JSX | OK for visual fine-tuning, VRT-verified | No (avoid; migrate when possible) | No |
 
 The consumer-facing scale below is the bar Schatten asks downstream apps to
 hold. Library internals get an ergonomic escape hatch (half-scale) because

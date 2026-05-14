@@ -24,7 +24,7 @@ PR をセルフレビューし、デザインシステムとして堅牢かチ�
 - [ ] `.claude/rules/component-architecture.md` に準拠しているか
   - lv1 / lv2 の配置が責務分離に沿っているか
   - compound vs flat の選択が妥当か (Radix wrap → compound, 自前 → flat, 自前合成は lv2)
-  - **新規に `asChild` prop が追加されていないか** (lv1 では不採用、`buttonVariants` / `textVariants` を使う代替パターンへ)
+  - **新規に `asChild` prop が追加されていないか** (新規 lv1 は default-off。`buttonVariants` / `textVariants` で代替。form input / portal content には何があっても採用不可。既存採用済みコンポーネントの判定は `component-api-conventions.md` §`asChild` を参照)
   - 依存方向が一方向か (`lv1 → lv2` 禁止、`barrel 経由` 禁止、新規 `lib/` utility は 2 consumer 必要)
   - 新規ファイルとして `.css` が増えていないか — 増えている場合は Tailwind/CVA で表現困難な理由があるか
 - [ ] Context 連携パターンに従っているか (`.claude/rules/field-context-guideline.md` 参照)

@@ -81,57 +81,64 @@ anywhere in the app, no JSX-tree placement required) and is the rule rather
 than the exception for notification-type primitives. Any new component that
 demands an imperative API should justify the divergence in its PR description.
 
-## 3. `asChild` is NOT adopted on new components
+## 3. `asChild` — no new lv1 additions
 
-Schatten lv1 components **do not add new `asChild` props**. Two existing
-props (`Button.asChild`, `Text.asChild`) are legacy from the original shadcn
-copy and are tracked for removal — see "Existing legacy" below.
+The authoritative list of components that **currently** expose `asChild`,
+together with the three adoption criteria they satisfy, lives in
+[component-api-conventions.md §`asChild` adoption criteria](component-api-conventions.md).
+This section adds two further constraints on top of that rule.
 
-### Why
+### Default: do not add `asChild` to a new lv1
 
-- `asChild` weakens type safety. `<Component asChild><a>` makes it
-  consumer-implicit which of `Component`'s props forward sensibly to `<a>`,
-  and which fail silently.
-- A cleaner alternative exists for the most common case: **export the CVA
-  variants function** ([`buttonVariants`](../../src/variants/button.ts),
-  [`textVariants`](../../src/variants/text.ts) — already exported from
-  `@yasmro/schatten/variants` today) and let consumers apply it directly to
-  their own element:
+When designing a new lv1 component, ship it **without** an `asChild` prop.
+The variants-function pattern (below) covers the most common case, and
+adding `asChild` later is non-breaking — adding it eagerly and removing
+it later is breaking. Bias toward the smaller surface.
 
-  ```tsx
-  // before — fragile asChild
-  <Button asChild><a href="/docs">Docs</a></Button>
+### Prefer the variants-function pattern
 
-  // after — explicit, fully typed
-  <a href="/docs" className={buttonVariants({ variant: 'primary' })}>Docs</a>
-  ```
+For "render as a different element" needs, the design system already
+exports the CVA variants functions — [`buttonVariants`](../../src/variants/button.ts) and
+[`textVariants`](../../src/variants/text.ts) from
+`@yasmro/schatten/variants`. Consumers apply them directly to their own
+element:
 
-- Form inputs (`Input`, `Textarea`, `Select`, `Checkbox`, `Switch`, `Radio`)
-  aren't polymorphic at the HTML platform level — `<input>` cannot become
-  `<textarea>`.
-- Portal-rendered parts (`Dialog` content, `Toast`) have positioning math
-  tied to a known DOM shape; letting consumers swap that out breaks layout
-  in subtle ways.
+```tsx
+// styled link without asChild
+<a href="/docs" className={buttonVariants({ variant: 'primary' })}>Docs</a>
+<NextLink href="/docs" className={textVariants({ variant: 'body', size: 'md' })}>Docs</NextLink>
+```
+
+This pattern:
+
+- keeps the consumer's element fully typed (their `<a>` / `<NextLink>`
+  retains its native prop signature)
+- avoids the prop-forwarding ambiguity that `asChild` introduces
+- works equally well for framework Link components (Next, React Router,
+  Remix), which already accept `className` directly
+
+### Hard exclusions, even if #192's 3 criteria seem to fit
+
+Two categories of component must **never** expose `asChild`, regardless
+of how cleanly the 3 criteria appear to apply:
+
+- **Form inputs** (`Input`, `Textarea`, `Select` trigger, `Checkbox`,
+  `Switch`, `Radio`) — HTML form elements aren't polymorphic at the
+  platform level (`<input>` cannot become `<textarea>`).
+- **Portal-rendered content** (`Dialog` content, `Toast`) — positioning
+  math is tied to a known DOM shape; swapping the element out breaks
+  layout in subtle ways. (`DialogTrigger` / `DialogClose` /
+  `TooltipTrigger` etc. are *not* portal content — they live in the
+  consumer's tree and may continue to expose `asChild` per #192.)
 
 ### Radix-internal `asChild` is unaffected
 
-Inside a component's implementation, `<DialogPrimitive.Close asChild>` and
-similar internal `asChild` usages are fine — the rule is about what we
-**expose on the Schatten public API**. The `TooltipTrigger` pattern (omit
-`asChild` from the public type via `Omit<…, 'asChild'>` and decide
-internally based on `isTextOnly`) is the template for any future Trigger-style
-component.
-
-### Existing legacy
-
-- [`Button.asChild`](../../src/components/lv1/Button/Button.tsx) — predates
-  this rule; combining with `isLoading` already triggers a runtime warning
-  (a footgun symptom).
-- [`Text.asChild`](../../src/components/lv1/Text/Text.tsx) — predates this
-  rule; `<Link className={textVariants(...)}>` covers the same need.
-
-Removal is tracked in [#193](https://github.com/yasmro/schatten/issues/193).
-**Do not add new `asChild` props to other lv1 components** in the meantime.
+Inside a component's implementation, `<DialogPrimitive.Close asChild>`
+and similar internal `asChild` usages are fine — the rules here are
+about the **public Schatten API surface**. The `TooltipTrigger` pattern
+(omit `asChild` from the public type via `Omit<…, 'asChild'>` and decide
+internally based on `isTextOnly`) is the template for any future
+Trigger-style component that wants to hide the prop from consumers.
 
 ## 4. Polymorphic `as` prop — NOT adopted (with one carved exception)
 
@@ -283,10 +290,11 @@ it.
 
 - **§1 (lv2 promotion criterion):** will be defined as a follow-up rule
   when the first lv2 lands (~v0.9.0).
-- **§3 (`asChild` legacy removal):** tracked in
-  [#193](https://github.com/yasmro/schatten/issues/193). When
-  `Button.asChild` / `Text.asChild` are removed, delete the "Existing
-  legacy" subsection.
+- **§3 (`asChild`):** the authoritative adoption list lives in
+  [component-api-conventions.md](component-api-conventions.md). Keep
+  this file's §3 narrowed to the *additional* constraints
+  ("no new additions by default" + hard exclusions for form inputs /
+  portal content). If those constraints change, update both files.
 - **§4 (polymorphic):** if shadcn / Radix conventions shift toward
   polymorphic APIs post-1.0, revisit the carved exception first.
 - **§6 (dependency direction):** if lv0 (foundation tokens-as-components)

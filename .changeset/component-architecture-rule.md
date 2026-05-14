@@ -2,9 +2,11 @@
 '@yasmro/schatten': patch
 ---
 
-docs(rule): add `.claude/rules/component-architecture.md` (lv1/lv2 folders, compound vs flat, `asChild` not adopted, polymorphic `as` not adopted, unified context consumption, one-way dependency direction, lv1-local `.css` allowlist)
+docs(rule): add `.claude/rules/component-architecture.md` (lv1/lv2 folders, compound vs flat, `asChild` no-new-additions default, polymorphic `as` not adopted, unified context consumption, one-way dependency direction, lv1-local `.css` allowlist)
 
-Codifies the component-level design choices that have been implicit until now:
+Codifies the component-level design choices that have been implicit until now.
+Complements [`component-api-conventions.md`](.claude/rules/component-api-conventions.md)
+(added in #192, which holds the authoritative public prop API shape).
 
 - **lv1 vs lv2 folders**: lv1 is single-responsibility primitives, lv2 is
   composition. The promotion criterion ("when does a recurring composition
@@ -15,12 +17,13 @@ Codifies the component-level design choices that have been implicit until now:
   self-built primitives ship as flat. Self-built composition belongs in lv2,
   not in a compound lv1. `Toast`'s imperative API is called out as the
   notification-class special case.
-- **`asChild` is not adopted on new lv1s**. The replacement is **exporting
-  the CVA variants function** (e.g. `buttonVariants` / `textVariants`,
-  already exported today from `@yasmro/schatten/variants`) and letting
-  consumers apply it directly to their own element. The two existing
-  `asChild` props (`Button.asChild`, `Text.asChild`) are flagged as legacy;
-  removal is tracked in a separate issue.
+- **`asChild` — no new lv1 additions by default**. Cross-references
+  `component-api-conventions.md` for the authoritative adoption list and
+  the 3 criteria. Adds two further constraints on top: form inputs and
+  portal content must never expose `asChild`, regardless of how the 3
+  criteria appear to fit. The variants-function pattern (`buttonVariants` /
+  `textVariants` from `@yasmro/schatten/variants`) is documented as the
+  preferred alternative for "render as a different element" needs.
 - **Polymorphic `as` prop is not adopted** as a general pattern. Carved
   exception: `Text` exposes a fixed enumeration
   `as?: 'p' | 'span' | 'h1'…'h6'` — the union is closed, the attribute
@@ -45,5 +48,4 @@ Codifies the component-level design choices that have been implicit until now:
 The rule is referenced from CLAUDE.md / AGENTS.md and the `review-pr`
 command checklist.
 
-No public API or component behaviour changes in this PR. The `asChild`
-removal is breaking-change work scheduled separately.
+No public API or component behaviour changes.

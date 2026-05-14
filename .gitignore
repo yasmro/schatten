@@ -32,3 +32,7 @@ playwright-report/
 .env
 .env.*
 .npmrc
+
+# Local-only Claude Code state (user-specific slash commands, worktrees)
+.claude/commands/release.md
+.claude/worktrees/

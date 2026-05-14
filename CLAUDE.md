@@ -28,6 +28,7 @@ When adding or modifying components, follow shadcn/ui conventions (Radix UI + CV
 
 ## Guidelines
 
+- See [.claude/rules/component-api-conventions.md](.claude/rules/component-api-conventions.md) for the public prop API shape (`variant` / `appearance` / `size` / `isError` / `isLoading` / `asChild`) and the per-component variant matrix
 - See [.claude/rules/storybook-guideline.md](.claude/rules/storybook-guideline.md) for Storybook conventions
 - See [.claude/rules/field-context-guideline.md](.claude/rules/field-context-guideline.md) for Field context integration patterns
 - See [.claude/rules/state-token-guideline.md](.claude/rules/state-token-guideline.md) for state semantic tokens (error / success / warning / info / destructive) and the 4-token shape

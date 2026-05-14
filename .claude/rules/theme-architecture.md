@@ -74,12 +74,20 @@ A few tokens are pinned by intent and **must not** be moved by either axis:
 
 ## Cascade
 
-When tokens collide, the later declaration wins. CSS specificity is
-identical for `:root`, `:root[data-season=...]`, and `:root[data-event=...]`
-(a single attribute selector matches the same `<html>` element), so source
-order in the stylesheet is what actually decides.
+Two mechanisms decide which declaration wins: **CSS specificity** and
+**source order** (later wins on a tie). The model leans on both:
 
-The intended order, from earliest (lowest priority) to latest (highest):
+- `:root[data-season=...]` and `:root[data-event=...]` each combine a
+  pseudo-class with an attribute selector → specificity `(0,2,0)`.
+- `:root` alone → `(0,1,0)`. `.dark` (or any single class) → `(0,1,0)`.
+- Therefore **any single-attribute Special selector beats both `:root`
+  and `.dark`** on specificity alone. Specials win over Mode by the
+  cascade rules, not by load order luck.
+- Between Specials of different categories (e.g. `[data-season]` vs
+  `[data-event]`), specificity is identical → **source order decides**.
+
+The intended source order, from earliest (lowest priority) to latest
+(highest):
 
 ```
 1.  primitives.css                       — raw OKLCH scales
@@ -94,21 +102,33 @@ The intended order, from earliest (lowest priority) to latest (highest):
 Effective precedence at runtime:
 
 ```
-Special (last loaded wins)  >  Mode  >  base semantic
+Special (specificity beats Mode; ties broken by load order)
+  >  Mode (.dark beats :root by load order)
+  >  base semantic
 ```
 
-**Why last-wins for Special and not specificity-based?** Stacking Specials
-with progressively more specific selectors (`[data-season][data-event]`,
-…) would couple the cascade to combinatorial selector engineering. Keeping
-specificity flat and relying on **load order + allowlist** is simpler,
+**Why flat specificity between Specials, not stacked selectors?** Stacking
+Specials with progressively more specific selectors
+(`[data-season][data-event]`, …) would couple the cascade to combinatorial
+selector engineering. Keeping every Special's selector at the same
+specificity tier and relying on **load order + allowlist** is simpler,
 cheaper to debug, and survives a thousand Specials without selector
 explosion.
 
-**Mode override and the `.dark` class.** `.dark` lives on `<html>` and has
-the same specificity as `[data-season=...]` — the dark override in
-`semantic.css` is loaded *before* any Special CSS in the import order, so
-Specials win for the tokens they own and Mode wins for everything else.
-This is the intended behaviour.
+**Specials are Mode-agnostic by default.** A `:root[data-season=...]` rule
+applies the same values in light *and* dark — the existing seasonal
+palettes are designed to be Mode-neutral hues that sit atop whatever
+surface/foreground Mode is currently active. If a future Special needs
+*different* shades in dark mode, it must declare both selectors:
+
+```css
+:root[data-season="winter-deep"]  { --color-primary-500: oklch(...); }
+.dark[data-season="winter-deep"]  { --color-primary-500: oklch(...); }
+```
+
+The latter has specificity `(0,3,0)` and beats both `.dark` alone and the
+plain Special selector, giving a deterministic dark-mode-specific value
+without disturbing the light-mode case.
 
 ## Allowlist mechanism (design — implementation in v0.7.0)
 

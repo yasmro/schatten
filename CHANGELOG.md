@@ -1,5 +1,142 @@
 # @yasmro/schatten
 
+## 0.5.0
+
+### Minor Changes
+
+- [#172](https://github.com/yasmro/schatten/pull/172) [`19bcdda`](https://github.com/yasmro/schatten/commit/19bcddaa28f2583d312617d7de1048d610b7cb4a) Thanks [@yasmro](https://github.com/yasmro)! - Add TSDoc on `Props` interfaces for every lv1 component, so IDE hover and
+  AI coding assistants (Copilot, Cursor, v0, Claude Code, …) surface the same
+  descriptions that Storybook's Docs tab does.
+
+  Each prop now carries a `/** ... */` comment with a `@default` tag and, for
+  enum props (`variant` / `size` / `treatment`), a bullet list of per-option
+  purposes. Inherited HTML standard props (`onClick`, `className`, …) are
+  intentionally left undocumented.
+
+  **Convention** (now codified in `.claude/rules/storybook-guideline.md`):
+  TSDoc on the Props interface is the **source of truth** for prop docs.
+  `argTypes.description` is a secondary surface that mirrors TSDoc for
+  Storybook's Docs tab. When the two disagree, TSDoc wins.
+
+  Affected components (all 17 lv1):
+  Badge, Button, Callout, Checkbox, Dialog, Field, FieldSet, Input, Radio
+  (+ RadioGroup), Select (SelectTrigger / SelectContent), Separator, Spinner,
+  Switch, Text, Textarea, Toast (ToastInput / ToastAction) + Toaster, Tooltip
+  (TooltipContent).
+
+- [#171](https://github.com/yasmro/schatten/pull/171) [`1ca9c6b`](https://github.com/yasmro/schatten/commit/1ca9c6be05ef70dd0c088d8fc4799d51ca97a942) Thanks [@yasmro](https://github.com/yasmro)! - feat(tokens): export TS-typed design tokens via `@yasmro/schatten/tokens`
+
+  Adds `src/tokens.ts` that re-exports all semantic CSS custom properties as a hierarchical `as const` object, plus `*Token` literal-union types per category (color, spacing, radius, shadow, transition, zIndex, font, fontSize, lineHeight, fontWeight, letterSpacing). CSS remains the single source of truth — this is a thin pointer layer so AI / IDE completion can surface the available tokens.
+
+  Prefer Tailwind utilities for everyday styling; reach for `tokens` only for inline style or CSS-in-JS.
+
+  ```ts
+  import { tokens } from "@yasmro/schatten/tokens";
+
+  <div
+    style={{ background: tokens.color.errorSubtle, color: tokens.color.error }}
+  />;
+  ```
+
+### Patch Changes
+
+- [#177](https://github.com/yasmro/schatten/pull/177) [`025e98e`](https://github.com/yasmro/schatten/commit/025e98e5d104a3e25af90eee4d004547677d7eb4) Thanks [@yasmro](https://github.com/yasmro)! - chore(lint): strengthen Biome rules on top of `recommended`
+
+  [biome.json](biome.json) previously enabled only `recommended: true`. That
+  left a few classes of bug uncaught — stale `useEffect` deps, unused imports
+  left over from refactors, value-imports for type-only symbols, stray
+  `console.log` shipped to consumers. None of those are caught by
+  `recommended`, but all are mechanical to enforce.
+
+  The internal codebase already followed these conventions, so enabling the
+  rules produced **zero violations**.
+
+  Rules added (see [.claude/rules/lint-rules-guideline.md](.claude/rules/lint-rules-guideline.md)
+  for the rationale on each):
+
+  - `correctness/useExhaustiveDependencies` — `error`
+  - `correctness/noUnusedImports` — `error`
+  - `correctness/noUnusedVariables` — `error`
+  - `style/useImportType` — `error`
+  - `style/useExportType` — `error`
+  - `style/noNonNullAssertion` — `warn`
+  - `suspicious/noConsole` — `error` with `allow: ["warn", "error"]` (the two
+    variants the library uses to flag developer misuse — e.g. Button's
+    `isLoading + asChild` warning)
+
+  Also aligned the `$schema` URL to the installed Biome version (`2.4.14`),
+  silencing the schema-mismatch info on every `pnpm lint` run.
+
+  No public API change.
+
+- [#175](https://github.com/yasmro/schatten/pull/175) [`aa77924`](https://github.com/yasmro/schatten/commit/aa7792491de8f1e23ed2484c70a35d12916b5381) Thanks [@yasmro](https://github.com/yasmro)! - chore(types): typecheck stories and tests via a dedicated `tsconfig.test.json`
+
+  `tsconfig.json` previously excluded `**/*.stories.tsx` and `**/*.test.tsx`,
+  which meant `pnpm typecheck` skipped them and let type errors slip past CI.
+  The dist build needs that exclude (so generated `.d.ts` files don't pick up
+  story/test types), but typecheck does not — and the gap masked real bugs.
+
+  This split separates the two concerns:
+
+  - `tsconfig.json` — dist build target (still excludes stories/test), unchanged
+    for `tsup`.
+  - `tsconfig.test.json` (new) — extends `tsconfig.json` but includes stories,
+    tests, and `vitest.setup.ts` (the latter pulls in
+    `@testing-library/jest-dom/vitest` so matcher type augmentation is visible).
+  - `pnpm typecheck` now runs against `tsconfig.test.json`.
+
+  Bugs surfaced and fixed while turning typecheck back on:
+
+  - `Badge.stories.tsx` used `icon="AlertCircle"`, which is a deprecated
+    lucide-react alias that is **not** present in the `icons` object. The
+    story rendered no icon at runtime. Updated to `"CircleAlert"` and refreshed
+    the matching JSDoc / argTypes examples on `BadgeProps.icon`.
+  - `Tooltip.stories.tsx` declared an `argTypes` entry for `hideArrow`, a prop
+    that does not exist on `TooltipContentProps`. Removed the stale entry.
+
+  No public API change.
+
+- [#176](https://github.com/yasmro/schatten/pull/176) [`423e3d6`](https://github.com/yasmro/schatten/commit/423e3d63314538a2a818a6b46d3cc226510bd7b7) Thanks [@yasmro](https://github.com/yasmro)! - test: add unit tests for 8 lv1 components
+
+  Add `*.test.tsx` for the 8 lv1 components that previously only had VRT coverage:
+  Badge, Checkbox, Radio (+ RadioGroup), Select, Spinner, Switch, Text, Textarea.
+  VRT keeps the look in check; unit tests now cover the logic that VRT cannot
+  catch — props handling, `aria-*` attributes, keyboard / click events, controlled
+  vs. uncontrolled state, and `<Field>` / `<RadioGroup>` context propagation.
+
+  For Radix-backed components (Checkbox / Radio / Select / Switch), tests focus
+  on the Schatten wrapping layer (variant classes, `isError`, `disabled`, context
+  inheritance) rather than re-testing Radix internals.
+
+  Adds a `scrollIntoView` polyfill to `vitest.setup.ts` so jsdom can run Radix
+  Select tests that open the dropdown.
+
+  No public API change.
+
+- [#179](https://github.com/yasmro/schatten/pull/179) [`d7d066c`](https://github.com/yasmro/schatten/commit/d7d066c5ce862d297dae708897e984185364ef81) Thanks [@yasmro](https://github.com/yasmro)! - test(vrt): add VRT specs for Field, FieldSet, Tooltip
+
+  Three lv1 components — Field, FieldSet, Tooltip — previously had no visual
+  regression coverage, leaving token changes or Tailwind upgrades free to
+  silently break their appearance. Each now has a `*.vrt.spec.ts` plus
+  baseline snapshots in light and dark themes.
+
+  - **Field** covers `WithInput`, `WithSelect`, `WithTooltip`, `Required`,
+    `ErrorState`, and `Disabled` to lock down label / description / error /
+    required-marker positioning across the common children (Input, Select,
+    Tooltip-info-icon).
+  - **FieldSet** covers `Address`, `ErrorState`, `Disabled`, and
+    `ErrorPropagation` to lock down legend / description / nested-field
+    layout and the visual surface of context-propagated `disabled` / `isError`.
+  - **Tooltip** uses Portals into `document.body`, so VRT screenshots the full
+    page rather than `#storybook-root`. Three new `Open / *` stories
+    (`OpenAllSides`, `OpenLongContent`, `OpenRichContent`) pin `<Tooltip open>`
+    so the popover is always rendered — animations are paused before snapshot.
+
+  `.claude/rules/vrt-spec-guideline.md` gains a new "Components rendered into
+  a Portal" section documenting the three strategies (pinned `open` + full-page
+  screenshot / `container` prop / click-to-open in spec) and when to reach for
+  each.
+
 ## 0.4.0
 
 ### Minor Changes

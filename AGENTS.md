@@ -39,6 +39,7 @@ Before adding or modifying components, read the guideline files under [`.claude/
 - [`field-context-guideline.md`](.claude/rules/field-context-guideline.md) — `FieldContext` integration patterns for form components (Input / Checkbox / Switch / Radio / Select / Textarea).
 - [`vrt-spec-guideline.md`](.claude/rules/vrt-spec-guideline.md) — Playwright VRT spec template, story-id mapping, snapshot naming.
 - [`lint-rules-guideline.md`](.claude/rules/lint-rules-guideline.md) — Biome rules added on top of `recommended` (`useExhaustiveDependencies`, `noUnusedImports/Variables`, `useImportType/ExportType`, `noNonNullAssertion`, `noConsole`) and the rationale for each.
+- [`api-stability.md`](.claude/rules/api-stability.md) — Public API stability contract effective from v1.0.0: what counts as public API (React props, CSS classes, CSS variables, CVA output), breaking-change policy, and CHANGELOG prefix conventions.
 
 ## Main commands
 
@@ -75,6 +76,7 @@ pnpm changeset         # Create a changeset for user-facing changes
 | [.claude/rules/field-context-guideline.md](.claude/rules/field-context-guideline.md) | `FieldContext` patterns for form components. |
 | [.claude/rules/vrt-spec-guideline.md](.claude/rules/vrt-spec-guideline.md) | Playwright VRT spec template and snapshot naming. |
 | [.claude/rules/lint-rules-guideline.md](.claude/rules/lint-rules-guideline.md) | Biome rules added on top of `recommended` and the rationale for each. |
+| [.claude/rules/api-stability.md](.claude/rules/api-stability.md) | Public API stability contract (effective v1.0.0) — what is public, breaking-change policy, CHANGELOG conventions. |
 
 ## Maintenance
 

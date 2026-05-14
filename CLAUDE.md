@@ -33,3 +33,4 @@ When adding or modifying components, follow shadcn/ui conventions (Radix UI + CV
 - See [.claude/rules/state-token-guideline.md](.claude/rules/state-token-guideline.md) for state semantic tokens (error / success / warning / info / destructive) and the 4-token shape
 - See [.claude/rules/vrt-spec-guideline.md](.claude/rules/vrt-spec-guideline.md) for VRT spec conventions
 - See [.claude/rules/lint-rules-guideline.md](.claude/rules/lint-rules-guideline.md) for the Biome rules added on top of `recommended` and the rationale for each
+- See [.claude/rules/api-stability.md](.claude/rules/api-stability.md) for the public API stability contract (effective from v1.0.0) — what counts as public API across React props, CSS classes, CSS variables, and CVA output, and the breaking-change policy

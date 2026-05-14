@@ -36,6 +36,7 @@ Before adding or modifying components, read the guideline files under [`.claude/
 
 - [`storybook-guideline.md`](.claude/rules/storybook-guideline.md) — Story structure (`Playground` story first, group by prop), `argTypes`, English-only labels.
 - [`state-token-guideline.md`](.claude/rules/state-token-guideline.md) — 3-layer token system, state semantic tokens (`error` / `success` / `warning` / `info` / `destructive`) and the 4-token shape (`base` / `hover` / `foreground` / `subtle`).
+- [`spacing-conventions.md`](.claude/rules/spacing-conventions.md) — Canonical `gap` / `padding` / `margin` scale, half-scale exception for library internals, no Stack/HStack rationale.
 - [`field-context-guideline.md`](.claude/rules/field-context-guideline.md) — `FieldContext` integration patterns for form components (Input / Checkbox / Switch / Radio / Select / Textarea).
 - [`vrt-spec-guideline.md`](.claude/rules/vrt-spec-guideline.md) — Playwright VRT spec template, story-id mapping, snapshot naming.
 - [`lint-rules-guideline.md`](.claude/rules/lint-rules-guideline.md) — Biome rules added on top of `recommended` (`useExhaustiveDependencies`, `noUnusedImports/Variables`, `useImportType/ExportType`, `noNonNullAssertion`, `noConsole`) and the rationale for each.
@@ -72,6 +73,7 @@ pnpm changeset         # Create a changeset for user-facing changes
 | [README.md](README.md) | Public-facing overview, installation, and usage. |
 | [.claude/rules/storybook-guideline.md](.claude/rules/storybook-guideline.md) | Storybook conventions — Playground story, `argTypes`, grouping. |
 | [.claude/rules/state-token-guideline.md](.claude/rules/state-token-guideline.md) | 3-layer token system, 4-token shape, `destructive` vs `error`. |
+| [.claude/rules/spacing-conventions.md](.claude/rules/spacing-conventions.md) | Canonical spacing scale, half-scale exception for library internals. |
 | [.claude/rules/field-context-guideline.md](.claude/rules/field-context-guideline.md) | `FieldContext` patterns for form components. |
 | [.claude/rules/vrt-spec-guideline.md](.claude/rules/vrt-spec-guideline.md) | Playwright VRT spec template and snapshot naming. |
 | [.claude/rules/lint-rules-guideline.md](.claude/rules/lint-rules-guideline.md) | Biome rules added on top of `recommended` and the rationale for each. |

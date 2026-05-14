@@ -34,7 +34,7 @@ src/
 
 Before adding or modifying components, read the guideline files under [`.claude/rules/`](.claude/rules):
 
-- [`component-api-conventions.md`](.claude/rules/component-api-conventions.md) — Public prop API shape: the two-axis `variant` (color tone) × `appearance` (shape) model, common props (`size` / `isError` / `isLoading` / `disabled` / `readOnly`), per-component variant matrix, and `asChild` adoption criteria.
+- [`component-api-conventions.md`](.claude/rules/component-api-conventions.md) — Public prop API shape: two patterns (**Role-based** for action components like `Button`; **Tone × Shape** for state components like `Badge` / `Callout` / `Toast`), per-component matrix, common props (`size` / `isError` / `isLoading` / `disabled` / `readOnly`), and `asChild` adoption criteria.
 - [`storybook-guideline.md`](.claude/rules/storybook-guideline.md) — Story structure (`Playground` story first, group by prop), `argTypes`, English-only labels.
 - [`state-token-guideline.md`](.claude/rules/state-token-guideline.md) — 3-layer token system, state semantic tokens (`error` / `success` / `warning` / `info` / `destructive`) and the 4-token shape (`base` / `hover` / `foreground` / `subtle`).
 - [`field-context-guideline.md`](.claude/rules/field-context-guideline.md) — `FieldContext` integration patterns for form components (Input / Checkbox / Switch / Radio / Select / Textarea).
@@ -71,7 +71,7 @@ pnpm changeset         # Create a changeset for user-facing changes
 |---|---|
 | [CLAUDE.md](CLAUDE.md) | Claude Code-specific tech stack and rule index. |
 | [README.md](README.md) | Public-facing overview, installation, and usage. |
-| [.claude/rules/component-api-conventions.md](.claude/rules/component-api-conventions.md) | Public prop API shape: `variant` × `appearance` matrix, common props, `asChild` criteria. |
+| [.claude/rules/component-api-conventions.md](.claude/rules/component-api-conventions.md) | Public prop API shape: Role-based (Button) vs Tone × Shape (Badge/Callout/Toast) patterns, common props, `asChild` criteria. |
 | [.claude/rules/storybook-guideline.md](.claude/rules/storybook-guideline.md) | Storybook conventions — Playground story, `argTypes`, grouping. |
 | [.claude/rules/state-token-guideline.md](.claude/rules/state-token-guideline.md) | 3-layer token system, 4-token shape, `destructive` vs `error`. |
 | [.claude/rules/field-context-guideline.md](.claude/rules/field-context-guideline.md) | `FieldContext` patterns for form components. |

@@ -16,7 +16,7 @@ stays disciplined. It complements the [state token guideline](state-token-guidel
 
 The rule applies differently depending on **who is writing the class**:
 
-| Surface | Examples | Half-scale (`*-1.5`, `*-2.5`, …) | Off-scale (`*-5`, `*-7`, `*-9`, `*-11`) | Arbitrary (`*-[10px]`) |
+| Surface | Examples | Half-scale (`*-1.5`, `*-2.5`, …) | Off-scale (per utility — see below) | Arbitrary (`*-[10px]`) |
 |---|---|---|---|---|
 | **Consumer** — app code using Schatten | `<div className="flex gap-3 p-4">…</div>` in a downstream app | No | No | No |
 | **Implementer** — Schatten library code | [`src/variants/*.ts`](../../src/variants), `src/components/lv1/**/*.tsx` JSX | OK for visual fine-tuning, VRT-verified | No (avoid; migrate when possible) | No |
@@ -27,41 +27,75 @@ some details — vertical text centering inside a button, the gap between a
 small icon and an `xs`-sized label — genuinely don't snap to the integer
 scale at typical font sizes.
 
+Note: the three spacing utilities (`gap`, `p`, `m`) have **different
+scales** because they answer different layout questions. See each section.
+
 ## Consumer-facing scale
 
-### Inner — `gap-*`, `p-*` (within a component / card / section)
+### `gap-*` — between siblings in flex / grid
 
 | Class | px | Typical use |
 |---|---|---|
-| `*-1` | 4px | tight icon adjacency, badge interior |
-| `*-2` | 8px | inline form controls, tight grid |
-| `*-3` | 12px | default inline spacing, form rows |
-| `*-4` | 16px | default block spacing inside a card |
-| `*-6` | 24px | section interior padding |
-| `*-8` | 32px | generous card padding |
+| `gap-1` | 4px | tight icon adjacency, badge interior |
+| `gap-2` | 8px | inline form controls, tight grid |
+| `gap-3` | 12px | default inline spacing, form rows |
+| `gap-4` | 16px | default block spacing inside a card |
+| `gap-6` | 24px | section interior spacing |
+| `gap-8` | 32px | generous separation between groups |
 
-### Outer — `m-*` (between components / between sections)
+`gap-5` / `gap-7` / `gap-9` / `gap-11` are intentionally excluded. The
+between-sibling rhythm doesn't tune to anything physical the way padding
+tunes to control height — reaching for `gap-5` almost always means the
+visual hierarchy needs adjustment (heading size, group, divider) rather
+than a one-step bump.
+
+### `p-*` — interior padding
 
 | Class | px | Typical use |
 |---|---|---|
-| `*-4` | 16px | sibling block spacing |
-| `*-6` | 24px | sibling section spacing |
-| `*-8` | 32px | major block separators |
-| `*-12` | 48px | top-level section gaps |
-| `*-16` | 64px | hero / page-level gaps |
+| `p-1` | 4px | tight badge interior |
+| `p-2` | 8px | `h-6` controls, tag-style buttons |
+| `p-3` | 12px | `h-8` controls (Input/Button `sm`) |
+| `p-4` | 16px | default block padding inside a card |
+| `p-5` | 20px | `h-10` controls (Input/Button `md`) |
+| `p-6` | 24px | section interior padding |
+| `p-7` | 28px | `h-12` controls (Input/Button `lg`) |
+| `p-8` | 32px | generous card padding |
 
-`5` is intentionally excluded — `4` or `6` is almost always the right choice;
-reaching for `5` is a smell that the scale is being eyeballed rather than
-followed.
+Padding includes `5` and `7` because **interior padding tunes to control
+height**: the shadcn-derived `h-8 px-3 / h-10 px-5 / h-12 px-7` rhythm is a
+load-bearing aesthetic choice, not a scale leak. Values above `8` are not
+part of the consumer scale — sections that need more should compose
+multiple containers rather than reach for `p-12`.
+
+### `m-*` — between blocks / between sections
+
+| Class | px | Typical use |
+|---|---|---|
+| `m-2` | 8px | tight pairing of closely related items |
+| `m-4` | 16px | sibling block spacing |
+| `m-6` | 24px | sibling section spacing |
+| `m-8` | 32px | major block separators |
+| `m-12` | 48px | top-level section gaps |
+| `m-16` | 64px | hero / page-level gaps |
+
+`m-3` / `m-5` / `m-7` / `m-9` / `m-10` / `m-11` are excluded — the steps
+between blocks are coarse hierarchy decisions, and intermediate values
+don't add expressive resolution.
 
 ## NG patterns (consumer-facing)
 
-- **`gap-1.5`, `gap-2.5`, `gap-3.5`, `py-1.5`, …** — half-scale values.
+- **`gap-1.5`, `gap-2.5`, `py-1.5`, `mt-2.5`, …** — half-scale anywhere.
   Reserved for library internals (see below). Consumers should snap to the
   integer scale.
-- **`gap-5`, `gap-7`, `gap-9`, `gap-11`** — off-scale even though they're
-  integers. They almost always indicate "I wanted `gap-4` but it looked
-  slightly tight." Move the visual hierarchy with type or grouping instead.
+- **`gap-5`, `gap-7`, `gap-9`, `gap-11`** — off-scale for `gap` even though
+  they're integers (see `gap-*` section for the rationale). Move the visual
+  hierarchy with type or grouping instead.
+- **`p-9`, `p-10`, `p-11`, `p-12+`** — beyond the padding scale. Compose
+  containers if you need more inner room; a single block doesn't.
+- **`m-3`, `m-5`, `m-7`, `m-9`, `m-10`, `m-11`** — between integer
+  margin steps. The block-hierarchy decisions don't gain resolution from
+  these.
 - **`gap-[10px]`, `p-[14px]`, arbitrary values** — bypass the scale entirely.
   No exceptions for consumer code. If the design genuinely needs a value
   outside the scale, that's a token discussion, not a one-off override.
@@ -90,12 +124,12 @@ Constraints when you use a half-scale:
 3. **Add a one-line comment** next to the value if the intent is non-obvious
    (e.g. why `py-2.5` rather than `py-2`).
 
-Off-scale integers (`px-5`, `gap-7`, …) and arbitrary values (`p-[14px]`) are
-**not** part of the implementer exception. A handful exist in
-[`src/variants/`](../../src/variants) today (notably `px-5` carried over from
-shadcn defaults) and are tracked for migration in
+Off-scale integers (e.g. `gap-7`, `m-5`) and arbitrary values (`p-[14px]`)
+are **not** part of the implementer exception either. Note that `px-5` and
+`px-7` are **on-scale for padding** (see the `p-*` section) — these are
+not violations. The remaining audit items are tracked in
 [issue #186](https://github.com/yasmro/schatten/issues/186). Don't add new
-ones.
+off-scale values.
 
 ## Why no `Stack` / `HStack` / `VStack`
 
@@ -118,7 +152,8 @@ in Phase 5. The evaluation report § 1.3 tracks this signal.
 
 ## Future enforcement
 
-- **Biome custom rule (v0.8.0)** — mechanical enforcement of `gap-(5|7|9|11)`,
+- **Biome custom rule (v0.8.0)** — mechanical enforcement of off-scale
+  patterns per utility: `gap-(5|7|9|11)`, `p-(9|10|11)`, `m-(3|5|7|9|10|11)`,
   half-scales in JSX (excluding CVA strings), and arbitrary-value patterns.
   Tracked alongside the primitive-color custom rule mentioned in
   [lint-rules-guideline](lint-rules-guideline.md).

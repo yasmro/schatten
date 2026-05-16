@@ -90,7 +90,7 @@ For state / notification components, two orthogonal props:
 
 | Value | Meaning | Token family |
 |---|---|---|
-| `neutral` *(default)* | No semantic meaning. The "this is just a chip / banner / toast" baseline. | `foreground` / `border-strong` / `surface-hover` |
+| `neutral` *(default)* | No semantic meaning. The "this is just a chip / banner / toast" baseline. | `foreground` / `border-strong` / `surface-hover` (subtle); `foreground-muted` / `inverted-foreground` (solid) |
 | `accent` | Brand accent — highlighted, "look here" without state semantics. | `solid` (brand-accent role token) [†] |
 | `success` | Positive state (completed, saved). | `success-*` |
 | `error` | Error state (form invalid, request failed). | `error-*` |

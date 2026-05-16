@@ -88,7 +88,7 @@ const meta: Meta<typeof Callout> = {
 export default meta
 type Story = StoryObj<typeof Callout>
 
-const SOLID_VARIANTS = ['accent', 'success', 'error', 'warning', 'info'] as const
+const SOLID_VARIANTS = ['neutral', 'accent', 'success', 'error', 'warning', 'info'] as const
 const SUBTLE_VARIANTS = ['neutral', 'success', 'error', 'warning', 'info'] as const
 
 export const Playground: Story = {
@@ -259,7 +259,7 @@ export const FullMatrix: Story = {
     docs: {
       description: {
         story:
-          'Defined `variant` × `appearance` combinations. `neutral` is paired with `subtle`; `accent` with `solid`; state variants support both appearances.',
+          'Defined `variant` × `appearance` combinations. `neutral` supports both appearances; `accent` is paired with `solid` today; state variants support both.',
       },
     },
   },

@@ -19,10 +19,11 @@ import { Badge } from './Badge'
  * use `error` for "failed/invalid" tags. For destructive *actions*,
  * use `<Button variant="destructive">`.
  *
- * **Coverage note**: today `neutral` is defined for `subtle` / `outline`,
- * and `accent` only for `solid`. Other combinations (`neutral + solid`,
- * `accent + subtle`, `accent + outline`) emit no fill classes — pick a
- * state variant if you need a defined visual treatment.
+ * **Coverage note**: `neutral` supports all three appearances (subtle /
+ * solid / outline). `accent` is defined only for `solid` today
+ * ([#204](https://github.com/yasmro/schatten/issues/204) tracks the
+ * remaining `accent + subtle` / `accent + outline` definitions, blocked on
+ * [#185](https://github.com/yasmro/schatten/issues/185)).
  */
 
 const meta: Meta<typeof Badge> = {
@@ -92,7 +93,7 @@ const meta: Meta<typeof Badge> = {
 export default meta
 type Story = StoryObj<typeof Badge>
 
-const SOLID_VARIANTS = ['accent', 'success', 'error', 'warning', 'info'] as const
+const SOLID_VARIANTS = ['neutral', 'accent', 'success', 'error', 'warning', 'info'] as const
 const SUBTLE_VARIANTS = ['neutral', 'success', 'error', 'warning', 'info'] as const
 const OUTLINE_VARIANTS = ['neutral', 'success', 'error', 'warning', 'info'] as const
 
@@ -151,7 +152,7 @@ export const FullMatrix: Story = {
     docs: {
       description: {
         story:
-          'Defined `variant` × `appearance` combinations. `neutral` is paired with `subtle` / `outline`; `accent` is paired with `solid`; state variants support all three appearances.',
+          'Defined `variant` × `appearance` combinations. `neutral` supports all three appearances; `accent` is paired with `solid` today; state variants support all three.',
       },
     },
   },

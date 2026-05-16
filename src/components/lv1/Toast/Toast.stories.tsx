@@ -84,7 +84,7 @@ const meta: Meta<typeof Toaster> = {
 export default meta
 type Story = StoryObj<typeof Toaster>
 
-const SOLID_VARIANTS = ['accent', 'success', 'error', 'warning', 'info'] as const
+const SOLID_VARIANTS = ['neutral', 'accent', 'success', 'error', 'warning', 'info'] as const
 const SUBTLE_VARIANTS = ['neutral', 'success', 'error', 'warning', 'info'] as const
 const APPEARANCES = ['subtle', 'solid'] as const
 
@@ -110,9 +110,9 @@ const Playground = (args: { position?: Parameters<typeof Toaster>[0]['position']
         mounted at the bottom of this story.
       </p>
       <p className="text-xs text-foreground-muted mt-1">
-        Coverage: <code>neutral</code> defines <code>subtle</code> only; <code>accent</code> defines{' '}
-        <code>solid</code> only. State variants support both. Empty cells (·) indicate the
-        combination is not yet defined.
+        Coverage: <code>neutral</code> supports both appearances; <code>accent</code> defines{' '}
+        <code>solid</code> only today. State variants support both. Empty cells (·) indicate a
+        combination not yet defined.
       </p>
     </div>
 
@@ -333,6 +333,12 @@ export const SolidTreatments: Story = {
   render: () => (
     <AutoFireDemo
       inputs={[
+        {
+          variant: 'neutral',
+          appearance: 'solid',
+          title: 'Neutral',
+          description: 'A muted-but-emphatic notification.',
+        },
         {
           variant: 'accent',
           appearance: 'solid',

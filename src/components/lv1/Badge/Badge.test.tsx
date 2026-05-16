@@ -78,6 +78,21 @@ describe('Badge', () => {
       expect(root.className).toContain('bg-solid')
       expect(root.className).toContain('text-solid-foreground')
     })
+
+    it('applies muted fill when neutral + solid is passed (visually distinct from accent)', () => {
+      const { container } = render(
+        <Badge variant="neutral" appearance="solid">
+          Muted
+        </Badge>,
+      )
+      const root = container.firstChild as HTMLElement
+      // neutral + solid uses `--color-foreground-muted` as the surface
+      // (cool/neutral mid-gray that swaps with mode), distinct from
+      // `--color-solid` which accent uses (warm alabaster).
+      expect(root.className).toContain('bg-foreground-muted')
+      expect(root.className).toContain('text-inverted-foreground')
+      expect(root.className).not.toContain('bg-solid')
+    })
   })
 
   describe('sizes', () => {

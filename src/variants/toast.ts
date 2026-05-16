@@ -22,8 +22,14 @@ export const toastVariants = cva(
       },
     },
     compoundVariants: [
-      // neutral — non-state baseline. Solid is intentionally absent: the
-      // brand-accent `bg-solid` token is owned by `accent`.
+      // neutral — non-state baseline. `solid` uses `--color-foreground-muted`
+      // + inverted foreground for a muted-but-emphatic surface that's
+      // visually distinct from `accent + solid`'s alabaster fill.
+      {
+        variant: 'neutral',
+        appearance: 'solid',
+        class: 'bg-foreground-muted text-inverted-foreground border-transparent',
+      },
       {
         variant: 'neutral',
         appearance: 'subtle',

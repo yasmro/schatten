@@ -24,8 +24,16 @@ export const badgeVariants = cva(
       },
     },
     compoundVariants: [
-      // neutral — non-state baseline. Solid is intentionally absent: the
-      // brand-accent `bg-solid` token is owned by `accent` (see below).
+      // neutral — non-state baseline. `solid` uses `--color-foreground-muted`
+      // (a mid-tone gray that swaps with mode) + inverted foreground text,
+      // intentionally distinct from `accent + solid`'s alabaster surface so
+      // designers can place a muted-but-emphatic chip without invoking the
+      // brand accent.
+      {
+        variant: 'neutral',
+        appearance: 'solid',
+        class: 'bg-foreground-muted text-inverted-foreground border-transparent',
+      },
       {
         variant: 'neutral',
         appearance: 'subtle',

@@ -213,6 +213,64 @@ SSR frameworks already key off `<html class="...">`. Putting Mode and
 Special on the same element keeps the cascade predictable and means a
 single attribute mutation is enough to retheme the whole tree.
 
+## How `data-theme` reaches a component
+
+The mechanism is plain CSS — no React state, no context, no prop drilling.
+Three layers work together:
+
+1. **CSS custom property inheritance.** Properties declared on `:root`
+   inherit through the entire DOM tree.
+2. **`var()` resolves at use-time, not parse-time.** Mutating `data-theme`
+   re-resolves every `var()` reference further down the tree on the next
+   paint — no JavaScript work is involved.
+3. **Tailwind v4 `@theme` registration.** Component classes
+   (`bg-primary-500`, `text-primary-600`, …) compile to
+   `background-color: var(--color-primary-500)`, so they participate in
+   the same cascade.
+
+### Worked trace: `data-theme="season--spring-early"` → pink button
+
+```
+┌─ <html data-theme="season--spring-early">  ◀── 1. attribute set
+│
+│   :root[data-theme="season--spring-early"]
+│   { --color-primary-500: oklch(0.64 0.10 12); }     ◀── 2. seasonal override
+│                                                          (Specificity (0,2,0)
+│                                                           beats :root default)
+│   :root { --color-primary-500: var(--blue-500); }   ◀── 3. default, lost in cascade
+│
+└─ inherits ↓
+    └─ <body>
+        └─ <Button class="bg-primary-500">
+              │
+              ▼
+            .bg-primary-500 { background-color: var(--color-primary-500); }
+                                                     ◀── 4. var() resolved here at render
+              │
+              ▼
+            background-color: oklch(0.64 0.10 12)    ◀── pink (spring-early)
+```
+
+### Concretely, in this repo
+
+- [`src/core/tokens/primitives.css`](../../src/core/tokens/primitives.css) — `:root { --blue-500: oklch(...); }` (frozen primitives)
+- [`src/core/tokens/semantic.css`](../../src/core/tokens/semantic.css) — `:root { --color-primary-500: var(--blue-500); }` (default chain)
+- [`src/themes/seasonal/themes.css`](../../src/themes/seasonal/themes.css) — `:root[data-season="spring-early"] { --color-primary-500: oklch(...); }` (override; will become `data-theme="season--spring-early"` in v0.7.0)
+- [`src/core/tokens/base.css`](../../src/core/tokens/base.css) — `@theme { --color-primary-500: var(--color-primary-500); }` (Tailwind v4 registers the variable so `bg-primary-500` becomes a usable utility)
+- Component — `<Button className="bg-primary-500" />` → Tailwind emits `.bg-primary-500 { background-color: var(--color-primary-500); }` → browser resolves the `var()` against the cascade at paint time.
+
+### Why this is good for us
+
+- **Components stay theme-unaware.** No `useTheme()` hook, no `<ThemeProvider>` wrapping. Components reference semantic utility classes and the cascade does the rest.
+- **SSR is free.** Server emits `<html data-theme="season--spring-early">` from `getSeasonAttribute()`; the same CSS resolves on the server-rendered DOM with no hydration mismatch.
+- **Switching is instant and JS-free.** Toggling `data-theme` is one attribute write. The browser's next paint already reflects the new theme — no React re-render, no virtual DOM diff.
+- **Specificity is enough — load order doesn't matter** (for the Mode-vs-Special precedence). See [Cascade](#cascade).
+
+### Things that do NOT propagate this way
+
+- Anything baked into a primitive class name (`bg-red-500` directly written into JSX) — the primitive is frozen and ignores `data-theme`. This is exactly why the [state-token-guideline](state-token-guideline.md) bans primitive class names in components.
+- Anything resolved at build time (e.g. inline style strings computed from a JS theme object). The CSS variable approach is what makes runtime switching free; routing the value through JS would re-introduce hydration and re-render costs.
+
 ## Existing seasonal themes — current vs. new model
 
 The eight seasonal palettes in [`src/themes/seasonal/themes.css`](../../src/themes/seasonal/themes.css)

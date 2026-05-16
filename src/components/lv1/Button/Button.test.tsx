@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react'
-import { describe, expect, it } from 'vitest'
+import userEvent from '@testing-library/user-event'
+import { describe, expect, it, vi } from 'vitest'
 import { Button } from './Button'
 
 describe('Button', () => {
@@ -121,6 +122,21 @@ describe('Button', () => {
     it('does not emit aria-busy when isLoading is false', () => {
       render(<Button>Submit</Button>)
       expect(screen.getByRole('button')).not.toHaveAttribute('aria-busy')
+    })
+
+    it('does not fire onClick while loading', async () => {
+      const onClick = vi.fn()
+      const user = userEvent.setup()
+      render(
+        <Button isLoading onClick={onClick}>
+          Submit
+        </Button>,
+      )
+      await user.click(screen.getByRole('button'))
+      // Native `disabled` is still set (`disabled || isLoading`), so the
+      // browser blocks click delivery. aria-busy is purely a styling hook
+      // and does not bypass the disabled attribute.
+      expect(onClick).not.toHaveBeenCalled()
     })
   })
 })

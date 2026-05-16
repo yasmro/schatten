@@ -19,7 +19,7 @@ Layer 2: Semantic (meaning — light/dark mapping happens here)
    destructive ◀── vermillion ──▶ error
    success     ◀── green
    warning     ◀── amber
-   info        ◀── blue (independent of `primary`)
+   info        ◀── blue (independent of the theme scale)
 
 Layer 3: Components (consume semantic only)
    bg-error / text-error / border-error / ring-error / bg-error-subtle ...
@@ -58,11 +58,11 @@ no component churn.
 **Rule**: form components and notification components reference `error-*`. Action surfaces
 reference `destructive-*`.
 
-## `info` independence from `primary`
+## `info` independence from the theme scale
 
-`info` references `blue-*` directly rather than `primary-*`. Themes that retune `primary`
-(seasonal themes, custom brand themes) **must not** drift `info`'s meaning. Keep `info`
-pinned to blue.
+`info` references `blue-*` directly rather than `theme-*`. Themes that retune the
+theme scale (seasonal themes, custom brand themes) **must not** drift `info`'s
+meaning. Keep `info` pinned to blue.
 
 ## Light / dark mapping
 

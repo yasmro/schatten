@@ -61,11 +61,11 @@ export function getCurrentSeason(date: Date = new Date()): SeasonTheme {
 }
 
 /**
- * Get the data-season attribute object for SSR
+ * Get the data-theme attribute object for SSR
  * Use this in Astro/Next.js to set the attribute on <html>
  */
 export function getSeasonAttribute(date: Date = new Date()): Record<string, string> {
-  return { 'data-season': getCurrentSeason(date) }
+  return { 'data-theme': `season--${getCurrentSeason(date)}` }
 }
 
 /**
@@ -78,7 +78,7 @@ export function applySeasonTheme(date: Date = new Date()): SeasonTheme {
   }
 
   const season = getCurrentSeason(date)
-  document.documentElement.setAttribute('data-season', season)
+  document.documentElement.setAttribute('data-theme', `season--${season}`)
   return season
 }
 
@@ -87,5 +87,5 @@ export function applySeasonTheme(date: Date = new Date()): SeasonTheme {
  */
 export function removeSeasonTheme(): void {
   if (typeof document === 'undefined') return
-  document.documentElement.removeAttribute('data-season')
+  document.documentElement.removeAttribute('data-theme')
 }

@@ -83,9 +83,9 @@ const preview: Preview = {
 
         // Apply season theme
         if (season && season !== 'none') {
-          root.setAttribute('data-season', season)
+          root.setAttribute('data-theme', `season--${season}`)
         } else {
-          root.removeAttribute('data-season')
+          root.removeAttribute('data-theme')
         }
       }, [isDark, season])
 

@@ -258,6 +258,57 @@ export const Colors: Story = {
         />
       </div>
 
+      <SubsectionTitle>Non-Interactive States</SubsectionTitle>
+      <p className="text-sm text-foreground-muted mb-3">
+        Form controls that cannot be acted on (<code>disabled</code>) or are display-only (
+        <code>readOnly</code>) consume these tokens. They are not state tokens in the{' '}
+        <code>error</code>/<code>success</code>/… sense — there is no <code>hover</code> slot.
+      </p>
+      <div className="border border-border rounded-xl px-5">
+        <ColorRow
+          name="surface-disabled"
+          description="Background for disabled controls — cool, muted"
+          className="bg-surface-disabled border border-border"
+        />
+        <ColorRow
+          name="foreground-disabled"
+          description="Text/icon color for disabled controls"
+          className="bg-foreground-disabled"
+        />
+        <ColorRow
+          name="border-disabled"
+          description="Border for disabled controls"
+          className="bg-border-disabled"
+        />
+        <ColorRow
+          name="surface-readonly"
+          description="Background for readOnly controls — warm, static"
+          className="bg-surface-readonly border border-border"
+        />
+        <ColorRow
+          name="border-readonly"
+          description="Border for readOnly controls"
+          className="bg-border-readonly"
+        />
+      </div>
+
+      <SubsectionTitle>Disabled vs ReadOnly (a11y audit)</SubsectionTitle>
+      <p className="text-sm text-foreground-muted mb-3">
+        Side-by-side preview of how the two non-interactive treatments look. <code>disabled</code>{' '}
+        uses a cool muted palette to convey "not usable"; <code>readOnly</code> uses a warm subtle
+        palette to convey "value is informational, but the control is static". Verify both modes.
+      </p>
+      <div className="flex flex-col gap-2">
+        <div className="flex items-center gap-3 rounded-lg border border-border-disabled bg-surface-disabled px-4 py-3 text-foreground-disabled">
+          <span className="font-mono text-xs opacity-70">disabled</span>
+          <span className="text-sm font-medium">The quick brown fox jumps over the lazy dog</span>
+        </div>
+        <div className="flex items-center gap-3 rounded-lg border border-border-readonly bg-surface-readonly px-4 py-3 text-foreground">
+          <span className="font-mono text-xs opacity-70">readOnly</span>
+          <span className="text-sm font-medium">The quick brown fox jumps over the lazy dog</span>
+        </div>
+      </div>
+
       <SubsectionTitle>Filled Treatments (a11y audit)</SubsectionTitle>
       <p className="text-sm text-foreground-muted mb-3">
         Each row shows a state's <code>bg-X</code> with <code>text-X-foreground</code> applied — the

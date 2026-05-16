@@ -59,6 +59,7 @@ once, that's a sign you want the [external Special API](#external-special-themes
 | Borders | `--color-border`, `--color-border-strong` |
 | Focus ring | `--color-ring`, `--color-ring-offset` |
 | State remapping for dark | `--color-error*`, `--color-success*`, `--color-warning*`, `--color-info*`, `--color-destructive*` (shade shift between light and dark) |
+| Non-interactive state | `--color-surface-disabled`, `--color-foreground-disabled`, `--color-border-disabled`, `--color-surface-readonly`, `--color-border-readonly` |
 
 Rule of thumb: anything that needs to flip *shade* between light and dark
 belongs to Mode.
@@ -82,6 +83,35 @@ A few tokens are pinned by intent and **must not** be moved by either axis:
   [state-token-guideline](state-token-guideline.md#info-independence-from-the-theme-scale).
 - Primitives (`--vermillion-*`, `--green-*`, `--blue-*`, …) are theme-agnostic
   by definition and live one layer below semantics.
+
+### Specials must not override non-interactive state tokens
+
+The five `disabled` / `readOnly` tokens
+(`--color-surface-disabled`, `--color-foreground-disabled`,
+`--color-border-disabled`, `--color-surface-readonly`,
+`--color-border-readonly`) are **Mode-owned, not Special-owned**, and Specials
+must not include them in their allowlist.
+
+Why this is pinned to Mode:
+
+- **Semantics over expression.** `disabled` means "this control cannot be
+  used"; `readOnly` means "this value is informational." The meaning is
+  invariant across themes. A seasonal palette that re-tints "disabled" with
+  a brand hue would communicate the wrong thing — a disabled control
+  should *recede*, not become a brand surface.
+- **A11y stability.** Each Special × Mode permutation already needs
+  visual verification (16 combinations today, see "Dark × Special" in this
+  document). Letting Specials retune disabled/readOnly would multiply the
+  audit matrix by another factor without a corresponding UX win.
+- **Consumer expectation.** Form-control authors reading
+  `bg-surface-disabled` expect the same "muted, can't use" surface
+  regardless of which Special is active. Theme-driven drift would break
+  that contract silently.
+
+If a future product use case genuinely needs theme-aware disabled coloring
+(e.g. a brand-tinted "ghost" state), revisit this rule with a concrete
+example — do not work around it by adding the tokens to a Special
+allowlist informally.
 
 ## Cascade
 

@@ -83,6 +83,14 @@
   --color-info-foreground: var(--color-info-foreground);
   --color-info-subtle: var(--color-info-subtle);
 
+  /* Non-interactive state — disabled / readOnly */
+  --color-surface-disabled: var(--color-surface-disabled);
+  --color-foreground-disabled: var(--color-foreground-disabled);
+  --color-border-disabled: var(--color-border-disabled);
+
+  --color-surface-readonly: var(--color-surface-readonly);
+  --color-border-readonly: var(--color-border-readonly);
+
   /* ===== Primitive Scales (for theme authoring & docs) ===== */
 
   /* Sumi scale */

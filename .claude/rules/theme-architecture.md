@@ -7,13 +7,16 @@ runtime:
 
 - **Mode** — exclusive (`light` / `dark`). Owns the base layer: surfaces,
   foregrounds, borders.
-- **Special** — cumulative (`seasonal-*`, `event-*`, `custom-*`). Owns the
-  expressive layer: `primary`, `accent`, and other "characteristic" tokens.
+- **Special** — exclusive (`seasonal-*`, brand themes, customer palettes,
+  …). Owns the expressive layer: `primary`, `accent`, and other
+  "characteristic" tokens.
 
-The two axes meet at the **semantic token layer** (`src/core/tokens/semantic.css`).
-Components keep referencing the same semantic names (`bg-primary`,
-`text-foreground`, …) regardless of which Mode + Special combination is
-active — they don't need to know.
+Both axes are exclusive: exactly one Mode is active (`light` xor `dark`),
+and at most one Special is active (`data-theme="<name>"` set on `<html>`,
+or no Special at all). The two axes meet at the **semantic token layer**
+(`src/core/tokens/semantic.css`). Components keep referencing the same
+semantic names (`bg-primary`, `text-foreground`, …) regardless of which
+Mode + Special combination is active — they don't need to know.
 
 This rule documents the model itself, the cascade, the allowlist convention,
 and how the DOM is annotated. It is the **architectural counterpart** to
@@ -27,16 +30,21 @@ fits into one of these two axes and overrides only the tokens it owns".
 
 ```
 Axis 1  Mode     (exclusive)   light  |  dark
-Axis 2  Special  (cumulative)  seasonal-*  +  event-*  +  custom-*
+Axis 2  Special  (exclusive)   <none>  |  seasonal-*  |  brand-*  |  custom-*
                                each Special declares an allowlist of tokens
                                it may override
 ```
 
-**Exclusive** means exactly one Mode is active at a time (`light` xor `dark`).
-**Cumulative** means zero or more Specials can stack — a seasonal palette
-plus a co-branded event accent, for example. The cascade resolves conflicts
-deterministically (see below), but in practice well-behaved Specials don't
-fight because their allowlists don't overlap.
+A Special name lives in a **single flat namespace**. Subcategories
+(`seasonal-spring-early`, `brand-acme`, …) are just naming conventions
+inside that namespace — they don't get separate DOM attributes, separate
+cascade tiers, or separate allowlist semantics. Keeping Special exclusive
+and single-attribute is a deliberate scope choice: the previous design
+considered cumulative Specials with per-category attributes, but the
+combinatorial cost (cascade tie-breaking, allowlist intersection rules,
+multiple DOM attributes to keep in sync) was not worth it for any
+foreseeable use case. Reach for [external Specials](#external-special-themes-future)
+before reaching for "two Specials at once".
 
 ### Mode owns the base layer
 
@@ -74,17 +82,17 @@ A few tokens are pinned by intent and **must not** be moved by either axis:
 
 ## Cascade
 
-Two mechanisms decide which declaration wins: **CSS specificity** and
-**source order** (later wins on a tie). The model leans on both:
+CSS specificity decides the cascade — load order is only a tie-breaker
+within a single tier.
 
-- `:root[data-season=...]` and `:root[data-event=...]` each combine a
-  pseudo-class with an attribute selector → specificity `(0,2,0)`.
+- `:root[data-theme="<name>"]` combines a pseudo-class with an attribute
+  selector → specificity `(0,2,0)`.
 - `:root` alone → `(0,1,0)`. `.dark` (or any single class) → `(0,1,0)`.
-- Therefore **any single-attribute Special selector beats both `:root`
-  and `.dark`** on specificity alone. Specials win over Mode by the
-  cascade rules, not by load order luck.
-- Between Specials of different categories (e.g. `[data-season]` vs
-  `[data-event]`), specificity is identical → **source order decides**.
+- Therefore **the Special selector beats both `:root` and `.dark`** on
+  specificity. Specials override Mode through the cascade itself, not
+  through stylesheet ordering.
+- For Mode-specific Special values, see "Specials are Mode-agnostic by
+  default" below.
 
 The intended source order, from earliest (lowest priority) to latest
 (highest):
@@ -93,37 +101,25 @@ The intended source order, from earliest (lowest priority) to latest
 1.  primitives.css                       — raw OKLCH scales
 2.  semantic.css :root                   — base semantic tokens (light)
 3.  semantic.css .dark / @media dark     — Mode override
-4.  themes/default/colors.css            — Special: default (Mode-neutral primary)
-5.  themes/seasonal/themes.css           — Special: seasonal (data-season)
-6.  themes/event/...                     — Special: event (data-event)         [v0.7.0+]
-7.  themes/custom/...                    — Special: custom (data-theme)        [v0.7.0+]
+4.  themes/default/colors.css            — default primary (no data-theme)
+5.  themes/seasonal/themes.css           — Special palettes (data-theme)
 ```
 
 Effective precedence at runtime:
 
 ```
-Special (specificity beats Mode; ties broken by load order)
-  >  Mode (.dark beats :root by load order)
-  >  base semantic
+Special  >  Mode (.dark beats :root by load order)  >  base semantic
 ```
 
-**Why flat specificity between Specials, not stacked selectors?** Stacking
-Specials with progressively more specific selectors
-(`[data-season][data-event]`, …) would couple the cascade to combinatorial
-selector engineering. Keeping every Special's selector at the same
-specificity tier and relying on **load order + allowlist** is simpler,
-cheaper to debug, and survives a thousand Specials without selector
-explosion.
-
-**Specials are Mode-agnostic by default.** A `:root[data-season=...]` rule
+**Specials are Mode-agnostic by default.** A `:root[data-theme=...]` rule
 applies the same values in light *and* dark — the existing seasonal
 palettes are designed to be Mode-neutral hues that sit atop whatever
-surface/foreground Mode is currently active. If a future Special needs
-*different* shades in dark mode, it must declare both selectors:
+surface/foreground Mode is currently active. If a Special needs *different*
+shades in dark mode, it must declare both selectors:
 
 ```css
-:root[data-season="winter-deep"]  { --color-primary-500: oklch(...); }
-.dark[data-season="winter-deep"]  { --color-primary-500: oklch(...); }
+:root[data-theme="winter-deep"]  { --color-primary-500: oklch(...); }
+.dark[data-theme="winter-deep"]  { --color-primary-500: oklch(...); }
 ```
 
 The latter has specificity `(0,3,0)` and beats both `.dark` alone and the
@@ -132,20 +128,17 @@ without disturbing the light-mode case.
 
 ## Allowlist mechanism (design — implementation in v0.7.0)
 
-A Special theme declares *which tokens it is allowed to override*. Tokens
-outside the allowlist are owned by Mode (or by another Special). The
-allowlist is a contract — it makes the partition between axes explicit and
-testable.
+A Special declares *which tokens it is allowed to override*. Tokens
+outside the allowlist are owned by Mode. The allowlist is a contract —
+it makes the partition between axes explicit and testable.
 
 ```ts
 // Design sketch — actual API lands in v0.7.0
 export const springEarlyTheme = {
   name: 'spring-early',
-  axis: 'special',
-  category: 'seasonal',
   allowedTokens: ['--color-primary-*'],
   // Everything outside this list (foregrounds, surfaces, state colors, info)
-  // belongs to Mode or another Special.
+  // belongs to Mode.
 } as const
 ```
 
@@ -154,12 +147,9 @@ What the allowlist will enable, once implemented:
 - **Build-time lint**: scan each `themes/<special>/*.css` and fail if it
   writes a token that's not in its `allowedTokens`. Prevents accidental
   bleed from a seasonal palette into surfaces/foregrounds.
-- **Conflict detection**: when two Specials are layered, fail (or warn) if
-  their allowlists intersect. Forces a deliberate decision about who owns
-  which token rather than silent last-wins.
 - **Audit output**: surface the effective token-by-token attribution in
   Storybook (Foundation → Theme Audit), so designers can see "this colour
-  came from `seasonal:spring-early`".
+  came from `spring-early`".
 
 Until v0.7.0 ships the enforcement, **treat the allowlist as a hand-checked
 convention**: when authoring a new Special, write the tokens it touches at
@@ -173,15 +163,20 @@ Two channels, one per axis:
 |---|---|---|
 | Mode (light) | `:root` (implicit default) | nothing to set; OS-level dark mode honoured via `@media (prefers-color-scheme: dark)` |
 | Mode (dark, explicit) | `.dark` on `<html>` | by a theme switcher (e.g. Storybook globals, app-level setting) |
-| Special (seasonal) | `[data-season="<name>"]` on `<html>` | `applySeasonTheme()` in [`src/themes/seasonal/index.ts`](../../src/themes/seasonal/index.ts), or SSR via `getSeasonAttribute()` |
-| Special (event) — v0.7.0+ | `[data-event="<name>"]` on `<html>` | TBD |
-| Special (custom) — v0.7.0+ | `[data-theme="<name>"]` on `<html>` | TBD |
+| Special | `[data-theme="<name>"]` on `<html>` | `applySeasonTheme()` in [`src/themes/seasonal/index.ts`](../../src/themes/seasonal/index.ts), or SSR via `getSeasonAttribute()` |
 
-**One attribute per Special category.** Each category gets its own data
-attribute namespace (`data-season`, `data-event`, `data-theme`) rather than
-overloading a single `data-theme`. This keeps "which seasonal palette is
-active" and "which event identity is active" independently queryable and
-avoids string-parsing a composite value.
+**One attribute for Special.** A single `data-theme` namespace is used for
+every Special, regardless of whether it represents a season, a brand, or
+a customer palette. Naming conventions inside the value (`spring-early`,
+`brand-acme`, …) carry the sub-category — there is no `data-season` /
+`data-event` / `data-brand` proliferation.
+
+> **Migration note**: the existing seasonal CSS in
+> [`src/themes/seasonal/themes.css`](../../src/themes/seasonal/themes.css)
+> and the helpers in [`src/themes/seasonal/index.ts`](../../src/themes/seasonal/index.ts)
+> still use `data-season`. The rename to `data-theme` ships alongside the
+> v0.7.0 allowlist enforcement work; treat `data-theme` as the canonical
+> attribute when authoring new code.
 
 **Why `<html>` and not `<body>`.** Storybook, Tailwind v4 `dark:`, and most
 SSR frameworks already key off `<html class="...">`. Putting Mode and
@@ -195,35 +190,36 @@ already follow the Special-axis pattern in practice: each overrides only
 `--color-primary-*`. The table below restates that contract in the new
 model so future authors can replicate it.
 
-| Theme | Hue (OKLCH) | Period | Axis | Category | `allowedTokens` |
-|---|---|---|---|---|---|
-| `spring-early` | 12  | 2/4 – 3/20 | special | seasonal | `--color-primary-*` |
-| `spring-late`  | 138 | 3/21 – 5/5 | special | seasonal | `--color-primary-*` |
-| `summer-early` | 162 | 5/6 – 6/20 | special | seasonal | `--color-primary-*` |
-| `summer-peak`  | 45  | 6/21 – 8/6 | special | seasonal | `--color-primary-*` |
-| `autumn-early` | 230 | 8/7 – 9/22 | special | seasonal | `--color-primary-*` |
-| `autumn-late`  | 70  | 9/23 – 11/6 | special | seasonal | `--color-primary-*` |
-| `winter-early` | 250 | 11/7 – 12/21 | special | seasonal | `--color-primary-*` |
-| `winter-deep`  | 0/240 | 12/22 – 2/3 | special | seasonal | `--color-primary-*` |
+| Theme | Hue (OKLCH) | Period | `allowedTokens` |
+|---|---|---|---|
+| `spring-early` | 12  | 2/4 – 3/20 | `--color-primary-*` |
+| `spring-late`  | 138 | 3/21 – 5/5 | `--color-primary-*` |
+| `summer-early` | 162 | 5/6 – 6/20 | `--color-primary-*` |
+| `summer-peak`  | 45  | 6/21 – 8/6 | `--color-primary-*` |
+| `autumn-early` | 230 | 8/7 – 9/22 | `--color-primary-*` |
+| `autumn-late`  | 70  | 9/23 – 11/6 | `--color-primary-*` |
+| `winter-early` | 250 | 11/7 – 12/21 | `--color-primary-*` |
+| `winter-deep`  | 0/240 | 12/22 – 2/3 | `--color-primary-*` |
 
 No existing seasonal theme touches surfaces, foregrounds, borders, accent,
 state colors, or info. **That is the contract** — keep it that way when
-adding new seasonals.
+adding new Specials.
 
 ### Dark × Special — visual verification
 
-Each Special must remain readable under both Modes. With 8 seasonals × 2
-Modes = 16 combinations, exhaustive visual review is necessary because a
-hue that contrasts well in light mode can collapse against a dark surface
-(or vice versa). The 16-pattern Storybook audit story ships in **v0.7.0**;
-until then, sanity-check new Specials manually by toggling the Storybook
-theme global on the relevant Color / Foundation stories.
+Each Special must remain readable under both Modes. With 8 Specials × 2
+Modes = 16 combinations (today), exhaustive visual review is necessary
+because a hue that contrasts well in light mode can collapse against a
+dark surface (or vice versa). The 16-pattern Storybook audit story ships
+in **v0.7.0**; until then, sanity-check new Specials manually by toggling
+the Storybook theme global on the relevant Color / Foundation stories.
 
 ## Adding a new Special theme (today's process — pre-v0.7.0)
 
-1. **Decide the category** — seasonal, event, or custom. Each lives under
-   its own folder (`src/themes/seasonal/`, …) and uses its own data
-   attribute (`data-season`, `data-event`, `data-theme`).
+1. **Pick a name** in the flat Special namespace. Use a prefix that
+   conveys the sub-category if it helps readability (`spring-late`,
+   `brand-acme`, …) — but the prefix is just a naming convention, not
+   a separate axis.
 2. **List the tokens you intend to override** as a comment at the top of
    the CSS file. Today's seasonals override `--color-primary-50..950` only —
    match that scope unless you have a documented reason to expand.
@@ -239,26 +235,26 @@ theme global on the relevant Color / Foundation stories.
 6. **Add a changeset** — `minor` if the Special ships as a user-facing
    option, `patch` if it's internal-only.
 
-## External Special themes (Phase 5+, after 1.0)
+## External Special themes (future)
 
-Until 1.0, Specials are internal-only (`yasmro` palettes). After 1.0 we
-intend to expose a public API for consumer-authored Specials. Two
-constraints that the v0.7.0 allowlist mechanism already prepares for:
+Today, Specials are internal-only (`yasmro` palettes). A public API for
+consumer-authored Specials is a future possibility, not a current
+commitment. If it ships, two constraints the v0.7.0 allowlist mechanism
+already prepares for:
 
-- **Sandboxing**: a consumer Special should be unable to override
+- **Sandboxing**: a consumer Special must not be able to override
   Mode-owned tokens or `info-*`. The allowlist + lint enforces this
   mechanically.
-- **Identity**: each external Special declares its own data-attribute
-  namespace (likely `data-theme="<vendor>-<name>"`) so two consumers can't
-  collide on the same attribute value.
+- **Naming**: external Specials should namespace their `data-theme` value
+  (e.g. `data-theme="acme-summer"`) so two consumers can't collide on the
+  same attribute value.
 
-The public API and packaging story are out of scope for this rule and will
-be designed alongside the 1.0 release.
+The public API and packaging story are out of scope for this rule.
 
 ## Quick reference
 
 - **Mode**  → `:root` (light) / `.dark` (dark) / `@media (prefers-color-scheme: dark)` (system) — owns surfaces, foregrounds, borders, state shade-shifts.
-- **Special** → `[data-season=...]` / `[data-event=...]` / `[data-theme=...]` — owns `primary`, optionally `accent`. Cumulative; last-loaded wins.
-- **Cascade** → `Special > Mode > base semantic`.
+- **Special** → `[data-theme="<name>"]` — owns `primary`, optionally `accent`. Exclusive (one Special active at a time, or none).
+- **Cascade** → `Special > Mode > base semantic`. Specials win on specificity, not load order.
 - **Never** touch Mode-owned tokens or `info-*` from a Special.
 - **Components** keep referencing semantic tokens (`bg-primary`, `text-foreground`, …) — they don't need to know which axes are active.

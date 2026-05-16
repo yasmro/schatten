@@ -7,8 +7,9 @@ docs(rule): add `.claude/rules/theme-architecture.md` (Mode × Special two-axis 
 Theming is now modelled as two independent **exclusive** axes: **Mode**
 (`light` / `dark`) owns the base layer (surfaces, foregrounds, borders, state
 shade-shifts); **Special** (`<none>` / `season--*` / brand themes / customer
-palettes) owns the expressive layer (`primary`, optionally `accent`). At most
-one Special is active at a time, set via `data-theme="<value>"` on `<html>`.
+palettes) owns the expressive layer — the **`--color-theme-*` scale**,
+optionally `accent`. At most one Special is active at a time, set via
+`data-theme="<value>"` on `<html>`.
 
 The cascade resolves as `Special > Mode > base semantic` — Specials win on
 specificity (single-attribute selector beats `:root` / `.dark`), not on
@@ -31,11 +32,16 @@ The new rule documents:
   `data-season` form
 - Process for adding a new Special today (pre-v0.7.0)
 
-**Deprecation**: `data-season="<name>"` is deprecated in favour of
-`data-theme="season--<name>"`. The existing seasonal CSS and helpers under
-`src/themes/seasonal/` still use `data-season`; the actual rename ships in
-v0.7.0 alongside the allowlist enforcement and the 8 × 2 = 16-pattern
-Storybook audit story. New code MUST use `data-theme` with the value
-convention above.
+**Deprecations** (both rename in v0.7.0 alongside the allowlist enforcement
+and the 8 × 2 = 16-pattern Storybook audit story):
+
+- `data-season="<name>"` → `data-theme="season--<name>"`. Family encoded in
+  the value, not in a separate attribute.
+- `--color-primary-*` / `bg-primary-*` → `--color-theme-*` / `bg-theme-*`.
+  The token name now matches the attribute that drives it (`data-theme`),
+  removing the "primary brand color" vs "theme-driven slot" conflation.
+
+New code MUST use the canonical names (`data-theme`, `--color-theme-*`,
+`bg-theme-*`); do not introduce new `data-season` or `*-primary-*` usage.
 
 No public API or component behaviour changes in this PR — only the rule.

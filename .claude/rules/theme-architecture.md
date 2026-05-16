@@ -8,14 +8,14 @@ runtime:
 - **Mode** — exclusive (`light` / `dark`). Owns the base layer: surfaces,
   foregrounds, borders.
 - **Special** — exclusive (`seasonal-*`, brand themes, customer palettes,
-  …). Owns the expressive layer: `primary`, `accent`, and other
+  …). Owns the expressive layer: the `theme` scale, `accent`, and other
   "characteristic" tokens.
 
 Both axes are exclusive: exactly one Mode is active (`light` xor `dark`),
 and at most one Special is active (`data-theme="<name>"` set on `<html>`,
 or no Special at all). The two axes meet at the **semantic token layer**
 (`src/core/tokens/semantic.css`). Components keep referencing the same
-semantic names (`bg-primary`, `text-foreground`, …) regardless of which
+semantic names (`bg-theme-500`, `text-foreground`, …) regardless of which
 Mode + Special combination is active — they don't need to know.
 
 This rule documents the model itself, the cascade, the allowlist convention,
@@ -64,18 +64,34 @@ belongs to Mode.
 
 | Concern | Example tokens |
 |---|---|
-| Primary scale | `--color-primary-50` … `--color-primary-950` |
+| Theme scale | `--color-theme-50` … `--color-theme-950` |
 | Accent (when a Special wants to retune it) | `--color-accent`, `--color-accent-foreground` |
 
 Rule of thumb: anything that expresses *brand character* — seasonality, an
 event identity, a customer's palette — belongs to Special.
 
+> **Deprecation: `--color-primary-*` → `--color-theme-*`**.
+> The CSS variable currently shipping in
+> [`src/core/tokens/semantic.css`](../../src/core/tokens/semantic.css) is
+> `--color-primary-50..950` (with matching Tailwind utilities
+> `bg-primary-500`, `text-primary-600`, …). This name predates the
+> two-axis model and conflates "the brand's primary color" with "the
+> slot the active theme drives." The canonical name is **`--color-theme-*`**,
+> matching the `data-theme` attribute that controls it. Equivalent
+> Tailwind utilities are `bg-theme-500`, `text-theme-600`, ….
+> The actual rename — across semantic.css, themes/seasonal/themes.css,
+> themes/default/colors.css, base.css, and any component that references
+> `*-primary-*` — ships in **v0.7.0** alongside the allowlist enforcement
+> and the `data-season` → `data-theme` migration. Use `--color-theme-*` /
+> `bg-theme-*` for any new code; do not introduce new `*-primary-*`
+> references.
+
 ### Tokens neither axis touches
 
 A few tokens are pinned by intent and **must not** be moved by either axis:
 
-- `--color-info-*` references `blue-*` directly. Themes that retune
-  `primary` must not drift `info`'s meaning. See
+- `--color-info-*` references `blue-*` directly. Themes that retune the
+  theme scale must not drift `info`'s meaning. See
   [state-token-guideline](state-token-guideline.md#info-independence-from-primary).
 - Primitives (`--vermillion-*`, `--green-*`, `--blue-*`, …) are theme-agnostic
   by definition and live one layer below semantics.
@@ -101,7 +117,7 @@ The intended source order, from earliest (lowest priority) to latest
 1.  primitives.css                       — raw OKLCH scales
 2.  semantic.css :root                   — base semantic tokens (light)
 3.  semantic.css .dark / @media dark     — Mode override
-4.  themes/default/colors.css            — default primary (no data-theme)
+4.  themes/default/colors.css            — default theme scale (no data-theme)
 5.  themes/seasonal/themes.css           — Special palettes (data-theme)
 ```
 
@@ -118,8 +134,8 @@ surface/foreground Mode is currently active. If a Special needs *different*
 shades in dark mode, it must declare both selectors:
 
 ```css
-:root[data-theme="season--winter-deep"]  { --color-primary-500: oklch(...); }
-.dark[data-theme="season--winter-deep"]  { --color-primary-500: oklch(...); }
+:root[data-theme="season--winter-deep"]  { --color-theme-500: oklch(...); }
+.dark[data-theme="season--winter-deep"]  { --color-theme-500: oklch(...); }
 ```
 
 The latter has specificity `(0,3,0)` and beats both `.dark` alone and the
@@ -136,7 +152,7 @@ it makes the partition between axes explicit and testable.
 // Design sketch — actual API lands in v0.7.0
 export const springEarlySeasonTheme = {
   name: 'season--spring-early', // matches the data-theme value
-  allowedTokens: ['--color-primary-*'],
+  allowedTokens: ['--color-theme-*'],
   // Everything outside this list (foregrounds, surfaces, state colors, info)
   // belongs to Mode.
 } as const
@@ -224,9 +240,15 @@ Three layers work together:
    re-resolves every `var()` reference further down the tree on the next
    paint — no JavaScript work is involved.
 3. **Tailwind v4 `@theme` registration.** Component classes
-   (`bg-primary-500`, `text-primary-600`, …) compile to
-   `background-color: var(--color-primary-500)`, so they participate in
+   (`bg-theme-500`, `text-theme-600`, …) compile to
+   `background-color: var(--color-theme-500)`, so they participate in
    the same cascade.
+
+> The example code below uses the **canonical** `--color-theme-*` /
+> `bg-theme-*` names. The shipping code still uses the legacy
+> `--color-primary-*` / `bg-primary-*`; the rename ships in v0.7.0 (see
+> the deprecation note above). Mentally substitute the legacy name when
+> reading current source.
 
 ### Worked trace: `data-theme="season--spring-early"` → pink button
 
@@ -234,17 +256,17 @@ Three layers work together:
 ┌─ <html data-theme="season--spring-early">  ◀── 1. attribute set
 │
 │   :root[data-theme="season--spring-early"]
-│   { --color-primary-500: oklch(0.64 0.10 12); }     ◀── 2. seasonal override
+│   { --color-theme-500: oklch(0.64 0.10 12); }       ◀── 2. seasonal override
 │                                                          (Specificity (0,2,0)
 │                                                           beats :root default)
-│   :root { --color-primary-500: var(--blue-500); }   ◀── 3. default, lost in cascade
+│   :root { --color-theme-500: var(--blue-500); }     ◀── 3. default, lost in cascade
 │
 └─ inherits ↓
     └─ <body>
-        └─ <Button class="bg-primary-500">
+        └─ <Button class="bg-theme-500">
               │
               ▼
-            .bg-primary-500 { background-color: var(--color-primary-500); }
+            .bg-theme-500 { background-color: var(--color-theme-500); }
                                                      ◀── 4. var() resolved here at render
               │
               ▼
@@ -254,10 +276,10 @@ Three layers work together:
 ### Concretely, in this repo
 
 - [`src/core/tokens/primitives.css`](../../src/core/tokens/primitives.css) — `:root { --blue-500: oklch(...); }` (frozen primitives)
-- [`src/core/tokens/semantic.css`](../../src/core/tokens/semantic.css) — `:root { --color-primary-500: var(--blue-500); }` (default chain)
-- [`src/themes/seasonal/themes.css`](../../src/themes/seasonal/themes.css) — `:root[data-season="spring-early"] { --color-primary-500: oklch(...); }` (override; will become `data-theme="season--spring-early"` in v0.7.0)
-- [`src/core/tokens/base.css`](../../src/core/tokens/base.css) — `@theme { --color-primary-500: var(--color-primary-500); }` (Tailwind v4 registers the variable so `bg-primary-500` becomes a usable utility)
-- Component — `<Button className="bg-primary-500" />` → Tailwind emits `.bg-primary-500 { background-color: var(--color-primary-500); }` → browser resolves the `var()` against the cascade at paint time.
+- [`src/core/tokens/semantic.css`](../../src/core/tokens/semantic.css) — `:root { --color-theme-500: var(--blue-500); }` (default chain; legacy name: `--color-primary-500`)
+- [`src/themes/seasonal/themes.css`](../../src/themes/seasonal/themes.css) — `:root[data-theme="season--spring-early"] { --color-theme-500: oklch(...); }` (override; today shipping as `:root[data-season="spring-early"] { --color-primary-500: oklch(...); }`)
+- [`src/core/tokens/base.css`](../../src/core/tokens/base.css) — `@theme { --color-theme-500: var(--color-theme-500); }` (Tailwind v4 registers the variable so `bg-theme-500` becomes a usable utility)
+- Component — `<Button className="bg-theme-500" />` → Tailwind emits `.bg-theme-500 { background-color: var(--color-theme-500); }` → browser resolves the `var()` against the cascade at paint time.
 
 ### Why this is good for us
 
@@ -275,19 +297,24 @@ Three layers work together:
 
 The eight seasonal palettes in [`src/themes/seasonal/themes.css`](../../src/themes/seasonal/themes.css)
 already follow the Special-axis pattern in practice: each overrides only
-`--color-primary-*`. The table below restates that contract in the new
+the theme scale (`--color-primary-*` today; renamed to `--color-theme-*`
+in v0.7.0). The table below restates that contract in the new
 model so future authors can replicate it.
 
 | `data-theme` value (canonical) | Legacy `data-season` (deprecated) | Hue | Period | `allowedTokens` |
 |---|---|---|---|---|
-| `season--spring-early` | `spring-early` | 12  | 2/4 – 3/20  | `--color-primary-*` |
-| `season--spring-late`  | `spring-late`  | 138 | 3/21 – 5/5  | `--color-primary-*` |
-| `season--summer-early` | `summer-early` | 162 | 5/6 – 6/20  | `--color-primary-*` |
-| `season--summer-peak`  | `summer-peak`  | 45  | 6/21 – 8/6  | `--color-primary-*` |
-| `season--autumn-early` | `autumn-early` | 230 | 8/7 – 9/22  | `--color-primary-*` |
-| `season--autumn-late`  | `autumn-late`  | 70  | 9/23 – 11/6 | `--color-primary-*` |
-| `season--winter-early` | `winter-early` | 250 | 11/7 – 12/21 | `--color-primary-*` |
-| `season--winter-deep`  | `winter-deep`  | 0/240 | 12/22 – 2/3 | `--color-primary-*` |
+| `season--spring-early` | `spring-early` | 12  | 2/4 – 3/20  | `--color-theme-*` |
+| `season--spring-late`  | `spring-late`  | 138 | 3/21 – 5/5  | `--color-theme-*` |
+| `season--summer-early` | `summer-early` | 162 | 5/6 – 6/20  | `--color-theme-*` |
+| `season--summer-peak`  | `summer-peak`  | 45  | 6/21 – 8/6  | `--color-theme-*` |
+| `season--autumn-early` | `autumn-early` | 230 | 8/7 – 9/22  | `--color-theme-*` |
+| `season--autumn-late`  | `autumn-late`  | 70  | 9/23 – 11/6 | `--color-theme-*` |
+| `season--winter-early` | `winter-early` | 250 | 11/7 – 12/21 | `--color-theme-*` |
+| `season--winter-deep`  | `winter-deep`  | 0/240 | 12/22 – 2/3 | `--color-theme-*` |
+
+(In the shipping code today the `allowedTokens` is `--color-primary-*`;
+both names refer to the same slot — see the deprecation note in
+[Special owns the expressive layer](#special-owns-the-expressive-layer).)
 
 No existing seasonal theme touches surfaces, foregrounds, borders, accent,
 state colors, or info. **That is the contract** — keep it that way when
@@ -311,15 +338,17 @@ the Storybook theme global on the relevant Color / Foundation stories.
    is just a naming convention — it groups Specials visually and in
    the Theme Audit story but does not create a separate axis.
 2. **List the tokens you intend to override** as a comment at the top of
-   the CSS file. Today's seasonals override `--color-primary-50..950` only —
-   match that scope unless you have a documented reason to expand.
+   the CSS file. Today's seasonals override the theme scale only
+   (`--color-primary-50..950` in current code; `--color-theme-50..950`
+   after the v0.7.0 rename) — match that scope unless you have a
+   documented reason to expand.
 3. **Never override Mode-owned tokens** — surfaces, foregrounds, borders,
    inverted foregrounds, focus ring, state colors. A Special that needs to
    change foreground or surface is mis-categorised: it's a Mode, not a
    Special.
 4. **Never override `info-*`** — it's pinned to blue across all themes.
 5. **Verify both Modes visually** — open the Color / Foundation stories,
-   toggle dark mode, check that text on `primary` surfaces still meets
+   toggle dark mode, check that text on `theme`-colored surfaces still meets
    contrast. The "Filled Treatments (a11y audit)" section in
    `Foundation/Color` is the right place to spot-check.
 6. **Add a changeset** — `minor` if the Special ships as a user-facing
@@ -345,7 +374,7 @@ The public API and packaging story are out of scope for this rule.
 ## Quick reference
 
 - **Mode**  → `:root` (light) / `.dark` (dark) / `@media (prefers-color-scheme: dark)` (system) — owns surfaces, foregrounds, borders, state shade-shifts.
-- **Special** → `[data-theme="<name>"]` — owns `primary`, optionally `accent`. Exclusive (one Special active at a time, or none).
+- **Special** → `[data-theme="<name>"]` — owns the theme scale (`--color-theme-*`), optionally `accent`. Exclusive (one Special active at a time, or none).
 - **Cascade** → `Special > Mode > base semantic`. Specials win on specificity, not load order.
 - **Never** touch Mode-owned tokens or `info-*` from a Special.
-- **Components** keep referencing semantic tokens (`bg-primary`, `text-foreground`, …) — they don't need to know which axes are active.
+- **Components** keep referencing semantic tokens (`bg-theme-500`, `text-foreground`, …) — they don't need to know which axes are active.

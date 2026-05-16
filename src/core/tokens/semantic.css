@@ -101,6 +101,29 @@
   --color-info-hover: var(--blue-700);
   --color-info-foreground: var(--paper-white);
   --color-info-subtle: var(--blue-50);
+
+  /*
+   * Non-interactive state tokens — for `disabled` and `readOnly` form controls.
+   * These describe a control that cannot be acted on (disabled) or whose value
+   * is displayed but not editable (readOnly). They are NOT state semantic
+   * tokens in the `error`/`success`/… sense (no `hover` slot), so they do
+   * not follow the 4-token shape.
+   *
+   * Visual direction
+   *   disabled  — muted / faded (cool gray). "this is not usable"
+   *   readOnly  — subtle / static (warm tint). "this is informational"
+   *
+   * Token shape
+   *   disabled  : surface + foreground + border
+   *   readOnly  : surface + border (foreground stays normal — the value
+   *               must remain readable)
+   */
+  --color-surface-disabled: var(--gray-100);
+  --color-foreground-disabled: var(--gray-500);
+  --color-border-disabled: var(--gray-200);
+
+  --color-surface-readonly: var(--alabaster-100);
+  --color-border-readonly: var(--gray-200);
 }
 
 /* Dark mode - System preference fallback */
@@ -158,6 +181,14 @@
     --color-info-hover: var(--blue-400);
     --color-info-foreground: var(--paper-white-inverted);
     --color-info-subtle: var(--blue-900);
+
+    /* Non-interactive state tokens — dark mode mappings */
+    --color-surface-disabled: var(--gray-800);
+    --color-foreground-disabled: var(--gray-500);
+    --color-border-disabled: var(--gray-700);
+
+    --color-surface-readonly: var(--alabaster-800);
+    --color-border-readonly: var(--gray-700);
   }
 }
 
@@ -215,4 +246,12 @@
   --color-info-hover: var(--blue-400);
   --color-info-foreground: var(--paper-white-inverted);
   --color-info-subtle: var(--blue-900);
+
+  /* Non-interactive state tokens — dark mode mappings */
+  --color-surface-disabled: var(--gray-800);
+  --color-foreground-disabled: var(--gray-500);
+  --color-border-disabled: var(--gray-700);
+
+  --color-surface-readonly: var(--alabaster-800);
+  --color-border-readonly: var(--gray-700);
 }

@@ -286,6 +286,157 @@ the reviewer must verify each rule satisfies the "not expressible in
 Tailwind / CVA" bar above. If any rule could be a Tailwind class, move
 it.
 
+## 8. Accessibility contract
+
+Every lv1 component must expose a stable a11y surface so that consumer
+applications can write tests and E2E selectors against role + accessible
+name rather than against class names or DOM structure. The
+[component-testid-guideline](component-testid-guideline.md) explicitly
+treats role-based queries as the first choice and `data-testid` as a
+fallback — that policy only holds if the contract below holds.
+
+### The four guarantees
+
+1. **An explicit role**, sourced from one of:
+   - A native element with built-in semantics (`<button>`, `<input>`,
+     `<textarea>`, `<fieldset>`, heading levels). Default whenever
+     possible — Button / Input / Textarea / FieldSet do this today.
+   - A Radix primitive that assigns the role for us — Dialog (`dialog`),
+     Tooltip (`tooltip`), Checkbox (`checkbox`), Switch (`switch`),
+     Select trigger (`combobox`) + content (`listbox`), Toast
+     (`status`), Radio (`radio` inside `radiogroup`).
+   - An explicit `role="…"` written by Schatten — used only when
+     neither of the above gives the right semantic. Current explicit
+     uses: [Spinner](../../src/components/lv1/Spinner/Spinner.tsx)
+     (`role="status"`) and
+     [Separator](../../src/components/lv1/Separator/Separator.tsx)
+     (`role="separator"` when `decorative={false}`, else
+     `role="none"`).
+
+   Wrapping a `<div>` with `onClick` / key handlers to fake
+   interactivity is the failure mode this guarantee prevents.
+
+2. **A queryable accessible name**, sourced from one of (in preference
+   order):
+   - **Children text content** — Button (`<Button>Submit</Button>`),
+     Toast title, Callout title.
+   - **`aria-labelledby` auto-wired by Radix** — Dialog (`Title` →
+     `aria-labelledby` on Content,
+     [Dialog.tsx:44](../../src/components/lv1/Dialog/Dialog.tsx:44)).
+   - **`<label htmlFor>` paired through `FieldContext`** —
+     externally-labelled form inputs (Input, Textarea, Select). See
+     [field-context-guideline](field-context-guideline.md).
+   - **Internal `<label>` rendered by the component** — self-labelled
+     form inputs (Checkbox, Switch, Radio).
+   - **`aria-label`** — icon-only or symbol-only triggers. Required
+     where a button has no readable text content: Dialog close ✕
+     ([Dialog.tsx:217](../../src/components/lv1/Dialog/Dialog.tsx:217)),
+     Callout close ✕
+     ([Callout.tsx:120](../../src/components/lv1/Callout/Callout.tsx:120)),
+     Toast close ✕
+     ([Toast.tsx:102](../../src/components/lv1/Toast/Toast.tsx:102)),
+     Field tooltip info icon
+     ([Field.tsx:104](../../src/components/lv1/Field/Field.tsx:104)).
+
+   The contract: `getByRole(role, { name })` returns the component. If
+   it does not, the component has no usable accessible name and the
+   contract is broken.
+
+3. **Keyboard support**:
+   - Reachable via `Tab` — no root-level `tabIndex={-1}` on
+     interactive components. (`tabIndex={-1}` is fine on non-focusable
+     inner wrappers.)
+   - Activates with the role-appropriate key (`Enter` / `Space` for
+     buttons; `Arrow` keys for Radio / Select).
+   - A visible focus indicator — every interactive variant in
+     [src/variants/](../../src/variants/) bakes
+     `focus-visible:outline-none focus-visible:ring-2
+     focus-visible:ring-ring focus-visible:ring-offset-2` into its
+     base class. Do not strip this chain. If a layout conflicts,
+     replace it with an equivalent visible indicator, do not delete
+     it.
+
+   For Radix-based components the keyboard wiring is implemented by
+   Radix. The contract here is to **not break** it — don't override
+   `onKeyDown` without composing the original handler, don't
+   intercept focus, don't move handlers off the Radix element.
+
+4. **State announcements via `aria-*`**:
+   - **Error state** → `aria-invalid={isError || undefined}`. Wired
+     today on Input / Textarea / Select / Checkbox / Switch / Radio /
+     RadioGroup / FieldSet. The `|| undefined` is intentional: it
+     omits the attribute when false rather than emitting
+     `aria-invalid="false"`.
+   - **Description / error message** → `aria-describedby`, fed by
+     `FieldContext.describedBy` ([field-context-guideline](field-context-guideline.md)).
+   - **Disabled** → the native `disabled` attribute when the element
+     supports it (form inputs, buttons). Radix's `data-disabled` is a
+     styling hook that mirrors the same state, not a substitute for
+     the ARIA mapping.
+   - **Loading** — component-specific. Button uses
+     `aria-hidden={!isLoading}` on its inline spinner so the spinner
+     only enters the accessibility tree while loading
+     ([Button.tsx:131](../../src/components/lv1/Button/Button.tsx:131)).
+   - **Required** — Field renders a visual `*` next to the label but
+     **does not** propagate `aria-required` to the underlying input
+     today. Consumers who need the ARIA flag must set `required` on
+     the input element directly. This is a deliberate gap to revisit;
+     see "When this rule changes" below.
+
+### Patterns Schatten relies on
+
+- **Decorative icons get `aria-hidden="true"`.** Every Lucide / SVG
+  icon used purely as a visual flourish must be aria-hidden. Existing
+  examples: Toast variant icon, Callout variant icon, Input
+  leading/trailing icon, Button leading/trailing icon, Badge icon,
+  Checkbox mark, Switch knob, Spinner SVG, the `Separator` rendered
+  inside Dialog's footer. When you add an icon, add it.
+- **Components that intentionally have no default role** —
+  [Callout](../../src/components/lv1/Callout/Callout.tsx) ships
+  role-less and documents in TSDoc that consumers should pass
+  `role="status"` (polite) or `role="alert"` (assertive) when the
+  callout content is dynamic. Don't bake in a role that's wrong half
+  the time — make the absence explicit and tell the consumer how to
+  fill it.
+- **Conditional ARIA opt-out** — when a default-wired ARIA reference
+  would point at a non-existent node, spread the attribute
+  conditionally as `undefined` rather than letting Radix emit a
+  dangling reference. Dialog does this for `aria-describedby` when
+  `description` is absent
+  ([Dialog.tsx:273](../../src/components/lv1/Dialog/Dialog.tsx:273)).
+
+### Hard rules
+
+- **Do not** wrap interactive content in a `<div>` with `onClick` and
+  call it a button. Use `<button>` (or `<Button>`), or a Radix
+  primitive that renders a button.
+- **Do not** rely on color alone to convey state. `isError` must add
+  both `aria-invalid` (for assistive tech) and `border-error` (for
+  sighted users) — both are required, never either-or. Same for
+  Callout / Toast variants.
+- **Do not** strip the `focus-visible:ring-*` chain from a variant
+  base class. Override the ring color if you need contrast on a
+  colored surface (see Input's `has-focus-visible:ring-error` for the
+  pattern), but never disable it outright.
+- **Do not** introduce `tabIndex={-1}` on the root of a focusable
+  component. It's correct on inner wrappers when focus lives
+  elsewhere; it's wrong as a substitute for `disabled`.
+
+### Verifying compliance
+
+1. **Unit test** — every lv1 has a test that calls
+   `getByRole(role, { name })` against a representative render. See
+   [testing-guideline](testing-guideline.md) § Required test cases.
+   "Query by role first" applies (testing-guideline §5).
+2. **Storybook** — `addon-a11y` panel shows 0 violations on every
+   story. Manual today; CI enforcement is planned through
+   [#147](https://github.com/yasmro/schatten/issues/147)
+   (`@axe-core/playwright`).
+3. **Code review** — when reviewing an lv1 PR, walk the four
+   guarantees and Hard rules above. If the component opts out of a
+   default (e.g. Callout's no-role posture), the TSDoc must say so
+   explicitly and explain how the consumer should fill the gap.
+
 ## When this rule changes
 
 - **§1 (lv2 promotion criterion):** will be defined as a follow-up rule
@@ -301,3 +452,9 @@ it.
   or lv3 (page-level shells) gets introduced, add the new layer to the
   table and update the resource maps in [CLAUDE.md](../../CLAUDE.md) /
   [AGENTS.md](../../AGENTS.md).
+- **§8 (a11y contract):**
+  - When [#147](https://github.com/yasmro/schatten/issues/147) lands
+    (`@axe-core/playwright`), promote the "Storybook addon-a11y" check
+    in "Verifying compliance" from manual to CI-enforced.
+  - When `Field.required` gains `aria-required` propagation, remove
+    the gap note in guarantee #4.

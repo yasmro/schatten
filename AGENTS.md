@@ -34,7 +34,7 @@ src/
 
 Before adding or modifying components, read the guideline files under [`.claude/rules/`](.claude/rules):
 
-- [`component-architecture.md`](.claude/rules/component-architecture.md) — lv1 vs lv2 folder responsibilities, compound vs flat, `asChild` default-off for new lv1s + hard exclusions on form inputs / portal content (complements `component-api-conventions.md` §`asChild`; `buttonVariants` / `textVariants` are the preferred alternative), polymorphic `as` not adopted, unified `FieldContext` consumption, one-way dependency direction (lv1 → lv2 forbidden, no barrel laundering), when an lv1-local `.css` file is allowed.
+- [`component-architecture.md`](.claude/rules/component-architecture.md) — lv1 vs lv2 folder responsibilities, compound vs flat, `asChild` default-off for new lv1s + hard exclusions on form inputs / portal content (complements `component-api-conventions.md` §`asChild`; `buttonVariants` / `textVariants` are the preferred alternative), polymorphic `as` not adopted, unified `FieldContext` consumption, one-way dependency direction (lv1 → lv2 forbidden, no barrel laundering), when an lv1-local `.css` file is allowed, accessibility contract every lv1 must satisfy (role + accessible name + keyboard + `aria-*` state announcements).
 - [`component-api-conventions.md`](.claude/rules/component-api-conventions.md) — Public prop API shape: two patterns (**Role-based** for action components like `Button`; **Tone × Shape** for state components like `Badge` / `Callout` / `Toast`), per-component matrix, common props (`size` / `isError` / `isLoading` / `disabled` / `readOnly`), and `asChild` adoption criteria.
 - [`storybook-guideline.md`](.claude/rules/storybook-guideline.md) — Story structure (`Playground` story first, group by prop), `argTypes`, English-only labels.
 - [`state-token-guideline.md`](.claude/rules/state-token-guideline.md) — 3-layer token system, state semantic tokens (`error` / `success` / `warning` / `info` / `destructive`) and the 4-token shape (`base` / `hover` / `foreground` / `subtle`).
@@ -44,6 +44,7 @@ Before adding or modifying components, read the guideline files under [`.claude/
 - [`testing-guideline.md`](.claude/rules/testing-guideline.md) — Unit test conventions: required cases per component type (form / compound / action / display), BDD naming, typed factories, what NOT to test.
 - [`lint-rules-guideline.md`](.claude/rules/lint-rules-guideline.md) — Biome rules added on top of `recommended` (`useExhaustiveDependencies`, `noUnusedImports/Variables`, `useImportType/ExportType`, `noNonNullAssertion`, `noConsole`) and the rationale for each.
 - [`api-stability.md`](.claude/rules/api-stability.md) — Public API stability contract effective from v1.0.0: what counts as public API (React props, CSS classes, CSS variables, CVA output), breaking-change policy, and CHANGELOG prefix conventions.
+- [`component-testid-guideline.md`](.claude/rules/component-testid-guideline.md) — `data-testid` flows through `...rest` (no `testId` prop); Schatten never auto-emits testids; how to reach Portal-rendered content.
 
 ## Main commands
 
@@ -75,7 +76,7 @@ pnpm changeset         # Create a changeset for user-facing changes
 |---|---|
 | [CLAUDE.md](CLAUDE.md) | Claude Code-specific tech stack and rule index. |
 | [README.md](README.md) | Public-facing overview, installation, and usage. |
-| [.claude/rules/component-architecture.md](.claude/rules/component-architecture.md) | Component-level design choices — lv1 / lv2 folders, compound vs flat, `asChild` default-off for new lv1s + hard exclusions, unified context consumption, one-way dependency direction, lv1-local `.css` criteria. |
+| [.claude/rules/component-architecture.md](.claude/rules/component-architecture.md) | Component-level design choices — lv1 / lv2 folders, compound vs flat, `asChild` default-off for new lv1s + hard exclusions, unified context consumption, one-way dependency direction, lv1-local `.css` criteria, a11y contract (role + accessible name + keyboard + `aria-*`). |
 | [.claude/rules/component-api-conventions.md](.claude/rules/component-api-conventions.md) | Public prop API shape — Role-based (Button) vs Tone × Shape (Badge/Callout/Toast) patterns, common props, `asChild` criteria. |
 | [.claude/rules/storybook-guideline.md](.claude/rules/storybook-guideline.md) | Storybook conventions — Playground story, `argTypes`, grouping. |
 | [.claude/rules/state-token-guideline.md](.claude/rules/state-token-guideline.md) | 3-layer token system, 4-token shape, `destructive` vs `error`. |
@@ -85,6 +86,7 @@ pnpm changeset         # Create a changeset for user-facing changes
 | [.claude/rules/testing-guideline.md](.claude/rules/testing-guideline.md) | Unit test conventions — required cases per component type, BDD naming, typed factories. |
 | [.claude/rules/lint-rules-guideline.md](.claude/rules/lint-rules-guideline.md) | Biome rules added on top of `recommended` and the rationale for each. |
 | [.claude/rules/api-stability.md](.claude/rules/api-stability.md) | Public API stability contract (effective v1.0.0) — what is public, breaking-change policy, CHANGELOG conventions. |
+| [.claude/rules/component-testid-guideline.md](.claude/rules/component-testid-guideline.md) | `data-testid` pass-through policy, Portal content handling, no-auto-testid rule. |
 
 ## Maintenance
 

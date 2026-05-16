@@ -128,3 +128,13 @@ export const Disabled: Story = {
     </RadioGroup>
   ),
 }
+
+export const DisabledWithError: Story = {
+  name: 'Disabled with error',
+  render: () => (
+    <RadioGroup defaultValue="disabled-error-selected" isError disabled>
+      <Radio value="disabled-error-unselected" label="Disabled + error, unselected" />
+      <Radio value="disabled-error-selected" label="Disabled + error, selected" />
+    </RadioGroup>
+  ),
+}

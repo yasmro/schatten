@@ -190,6 +190,30 @@ export const Disabled: Story = {
   ),
 }
 
+export const DisabledWithError: Story = {
+  name: 'Disabled with error',
+  render: () => (
+    <div className="flex flex-col gap-4">
+      <Select disabled>
+        <SelectTrigger isError>
+          <SelectValue placeholder="Disabled + error" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="apple">Apple</SelectItem>
+        </SelectContent>
+      </Select>
+      <Select disabled defaultValue="apple">
+        <SelectTrigger isError>
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="apple">Apple</SelectItem>
+        </SelectContent>
+      </Select>
+    </div>
+  ),
+}
+
 export const ManyItems: Story = {
   name: 'Many Items',
   render: () => {

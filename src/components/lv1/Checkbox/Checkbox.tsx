@@ -84,7 +84,7 @@ export const Checkbox = forwardRef<ElementRef<typeof CheckboxPrimitive.Root>, Ch
           {...props}
         >
           <CheckboxPrimitive.Indicator
-            className="absolute inset-0 flex items-center justify-center text-foreground data-[state=unchecked]:hidden"
+            className="absolute inset-0 flex items-center justify-center text-current data-[state=unchecked]:hidden"
             forceMount
           >
             {props.checked === 'indeterminate' ? <MinusIcon /> : <CheckIcon />}
@@ -96,7 +96,7 @@ export const Checkbox = forwardRef<ElementRef<typeof CheckboxPrimitive.Root>, Ch
             className={cn(
               labelSizeClasses[size ?? 'md'],
               'text-foreground cursor-pointer select-none',
-              disabled && 'cursor-not-allowed opacity-50',
+              disabled && 'cursor-not-allowed text-foreground-disabled',
             )}
           >
             {label}

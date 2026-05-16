@@ -131,3 +131,27 @@ export const Disabled: Story = {
     </div>
   ),
 }
+
+export const DisabledWithError: Story = {
+  name: 'Disabled with error',
+  render: () => (
+    <div className="flex flex-col gap-3">
+      <Switch label="Disabled + error" disabled isError />
+      <Switch label="Disabled + error, checked" disabled isError defaultChecked />
+    </div>
+  ),
+}
+
+export const AllStates: Story = {
+  name: 'All states (cognitive review)',
+  render: () => (
+    <div className="grid grid-cols-2 gap-x-8 gap-y-3 items-start">
+      <div className="font-medium text-foreground">Enabled</div>
+      <div className="font-medium text-foreground">Disabled</div>
+      <Switch label="Off" />
+      <Switch label="Off (disabled)" disabled />
+      <Switch label="On" defaultChecked />
+      <Switch label="On (disabled)" defaultChecked disabled />
+    </div>
+  ),
+}

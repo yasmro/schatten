@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react'
-import { describe, expect, it } from 'vitest'
+import userEvent from '@testing-library/user-event'
+import { describe, expect, it, vi } from 'vitest'
 import { Button } from './Button'
 
 describe('Button', () => {
@@ -109,6 +110,43 @@ describe('Button', () => {
       // Spinner overlay exists but is hidden with opacity-0
       expect(spinnerSpan).toHaveClass('opacity-0')
       expect(spinnerSpan).toHaveAttribute('aria-hidden', 'true')
+    })
+
+    it('sets aria-busy when isLoading is true', () => {
+      render(<Button isLoading>Submit</Button>)
+      // aria-busy is the hook the variant uses to restore the variant
+      // colours during loading (instead of the disabled token treatment).
+      expect(screen.getByRole('button')).toHaveAttribute('aria-busy', 'true')
+    })
+
+    it('does not emit aria-busy when isLoading is false', () => {
+      render(<Button>Submit</Button>)
+      expect(screen.getByRole('button')).not.toHaveAttribute('aria-busy')
+    })
+
+    it('does not fire onClick while loading', async () => {
+      const onClick = vi.fn()
+      const user = userEvent.setup()
+      render(
+        <Button isLoading onClick={onClick}>
+          Submit
+        </Button>,
+      )
+      await user.click(screen.getByRole('button'))
+      // Native `disabled` is still set (`disabled || isLoading`), so the
+      // browser blocks click delivery. aria-busy is purely a styling hook
+      // and does not bypass the disabled attribute.
+      expect(onClick).not.toHaveBeenCalled()
+    })
+
+    it('applies cursor-wait while loading (overrides cursor-not-allowed)', () => {
+      render(<Button isLoading>Submit</Button>)
+      // The doubled `aria-busy:disabled:cursor-wait` modifier wins
+      // specificity over `disabled:cursor-not-allowed` when both attributes
+      // are present, so the loading cursor reads as "processing" rather
+      // than "forbidden".
+      const button = screen.getByRole('button')
+      expect(button.className).toContain('aria-busy:disabled:cursor-wait')
     })
   })
 })

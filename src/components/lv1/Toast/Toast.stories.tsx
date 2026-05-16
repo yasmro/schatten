@@ -110,8 +110,9 @@ const Playground = (args: { position?: Parameters<typeof Toaster>[0]['position']
         mounted at the bottom of this story.
       </p>
       <p className="text-xs text-foreground-muted mt-1">
-        Note: <code>neutral</code> is defined only for <code>subtle</code>; <code>accent</code> only
-        for <code>solid</code>. State variants support both.
+        Coverage: <code>neutral</code> defines <code>subtle</code> only; <code>accent</code> defines{' '}
+        <code>solid</code> only. State variants support both. Empty cells (·) indicate the
+        combination is not yet defined.
       </p>
     </div>
 
@@ -133,12 +134,23 @@ const Playground = (args: { position?: Parameters<typeof Toaster>[0]['position']
                 solid: SOLID_VARIANTS,
               }
               const isDefined = definedFor[appearance].includes(variant)
+              if (!isDefined) {
+                return (
+                  <span
+                    key={`${variant}-${appearance}`}
+                    aria-hidden="true"
+                    title={`${variant} + ${appearance} is not defined`}
+                    className="text-center text-xs text-foreground-subtle select-none"
+                  >
+                    ·
+                  </span>
+                )
+              }
               return (
                 <Button
                   key={`${variant}-${appearance}`}
                   variant="secondary"
                   size="sm"
-                  disabled={!isDefined}
                   onClick={() =>
                     toast({
                       ...sampleByVariant[variant],
@@ -147,7 +159,7 @@ const Playground = (args: { position?: Parameters<typeof Toaster>[0]['position']
                     })
                   }
                 >
-                  {isDefined ? 'Fire' : '—'}
+                  Fire
                 </Button>
               )
             })}
@@ -174,12 +186,23 @@ const Playground = (args: { position?: Parameters<typeof Toaster>[0]['position']
                 solid: SOLID_VARIANTS,
               }
               const isDefined = definedFor[appearance].includes(variant)
+              if (!isDefined) {
+                return (
+                  <span
+                    key={`action-${variant}-${appearance}`}
+                    aria-hidden="true"
+                    title={`${variant} + ${appearance} is not defined`}
+                    className="text-center text-xs text-foreground-subtle select-none"
+                  >
+                    ·
+                  </span>
+                )
+              }
               return (
                 <Button
                   key={`action-${variant}-${appearance}`}
                   variant="secondary"
                   size="sm"
-                  disabled={!isDefined}
                   onClick={() =>
                     toast({
                       ...sampleByVariant[variant],
@@ -194,7 +217,7 @@ const Playground = (args: { position?: Parameters<typeof Toaster>[0]['position']
                     })
                   }
                 >
-                  {isDefined ? 'Fire + action' : '—'}
+                  Fire + action
                 </Button>
               )
             })}

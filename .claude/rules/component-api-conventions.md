@@ -91,7 +91,7 @@ For state / notification components, two orthogonal props:
 | Value | Meaning | Token family |
 |---|---|---|
 | `neutral` *(default)* | No semantic meaning. The "this is just a chip / banner / toast" baseline. | `foreground` / `border-strong` / `surface-hover` |
-| `accent` | Brand accent — highlighted, "look here" without state semantics. | `solid` (brand-accent role token) |
+| `accent` | Brand accent — highlighted, "look here" without state semantics. | `solid` (brand-accent role token) [†] |
 | `success` | Positive state (completed, saved). | `success-*` |
 | `error` | Error state (form invalid, request failed). | `error-*` |
 | `warning` | Caution state. | `warning-*` |
@@ -99,6 +99,21 @@ For state / notification components, two orthogonal props:
 
 Tone vocabulary does **not** include `destructive` — Pattern B components
 are not actions, so destructive intent doesn't apply.
+
+**[†] Provisional implementation note for `accent`.** The `accent` tone is
+*intended* to express the brand color (vermillion). Today it routes through
+the `--color-solid` token, which is currently mapped to the alabaster
+(warm-gray) scale rather than vermillion. The visual you get from
+`<Badge variant="accent" appearance="solid">` is therefore a near-black
+chip, **not** a brand-red chip — matching the legacy `default + solid`
+look. The intent / implementation gap closes when
+[#185](https://github.com/yasmro/schatten/issues/185) lands (v0.8.0) and
+introduces `--color-accent` as a role-named token routed to vermillion.
+Until then, designers who need an actually-vermillion chip should reach
+for `variant="error"` (also vermillion-based) and document the
+appropriation, or wait for #185. Do not paper over the gap by hardcoding
+primitive color classes (`bg-vermillion-500`) — those violate the
+[state-token guideline](state-token-guideline.md).
 
 ### Shape vocabulary (`appearance`)
 
@@ -150,7 +165,7 @@ reintroduced.
 | Legacy | Replacement | Notes |
 |---|---|---|
 | `Badge/Callout/Toast variant="default"` *(subtle / outline cases)* | `variant="neutral"` | Rename only. |
-| `Badge/Callout/Toast variant="default" treatment="solid"` *(solid case)* | `variant="accent" appearance="solid"` | The legacy `default + solid` used the brand-accent `bg-solid` token, so the solid case migrates to `accent`, **not** `neutral`. Going forward `neutral + solid` is a gray-ish surface and `accent + solid` is the brand color. |
+| `Badge/Callout/Toast variant="default" treatment="solid"` *(solid case)* | `variant="accent" appearance="solid"` | The legacy `default + solid` used the `bg-solid` token, so the migration target is `accent` (semantically: "brand-ish emphasis without state"), **not** `neutral`. **Note**: `bg-solid` currently maps to alabaster (warm gray), not vermillion — see the "Provisional implementation note for `accent`" above. The naming reflects intent; the implementation lands fully when [#185](https://github.com/yasmro/schatten/issues/185) splits `--color-accent` out as a brand-routed token. |
 | `treatment` (prop name) | `appearance` | Across the board. Values (`solid` / `subtle` / `outline`) are unchanged — only the prop name moves. |
 
 The shape values (`solid` / `subtle` / `outline`) are **kept as-is** from

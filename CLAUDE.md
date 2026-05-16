@@ -39,3 +39,12 @@ When adding or modifying components, follow shadcn/ui conventions (Radix UI + CV
 - See [.claude/rules/lint-rules-guideline.md](.claude/rules/lint-rules-guideline.md) for the Biome rules added on top of `recommended` and the rationale for each
 - See [.claude/rules/api-stability.md](.claude/rules/api-stability.md) for the public API stability contract (effective from v1.0.0) — what counts as public API across React props, CSS classes, CSS variables, and CVA output, and the breaking-change policy
 - See [.claude/rules/component-testid-guideline.md](.claude/rules/component-testid-guideline.md) for the `data-testid` pass-through policy and the no-auto-testid rule
+
+## Claude Code hooks
+
+`.claude/settings.json` registers two project-level hooks (team-shared, checked into git — distinct from the per-user `.claude/settings.local.json`):
+
+- **PostToolUse(Edit|Write|MultiEdit)** → [scripts/check-lv1-companions.mjs](scripts/check-lv1-companions.mjs). When an edit lands on `src/components/lv1/{X}/{X}.tsx`, verifies that `{X}.test.tsx` and `{X}.vrt.spec.ts` exist as siblings. Missing files produce a non-blocking system-reminder so test/vrt-less lv1 additions get caught immediately.
+- **Stop** → [scripts/check-lv1-export-integrity.mjs](scripts/check-lv1-export-integrity.mjs). At session end, diffs the lv1 component directories against the `from './...'` re-exports in [src/components/lv1/index.ts](src/components/lv1/index.ts). Mismatches surface as a non-blocking system-reminder.
+
+Both hooks are **non-blocking** — they print to `hookSpecificOutput.additionalContext` and always exit 0. They complement (do not replace) the lefthook pre-commit step.

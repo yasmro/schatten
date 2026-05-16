@@ -9,77 +9,80 @@ export const toastVariants = cva(
   {
     variants: {
       variant: {
-        default: '',
+        neutral: '',
+        accent: '',
         success: '',
         error: '',
         warning: '',
         info: '',
       },
-      treatment: {
+      appearance: {
         subtle: '',
         solid: '',
       },
     },
     compoundVariants: [
-      // default
+      // neutral — non-state baseline. Solid is intentionally absent: the
+      // brand-accent `bg-solid` token is owned by `accent`.
       {
-        variant: 'default',
-        treatment: 'subtle',
+        variant: 'neutral',
+        appearance: 'subtle',
         class: 'bg-surface text-foreground border-border-strong',
       },
+      // accent — brand-accent surface. Only solid is defined today.
       {
-        variant: 'default',
-        treatment: 'solid',
+        variant: 'accent',
+        appearance: 'solid',
         class: 'bg-solid text-solid-foreground border-transparent',
       },
       // success
       {
         variant: 'success',
-        treatment: 'subtle',
+        appearance: 'subtle',
         class: 'bg-success-subtle text-success border-success',
       },
       {
         variant: 'success',
-        treatment: 'solid',
+        appearance: 'solid',
         class: 'bg-success text-success-foreground border-transparent',
       },
       // error
       {
         variant: 'error',
-        treatment: 'subtle',
+        appearance: 'subtle',
         class: 'bg-error-subtle text-error border-error',
       },
       {
         variant: 'error',
-        treatment: 'solid',
+        appearance: 'solid',
         class: 'bg-error text-error-foreground border-transparent',
       },
       // warning
       {
         variant: 'warning',
-        treatment: 'subtle',
+        appearance: 'subtle',
         class: 'bg-warning-subtle text-warning border-warning',
       },
       {
         variant: 'warning',
-        treatment: 'solid',
+        appearance: 'solid',
         class: 'bg-warning text-warning-foreground border-transparent',
       },
       // info
       {
         variant: 'info',
-        treatment: 'subtle',
+        appearance: 'subtle',
         class: 'bg-info-subtle text-info border-info',
       },
       {
         variant: 'info',
-        treatment: 'solid',
+        appearance: 'solid',
         class: 'bg-info text-info-foreground border-transparent',
       },
     ],
     defaultVariants: {
-      variant: 'default',
-      treatment: 'subtle',
+      variant: 'neutral',
+      appearance: 'subtle',
     },
   },
 )

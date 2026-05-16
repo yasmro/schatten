@@ -70,7 +70,7 @@ describe('Callout', () => {
   })
 
   it('applies the subtle compound classes for the chosen variant', () => {
-    const { container } = render(<Callout variant="success" treatment="subtle" />)
+    const { container } = render(<Callout variant="success" appearance="subtle" />)
     const root = container.firstChild as HTMLElement
     expect(root.className).toContain('bg-success-subtle')
     expect(root.className).toContain('text-success')
@@ -78,7 +78,7 @@ describe('Callout', () => {
   })
 
   it('applies the solid compound classes for the chosen variant', () => {
-    const { container } = render(<Callout variant="error" treatment="solid" />)
+    const { container } = render(<Callout variant="error" appearance="solid" />)
     const root = container.firstChild as HTMLElement
     expect(root.className).toContain('bg-error')
     expect(root.className).toContain('text-error-foreground')
@@ -107,9 +107,9 @@ describe('Callout', () => {
     expect(ref.current).toBeInstanceOf(HTMLDivElement)
   })
 
-  it('uses the inverted Button variant for the close button on solid treatment', () => {
+  it('uses the inverted Button variant for the close button on solid appearance', () => {
     const { container } = render(
-      <Callout variant="error" treatment="solid" onClose={() => {}} title="Failed" />,
+      <Callout variant="error" appearance="solid" onClose={() => {}} title="Failed" />,
     )
     const closeBtn = container.querySelector('button[aria-label="Close"]')
     // The inverted Button variant adds `text-inverted-foreground`; the
@@ -118,9 +118,9 @@ describe('Callout', () => {
     expect(closeBtn?.className).toContain('text-inverted-foreground')
   })
 
-  it('uses the tertiary Button variant for the close button on subtle treatment', () => {
+  it('uses the tertiary Button variant for the close button on subtle appearance', () => {
     const { container } = render(
-      <Callout variant="info" treatment="subtle" onClose={() => {}} title="Heads up" />,
+      <Callout variant="info" appearance="subtle" onClose={() => {}} title="Heads up" />,
     )
     const closeBtn = container.querySelector('button[aria-label="Close"]')
     expect(closeBtn?.className).toContain('text-foreground')

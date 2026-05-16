@@ -2,8 +2,8 @@ export { Badge, type BadgeProps } from './Badge'
 export { Button, type ButtonProps } from './Button'
 export {
   Callout,
+  type CalloutAppearance,
   type CalloutProps,
-  type CalloutTreatment,
   type CalloutVariant,
 } from './Callout'
 export { Checkbox, type CheckboxProps } from './Checkbox'
@@ -45,12 +45,12 @@ export { Textarea, type TextareaProps } from './Textarea'
 export {
   dismissAll,
   type ToastAction,
+  type ToastAppearance,
   type ToastData,
   Toaster,
   type ToasterProps,
   type ToastHandle,
   type ToastInput,
-  type ToastTreatment,
   type ToastVariant,
   toast,
   useToast,

@@ -134,11 +134,11 @@ describe('Toaster integration', () => {
     expect(screen.queryByRole('button', { name: 'Close' })).not.toBeInTheDocument()
   })
 
-  it('handle.update() can change the treatment mid-life and the toast re-renders', () => {
+  it('handle.update() can change the appearance mid-life and the toast re-renders', () => {
     render(<Toaster />)
     let handle: ReturnType<typeof toast>
     act(() => {
-      handle = toast({ title: 'Saved', variant: 'success', treatment: 'subtle' })
+      handle = toast({ title: 'Saved', variant: 'success', appearance: 'subtle' })
     })
     // `border-success` only appears in the subtle compound variant; `border-transparent`
     // only appears in the solid one. Use those as discriminators rather than `bg-success`
@@ -148,7 +148,7 @@ describe('Toaster integration', () => {
     expect(initialClass).toContain('border-success')
     expect(initialClass).not.toContain('border-transparent')
 
-    act(() => handle.update({ treatment: 'solid' }))
+    act(() => handle.update({ appearance: 'solid' }))
     const updatedClass = document.querySelector('li.toast-item')?.className ?? ''
     expect(updatedClass).not.toContain('bg-success-subtle')
     expect(updatedClass).toContain('border-transparent')

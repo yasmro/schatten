@@ -74,20 +74,16 @@ Rule of thumb: anything that expresses *brand character* — seasonality, an
 event identity, a customer's palette — belongs to Special.
 
 > **Deprecation: `--color-primary-*` → `--color-theme-*`**.
-> The CSS variable currently shipping in
+> The shipping variable in
 > [`src/core/tokens/semantic.css`](../../src/core/tokens/semantic.css) is
 > `--color-primary-50..950` (with matching Tailwind utilities
 > `bg-primary-500`, `text-primary-600`, …). This name predates the
 > two-axis model and conflates "the brand's primary color" with "the
 > slot the active theme drives." The canonical name is **`--color-theme-*`**,
 > matching the `data-theme` attribute that controls it. Equivalent
-> Tailwind utilities are `bg-theme-500`, `text-theme-600`, ….
-> The actual rename — across semantic.css, themes/seasonal/themes.css,
-> themes/default/colors.css, base.css, and any component that references
-> `*-primary-*` — ships in **v0.7.0** alongside the allowlist enforcement
-> and the `data-season` → `data-theme` migration. Use `--color-theme-*` /
-> `bg-theme-*` for any new code; do not introduce new `*-primary-*`
-> references.
+> Tailwind utilities will be `bg-theme-500`, `text-theme-600`, …. The
+> actual rename ships in **v0.7.0** — see [v0.7.0 migration plan](#v070-migration-plan)
+> for what changes and how to write code in the meantime.
 
 ### Tokens neither axis touches
 
@@ -219,13 +215,11 @@ value, not in the attribute name.
 > **Deprecation: `data-season` → `data-theme`**.
 > [`src/themes/seasonal/themes.css`](../../src/themes/seasonal/themes.css)
 > and the helpers in [`src/themes/seasonal/index.ts`](../../src/themes/seasonal/index.ts)
-> currently use `data-season="<name>"`. This is **deprecated**. The
-> equivalent canonical form is `data-theme="season--<name>"`
-> (e.g. `data-season="spring-early"` → `data-theme="season--spring-early"`).
-> The actual CSS / helper rename ships in v0.7.0 alongside the allowlist
-> enforcement work. **Authoring rule for new code**: use `data-theme`
-> with the value convention above; do not introduce new `data-season`
-> usage.
+> currently use `data-season="<name>"`. This is deprecated. The canonical
+> form is `data-theme="season--<name>"` (e.g. `data-season="spring-early"`
+> → `data-theme="season--spring-early"`). The actual rename ships in
+> v0.7.0 — see [v0.7.0 migration plan](#v070-migration-plan) for what
+> changes and the authoring rule in the meantime.
 
 **Why `<html>` and not `<body>`.** Storybook, Tailwind v4 `dark:`, and most
 SSR frameworks already key off `<html class="...">`. Putting Mode and
@@ -262,7 +256,9 @@ Three layers work together:
 │   { --color-theme-500: oklch(0.64 0.10 12); }       ◀── 2. seasonal override
 │                                                          (Specificity (0,2,0)
 │                                                           beats :root default)
-│   :root { --color-theme-500: var(--blue-500); }     ◀── 3. default, lost in cascade
+│   :root { --color-theme-500: var(--blue-500); }     ◀── 3. default, overridden by
+│                                                          the higher-specificity
+│                                                          rule above
 │
 └─ inherits ↓
     └─ <body>
@@ -281,7 +277,7 @@ Three layers work together:
 - [`src/core/tokens/primitives.css`](../../src/core/tokens/primitives.css) — `:root { --blue-500: oklch(...); }` (frozen primitives)
 - [`src/core/tokens/semantic.css`](../../src/core/tokens/semantic.css) — `:root { --color-theme-500: var(--blue-500); }` (default chain; legacy name: `--color-primary-500`)
 - [`src/themes/seasonal/themes.css`](../../src/themes/seasonal/themes.css) — `:root[data-theme="season--spring-early"] { --color-theme-500: oklch(...); }` (override; today shipping as `:root[data-season="spring-early"] { --color-primary-500: oklch(...); }`)
-- [`src/core/tokens/base.css`](../../src/core/tokens/base.css) — `@theme { --color-theme-500: var(--color-theme-500); }` (Tailwind v4 registers the variable so `bg-theme-500` becomes a usable utility)
+- [`src/core/tokens/base.css`](../../src/core/tokens/base.css) — `@theme { --color-theme-500: var(--color-theme-500); }`. The self-referential look is intentional: the right-hand `var(--color-theme-500)` reads the value defined in `semantic.css`; the left-hand declaration tells Tailwind v4 "this variable is a theme token — generate utilities for it." Without `@theme`, the variable exists but `bg-theme-500` won't be a usable class.
 - Component — `<Button className="bg-theme-500" />` → Tailwind emits `.bg-theme-500 { background-color: var(--color-theme-500); }` → browser resolves the `var()` against the cascade at paint time.
 
 ### Why this is good for us
@@ -296,7 +292,7 @@ Three layers work together:
 - Anything baked into a primitive class name (`bg-red-500` directly written into JSX) — the primitive is frozen and ignores `data-theme`. This is exactly why the [state-token-guideline](state-token-guideline.md) bans primitive class names in components.
 - Anything resolved at build time (e.g. inline style strings computed from a JS theme object). The CSS variable approach is what makes runtime switching free; routing the value through JS would re-introduce hydration and re-render costs.
 
-## Existing seasonal themes — current vs. new model
+## Seasonal palettes — `data-theme` mapping
 
 The eight seasonal palettes in [`src/themes/seasonal/themes.css`](../../src/themes/seasonal/themes.css)
 already follow the Special-axis pattern in practice: each overrides only
@@ -367,12 +363,50 @@ already prepares for:
 - **Sandboxing**: a consumer Special must not be able to override
   Mode-owned tokens or `info-*`. The allowlist + lint enforces this
   mechanically.
-- **Naming**: external Specials use a vendor prefix in the `data-theme`
-  value following the `<vendor>--<variant>` convention (e.g.
-  `data-theme="acme--summer"`) so two consumers can't collide on the
-  same attribute value.
+- **Naming**: external Specials use a vendor name as the family prefix —
+  `<vendor>--<variant>` — so two consumers can't collide on the same
+  attribute value. Example: `data-theme="acme--summer"` (vendor "acme",
+  their "summer" variant). The `brand--*` family is reserved for
+  first-party brand palettes that ship with Schatten; third parties
+  must use their own vendor namespace.
 
 The public API and packaging story are out of scope for this rule.
+
+## v0.7.0 migration plan
+
+This rule prescribes canonical names (`data-theme`, `--color-theme-*`,
+`bg-theme-*`) and a value convention (`<family>--<variant>`) that are not
+yet reflected in shipping code. Four related changes close the gap in
+**v0.7.0**:
+
+| # | Change | Files affected |
+|---|---|---|
+| 1 | `data-season` → `data-theme` with value transform `X` → `season--X` | `themes/seasonal/themes.css`, `themes/seasonal/index.ts`, `docs/Color.stories.tsx` |
+| 2 | `--color-primary-*` → `--color-theme-*` (and `bg-primary-*` → `bg-theme-*` in components) | `core/tokens/semantic.css`, `core/tokens/base.css`, `themes/default/colors.css`, `themes/seasonal/themes.css`, every component referencing `*-primary-*` |
+| 3 | Allowlist enforcement — build-time lint that fails when a Special writes a token outside its `allowedTokens` | new lint rule + per-Special manifest files |
+| 4 | 16-pattern Storybook audit story (8 Specials × 2 Modes) | new `Foundation/ThemeAudit` story |
+
+Renames #1 and #2 can ship in isolation (they're mechanical sed-style
+replacements with VRT snapshot regeneration); #3 and #4 depend on #1 and
+#2 having landed first.
+
+### Authoring rule until v0.7.0
+
+The canonical names in this rule describe the **target state**. The
+shipping code still uses the legacy names. **Until #1 and #2 land,
+write the legacy names in code** — that's what the build emits as
+Tailwind utilities today:
+
+| Write today | After v0.7.0 |
+|---|---|
+| `data-season="spring-early"` | `data-theme="season--spring-early"` |
+| `--color-primary-500` | `--color-theme-500` |
+| `bg-primary-500`, `text-primary-600`, … | `bg-theme-500`, `text-theme-600`, … |
+
+The v0.7.0 PR will mechanically rename them. Do **not** introduce *new
+patterns* the legacy names accidentally enable — e.g. don't add a `primary`
+reference that you'd want to keep meaning "fixed brand primary, ignore
+themes" after the rename; that's exactly the conflation the new name fixes.
 
 ## Quick reference
 

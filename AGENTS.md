@@ -40,6 +40,7 @@ Before adding or modifying components, read the guideline files under [`.claude/
 - [`state-token-guideline.md`](.claude/rules/state-token-guideline.md) — 3-layer token system, state semantic tokens (`error` / `success` / `warning` / `info` / `destructive`) and the 4-token shape (`base` / `hover` / `foreground` / `subtle`).
 - [`field-context-guideline.md`](.claude/rules/field-context-guideline.md) — `FieldContext` integration patterns for form components (Input / Checkbox / Switch / Radio / Select / Textarea).
 - [`vrt-spec-guideline.md`](.claude/rules/vrt-spec-guideline.md) — Playwright VRT spec template, story-id mapping, snapshot naming.
+- [`testing-guideline.md`](.claude/rules/testing-guideline.md) — Unit test conventions: required cases per component type (form / compound / action / display), BDD naming, typed factories, what NOT to test.
 - [`lint-rules-guideline.md`](.claude/rules/lint-rules-guideline.md) — Biome rules added on top of `recommended` (`useExhaustiveDependencies`, `noUnusedImports/Variables`, `useImportType/ExportType`, `noNonNullAssertion`, `noConsole`) and the rationale for each.
 
 ## Main commands
@@ -78,6 +79,7 @@ pnpm changeset         # Create a changeset for user-facing changes
 | [.claude/rules/state-token-guideline.md](.claude/rules/state-token-guideline.md) | 3-layer token system, 4-token shape, `destructive` vs `error`. |
 | [.claude/rules/field-context-guideline.md](.claude/rules/field-context-guideline.md) | `FieldContext` patterns for form components. |
 | [.claude/rules/vrt-spec-guideline.md](.claude/rules/vrt-spec-guideline.md) | Playwright VRT spec template and snapshot naming. |
+| [.claude/rules/testing-guideline.md](.claude/rules/testing-guideline.md) | Unit test conventions — required cases per component type, BDD naming, typed factories. |
 | [.claude/rules/lint-rules-guideline.md](.claude/rules/lint-rules-guideline.md) | Biome rules added on top of `recommended` and the rationale for each. |
 
 ## Maintenance

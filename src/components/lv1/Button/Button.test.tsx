@@ -138,5 +138,15 @@ describe('Button', () => {
       // and does not bypass the disabled attribute.
       expect(onClick).not.toHaveBeenCalled()
     })
+
+    it('applies cursor-wait while loading (overrides cursor-not-allowed)', () => {
+      render(<Button isLoading>Submit</Button>)
+      // The doubled `aria-busy:disabled:cursor-wait` modifier wins
+      // specificity over `disabled:cursor-not-allowed` when both attributes
+      // are present, so the loading cursor reads as "processing" rather
+      // than "forbidden".
+      const button = screen.getByRole('button')
+      expect(button.className).toContain('aria-busy:disabled:cursor-wait')
+    })
   })
 })

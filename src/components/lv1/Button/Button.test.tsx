@@ -110,5 +110,17 @@ describe('Button', () => {
       expect(spinnerSpan).toHaveClass('opacity-0')
       expect(spinnerSpan).toHaveAttribute('aria-hidden', 'true')
     })
+
+    it('sets aria-busy when isLoading is true', () => {
+      render(<Button isLoading>Submit</Button>)
+      // aria-busy is the hook the variant uses to restore the variant
+      // colours during loading (instead of the disabled token treatment).
+      expect(screen.getByRole('button')).toHaveAttribute('aria-busy', 'true')
+    })
+
+    it('does not emit aria-busy when isLoading is false', () => {
+      render(<Button>Submit</Button>)
+      expect(screen.getByRole('button')).not.toHaveAttribute('aria-busy')
+    })
   })
 })

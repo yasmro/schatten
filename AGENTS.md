@@ -43,6 +43,7 @@ Before adding or modifying components, read the guideline files under [`.claude/
 - [`vrt-spec-guideline.md`](.claude/rules/vrt-spec-guideline.md) — Playwright VRT spec template, story-id mapping, snapshot naming.
 - [`testing-guideline.md`](.claude/rules/testing-guideline.md) — Unit test conventions: required cases per component type (form / compound / action / display), BDD naming, typed factories, what NOT to test.
 - [`lint-rules-guideline.md`](.claude/rules/lint-rules-guideline.md) — Biome rules added on top of `recommended` (`useExhaustiveDependencies`, `noUnusedImports/Variables`, `useImportType/ExportType`, `noNonNullAssertion`, `noConsole`) and the rationale for each.
+- [`api-stability.md`](.claude/rules/api-stability.md) — Public API stability contract effective from v1.0.0: what counts as public API (React props, CSS classes, CSS variables, CVA output), breaking-change policy, and CHANGELOG prefix conventions.
 
 ## Main commands
 
@@ -83,6 +84,7 @@ pnpm changeset         # Create a changeset for user-facing changes
 | [.claude/rules/vrt-spec-guideline.md](.claude/rules/vrt-spec-guideline.md) | Playwright VRT spec template and snapshot naming. |
 | [.claude/rules/testing-guideline.md](.claude/rules/testing-guideline.md) | Unit test conventions — required cases per component type, BDD naming, typed factories. |
 | [.claude/rules/lint-rules-guideline.md](.claude/rules/lint-rules-guideline.md) | Biome rules added on top of `recommended` and the rationale for each. |
+| [.claude/rules/api-stability.md](.claude/rules/api-stability.md) | Public API stability contract (effective v1.0.0) — what is public, breaking-change policy, CHANGELOG conventions. |
 
 ## Maintenance
 

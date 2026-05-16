@@ -118,8 +118,8 @@ surface/foreground Mode is currently active. If a Special needs *different*
 shades in dark mode, it must declare both selectors:
 
 ```css
-:root[data-theme="winter-deep"]  { --color-primary-500: oklch(...); }
-.dark[data-theme="winter-deep"]  { --color-primary-500: oklch(...); }
+:root[data-theme="season--winter-deep"]  { --color-primary-500: oklch(...); }
+.dark[data-theme="season--winter-deep"]  { --color-primary-500: oklch(...); }
 ```
 
 The latter has specificity `(0,3,0)` and beats both `.dark` alone and the
@@ -134,8 +134,8 @@ it makes the partition between axes explicit and testable.
 
 ```ts
 // Design sketch — actual API lands in v0.7.0
-export const springEarlyTheme = {
-  name: 'spring-early',
+export const springEarlySeasonTheme = {
+  name: 'season--spring-early', // matches the data-theme value
   allowedTokens: ['--color-primary-*'],
   // Everything outside this list (foregrounds, surfaces, state colors, info)
   // belongs to Mode.
@@ -149,7 +149,7 @@ What the allowlist will enable, once implemented:
   bleed from a seasonal palette into surfaces/foregrounds.
 - **Audit output**: surface the effective token-by-token attribution in
   Storybook (Foundation → Theme Audit), so designers can see "this colour
-  came from `spring-early`".
+  came from `season--spring-early`".
 
 Until v0.7.0 ships the enforcement, **treat the allowlist as a hand-checked
 convention**: when authoring a new Special, write the tokens it touches at
@@ -165,18 +165,48 @@ Two channels, one per axis:
 | Mode (dark, explicit) | `.dark` on `<html>` | by a theme switcher (e.g. Storybook globals, app-level setting) |
 | Special | `[data-theme="<name>"]` on `<html>` | `applySeasonTheme()` in [`src/themes/seasonal/index.ts`](../../src/themes/seasonal/index.ts), or SSR via `getSeasonAttribute()` |
 
-**One attribute for Special.** A single `data-theme` namespace is used for
-every Special, regardless of whether it represents a season, a brand, or
-a customer palette. Naming conventions inside the value (`spring-early`,
-`brand-acme`, …) carry the sub-category — there is no `data-season` /
-`data-event` / `data-brand` proliferation.
+### `data-theme` value convention
 
-> **Migration note**: the existing seasonal CSS in
+The value of `data-theme` follows one of two shapes:
+
+```
+data-theme="<theme>"
+data-theme="<theme>--<subtheme>"
+```
+
+- `<theme>` is the **theme family** — `season`, `brand`, `holiday`, … or a
+  vendor name (`acme`) for an external Special.
+- `<subtheme>` is the **specific variant** inside that family, separated
+  by a double-dash `--` (chosen because it doesn't collide with valid
+  identifier characters and reads clearly).
+- A one-off Special with no siblings can omit the `--<subtheme>` part
+  (e.g. `data-theme="halloween"`).
+
+Examples:
+
+| `data-theme` value | Meaning |
+|---|---|
+| `season--spring-early` | seasonal palette, spring-early variant |
+| `season--winter-deep` | seasonal palette, winter-deep variant |
+| `brand--acme` | brand palette for "acme" |
+| `acme--summer` | external Special: vendor "acme", their "summer" variant |
+| `halloween` | one-off Special with no sub-variants |
+
+**One attribute for Special.** Every Special — season, brand, vendor,
+one-off — sets the same `data-theme` attribute. There is no `data-season`
+/ `data-event` / `data-brand` proliferation; family is encoded in the
+value, not in the attribute name.
+
+> **Deprecation: `data-season` → `data-theme`**.
 > [`src/themes/seasonal/themes.css`](../../src/themes/seasonal/themes.css)
 > and the helpers in [`src/themes/seasonal/index.ts`](../../src/themes/seasonal/index.ts)
-> still use `data-season`. The rename to `data-theme` ships alongside the
-> v0.7.0 allowlist enforcement work; treat `data-theme` as the canonical
-> attribute when authoring new code.
+> currently use `data-season="<name>"`. This is **deprecated**. The
+> equivalent canonical form is `data-theme="season--<name>"`
+> (e.g. `data-season="spring-early"` → `data-theme="season--spring-early"`).
+> The actual CSS / helper rename ships in v0.7.0 alongside the allowlist
+> enforcement work. **Authoring rule for new code**: use `data-theme`
+> with the value convention above; do not introduce new `data-season`
+> usage.
 
 **Why `<html>` and not `<body>`.** Storybook, Tailwind v4 `dark:`, and most
 SSR frameworks already key off `<html class="...">`. Putting Mode and
@@ -190,16 +220,16 @@ already follow the Special-axis pattern in practice: each overrides only
 `--color-primary-*`. The table below restates that contract in the new
 model so future authors can replicate it.
 
-| Theme | Hue (OKLCH) | Period | `allowedTokens` |
-|---|---|---|---|
-| `spring-early` | 12  | 2/4 – 3/20 | `--color-primary-*` |
-| `spring-late`  | 138 | 3/21 – 5/5 | `--color-primary-*` |
-| `summer-early` | 162 | 5/6 – 6/20 | `--color-primary-*` |
-| `summer-peak`  | 45  | 6/21 – 8/6 | `--color-primary-*` |
-| `autumn-early` | 230 | 8/7 – 9/22 | `--color-primary-*` |
-| `autumn-late`  | 70  | 9/23 – 11/6 | `--color-primary-*` |
-| `winter-early` | 250 | 11/7 – 12/21 | `--color-primary-*` |
-| `winter-deep`  | 0/240 | 12/22 – 2/3 | `--color-primary-*` |
+| `data-theme` value (canonical) | Legacy `data-season` (deprecated) | Hue | Period | `allowedTokens` |
+|---|---|---|---|---|
+| `season--spring-early` | `spring-early` | 12  | 2/4 – 3/20  | `--color-primary-*` |
+| `season--spring-late`  | `spring-late`  | 138 | 3/21 – 5/5  | `--color-primary-*` |
+| `season--summer-early` | `summer-early` | 162 | 5/6 – 6/20  | `--color-primary-*` |
+| `season--summer-peak`  | `summer-peak`  | 45  | 6/21 – 8/6  | `--color-primary-*` |
+| `season--autumn-early` | `autumn-early` | 230 | 8/7 – 9/22  | `--color-primary-*` |
+| `season--autumn-late`  | `autumn-late`  | 70  | 9/23 – 11/6 | `--color-primary-*` |
+| `season--winter-early` | `winter-early` | 250 | 11/7 – 12/21 | `--color-primary-*` |
+| `season--winter-deep`  | `winter-deep`  | 0/240 | 12/22 – 2/3 | `--color-primary-*` |
 
 No existing seasonal theme touches surfaces, foregrounds, borders, accent,
 state colors, or info. **That is the contract** — keep it that way when
@@ -216,10 +246,12 @@ the Storybook theme global on the relevant Color / Foundation stories.
 
 ## Adding a new Special theme (today's process — pre-v0.7.0)
 
-1. **Pick a name** in the flat Special namespace. Use a prefix that
-   conveys the sub-category if it helps readability (`spring-late`,
-   `brand-acme`, …) — but the prefix is just a naming convention, not
-   a separate axis.
+1. **Pick a `data-theme` value** following the `<theme>` or
+   `<theme>--<subtheme>` convention. Examples:
+   `season--spring-late` (new seasonal), `brand--acme` (brand palette),
+   `halloween` (one-off with no sub-variants). The leading family name
+   is just a naming convention — it groups Specials visually and in
+   the Theme Audit story but does not create a separate axis.
 2. **List the tokens you intend to override** as a comment at the top of
    the CSS file. Today's seasonals override `--color-primary-50..950` only —
    match that scope unless you have a documented reason to expand.
@@ -245,8 +277,9 @@ already prepares for:
 - **Sandboxing**: a consumer Special must not be able to override
   Mode-owned tokens or `info-*`. The allowlist + lint enforces this
   mechanically.
-- **Naming**: external Specials should namespace their `data-theme` value
-  (e.g. `data-theme="acme-summer"`) so two consumers can't collide on the
+- **Naming**: external Specials use a vendor prefix in the `data-theme`
+  value following the `<vendor>--<variant>` convention (e.g.
+  `data-theme="acme--summer"`) so two consumers can't collide on the
   same attribute value.
 
 The public API and packaging story are out of scope for this rule.

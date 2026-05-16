@@ -2,11 +2,10 @@ import { cva, type VariantProps } from 'class-variance-authority'
 
 export const buttonVariants = cva(
   // When `aria-busy="true"` (set by Button while `isLoading`), the variant
-  // colours are restored and the whole control fades to 50% — matching the
-  // pre-#182 loading look. The button still has the native `disabled`
-  // attribute, so it remains uninteractive; only the visual treatment
-  // diverges from the standard disabled state.
-  'btn inline-flex items-center justify-center gap-2 whitespace-nowrap leading-none font-medium antialiased cursor-pointer no-underline transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-ring-offset disabled:cursor-not-allowed aria-busy:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0',
+  // colours are restored at full opacity. The button still has the native
+  // `disabled` attribute, so it remains uninteractive; only the visual
+  // treatment diverges from the standard disabled state.
+  'btn inline-flex items-center justify-center gap-2 whitespace-nowrap leading-none font-medium antialiased cursor-pointer no-underline transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-ring-offset disabled:cursor-not-allowed [&_svg]:pointer-events-none [&_svg]:shrink-0',
   {
     variants: {
       variant: {

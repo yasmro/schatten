@@ -12,6 +12,14 @@ consumer-facing and need the same stability guarantees. That means CSS class
 names, CSS variable names, and CVA output strings are part of the contract —
 not just the React props.
 
+> **Before tagging the v1.0.0 RC, re-read this document end-to-end** and
+> reconcile it against the actual surface (the `package.json` `exports` map,
+> the generated `dist/schatten.manifest.json` if it exists by then, the
+> exported CSS classes and variables). This doc was written while pre-1.0;
+> some claims (e.g. the class-name audit deadline, the manifest's existence,
+> peer dependency ranges) will need to be confirmed or revised before the
+> contract goes live. Track that review as a v1.0 release blocker.
+
 ## What counts as public API
 
 From v1.0.0 onward, the following are treated as **public API** and any
@@ -53,8 +61,8 @@ we will not consider their breakage when scoping a release.
 | Phase | Policy |
 |---|---|
 | **Pre-1.0** (current) | Breaking changes permitted in any release. CHANGELOG should still call them out so early adopters can migrate. |
-| **1.0+ patch** | Bug fixes only. No public API changes — additive or breaking. |
-| **1.0+ minor** | Additive changes only (new components, new variants, new CSS variables, new exports). Existing surface must remain compatible. |
+| **1.0+ patch** | Bug fixes only. No public API **surface** changes — no renames, removals, or additions. Token value tweaks (e.g. a slight hex shift on `--color-primary-600`) are permitted because they don't change the *contract*, only the *value at the named slot*; flag them in the CHANGELOG. |
+| **1.0+ minor** | Additive surface changes only (new components, new variants, new CSS variables, new exports). Existing surface must remain compatible. |
 | **1.0+ major** | Breaking changes permitted. Must ship a migration guide. |
 | **Deprecation** | Anything to be removed in a major must spend at least one full major cycle marked deprecated first — in TSDoc (`@deprecated`), in console warnings where feasible, and in the CHANGELOG. |
 
@@ -124,12 +132,33 @@ The implications:
 - **Pin the `class-variance-authority` dependency** at v1.0. CVA changing how
   it joins, dedupes, or orders class names would silently break consumers.
   Upgrading CVA across a version where output shape changes is a `major`.
-- The **set** of class names produced for a given variant tuple is part of
-  the contract; the **order** within the string is not (CSS specificity should
-  not depend on order). If we ever want to start treating order as significant
-  we have to call it out as a `major`.
+- The **deduplicated set** of class names produced for a given variant tuple
+  is part of the contract; the **order** within the string is not. This is
+  safe *only because* CVA + `tailwind-merge` dedupe conflicting utilities
+  before emitting the string — Tailwind utilities share CSS specificity, so
+  if two conflicting utilities ever made it into the output, "last one wins"
+  would mean order silently became contract-relevant. If we ever drop the
+  dedup step (or `tailwind-merge` changes its conflict-resolution behavior),
+  order has to be reclassified as part of the contract, and the change is a
+  `major`.
 - Adding a new variant option to an existing prop (e.g. `<Button variant="ghost">`
   when only `primary | secondary` existed) is `minor` — additive.
+
+## Peer dependency ranges
+
+The `peerDependencies` ranges in `package.json` (currently `react` and
+`react-dom` at `^18.0.0 || ^19.0.0`) are part of the contract because consumers
+resolve them against their own trees. If we ever promote `class-variance-authority`
+or `tailwind-merge` to peer deps, the same rules apply.
+
+- **Narrowing a range** (e.g. dropping React 18 support so the package only
+  accepts React 19+) is **breaking** — a `major` is required. Some
+  consumers' installs will start failing peer-dep resolution.
+- **Widening a range** (e.g. adding React 20 once it's released and we've
+  verified compatibility) is **additive** — `minor`.
+- **Bumping a tooling dep that affects output** (e.g. `class-variance-authority`
+  in a way that changes the emitted class string) is covered separately by
+  the "CVA output stability" section above and is a `major`.
 
 ## CSS variable naming — settle before 1.0
 

@@ -5,8 +5,8 @@
 Schatten's theming is modelled as **two independent axes** that compose at
 runtime:
 
-- **Mode** — exclusive (`light` / `dark`, with `high-contrast` reserved for
-  Phase 5). Owns the base layer: surfaces, foregrounds, borders.
+- **Mode** — exclusive (`light` / `dark`). Owns the base layer: surfaces,
+  foregrounds, borders.
 - **Special** — cumulative (`seasonal-*`, `event-*`, `custom-*`). Owns the
   expressive layer: `primary`, `accent`, and other "characteristic" tokens.
 
@@ -26,7 +26,7 @@ fits into one of these two axes and overrides only the tokens it owns".
 ## Two-axis model
 
 ```
-Axis 1  Mode     (exclusive)   light  |  dark   [|  high-contrast — Phase 5]
+Axis 1  Mode     (exclusive)   light  |  dark
 Axis 2  Special  (cumulative)  seasonal-*  +  event-*  +  custom-*
                                each Special declares an allowlist of tokens
                                it may override
@@ -228,9 +228,9 @@ theme global on the relevant Color / Foundation stories.
    the CSS file. Today's seasonals override `--color-primary-50..950` only —
    match that scope unless you have a documented reason to expand.
 3. **Never override Mode-owned tokens** — surfaces, foregrounds, borders,
-   inverted foregrounds, focus ring, state colors. If a Special needs the
-   foreground to change, that's a sign it should be authored as a Mode
-   instead (or a future high-contrast Mode).
+   inverted foregrounds, focus ring, state colors. A Special that needs to
+   change foreground or surface is mis-categorised: it's a Mode, not a
+   Special.
 4. **Never override `info-*`** — it's pinned to blue across all themes.
 5. **Verify both Modes visually** — open the Color / Foundation stories,
    toggle dark mode, check that text on `primary` surfaces still meets
@@ -238,19 +238,6 @@ theme global on the relevant Color / Foundation stories.
    `Foundation/Color` is the right place to spot-check.
 6. **Add a changeset** — `minor` if the Special ships as a user-facing
    option, `patch` if it's internal-only.
-
-## Adding a new Mode (rare — Phase 5)
-
-`high-contrast` is the most likely next Mode, primarily for accessibility.
-Color-vision modes (deuteranopia/protanopia simulation) are likely Special
-rather than Mode because they retune saturation/hue rather than the
-light/dark base. The decision is deferred to Phase 5 — when the time comes,
-revisit this rule and choose based on:
-
-- **Mode** if the change is exclusive with `light` / `dark` (a user picks
-  exactly one base mode).
-- **Special** if the change layers on top of an existing Mode (an
-  accessibility preference that augments either light or dark).
 
 ## External Special themes (Phase 5+, after 1.0)
 

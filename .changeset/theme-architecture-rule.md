@@ -5,9 +5,9 @@
 docs(rule): add `.claude/rules/theme-architecture.md` (Mode × Special two-axis model)
 
 Theming is now modelled as two independent axes: **Mode** (exclusive — light /
-dark, with high-contrast reserved for Phase 5) owns the base layer (surfaces,
-foregrounds, borders, state shade-shifts); **Special** (cumulative — seasonal,
-event, custom) owns the expressive layer (`primary`, optionally `accent`). The
+dark) owns the base layer (surfaces, foregrounds, borders, state shade-shifts);
+**Special** (cumulative — seasonal, event, custom) owns the expressive layer
+(`primary`, optionally `accent`). The
 cascade resolves as `Special > Mode > base semantic`, with conflicts
 disambiguated by load order rather than selector specificity.
 

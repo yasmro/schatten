@@ -60,6 +60,44 @@ describe('Textarea', () => {
     })
   })
 
+  describe('readOnly', () => {
+    it('marks the textarea as readonly', () => {
+      render(<Textarea aria-label="bio" readOnly defaultValue="value" />)
+      expect(screen.getByRole('textbox')).toHaveAttribute('readonly')
+    })
+
+    it('applies readOnly tokens to the textarea', () => {
+      render(<Textarea aria-label="bio" readOnly />)
+      const ta = screen.getByRole('textbox')
+      expect(ta.className).toContain('bg-surface-readonly')
+      expect(ta.className).toContain('border-border-readonly')
+    })
+
+    it('does not commit typed input when readOnly', async () => {
+      const user = userEvent.setup()
+      render(<Textarea aria-label="bio" readOnly defaultValue="value" />)
+      const ta = screen.getByRole('textbox') as HTMLTextAreaElement
+      await user.click(ta)
+      await user.keyboard('hello')
+      expect(ta.value).toBe('value')
+    })
+
+    it('readOnly visual wins over isError when both are true', () => {
+      render(<Textarea aria-label="bio" readOnly isError />)
+      const ta = screen.getByRole('textbox')
+      // tailwind-merge dedupes conflicting bg / border utilities; readOnly
+      // is concatenated after the isError ternary so its tokens win, while
+      // the unconflicting focus-visible:ring-error survives. aria-invalid
+      // is still emitted so assistive tech sees the error.
+      expect(ta.className).toContain('bg-surface-readonly')
+      expect(ta.className).toContain('border-border-readonly')
+      expect(ta.className).not.toContain('bg-error-subtle')
+      expect(ta.className).not.toContain('border-error')
+      expect(ta.className).toContain('focus-visible:ring-error')
+      expect(ta).toHaveAttribute('aria-invalid', 'true')
+    })
+  })
+
   describe('change handling', () => {
     it('fires onChange while typing', async () => {
       const onChange = vi.fn()

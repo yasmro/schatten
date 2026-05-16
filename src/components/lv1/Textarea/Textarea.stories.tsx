@@ -41,6 +41,15 @@ const meta: Meta<typeof Textarea> = {
         defaultValue: { summary: 'false' },
       },
     },
+    readOnly: {
+      description:
+        'Makes the textarea read-only. The value is focusable and selectable but not editable, and is still submitted with the form. Renders with a warm-tinted readOnly surface to differentiate from disabled.',
+      control: 'boolean',
+      table: {
+        type: { summary: 'boolean' },
+        defaultValue: { summary: 'false' },
+      },
+    },
     rows: {
       description: 'Number of visible text lines.',
       control: 'number',
@@ -100,6 +109,43 @@ export const DisabledWithError: Story = {
     <div className="flex flex-col gap-4 w-80">
       <Textarea disabled isError placeholder="Disabled + error" rows={3} />
       <Textarea disabled isError defaultValue="Disabled + error" rows={3} />
+    </div>
+  ),
+}
+
+export const ReadOnly: Story = {
+  name: 'ReadOnly',
+  render: () => (
+    <div className="flex flex-col gap-4 w-80">
+      <Textarea readOnly defaultValue="Read-only value." rows={3} />
+      <Textarea
+        readOnly
+        defaultValue={'Multi-line read-only content.\nSelectable, but not editable.'}
+        rows={4}
+      />
+    </div>
+  ),
+}
+
+export const DisabledVsReadOnly: Story = {
+  name: 'Disabled vs ReadOnly',
+  render: () => (
+    <div className="flex flex-col gap-3 w-80">
+      <div className="text-xs text-foreground-muted">Default</div>
+      <Textarea defaultValue="Editable content." rows={2} />
+      <div className="text-xs text-foreground-muted mt-2">ReadOnly (informational)</div>
+      <Textarea readOnly defaultValue="Read-only content." rows={2} />
+      <div className="text-xs text-foreground-muted mt-2">Disabled (cannot interact)</div>
+      <Textarea disabled defaultValue="Disabled content." rows={2} />
+    </div>
+  ),
+}
+
+export const ReadOnlyWithError: Story = {
+  name: 'ReadOnly with error',
+  render: () => (
+    <div className="flex flex-col gap-4 w-80">
+      <Textarea readOnly isError defaultValue="ReadOnly + error" rows={3} />
     </div>
   ),
 }

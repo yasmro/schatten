@@ -92,6 +92,59 @@ describe('Input', () => {
     })
   })
 
+  describe('readOnly', () => {
+    it('marks the input as readonly', () => {
+      render(<Input aria-label="email" readOnly defaultValue="value" />)
+      expect(screen.getByRole('textbox')).toHaveAttribute('readonly')
+    })
+
+    it('applies readOnly tokens to the wrapper', () => {
+      const { container } = render(<Input aria-label="email" readOnly />)
+      expect(container.firstChild).toHaveClass('bg-surface-readonly', 'border-border-readonly')
+    })
+
+    it('does not block typing focus — input is still focusable', async () => {
+      const user = userEvent.setup()
+      render(<Input aria-label="email" readOnly defaultValue="value" />)
+      const input = screen.getByRole('textbox')
+      await user.click(input)
+      expect(input).toHaveFocus()
+    })
+
+    it('does not commit typed input when readOnly', async () => {
+      const user = userEvent.setup()
+      render(<Input aria-label="email" readOnly defaultValue="value" />)
+      const input = screen.getByRole('textbox') as HTMLInputElement
+      await user.click(input)
+      await user.keyboard('hello')
+      expect(input.value).toBe('value')
+    })
+
+    it('readOnly visual wins over isError when both are true', () => {
+      const { container } = render(<Input aria-label="email" readOnly isError />)
+      const wrapper = container.firstChild as HTMLElement
+      // tailwind-merge dedupes the conflicting bg / border utilities;
+      // readOnly is concatenated after the isError ternary, so its
+      // tokens win at the wrapper level. The focus-ring modifier
+      // (`has-focus-visible:ring-error`) survives because it does not
+      // conflict with the unmodified readOnly classes.
+      expect(wrapper).toHaveClass('bg-surface-readonly', 'border-border-readonly')
+      expect(wrapper).not.toHaveClass('border-error')
+      expect(wrapper).not.toHaveClass('bg-error-subtle')
+      expect(wrapper.className).toContain('has-focus-visible:ring-error')
+      // aria-invalid is still emitted — assistive tech still sees the error.
+      expect(screen.getByRole('textbox')).toHaveAttribute('aria-invalid', 'true')
+    })
+
+    it('disabled visual wins over readOnly when both are true', () => {
+      const { container } = render(<Input aria-label="email" disabled readOnly />)
+      const wrapper = container.firstChild as HTMLElement
+      expect(wrapper).toHaveClass('bg-surface-disabled', 'border-border-disabled')
+      expect(wrapper).not.toHaveClass('bg-surface-readonly')
+      expect(wrapper).not.toHaveClass('border-border-readonly')
+    })
+  })
+
   describe('change handling', () => {
     it('fires onChange while typing', async () => {
       const onChange = vi.fn()

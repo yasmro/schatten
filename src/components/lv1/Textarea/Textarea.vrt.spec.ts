@@ -2,7 +2,15 @@ import { expect, test } from '@playwright/test'
 
 const STORY_ID_PREFIX = 'components-lv1-textarea'
 
-const stories = ['sizes', 'error', 'disabled', 'disabled-with-error'] as const
+const stories = [
+  'sizes',
+  'error',
+  'disabled',
+  'disabled-with-error',
+  'read-only',
+  'disabled-vs-read-only',
+  'read-only-with-error',
+] as const
 
 const themes = ['light', 'dark'] as const
 

@@ -51,18 +51,18 @@ export const tokens = {
     invertedForegroundMuted: 'var(--color-inverted-foreground-muted)',
     invertedForegroundSubtle: 'var(--color-inverted-foreground-subtle)',
 
-    // Primary scale (overridable per theme)
-    primary50: 'var(--color-primary-50)',
-    primary100: 'var(--color-primary-100)',
-    primary200: 'var(--color-primary-200)',
-    primary300: 'var(--color-primary-300)',
-    primary400: 'var(--color-primary-400)',
-    primary500: 'var(--color-primary-500)',
-    primary600: 'var(--color-primary-600)',
-    primary700: 'var(--color-primary-700)',
-    primary800: 'var(--color-primary-800)',
-    primary900: 'var(--color-primary-900)',
-    primary950: 'var(--color-primary-950)',
+    // Theme scale (overridable per Special theme via [data-theme])
+    theme50: 'var(--color-theme-50)',
+    theme100: 'var(--color-theme-100)',
+    theme200: 'var(--color-theme-200)',
+    theme300: 'var(--color-theme-300)',
+    theme400: 'var(--color-theme-400)',
+    theme500: 'var(--color-theme-500)',
+    theme600: 'var(--color-theme-600)',
+    theme700: 'var(--color-theme-700)',
+    theme800: 'var(--color-theme-800)',
+    theme900: 'var(--color-theme-900)',
+    theme950: 'var(--color-theme-950)',
 
     // State — error
     error: 'var(--color-error)',
@@ -82,7 +82,7 @@ export const tokens = {
     warningForeground: 'var(--color-warning-foreground)',
     warningSubtle: 'var(--color-warning-subtle)',
 
-    // State — info (pinned to blue, independent of `primary`)
+    // State — info (pinned to blue, independent of the theme scale)
     info: 'var(--color-info)',
     infoHover: 'var(--color-info-hover)',
     infoForeground: 'var(--color-info-foreground)',

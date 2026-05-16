@@ -73,25 +73,13 @@ belongs to Mode.
 Rule of thumb: anything that expresses *brand character* — seasonality, an
 event identity, a customer's palette — belongs to Special.
 
-> **Deprecation: `--color-primary-*` → `--color-theme-*`**.
-> The shipping variable in
-> [`src/core/tokens/semantic.css`](../../src/core/tokens/semantic.css) is
-> `--color-primary-50..950` (with matching Tailwind utilities
-> `bg-primary-500`, `text-primary-600`, …). This name predates the
-> two-axis model and conflates "the brand's primary color" with "the
-> slot the active theme drives." The canonical name is **`--color-theme-*`**,
-> matching the `data-theme` attribute that controls it. Equivalent
-> Tailwind utilities will be `bg-theme-500`, `text-theme-600`, …. The
-> actual rename ships in **v0.7.0** — see [v0.7.0 migration plan](#v070-migration-plan)
-> for what changes and how to write code in the meantime.
-
 ### Tokens neither axis touches
 
 A few tokens are pinned by intent and **must not** be moved by either axis:
 
 - `--color-info-*` references `blue-*` directly. Themes that retune the
   theme scale must not drift `info`'s meaning. See
-  [state-token-guideline](state-token-guideline.md#info-independence-from-primary).
+  [state-token-guideline](state-token-guideline.md#info-independence-from-the-theme-scale).
 - Primitives (`--vermillion-*`, `--green-*`, `--blue-*`, …) are theme-agnostic
   by definition and live one layer below semantics.
 
@@ -212,15 +200,6 @@ one-off — sets the same `data-theme` attribute. There is no `data-season`
 / `data-event` / `data-brand` proliferation; family is encoded in the
 value, not in the attribute name.
 
-> **Deprecation: `data-season` → `data-theme`**.
-> [`src/themes/seasonal/themes.css`](../../src/themes/seasonal/themes.css)
-> and the helpers in [`src/themes/seasonal/index.ts`](../../src/themes/seasonal/index.ts)
-> currently use `data-season="<name>"`. This is deprecated. The canonical
-> form is `data-theme="season--<name>"` (e.g. `data-season="spring-early"`
-> → `data-theme="season--spring-early"`). The actual rename ships in
-> v0.7.0 — see [v0.7.0 migration plan](#v070-migration-plan) for what
-> changes and the authoring rule in the meantime.
-
 **Why `<html>` and not `<body>`.** Storybook, Tailwind v4 `dark:`, and most
 SSR frameworks already key off `<html class="...">`. Putting Mode and
 Special on the same element keeps the cascade predictable and means a
@@ -240,12 +219,6 @@ Three layers work together:
    (`bg-theme-500`, `text-theme-600`, …) compile to
    `background-color: var(--color-theme-500)`, so they participate in
    the same cascade.
-
-> The example code below uses the **canonical** `--color-theme-*` /
-> `bg-theme-*` names. The shipping code still uses the legacy
-> `--color-primary-*` / `bg-primary-*`; the rename ships in v0.7.0 (see
-> the deprecation note above). Mentally substitute the legacy name when
-> reading current source.
 
 ### Worked trace: `data-theme="season--spring-early"` → pink button
 
@@ -275,8 +248,8 @@ Three layers work together:
 ### Concretely, in this repo
 
 - [`src/core/tokens/primitives.css`](../../src/core/tokens/primitives.css) — `:root { --blue-500: oklch(...); }` (frozen primitives)
-- [`src/core/tokens/semantic.css`](../../src/core/tokens/semantic.css) — `:root { --color-theme-500: var(--blue-500); }` (default chain; legacy name: `--color-primary-500`)
-- [`src/themes/seasonal/themes.css`](../../src/themes/seasonal/themes.css) — `:root[data-theme="season--spring-early"] { --color-theme-500: oklch(...); }` (override; today shipping as `:root[data-season="spring-early"] { --color-primary-500: oklch(...); }`)
+- [`src/core/tokens/semantic.css`](../../src/core/tokens/semantic.css) — `:root { --color-theme-500: var(--blue-500); }` (default chain)
+- [`src/themes/seasonal/themes.css`](../../src/themes/seasonal/themes.css) — `:root[data-theme="season--spring-early"] { --color-theme-500: oklch(...); }` (override)
 - [`src/core/tokens/base.css`](../../src/core/tokens/base.css) — `@theme { --color-theme-500: var(--color-theme-500); }`. The self-referential look is intentional: the right-hand `var(--color-theme-500)` reads the value defined in `semantic.css`; the left-hand declaration tells Tailwind v4 "this variable is a theme token — generate utilities for it." Without `@theme`, the variable exists but `bg-theme-500` won't be a usable class.
 - Component — `<Button className="bg-theme-500" />` → Tailwind emits `.bg-theme-500 { background-color: var(--color-theme-500); }` → browser resolves the `var()` against the cascade at paint time.
 
@@ -296,24 +269,19 @@ Three layers work together:
 
 The eight seasonal palettes in [`src/themes/seasonal/themes.css`](../../src/themes/seasonal/themes.css)
 already follow the Special-axis pattern in practice: each overrides only
-the theme scale (`--color-primary-*` today; renamed to `--color-theme-*`
-in v0.7.0). The table below restates that contract in the new
-model so future authors can replicate it.
+the theme scale (`--color-theme-*`). The table below restates that contract
+so future authors can replicate it.
 
-| `data-theme` value (canonical) | Legacy `data-season` (deprecated) | Hue | Period | `allowedTokens` |
-|---|---|---|---|---|
-| `season--spring-early` | `spring-early` | 12  | 2/4 – 3/20  | `--color-theme-*` |
-| `season--spring-late`  | `spring-late`  | 138 | 3/21 – 5/5  | `--color-theme-*` |
-| `season--summer-early` | `summer-early` | 162 | 5/6 – 6/20  | `--color-theme-*` |
-| `season--summer-peak`  | `summer-peak`  | 45  | 6/21 – 8/6  | `--color-theme-*` |
-| `season--autumn-early` | `autumn-early` | 230 | 8/7 – 9/22  | `--color-theme-*` |
-| `season--autumn-late`  | `autumn-late`  | 70  | 9/23 – 11/6 | `--color-theme-*` |
-| `season--winter-early` | `winter-early` | 250 | 11/7 – 12/21 | `--color-theme-*` |
-| `season--winter-deep`  | `winter-deep`  | 0/240 | 12/22 – 2/3 | `--color-theme-*` |
-
-(In the shipping code today the `allowedTokens` is `--color-primary-*`;
-both names refer to the same slot — see the deprecation note in
-[Special owns the expressive layer](#special-owns-the-expressive-layer).)
+| `data-theme` value | Hue | Period | `allowedTokens` |
+|---|---|---|---|
+| `season--spring-early` | 12  | 2/4 – 3/20  | `--color-theme-*` |
+| `season--spring-late`  | 138 | 3/21 – 5/5  | `--color-theme-*` |
+| `season--summer-early` | 162 | 5/6 – 6/20  | `--color-theme-*` |
+| `season--summer-peak`  | 45  | 6/21 – 8/6  | `--color-theme-*` |
+| `season--autumn-early` | 230 | 8/7 – 9/22  | `--color-theme-*` |
+| `season--autumn-late`  | 70  | 9/23 – 11/6 | `--color-theme-*` |
+| `season--winter-early` | 250 | 11/7 – 12/21 | `--color-theme-*` |
+| `season--winter-deep`  | 0/240 | 12/22 – 2/3 | `--color-theme-*` |
 
 No existing seasonal theme touches surfaces, foregrounds, borders, accent,
 state colors, or info. **That is the contract** — keep it that way when
@@ -338,8 +306,7 @@ the Storybook theme global on the relevant Color / Foundation stories.
    the Theme Audit story but does not create a separate axis.
 2. **List the tokens you intend to override** as a comment at the top of
    the CSS file. Today's seasonals override the theme scale only
-   (`--color-primary-50..950` in current code; `--color-theme-50..950`
-   after the v0.7.0 rename) — match that scope unless you have a
+   (`--color-theme-50..950`) — match that scope unless you have a
    documented reason to expand.
 3. **Never override Mode-owned tokens** — surfaces, foregrounds, borders,
    inverted foregrounds, focus ring, state colors. A Special that needs to
@@ -374,39 +341,15 @@ The public API and packaging story are out of scope for this rule.
 
 ## v0.7.0 migration plan
 
-This rule prescribes canonical names (`data-theme`, `--color-theme-*`,
-`bg-theme-*`) and a value convention (`<family>--<variant>`) that are not
-yet reflected in shipping code. Four related changes close the gap in
-**v0.7.0**:
+Two follow-up changes still close the gap to the full Mode × Special
+model. Both depend on the `data-theme` / `--color-theme-*` rename that
+shipped in v0.6.x and ride on the canonical names this rule already
+prescribes:
 
 | # | Change | Files affected |
 |---|---|---|
-| 1 | `data-season` → `data-theme` with value transform `X` → `season--X` | `themes/seasonal/themes.css`, `themes/seasonal/index.ts`, `docs/Color.stories.tsx` |
-| 2 | `--color-primary-*` → `--color-theme-*` (and `bg-primary-*` → `bg-theme-*` in components) | `core/tokens/semantic.css`, `core/tokens/base.css`, `themes/default/colors.css`, `themes/seasonal/themes.css`, every component referencing `*-primary-*` |
-| 3 | Allowlist enforcement — build-time lint that fails when a Special writes a token outside its `allowedTokens` | new lint rule + per-Special manifest files |
-| 4 | 16-pattern Storybook audit story (8 Specials × 2 Modes) | new `Foundation/ThemeAudit` story |
-
-Renames #1 and #2 can ship in isolation (they're mechanical sed-style
-replacements with VRT snapshot regeneration); #3 and #4 depend on #1 and
-#2 having landed first.
-
-### Authoring rule until v0.7.0
-
-The canonical names in this rule describe the **target state**. The
-shipping code still uses the legacy names. **Until #1 and #2 land,
-write the legacy names in code** — that's what the build emits as
-Tailwind utilities today:
-
-| Write today | After v0.7.0 |
-|---|---|
-| `data-season="spring-early"` | `data-theme="season--spring-early"` |
-| `--color-primary-500` | `--color-theme-500` |
-| `bg-primary-500`, `text-primary-600`, … | `bg-theme-500`, `text-theme-600`, … |
-
-The v0.7.0 PR will mechanically rename them. Do **not** introduce *new
-patterns* the legacy names accidentally enable — e.g. don't add a `primary`
-reference that you'd want to keep meaning "fixed brand primary, ignore
-themes" after the rename; that's exactly the conflation the new name fixes.
+| 1 | Allowlist enforcement — build-time lint that fails when a Special writes a token outside its `allowedTokens` | new lint rule + per-Special manifest files |
+| 2 | 16-pattern Storybook audit story (8 Specials × 2 Modes) | new `Foundation/ThemeAudit` story |
 
 ## Quick reference
 

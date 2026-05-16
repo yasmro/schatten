@@ -362,24 +362,24 @@ export const Colors: Story = {
 
       <SectionTitle>Color Scales</SectionTitle>
 
-      <SubsectionTitle>Primary</SubsectionTitle>
+      <SubsectionTitle>Theme</SubsectionTitle>
       <p className="text-sm text-foreground-muted mb-3">
-        Primary color scale mapped from theme tokens. The default theme uses blue; seasonal themes
-        override this entire scale.
+        Theme color scale mapped from semantic tokens. The default theme uses blue; seasonal themes
+        override this entire scale via the <code>data-theme</code> attribute.
       </p>
       <ScaleRow
         shades={[
-          { level: '50', className: 'bg-primary-50' },
-          { level: '100', className: 'bg-primary-100' },
-          { level: '200', className: 'bg-primary-200' },
-          { level: '300', className: 'bg-primary-300' },
-          { level: '400', className: 'bg-primary-400' },
-          { level: '500', className: 'bg-primary-500' },
-          { level: '600', className: 'bg-primary-600' },
-          { level: '700', className: 'bg-primary-700' },
-          { level: '800', className: 'bg-primary-800' },
-          { level: '900', className: 'bg-primary-900' },
-          { level: '950', className: 'bg-primary-950' },
+          { level: '50', className: 'bg-theme-50' },
+          { level: '100', className: 'bg-theme-100' },
+          { level: '200', className: 'bg-theme-200' },
+          { level: '300', className: 'bg-theme-300' },
+          { level: '400', className: 'bg-theme-400' },
+          { level: '500', className: 'bg-theme-500' },
+          { level: '600', className: 'bg-theme-600' },
+          { level: '700', className: 'bg-theme-700' },
+          { level: '800', className: 'bg-theme-800' },
+          { level: '900', className: 'bg-theme-900' },
+          { level: '950', className: 'bg-theme-950' },
         ]}
       />
 
@@ -425,8 +425,7 @@ export const Colors: Story = {
 
       <SubsectionTitle>Blue</SubsectionTitle>
       <p className="text-sm text-foreground-muted mb-3">
-        Default primary color. Used as the base for the Primary scale when no seasonal theme is
-        active.
+        Default theme color. Used as the base for the Theme scale when no seasonal theme is active.
       </p>
       <ScaleRow
         shades={[
@@ -536,8 +535,9 @@ export const Colors: Story = {
       <p className="text-sm text-foreground-muted mb-4">
         Eight seasonal color themes based on the Japanese 二十四節気 (24 solar terms). Each theme
         overrides the primary color scale via the{' '}
-        <code className="text-xs bg-gray-100 px-1.5 py-0.5 rounded">data-season</code> attribute on
-        the root element.
+        <code className="text-xs bg-gray-100 px-1.5 py-0.5 rounded">data-theme</code> attribute on
+        the root element (values like{' '}
+        <code className="text-xs bg-gray-100 px-1.5 py-0.5 rounded">season--spring-early</code>).
       </p>
       <div className="flex flex-col gap-5">
         {(

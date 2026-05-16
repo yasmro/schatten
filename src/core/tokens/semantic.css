@@ -7,18 +7,18 @@
  */
 
 :root {
-  /* Primary - will be overridden by themes */
-  --color-primary-50: var(--blue-50);
-  --color-primary-100: var(--blue-100);
-  --color-primary-200: var(--blue-200);
-  --color-primary-300: var(--blue-300);
-  --color-primary-400: var(--blue-400);
-  --color-primary-500: var(--blue-500);
-  --color-primary-600: var(--blue-600);
-  --color-primary-700: var(--blue-700);
-  --color-primary-800: var(--blue-800);
-  --color-primary-900: var(--blue-900);
-  --color-primary-950: var(--blue-950);
+  /* Theme scale — overridden by Special themes via [data-theme] */
+  --color-theme-50: var(--blue-50);
+  --color-theme-100: var(--blue-100);
+  --color-theme-200: var(--blue-200);
+  --color-theme-300: var(--blue-300);
+  --color-theme-400: var(--blue-400);
+  --color-theme-500: var(--blue-500);
+  --color-theme-600: var(--blue-600);
+  --color-theme-700: var(--blue-700);
+  --color-theme-800: var(--blue-800);
+  --color-theme-900: var(--blue-900);
+  --color-theme-950: var(--blue-950);
 
   /* Surfaces */
   --color-background: var(--paper-warm);
@@ -61,7 +61,7 @@
 
   /*
    * Inverted foreground tiers — for text on saturated / dark-background
-   * containers (solid Toast / Callout, primary-colored fills, …).
+   * containers (solid Toast / Callout, theme-colored fills, …).
    * Each tier becomes progressively less prominent against the
    * saturated background, mirroring the foreground / -muted / -subtle
    * hierarchy.
@@ -96,7 +96,7 @@
   --color-warning-foreground: var(--paper-white);
   --color-warning-subtle: var(--amber-50);
 
-  /* Info — references blue directly so themes that retune `primary` do not affect info */
+  /* Info — references blue directly so themes that retune the theme scale do not affect info */
   --color-info: var(--blue-600);
   --color-info-hover: var(--blue-700);
   --color-info-foreground: var(--paper-white);

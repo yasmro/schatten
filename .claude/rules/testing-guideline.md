@@ -62,6 +62,10 @@ whenever there's distinct behavior worth pinning down — coverage of the
 - `ref` reaches the underlying DOM node (forwardRef)
 - Primary `variant` / `size` props apply distinct classes
 - `disabled` (when applicable) blocks interactions
+- Exposes a queryable accessible role + name — `getByRole(role, { name })`
+  returns the component. The role and accessible-name source per
+  component are defined in
+  [component-architecture.md §8](component-architecture.md#8-accessibility-contract)
 
 ### Form input components
 

@@ -1,5 +1,436 @@
 # @yasmro/schatten
 
+## 0.6.0
+
+### Minor Changes
+
+- [#202](https://github.com/yasmro/schatten/pull/202) [`55b5e5d`](https://github.com/yasmro/schatten/commit/55b5e5d1cf6fb3ac3c0d8961e9ee2bb83cc700c7) Thanks [@yasmro](https://github.com/yasmro)! - feat(lv1): add `readOnly` styling to `Input` and `Textarea` (closes [#183](https://github.com/yasmro/schatten/issues/183))
+
+  `Input` and `Textarea` now render with a warm-tinted, non-interactive
+  surface when `readOnly` is set, using the
+  [`--color-surface-readonly`](src/core/tokens/semantic.css) /
+  [`--color-border-readonly`](src/core/tokens/semantic.css) tokens
+  introduced in [#180](https://github.com/yasmro/schatten/issues/180). Until now the two components forwarded the HTML
+  `readonly` attribute but were visually indistinguishable from the
+  editable default, which made the "this value is informational, not
+  editable" intent invisible to users.
+
+  The styling intentionally differs from `disabled`:
+
+  |                 | `disabled`                         | `readOnly`                                |
+  | --------------- | ---------------------------------- | ----------------------------------------- |
+  | Surface         | Cool gray (`bg-surface-disabled`)  | Warm tint (`bg-surface-readonly`)         |
+  | Foreground      | Muted (`text-foreground-disabled`) | Normal — the value stays readable         |
+  | Cursor          | `cursor-not-allowed`               | `cursor-text`                             |
+  | Focus           | Not focusable                      | Focusable, value is selectable / copyable |
+  | Form submission | Value omitted                      | Value submitted                           |
+
+  ### Priority when states stack
+
+  The wrapper (`Input`) and the textarea element (`Textarea`) use the same
+  priority chain via `cn()` + `tailwind-merge`:
+
+  ```
+  disabled  >  readOnly  >  isError
+  ```
+
+  - `readOnly + isError` → readOnly surface wins visually, but
+    `aria-invalid="true"` is still emitted so assistive tech sees the error.
+  - `disabled + readOnly` → disabled wins visually (stronger constraint).
+
+  This mirrors the existing `disabled > isError` policy from [#182](https://github.com/yasmro/schatten/issues/182).
+
+  ### Out of scope
+
+  - `Field` does not yet propagate `readOnly` through `FieldContext` — that
+    is tracked separately. Consumers wanting field-driven readOnly should
+    pass `readOnly` directly to `Input` / `Textarea` for now.
+  - `Select` (HTML has no `readonly` attribute on `<select>`),
+    `Checkbox` / `Radio` / `Switch` (UX intent of read-only is unclear for
+    binary controls) are intentionally not included.
+
+  Stories added per component: `ReadOnly`, `Disabled vs ReadOnly`,
+  `ReadOnly with error`. VRT specs cover all three across light / dark.
+
+- [#197](https://github.com/yasmro/schatten/pull/197) [`7d49b5a`](https://github.com/yasmro/schatten/commit/7d49b5a8fd5ecf3cabf58e4bdb10fec049867346) Thanks [@yasmro](https://github.com/yasmro)! - feat(tokens): add non-interactive state semantic tokens (`disabled` / `readOnly`)
+
+  Adds five new semantic CSS variables in
+  [`semantic.css`](src/core/tokens/semantic.css) and registers them with
+  Tailwind v4 via [`base.css`](src/core/tokens/base.css), so form-control
+  authors can express `disabled` and `readOnly` through token names instead
+  of the current cross-component `cursor-not-allowed opacity-50` pattern.
+
+  The two non-interactive states have intentionally different visual
+  directions:
+
+  |                 | `disabled`                 | `readOnly`                                        |
+  | --------------- | -------------------------- | ------------------------------------------------- |
+  | Intent          | This control is not usable | The value is informational, the control is static |
+  | Form submission | Value is not submitted     | Value is submitted                                |
+  | Focus           | Not focusable              | Focusable                                         |
+  | Visual          | Muted / faded (cool gray)  | Subtle / static (warm tint)                       |
+
+  Tokens added:
+
+  ```css
+  /* disabled — surface + foreground + border */
+  --color-surface-disabled
+  --color-foreground-disabled
+  --color-border-disabled
+
+  /* readOnly — surface + border (foreground stays normal so the value stays readable) */
+  --color-surface-readonly
+  --color-border-readonly
+  ```
+
+  All five are defined in both modes (`:root`, `@media (prefers-color-scheme: dark)`,
+  and `.dark`). Tailwind utilities — `bg-surface-disabled`,
+  `text-foreground-disabled`, `border-border-disabled`, `bg-surface-readonly`,
+  `border-border-readonly` — are generated via the
+  [`@theme`](src/core/tokens/base.css) registration.
+
+  The tokens follow the existing 3-layer hierarchy
+  ([state-token-guideline.md](.claude/rules/state-token-guideline.md)): they
+  sit at the semantic layer and reference primitives. They are NOT state
+  semantic tokens in the `error`/`success`/… sense — there is no `hover` slot —
+  so they do not follow the 4-token shape.
+
+  A new "Non-Interactive States" + "Disabled vs ReadOnly (a11y audit)"
+  section is added to `Foundation/Color` so designers can verify both
+  modes visually.
+
+  This change is additive — no component currently consumes the tokens, so
+  no VRT impact. Component-side adoption (replacing `opacity-50` and
+  introducing readOnly styling on Input/Textarea) lands in separate
+  follow-up issues.
+
+  Also updates two rule docs to acknowledge the new category:
+
+  - [`state-token-guideline.md`](.claude/rules/state-token-guideline.md) gains
+    a "Non-interactive state tokens" section explaining the 3 / 2-slot shape,
+    why there is no `hover` slot, and why `disabled` / `readOnly` use cool
+    and warm hue families respectively.
+  - [`theme-architecture.md`](.claude/rules/theme-architecture.md) pins the
+    five new tokens to the Mode axis and forbids Specials from overriding
+    them — disabled means the same thing regardless of season or brand.
+
+  A new [`docs/decisions/`](docs/decisions/) directory is introduced for
+  design decision logs, with
+  [`2026-05-non-interactive-state-tokens.md`](docs/decisions/2026-05-non-interactive-state-tokens.md)
+  as its first entry. The log captures the alternatives considered (lightness
+  shifts, pattern overlays, dashed borders) and explains why hue family was
+  the chosen differentiator.
+
+  Closes [#180](https://github.com/yasmro/schatten/issues/180). Follow-ups: [#198](https://github.com/yasmro/schatten/issues/198) (designer-review step), [#199](https://github.com/yasmro/schatten/issues/199) (Form States
+  foundation page), [#200](https://github.com/yasmro/schatten/issues/200) (semantic→primitive resolve test).
+
+- [#201](https://github.com/yasmro/schatten/pull/201) [`3dad419`](https://github.com/yasmro/schatten/commit/3dad419b38601ad3128b5680c4f2acec9ae92fc4) Thanks [@yasmro](https://github.com/yasmro)! - refactor(lv1): replace `opacity-50` disabled treatment with semantic disabled tokens (system-wide sweep)
+
+  Adopts the non-interactive state tokens introduced in [#197](https://github.com/yasmro/schatten/issues/197)
+  (`--color-surface-disabled`, `--color-foreground-disabled`,
+  `--color-border-disabled`) across all seven lv1 form / action components
+  that previously expressed disabled via the cross-cutting
+  `cursor-not-allowed opacity-50` pattern.
+
+  `cursor-not-allowed` is preserved. `opacity-50` is removed entirely
+  from the lv1 surface — the disabled look now flows through the same
+  semantic token layer as every other Schatten chrome decision, instead
+  of a global alpha multiplier.
+
+  ## Per-component mapping
+
+  | Component                                    | Disabled treatment now applies                                                                                                                                                                                                    |
+  | -------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+  | `Input`                                      | wrapper: `bg-surface-disabled` + `border-border-disabled` + `text-foreground-disabled`; `<input>`: `text-foreground-disabled`                                                                                                     |
+  | `Textarea`                                   | `bg-surface-disabled` + `border-border-disabled` + `text-foreground-disabled`                                                                                                                                                     |
+  | `Select` (trigger)                           | `bg-surface-disabled` + `border-border-disabled` + `text-foreground-disabled`                                                                                                                                                     |
+  | `Select` (item)                              | `text-foreground-disabled` only — items are rows inside a popup; recolouring the surface would make disabled items more prominent than enabled ones                                                                               |
+  | `Checkbox`                                   | Root: `bg-surface-disabled` + `border-border-disabled` + `text-foreground-disabled`; indicator switched to `text-current` so the check-mark inherits the muted foreground                                                         |
+  | `Radio`                                      | Root: same triple as Checkbox; indicator dot switched to `bg-current` so it inherits the muted foreground                                                                                                                         |
+  | `Switch`                                     | Root: `bg-surface-disabled` + `border-border-disabled`, doubled with `disabled:data-[state=checked]:*` so the disabled tone wins over the checked tone; thumb: `group-disabled:bg-foreground-disabled` (also doubled for checked) |
+  | `Button` (filled — `primary`, `destructive`) | `bg-surface-disabled` + `text-foreground-disabled`                                                                                                                                                                                |
+  | `Button` (`secondary`)                       | `border-border-disabled` + `text-foreground-disabled`                                                                                                                                                                             |
+  | `Button` (`tertiary`, `inverted`, `link`)    | `text-foreground-disabled`                                                                                                                                                                                                        |
+
+  External-label adjacencies (`<label>` rendered by `Checkbox` /
+  `Radio` / `Switch` alongside the control) also moved from
+  `opacity-50` to `text-foreground-disabled` for consistency.
+
+  ## Why
+
+  - **Semantic over alpha.** `opacity-50` is a blunt instrument: it
+    dims everything in the subtree uniformly, including focus rings,
+    borders, and any nested icons. With tokens, each piece of the
+    control reads its disabled colour from a named slot, so designers
+    and theme authors can retune the disabled aesthetic at one place.
+  - **Theme-safe.** The five non-interactive tokens are pinned to the
+    Mode axis (see [theme-architecture.md](.claude/rules/theme-architecture.md))
+    — Specials cannot override them. A seasonal palette that brand-tints
+    the disabled state would be semantically wrong, and the token system
+    enforces this mechanically.
+  - **Better dark-mode behaviour.** A 50%-alpha element on a dark
+    background loses too much luminance contrast against the surround.
+    Disabled-state tokens use mode-specific primitives, so the muted
+    feel is intentional in both Modes rather than being whatever
+    alpha-50 happens to produce.
+
+  ## Priority over `isError`
+
+  When a form control is both `disabled` and `isError`, the disabled
+  visual now wins via Tailwind's `disabled:` modifier specificity
+  (`:disabled` pseudo-class adds one specificity over the unscoped
+  `bg-error-subtle` / `border-error`). This matches the user's mental
+  model: an unusable control should not advertise validation state.
+
+  ## VRT impact
+
+  Disabled-state baselines regenerated for `Button`, `Input`, `Select`,
+  `Switch`, `Textarea`, and `FieldSet` (the latter renders disabled
+  child inputs). `Checkbox` and `Radio` disabled snapshots came out
+  pixel-identical to their old `opacity-50` baselines under the
+  existing 1% diff threshold — the visual delta on a 5-pixel control
+  is below that bound. `Button`'s `loading-*` snapshots also
+  regenerated because `isLoading` internally sets `disabled`.
+
+  Closes [#182](https://github.com/yasmro/schatten/issues/182). Depends on [#197](https://github.com/yasmro/schatten/issues/197) (token definitions).
+
+### Patch Changes
+
+- [#194](https://github.com/yasmro/schatten/pull/194) [`1ba6462`](https://github.com/yasmro/schatten/commit/1ba6462861ac0aa44ef1ccdce9ca4ca519cbc0b3) Thanks [@yasmro](https://github.com/yasmro)! - docs(rule): add `.claude/rules/component-architecture.md` (lv1/lv2 folders, compound vs flat, `asChild` no-new-additions default, polymorphic `as` not adopted, unified context consumption, one-way dependency direction, lv1-local `.css` allowlist)
+
+  Codifies the component-level design choices that have been implicit until now.
+  Complements [`component-api-conventions.md`](.claude/rules/component-api-conventions.md)
+  (added in [#192](https://github.com/yasmro/schatten/issues/192), which holds the authoritative public prop API shape).
+
+  - **lv1 vs lv2 folders**: lv1 is single-responsibility primitives, lv2 is
+    composition. The promotion criterion ("when does a recurring composition
+    become an lv2?") is intentionally deferred — it will be defined as a
+    follow-up rule when the first lv2 lands (~v0.9.0).
+  - **Compound vs flat**: Radix-wrapping components ship as compound (mirror
+    Radix part names one-to-one to preserve ref / context / aria wires);
+    self-built primitives ship as flat. Self-built composition belongs in lv2,
+    not in a compound lv1. `Toast`'s imperative API is called out as the
+    notification-class special case.
+  - **`asChild` — no new lv1 additions by default**. Cross-references
+    `component-api-conventions.md` for the authoritative adoption list and
+    the 3 criteria. Adds two further constraints on top: form inputs and
+    portal content must never expose `asChild`, regardless of how the 3
+    criteria appear to fit. The variants-function pattern (`buttonVariants` /
+    `textVariants` from `@yasmro/schatten/variants`) is documented as the
+    preferred alternative for "render as a different element" needs.
+  - **Polymorphic `as` prop is not adopted** as a general pattern. Carved
+    exception: `Text` exposes a fixed enumeration
+    `as?: 'p' | 'span' | 'h1'…'h6'` — the union is closed, the attribute
+    surface is uniform, and inference cost is zero.
+  - **Context consumption is unified into one rule**: every form lv1 reads
+    `isError` / `disabled` / `describedBy` from `FieldContext` with prop
+    fallback. Only externally-labelled components (`Input`, `Textarea`,
+    `Select`) additionally consume `field.id`. `FieldSetContext` is consumed
+    only by `Field`, which collapses-and-re-provides — form lv1s never read
+    `FieldSetContext` directly.
+  - **Dependency direction is strictly one-way**:
+    `lib` / `contexts` / `variants` → `lv1` → `lv2`. `lv1 → lv2` is forbidden
+    (an lv1 needing an lv2 is misclassified); `lv1 → other lv1` is allowed
+    (e.g. `Dialog` embedding `Button` in its action row); barrel-export
+    laundering (reaching `lib` via `lv1/index.ts`) is forbidden.
+  - **lv1-local `.css` allowlist**: only for things Tailwind / CVA cannot
+    express — `@keyframes`, `animation-play-state` conditional on data-state,
+    `prefers-reduced-motion`, component-scoped CSS variables. The four
+    existing files (Tooltip.css, Dialog.css, Toast.css, Spinner.css) are all
+    animation-only and comply.
+
+  The rule is referenced from CLAUDE.md / AGENTS.md and the `review-pr`
+  command checklist.
+
+  No public API or component behaviour changes.
+
+- [#196](https://github.com/yasmro/schatten/pull/196) [`2952fb5`](https://github.com/yasmro/schatten/commit/2952fb5bfdabc1cecd55ac25437c9ab2901a44e7) Thanks [@yasmro](https://github.com/yasmro)! - chore(hook): add `.claude/settings.json` hooks for lv1 edit-time checks
+
+  Adds two non-blocking Claude Code hooks so test/vrt-less `lv1` additions
+  get caught at edit time (AI or human), without relying on post-hoc CI.
+
+  - **PostToolUse(Edit|Write|MultiEdit)** → [`scripts/check-lv1-companions.mjs`](scripts/check-lv1-companions.mjs).
+    When the edit lands on `src/components/lv1/{X}/{X}.tsx`, verifies that
+    `{X}.test.tsx` and `{X}.vrt.spec.ts` exist as siblings; surfaces a
+    system-reminder via `hookSpecificOutput.additionalContext` if missing.
+  - **Stop** → [`scripts/check-lv1-export-integrity.mjs`](scripts/check-lv1-export-integrity.mjs).
+    Diffs `lv1` component directories against the `from './...'` re-exports
+    in `src/components/lv1/index.ts` (both directions, so orphan exports
+    are flagged too).
+
+  Both scripts read the Claude Code stdin JSON contract
+  (`tool_input.file_path`, `$CLAUDE_PROJECT_DIR`), exit `0` always, and
+  emit messages via `additionalContext` so they reach Claude as a
+  system-reminder. node-only, no shell dependencies — works on Windows.
+  Complements (does not replace) the existing lefthook pre-commit step.
+
+  Repo-tooling change only — no source, no published artifact change.
+
+  Closes [#107](https://github.com/yasmro/schatten/issues/107).
+
+- [#195](https://github.com/yasmro/schatten/pull/195) [`8e35e30`](https://github.com/yasmro/schatten/commit/8e35e3024bfd79980522d2f618ac2588342a9f57) Thanks [@yasmro](https://github.com/yasmro)! - refactor(tokens): rename `--color-primary-*` → `--color-theme-*` (and `bg-primary-*` utilities → `bg-theme-*`)
+
+  The CSS variable that drives the Special-axis color scale is renamed from
+  `--color-primary-*` to `--color-theme-*`, matching the `data-theme` attribute
+  that controls it. The legacy `--color-primary-*` name conflated "the brand's
+  primary color" with "the slot the active theme drives" — the new name fixes
+  the conflation. See [`.claude/rules/theme-architecture.md`](.claude/rules/theme-architecture.md)
+  (PR [#189](https://github.com/yasmro/schatten/issues/189)) for the full Mode × Special two-axis model.
+
+  Changes:
+
+  - [`src/core/tokens/semantic.css`](src/core/tokens/semantic.css) — the default
+    chain `--color-primary-50..950: var(--blue-*)` becomes `--color-theme-50..950`.
+  - [`src/core/tokens/base.css`](src/core/tokens/base.css) — Tailwind v4 `@theme`
+    registration updated, so `bg-theme-500` / `text-theme-600` / etc. are the
+    generated utility classes.
+  - [`src/themes/default/colors.css`](src/themes/default/colors.css) — default
+    theme references the new names.
+  - [`src/themes/seasonal/themes.css`](src/themes/seasonal/themes.css) — eight
+    seasonal palettes (88 declarations + the transition list) use the new names.
+  - [`src/tokens.ts`](src/tokens.ts) — the TS-typed `tokens.color` export renames
+    `primary50..primary950` keys to `theme50..theme950`, pointing at
+    `var(--color-theme-*)`.
+  - [`src/docs/Color.stories.tsx`](src/docs/Color.stories.tsx) — the "Primary"
+    scale subsection becomes "Theme" and uses `bg-theme-*` utilities.
+
+  This is a breaking change for any consumer that references `--color-primary-*`,
+  `bg-primary-*` / `text-primary-*` / `border-primary-*` utility classes, or the
+  `tokens.color.primary*` TS keys. Migrate via:
+
+  ```diff
+  - background-color: var(--color-primary-500);
+  + background-color: var(--color-theme-500);
+
+  - <div className="bg-primary-500" />
+  + <div className="bg-theme-500" />
+
+  - const fill = tokens.color.primary500
+  + const fill = tokens.color.theme500
+  ```
+
+  The `info` semantic is unaffected — it remains pinned to `blue-*` directly,
+  independent of the theme scale. Action-component `variant="primary"` (on
+  `Button`) is also unaffected — that's a _role_ name, not a token name.
+
+  Out of scope (lands in v0.7.0): allowlist enforcement, 16-pattern audit story,
+  and the matching `data-season` → `data-theme` rename (shipped separately).
+
+- [#195](https://github.com/yasmro/schatten/pull/195) [`8e35e30`](https://github.com/yasmro/schatten/commit/8e35e3024bfd79980522d2f618ac2588342a9f57) Thanks [@yasmro](https://github.com/yasmro)! - refactor(themes): rename `data-season` → `data-theme` with `season--*` value prefix
+
+  The seasonal theming attribute is renamed from `data-season="<name>"` to the
+  unified `data-theme="season--<name>"`, matching the Mode × Special two-axis
+  model documented in [`.claude/rules/theme-architecture.md`](.claude/rules/theme-architecture.md)
+  (PR [#189](https://github.com/yasmro/schatten/issues/189)). The single `data-theme` attribute is now the channel for _every_
+  Special theme (seasonal, brand, vendor, one-off) — the family is encoded in
+  the value, not in a proliferation of attribute names.
+
+  Changes:
+
+  - [`src/themes/seasonal/themes.css`](src/themes/seasonal/themes.css) — the eight
+    `:root[data-season="X"]` selectors become `:root[data-theme="season--X"]`.
+  - [`src/themes/seasonal/index.ts`](src/themes/seasonal/index.ts) — `applySeasonTheme`
+    / `getSeasonAttribute` / `removeSeasonTheme` keep their function names; only
+    the underlying attribute name + value transform change.
+  - [`.storybook/preview.tsx`](.storybook/preview.tsx) — the Storybook theme toolbar
+    decorator follows the same transform.
+  - [`src/docs/Color.stories.tsx`](src/docs/Color.stories.tsx) — text reference updated.
+
+  This is a breaking change for any consumer that targets `[data-season=...]` in
+  their own CSS, or sets the attribute manually. Migrate via:
+
+  ```diff
+  - <html data-season="spring-early">
+  + <html data-theme="season--spring-early">
+  ```
+
+  Consumers using the SDK helpers (`applySeasonTheme`, `getSeasonAttribute`,
+  `removeSeasonTheme`) require no code change — the new attribute is applied
+  transparently.
+
+  Out of scope (lands in v0.7.0): allowlist enforcement, 16-pattern (8 Specials
+  × 2 Modes) Storybook audit story.
+
+- [#190](https://github.com/yasmro/schatten/pull/190) [`e3f3db3`](https://github.com/yasmro/schatten/commit/e3f3db3c794cceb6db179181be45b7e1efbb553d) Thanks [@yasmro](https://github.com/yasmro)! - docs(rule): add `.claude/rules/testing-guideline.md`
+
+  The repo had VRT conventions written down ([vrt-spec-guideline.md](.claude/rules/vrt-spec-guideline.md))
+  but no equivalent rule for **unit tests**, even though 16 `lv1` components
+  shipped with ~290 test cases across them. The conventions were enforced by
+  PR review and "follow Button.test.tsx style" — fine for humans, but a thin
+  contract for AI-assisted contributions and new contributors.
+
+  New rule codifies:
+
+  - **Responsibility split** with [vrt-spec-guideline](.claude/rules/vrt-spec-guideline.md):
+    unit tests assert behavior + a11y wiring, VRT specs assert pixels.
+  - **Required cases per component type** — Form / Compound / Action / Display.
+    Form-input components must cover controlled+uncontrolled, error state, and
+    Field-context propagation; compound components must cover open/close
+    transitions and portal rendering; action components must cover handler
+    firing and `asChild`.
+  - **Writing style** — BDD-style `it` names, `describe` as the Given
+    container, typed factories for non-trivial setup, no `// Arrange / Act /
+Assert` labels (tests are too small to benefit).
+  - **What NOT to test** — Radix internals, Tailwind class strings verbatim,
+    coverage as a number, Storybook stories.
+  - **Canonical examples** cross-linked to real test files:
+    [`BasicSelect`](src/components/lv1/Select/Select.test.tsx) (typed
+    factory), [`ContextConsumer`](src/components/lv1/Field/Field.test.tsx)
+    (context wiring helper),
+    [`Controlled`](src/components/lv1/Dialog/Dialog.test.tsx) (stateful
+    wrapper), [`renderTooltip`](src/components/lv1/Tooltip/Tooltip.test.tsx)
+    (provider wrapper).
+
+  Linked from CLAUDE.md `Guidelines` and AGENTS.md `Required reading` + Resource
+  Map, alongside the other rule files. No source / test changes; existing tests
+  already match the codified conventions.
+
+  Closes [#103](https://github.com/yasmro/schatten/issues/103).
+
+- [#189](https://github.com/yasmro/schatten/pull/189) [`3cab2a4`](https://github.com/yasmro/schatten/commit/3cab2a4fad5cbbd2356b246e95d1d4e12c158fa3) Thanks [@yasmro](https://github.com/yasmro)! - docs(rule): add `.claude/rules/theme-architecture.md` (Mode × Special two-axis model)
+
+  Theming is now modelled as two independent **exclusive** axes: **Mode**
+  (`light` / `dark`) owns the base layer (surfaces, foregrounds, borders, state
+  shade-shifts); **Special** (`<none>` / `season--*` / brand themes / customer
+  palettes) owns the expressive layer — the **`--color-theme-*` scale**,
+  optionally `accent`. At most one Special is active at a time, set via
+  `data-theme="<value>"` on `<html>`.
+
+  The cascade resolves as `Special > Mode > base semantic` — Specials win on
+  specificity (single-attribute selector beats `:root` / `.dark`), not on
+  stylesheet load order.
+
+  The new rule documents:
+
+  - The two-axis model and which tokens each axis owns
+  - Cascade rules (specificity-based, with load order as tie-breaker for the
+    stylesheet chain only)
+  - A **token allowlist** mechanism — each Special declares which tokens it may
+    override (design only; enforcement lint lands in v0.7.0)
+  - DOM application: `.dark` for Mode, single `data-theme` attribute for Special
+  - A **`data-theme` value convention**: `<theme>` for one-offs or
+    `<theme>--<subtheme>` for families (e.g. `season--spring-early`,
+    `brand--acme`, `halloween`). One attribute, one value namespace, no
+    `data-season` / `data-event` / `data-brand` proliferation.
+  - A mapping table for the eight existing seasonal palettes, showing both the
+    canonical `data-theme` form (`season--spring-early`) and the legacy
+    `data-season` form
+  - Process for adding a new Special today (pre-v0.7.0)
+
+  **Deprecations** (both rename in v0.7.0 alongside the allowlist enforcement
+  and the 8 × 2 = 16-pattern Storybook audit story):
+
+  - `data-season="<name>"` → `data-theme="season--<name>"`. Family encoded in
+    the value, not in a separate attribute.
+  - `--color-primary-*` / `bg-primary-*` → `--color-theme-*` / `bg-theme-*`.
+    The token name now matches the attribute that drives it (`data-theme`),
+    removing the "primary brand color" vs "theme-driven slot" conflation.
+
+  New code MUST use the canonical names (`data-theme`, `--color-theme-*`,
+  `bg-theme-*`); do not introduce new `data-season` or `*-primary-*` usage.
+
+  No public API or component behaviour changes in this PR — only the rule.
+
 ## 0.5.0
 
 ### Minor Changes

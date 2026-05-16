@@ -26,6 +26,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
       size,
       isError: isErrorProp = false,
       disabled: disabledProp,
+      readOnly,
       id: idProp,
       'aria-describedby': ariaDescribedByProp,
       ...props
@@ -48,10 +49,12 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
           isError
             ? 'border-error bg-error-subtle focus-visible:ring-error'
             : 'border-border-strong',
+          readOnly && 'cursor-text bg-surface-readonly border-border-readonly',
           className,
         )}
         ref={ref}
         disabled={disabled}
+        readOnly={readOnly}
         aria-invalid={isError || undefined}
         aria-describedby={ariaDescribedBy}
         {...props}

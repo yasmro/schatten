@@ -10,6 +10,9 @@ const stories = [
   'error',
   'disabled',
   'disabled-with-error',
+  'read-only',
+  'disabled-vs-read-only',
+  'read-only-with-error',
 ] as const
 
 const themes = ['light', 'dark'] as const

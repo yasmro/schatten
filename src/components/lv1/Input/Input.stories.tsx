@@ -69,6 +69,15 @@ const meta: Meta<typeof Input> = {
         defaultValue: { summary: 'false' },
       },
     },
+    readOnly: {
+      description:
+        'Makes the input read-only. The value is focusable and selectable but not editable, and is still submitted with the form. Renders with a warm-tinted readOnly surface to differentiate from disabled.',
+      control: 'boolean',
+      table: {
+        type: { summary: 'boolean' },
+        defaultValue: { summary: 'false' },
+      },
+    },
     type: {
       description: 'HTML input type.',
       control: 'select',
@@ -187,6 +196,40 @@ export const DisabledWithError: Story = {
     <div className="flex flex-col gap-4 w-72">
       <Input disabled isError placeholder="Disabled + error" />
       <Input disabled isError defaultValue="Disabled + error" />
+    </div>
+  ),
+}
+
+export const ReadOnly: Story = {
+  name: 'ReadOnly',
+  render: () => (
+    <div className="flex flex-col gap-4 w-72">
+      <Input readOnly defaultValue="Read-only value" />
+      <Input readOnly iconLeft="Lock" defaultValue="With icon" />
+      <Input readOnly textLeft="ID" defaultValue="usr_123456" />
+    </div>
+  ),
+}
+
+export const DisabledVsReadOnly: Story = {
+  name: 'Disabled vs ReadOnly',
+  render: () => (
+    <div className="flex flex-col gap-3 w-72">
+      <div className="text-xs text-foreground-muted">Default</div>
+      <Input defaultValue="Editable value" />
+      <div className="text-xs text-foreground-muted mt-2">ReadOnly (informational)</div>
+      <Input readOnly defaultValue="Read-only value" />
+      <div className="text-xs text-foreground-muted mt-2">Disabled (cannot interact)</div>
+      <Input disabled defaultValue="Disabled value" />
+    </div>
+  ),
+}
+
+export const ReadOnlyWithError: Story = {
+  name: 'ReadOnly with error',
+  render: () => (
+    <div className="flex flex-col gap-4 w-72">
+      <Input readOnly isError defaultValue="ReadOnly + error" />
     </div>
   ),
 }

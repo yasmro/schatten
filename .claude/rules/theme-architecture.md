@@ -7,8 +7,8 @@ runtime:
 
 - **Mode** — exclusive (`light` / `dark`). Owns the base layer: surfaces,
   foregrounds, borders.
-- **Special** — exclusive (`seasonal-*`, brand themes, customer palettes,
-  …). Owns the expressive layer: the `theme` scale, `accent`, and other
+- **Special** — exclusive (`season--*`, `brand--*`, vendor palettes, …).
+  Owns the expressive layer: the `theme` scale, `accent`, and other
   "characteristic" tokens.
 
 Both axes are exclusive: exactly one Mode is active (`light` xor `dark`),
@@ -30,21 +30,24 @@ fits into one of these two axes and overrides only the tokens it owns".
 
 ```
 Axis 1  Mode     (exclusive)   light  |  dark
-Axis 2  Special  (exclusive)   <none>  |  seasonal-*  |  brand-*  |  custom-*
+Axis 2  Special  (exclusive)   <none>  |  season--*  |  brand--*  |  <vendor>--*
                                each Special declares an allowlist of tokens
                                it may override
 ```
 
-A Special name lives in a **single flat namespace**. Subcategories
-(`seasonal-spring-early`, `brand-acme`, …) are just naming conventions
+A Special name lives in a **single flat namespace**, with values shaped
+as `<family>` or `<family>--<variant>` (full convention in
+[DOM application](#data-theme-value-convention)). Family prefixes
+(`season--spring-early`, `brand--acme`, …) are just naming conventions
 inside that namespace — they don't get separate DOM attributes, separate
 cascade tiers, or separate allowlist semantics. Keeping Special exclusive
 and single-attribute is a deliberate scope choice: the previous design
-considered cumulative Specials with per-category attributes, but the
+considered cumulative Specials with per-family attributes, but the
 combinatorial cost (cascade tie-breaking, allowlist intersection rules,
 multiple DOM attributes to keep in sync) was not worth it for any
-foreseeable use case. Reach for [external Specials](#external-special-themes-future)
-before reaching for "two Specials at once".
+foreseeable use case. If you ever need themes from multiple sources at
+once, that's a sign you want the [external Special API](#external-special-themes-future)
+(future work), not two `data-theme` attributes.
 
 ### Mode owns the base layer
 

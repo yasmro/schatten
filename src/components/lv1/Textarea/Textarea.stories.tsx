@@ -93,3 +93,13 @@ export const Disabled: Story = {
     </div>
   ),
 }
+
+export const DisabledWithError: Story = {
+  name: 'Disabled with error',
+  render: () => (
+    <div className="flex flex-col gap-4 w-80">
+      <Textarea disabled isError placeholder="Disabled + error" rows={3} />
+      <Textarea disabled isError defaultValue="Disabled + error" rows={3} />
+    </div>
+  ),
+}

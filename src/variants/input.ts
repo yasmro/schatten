@@ -17,7 +17,7 @@ export const inputWrapperVariants = cva(
 )
 
 export const inputVariants = cva(
-  'flex-1 min-w-0 bg-transparent text-foreground outline-none placeholder:text-foreground-muted disabled:cursor-not-allowed disabled:opacity-50 file:border-0 file:bg-transparent file:text-sm file:font-medium',
+  'flex-1 min-w-0 bg-transparent text-foreground outline-none placeholder:text-foreground-muted disabled:cursor-not-allowed disabled:text-foreground-disabled file:border-0 file:bg-transparent file:text-sm file:font-medium',
 )
 
 export type InputVariants = VariantProps<typeof inputWrapperVariants>

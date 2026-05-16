@@ -2,7 +2,14 @@ import { expect, test } from '@playwright/test'
 
 const STORY_ID_PREFIX = 'components-lv1-radio'
 
-const stories = ['sizes', 'with-labels', 'horizontal', 'error-state', 'disabled'] as const
+const stories = [
+  'sizes',
+  'with-labels',
+  'horizontal',
+  'error-state',
+  'disabled',
+  'disabled-with-error',
+] as const
 
 const themes = ['light', 'dark'] as const
 

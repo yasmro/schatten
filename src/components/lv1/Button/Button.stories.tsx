@@ -219,3 +219,34 @@ export const Disabled: Story = {
     </div>
   ),
 }
+
+export const InvertedOnSaturatedSurfaces: Story = {
+  name: 'Inverted on saturated surfaces',
+  render: () => (
+    <div className="flex flex-col gap-3">
+      {[
+        { label: 'error', cls: 'bg-error text-error-foreground' },
+        { label: 'success', cls: 'bg-success text-success-foreground' },
+        { label: 'warning', cls: 'bg-warning text-warning-foreground' },
+        { label: 'info', cls: 'bg-info text-info-foreground' },
+        { label: 'destructive', cls: 'bg-destructive text-destructive-foreground' },
+        { label: 'solid (brand)', cls: 'bg-solid text-solid-foreground' },
+      ].map((s) => (
+        <div
+          key={s.label}
+          className={`flex items-center justify-between gap-4 px-4 py-3 rounded ${s.cls}`}
+        >
+          <span className="text-sm font-medium">On {s.label} surface</span>
+          <div className="flex gap-2">
+            <Button variant="inverted" size="sm">
+              Enabled
+            </Button>
+            <Button variant="inverted" size="sm" disabled>
+              Disabled
+            </Button>
+          </div>
+        </div>
+      ))}
+    </div>
+  ),
+}

@@ -1,7 +1,7 @@
 import { cva, type VariantProps } from 'class-variance-authority'
 
 export const radioVariants = cva(
-  'peer relative inline-flex shrink-0 items-center justify-center rounded-full border border-border-strong bg-transparent transition-colors duration-200 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-ring-offset disabled:cursor-not-allowed disabled:opacity-50',
+  'peer relative inline-flex shrink-0 items-center justify-center rounded-full border border-border-strong bg-transparent text-foreground transition-colors duration-200 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-ring-offset disabled:cursor-not-allowed disabled:bg-surface-disabled disabled:border-border-disabled disabled:text-foreground-disabled',
   {
     variants: {
       size: {

@@ -180,3 +180,13 @@ export const Disabled: Story = {
     </div>
   ),
 }
+
+export const DisabledWithError: Story = {
+  name: 'Disabled with error',
+  render: () => (
+    <div className="flex flex-col gap-4 w-72">
+      <Input disabled isError placeholder="Disabled + error" />
+      <Input disabled isError defaultValue="Disabled + error" />
+    </div>
+  ),
+}

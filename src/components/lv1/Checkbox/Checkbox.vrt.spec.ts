@@ -9,6 +9,7 @@ const stories = [
   'indeterminate',
   'error-state',
   'disabled',
+  'disabled-with-error',
 ] as const
 
 const themes = ['light', 'dark'] as const

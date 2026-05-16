@@ -107,7 +107,7 @@ export const Switch = forwardRef<ElementRef<typeof SwitchPrimitive.Root>, Switch
             className={cn(
               labelSizeClasses[size ?? 'md'],
               'text-foreground cursor-pointer select-none',
-              disabled && 'cursor-not-allowed opacity-50',
+              disabled && 'cursor-not-allowed text-foreground-disabled',
             )}
           >
             {label}

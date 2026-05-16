@@ -145,7 +145,7 @@ export const Radio = forwardRef<ElementRef<typeof RadioGroupPrimitive.Item>, Rad
         >
           <RadioGroupPrimitive.Indicator className="absolute inset-0 flex items-center justify-center">
             <span
-              className={cn('rounded-full', 'bg-foreground', indicatorSizeClasses[size ?? 'md'])}
+              className={cn('rounded-full', 'bg-current', indicatorSizeClasses[size ?? 'md'])}
             />
           </RadioGroupPrimitive.Indicator>
         </RadioGroupPrimitive.Item>
@@ -155,7 +155,7 @@ export const Radio = forwardRef<ElementRef<typeof RadioGroupPrimitive.Item>, Rad
             className={cn(
               labelSizeClasses[size ?? 'md'],
               'text-foreground cursor-pointer select-none',
-              disabled && 'cursor-not-allowed opacity-50',
+              disabled && 'cursor-not-allowed text-foreground-disabled',
             )}
           >
             {label}

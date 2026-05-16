@@ -170,3 +170,13 @@ export const Disabled: Story = {
     </div>
   ),
 }
+
+export const DisabledWithError: Story = {
+  name: 'Disabled with error',
+  render: () => (
+    <div className="flex flex-col gap-3">
+      <Checkbox label="Disabled + error" disabled isError />
+      <Checkbox label="Disabled + error, checked" disabled isError defaultChecked />
+    </div>
+  ),
+}

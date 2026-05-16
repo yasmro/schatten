@@ -2,7 +2,15 @@ import { expect, test } from '@playwright/test'
 
 const STORY_ID_PREFIX = 'components-lv1-switch'
 
-const stories = ['sizes', 'states', 'with-labels', 'error-state', 'disabled'] as const
+const stories = [
+  'sizes',
+  'states',
+  'with-labels',
+  'error-state',
+  'disabled',
+  'disabled-with-error',
+  'all-states',
+] as const
 
 const themes = ['light', 'dark'] as const
 

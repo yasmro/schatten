@@ -87,7 +87,9 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           isError
             ? 'border-error bg-error-subtle has-focus-visible:ring-error'
             : 'border-border-strong',
-          disabled ? 'cursor-not-allowed opacity-50' : 'cursor-text',
+          disabled
+            ? 'cursor-not-allowed bg-surface-disabled border-border-disabled text-foreground-disabled'
+            : 'cursor-text',
           className,
         )}
         onClick={handleWrapperClick}

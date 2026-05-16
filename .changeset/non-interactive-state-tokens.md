@@ -54,4 +54,22 @@ no VRT impact. Component-side adoption (replacing `opacity-50` and
 introducing readOnly styling on Input/Textarea) lands in separate
 follow-up issues.
 
-Closes #180.
+Also updates two rule docs to acknowledge the new category:
+
+- [`state-token-guideline.md`](.claude/rules/state-token-guideline.md) gains
+  a "Non-interactive state tokens" section explaining the 3 / 2-slot shape,
+  why there is no `hover` slot, and why `disabled` / `readOnly` use cool
+  and warm hue families respectively.
+- [`theme-architecture.md`](.claude/rules/theme-architecture.md) pins the
+  five new tokens to the Mode axis and forbids Specials from overriding
+  them — disabled means the same thing regardless of season or brand.
+
+A new [`docs/decisions/`](docs/decisions/) directory is introduced for
+design decision logs, with
+[`2026-05-non-interactive-state-tokens.md`](docs/decisions/2026-05-non-interactive-state-tokens.md)
+as its first entry. The log captures the alternatives considered (lightness
+shifts, pattern overlays, dashed borders) and explains why hue family was
+the chosen differentiator.
+
+Closes #180. Follow-ups: #198 (designer-review step), #199 (Form States
+foundation page), #200 (semantic→primitive resolve test).

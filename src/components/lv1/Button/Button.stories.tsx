@@ -44,7 +44,33 @@ const meta: Meta<typeof Button> = {
     icon: {
       description:
         'Lucide icon component to render. Import the icon from `lucide-react` and pass it directly (e.g. `icon={Search}`).',
-      control: false,
+      // The select lists icon names for ergonomics; `mapping` resolves each
+      // name back to the actual `LucideIcon` component the prop expects.
+      control: 'select',
+      options: [
+        'ArrowRight',
+        'ChevronLeft',
+        'ChevronRight',
+        'Download',
+        'ExternalLink',
+        'Plus',
+        'Search',
+        'Send',
+        'Trash2',
+        'X',
+      ],
+      mapping: {
+        ArrowRight,
+        ChevronLeft,
+        ChevronRight,
+        Download,
+        ExternalLink,
+        Plus,
+        Search,
+        Send,
+        Trash2,
+        X,
+      },
       table: {
         type: { summary: 'LucideIcon' },
         defaultValue: { summary: '-' },

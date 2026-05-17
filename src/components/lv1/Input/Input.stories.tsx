@@ -44,7 +44,11 @@ const meta: Meta<typeof Input> = {
     iconLeft: {
       description:
         'Lucide icon component rendered before the input. Ignored when textLeft is set. Import the icon from `lucide-react` and pass it directly (e.g. `iconLeft={Search}`).',
-      control: false,
+      // The select lists icon names for ergonomics; `mapping` resolves each
+      // name back to the actual `LucideIcon` component the prop expects.
+      control: 'select',
+      options: ['CircleAlert', 'Eye', 'Globe', 'Lock', 'Mail', 'Search'],
+      mapping: { CircleAlert, Eye, Globe, Lock, Mail, Search },
       table: {
         type: { summary: 'LucideIcon' },
       },
@@ -52,7 +56,9 @@ const meta: Meta<typeof Input> = {
     iconRight: {
       description:
         'Lucide icon component rendered after the input. Ignored when textRight is set. Import the icon from `lucide-react` and pass it directly.',
-      control: false,
+      control: 'select',
+      options: ['CircleAlert', 'Eye', 'Globe', 'Lock', 'Mail', 'Search'],
+      mapping: { CircleAlert, Eye, Globe, Lock, Mail, Search },
       table: {
         type: { summary: 'LucideIcon' },
       },

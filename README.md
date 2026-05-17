@@ -189,6 +189,47 @@ import { buttonVariants } from '@yasmro/schatten/variants'
 
 Both forms are supported and stable.
 
+### Icons
+
+Components that take an icon (`Button` / `Badge` `icon`, `Input`
+`iconLeft` / `iconRight`, `Dialog`'s footer-button `icon`) accept a Lucide
+**icon component** — import it from `lucide-react` and pass it directly:
+
+```tsx
+import { Search } from 'lucide-react'
+import { Button } from '@yasmro/schatten'
+
+<Button icon={Search}>Search</Button>
+```
+
+Passing the component (rather than a name string) means your bundler only
+includes the icons you actually use — there is no icon registry inside
+schatten to bloat your bundle, and no allowlist to contend with.
+
+**String-driven icons (CMS content, Astro island / RSC boundaries).** When
+an icon must be chosen from a serializable value — a string from a CMS, or a
+prop crossing an Astro island / React Server Component boundary — keep a
+small icon map **in your own app**. You own the map, so it stays
+tree-shakeable and never needs a change to schatten:
+
+```ts
+// app/icons.ts — your app owns this
+import { Search, Trash2, ArrowRight, type LucideIcon } from 'lucide-react'
+
+export const appIcons = { Search, Trash2, ArrowRight } satisfies Record<string, LucideIcon>
+export type AppIconName = keyof typeof appIcons
+```
+
+```tsx
+// Resolve the string to a component on your side of the boundary
+import { Button } from '@yasmro/schatten'
+import { appIcons, type AppIconName } from './app/icons'
+
+function IconButton({ iconName, label }: { iconName: AppIconName; label: string }) {
+  return <Button icon={appIcons[iconName]}>{label}</Button>
+}
+```
+
 ### Token-only usage
 
 If you want only the design tokens (CSS custom properties) without

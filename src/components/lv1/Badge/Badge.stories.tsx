@@ -73,7 +73,21 @@ const meta: Meta<typeof Badge> = {
     icon: {
       description:
         'Lucide icon component to render. Import the icon from `lucide-react` and pass it directly (e.g. `icon={Check}`).',
-      control: false,
+      // The select lists icon names for ergonomics; `mapping` resolves each
+      // name back to the actual `LucideIcon` component the prop expects.
+      control: 'select',
+      options: [
+        'ArrowLeft',
+        'ArrowRight',
+        'Check',
+        'CircleAlert',
+        'Clock',
+        'Sparkles',
+        'Star',
+        'Tag',
+        'X',
+      ],
+      mapping: { ArrowLeft, ArrowRight, Check, CircleAlert, Clock, Sparkles, Star, Tag, X },
       table: {
         type: { summary: 'LucideIcon' },
         defaultValue: { summary: '-' },

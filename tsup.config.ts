@@ -1,18 +1,10 @@
-import { copyFileSync, mkdirSync, readdirSync } from 'node:fs'
 import { defineConfig } from 'tsup'
 
-function copyCssAssets() {
-  const dirs = ['core/tokens', 'themes/default', 'themes/seasonal']
-  for (const dir of dirs) {
-    mkdirSync(`dist/${dir}`, { recursive: true })
-    for (const file of readdirSync(`src/${dir}`)) {
-      if (file.endsWith('.css')) {
-        copyFileSync(`src/${dir}/${file}`, `dist/${dir}/${file}`)
-      }
-    }
-  }
-}
-
+// CSS assets are copied into `dist/` by the standalone `build:copy-css` step
+// (scripts/copy-css-assets.mjs), not by a tsup `onSuccess` hook. See issue #121:
+// hanging the copy off a single build group made it silently dependent on the
+// config-array order.
+//
 // `clean` lives in the build script (rimraf via `pnpm clean:dist`) instead of
 // in a single config block — tsup runs all configs in parallel, so a per-config
 // `clean: true` can race with the other configs' DTS emit and silently wipe
@@ -41,7 +33,7 @@ export default defineConfig([
       options.jsx = 'automatic'
     },
   },
-  // Seasonal theme utilities + CSS asset copy
+  // Seasonal theme utilities
   {
     entry: {
       'themes/seasonal/index': 'src/themes/seasonal/index.ts',
@@ -49,6 +41,5 @@ export default defineConfig([
     format: ['esm', 'cjs'],
     dts: true,
     external: ['react', 'react-dom', 'lucide-react'],
-    onSuccess: copyCssAssets,
   },
 ])

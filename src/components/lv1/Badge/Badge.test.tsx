@@ -68,30 +68,18 @@ describe('Badge', () => {
       expect(root.className).toContain('border-border-strong')
     })
 
-    it('applies the brand-accent fill when accent + solid is passed', () => {
-      const { container } = render(
-        <Badge variant="accent" appearance="solid">
-          Accent
-        </Badge>,
-      )
-      const root = container.firstChild as HTMLElement
-      expect(root.className).toContain('bg-solid')
-      expect(root.className).toContain('text-solid-foreground')
-    })
-
-    it('applies muted fill when neutral + solid is passed (visually distinct from accent)', () => {
+    it('applies muted fill when neutral + solid is passed', () => {
       const { container } = render(
         <Badge variant="neutral" appearance="solid">
           Muted
         </Badge>,
       )
       const root = container.firstChild as HTMLElement
-      // neutral + solid uses `--color-foreground-muted` as the surface
-      // (cool/neutral mid-gray that swaps with mode), distinct from
-      // `--color-solid` which accent uses (warm alabaster).
+      // neutral + solid is the only "non-state filled chip" — uses
+      // `--color-foreground-muted` (mode-aware mid-tone gray) with
+      // inverted-foreground text.
       expect(root.className).toContain('bg-foreground-muted')
       expect(root.className).toContain('text-inverted-foreground')
-      expect(root.className).not.toContain('bg-solid')
     })
   })
 

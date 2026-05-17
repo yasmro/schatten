@@ -26,28 +26,29 @@ align 1:1 with the semantic token suffixes (`bg-{state}-subtle`,
 `bg-{state}`) and CSS class names — renaming would have introduced a
 translation layer between props and tokens.
 
-**Variant rename**: `variant="default"` is split into `neutral` / `accent` to
-disambiguate the overloaded "default" name:
+**Variant rename**: `variant="default"` is renamed to `variant="neutral"`.
+There is intentionally **no separate brand-accent tone** — Pattern B
+keeps a single non-state surface (`neutral`) plus the four state variants.
 
 ```diff
 - <Badge variant="default" treatment="subtle">tag</Badge>
 + <Badge variant="neutral" appearance="subtle">tag</Badge>
 
 - <Badge variant="default" treatment="solid">tag</Badge>
-+ <Badge variant="accent" appearance="solid">tag</Badge>
++ <Badge variant="neutral" appearance="solid">tag</Badge>
 ```
 
-`neutral` is paired with `subtle` / `outline`; `accent` is paired with
-`solid`. Other combinations (`neutral + solid`, `accent + subtle`,
-`accent + outline`) emit no fill classes today — pick a state variant if
-you need a defined visual treatment.
+**Visual change for legacy `default + solid`**: the legacy
+`default + solid` combination used `bg-solid` (alabaster, warm dark).
+The new `neutral + solid` uses `bg-foreground-muted` + `text-inverted-foreground`
+(cool mid-tone gray that swaps with mode). This is a deliberate pre-1.0
+visual change — the new gray reads more "neutral" and matches the variant
+name. All other previously valid combinations produce the same CSS classes
+as before.
 
 **Type renames**: `CalloutTreatment` → `CalloutAppearance`,
-`ToastTreatment` → `ToastAppearance`.
-
-**Visuals unchanged**: every previously valid combination produces the same
-CSS classes as before. VRT snapshots only update where story content changed
-(e.g. "default" labels became "neutral").
+`ToastTreatment` → `ToastAppearance`. `CalloutVariant` / `ToastVariant`
+union types narrow to `'neutral' | 'success' | 'error' | 'warning' | 'info'`.
 
 **Not in this release** (intentionally deferred):
 - Pattern B appearance value renames (`solid` → `filled`, etc.) — declined

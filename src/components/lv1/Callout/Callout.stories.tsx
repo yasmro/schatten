@@ -47,9 +47,9 @@ const meta: Meta<typeof Callout> = {
     variant: {
       description: 'Tone / state variant. Drives the icon, color treatment, and accent.',
       control: 'select',
-      options: ['neutral', 'accent', 'success', 'error', 'warning', 'info'],
+      options: ['neutral', 'success', 'error', 'warning', 'info'],
       table: {
-        type: { summary: '"neutral" | "accent" | "success" | "error" | "warning" | "info"' },
+        type: { summary: '"neutral" | "success" | "error" | "warning" | "info"' },
         defaultValue: { summary: 'neutral' },
       },
     },
@@ -88,8 +88,7 @@ const meta: Meta<typeof Callout> = {
 export default meta
 type Story = StoryObj<typeof Callout>
 
-const SOLID_VARIANTS = ['neutral', 'accent', 'success', 'error', 'warning', 'info'] as const
-const SUBTLE_VARIANTS = ['neutral', 'success', 'error', 'warning', 'info'] as const
+const VARIANTS = ['neutral', 'success', 'error', 'warning', 'info'] as const
 
 export const Playground: Story = {
   name: 'Playground',
@@ -105,7 +104,7 @@ export const SubtleTreatments: Story = {
   name: 'Subtle Treatments',
   render: () => (
     <div className="flex flex-col gap-3 max-w-xl">
-      {SUBTLE_VARIANTS.map((variant) => (
+      {VARIANTS.map((variant) => (
         <Callout key={variant} variant={variant} appearance="subtle" title={variant.toUpperCase()}>
           The quick brown fox jumps over the lazy dog.
         </Callout>
@@ -118,7 +117,7 @@ export const SolidTreatments: Story = {
   name: 'Solid Treatments',
   render: () => (
     <div className="flex flex-col gap-3 max-w-xl">
-      {SOLID_VARIANTS.map((variant) => (
+      {VARIANTS.map((variant) => (
         <Callout key={variant} variant={variant} appearance="solid" title={variant.toUpperCase()}>
           The quick brown fox jumps over the lazy dog.
         </Callout>
@@ -259,32 +258,24 @@ export const FullMatrix: Story = {
     docs: {
       description: {
         story:
-          'Defined `variant` × `appearance` combinations. `neutral` supports both appearances; `accent` is paired with `solid` today; state variants support both.',
+          'Every defined `variant` × `appearance` combination. All five variants support both appearances.',
       },
     },
   },
   render: () => (
     <div className="grid grid-cols-1 gap-3 max-w-2xl">
-      {SUBTLE_VARIANTS.map((variant) => (
-        <Callout
-          key={`${variant}-subtle`}
-          variant={variant}
-          appearance="subtle"
-          title={`${variant} / subtle`}
-        >
-          The quick brown fox jumps over the lazy dog.
-        </Callout>
-      ))}
-      {SOLID_VARIANTS.map((variant) => (
-        <Callout
-          key={`${variant}-solid`}
-          variant={variant}
-          appearance="solid"
-          title={`${variant} / solid`}
-        >
-          The quick brown fox jumps over the lazy dog.
-        </Callout>
-      ))}
+      {(['subtle', 'solid'] as const).map((appearance) =>
+        VARIANTS.map((variant) => (
+          <Callout
+            key={`${variant}-${appearance}`}
+            variant={variant}
+            appearance={appearance}
+            title={`${variant} / ${appearance}`}
+          >
+            The quick brown fox jumps over the lazy dog.
+          </Callout>
+        )),
+      )}
     </div>
   ),
 }

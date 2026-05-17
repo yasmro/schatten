@@ -6,7 +6,6 @@ export const badgeVariants = cva(
     variants: {
       variant: {
         neutral: '',
-        accent: '',
         success: '',
         error: '',
         warning: '',
@@ -24,11 +23,10 @@ export const badgeVariants = cva(
       },
     },
     compoundVariants: [
-      // neutral — non-state baseline. `solid` uses `--color-foreground-muted`
-      // (a mid-tone gray that swaps with mode) + inverted foreground text,
-      // intentionally distinct from `accent + solid`'s alabaster surface so
-      // designers can place a muted-but-emphatic chip without invoking the
-      // brand accent.
+      // neutral — non-state baseline.
+      // `solid` uses `--color-foreground-muted` + inverted foreground for
+      // a muted-but-emphatic surface. This is the only "non-state filled
+      // chip" — there is no separate brand-accent variant in Pattern B.
       {
         variant: 'neutral',
         appearance: 'solid',
@@ -40,14 +38,6 @@ export const badgeVariants = cva(
         class: 'bg-surface-hover text-foreground border-border-strong',
       },
       { variant: 'neutral', appearance: 'outline', class: 'text-foreground border-border-strong' },
-      // accent — brand-accent surface. Only solid is defined today; subtle
-      // and outline would need an `--color-accent-subtle` token that does
-      // not exist yet.
-      {
-        variant: 'accent',
-        appearance: 'solid',
-        class: 'border-transparent bg-solid text-solid-foreground',
-      },
       // success
       {
         variant: 'success',

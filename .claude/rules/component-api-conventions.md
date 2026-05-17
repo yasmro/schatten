@@ -28,7 +28,7 @@ component picks exactly one. Mixing them in a single component is forbidden.
 | Pattern | Used by | Shape | Rationale |
 |---|---|---|---|
 | **A. Role-based (single-axis)** | Action components — `Button`. | `variant` only. Each value names a complete role (color × shape baked together). | Action components have a small, well-known set of UX roles ("primary", "destructive", "link"). Decomposing them into color × shape produces nonsense combinations (`destructive + link`?) and worsens ergonomics for the common case. shadcn/ui — the project base — also keeps Button single-axis. |
-| **B. Tone × Shape (two-axis)** | State / notification components — `Badge`, `Callout`, `Toast`. | `variant` (tone) × `appearance` (shape). Each axis is meaningful in isolation. | Components that signal *state* genuinely need both axes: an "error solid Toast" and an "error subtle Callout" both exist, with the same meaning but different visual weight. Naming each pair (e.g. `error-solid`, `error-subtle`) would explode the vocabulary. |
+| **B. Tone × Shape (two-axis)** | State / notification components — `Badge`, `Callout`, `Toast`. | `variant` (tone) × `appearance` (shape). Each axis is meaningful in isolation. | Components that signal *state* genuinely need both axes: an "error solid Toast" and an "error subtle Callout" both exist, with the same meaning but different visual weight. Naming each pair (e.g. `error-solid`, `error-subtle`) would explode the vocabulary. Pattern B has **no brand-accent variant** — non-state surfaces all go through `neutral`. |
 
 **How to choose a pattern when designing a new component.** Ask:
 "Do I want a user to dial color independently of visual weight?"
@@ -90,8 +90,7 @@ For state / notification components, two orthogonal props:
 
 | Value | Meaning | Token family |
 |---|---|---|
-| `neutral` *(default)* | No semantic meaning. The "this is just a chip / banner / toast" baseline. | `foreground` / `border-strong` / `surface-hover` (subtle); `foreground-muted` / `inverted-foreground` (solid) |
-| `accent` | Brand accent — highlighted, "look here" without state semantics. | `solid` (brand-accent role token) [†] |
+| `neutral` *(default)* | No semantic meaning. The "this is just a chip / banner / toast" baseline. Covers both quiet (subtle / outline) and muted-but-emphatic (solid) uses. | `foreground` / `border-strong` / `surface-hover` (subtle); `foreground-muted` / `inverted-foreground` (solid) |
 | `success` | Positive state (completed, saved). | `success-*` |
 | `error` | Error state (form invalid, request failed). | `error-*` |
 | `warning` | Caution state. | `warning-*` |
@@ -100,20 +99,16 @@ For state / notification components, two orthogonal props:
 Tone vocabulary does **not** include `destructive` — Pattern B components
 are not actions, so destructive intent doesn't apply.
 
-**[†] Provisional implementation note for `accent`.** The `accent` tone is
-*intended* to express the brand color (vermillion). Today it routes through
-the `--color-solid` token, which is currently mapped to the alabaster
-(warm-gray) scale rather than vermillion. The visual you get from
-`<Badge variant="accent" appearance="solid">` is therefore a near-black
-chip, **not** a brand-red chip — matching the legacy `default + solid`
-look. The intent / implementation gap closes when
-[#185](https://github.com/yasmro/schatten/issues/185) lands (v0.8.0) and
-introduces `--color-accent` as a role-named token routed to vermillion.
-Until then, designers who need an actually-vermillion chip should reach
-for `variant="error"` (also vermillion-based) and document the
-appropriation, or wait for #185. Do not paper over the gap by hardcoding
-primitive color classes (`bg-vermillion-500`) — those violate the
-[state-token guideline](state-token-guideline.md).
+Tone vocabulary intentionally does **not** include `accent` either —
+Pattern B doesn't have a "brand-color but no state" tone. Designers
+needing an emphatic non-state surface use `neutral + solid`; brand
+expression on Pattern B happens through the theme layer (Mode × Special,
+see [theme-architecture](theme-architecture.md)) and through state
+variants like `error` (which uses vermillion). Adding an `accent` tone
+that routes back to either `--color-solid` or `--color-accent` was
+considered and rejected because the visual would have overlapped
+`neutral + solid` without adding a distinguishable role (2026-05-17
+review).
 
 ### Shape vocabulary (`appearance`)
 
@@ -144,9 +139,9 @@ component uses.
 | Component | Pattern | Supported `variant` | Supported `appearance` | Notes |
 |---|---|---|---|---|
 | `Button` | A | `primary` · `secondary` · `tertiary` · `destructive` · `inverted` · `link` | — | No `appearance` prop. See Pattern A vocabulary. |
-| `Badge` | B | `neutral` · `accent` · `success` · `error` · `warning` · `info` | `solid` · `outline` · `subtle` | All three shapes meaningful (chip, ring, subtle fill). |
-| `Callout` | B | `neutral` · `accent` · `success` · `error` · `warning` · `info` | `solid` · `subtle` | No `outline` — Callouts need a tinted surface to convey state. |
-| `Toast` | B | `neutral` · `accent` · `success` · `error` · `warning` · `info` | `solid` · `subtle` | Same shape subset as `Callout`. |
+| `Badge` | B | `neutral` · `success` · `error` · `warning` · `info` | `solid` · `outline` · `subtle` | All three shapes meaningful (chip, ring, subtle fill). |
+| `Callout` | B | `neutral` · `success` · `error` · `warning` · `info` | `solid` · `subtle` | No `outline` — Callouts need a tinted surface to convey state. |
+| `Toast` | B | `neutral` · `success` · `error` · `warning` · `info` | `solid` · `subtle` | Same shape subset as `Callout`. |
 | `Spinner` | — | `default` · `inverted` | — | Out of pattern. `default` for ordinary surfaces, `inverted` for use on saturated/colored surfaces (inside a solid Button, on a `*-foreground` background). Kept as a small special case rather than forced into Pattern A/B; revisit only if Spinner gains more color needs. |
 | `Input` · `Textarea` · `Select` · `Checkbox` · `Radio` · `Switch` | — | (none — always neutral) | — | Error state via the `isError` prop, not `variant`. |
 | `Text` | (exception) | re-used for typography role: `body` \| `label` \| `heading` | — | Typography is structural, not chrome — color lives on a separate `color` prop. The **only** approved re-use of the `variant` prop name with different semantics. |
@@ -164,8 +159,8 @@ reintroduced.
 
 | Legacy | Replacement | Notes |
 |---|---|---|
-| `Badge/Callout/Toast variant="default"` *(subtle / outline cases)* | `variant="neutral"` | Rename only. |
-| `Badge/Callout/Toast variant="default" treatment="solid"` *(solid case)* | `variant="accent" appearance="solid"` | The legacy `default + solid` used the `bg-solid` token, so the migration target is `accent` (semantically: "brand-ish emphasis without state"), **not** `neutral`. **Note**: `bg-solid` currently maps to alabaster (warm gray), not vermillion — see the "Provisional implementation note for `accent`" above. The naming reflects intent; the implementation lands fully when [#185](https://github.com/yasmro/schatten/issues/185) splits `--color-accent` out as a brand-routed token. |
+| `Badge/Callout/Toast variant="default"` | `variant="neutral"` | Rename. All `default` callsites map to `neutral` regardless of treatment — Pattern B no longer has a separate brand-accent tone. |
+| `Badge/Callout/Toast treatment="solid"` (on legacy `default`) | `appearance="solid"` (on new `neutral`) | Visual changes: legacy `default + solid` (alabaster fill via `bg-solid`) becomes `neutral + solid` (cool mid-gray via `bg-foreground-muted` + `text-inverted-foreground`). Pre-1.0 visual change accepted in exchange for vocabulary clarity. |
 | `treatment` (prop name) | `appearance` | Across the board. Values (`solid` / `subtle` / `outline`) are unchanged — only the prop name moves. |
 
 The shape values (`solid` / `subtle` / `outline`) are **kept as-is** from
@@ -279,10 +274,9 @@ component's destructuring default in the same commit.
    in the component's TSDoc header.
 2. **Look up vocabularies, don't invent.** For Pattern A: re-use existing
    roles where possible (`primary` / `secondary` / …). For Pattern B:
-   use the canonical tone (`neutral` / `accent` / `success` / `error` /
-   `warning` / `info`) and shape (`solid` / `subtle` / `outline`)
-   vocabularies. **Subsetting is encouraged; extending requires
-   discussion.**
+   use the canonical tone (`neutral` / `success` / `error` / `warning` /
+   `info`) and shape (`solid` / `subtle` / `outline`) vocabularies.
+   **Subsetting is encouraged; extending requires discussion.**
 3. **Reuse existing tokens.** Never reach for primitive scales — go
    through semantic tokens (`bg-error`, `text-error-foreground`, …). See
    [state-token-guideline](state-token-guideline.md).

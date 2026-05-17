@@ -8,7 +8,6 @@ import { dismiss, type ToastData, type ToastVariant } from './use-toast'
 
 const iconByVariant: Record<ToastVariant, LucideIcon> = {
   neutral: Info,
-  accent: Info,
   info: Info,
   success: CircleCheck,
   warning: TriangleAlert,

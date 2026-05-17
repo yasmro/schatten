@@ -5,9 +5,9 @@ import { Badge } from './Badge'
  * Badge displays small status descriptors. Two axes drive its
  * appearance:
  *
- * - **`variant`** — semantic tone (`neutral` / `accent` / `success` /
- *   `error` / `warning` / `info`). State variants reuse the same state
- *   semantic tokens as Toast and Callout.
+ * - **`variant`** — semantic tone (`neutral` / `success` / `error` /
+ *   `warning` / `info`). State variants reuse the same state semantic
+ *   tokens as Toast and Callout.
  * - **`appearance`** — visual weight (`subtle` (default) / `solid` /
  *   `outline`). Value names align 1:1 with the underlying token
  *   suffix (`bg-{state}-subtle`, `bg-{state}`).
@@ -17,13 +17,9 @@ import { Badge } from './Badge'
  *
  * Badge is intentionally state-oriented (no `destructive` variant) —
  * use `error` for "failed/invalid" tags. For destructive *actions*,
- * use `<Button variant="destructive">`.
- *
- * **Coverage note**: `neutral` supports all three appearances (subtle /
- * solid / outline). `accent` is defined only for `solid` today
- * ([#204](https://github.com/yasmro/schatten/issues/204) tracks the
- * remaining `accent + subtle` / `accent + outline` definitions, blocked on
- * [#185](https://github.com/yasmro/schatten/issues/185)).
+ * use `<Button variant="destructive">`. There is intentionally **no
+ * brand-accent variant** — Pattern B keeps a single non-state surface
+ * (`neutral`) plus the four state variants.
  */
 
 const meta: Meta<typeof Badge> = {
@@ -38,9 +34,9 @@ const meta: Meta<typeof Badge> = {
       description:
         'Semantic tone of the badge. State variants (success / error / warning / info) share the same state semantic tokens as Toast and Callout.',
       control: 'select',
-      options: ['neutral', 'accent', 'success', 'error', 'warning', 'info'],
+      options: ['neutral', 'success', 'error', 'warning', 'info'],
       table: {
-        type: { summary: '"neutral" | "accent" | "success" | "error" | "warning" | "info"' },
+        type: { summary: '"neutral" | "success" | "error" | "warning" | "info"' },
         defaultValue: { summary: 'neutral' },
       },
     },
@@ -93,9 +89,8 @@ const meta: Meta<typeof Badge> = {
 export default meta
 type Story = StoryObj<typeof Badge>
 
-const SOLID_VARIANTS = ['neutral', 'accent', 'success', 'error', 'warning', 'info'] as const
-const SUBTLE_VARIANTS = ['neutral', 'success', 'error', 'warning', 'info'] as const
-const OUTLINE_VARIANTS = ['neutral', 'success', 'error', 'warning', 'info'] as const
+const VARIANTS = ['neutral', 'success', 'error', 'warning', 'info'] as const
+const APPEARANCES = ['solid', 'subtle', 'outline'] as const
 
 export const Playground: Story = {
   name: 'Playground',
@@ -111,7 +106,7 @@ export const SolidTreatments: Story = {
   name: 'Solid Treatments',
   render: () => (
     <div className="flex flex-wrap gap-4">
-      {SOLID_VARIANTS.map((variant) => (
+      {VARIANTS.map((variant) => (
         <Badge key={variant} variant={variant} appearance="solid">
           {variant}
         </Badge>
@@ -124,7 +119,7 @@ export const SubtleTreatments: Story = {
   name: 'Subtle Treatments',
   render: () => (
     <div className="flex flex-wrap gap-4">
-      {SUBTLE_VARIANTS.map((variant) => (
+      {VARIANTS.map((variant) => (
         <Badge key={variant} variant={variant} appearance="subtle">
           {variant}
         </Badge>
@@ -137,7 +132,7 @@ export const OutlineTreatments: Story = {
   name: 'Outline Treatments',
   render: () => (
     <div className="flex flex-wrap gap-4">
-      {OUTLINE_VARIANTS.map((variant) => (
+      {VARIANTS.map((variant) => (
         <Badge key={variant} variant={variant} appearance="outline">
           {variant}
         </Badge>
@@ -152,30 +147,22 @@ export const FullMatrix: Story = {
     docs: {
       description: {
         story:
-          'Defined `variant` × `appearance` combinations. `neutral` supports all three appearances; `accent` is paired with `solid` today; state variants support all three.',
+          'Every defined `variant` × `appearance` combination. All five variants support all three appearances.',
       },
     },
   },
   render: () => (
     <div className="flex flex-col gap-3">
-      {(['solid', 'subtle', 'outline'] as const).map((appearance) => {
-        const variants =
-          appearance === 'solid'
-            ? SOLID_VARIANTS
-            : appearance === 'subtle'
-              ? SUBTLE_VARIANTS
-              : OUTLINE_VARIANTS
-        return (
-          <div key={appearance} className="flex flex-wrap items-center gap-3">
-            <span className="w-20 text-xs font-mono text-foreground-muted">{appearance}</span>
-            {variants.map((variant) => (
-              <Badge key={`${appearance}-${variant}`} variant={variant} appearance={appearance}>
-                {variant}
-              </Badge>
-            ))}
-          </div>
-        )
-      })}
+      {APPEARANCES.map((appearance) => (
+        <div key={appearance} className="flex flex-wrap items-center gap-3">
+          <span className="w-20 text-xs font-mono text-foreground-muted">{appearance}</span>
+          {VARIANTS.map((variant) => (
+            <Badge key={`${appearance}-${variant}`} variant={variant} appearance={appearance}>
+              {variant}
+            </Badge>
+          ))}
+        </div>
+      ))}
     </div>
   ),
 }

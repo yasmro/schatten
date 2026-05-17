@@ -4,12 +4,11 @@ import { cn } from '../../../lib/utils'
 import { type CalloutVariants, calloutVariants } from '../../../variants/callout'
 import { Button } from '../Button'
 
-export type CalloutVariant = 'neutral' | 'accent' | 'success' | 'error' | 'warning' | 'info'
+export type CalloutVariant = 'neutral' | 'success' | 'error' | 'warning' | 'info'
 export type CalloutAppearance = 'subtle' | 'solid'
 
 const iconByVariant: Record<CalloutVariant, LucideIcon> = {
   neutral: Info,
-  accent: Info,
   info: Info,
   success: CircleCheck,
   warning: TriangleAlert,

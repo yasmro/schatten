@@ -1,6 +1,6 @@
 import { type ReactNode, useEffect, useState } from 'react'
 
-export type ToastVariant = 'neutral' | 'accent' | 'success' | 'error' | 'warning' | 'info'
+export type ToastVariant = 'neutral' | 'success' | 'error' | 'warning' | 'info'
 export type ToastAppearance = 'subtle' | 'solid'
 
 export interface ToastAction {

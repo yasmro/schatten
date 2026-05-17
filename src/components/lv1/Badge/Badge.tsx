@@ -8,8 +8,7 @@ export type IconName = keyof typeof icons
 export interface BadgeProps extends HTMLAttributes<HTMLDivElement>, BadgeVariants {
   /**
    * Tone of the badge.
-   * - `neutral` — no semantic meaning, ambient list rows / status tags (all three appearances supported)
-   * - `accent` — brand accent, draws attention without state semantics (solid appearance only today)
+   * - `neutral` — no semantic meaning, ambient list rows / status tags (all three appearances supported; `solid` is the "muted-but-emphatic" treatment)
    * - `success` / `error` / `warning` / `info` — state semantics; shares tokens with `Toast` and `Callout`
    *
    * For destructive *actions*, use `<Button variant="destructive">` instead of `<Badge variant="error">`.

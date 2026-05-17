@@ -84,16 +84,11 @@ const meta: Meta<typeof Toaster> = {
 export default meta
 type Story = StoryObj<typeof Toaster>
 
-const SOLID_VARIANTS = ['neutral', 'accent', 'success', 'error', 'warning', 'info'] as const
-const SUBTLE_VARIANTS = ['neutral', 'success', 'error', 'warning', 'info'] as const
+const VARIANTS = ['neutral', 'success', 'error', 'warning', 'info'] as const
 const APPEARANCES = ['subtle', 'solid'] as const
 
-const sampleByVariant: Record<
-  'neutral' | 'accent' | 'success' | 'error' | 'warning' | 'info',
-  { title: string; description: string }
-> = {
+const sampleByVariant: Record<(typeof VARIANTS)[number], { title: string; description: string }> = {
   neutral: { title: 'Heads up', description: 'A neutral notification.' },
-  accent: { title: 'Heads up', description: 'A highlighted notification.' },
   success: { title: 'Saved', description: 'Your changes have been saved.' },
   error: { title: 'Error', description: 'Could not save your changes.' },
   warning: { title: 'Warning', description: 'Disk space is running low.' },
@@ -109,11 +104,6 @@ const Playground = (args: { position?: Parameters<typeof Toaster>[0]['position']
         toasts with an action. Switch the position via Controls. The <code>{'<Toaster />'}</code> is
         mounted at the bottom of this story.
       </p>
-      <p className="text-xs text-foreground-muted mt-1">
-        Coverage: <code>neutral</code> supports both appearances; <code>accent</code> defines{' '}
-        <code>solid</code> only today. State variants support both. Empty cells (·) indicate a
-        combination not yet defined.
-      </p>
     </div>
 
     <div>
@@ -125,44 +115,25 @@ const Playground = (args: { position?: Parameters<typeof Toaster>[0]['position']
             {t}
           </span>
         ))}
-        {(['neutral', 'accent', 'success', 'error', 'warning', 'info'] as const).map((variant) => (
+        {VARIANTS.map((variant) => (
           <Fragment key={variant}>
             <span className="text-xs font-mono text-foreground-muted">{variant}</span>
-            {APPEARANCES.map((appearance) => {
-              const definedFor: Record<string, readonly string[]> = {
-                subtle: SUBTLE_VARIANTS,
-                solid: SOLID_VARIANTS,
-              }
-              const isDefined = definedFor[appearance].includes(variant)
-              if (!isDefined) {
-                return (
-                  <span
-                    key={`${variant}-${appearance}`}
-                    aria-hidden="true"
-                    title={`${variant} + ${appearance} is not defined`}
-                    className="text-center text-xs text-foreground-subtle select-none"
-                  >
-                    ·
-                  </span>
-                )
-              }
-              return (
-                <Button
-                  key={`${variant}-${appearance}`}
-                  variant="secondary"
-                  size="sm"
-                  onClick={() =>
-                    toast({
-                      ...sampleByVariant[variant],
-                      variant,
-                      appearance,
-                    })
-                  }
-                >
-                  Fire
-                </Button>
-              )
-            })}
+            {APPEARANCES.map((appearance) => (
+              <Button
+                key={`${variant}-${appearance}`}
+                variant="secondary"
+                size="sm"
+                onClick={() =>
+                  toast({
+                    ...sampleByVariant[variant],
+                    variant,
+                    appearance,
+                  })
+                }
+              >
+                Fire
+              </Button>
+            ))}
           </Fragment>
         ))}
       </div>
@@ -177,50 +148,31 @@ const Playground = (args: { position?: Parameters<typeof Toaster>[0]['position']
             {t}
           </span>
         ))}
-        {(['neutral', 'accent', 'success', 'error', 'warning', 'info'] as const).map((variant) => (
+        {VARIANTS.map((variant) => (
           <Fragment key={`action-${variant}`}>
             <span className="text-xs font-mono text-foreground-muted">{variant}</span>
-            {APPEARANCES.map((appearance) => {
-              const definedFor: Record<string, readonly string[]> = {
-                subtle: SUBTLE_VARIANTS,
-                solid: SOLID_VARIANTS,
-              }
-              const isDefined = definedFor[appearance].includes(variant)
-              if (!isDefined) {
-                return (
-                  <span
-                    key={`action-${variant}-${appearance}`}
-                    aria-hidden="true"
-                    title={`${variant} + ${appearance} is not defined`}
-                    className="text-center text-xs text-foreground-subtle select-none"
-                  >
-                    ·
-                  </span>
-                )
-              }
-              return (
-                <Button
-                  key={`action-${variant}-${appearance}`}
-                  variant="secondary"
-                  size="sm"
-                  onClick={() =>
-                    toast({
-                      ...sampleByVariant[variant],
-                      variant,
-                      appearance,
-                      action: {
-                        label: 'Undo',
-                        onClick: () => {
-                          // user-supplied callback
-                        },
+            {APPEARANCES.map((appearance) => (
+              <Button
+                key={`action-${variant}-${appearance}`}
+                variant="secondary"
+                size="sm"
+                onClick={() =>
+                  toast({
+                    ...sampleByVariant[variant],
+                    variant,
+                    appearance,
+                    action: {
+                      label: 'Undo',
+                      onClick: () => {
+                        // user-supplied callback
                       },
-                    })
-                  }
-                >
-                  Fire + action
-                </Button>
-              )
-            })}
+                    },
+                  })
+                }
+              >
+                Fire + action
+              </Button>
+            ))}
           </Fragment>
         ))}
       </div>
@@ -338,12 +290,6 @@ export const SolidTreatments: Story = {
           appearance: 'solid',
           title: 'Neutral',
           description: 'A muted-but-emphatic notification.',
-        },
-        {
-          variant: 'accent',
-          appearance: 'solid',
-          title: 'Accent',
-          description: 'A highlighted notification.',
         },
         {
           variant: 'success',

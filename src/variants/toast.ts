@@ -10,7 +10,6 @@ export const toastVariants = cva(
     variants: {
       variant: {
         neutral: '',
-        accent: '',
         success: '',
         error: '',
         warning: '',
@@ -22,9 +21,10 @@ export const toastVariants = cva(
       },
     },
     compoundVariants: [
-      // neutral — non-state baseline. `solid` uses `--color-foreground-muted`
-      // + inverted foreground for a muted-but-emphatic surface that's
-      // visually distinct from `accent + solid`'s alabaster fill.
+      // neutral — non-state baseline.
+      // `solid` uses `--color-foreground-muted` + inverted foreground for
+      // a muted-but-emphatic surface. This is the only "non-state filled
+      // toast" — there is no separate brand-accent variant in Pattern B.
       {
         variant: 'neutral',
         appearance: 'solid',
@@ -34,12 +34,6 @@ export const toastVariants = cva(
         variant: 'neutral',
         appearance: 'subtle',
         class: 'bg-surface text-foreground border-border-strong',
-      },
-      // accent — brand-accent surface. Only solid is defined today.
-      {
-        variant: 'accent',
-        appearance: 'solid',
-        class: 'bg-solid text-solid-foreground border-transparent',
       },
       // success
       {

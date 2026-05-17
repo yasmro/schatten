@@ -2,9 +2,19 @@
  * Seasonal Color Themes
  * Based on 二十四節気 (24 solar terms) and Japanese traditional colors
  * Using OKLCH color space for perceptually uniform scaling
+ *
+ * Allowlist contract (see .claude/rules/theme-architecture.md "Allowlist
+ * mechanism"): every seasonal block below may only override
+ *   --color-theme-50 … --color-theme-950
+ * Mode-owned tokens — surfaces, foregrounds, borders, focus ring,
+ * disabled/readOnly, --color-info-* — must NOT be overridden here.
+ * The machine-readable mirror lives in SEASONAL_THEME_METADATA
+ * (./index.ts); a lint script will enforce this contract in Phase 5
+ * (scripts/check-theme-allowlist.mjs).
  */
 
-/* Spring Early (立春 - 春分前): 桜色・薄紅 */
+/* Spring Early (立春 - 春分前): 桜色・薄紅
+ * allowedTokens: --color-theme-* */
 :root[data-theme="season--spring-early"] {
   --color-theme-50: oklch(0.98 0.02 12);
   --color-theme-100: oklch(0.96 0.04 12);
@@ -19,7 +29,8 @@
   --color-theme-950: oklch(0.15 0.03 12);
 }
 
-/* Spring Late (春分 - 立夏前): 若草色・萌黄 */
+/* Spring Late (春分 - 立夏前): 若草色・萌黄
+ * allowedTokens: --color-theme-* */
 :root[data-theme="season--spring-late"] {
   --color-theme-50: oklch(0.98 0.02 138);
   --color-theme-100: oklch(0.96 0.04 138);
@@ -34,7 +45,8 @@
   --color-theme-950: oklch(0.15 0.03 138);
 }
 
-/* Summer Early (立夏 - 夏至前): 萌葱色・常磐色 */
+/* Summer Early (立夏 - 夏至前): 萌葱色・常磐色
+ * allowedTokens: --color-theme-* */
 :root[data-theme="season--summer-early"] {
   --color-theme-50: oklch(0.98 0.015 162);
   --color-theme-100: oklch(0.96 0.03 162);
@@ -49,7 +61,8 @@
   --color-theme-950: oklch(0.15 0.02 162);
 }
 
-/* Summer Peak (夏至 - 立秋前): 朱色・柿色 */
+/* Summer Peak (夏至 - 立秋前): 朱色・柿色
+ * allowedTokens: --color-theme-* */
 :root[data-theme="season--summer-peak"] {
   --color-theme-50: oklch(0.98 0.02 45);
   --color-theme-100: oklch(0.96 0.04 45);
@@ -64,7 +77,8 @@
   --color-theme-950: oklch(0.15 0.03 45);
 }
 
-/* Autumn Early (立秋 - 秋分前): 浅葱色・薄藍 */
+/* Autumn Early (立秋 - 秋分前): 浅葱色・薄藍
+ * allowedTokens: --color-theme-* */
 :root[data-theme="season--autumn-early"] {
   --color-theme-50: oklch(0.98 0.015 230);
   --color-theme-100: oklch(0.96 0.03 230);
@@ -79,7 +93,8 @@
   --color-theme-950: oklch(0.15 0.02 230);
 }
 
-/* Autumn Late (秋分 - 立冬前): 山吹色・飴色 */
+/* Autumn Late (秋分 - 立冬前): 山吹色・飴色
+ * allowedTokens: --color-theme-* */
 :root[data-theme="season--autumn-late"] {
   --color-theme-50: oklch(0.98 0.02 70);
   --color-theme-100: oklch(0.96 0.04 70);
@@ -94,7 +109,8 @@
   --color-theme-950: oklch(0.15 0.03 70);
 }
 
-/* Winter Early (立冬 - 冬至前): 銀鼠・薄墨 */
+/* Winter Early (立冬 - 冬至前): 銀鼠・薄墨
+ * allowedTokens: --color-theme-* */
 :root[data-theme="season--winter-early"] {
   --color-theme-50: oklch(0.98 0.01 250);
   --color-theme-100: oklch(0.96 0.02 250);
@@ -109,7 +125,8 @@
   --color-theme-950: oklch(0.15 0.015 250);
 }
 
-/* Winter Deep (冬至 - 立春前): 藍色・濃紺 */
+/* Winter Deep (冬至 - 立春前): 藍色・濃紺
+ * allowedTokens: --color-theme-* */
 :root[data-theme="season--winter-deep"] {
   --color-theme-50: oklch(0.98 0.015 255);
   --color-theme-100: oklch(0.96 0.03 255);

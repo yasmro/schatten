@@ -8,6 +8,93 @@ export type SeasonTheme =
   | 'winter-early'
   | 'winter-deep'
 
+/**
+ * Full `data-theme` attribute value for a seasonal Special, including
+ * the `season--` family prefix. Matches the value emitted by
+ * `getSeasonAttribute()` / `applySeasonTheme()` and the selector used in
+ * `themes.css` (`:root[data-theme="season--spring-early"]`).
+ */
+export type SeasonalThemeId = `season--${SeasonTheme}`
+
+/**
+ * Per-Special-theme contract for a seasonal palette.
+ *
+ * `allowedTokens` declares the CSS custom properties this theme is
+ * permitted to override. Tokens outside this list are Mode-owned
+ * (light/dark) and must NOT be overridden — see
+ * `.claude/rules/theme-architecture.md` ("Allowlist mechanism") and
+ * `.claude/rules/state-token-guideline.md` (non-interactive state tokens
+ * and `info` independence) for the full contract.
+ *
+ * Values are glob-like patterns (`--color-theme-*`) so a single entry
+ * covers the whole 50–950 scale. Mechanical enforcement is deferred to
+ * Phase 5 (see `scripts/check-theme-allowlist.mjs`); until then the
+ * allowlist is a documented convention enforced by code review.
+ */
+export interface SeasonalThemeMetadata {
+  /** Full `data-theme` attribute value, including the `season--` prefix. */
+  name: SeasonalThemeId
+  /** Glob-like list of CSS custom properties this theme may override. */
+  allowedTokens: readonly string[]
+  /** Solar-term range + traditional color reference. */
+  description?: string
+}
+
+/**
+ * Allowlist + metadata for every shipped seasonal theme.
+ *
+ * Keys are `data-theme` attribute values so callers can resolve a
+ * theme's metadata directly from the DOM:
+ *
+ *     const id = document.documentElement.getAttribute('data-theme')
+ *     SEASONAL_THEME_METADATA[id as SeasonalThemeId]
+ *
+ * Future Specials (brand, vendor, one-off) will ship sibling
+ * `<SPECIAL>_METADATA` constants with the same shape.
+ */
+export const SEASONAL_THEME_METADATA: Record<SeasonalThemeId, SeasonalThemeMetadata> = {
+  'season--spring-early': {
+    name: 'season--spring-early',
+    allowedTokens: ['--color-theme-*'],
+    description: '立春 - 春分前: 桜色・薄紅',
+  },
+  'season--spring-late': {
+    name: 'season--spring-late',
+    allowedTokens: ['--color-theme-*'],
+    description: '春分 - 立夏前: 若草色・萌黄',
+  },
+  'season--summer-early': {
+    name: 'season--summer-early',
+    allowedTokens: ['--color-theme-*'],
+    description: '立夏 - 夏至前: 萌葱色・常磐色',
+  },
+  'season--summer-peak': {
+    name: 'season--summer-peak',
+    allowedTokens: ['--color-theme-*'],
+    description: '夏至 - 立秋前: 朱色・柿色',
+  },
+  'season--autumn-early': {
+    name: 'season--autumn-early',
+    allowedTokens: ['--color-theme-*'],
+    description: '立秋 - 秋分前: 浅葱色・薄藍',
+  },
+  'season--autumn-late': {
+    name: 'season--autumn-late',
+    allowedTokens: ['--color-theme-*'],
+    description: '秋分 - 立冬前: 山吹色・飴色',
+  },
+  'season--winter-early': {
+    name: 'season--winter-early',
+    allowedTokens: ['--color-theme-*'],
+    description: '立冬 - 冬至前: 銀鼠・薄墨',
+  },
+  'season--winter-deep': {
+    name: 'season--winter-deep',
+    allowedTokens: ['--color-theme-*'],
+    description: '冬至 - 立春前: 藍色・濃紺',
+  },
+}
+
 interface SeasonPeriod {
   theme: SeasonTheme
   start: { month: number; day: number }

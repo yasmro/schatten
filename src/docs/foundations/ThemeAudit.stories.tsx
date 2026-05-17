@@ -272,10 +272,13 @@ function CascadeTable() {
 }
 
 /**
- * Reads `getComputedStyle()` from off-screen cells to show, for each canonical
- * token, what value resolves under (light/no-Special), (light/spring-early),
- * (dark/no-Special), and (dark/spring-early). Use this to confirm that
- * Mode-owned and Special-owned tokens move along their respective axes.
+ * For each canonical token, renders a color swatch inside a scoped wrapper
+ * (Mode class + `data-theme`) across four scenarios — light/no-Special,
+ * light/spring-early, dark/no-Special, dark/spring-early. The browser's CSS
+ * cascade resolves `var(--color-X)` per scenario, so the swatch colors
+ * empirically prove which axis each token follows: Special-owned tokens shift
+ * between the (none) and (spring-early) columns; Mode-owned tokens shift
+ * between the light and dark columns; `--color-info` stays pinned to blue.
  */
 export const CascadeVerification: Story = {
   name: 'Cascade Verification',

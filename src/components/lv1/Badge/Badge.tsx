@@ -1,9 +1,7 @@
-import { icons } from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
 import { forwardRef, type HTMLAttributes } from 'react'
 import { cn } from '../../../lib/utils'
 import { type BadgeVariants, badgeVariants } from '../../../variants/badge'
-
-export type IconName = keyof typeof icons
 
 export interface BadgeProps extends HTMLAttributes<HTMLDivElement>, BadgeVariants {
   /**
@@ -31,8 +29,14 @@ export interface BadgeProps extends HTMLAttributes<HTMLDivElement>, BadgeVariant
    * @default 'md'
    */
   size?: BadgeVariants['size']
-  /** Lucide icon name in PascalCase (e.g. `"Check"`, `"CircleAlert"`). */
-  icon?: IconName
+  /**
+   * Lucide icon component to render alongside the label.
+   * Import the icon from `lucide-react` and pass it directly — e.g.
+   * `import { Check } from 'lucide-react'` then `<Badge icon={Check} />`.
+   * Passing the component (not a name string) keeps icon imports
+   * tree-shakeable in consumer bundles.
+   */
+  icon?: LucideIcon
   /**
    * Position of the icon relative to the label text.
    * @default 'start'
@@ -45,7 +49,7 @@ export const Badge = forwardRef<HTMLDivElement, BadgeProps>(
     { className, variant, appearance, size, icon, iconPosition = 'start', children, ...props },
     ref,
   ) => {
-    const IconComponent = icon ? icons[icon] : null
+    const IconComponent = icon ?? null
     const isIconOnly = !children && !!icon
 
     return (

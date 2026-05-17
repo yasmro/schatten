@@ -1,11 +1,9 @@
-import { icons } from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
 import { forwardRef, type InputHTMLAttributes, useId, useRef } from 'react'
 import { useFieldContext } from '../../../contexts/field'
 import { mergeRefs } from '../../../lib/merge-refs'
 import { cn } from '../../../lib/utils'
 import { type InputVariants, inputVariants, inputWrapperVariants } from '../../../variants/input'
-
-export type IconName = keyof typeof icons
 
 export interface InputProps
   extends Omit<InputHTMLAttributes<HTMLInputElement>, 'size'>,
@@ -25,10 +23,17 @@ export interface InputProps
   textLeft?: string
   /** Text displayed after the input. Takes priority over `iconRight`. */
   textRight?: string
-  /** Lucide icon name rendered before the input. Ignored when `textLeft` is set. */
-  iconLeft?: IconName
-  /** Lucide icon name rendered after the input. Ignored when `textRight` is set. */
-  iconRight?: IconName
+  /**
+   * Lucide icon component rendered before the input. Ignored when `textLeft` is set.
+   * Import the icon from `lucide-react` and pass it directly — e.g.
+   * `import { Search } from 'lucide-react'` then `<Input iconLeft={Search} />`.
+   */
+  iconLeft?: LucideIcon
+  /**
+   * Lucide icon component rendered after the input. Ignored when `textRight` is set.
+   * Import the icon from `lucide-react` and pass it directly.
+   */
+  iconRight?: LucideIcon
 }
 
 const dateTypes = new Set(['date', 'datetime-local', 'month', 'week', 'time'])
@@ -69,8 +74,8 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     const inputRef = useRef<HTMLInputElement>(null)
 
     const isDateType = dateTypes.has(type ?? '')
-    const LeftIcon = !textLeft && iconLeft ? icons[iconLeft] : null
-    const RightIcon = !textRight && iconRight ? icons[iconRight] : null
+    const LeftIcon = !textLeft && iconLeft ? iconLeft : null
+    const RightIcon = !textRight && iconRight ? iconRight : null
     const iconSize = iconSizeMap[size ?? 'md']
 
     const handleWrapperClick = () => {

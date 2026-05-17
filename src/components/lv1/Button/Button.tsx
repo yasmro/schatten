@@ -1,11 +1,9 @@
 import { Slot } from '@radix-ui/react-slot'
-import { icons } from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
 import { type ButtonHTMLAttributes, forwardRef } from 'react'
 import { cn } from '../../../lib/utils'
 import { type ButtonVariants, buttonVariants } from '../../../variants/button'
 import { Spinner } from '../Spinner'
-
-export type IconName = keyof typeof icons
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement>, ButtonVariants {
   /**
@@ -30,8 +28,14 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement>, Bu
    * @default false
    */
   asChild?: boolean
-  /** Lucide icon name in PascalCase (e.g. `"Search"`, `"ArrowRight"`). */
-  icon?: IconName
+  /**
+   * Lucide icon component to render alongside the label.
+   * Import the icon from `lucide-react` and pass it directly — e.g.
+   * `import { Search } from 'lucide-react'` then `<Button icon={Search} />`.
+   * Passing the component (not a name string) keeps icon imports
+   * tree-shakeable in consumer bundles.
+   */
+  icon?: LucideIcon
   /**
    * Position of the icon relative to the label text.
    * @default 'start'
@@ -62,7 +66,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     ref,
   ) => {
     const Comp = asChild ? Slot : 'button'
-    const IconComponent = icon ? icons[icon] : null
+    const IconComponent = icon ?? null
     const isIconOnly = !children && !!icon
     const resolvedSize = variant === 'link' ? undefined : size
 

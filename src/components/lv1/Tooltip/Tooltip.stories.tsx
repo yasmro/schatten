@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
+import { Info, Settings, Trash2 } from 'lucide-react'
 import { Button } from '../Button'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './Tooltip'
 
@@ -105,21 +106,21 @@ export const WithIconButton: Story = {
     <div className="flex gap-4">
       <Tooltip>
         <TooltipTrigger>
-          <Button icon="Info" aria-label="Information" />
+          <Button icon={Info} aria-label="Information" />
         </TooltipTrigger>
         <TooltipContent>View more information</TooltipContent>
       </Tooltip>
 
       <Tooltip>
         <TooltipTrigger>
-          <Button icon="Settings" aria-label="Settings" />
+          <Button icon={Settings} aria-label="Settings" />
         </TooltipTrigger>
         <TooltipContent>Open settings</TooltipContent>
       </Tooltip>
 
       <Tooltip>
         <TooltipTrigger>
-          <Button icon="Trash2" variant="destructive" aria-label="Delete" />
+          <Button icon={Trash2} variant="destructive" aria-label="Delete" />
         </TooltipTrigger>
         <TooltipContent>Delete item</TooltipContent>
       </Tooltip>

@@ -41,9 +41,6 @@ importers:
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
-      lucide-react:
-        specifier: ^1.7.0
-        version: 1.14.0(react@19.2.6)
       tailwind-merge:
         specifier: ^3.5.0
         version: 3.5.0
@@ -102,6 +99,9 @@ importers:
       lightningcss-cli:
         specifier: ^1.32.0
         version: 1.32.0
+      lucide-react:
+        specifier: ^1.7.0
+        version: 1.14.0(react@19.2.6)
       publint:
         specifier: ^0.3.21
         version: 0.3.21

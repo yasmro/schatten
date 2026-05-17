@@ -160,6 +160,19 @@ npm install @yasmro/schatten
 `react` and `react-dom` (`^18` or `^19`) are required as peer dependencies
 when consuming Layer B. Layer A has no runtime dependencies.
 
+`lucide-react` is a peer dependency of the React component layer — install it
+alongside `@yasmro/schatten` whenever you use the React components:
+
+```sh
+pnpm add lucide-react
+```
+
+`Toast`, `Callout`, `Select`, `Field`, and `Dialog` render Lucide icons
+internally, and `Button` / `Badge` / `Input` accept Lucide icon components via
+their `icon` props. It is declared `optional` in `peerDependenciesMeta` only so
+that Layer A (CSS / token-only) consumers — who never touch the React layer —
+are not warned about a dependency they do not need.
+
 ## Usage
 
 ### Recommended import path
@@ -167,8 +180,8 @@ when consuming Layer B. Layer A has no runtime dependencies.
 The package root (`@yasmro/schatten`) is the **canonical entry** — it
 re-exports every primitive component, and modern bundlers (Vite, Next.js,
 Rollup, esbuild) tree-shake unused components out of the final bundle. The
-package declares `"sideEffects": ["**/*.css"]` so only the CSS import has
-a side effect.
+package declares `"sideEffects": ["*.css", "**/*.css"]` so only CSS imports
+have a side effect.
 
 For bundle-size-sensitive contexts (RSC bundles, edge runtime, legacy
 non-ESM-clean bundlers) you can scope imports to the leaf entry:
@@ -179,6 +192,47 @@ import { buttonVariants } from '@yasmro/schatten/variants'
 ```
 
 Both forms are supported and stable.
+
+### Icons
+
+Components that take an icon (`Button` / `Badge` `icon`, `Input`
+`iconLeft` / `iconRight`, `Dialog`'s footer-button `icon`) accept a Lucide
+**icon component** — import it from `lucide-react` and pass it directly:
+
+```tsx
+import { Search } from 'lucide-react'
+import { Button } from '@yasmro/schatten'
+
+<Button icon={Search}>Search</Button>
+```
+
+Passing the component (rather than a name string) means your bundler only
+includes the icons you actually use — there is no icon registry inside
+schatten to bloat your bundle, and no allowlist to contend with.
+
+**String-driven icons (CMS content, Astro island / RSC boundaries).** When
+an icon must be chosen from a serializable value — a string from a CMS, or a
+prop crossing an Astro island / React Server Component boundary — keep a
+small icon map **in your own app**. You own the map, so it stays
+tree-shakeable and never needs a change to schatten:
+
+```ts
+// app/icons.ts — your app owns this
+import { Search, Trash2, ArrowRight, type LucideIcon } from 'lucide-react'
+
+export const appIcons = { Search, Trash2, ArrowRight } satisfies Record<string, LucideIcon>
+export type AppIconName = keyof typeof appIcons
+```
+
+```tsx
+// Resolve the string to a component on your side of the boundary
+import { Button } from '@yasmro/schatten'
+import { appIcons, type AppIconName } from './app/icons'
+
+function IconButton({ iconName, label }: { iconName: AppIconName; label: string }) {
+  return <Button icon={appIcons[iconName]}>{label}</Button>
+}
+```
 
 ### Token-only usage
 

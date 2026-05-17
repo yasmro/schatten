@@ -66,8 +66,8 @@
     "dist"
   ],
   "sideEffects": [
-    "**/*.css",
-    "./dist/**/*.css"
+    "*.css",
+    "**/*.css"
   ],
   "scripts": {
     "dev": "storybook dev -p 6006",
@@ -93,10 +93,14 @@
     "prepublishOnly": "pnpm build"
   },
   "peerDependencies": {
+    "lucide-react": "^1.0.0",
     "react": "^18.0.0 || ^19.0.0",
     "react-dom": "^18.0.0 || ^19.0.0"
   },
   "peerDependenciesMeta": {
+    "lucide-react": {
+      "optional": true
+    },
     "react": {
       "optional": true
     },
@@ -123,6 +127,7 @@
     "lefthook": "^2.1.4",
     "lightningcss": "^1.28.2",
     "lightningcss-cli": "^1.32.0",
+    "lucide-react": "^1.7.0",
     "publint": "^0.3.21",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
@@ -143,7 +148,6 @@
     "@radix-ui/react-tooltip": "^1.2.8",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "lucide-react": "^1.7.0",
     "tailwind-merge": "^3.5.0"
   },
   "pnpm": {

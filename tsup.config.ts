@@ -21,6 +21,14 @@ export default defineConfig([
     external: ['react', 'react-dom', 'lucide-react'],
   },
   // Components (React)
+  //
+  // `banner.js` injects the `'use client'` directive at the top of every
+  // emitted component bundle. Without it, importing Schatten components from
+  // a Next.js App Router Server Component fails the build, because the
+  // bundled output uses client-only React features (hooks, context, Radix
+  // event wiring). The directive is only valid on the React build group —
+  // the variants/tokens and seasonal groups are framework-agnostic and must
+  // NOT be marked client-only (see issue #116).
   {
     entry: {
       'components/index': 'src/components/index.ts',
@@ -29,6 +37,9 @@ export default defineConfig([
     format: ['esm', 'cjs'],
     dts: true,
     external: ['react', 'react-dom', 'lucide-react'],
+    banner: {
+      js: "'use client';",
+    },
     esbuildOptions(options) {
       options.jsx = 'automatic'
     },

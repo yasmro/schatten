@@ -9,54 +9,63 @@
   "types": "./dist/components/index.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/components/index.d.ts",
+      "types": {
+        "import": "./dist/components/index.d.ts",
+        "require": "./dist/components/index.d.cts"
+      },
       "style": "./dist/schatten.css",
       "import": "./dist/components/index.js",
       "require": "./dist/components/index.cjs"
     },
-    "./schatten.css": {
-      "import": "./dist/schatten.css",
-      "require": "./dist/schatten.css"
-    },
-    "./core/tokens": {
-      "import": "./dist/core/tokens/index.css",
-      "require": "./dist/core/tokens/index.css"
-    },
-    "./themes/default": {
-      "import": "./dist/themes/default/index.css",
-      "require": "./dist/themes/default/index.css"
-    },
+    "./schatten.css": "./dist/schatten.css",
+    "./core/tokens": "./dist/core/tokens/index.css",
+    "./themes/default": "./dist/themes/default/index.css",
     "./themes/seasonal": {
-      "types": "./dist/themes/seasonal/index.d.ts",
+      "types": {
+        "import": "./dist/themes/seasonal/index.d.ts",
+        "require": "./dist/themes/seasonal/index.d.cts"
+      },
       "import": "./dist/themes/seasonal/index.js",
       "require": "./dist/themes/seasonal/index.cjs"
     },
-    "./themes/seasonal/themes.css": {
-      "import": "./dist/themes/seasonal/themes.css",
-      "require": "./dist/themes/seasonal/themes.css"
-    },
+    "./themes/seasonal/themes.css": "./dist/themes/seasonal/themes.css",
     "./variants": {
-      "types": "./dist/variants/index.d.ts",
+      "types": {
+        "import": "./dist/variants/index.d.ts",
+        "require": "./dist/variants/index.d.cts"
+      },
       "import": "./dist/variants/index.js",
       "require": "./dist/variants/index.cjs"
     },
     "./tokens": {
-      "types": "./dist/tokens/index.d.ts",
+      "types": {
+        "import": "./dist/tokens/index.d.ts",
+        "require": "./dist/tokens/index.d.cts"
+      },
       "import": "./dist/tokens/index.js",
       "require": "./dist/tokens/index.cjs"
     },
     "./components": {
-      "types": "./dist/components/index.d.ts",
+      "types": {
+        "import": "./dist/components/index.d.ts",
+        "require": "./dist/components/index.d.cts"
+      },
       "import": "./dist/components/index.js",
       "require": "./dist/components/index.cjs"
     },
     "./components/lv1": {
-      "types": "./dist/components/lv1/index.d.ts",
+      "types": {
+        "import": "./dist/components/lv1/index.d.ts",
+        "require": "./dist/components/lv1/index.d.cts"
+      },
       "import": "./dist/components/lv1/index.js",
       "require": "./dist/components/lv1/index.cjs"
     },
     "./components/lv2": {
-      "types": "./dist/components/lv2/index.d.ts",
+      "types": {
+        "import": "./dist/components/lv2/index.d.ts",
+        "require": "./dist/components/lv2/index.d.cts"
+      },
       "import": "./dist/components/lv2/index.js",
       "require": "./dist/components/lv2/index.cjs"
     }
@@ -64,9 +73,14 @@
   "files": [
     "dist"
   ],
+  "sideEffects": [
+    "**/*.css",
+    "./dist/**/*.css"
+  ],
   "scripts": {
     "dev": "storybook dev -p 6006",
-    "build": "pnpm build:js && pnpm build:css",
+    "build": "pnpm clean:dist && pnpm build:js && pnpm build:css",
+    "clean:dist": "rm -rf dist",
     "build:js": "tsup",
     "build:css": "lightningcss src/schatten.css -o dist/schatten.css --minify --bundle",
     "build:storybook": "storybook build",
@@ -76,6 +90,7 @@
     "test:vrt:update": "playwright test --update-snapshots",
     "lint": "biome ci .",
     "lint:fix": "biome check --write .",
+    "lint:pkg": "publint",
     "format": "biome format --write .",
     "typecheck": "tsc --noEmit -p tsconfig.test.json",
     "changeset": "changeset",
@@ -114,6 +129,7 @@
     "lefthook": "^2.1.4",
     "lightningcss": "^1.28.2",
     "lightningcss-cli": "^1.32.0",
+    "publint": "^0.3.21",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "storybook": "10.3.6",

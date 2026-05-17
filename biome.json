@@ -54,6 +54,7 @@
     "includes": [
       "src/**",
       ".storybook/**",
+      "biome-plugins/**/*.ts",
       "*.ts",
       "*.json",
       "!dist",
@@ -71,6 +72,10 @@
           "tailwindDirectives": true
         }
       }
+    },
+    {
+      "includes": ["src/components/**/*.tsx", "!**/*.stories.tsx", "!**/*.test.tsx"],
+      "plugins": ["./biome-plugins/no-primitive-color.grit"]
     }
   ]
 }

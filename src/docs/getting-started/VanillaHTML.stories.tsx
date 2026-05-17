@@ -31,7 +31,7 @@ const InlineCode = ({ children }: { children: React.ReactNode }) => (
 )
 
 const CodeBlock = ({ children }: { children: string }) => (
-  <pre className="bg-surface border border-border rounded-md p-4 text-xs font-mono overflow-x-auto leading-relaxed text-foreground">
+  <pre className="bg-surface border border-border rounded-md p-4 text-sm font-mono overflow-x-auto leading-relaxed text-foreground">
     <code>{children}</code>
   </pre>
 )
@@ -66,21 +66,24 @@ const SETUP_CDN = `<!DOCTYPE html>
     <meta charset="UTF-8" />
     <title>Schatten — Vanilla HTML</title>
 
-    <!-- jsDelivr (recommended) -->
+    <!-- jsDelivr (recommended). Pin to a major range once v1.0.0 ships. -->
     <link
-      href="https://cdn.jsdelivr.net/npm/@yasmro/schatten/dist/schatten.css"
+      href="https://cdn.jsdelivr.net/npm/@yasmro/schatten@^0.7.0/dist/schatten.css"
       rel="stylesheet"
     />
 
     <!-- or unpkg -->
     <!--
     <link
-      href="https://unpkg.com/@yasmro/schatten/dist/schatten.css"
+      href="https://unpkg.com/@yasmro/schatten@^0.7.0/dist/schatten.css"
       rel="stylesheet"
     />
     -->
   </head>
   <body>
+    <!-- v0.7.0: the class below is currently a no-op (no CSS rule emitted). -->
+    <!-- It will style the button once the class API lands in v0.14.0 — see  -->
+    <!-- "Class API surface" below for the full status table.                -->
     <button class="btn btn--primary">Click me</button>
   </body>
 </html>`
@@ -103,12 +106,12 @@ const TOKEN_USAGE = `<style>
 <button class="my-button">Available today</button>`
 
 const CVA_BRIDGE = `<!-- 1. Import the CSS bundle (no JS runtime cost) -->
-<link href="https://cdn.jsdelivr.net/npm/@yasmro/schatten/dist/schatten.css" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/@yasmro/schatten@^0.7.0/dist/schatten.css" rel="stylesheet" />
 
 <!-- 2. Import the variants module from any framework with a JS toolchain. -->
 <!-- Example: Astro / Vue / Svelte                                        -->
 <script type="module">
-  import { buttonVariants } from 'https://cdn.jsdelivr.net/npm/@yasmro/schatten/dist/variants/index.js'
+  import { buttonVariants } from 'https://cdn.jsdelivr.net/npm/@yasmro/schatten@^0.7.0/dist/variants/index.js'
 
   document.querySelectorAll('button[data-schatten="primary"]').forEach((el) => {
     el.className = buttonVariants({ variant: 'primary' })
@@ -217,7 +220,7 @@ export const VanillaHTML: Story = {
           href="https://github.com/yasmro/schatten/issues/154"
           className="underline"
           target="_blank"
-          rel="noreferrer"
+          rel="noopener noreferrer"
         >
           #154
         </a>
@@ -323,7 +326,7 @@ export const VanillaHTML: Story = {
           href="https://github.com/yasmro/schatten#astro--vue--svelte"
           className="underline"
           target="_blank"
-          rel="noreferrer"
+          rel="noopener noreferrer"
         >
           README — Astro / Vue / Svelte
         </a>{' '}
@@ -373,13 +376,15 @@ export const VanillaHTML: Story = {
               href="https://github.com/yasmro/schatten/issues/154"
               className="underline"
               target="_blank"
-              rel="noreferrer"
+              rel="noopener noreferrer"
             >
               #154
             </a>
             .
           </span>
-          <Badge appearance="outline">Planned</Badge>
+          <Badge variant="info" appearance="subtle">
+            Planned
+          </Badge>
         </div>
         <div className="grid grid-cols-[auto_1fr_auto] items-center gap-4 px-4 py-3">
           <span className="text-xs font-mono text-foreground-muted">v1.0.0</span>
@@ -389,13 +394,15 @@ export const VanillaHTML: Story = {
               href="https://github.com/yasmro/schatten/blob/main/.claude/rules/api-stability.md"
               className="underline"
               target="_blank"
-              rel="noreferrer"
+              rel="noopener noreferrer"
             >
               API stability contract
             </a>
             .
           </span>
-          <Badge appearance="outline">Planned</Badge>
+          <Badge variant="info" appearance="subtle">
+            Planned
+          </Badge>
         </div>
       </div>
 
@@ -406,7 +413,7 @@ export const VanillaHTML: Story = {
             href="https://github.com/yasmro/schatten/issues/58"
             className="underline"
             target="_blank"
-            rel="noreferrer"
+            rel="noopener noreferrer"
           >
             #58
           </a>{' '}
@@ -417,7 +424,7 @@ export const VanillaHTML: Story = {
             href="https://github.com/yasmro/schatten/issues/154"
             className="underline"
             target="_blank"
-            rel="noreferrer"
+            rel="noopener noreferrer"
           >
             #154
           </a>{' '}
@@ -428,7 +435,7 @@ export const VanillaHTML: Story = {
             href="https://github.com/yasmro/schatten/blob/main/README.md"
             className="underline"
             target="_blank"
-            rel="noreferrer"
+            rel="noopener noreferrer"
           >
             README
           </a>{' '}
@@ -439,7 +446,7 @@ export const VanillaHTML: Story = {
             href="https://github.com/yasmro/schatten/blob/main/.claude/rules/api-stability.md"
             className="underline"
             target="_blank"
-            rel="noreferrer"
+            rel="noopener noreferrer"
           >
             api-stability.md
           </a>{' '}

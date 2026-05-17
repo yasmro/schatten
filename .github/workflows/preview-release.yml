@@ -1,0 +1,37 @@
+name: Preview Release
+
+# Publishes a per-commit preview build to pkg.pr.new on every PR, so the
+# package can be installed and verified (e.g. SSR-tested in CodeSandbox /
+# StackBlitz) before merge. pkg.pr.new serves the build from its own CDN —
+# nothing is published to the npm registry.
+#
+# Requires the pkg.pr.new GitHub App to be installed on this repository:
+#   https://github.com/apps/pkg-pr-new
+# The App requests repository-level permissions only (no org-level access);
+# scoping the install to this repo keeps it fully contained. No npm token or
+# repository secret is needed.
+
+on:
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Build package
+        run: pnpm build
+
+      - name: Publish preview to pkg.pr.new
+        run: pnpm dlx pkg-pr-new publish --pnpm

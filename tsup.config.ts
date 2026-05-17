@@ -13,6 +13,10 @@ function copyCssAssets() {
   }
 }
 
+// `clean` lives in the build script (rimraf via `pnpm clean:dist`) instead of
+// in a single config block — tsup runs all configs in parallel, so a per-config
+// `clean: true` can race with the other configs' DTS emit and silently wipe
+// already-written outputs (this was hitting `dist/themes/seasonal/index.d.ts`).
 export default defineConfig([
   // Variants & tokens (no React, for Astro / non-React consumers)
   {
@@ -22,7 +26,6 @@ export default defineConfig([
     },
     format: ['esm', 'cjs'],
     dts: true,
-    clean: true,
     external: ['react', 'react-dom'],
   },
   // Components (React)

@@ -36,12 +36,29 @@ Import the bundled stylesheet once at your app entry, then use any component:
 
 ```tsx
 import '@yasmro/schatten/schatten.css'
-import { Button } from '@yasmro/schatten/components/lv1'
+import { Button } from '@yasmro/schatten'
 
 export function App() {
   return <Button variant="primary">Click me</Button>
 }
 ```
+
+### Recommended import path
+
+The package root (`@yasmro/schatten`) is the **canonical entry** — it re-exports
+every primitive component, and modern bundlers (Vite, Next.js, Rollup, esbuild)
+tree-shake unused components out of the final bundle. The package declares
+`"sideEffects": ["**/*.css"]` so only the CSS import has a side effect.
+
+For bundle-size-sensitive contexts (RSC bundles, edge runtime, legacy
+non-ESM-clean bundlers) you can scope imports to the leaf entry:
+
+```tsx
+import { Button } from '@yasmro/schatten/components/lv1'  // sub-path also works
+import { buttonVariants } from '@yasmro/schatten/variants'
+```
+
+Both forms are supported and stable.
 
 ### Token-only usage
 
@@ -111,6 +128,7 @@ pnpm test:vrt:update   # Update VRT snapshots
 
 pnpm lint              # Biome CI checks
 pnpm lint:fix          # Biome auto-fix
+pnpm lint:pkg          # publint — validate package.json / exports shape
 pnpm typecheck         # tsc --noEmit
 ```
 

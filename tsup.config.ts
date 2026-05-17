@@ -26,7 +26,7 @@ export default defineConfig([
     },
     format: ['esm', 'cjs'],
     dts: true,
-    external: ['react', 'react-dom'],
+    external: ['react', 'react-dom', 'lucide-react'],
   },
   // Components (React)
   {
@@ -36,7 +36,7 @@ export default defineConfig([
     },
     format: ['esm', 'cjs'],
     dts: true,
-    external: ['react', 'react-dom'],
+    external: ['react', 'react-dom', 'lucide-react'],
     esbuildOptions(options) {
       options.jsx = 'automatic'
     },
@@ -48,7 +48,7 @@ export default defineConfig([
     },
     format: ['esm', 'cjs'],
     dts: true,
-    external: ['react', 'react-dom'],
+    external: ['react', 'react-dom', 'lucide-react'],
     onSuccess: copyCssAssets,
   },
 ])

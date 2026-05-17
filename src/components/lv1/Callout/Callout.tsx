@@ -1,4 +1,4 @@
-import { CircleAlert, CircleCheck, Info, type LucideIcon, TriangleAlert } from 'lucide-react'
+import { CircleAlert, CircleCheck, Info, type LucideIcon, TriangleAlert, X } from 'lucide-react'
 import { forwardRef, type HTMLAttributes, type ReactNode } from 'react'
 import { cn } from '../../../lib/utils'
 import { type CalloutVariants, calloutVariants } from '../../../variants/callout'
@@ -117,7 +117,7 @@ export const Callout = forwardRef<HTMLDivElement, CalloutProps>(
             <Button
               variant={buttonVariant}
               size="sm"
-              icon="X"
+              icon={X}
               aria-label="Close"
               className="shrink-0"
               onClick={onClose}

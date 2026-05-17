@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { ArrowRight, Plus, Search } from 'lucide-react'
 import { describe, expect, it, vi } from 'vitest'
 import { Button } from './Button'
 
@@ -40,7 +41,7 @@ describe('Button', () => {
   })
 
   it('renders icon at start position by default', () => {
-    render(<Button icon="Search">Search</Button>)
+    render(<Button icon={Search}>Search</Button>)
     const button = screen.getByRole('button')
     const contentSpan = button.querySelector(':scope > span:last-child') as HTMLElement
     const svg = contentSpan.querySelector('svg')
@@ -51,7 +52,7 @@ describe('Button', () => {
 
   it('renders icon at end position', () => {
     render(
-      <Button icon="ArrowRight" iconPosition="end">
+      <Button icon={ArrowRight} iconPosition="end">
         Next
       </Button>,
     )
@@ -63,7 +64,7 @@ describe('Button', () => {
   })
 
   it('renders icon-only button with square aspect ratio', () => {
-    render(<Button icon="Plus" aria-label="Add" />)
+    render(<Button icon={Plus} aria-label="Add" />)
     const button = screen.getByRole('button', { name: 'Add' })
     const contentSpan = button.querySelector(':scope > span:last-child') as HTMLElement
     expect(contentSpan.querySelector('svg')).toBeInTheDocument()

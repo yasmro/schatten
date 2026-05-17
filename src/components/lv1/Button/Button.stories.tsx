@@ -1,4 +1,16 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
+import {
+  ArrowRight,
+  ChevronLeft,
+  ChevronRight,
+  Download,
+  ExternalLink,
+  Plus,
+  Search,
+  Send,
+  Trash2,
+  X,
+} from 'lucide-react'
 import { Button } from './Button'
 
 const meta: Meta<typeof Button> = {
@@ -30,10 +42,11 @@ const meta: Meta<typeof Button> = {
       },
     },
     icon: {
-      description: 'Lucide icon name in PascalCase (e.g. "Search", "ArrowRight").',
-      control: 'text',
+      description:
+        'Lucide icon component to render. Import the icon from `lucide-react` and pass it directly (e.g. `icon={Search}`).',
+      control: false,
       table: {
-        type: { summary: 'IconName' },
+        type: { summary: 'LucideIcon' },
         defaultValue: { summary: '-' },
       },
     },
@@ -106,7 +119,7 @@ export const AllVariants: Story = {
           it on a solid background so the contrast pattern is visible. */}
       <div className="flex flex-wrap gap-4 rounded-lg bg-solid p-4">
         <Button variant="inverted">Inverted</Button>
-        <Button variant="inverted" icon="X" aria-label="Close" />
+        <Button variant="inverted" icon={X} aria-label="Close" />
       </div>
     </div>
   ),
@@ -119,7 +132,7 @@ export const Sizes: Story = {
       <Button size="sm">Small</Button>
       <Button size="md">Medium</Button>
       <Button size="lg">Large</Button>
-      <Button icon="Plus" aria-label="Add" />
+      <Button icon={Plus} aria-label="Add" />
     </div>
   ),
 }
@@ -128,12 +141,12 @@ export const Icons: Story = {
   name: 'Icons',
   render: () => (
     <div className="flex items-center gap-4">
-      <Button icon="Search">Search</Button>
-      <Button icon="ArrowRight" iconPosition="end">
+      <Button icon={Search}>Search</Button>
+      <Button icon={ArrowRight} iconPosition="end">
         Next
       </Button>
-      <Button icon="Plus" aria-label="Add" />
-      <Button variant="destructive" icon="Trash2">
+      <Button icon={Plus} aria-label="Add" />
+      <Button variant="destructive" icon={Trash2}>
         Delete
       </Button>
     </div>
@@ -144,14 +157,14 @@ export const IconPositions: Story = {
   name: 'Icon Positions',
   render: () => (
     <div className="flex items-center gap-4">
-      <Button icon="ChevronLeft">Back</Button>
-      <Button icon="ChevronRight" iconPosition="end">
+      <Button icon={ChevronLeft}>Back</Button>
+      <Button icon={ChevronRight} iconPosition="end">
         Next
       </Button>
-      <Button icon="Download" size="sm">
+      <Button icon={Download} size="sm">
         Download
       </Button>
-      <Button icon="Send" size="lg" iconPosition="end">
+      <Button icon={Send} size="lg" iconPosition="end">
         Send
       </Button>
     </div>
@@ -186,7 +199,7 @@ export const LinkVariant: Story = {
       </p>
       <p>
         You can also add an icon:{' '}
-        <Button variant="link" icon="ExternalLink" iconPosition="end">
+        <Button variant="link" icon={ExternalLink} iconPosition="end">
           external link
         </Button>{' '}
         to indicate navigation.
@@ -206,7 +219,7 @@ export const Disabled: Story = {
       <Button variant="tertiary" disabled>
         Tertiary
       </Button>
-      <Button variant="destructive" disabled icon="Trash2">
+      <Button variant="destructive" disabled icon={Trash2}>
         Delete
       </Button>
       <p className="text-base text-foreground">

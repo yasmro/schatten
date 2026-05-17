@@ -160,6 +160,15 @@ npm install @yasmro/schatten
 `react` and `react-dom` (`^18` or `^19`) are required as peer dependencies
 when consuming Layer B. Layer A has no runtime dependencies.
 
+`lucide-react` is an **optional** peer dependency. Install it only if you
+pass icon props (e.g. `<Button icon={Search} />` on `Button`, `Badge`,
+`Input`, `Dialog`); icons are passed as components imported from
+`lucide-react`, which keeps icon imports tree-shakeable in your bundle:
+
+```sh
+pnpm add lucide-react
+```
+
 ## Usage
 
 ### Recommended import path
@@ -167,8 +176,8 @@ when consuming Layer B. Layer A has no runtime dependencies.
 The package root (`@yasmro/schatten`) is the **canonical entry** — it
 re-exports every primitive component, and modern bundlers (Vite, Next.js,
 Rollup, esbuild) tree-shake unused components out of the final bundle. The
-package declares `"sideEffects": ["**/*.css"]` so only the CSS import has
-a side effect.
+package declares `"sideEffects": ["*.css", "**/*.css"]` so only CSS imports
+have a side effect.
 
 For bundle-size-sensitive contexts (RSC bundles, edge runtime, legacy
 non-ESM-clean bundlers) you can scope imports to the leaf entry:

@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
+import { CircleAlert, Eye, Globe, Lock, Mail, Search } from 'lucide-react'
 import { Input } from './Input'
 
 const meta: Meta<typeof Input> = {
@@ -41,17 +42,19 @@ const meta: Meta<typeof Input> = {
       },
     },
     iconLeft: {
-      description: 'Lucide icon name rendered before the input. Ignored when textLeft is set.',
-      control: 'text',
+      description:
+        'Lucide icon component rendered before the input. Ignored when textLeft is set. Import the icon from `lucide-react` and pass it directly (e.g. `iconLeft={Search}`).',
+      control: false,
       table: {
-        type: { summary: 'IconName' },
+        type: { summary: 'LucideIcon' },
       },
     },
     iconRight: {
-      description: 'Lucide icon name rendered after the input. Ignored when textRight is set.',
-      control: 'text',
+      description:
+        'Lucide icon component rendered after the input. Ignored when textRight is set. Import the icon from `lucide-react` and pass it directly.',
+      control: false,
       table: {
-        type: { summary: 'IconName' },
+        type: { summary: 'LucideIcon' },
       },
     },
     placeholder: {
@@ -152,9 +155,9 @@ export const WithIcons: Story = {
   name: 'With Icons',
   render: () => (
     <div className="flex flex-col gap-4 w-72">
-      <Input iconLeft="Search" placeholder="Search..." />
-      <Input iconLeft="Mail" placeholder="Email" />
-      <Input iconRight="Eye" type="password" placeholder="Password" />
+      <Input iconLeft={Search} placeholder="Search..." />
+      <Input iconLeft={Mail} placeholder="Email" />
+      <Input iconRight={Eye} type="password" placeholder="Password" />
     </div>
   ),
 }
@@ -163,8 +166,8 @@ export const TextOverridesIcon: Story = {
   name: 'Text Priority over Icon',
   render: () => (
     <div className="flex flex-col gap-4 w-80">
-      <Input textLeft="https://" iconLeft="Globe" placeholder="textLeft wins over iconLeft" />
-      <Input textRight="@gmail.com" iconRight="Mail" placeholder="textRight wins over iconRight" />
+      <Input textLeft="https://" iconLeft={Globe} placeholder="textLeft wins over iconLeft" />
+      <Input textRight="@gmail.com" iconRight={Mail} placeholder="textRight wins over iconRight" />
     </div>
   ),
 }
@@ -175,7 +178,7 @@ export const ErrorState: Story = {
     <div className="flex flex-col gap-4 w-72">
       <Input isError placeholder="Error state" />
       <Input isError defaultValue="Invalid input" />
-      <Input isError iconLeft="CircleAlert" placeholder="With icon" />
+      <Input isError iconLeft={CircleAlert} placeholder="With icon" />
     </div>
   ),
 }
@@ -205,7 +208,7 @@ export const ReadOnly: Story = {
   render: () => (
     <div className="flex flex-col gap-4 w-72">
       <Input readOnly defaultValue="Read-only value" />
-      <Input readOnly iconLeft="Lock" defaultValue="With icon" />
+      <Input readOnly iconLeft={Lock} defaultValue="With icon" />
       <Input readOnly textLeft="ID" defaultValue="usr_123456" />
     </div>
   ),

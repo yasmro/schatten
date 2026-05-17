@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react'
+import { ArrowRight, Check } from 'lucide-react'
 import { describe, expect, it } from 'vitest'
 import { Badge } from './Badge'
 
@@ -96,7 +97,7 @@ describe('Badge', () => {
 
   describe('icon', () => {
     it('renders icon at start position by default', () => {
-      const { container } = render(<Badge icon="Check">Done</Badge>)
+      const { container } = render(<Badge icon={Check}>Done</Badge>)
       const root = container.firstChild as HTMLElement
       const svg = root.querySelector('svg')
       expect(svg).toBeInTheDocument()
@@ -106,7 +107,7 @@ describe('Badge', () => {
 
     it('renders icon at end position when iconPosition="end"', () => {
       const { container } = render(
-        <Badge icon="ArrowRight" iconPosition="end">
+        <Badge icon={ArrowRight} iconPosition="end">
           Next
         </Badge>,
       )
@@ -123,7 +124,7 @@ describe('Badge', () => {
     })
 
     it('applies icon-only square layout when icon is set without children', () => {
-      const { container } = render(<Badge icon="Check" aria-label="Done" />)
+      const { container } = render(<Badge icon={Check} aria-label="Done" />)
       const root = container.firstChild as HTMLElement
       expect(root.className).toContain('aspect-square')
       expect(root.className).toContain('p-1')
@@ -131,7 +132,7 @@ describe('Badge', () => {
     })
 
     it('does not apply icon-only layout when both icon and children are present', () => {
-      const { container } = render(<Badge icon="Check">Done</Badge>)
+      const { container } = render(<Badge icon={Check}>Done</Badge>)
       const root = container.firstChild as HTMLElement
       expect(root.className).not.toContain('aspect-square')
     })

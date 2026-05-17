@@ -1,7 +1,8 @@
 import * as DialogPrimitive from '@radix-ui/react-dialog'
+import { type LucideIcon, X } from 'lucide-react'
 import { type ReactNode, useCallback, useEffect } from 'react'
 import { cn } from '../../../lib/utils'
-import { Button, type IconName } from '../Button'
+import { Button } from '../Button'
 import { Separator } from '../Separator'
 import './Dialog.css'
 
@@ -9,7 +10,8 @@ export type DialogActionButton = {
   label: string
   variant?: 'primary' | 'destructive'
   onClick?: () => void | Promise<void>
-  icon?: IconName
+  /** Lucide icon component shown on the button. Import from `lucide-react`. */
+  icon?: LucideIcon
   /**
    * When true, this button shows a spinner. The Dialog disables the
    * other footer buttons (cancel / sub-action) and blocks ESC / overlay
@@ -22,7 +24,8 @@ export type DialogActionButton = {
 export type DialogCancelButton = {
   label: string
   onClick?: () => void
-  icon?: IconName
+  /** Lucide icon component shown on the button. Import from `lucide-react`. */
+  icon?: LucideIcon
   // Cancel is always synchronous (closes the dialog) — no `isLoading`
   // here on purpose. If you have an async cleanup on cancel, fire it
   // and let the dialog close immediately.
@@ -31,7 +34,8 @@ export type DialogCancelButton = {
 export type DialogSubActionButton = {
   label: string
   onClick?: () => void | Promise<void>
-  icon?: IconName
+  /** Lucide icon component shown on the button. Import from `lucide-react`. */
+  icon?: LucideIcon
   /** See `DialogActionButton.isLoading`. */
   isLoading?: boolean
 }
@@ -214,7 +218,7 @@ function CloseButton({ disabled }: { disabled: boolean }) {
   return (
     <div className="absolute right-4 top-4">
       <DialogPrimitive.Close asChild>
-        <Button variant="tertiary" size="sm" icon="X" aria-label="Close" disabled={disabled} />
+        <Button variant="tertiary" size="sm" icon={X} aria-label="Close" disabled={disabled} />
       </DialogPrimitive.Close>
     </div>
   )

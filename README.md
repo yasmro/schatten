@@ -2,37 +2,47 @@
 
 [![npm](https://img.shields.io/npm/v/@yasmro/schatten.svg)](https://www.npmjs.com/package/@yasmro/schatten)
 
-Design system component library based on [shadcn/ui](https://ui.shadcn.com/), customized for the Schatten brand.
+> **A two-layer design system: framework-agnostic CSS + optional React components.**
 
-Built on Radix UI primitives, styled with Tailwind CSS, and authored with `class-variance-authority` (CVA). Ships React components, CVA variants, and a layered token system (primitive → semantic → component).
+Schatten is designed to work **without React**. Use it as plain CSS classes
+(`<button class="btn btn--primary">`) in vanilla HTML, Astro, Vue, or Svelte —
+and optionally lean on the React component layer
+(`<Button variant="primary">`) for richer composition.
 
-## Tech Stack
+Inspired by [shadcn/ui](https://ui.shadcn.com/), customized for the Schatten
+brand. Where shadcn distributes copy-pasteable React source, Schatten ships a
+single installable package whose CSS class API is intended to outlive any one
+framework choice.
 
-- **Framework**: React 18 / 19 + TypeScript
-- **Styling**: Tailwind CSS v4 + class-variance-authority (CVA)
-- **Primitives**: Radix UI
-- **Storybook**: Component documentation & visual testing
-- **Build**: tsup + Lightning CSS
-- **Lint / Format**: Biome
-- **Test**: Vitest
-- **VRT**: Playwright
-- **Git Hooks**: lefthook
-- **Release**: Changesets
-- **Package Manager**: pnpm
+Built on Radix UI primitives, styled with Tailwind CSS v4, and authored with
+`class-variance-authority` (CVA).
 
-## Installation
+## Quick start
+
+### Vanilla HTML
+
+> **Status (v0.7.0):** The CSS bundle currently ships design tokens + base
+> reset. Component classes like `.btn` / `.input` are scheduled to land in
+> **v0.14.0** (see [#58](https://github.com/yasmro/schatten/issues/58) /
+> [#154](https://github.com/yasmro/schatten/issues/154)). Until then,
+> styling components without React requires building on top of the token
+> layer.
+
+```html
+<link
+  href="https://cdn.jsdelivr.net/npm/@yasmro/schatten/dist/schatten.css"
+  rel="stylesheet"
+/>
+
+<!-- Coming in v1.0: -->
+<button class="btn btn--primary">Click me</button>
+```
+
+### React
 
 ```sh
 pnpm add @yasmro/schatten
-# or
-npm install @yasmro/schatten
 ```
-
-`react` and `react-dom` (`^18` or `^19`) are required as peer dependencies.
-
-## Usage
-
-Import the bundled stylesheet once at your app entry, then use any component:
 
 ```tsx
 import '@yasmro/schatten/schatten.css'
@@ -43,12 +53,75 @@ export function App() {
 }
 ```
 
+### Astro / Vue / Svelte
+
+Import the same CSS bundle once at your app entry and use the class API
+(once Layer A is fully implemented in v0.14.0). For tokens-only usage today,
+see [Token-only usage](#token-only-usage) below.
+
+## Two-layer architecture
+
+Schatten ships two consumer-facing surfaces. Both reference the same
+underlying design tokens, so a project can mix layers freely or commit to
+one.
+
+### Layer A — Framework-agnostic CSS
+
+The CSS bundle (`@yasmro/schatten/schatten.css`) ships design tokens
+(primitive → semantic) and, going forward, component classes keyed on
+`data-*` attributes (`<button class="btn" data-variant="solid">`). No
+JavaScript runtime is required.
+
+- **Tokens** today (v0.7.0): primitive scales, semantic tokens, base reset
+- **Component classes** ([#58](https://github.com/yasmro/schatten/issues/58) Phase 2): land in v0.14.0
+- **Build**: Lightning CSS
+
+Stable from **v1.0.0**: class names and CSS custom properties are
+part of the public API contract (see
+[`.claude/rules/api-stability.md`](.claude/rules/api-stability.md)).
+
+### Layer B — Optional React components
+
+When React is on the table, the same tokens drive a typed component layer
+(`<Button variant="primary">`, `<Input isError>`, `<Toast variant="error">`,
+…) on top of Radix UI primitives. Variants are authored with CVA and the
+output class strings are also part of the public API from v1.0.0.
+
+- **Framework**: React 18 / 19 + TypeScript
+- **Primitives**: Radix UI (Dialog, Tooltip, Select, Toast, …)
+- **Variants**: class-variance-authority (CVA)
+- **Build**: tsup
+- **Test**: Vitest + Testing Library
+- **VRT**: Playwright
+- **Storybook**: Component documentation & visual testing
+
+### Shared tooling
+
+- **Lint / Format**: Biome
+- **Git hooks**: lefthook
+- **Release**: Changesets
+- **Package manager**: pnpm
+
+## Installation
+
+```sh
+pnpm add @yasmro/schatten
+# or
+npm install @yasmro/schatten
+```
+
+`react` and `react-dom` (`^18` or `^19`) are required as peer dependencies
+when consuming Layer B. Layer A has no runtime dependencies.
+
+## Usage
+
 ### Recommended import path
 
-The package root (`@yasmro/schatten`) is the **canonical entry** — it re-exports
-every primitive component, and modern bundlers (Vite, Next.js, Rollup, esbuild)
-tree-shake unused components out of the final bundle. The package declares
-`"sideEffects": ["**/*.css"]` so only the CSS import has a side effect.
+The package root (`@yasmro/schatten`) is the **canonical entry** — it
+re-exports every primitive component, and modern bundlers (Vite, Next.js,
+Rollup, esbuild) tree-shake unused components out of the final bundle. The
+package declares `"sideEffects": ["**/*.css"]` so only the CSS import has
+a side effect.
 
 For bundle-size-sensitive contexts (RSC bundles, edge runtime, legacy
 non-ESM-clean bundlers) you can scope imports to the leaf entry:
@@ -62,12 +135,16 @@ Both forms are supported and stable.
 
 ### Token-only usage
 
-If you want only the design tokens (CSS custom properties) without components, import the token bundle:
+If you want only the design tokens (CSS custom properties) without
+components, import the token bundle:
 
 ```tsx
 import '@yasmro/schatten/core/tokens'
 import '@yasmro/schatten/themes/default'
 ```
+
+This is the most reliable Layer A path today — it works in any framework
+that can `import` a CSS file.
 
 ### Seasonal themes
 
@@ -77,7 +154,9 @@ import '@yasmro/schatten/themes/seasonal/themes.css'
 
 ### Typed token references
 
-Prefer Tailwind utilities (`bg-error`, `text-foreground-muted`, …) for everyday styling. When you need a CSS variable reference in inline style or CSS-in-JS, the `tokens` export provides typed pointers:
+Prefer Tailwind utilities (`bg-error`, `text-foreground-muted`, …) for
+everyday styling. When you need a CSS variable reference in inline style
+or CSS-in-JS, the `tokens` export provides typed pointers:
 
 ```tsx
 import { tokens, type ColorToken } from '@yasmro/schatten/tokens'

@@ -7,7 +7,7 @@ import { Button } from '../Button'
 import { dismiss, type ToastData, type ToastVariant } from './use-toast'
 
 const iconByVariant: Record<ToastVariant, LucideIcon> = {
-  default: Info,
+  neutral: Info,
   info: Info,
   success: CircleCheck,
   warning: TriangleAlert,
@@ -39,16 +39,16 @@ export function ToastItem({ toast }: ToastItemProps) {
 
   // Solid toasts have a saturated fill, so the action/close button needs an
   // inverted foreground to stay legible against the bg.
-  const buttonVariant = toast.treatment === 'solid' ? 'inverted' : 'tertiary'
+  const buttonVariant = toast.appearance === 'solid' ? 'inverted' : 'tertiary'
 
-  const Icon = iconByVariant[toast.variant ?? 'default']
+  const Icon = iconByVariant[toast.variant ?? 'neutral']
 
   return (
     <ToastPrimitive.Root
       open={toast.open}
       onOpenChange={handleOpenChange}
       duration={toast.duration}
-      className={cn(toastVariants({ variant: toast.variant, treatment: toast.treatment }))}
+      className={cn(toastVariants({ variant: toast.variant, appearance: toast.appearance }))}
     >
       {/*
        * Two layout regimes share the same flex row:

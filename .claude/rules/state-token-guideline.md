@@ -45,12 +45,14 @@ Every state defines exactly four tokens:
 | `base` | main color (saturated) | fills, borders, icons, text |
 | `hover` | base's interactive sibling | hover/active state of `base` |
 | `foreground` | on-`base` text/icon color | readable text atop `base` |
-| `subtle` | faint tinted background | soft state surfaces (e.g. error input bg) |
+| `subtle` | faint tinted background | low-weight state surfaces (e.g. error input bg) |
 
-The tokens form two natural treatment pairs:
+The tokens form two natural treatment pairs, named to match Pattern B's
+`appearance` value vocabulary (see
+[component-api-conventions](component-api-conventions.md#shape-vocabulary-appearance)):
 
-- **Filled** — `bg-{state}` + `text-{state}-foreground`. Used for buttons, toasts, badges.
-- **Soft** — `bg-{state}-subtle` + `text-{state}` (often + `border-{state}`). Used for error
+- **Solid** — `bg-{state}` + `text-{state}-foreground`. Used for buttons, toasts, badges.
+- **Subtle** — `bg-{state}-subtle` + `text-{state}` (often + `border-{state}`). Used for error
   input backgrounds, info banners.
 
 ## `destructive` vs `error`
@@ -87,17 +89,17 @@ Each state shifts shades between modes:
 The dark-mode `foreground = paper-white-inverted` (`#1a1a1a`) is intentional: in dark mode the
 state `base` shifts brighter (e.g. `vermillion-500`), and dark text on a bright saturated
 fill achieves higher WCAG contrast than white-on-bright. Verify visually in `Foundation/Color`
-→ "Filled Treatments (a11y audit)" before introducing new state-driven UI.
+→ "Solid Treatments (a11y audit)" before introducing new state-driven UI.
 
 ## Adding a new component that needs state colors
 
 1. **Reach for an existing semantic.** Don't introduce a new state semantic (e.g. `notice`,
    `caution`) unless you can articulate a meaning that `error / success / warning / info`
    genuinely cannot cover.
-2. **Decide treatment**: filled (`bg + foreground`) or soft (`bg-subtle + base text`)?
-   Components like Toast may support both via a variant.
+2. **Decide treatment**: solid (`bg + foreground`) or subtle (`bg-subtle + base text`)?
+   Components like Toast may support both via the `appearance` prop.
 3. **Always use semantic tokens.** Never hardcode `bg-vermillion-600` in a component.
-4. **Audit contrast** by adding the new component to the `Filled / Subtle Treatments` story
+4. **Audit contrast** by adding the new component to the `Solid / Subtle Treatments` story
    sections, or by toggling light/dark in your component's own story.
 
 ## Adding a new state semantic (rarely needed)
@@ -107,7 +109,7 @@ fill achieves higher WCAG contrast than white-on-bright. Verify visually in `Fou
 2. Register all four in `@theme` inside `src/core/tokens/base.css` so Tailwind utilities
    (`bg-{state}`, `bg-{state}-subtle`, …) become available.
 3. Add a subsection to `src/docs/Color.stories.tsx`.
-4. Add rows to the "Filled Treatments" and "Subtle Treatments" audit sections.
+4. Add rows to the "Solid Treatments" and "Subtle Treatments" audit sections.
 5. Add a changeset (typically `minor` — additive feature).
 
 ## Non-interactive state tokens (`disabled` / `readOnly`)

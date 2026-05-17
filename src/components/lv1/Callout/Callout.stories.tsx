@@ -5,9 +5,9 @@ import { Callout } from './Callout'
 
 /**
  * Callout displays inline contextual information — beta notices, form
- * warnings, page-level announcements. It mirrors `Toast`'s five
- * variants and two treatments so the visual language is shared, but lives
- * in normal layout flow rather than overlaying the viewport.
+ * warnings, page-level announcements. It mirrors `Toast`'s variants and
+ * two appearances so the visual language is shared, but lives in normal
+ * layout flow rather than overlaying the viewport.
  *
  * ## Body content
  * Pass body content either as `children` (rich JSX) or as the
@@ -20,7 +20,7 @@ import { Callout } from './Callout'
  * `{label, onClick}` shape), Callouts often persist on screen and may
  * need richer UI.
  *
- * **On `treatment="solid"`, prefer `<Button variant="inverted">`** for
+ * **On `appearance="solid"`, prefer `<Button variant="inverted">`** for
  * action buttons so they remain legible on the saturated fill — see the
  * "Solid With Action" story below.
  *
@@ -45,16 +45,16 @@ const meta: Meta<typeof Callout> = {
   tags: ['autodocs'],
   argTypes: {
     variant: {
-      description: 'State variant. Drives the icon, color treatment, and accent.',
+      description: 'Tone / state variant. Drives the icon, color treatment, and accent.',
       control: 'select',
-      options: ['default', 'success', 'error', 'warning', 'info'],
+      options: ['neutral', 'success', 'error', 'warning', 'info'],
       table: {
-        type: { summary: '"default" | "success" | "error" | "warning" | "info"' },
-        defaultValue: { summary: 'default' },
+        type: { summary: '"neutral" | "success" | "error" | "warning" | "info"' },
+        defaultValue: { summary: 'neutral' },
       },
     },
-    treatment: {
-      description: 'Visual treatment — `subtle` for soft tinted background, `solid` for filled.',
+    appearance: {
+      description: 'Visual appearance — `subtle` for soft tinted background, `solid` for filled.',
       control: 'select',
       options: ['subtle', 'solid'],
       table: {
@@ -88,14 +88,13 @@ const meta: Meta<typeof Callout> = {
 export default meta
 type Story = StoryObj<typeof Callout>
 
-const VARIANTS = ['default', 'success', 'error', 'warning', 'info'] as const
-const TREATMENTS = ['subtle', 'solid'] as const
+const VARIANTS = ['neutral', 'success', 'error', 'warning', 'info'] as const
 
 export const Playground: Story = {
   name: 'Playground',
   args: {
     variant: 'info',
-    treatment: 'subtle',
+    appearance: 'subtle',
     title: 'Heads up',
     children: 'This is a beta feature. Behavior may change.',
   },
@@ -106,7 +105,7 @@ export const SubtleTreatments: Story = {
   render: () => (
     <div className="flex flex-col gap-3 max-w-xl">
       {VARIANTS.map((variant) => (
-        <Callout key={variant} variant={variant} treatment="subtle" title={variant.toUpperCase()}>
+        <Callout key={variant} variant={variant} appearance="subtle" title={variant.toUpperCase()}>
           The quick brown fox jumps over the lazy dog.
         </Callout>
       ))}
@@ -119,7 +118,7 @@ export const SolidTreatments: Story = {
   render: () => (
     <div className="flex flex-col gap-3 max-w-xl">
       {VARIANTS.map((variant) => (
-        <Callout key={variant} variant={variant} treatment="solid" title={variant.toUpperCase()}>
+        <Callout key={variant} variant={variant} appearance="solid" title={variant.toUpperCase()}>
           The quick brown fox jumps over the lazy dog.
         </Callout>
       ))}
@@ -186,7 +185,7 @@ export const SolidWithAction: Story = {
     docs: {
       description: {
         story:
-          'On `treatment="solid"` the saturated background can clash with default Button variants. Pass `<Button variant="inverted">` so the action stays legible.',
+          'On `appearance="solid"` the saturated background can clash with default Button variants. Pass `<Button variant="inverted">` so the action stays legible.',
       },
     },
   },
@@ -194,7 +193,7 @@ export const SolidWithAction: Story = {
     <div className="flex flex-col gap-3 max-w-xl">
       <Callout
         variant="warning"
-        treatment="solid"
+        appearance="solid"
         title="Unsaved changes"
         action={
           <Button variant="inverted" size="sm">
@@ -206,7 +205,7 @@ export const SolidWithAction: Story = {
       </Callout>
       <Callout
         variant="info"
-        treatment="solid"
+        appearance="solid"
         title="Update available"
         action={
           <Button variant="inverted" size="sm">
@@ -255,15 +254,23 @@ export const Dismissible: Story = {
 
 export const FullMatrix: Story = {
   name: 'Full Matrix',
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Every defined `variant` × `appearance` combination. All five variants support both appearances.',
+      },
+    },
+  },
   render: () => (
     <div className="grid grid-cols-1 gap-3 max-w-2xl">
-      {TREATMENTS.flatMap((treatment) =>
+      {(['subtle', 'solid'] as const).map((appearance) =>
         VARIANTS.map((variant) => (
           <Callout
-            key={`${variant}-${treatment}`}
+            key={`${variant}-${appearance}`}
             variant={variant}
-            treatment={treatment}
-            title={`${variant} / ${treatment}`}
+            appearance={appearance}
+            title={`${variant} / ${appearance}`}
           >
             The quick brown fox jumps over the lazy dog.
           </Callout>

@@ -3,77 +3,79 @@ import { cva, type VariantProps } from 'class-variance-authority'
 export const calloutVariants = cva('relative w-full border p-4', {
   variants: {
     variant: {
-      default: '',
+      neutral: '',
       success: '',
       error: '',
       warning: '',
       info: '',
     },
-    treatment: {
+    appearance: {
       subtle: '',
       solid: '',
     },
   },
   compoundVariants: [
-    // default
+    // neutral — non-state baseline. 1:1 successor of legacy `default`
+    // (renamed in v0.7.0, no visual change). `solid` reuses the
+    // `--color-solid` token that also powers Button primary.
     {
-      variant: 'default',
-      treatment: 'subtle',
-      class: 'bg-surface text-foreground border-border-strong',
+      variant: 'neutral',
+      appearance: 'solid',
+      class: 'bg-solid text-solid-foreground border-transparent',
     },
     {
-      variant: 'default',
-      treatment: 'solid',
-      class: 'bg-solid text-solid-foreground border-transparent',
+      variant: 'neutral',
+      appearance: 'subtle',
+      class: 'bg-surface text-foreground border-border-strong',
     },
     // success
     {
       variant: 'success',
-      treatment: 'subtle',
+      appearance: 'subtle',
       class: 'bg-success-subtle text-success border-success',
     },
     {
       variant: 'success',
-      treatment: 'solid',
+      appearance: 'solid',
       class: 'bg-success text-success-foreground border-transparent',
     },
     // error
     {
       variant: 'error',
-      treatment: 'subtle',
+      appearance: 'subtle',
       class: 'bg-error-subtle text-error border-error',
     },
     {
       variant: 'error',
-      treatment: 'solid',
+      appearance: 'solid',
       class: 'bg-error text-error-foreground border-transparent',
     },
     // warning
     {
       variant: 'warning',
-      treatment: 'subtle',
+      appearance: 'subtle',
       class: 'bg-warning-subtle text-warning border-warning',
     },
     {
       variant: 'warning',
-      treatment: 'solid',
+      appearance: 'solid',
       class: 'bg-warning text-warning-foreground border-transparent',
     },
     // info
     {
       variant: 'info',
-      treatment: 'subtle',
+      appearance: 'subtle',
       class: 'bg-info-subtle text-info border-info',
     },
     {
       variant: 'info',
-      treatment: 'solid',
+      appearance: 'solid',
       class: 'bg-info text-info-foreground border-transparent',
     },
   ],
   defaultVariants: {
-    variant: 'default',
-    treatment: 'subtle',
+    variant: 'neutral',
+    appearance: 'subtle',
   },
 })
 

@@ -145,10 +145,10 @@ export const Overview: Story = {
           >
             <div className="flex gap-2">
               <Badge>Default</Badge>
-              <Badge variant="success" treatment="subtle">
+              <Badge variant="success" appearance="subtle">
                 Active
               </Badge>
-              <Badge treatment="outline">Outline</Badge>
+              <Badge appearance="outline">Outline</Badge>
             </div>
           </ComponentCard>
 

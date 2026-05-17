@@ -25,10 +25,10 @@ describe('Badge', () => {
     expect(root.getAttribute('role')).toBe('status')
   })
 
-  describe('variants × treatment', () => {
-    it('applies subtle treatment classes for error variant', () => {
+  describe('variants × appearance', () => {
+    it('applies subtle appearance classes for error variant', () => {
       const { container } = render(
-        <Badge variant="error" treatment="subtle">
+        <Badge variant="error" appearance="subtle">
           Error
         </Badge>,
       )
@@ -38,9 +38,9 @@ describe('Badge', () => {
       expect(root.className).toContain('border-error')
     })
 
-    it('applies solid treatment classes for success variant', () => {
+    it('applies solid appearance classes for success variant', () => {
       const { container } = render(
-        <Badge variant="success" treatment="solid">
+        <Badge variant="success" appearance="solid">
           Saved
         </Badge>,
       )
@@ -50,9 +50,9 @@ describe('Badge', () => {
       expect(root.className).toContain('border-transparent')
     })
 
-    it('applies outline treatment classes for info variant', () => {
+    it('applies outline appearance classes for info variant', () => {
       const { container } = render(
-        <Badge variant="info" treatment="outline">
+        <Badge variant="info" appearance="outline">
           Info
         </Badge>,
       )
@@ -61,12 +61,25 @@ describe('Badge', () => {
       expect(root.className).toContain('border-info')
     })
 
-    it('applies default variant + subtle treatment by default', () => {
+    it('applies neutral variant + subtle appearance by default', () => {
       const { container } = render(<Badge>Default</Badge>)
       const root = container.firstChild as HTMLElement
-      // subtle compound for default variant
       expect(root.className).toContain('bg-surface-hover')
       expect(root.className).toContain('border-border-strong')
+    })
+
+    it('applies the solid fill when neutral + solid is passed', () => {
+      const { container } = render(
+        <Badge variant="neutral" appearance="solid">
+          Solid
+        </Badge>,
+      )
+      const root = container.firstChild as HTMLElement
+      // neutral + solid reuses the `--color-solid` token (the same one
+      // Button primary uses) — both express "the main interactive fill".
+      // This is the 1:1 visual successor of legacy `default + solid`.
+      expect(root.className).toContain('bg-solid')
+      expect(root.className).toContain('text-solid-foreground')
     })
   })
 

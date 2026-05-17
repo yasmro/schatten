@@ -5,13 +5,13 @@ export const badgeVariants = cva(
   {
     variants: {
       variant: {
-        default: '',
+        neutral: '',
         success: '',
         error: '',
         warning: '',
         info: '',
       },
-      treatment: {
+      appearance: {
         solid: '',
         subtle: '',
         outline: '',
@@ -23,70 +23,73 @@ export const badgeVariants = cva(
       },
     },
     compoundVariants: [
-      // default — neutral state
+      // neutral — non-state baseline. 1:1 successor of legacy `default`
+      // (renamed in v0.7.0, no visual change). `solid` reuses the
+      // `--color-solid` token that also powers Button primary — both are
+      // "the main interactive fill" semantically.
       {
-        variant: 'default',
-        treatment: 'solid',
+        variant: 'neutral',
+        appearance: 'solid',
         class: 'border-transparent bg-solid text-solid-foreground',
       },
       {
-        variant: 'default',
-        treatment: 'subtle',
+        variant: 'neutral',
+        appearance: 'subtle',
         class: 'bg-surface-hover text-foreground border-border-strong',
       },
-      { variant: 'default', treatment: 'outline', class: 'text-foreground border-border-strong' },
+      { variant: 'neutral', appearance: 'outline', class: 'text-foreground border-border-strong' },
       // success
       {
         variant: 'success',
-        treatment: 'solid',
+        appearance: 'solid',
         class: 'border-transparent bg-success text-success-foreground',
       },
       {
         variant: 'success',
-        treatment: 'subtle',
+        appearance: 'subtle',
         class: 'bg-success-subtle text-success border-success',
       },
-      { variant: 'success', treatment: 'outline', class: 'text-success border-success' },
+      { variant: 'success', appearance: 'outline', class: 'text-success border-success' },
       // error
       {
         variant: 'error',
-        treatment: 'solid',
+        appearance: 'solid',
         class: 'border-transparent bg-error text-error-foreground',
       },
       {
         variant: 'error',
-        treatment: 'subtle',
+        appearance: 'subtle',
         class: 'bg-error-subtle text-error border-error',
       },
-      { variant: 'error', treatment: 'outline', class: 'text-error border-error' },
+      { variant: 'error', appearance: 'outline', class: 'text-error border-error' },
       // warning
       {
         variant: 'warning',
-        treatment: 'solid',
+        appearance: 'solid',
         class: 'border-transparent bg-warning text-warning-foreground',
       },
       {
         variant: 'warning',
-        treatment: 'subtle',
+        appearance: 'subtle',
         class: 'bg-warning-subtle text-warning border-warning',
       },
-      { variant: 'warning', treatment: 'outline', class: 'text-warning border-warning' },
+      { variant: 'warning', appearance: 'outline', class: 'text-warning border-warning' },
       // info
       {
         variant: 'info',
-        treatment: 'solid',
+        appearance: 'solid',
         class: 'border-transparent bg-info text-info-foreground',
       },
       {
         variant: 'info',
-        treatment: 'subtle',
+        appearance: 'subtle',
         class: 'bg-info-subtle text-info border-info',
       },
-      { variant: 'info', treatment: 'outline', class: 'text-info border-info' },
+      { variant: 'info', appearance: 'outline', class: 'text-info border-info' },
     ],
     defaultVariants: {
-      variant: 'default',
-      treatment: 'subtle',
+      variant: 'neutral',
+      appearance: 'subtle',
       size: 'md',
     },
   },

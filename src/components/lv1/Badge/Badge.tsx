@@ -7,19 +7,25 @@ export type IconName = keyof typeof icons
 
 export interface BadgeProps extends HTMLAttributes<HTMLDivElement>, BadgeVariants {
   /**
-   * Semantic state of the badge. Shares the state semantic tokens with `Toast` and `Callout`.
-   * Use `error` for "failed/invalid" tags. For destructive *actions*, use `<Button variant="destructive">`.
-   * @default 'default'
+   * Tone of the badge.
+   * - `neutral` — no semantic meaning, ambient list rows / status tags (all three appearances supported; `solid` is the "muted-but-emphatic" treatment)
+   * - `success` / `error` / `warning` / `info` — state semantics; shares tokens with `Toast` and `Callout`
+   *
+   * For destructive *actions*, use `<Button variant="destructive">` instead of `<Badge variant="error">`.
+   * @default 'neutral'
    */
   variant?: BadgeVariants['variant']
   /**
-   * Visual treatment.
-   * - `subtle` — soft tinted background, suited for ambient list rows and status tags
-   * - `solid` — filled emphasis
+   * Visual appearance / weight.
+   * - `subtle` (default) — soft tinted background, suited for ambient list rows and status tags
+   * - `solid` — filled emphasis (uses `*-foreground` text on a saturated background)
    * - `outline` — lightest, border-only style
+   *
+   * Value names align 1:1 with the underlying token suffix (`bg-{state}`,
+   * `bg-{state}-subtle`).
    * @default 'subtle'
    */
-  treatment?: BadgeVariants['treatment']
+  appearance?: BadgeVariants['appearance']
   /**
    * Size of the badge.
    * @default 'md'
@@ -36,7 +42,7 @@ export interface BadgeProps extends HTMLAttributes<HTMLDivElement>, BadgeVariant
 
 export const Badge = forwardRef<HTMLDivElement, BadgeProps>(
   (
-    { className, variant, treatment, size, icon, iconPosition = 'start', children, ...props },
+    { className, variant, appearance, size, icon, iconPosition = 'start', children, ...props },
     ref,
   ) => {
     const IconComponent = icon ? icons[icon] : null
@@ -45,7 +51,7 @@ export const Badge = forwardRef<HTMLDivElement, BadgeProps>(
     return (
       <div
         className={cn(
-          badgeVariants({ variant, treatment, size }),
+          badgeVariants({ variant, appearance, size }),
           isIconOnly && 'aspect-square p-1',
           className,
         )}

@@ -1,7 +1,7 @@
 import { type ReactNode, useEffect, useState } from 'react'
 
-export type ToastVariant = 'default' | 'success' | 'error' | 'warning' | 'info'
-export type ToastTreatment = 'subtle' | 'solid'
+export type ToastVariant = 'neutral' | 'success' | 'error' | 'warning' | 'info'
+export type ToastAppearance = 'subtle' | 'solid'
 
 export interface ToastAction {
   /** Action button label. */
@@ -18,16 +18,17 @@ export interface ToastInput {
   /** Body text rendered below the title. */
   description?: ReactNode
   /**
-   * State variant. Drives the icon, color treatment, and accent.
+   * Tone / state variant. Drives the icon, color treatment, and accent.
    * Shares the state semantic tokens with `Callout` and `Badge`.
-   * @default 'default'
+   * @default 'neutral'
    */
   variant?: ToastVariant
   /**
-   * Visual treatment — `subtle` for soft tinted background, `solid` for filled.
+   * Visual appearance — `subtle` for soft tinted background, `solid` for filled.
+   * Value names align 1:1 with the underlying token suffix.
    * @default 'subtle'
    */
-  treatment?: ToastTreatment
+  appearance?: ToastAppearance
   /**
    * Auto-dismiss after this many milliseconds.
    * @default 5000

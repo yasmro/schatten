@@ -4,11 +4,11 @@ import { cn } from '../../../lib/utils'
 import { type CalloutVariants, calloutVariants } from '../../../variants/callout'
 import { Button } from '../Button'
 
-export type CalloutVariant = 'default' | 'success' | 'error' | 'warning' | 'info'
-export type CalloutTreatment = 'subtle' | 'solid'
+export type CalloutVariant = 'neutral' | 'success' | 'error' | 'warning' | 'info'
+export type CalloutAppearance = 'subtle' | 'solid'
 
 const iconByVariant: Record<CalloutVariant, LucideIcon> = {
-  default: Info,
+  neutral: Info,
   info: Info,
   success: CircleCheck,
   warning: TriangleAlert,
@@ -21,14 +21,15 @@ export interface CalloutProps
   /**
    * State variant. Drives the icon, color treatment, and accent.
    * Shares the state semantic tokens with `Toast` and `Badge`.
-   * @default 'default'
+   * @default 'neutral'
    */
   variant?: CalloutVariants['variant']
   /**
-   * Visual treatment — `subtle` for soft tinted background, `solid` for filled.
+   * Visual appearance — `subtle` for soft tinted background, `solid` for filled.
+   * Value names align 1:1 with the underlying token suffix.
    * @default 'subtle'
    */
-  treatment?: CalloutVariants['treatment']
+  appearance?: CalloutVariants['appearance']
   /** Optional heading rendered in bold above the body content. */
   title?: ReactNode
   /**
@@ -48,7 +49,7 @@ export interface CalloutProps
    * complex action UIs are possible — Callouts often persist on screen and
    * may need richer affordances than Toast actions.
    *
-   * Tip: when `treatment="solid"`, prefer `<Button variant="inverted">`
+   * Tip: when `appearance="solid"`, prefer `<Button variant="inverted">`
    * for action buttons so they remain legible against the saturated
    * background.
    */
@@ -64,7 +65,7 @@ export interface CalloutProps
 /**
  * Inline status block — used to highlight contextual information within a
  * page (form notes, banner-style notices, content callouts). Mirrors the
- * five state variants and two treatments of {@link Toast}, but renders in
+ * variants and two appearances of {@link Toast}, but renders in
  * place rather than overlaying the viewport.
  *
  * Body content can be passed either as `children` (for rich JSX) or as
@@ -78,8 +79,8 @@ export interface CalloutProps
 export const Callout = forwardRef<HTMLDivElement, CalloutProps>(
   (
     {
-      variant = 'default',
-      treatment = 'subtle',
+      variant = 'neutral',
+      appearance = 'subtle',
       title,
       description,
       action,
@@ -90,8 +91,8 @@ export const Callout = forwardRef<HTMLDivElement, CalloutProps>(
     },
     ref,
   ) => {
-    const Icon = iconByVariant[variant ?? 'default']
-    const buttonVariant = treatment === 'solid' ? 'inverted' : 'tertiary'
+    const Icon = iconByVariant[variant ?? 'neutral']
+    const buttonVariant = appearance === 'solid' ? 'inverted' : 'tertiary'
     // `description` prop wins over `children` when both are supplied so
     // that callsites can normalise on the prop form without worrying that
     // a stray `{children}` from a wrapper will silently take precedence.
@@ -102,7 +103,7 @@ export const Callout = forwardRef<HTMLDivElement, CalloutProps>(
     const hasMultiLine = !!(title && body)
 
     return (
-      <div ref={ref} className={cn(calloutVariants({ variant, treatment }), className)} {...props}>
+      <div ref={ref} className={cn(calloutVariants({ variant, appearance }), className)} {...props}>
         <div className={cn('flex gap-3', hasMultiLine ? 'items-start' : 'items-center')}>
           <Icon className={cn('size-5 shrink-0', hasMultiLine && 'mt-0.5')} aria-hidden="true" />
           <div className="flex min-w-0 flex-1 flex-col gap-1">

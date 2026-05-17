@@ -84,11 +84,11 @@ const meta: Meta<typeof Toaster> = {
 export default meta
 type Story = StoryObj<typeof Toaster>
 
-const VARIANTS = ['default', 'success', 'error', 'warning', 'info'] as const
-const TREATMENTS = ['subtle', 'solid'] as const
+const VARIANTS = ['neutral', 'success', 'error', 'warning', 'info'] as const
+const APPEARANCES = ['subtle', 'solid'] as const
 
 const sampleByVariant: Record<(typeof VARIANTS)[number], { title: string; description: string }> = {
-  default: { title: 'Heads up', description: 'A neutral notification.' },
+  neutral: { title: 'Heads up', description: 'A neutral notification.' },
   success: { title: 'Saved', description: 'Your changes have been saved.' },
   error: { title: 'Error', description: 'Could not save your changes.' },
   warning: { title: 'Warning', description: 'Disk space is running low.' },
@@ -100,17 +100,17 @@ const Playground = (args: { position?: Parameters<typeof Toaster>[0]['position']
     <div>
       <h2 className="text-base font-semibold mb-1">Toast Playground</h2>
       <p className="text-sm text-foreground-muted">
-        Use the matrix below to fire any variant × treatment combination, and the second row to try
+        Use the matrix below to fire any variant × appearance combination, and the second row to try
         toasts with an action. Switch the position via Controls. The <code>{'<Toaster />'}</code> is
         mounted at the bottom of this story.
       </p>
     </div>
 
     <div>
-      <h3 className="text-sm font-semibold mb-2">Variant × Treatment</h3>
+      <h3 className="text-sm font-semibold mb-2">Variant × Appearance</h3>
       <div className="grid grid-cols-[auto_repeat(2,minmax(0,1fr))] gap-2 items-center">
         <span className="text-xs font-mono text-foreground-muted" />
-        {TREATMENTS.map((t) => (
+        {APPEARANCES.map((t) => (
           <span key={t} className="text-xs font-mono text-foreground-muted text-center">
             {t}
           </span>
@@ -118,16 +118,16 @@ const Playground = (args: { position?: Parameters<typeof Toaster>[0]['position']
         {VARIANTS.map((variant) => (
           <Fragment key={variant}>
             <span className="text-xs font-mono text-foreground-muted">{variant}</span>
-            {TREATMENTS.map((treatment) => (
+            {APPEARANCES.map((appearance) => (
               <Button
-                key={`${variant}-${treatment}`}
+                key={`${variant}-${appearance}`}
                 variant="secondary"
                 size="sm"
                 onClick={() =>
                   toast({
                     ...sampleByVariant[variant],
                     variant,
-                    treatment,
+                    appearance,
                   })
                 }
               >
@@ -143,7 +143,7 @@ const Playground = (args: { position?: Parameters<typeof Toaster>[0]['position']
       <h3 className="text-sm font-semibold mb-2">With Action (auto-dismisses on click)</h3>
       <div className="grid grid-cols-[auto_repeat(2,minmax(0,1fr))] gap-2 items-center">
         <span className="text-xs font-mono text-foreground-muted" />
-        {TREATMENTS.map((t) => (
+        {APPEARANCES.map((t) => (
           <span key={t} className="text-xs font-mono text-foreground-muted text-center">
             {t}
           </span>
@@ -151,16 +151,16 @@ const Playground = (args: { position?: Parameters<typeof Toaster>[0]['position']
         {VARIANTS.map((variant) => (
           <Fragment key={`action-${variant}`}>
             <span className="text-xs font-mono text-foreground-muted">{variant}</span>
-            {TREATMENTS.map((treatment) => (
+            {APPEARANCES.map((appearance) => (
               <Button
-                key={`action-${variant}-${treatment}`}
+                key={`action-${variant}-${appearance}`}
                 variant="secondary"
                 size="sm"
                 onClick={() =>
                   toast({
                     ...sampleByVariant[variant],
                     variant,
-                    treatment,
+                    appearance,
                     action: {
                       label: 'Undo',
                       onClick: () => {
@@ -246,32 +246,32 @@ export const SubtleTreatments: Story = {
     <AutoFireDemo
       inputs={[
         {
-          variant: 'default',
-          treatment: 'subtle',
-          title: 'Default',
-          description: 'A neutral notification.',
+          variant: 'neutral',
+          appearance: 'subtle',
+          title: 'Neutral',
+          description: 'A baseline notification.',
         },
         {
           variant: 'success',
-          treatment: 'subtle',
+          appearance: 'subtle',
           title: 'Success',
           description: 'Your changes have been saved.',
         },
         {
           variant: 'error',
-          treatment: 'subtle',
+          appearance: 'subtle',
           title: 'Error',
           description: 'Could not save your changes.',
         },
         {
           variant: 'warning',
-          treatment: 'subtle',
+          appearance: 'subtle',
           title: 'Warning',
           description: 'Disk space is running low.',
         },
         {
           variant: 'info',
-          treatment: 'subtle',
+          appearance: 'subtle',
           title: 'Info',
           description: 'A new version is available.',
         },
@@ -286,32 +286,32 @@ export const SolidTreatments: Story = {
     <AutoFireDemo
       inputs={[
         {
-          variant: 'default',
-          treatment: 'solid',
-          title: 'Default',
-          description: 'A neutral notification.',
+          variant: 'neutral',
+          appearance: 'solid',
+          title: 'Neutral',
+          description: 'A muted-but-emphatic notification.',
         },
         {
           variant: 'success',
-          treatment: 'solid',
+          appearance: 'solid',
           title: 'Success',
           description: 'Your changes have been saved.',
         },
         {
           variant: 'error',
-          treatment: 'solid',
+          appearance: 'solid',
           title: 'Error',
           description: 'Could not save your changes.',
         },
         {
           variant: 'warning',
-          treatment: 'solid',
+          appearance: 'solid',
           title: 'Warning',
           description: 'Disk space is running low.',
         },
         {
           variant: 'info',
-          treatment: 'solid',
+          appearance: 'solid',
           title: 'Info',
           description: 'A new version is available.',
         },

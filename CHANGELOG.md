@@ -1,5 +1,238 @@
 # @yasmro/schatten
 
+## 0.7.0
+
+### Minor Changes
+
+- [#205](https://github.com/yasmro/schatten/pull/205) [`192b6ab`](https://github.com/yasmro/schatten/commit/192b6ab271bacf84dad80d596d022348588d4a0b) Thanks [@yasmro](https://github.com/yasmro)! - BREAKING: Pattern B (Badge / Callout / Toast) prop name and variant vocabulary
+  unification per [`component-api-conventions.md`](.claude/rules/component-api-conventions.md).
+  Closes [#108](https://github.com/yasmro/schatten/issues/108).
+
+  **Prop rename**: `treatment` → `appearance` on `Badge`, `Callout`, `Toast`
+  (and `ToastInput`).
+
+  ```diff
+  - <Badge treatment="subtle">Active</Badge>
+  + <Badge appearance="subtle">Active</Badge>
+
+  - <Callout treatment="solid" variant="error">Failed</Callout>
+  + <Callout appearance="solid" variant="error">Failed</Callout>
+
+  - toast({ title: 'Saved', treatment: 'subtle' })
+  + toast({ title: 'Saved', appearance: 'subtle' })
+  ```
+
+  **Variant rename**: `variant="default"` → `variant="neutral"`. Pure rename —
+  all `default` callsites map 1:1 to `neutral` regardless of appearance, and
+  the visual is unchanged.
+
+  ```diff
+  - <Badge variant="default" treatment="solid">tag</Badge>
+  + <Badge variant="neutral" appearance="solid">tag</Badge>
+  ```
+
+  **Pattern B has no `accent` tone.** During the review of [PR #205](https://github.com/yasmro/schatten/pull/205)
+  we found that `accent + solid` and `neutral + solid` were visually serving
+  the same role (non-state filled chip). The `accent` tone has therefore
+  been dropped — Pattern B's tone vocabulary is now `neutral / success /
+error / warning / info`. Brand expression on Pattern B happens through
+  state variants (e.g. `error` is vermillion) or the theme layer (Mode ×
+  Special), not a dedicated tone.
+
+  **Appearance values are unchanged**: `solid` / `subtle` / `outline` (Badge)
+  and `solid` / `subtle` (Callout / Toast) are kept as-is because they
+  already align 1:1 with the semantic token suffixes (`bg-{state}-subtle`,
+  `bg-{state}`) and CSS class names — renaming would have introduced a
+  translation layer between props and tokens.
+
+  **Type renames**: `CalloutTreatment` → `CalloutAppearance`,
+  `ToastTreatment` → `ToastAppearance`. `CalloutVariant` / `ToastVariant`
+  narrow to `'neutral' | 'success' | 'error' | 'warning' | 'info'`.
+
+  **Visuals unchanged**: every previously valid combination produces the
+  same CSS classes as before. VRT snapshots only update where story content
+  labels changed (e.g. "default" labels became "neutral", the `accent`
+  column is removed from playground matrices).
+
+  **Not in this release** (intentionally deferred):
+
+  - Pattern B appearance value renames (`solid` → `filled`, etc.) — declined
+    to preserve token / prop alignment.
+  - Spinner `variant="inverted"` removal — kept as a small out-of-pattern
+    special case.
+  - `--color-solid` token rename — entangled with Pattern A Button primary,
+    to be addressed as a separate issue.
+
+- [#217](https://github.com/yasmro/schatten/pull/217) [`2a3ed83`](https://github.com/yasmro/schatten/commit/2a3ed83e1550139a66e2409ac49504b0a857a61e) Thanks [@yasmro](https://github.com/yasmro)! - feat(theme): seasonal Special themes now declare an explicit token allowlist
+  per [`theme-architecture.md`](.claude/rules/theme-architecture.md) ("Allowlist
+  mechanism"). Closes [#114](https://github.com/yasmro/schatten/issues/114).
+
+  **New exports** from `@yasmro/schatten/themes/seasonal`:
+
+  - `SeasonalThemeId` — full `data-theme` value type
+    (`'season--spring-early' | … | 'season--winter-deep'`), matching the
+    attribute emitted by `getSeasonAttribute()` / `applySeasonTheme()`.
+  - `SeasonalThemeMetadata` — `{ name, allowedTokens, description? }`. The
+    per-theme contract for which CSS custom properties this theme may
+    override.
+  - `SEASONAL_THEME_METADATA` — `Record<SeasonalThemeId, SeasonalThemeMetadata>`
+    covering all eight shipped seasonal palettes. Today every theme allows
+    only `--color-theme-*`; Mode-owned tokens (surfaces, foregrounds,
+    borders, disabled/readOnly) and `--color-info-*` are explicitly out of
+    bounds.
+
+  **Per-theme CSS comments** in
+  [`src/themes/seasonal/themes.css`](src/themes/seasonal/themes.css) now
+  state each block's allowlist next to the selector, mirroring the
+  machine-readable contract.
+
+  **Phase 5 placeholder**: [`scripts/check-theme-allowlist.mjs`](scripts/check-theme-allowlist.mjs)
+  is a no-op stub. Mechanical enforcement (fail the build when a Special
+  overrides a token outside its allowlist) will ship in a later release
+  sharing the scan pipeline with
+  [#200](https://github.com/yasmro/schatten/issues/200).
+
+  **No runtime change**: existing seasonal themes already only override
+  `--color-theme-*`. This change pins the contract — it does not move any
+  pixels.
+
+- [#218](https://github.com/yasmro/schatten/pull/218) [`36afa8e`](https://github.com/yasmro/schatten/commit/36afa8e6436d78de8e892d2a109880dd126cfdea) Thanks [@yasmro](https://github.com/yasmro)! - feat(docs): add `Foundation/ThemeAudit` Storybook story for 16-pattern visual verification.
+
+  Implements the audit story called for in
+  [`theme-architecture.md` §"v0.7.0 migration plan"](.claude/rules/theme-architecture.md#v070-migration-plan):
+  the Mode (light/dark) × Special (8 seasonal) matrix is now visible in a single
+  viewport, and pinned by VRT.
+
+  Closes [#115](https://github.com/yasmro/schatten/issues/115).
+
+  **Stories** (under `src/docs/foundations/ThemeAudit.stories.tsx`)
+
+  - **Overview (16 patterns)** — 8 Specials × 2 Modes grid in one render.
+    Rows = Special palette, columns = Mode. Regressions to any of the 16 cells
+    surface in one screenshot.
+  - **Per Special** — argTypes-driven, single-cell inspection of one (Special,
+    Mode) at a time. Bypasses the Storybook toolbar so the URL `args=` selector
+    is the only source of theming (this is what the VRT spec drives).
+  - **Cascade Verification** — table showing canonical tokens against four
+    scenarios (light/dark × none/spring-early), so the two-axis ownership
+    contract is empirically observable: theme-\* tokens move along the Special
+    axis, foreground / background / border / disabled along the Mode axis,
+    and `--color-info` stays pinned to blue everywhere.
+
+  **VRT** — `src/docs/foundations/ThemeAudit.vrt.spec.ts` ships 18 baselines:
+  overview (full grid), 16 per-special cells, and the cascade table.
+
+  **Implementation note** — the overview renders every Special in the same
+  viewport by injecting a one-line transform of the production seasonal CSS
+  (`:root[data-theme=...]` → `.theme-audit-cell[data-theme=...]`), loaded via
+  Vite's `?raw` import. Zero parallel CSS to maintain: when
+  [`src/themes/seasonal/themes.css`](src/themes/seasonal/themes.css) changes,
+  the audit story picks the update up automatically.
+
+  **Consumer impact** — none. Storybook-only docs surface; nothing changes in
+  `dist/` or the public component / token APIs.
+
+### Patch Changes
+
+- [#210](https://github.com/yasmro/schatten/pull/210) [`67149e2`](https://github.com/yasmro/schatten/commit/67149e25400591124b2d27c2d9e9f20994e19468) Thanks [@yasmro](https://github.com/yasmro)! - chore(build): drop the empty `./components/lv2` exports entry until lv2 lands.
+
+  `src/components/lv2/index.ts` is still `export {}` and the matching
+  `package.json#exports["./components/lv2"]` plus the `tsup` entry were
+  exposing an empty surface to consumers — a signal that "an API is here but
+  incomplete." Until lv2 components ship in v0.9.0, the cleaner posture is
+  to not advertise the sub-path at all.
+
+  Closes [#110](https://github.com/yasmro/schatten/issues/110).
+
+  **Changes**
+
+  - `package.json#exports["./components/lv2"]` is removed. The remaining
+    entries (`.`, `./components`, `./components/lv1`, …) are unchanged.
+  - `tsup.config.ts` no longer lists `components/lv2/index` as an entry, so
+    `pnpm build` does not emit `dist/components/lv2/`.
+  - `src/components/lv2/index.ts` is **kept** as `export {}` — it's the
+    placeholder that v0.9.0 will populate when the first lv2 lands. Removing
+    the file would force re-creating it (and re-wiring the tsup / exports
+    config) later for no gain today.
+
+  **Restoration plan (v0.9.0)**
+
+  When the first lv2 components (`FormField`, …) ship, re-add the
+  `./components/lv2` exports entry and the `components/lv2/index` tsup entry
+  in the same change.
+
+  **Consumer impact**
+
+  Effectively none — `import … from '@yasmro/schatten/components/lv2'`
+  previously resolved to an empty module, so no real callsite exists. Anyone
+  who somehow had that import will get a clear resolution error pointing
+  back at this changeset rather than a silent empty import.
+
+- [#207](https://github.com/yasmro/schatten/pull/207) [`99a613b`](https://github.com/yasmro/schatten/commit/99a613b119744f35f15d5cef22ca43fc3d571658) Thanks [@yasmro](https://github.com/yasmro)! - fix(build): root entry (`.`) now resolves to the components bundle, plus
+  build-hygiene cleanup.
+
+  Until now, `package.json#exports["."]` only declared `style`, so
+  `import { Button } from '@yasmro/schatten'` failed (`ERR_PACKAGE_PATH_NOT_EXPORTED`).
+  This was a build-config oversight, not a deliberate design choice — the
+  sub-path entries (`./components/lv1`, `./variants`, …) continued to work.
+
+  Closes [#109](https://github.com/yasmro/schatten/issues/109).
+
+  **Resolution after this fix**
+
+  ```ts
+  import { Button } from "@yasmro/schatten"; // ✅ now works
+  import { Button } from "@yasmro/schatten/components/lv1"; // ✅ still works
+  import "@yasmro/schatten/schatten.css"; // ✅ still works
+  ```
+
+  **Primary changes**
+
+  - `exports["."]` gains `types` / `import` / `require` entries pointing at
+    `dist/components/index.{d.ts,js,cjs}` so the root specifier resolves to
+    the full lv1 surface. `style` is reordered above the JS conditions so
+    bundlers that use the `style` pipeline still pick up `dist/schatten.css`
+    (Node's conditional-exports resolution short-circuits at the first
+    matching condition).
+  - Top-level `main` / `module` / `types` are repointed at the components
+    bundle, replacing stale `./dist/index.{js,d.ts}` paths that never
+    existed in `dist/`.
+  - `src/components/index.ts` no longer re-exports the (currently empty)
+    lv2 barrel, so the root entry has no transitive dependency on lv2. The
+    `./components/lv2` sub-path entry is unchanged — its removal is scoped
+    to the next issue.
+
+  **Build-hygiene additions (in scope for this fix)**
+
+  - `sideEffects: ["**/*.css", "./dist/**/*.css"]` declared so bundlers can
+    tree-shake unused components from the new root entry. No Schatten
+    module has top-level DOM / timer / network side effects.
+  - `types` conditions are split into `import` / `require` sub-conditions
+    pointing at `.d.ts` / `.d.cts` respectively. Without this split,
+    publint warned that `types` would be interpreted as ESM under the
+    `require` condition.
+  - `publint` is added as a dev dependency with a `pnpm lint:pkg` script,
+    to mechanize the four classes of bug uncovered while triaging this
+    issue (missing JS conditions, condition-order conflicts, non-existent
+    `main` paths, dual-format `types` mismatch).
+  - The pre-existing `clean: true` on the first `tsup` config block is
+    moved to a top-level `pnpm clean:dist` (rimraf) step. Running clean
+    from one config inside a parallel `defineConfig([…])` array was
+    racing with the other configs' DTS emit and silently wiping
+    `dist/themes/seasonal/index.d.{ts,cts}`. Both files now persist after
+    build.
+  - CSS-only export entries (`./schatten.css`, `./core/tokens`,
+    `./themes/default`, `./themes/seasonal/themes.css`) are collapsed to
+    string-form values — they resolved identically under `import` and
+    `require`, so the conditional wrapper added noise.
+  - README is updated to recommend `import { Button } from '@yasmro/schatten'`
+    as the canonical form, with the sub-path imports documented as the
+    bundle-size-sensitive alternative.
+
+  No public API surface changes — this is strictly an additive fix to make
+  the documented convenience entry resolve, plus the build-hygiene
+  follow-ups it surfaced.
+
 ## 0.6.0
 
 ### Minor Changes

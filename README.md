@@ -160,14 +160,18 @@ npm install @yasmro/schatten
 `react` and `react-dom` (`^18` or `^19`) are required as peer dependencies
 when consuming Layer B. Layer A has no runtime dependencies.
 
-`lucide-react` is an **optional** peer dependency. Install it only if you
-pass icon props (e.g. `<Button icon={Search} />` on `Button`, `Badge`,
-`Input`, `Dialog`); icons are passed as components imported from
-`lucide-react`, which keeps icon imports tree-shakeable in your bundle:
+`lucide-react` is a peer dependency of the React component layer — install it
+alongside `@yasmro/schatten` whenever you use the React components:
 
 ```sh
 pnpm add lucide-react
 ```
+
+`Toast`, `Callout`, `Select`, `Field`, and `Dialog` render Lucide icons
+internally, and `Button` / `Badge` / `Input` accept Lucide icon components via
+their `icon` props. It is declared `optional` in `peerDependenciesMeta` only so
+that Layer A (CSS / token-only) consumers — who never touch the React layer —
+are not warned about a dependency they do not need.
 
 ## Usage
 

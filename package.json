@@ -4,12 +4,15 @@
   "packageManager": "pnpm@10.33.0+sha512.10568bb4a6afb58c9eb3630da90cc9516417abebd3fabbe6739f0ae795728da1491e9db5a544c76ad8eb7570f5c4bb3d6c637b2cb41bfdcdb47fa823c8649319",
   "description": "Design system with CSS variants and React components",
   "type": "module",
-  "main": "./dist/index.js",
-  "module": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "./dist/components/index.cjs",
+  "module": "./dist/components/index.js",
+  "types": "./dist/components/index.d.ts",
   "exports": {
     ".": {
-      "style": "./dist/schatten.css"
+      "types": "./dist/components/index.d.ts",
+      "style": "./dist/schatten.css",
+      "import": "./dist/components/index.js",
+      "require": "./dist/components/index.cjs"
     },
     "./schatten.css": {
       "import": "./dist/schatten.css",

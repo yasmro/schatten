@@ -83,6 +83,7 @@
     "lint": "biome ci .",
     "lint:fix": "biome check --write .",
     "lint:pkg": "publint",
+    "check:theme-allowlist": "node scripts/check-theme-allowlist.mjs",
     "format": "biome format --write .",
     "typecheck": "tsc --noEmit -p tsconfig.test.json",
     "changeset": "changeset",

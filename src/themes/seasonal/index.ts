@@ -17,25 +17,112 @@ export type SeasonTheme =
 export type SeasonalThemeId = `season--${SeasonTheme}`
 
 /**
+ * CSS custom properties a Special theme is permitted to override.
+ *
+ * The architecture pins Specials to the "expressive layer" only — the
+ * theme scale and (optionally) the accent pair. Anything else is
+ * Mode-owned. The literal union here narrows `allowedTokens` so that
+ * future Specials can't quietly add Mode-owned entries (e.g.
+ * `'--color-background'`) at the type level; that mistake now fails
+ * `tsc` instead of waiting for the Phase 5 lint script.
+ *
+ * Glob form (`--color-theme-*`) is supported because the wildcard
+ * matches `\`--color-theme-${string}\``.
+ */
+export type AllowedSpecialToken =
+  | `--color-theme-${string}`
+  | '--color-accent'
+  | `--color-accent-${string}`
+
+/**
+ * CSS custom properties a Special theme MUST NOT override. Mirrored in
+ * `.claude/rules/theme-architecture.md` ("Mode owns the base layer" +
+ * "Specials must not override non-interactive state tokens") and
+ * `.claude/rules/state-token-guideline.md` (`info` independence).
+ *
+ * Today this list is informational — Phase 5's lint script
+ * (`scripts/check-theme-allowlist.mjs`) will consume it to mechanically
+ * reject any Special CSS that writes one of these tokens.
+ *
+ * The categories are deliberately grouped so that adding a new
+ * Mode-owned token has an obvious home.
+ */
+export const FORBIDDEN_SPECIAL_TOKENS = [
+  // Non-interactive state — Mode-owned (state-token-guideline.md)
+  '--color-surface-disabled',
+  '--color-foreground-disabled',
+  '--color-border-disabled',
+  '--color-surface-readonly',
+  '--color-border-readonly',
+
+  // info — pinned to blue across every Mode × Special combination
+  '--color-info',
+  '--color-info-hover',
+  '--color-info-foreground',
+  '--color-info-subtle',
+
+  // Other state tokens — Mode-shifted between light/dark, not Special-owned
+  '--color-error',
+  '--color-error-hover',
+  '--color-error-foreground',
+  '--color-error-subtle',
+  '--color-success',
+  '--color-success-hover',
+  '--color-success-foreground',
+  '--color-success-subtle',
+  '--color-warning',
+  '--color-warning-hover',
+  '--color-warning-foreground',
+  '--color-warning-subtle',
+  '--color-destructive',
+  '--color-destructive-hover',
+  '--color-destructive-foreground',
+  '--color-destructive-subtle',
+
+  // Mode-owned base layer
+  '--color-background',
+  '--color-surface',
+  '--color-surface-hover',
+  '--color-foreground',
+  '--color-foreground-muted',
+  '--color-foreground-subtle',
+  '--color-inverted-foreground',
+  '--color-inverted-foreground-muted',
+  '--color-inverted-foreground-subtle',
+  '--color-border',
+  '--color-border-strong',
+  '--color-ring',
+  '--color-ring-offset',
+
+  // "neutral solid" surface — Mode-owned, shared with Pattern A Button primary
+  '--color-solid',
+  '--color-solid-hover',
+  '--color-solid-foreground',
+  '--color-solid-foreground-hover',
+] as const
+
+/** Type of any token name in {@link FORBIDDEN_SPECIAL_TOKENS}. */
+export type ForbiddenSpecialToken = (typeof FORBIDDEN_SPECIAL_TOKENS)[number]
+
+/**
  * Per-Special-theme contract for a seasonal palette.
  *
  * `allowedTokens` declares the CSS custom properties this theme is
  * permitted to override. Tokens outside this list are Mode-owned
  * (light/dark) and must NOT be overridden — see
- * `.claude/rules/theme-architecture.md` ("Allowlist mechanism") and
- * `.claude/rules/state-token-guideline.md` (non-interactive state tokens
- * and `info` independence) for the full contract.
+ * {@link AllowedSpecialToken} and {@link FORBIDDEN_SPECIAL_TOKENS} for
+ * the type-level shape, and the architecture / state-token guidelines
+ * for the prose contract.
  *
- * Values are glob-like patterns (`--color-theme-*`) so a single entry
- * covers the whole 50–950 scale. Mechanical enforcement is deferred to
- * Phase 5 (see `scripts/check-theme-allowlist.mjs`); until then the
- * allowlist is a documented convention enforced by code review.
+ * Values may be exact token names (`--color-theme-500`) or glob-like
+ * patterns (`--color-theme-*`). Mechanical enforcement is deferred to
+ * Phase 5 (see `scripts/check-theme-allowlist.mjs`).
  */
 export interface SeasonalThemeMetadata {
   /** Full `data-theme` attribute value, including the `season--` prefix. */
   name: SeasonalThemeId
-  /** Glob-like list of CSS custom properties this theme may override. */
-  allowedTokens: readonly string[]
+  /** Tokens this theme may override. Type-narrowed to the expressive layer only. */
+  allowedTokens: readonly AllowedSpecialToken[]
   /** Solar-term range + traditional color reference. */
   description?: string
 }

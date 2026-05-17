@@ -191,6 +191,7 @@ different semantics in any component.
 | `required` | `boolean` | HTML standard. No `is` prefix. | Form components inside a `<Field>`. |
 | `id` | `string` | HTML standard. When inside `<Field>`, the field's `id` wins for label-association components (`Input` / `Textarea` / `Select`) — see [field-context-guideline](field-context-guideline.md). |
 | `asChild` | `boolean` | Delegates rendering to the child via Radix `Slot`. **Adoption criteria below.** | Only components that satisfy the criteria. |
+| `icon` | `LucideIcon` (from `lucide-react`) | A Lucide **icon component** rendered alongside content. Passed as a component, never a name string, so consumer bundles tree-shake icons. The icon vendor is fixed to Lucide; widening to a vendor-agnostic type later is non-breaking. | `Button` / `Badge` (`icon`); `Input` (`iconLeft` / `iconRight`); `Dialog` footer-button slots (`actionButton.icon` / `cancelButton.icon` / `subActionButton.icon`). |
 
 ### Boolean prop naming
 

@@ -15,8 +15,12 @@ consumer bundle. schatten's own `dist` now contains zero whole-barrel imports.
 
 Migration:
 
-- Install `lucide-react` yourself if you use icon props — it is an optional
-  peer dependency now: `pnpm add lucide-react`.
+- Install `lucide-react` yourself when you use schatten's React components —
+  it is now a peer dependency (`pnpm add lucide-react`). `Toast`, `Callout`,
+  `Select`, `Field`, and `Dialog` render Lucide icons internally, and
+  `Button` / `Badge` / `Input` accept Lucide icons via `icon` props. It is
+  declared `optional` in `peerDependenciesMeta` only so that Layer A
+  (CSS / token-only) consumers are not warned about it.
 - Pass the icon **component** imported from `lucide-react`, not a name string:
 
   ```tsx

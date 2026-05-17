@@ -153,7 +153,10 @@
   "pnpm": {
     "overrides": {
       "postcss@<8.5.10": ">=8.5.10"
-    }
+    },
+    "onlyBuiltDependencies": [
+      "lightningcss-cli"
+    ]
   },
   "license": "MIT",
   "repository": {

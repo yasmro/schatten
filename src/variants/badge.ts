@@ -23,14 +23,14 @@ export const badgeVariants = cva(
       },
     },
     compoundVariants: [
-      // neutral — non-state baseline.
-      // `solid` uses `--color-foreground-muted` + inverted foreground for
-      // a muted-but-emphatic surface. This is the only "non-state filled
-      // chip" — there is no separate brand-accent variant in Pattern B.
+      // neutral — non-state baseline. 1:1 successor of legacy `default`
+      // (renamed in v0.7.0, no visual change). `solid` reuses the
+      // `--color-solid` token that also powers Button primary — both are
+      // "the main interactive fill" semantically.
       {
         variant: 'neutral',
         appearance: 'solid',
-        class: 'bg-foreground-muted text-inverted-foreground border-transparent',
+        class: 'border-transparent bg-solid text-solid-foreground',
       },
       {
         variant: 'neutral',

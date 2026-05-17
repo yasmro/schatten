@@ -90,7 +90,7 @@ For state / notification components, two orthogonal props:
 
 | Value | Meaning | Token family |
 |---|---|---|
-| `neutral` *(default)* | No semantic meaning. The "this is just a chip / banner / toast" baseline. Covers both quiet (subtle / outline) and muted-but-emphatic (solid) uses. | `foreground` / `border-strong` / `surface-hover` (subtle); `foreground-muted` / `inverted-foreground` (solid) |
+| `neutral` *(default)* | No semantic meaning. The "this is just a chip / banner / toast" baseline. Covers all three appearances; `solid` reuses `--color-solid` (the same token Button primary uses) so visual identity is shared across the "main interactive fill" surfaces. | `foreground` / `border-strong` / `surface-hover` (subtle); `solid` / `solid-foreground` (solid) |
 | `success` | Positive state (completed, saved). | `success-*` |
 | `error` | Error state (form invalid, request failed). | `error-*` |
 | `warning` | Caution state. | `warning-*` |
@@ -159,8 +159,7 @@ reintroduced.
 
 | Legacy | Replacement | Notes |
 |---|---|---|
-| `Badge/Callout/Toast variant="default"` | `variant="neutral"` | Rename. All `default` callsites map to `neutral` regardless of treatment — Pattern B no longer has a separate brand-accent tone. |
-| `Badge/Callout/Toast treatment="solid"` (on legacy `default`) | `appearance="solid"` (on new `neutral`) | Visual changes: legacy `default + solid` (alabaster fill via `bg-solid`) becomes `neutral + solid` (cool mid-gray via `bg-foreground-muted` + `text-inverted-foreground`). Pre-1.0 visual change accepted in exchange for vocabulary clarity. |
+| `Badge/Callout/Toast variant="default"` | `variant="neutral"` | Pure rename. All `default` callsites map 1:1 to `neutral` regardless of treatment — no visual change. Pattern B has no separate brand-accent tone. |
 | `treatment` (prop name) | `appearance` | Across the board. Values (`solid` / `subtle` / `outline`) are unchanged — only the prop name moves. |
 
 The shape values (`solid` / `subtle` / `outline`) are **kept as-is** from

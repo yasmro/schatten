@@ -68,18 +68,18 @@ describe('Badge', () => {
       expect(root.className).toContain('border-border-strong')
     })
 
-    it('applies muted fill when neutral + solid is passed', () => {
+    it('applies the solid fill when neutral + solid is passed', () => {
       const { container } = render(
         <Badge variant="neutral" appearance="solid">
-          Muted
+          Solid
         </Badge>,
       )
       const root = container.firstChild as HTMLElement
-      // neutral + solid is the only "non-state filled chip" — uses
-      // `--color-foreground-muted` (mode-aware mid-tone gray) with
-      // inverted-foreground text.
-      expect(root.className).toContain('bg-foreground-muted')
-      expect(root.className).toContain('text-inverted-foreground')
+      // neutral + solid reuses the `--color-solid` token (the same one
+      // Button primary uses) — both express "the main interactive fill".
+      // This is the 1:1 visual successor of legacy `default + solid`.
+      expect(root.className).toContain('bg-solid')
+      expect(root.className).toContain('text-solid-foreground')
     })
   })
 

@@ -3,7 +3,7 @@ name: Storybook Preview
 on:
   pull_request:
     types: [opened, synchronize, reopened, closed]
-    branches: [main]
+    branches: [main, develop]
 
 permissions:
   contents: write

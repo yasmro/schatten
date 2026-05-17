@@ -1,0 +1,230 @@
+import { Meta } from '@storybook/addon-docs/blocks'
+
+<Meta title="Getting Started/For Astro" />
+
+# For Astro
+
+Schatten works in Astro without any React runtime: import the CSS bundle
+once, and either use the CVA variant helpers to compose class strings, or
+drop into a React island when you need the typed component layer.
+
+This page covers the two paths and where they meet.
+
+---
+
+## Status (v0.7.0)
+
+Schatten ships **two consumer surfaces** today. They are at different
+maturity levels in v0.7.0 — be aware which you are using:
+
+| Surface | What ships today | When it stabilizes |
+|---|---|---|
+| **Design tokens** (CSS vars: `--color-theme-600`, `--color-foreground`, …) | Production-ready | Stable from **v1.0.0** |
+| **CVA variant helpers** (`buttonVariants(...)`, `inputVariants(...)`, …) | Production-ready bridge | Stable from **v1.0.0** |
+| **Class-based component API** (`<button class="btn" data-variant="solid">`) | Phantom — the `.btn` selector is referenced internally but has no CSS rules yet | Lands in **v0.14.0**, stable from **v1.0.0** |
+
+Progress is tracked in [#58](https://github.com/yasmro/schatten/issues/58).
+Until v0.14.0 ships, the **recommended Astro bridge is `buttonVariants(...)`**
+(see "Layer A — today" below).
+
+---
+
+## Install
+
+```sh
+pnpm add @yasmro/schatten
+```
+
+`react` / `react-dom` peer deps are only required if you use React
+islands (see [React island mixing](#react-island-mixing) below). For a
+pure Astro / SSR-only setup, the CSS bundle alone has no runtime
+dependencies.
+
+---
+
+## Setup — global stylesheet
+
+Import the CSS bundle once at your app's shared layout:
+
+```astro
+---
+// src/layouts/Layout.astro
+import '@yasmro/schatten/schatten.css'
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>My Astro site</title>
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>
+```
+
+The bundle ships:
+
+- Primitive scales (`--vermillion-*`, `--green-*`, `--blue-*`, …)
+- Semantic tokens (`--color-foreground`, `--color-error`, `--color-theme-*`, …)
+- Tailwind utilities used by Schatten's CVA strings
+- Component animation keyframes (Spinner, Toast)
+
+The package declares `"sideEffects": ["**/*.css"]`, so the CSS import is
+not tree-shaken away.
+
+---
+
+## Layer A — today (CVA bridge)
+
+`buttonVariants(...)` (and its siblings) return a Tailwind class string
+that you can apply to any element — including a plain Astro `<button>`,
+an Astro `<a>`, or a `<NextLink>`-style framework link.
+
+```astro
+---
+import '@yasmro/schatten/schatten.css'
+import { buttonVariants } from '@yasmro/schatten/variants'
+---
+
+<!-- Plain button, primary -->
+<button class={buttonVariants({ variant: 'primary' })}>Save</button>
+
+<!-- An <a> styled as a secondary button -->
+<a
+  href="/docs"
+  class={buttonVariants({ variant: 'secondary', size: 'sm' })}
+>
+  Docs
+</a>
+
+<!-- Link-style action -->
+<a href="/settings" class={buttonVariants({ variant: 'link' })}>
+  Settings
+</a>
+```
+
+### Button variant vocabulary
+
+`Button` follows **Pattern A** (single-axis role-based) per
+[`component-api-conventions.md`](../../../.claude/rules/component-api-conventions.md).
+The full vocabulary:
+
+| `variant` | Use for |
+|---|---|
+| `primary` *(default)* | Main CTA. Solid brand-accent fill. |
+| `secondary` | Outlined neutral. Secondary actions. |
+| `tertiary` | Ghost (no border / no bg). Low-priority actions. |
+| `destructive` | Delete / remove. Solid vermillion fill. |
+| `inverted` | Ghost button intended for placement on a saturated surface (e.g. inside a solid Toast). |
+| `link` | Inline text-link styling. |
+
+Pattern A has **no `appearance` prop**. If you reach for one, the role
+vocabulary is what you want to extend — open an issue rather than
+inventing a second axis locally.
+
+The same approach works for the other variant functions exported from
+`@yasmro/schatten/variants`: `badgeVariants`, `inputVariants`,
+`inputWrapperVariants`, `calloutVariants`, `textVariants`,
+`textareaVariants`, `selectTriggerVariants`, and others.
+
+---
+
+## React island mixing
+
+When a piece of UI needs interactivity that's awkward to express in
+Astro alone (a dialog, a tooltip, a controlled form input), mount it as
+a React island. Schatten's React layer composes the same tokens, so the
+visual output is identical to the CVA bridge.
+
+```astro
+---
+// src/pages/index.astro
+import '@yasmro/schatten/schatten.css'
+import { Button } from '@yasmro/schatten'
+import { buttonVariants } from '@yasmro/schatten/variants'
+---
+
+<Layout>
+  {/* React island — hydrates on the client */}
+  <Button client:load variant="primary">Sign up</Button>
+
+  {/* Pure Astro — no JS shipped */}
+  <a
+    href="/learn-more"
+    class={buttonVariants({ variant: 'secondary' })}
+  >
+    Learn more
+  </a>
+</Layout>
+```
+
+Two practical notes:
+
+- **Pick the cheaper option per element.** Static-looking surfaces
+  (badges, callouts that don't dismiss, headings) cost nothing as
+  CVA-styled markup. Reach for an island only when you actually need
+  the React lifecycle (event handlers, state, Radix-driven portal
+  components like `Dialog` / `Tooltip` / `Select`).
+- **Hydration strategy is your call.** `client:load`, `client:idle`,
+  `client:visible`, `client:only="react"` all work. Schatten does not
+  prescribe one.
+
+---
+
+## Layer A — v0.14.0 onward
+
+When the data-attribute class API lands in v0.14.0
+([#58](https://github.com/yasmro/schatten/issues/58)), the same Astro
+snippet drops the JS helper entirely:
+
+```astro
+---
+import '@yasmro/schatten/schatten.css'
+---
+
+<!-- v0.14.0 onward — no buttonVariants() needed -->
+<button class="btn" data-variant="solid">Save</button>
+<a href="/docs" class="btn" data-variant="outline">Docs</a>
+```
+
+Until then, `buttonVariants(...)` is the supported bridge — the code
+above will compile and parse today, but the `.btn` rule has no
+declarations attached. Use the CVA helper for now and migrate when
+v0.14.0 ships.
+
+---
+
+## Tokens — works everywhere, today
+
+You don't need the variant helpers to consume the design tokens. Any
+Astro file can reference a CSS variable directly:
+
+```astro
+<div style="background: var(--color-error-subtle); color: var(--color-error); padding: 12px;">
+  Something went wrong.
+</div>
+```
+
+For typed pointers, the `tokens` export gives you a value map and union
+types:
+
+```astro
+---
+import { tokens } from '@yasmro/schatten/tokens'
+---
+
+<div style={`background: ${tokens.color.errorSubtle}; color: ${tokens.color.error};`}>
+  Something went wrong.
+</div>
+```
+
+---
+
+## See also
+
+- [README — Quick start](https://github.com/yasmro/schatten#quick-start)
+- [#58 — framework-agnostic CSS roadmap](https://github.com/yasmro/schatten/issues/58)
+- [`component-api-conventions.md`](../../../.claude/rules/component-api-conventions.md) — full variant matrix
+- [`api-stability.md`](../../../.claude/rules/api-stability.md) — public API contract (effective from v1.0)

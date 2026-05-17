@@ -1,0 +1,249 @@
+import { Meta } from '@storybook/addon-docs/blocks'
+
+<Meta title="Getting Started/For Vue" />
+
+# For Vue
+
+Schatten's CSS bundle and CVA variant helpers work in Vue 3 the same way
+they work in any non-React framework: import the stylesheet once at
+app entry, then bind variant class strings into your templates with
+`:class`.
+
+This page covers the setup, the `<style scoped>` interaction, and the
+v0.14.0 migration path.
+
+---
+
+## Status (v0.7.0)
+
+The matrix is identical to [For Astro](?path=/docs/getting-started-for-astro--docs):
+
+| Surface | Today | Stable from |
+|---|---|---|
+| Design tokens (CSS vars) | Production-ready | v1.0.0 |
+| CVA variant helpers (`buttonVariants(...)`, …) | Production-ready bridge | v1.0.0 |
+| Class-based component API (`<button class="btn">`) | Phantom — selectors exist, CSS rules don't yet | v0.14.0 → v1.0.0 |
+
+Progress in [#58](https://github.com/yasmro/schatten/issues/58). Until
+v0.14.0 ships, the recommended Vue bridge is **`buttonVariants(...)`**.
+
+---
+
+## Install
+
+```sh
+pnpm add @yasmro/schatten
+```
+
+`react` / `react-dom` peer deps are **not required** for Layer A
+(`schatten.css` + `@yasmro/schatten/variants`). They are only needed if
+you separately mount React inside Vue (uncommon).
+
+---
+
+## Setup — global stylesheet
+
+Pick **one** of the entry-import strategies. Both reach every component
+in your tree because CSS custom properties cascade from `:root`.
+
+### Option A: import in `main.ts`
+
+```ts
+// src/main.ts
+import { createApp } from 'vue'
+import '@yasmro/schatten/schatten.css'
+import App from './App.vue'
+
+createApp(App).mount('#app')
+```
+
+### Option B: import in the root `<App.vue>` (unscoped)
+
+```vue
+<!-- src/App.vue -->
+<script setup lang="ts">
+import '@yasmro/schatten/schatten.css'
+</script>
+
+<template>
+  <router-view />
+</template>
+```
+
+Either works. Option A keeps Vue components free of CSS side effects;
+Option B colocates the stylesheet with the app root. Schatten doesn't
+have a preference.
+
+---
+
+## `<style scoped>` — what to expect
+
+This is the most common Vue-specific question, so it gets its own
+section.
+
+**Schatten's classes live globally.** When you import `schatten.css`,
+its rules (Tailwind utilities, base reset, animation keyframes) land
+in the global stylesheet. They don't go through Vue's `data-v-*`
+scoping pipeline.
+
+That means:
+
+- **`<style scoped>` cannot override a Schatten class.** A rule like
+  `.btn--primary { background: pink }` inside a scoped block becomes
+  `.btn--primary[data-v-abc123]`, which doesn't match the Schatten-
+  emitted element (no `data-v-abc123` attribute). Use `:deep(...)`
+  if you intentionally need to override:
+  ```vue
+  <style scoped>
+  :deep(.btn) {
+    /* applies inside this component's subtree */
+  }
+  </style>
+  ```
+- **`<style scoped>` does not conflict with Schatten either.** Your
+  component-local CSS lives in its own scope; Schatten's lives in the
+  global scope. They coexist without interfering.
+
+The general recommendation: keep Schatten styling outside of `scoped`
+blocks. Reach for `:deep()` only when you have a deliberate reason to
+retune Schatten's output in one component.
+
+---
+
+## Layer A — today (CVA bridge)
+
+`buttonVariants(...)` returns a class string. Bind it with `:class`:
+
+```vue
+<script setup lang="ts">
+import { buttonVariants } from '@yasmro/schatten/variants'
+</script>
+
+<template>
+  <!-- Primary button -->
+  <button :class="buttonVariants({ variant: 'primary' })">
+    Save
+  </button>
+
+  <!-- Anchor styled as a secondary button -->
+  <a
+    href="/docs"
+    :class="buttonVariants({ variant: 'secondary', size: 'sm' })"
+  >
+    Docs
+  </a>
+
+  <!-- Link-style action -->
+  <a href="/settings" :class="buttonVariants({ variant: 'link' })">
+    Settings
+  </a>
+</template>
+```
+
+For a `<RouterLink>` or `<NuxtLink>`, pass the variant string to its
+`:class` prop the same way:
+
+```vue
+<template>
+  <RouterLink
+    to="/dashboard"
+    :class="buttonVariants({ variant: 'primary' })"
+  >
+    Dashboard
+  </RouterLink>
+</template>
+```
+
+### Button variant vocabulary
+
+`Button` follows **Pattern A** (single-axis role-based) per
+[`component-api-conventions.md`](../../../.claude/rules/component-api-conventions.md):
+
+| `variant` | Use for |
+|---|---|
+| `primary` *(default)* | Main CTA. Solid brand-accent fill. |
+| `secondary` | Outlined neutral. Secondary actions. |
+| `tertiary` | Ghost (no border / no bg). Low-priority actions. |
+| `destructive` | Delete / remove. Solid vermillion fill. |
+| `inverted` | Ghost button on a saturated surface (e.g. inside a solid Toast). |
+| `link` | Inline text-link styling. |
+
+Pattern A has **no `appearance` prop**. If you find yourself wanting
+one for a Button, the role vocabulary is what you want to extend —
+open an issue, don't add a second axis locally.
+
+The same approach works for every variant function exported from
+`@yasmro/schatten/variants` (`badgeVariants`, `inputVariants`,
+`calloutVariants`, `textVariants`, `textareaVariants`,
+`selectTriggerVariants`, …).
+
+---
+
+## Layer A — v0.14.0 onward
+
+When the data-attribute class API lands in v0.14.0
+([#58](https://github.com/yasmro/schatten/issues/58)), the same Vue
+template drops the JS helper:
+
+```vue
+<template>
+  <!-- v0.14.0 onward — no buttonVariants() needed -->
+  <button class="btn" data-variant="solid">Save</button>
+  <a href="/docs" class="btn" data-variant="outline">Docs</a>
+</template>
+```
+
+Until then, `buttonVariants(...)` is the supported bridge. The code
+above parses today, but the `.btn` rule has no declarations attached
+in v0.7.0.
+
+---
+
+## Tokens — works everywhere, today
+
+You don't need the variant helpers to consume tokens. Any Vue template
+can reference a CSS variable directly:
+
+```vue
+<template>
+  <div
+    :style="{
+      background: 'var(--color-error-subtle)',
+      color: 'var(--color-error)',
+      padding: '12px',
+    }"
+  >
+    Something went wrong.
+  </div>
+</template>
+```
+
+For typed pointers, the `tokens` export gives you a value map and
+union types:
+
+```vue
+<script setup lang="ts">
+import { tokens } from '@yasmro/schatten/tokens'
+</script>
+
+<template>
+  <div
+    :style="{
+      background: tokens.color.errorSubtle,
+      color: tokens.color.error,
+    }"
+  >
+    Something went wrong.
+  </div>
+</template>
+```
+
+---
+
+## See also
+
+- [README — Quick start](https://github.com/yasmro/schatten#quick-start)
+- [For Astro](?path=/docs/getting-started-for-astro--docs)
+- [#58 — framework-agnostic CSS roadmap](https://github.com/yasmro/schatten/issues/58)
+- [`component-api-conventions.md`](../../../.claude/rules/component-api-conventions.md) — full variant matrix
+- [`api-stability.md`](../../../.claude/rules/api-stability.md) — public API contract (effective from v1.0)

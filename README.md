@@ -55,9 +55,45 @@ export function App() {
 
 ### Astro / Vue / Svelte
 
-Import the same CSS bundle once at your app entry and use the class API
-(once Layer A is fully implemented in v0.14.0). For tokens-only usage today,
-see [Token-only usage](#token-only-usage) below.
+Import the CSS bundle once at your app entry, then call the exported CVA
+variant functions to get the class string for any non-React element. This
+path works today — the utilities used by `buttonVariants`,
+`badgeVariants`, `inputVariants`, etc. are baked into `schatten.css`.
+
+```astro
+---
+// src/pages/index.astro
+import '@yasmro/schatten/schatten.css'
+import { buttonVariants } from '@yasmro/schatten/variants'
+---
+
+<button class={buttonVariants({ variant: 'primary' })}>Click me</button>
+<a href="/docs" class={buttonVariants({ variant: 'secondary' })}>Docs</a>
+```
+
+```vue
+<!-- Vue -->
+<script setup lang="ts">
+import { buttonVariants } from '@yasmro/schatten/variants'
+</script>
+<template>
+  <button :class="buttonVariants({ variant: 'primary' })">Click me</button>
+</template>
+```
+
+```svelte
+<!-- Svelte -->
+<script lang="ts">
+  import { buttonVariants } from '@yasmro/schatten/variants'
+</script>
+<button class={buttonVariants({ variant: 'primary' })}>Click me</button>
+```
+
+When the data-attribute class API lands (`<button class="btn" data-variant="solid">`,
+[#58](https://github.com/yasmro/schatten/issues/58) /
+[#154](https://github.com/yasmro/schatten/issues/154) in v0.14.0), the
+same Astro/Vue/Svelte code becomes JS-free as well — but until then,
+`buttonVariants(...)` is the recommended bridge.
 
 ## Two-layer architecture
 

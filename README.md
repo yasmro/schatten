@@ -89,11 +89,22 @@ import { buttonVariants } from '@yasmro/schatten/variants'
 <button class={buttonVariants({ variant: 'primary' })}>Click me</button>
 ```
 
-When the data-attribute class API lands (`<button class="btn" data-variant="solid">`,
+When the data-attribute class API lands (v0.14.0, see
 [#58](https://github.com/yasmro/schatten/issues/58) /
-[#154](https://github.com/yasmro/schatten/issues/154) in v0.14.0), the
-same Astro/Vue/Svelte code becomes JS-free as well — but until then,
-`buttonVariants(...)` is the recommended bridge.
+[#154](https://github.com/yasmro/schatten/issues/154)), the same code
+drops the JS import entirely:
+
+```astro
+---
+import '@yasmro/schatten/schatten.css'
+---
+
+<!-- v0.14.0 onward — no buttonVariants() needed -->
+<button class="btn" data-variant="solid">Click me</button>
+<a href="/docs" class="btn" data-variant="outline">Docs</a>
+```
+
+Until then, `buttonVariants(...)` is the recommended bridge.
 
 ## Two-layer architecture
 

@@ -36,6 +36,52 @@ Layer 3: Components (consume semantic only)
    bg-error / text-error / border-error / ring-error / bg-error-subtle ...
 ```
 
+## Enforcement — the `no-primitive-color` lint plugin
+
+The "components consume only Layer 2" rule is enforced mechanically by a
+Biome GritQL linter plugin
+([`biome-plugins/no-primitive-color.grit`](../../biome-plugins/no-primitive-color.grit),
+issue [#122](https://github.com/yasmro/schatten/issues/122)). It exists
+because primitive color classes are exactly the kind of thing an AI
+assistant writes from muscle memory (`bg-red-500`, `text-gray-700`) — a
+machine check catches them before review does.
+
+**What it flags.** Any Tailwind primitive color utility —
+`{bg,text,border,ring}-{family}-{shade}` — in component JSX. `{family}`
+covers the full Tailwind default palette *and* Schatten's own primitive
+scales (`vermillion`, `sumi`, `gray`, `blue`, `green`, `yellow`, `amber`,
+`purple`). Variant prefixes (`dark:bg-amber-500`,
+`hover:text-gray-700`) and classes inside a `cn(...)` expression are
+caught too.
+
+**What it allows.** Everything at Layer 2: state semantics (`bg-error`,
+`text-error-foreground`, `bg-success-subtle`), foreground tiers
+(`text-foreground-muted`), surfaces (`bg-surface`), and the semantic
+theme scale (`bg-theme-500` — `theme` is *not* a primitive family).
+
+**Scope.** Enabled through a scoped `overrides` entry in
+[`biome.json`](../../biome.json) that targets `src/components/**/*.tsx`
+and excludes `*.stories.tsx` / `*.test.tsx`. Stories and docs render the
+primitive palette on purpose (`Color.stories.tsx` *is* the palette
+documentation), so they are exempt by design.
+
+**Known gap.** The plugin matches JSX attributes only; it does **not**
+scan CVA variant definitions in `src/variants/*.ts` (bare class strings,
+no JSX). Primitive colors there remain a code-review concern — never
+hard-code `bg-vermillion-600` in a `cva(...)` block.
+
+**Suppressing.** A genuine exception is suppressed with the `lint/plugin`
+category — Biome plugins cannot register a named rule, so
+`lint/no-primitive-color` is *not* a valid category:
+
+```tsx
+// biome-ignore lint/plugin: <reason — why a primitive class is correct here>
+<div className="bg-vermillion-600" />
+```
+
+The plugin is exercised by [`no-primitive-color.test.ts`](../../biome-plugins/no-primitive-color.test.ts),
+which runs `biome lint` over fixture files and asserts the diagnostics.
+
 ## The 4-token shape
 
 Every state defines exactly four tokens:

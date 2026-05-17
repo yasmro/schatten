@@ -2,10 +2,10 @@ name: CI
 
 on:
   pull_request:
-    branches: [main]
+    branches: [main, develop]
     types: [opened, synchronize, reopened, labeled, unlabeled]
   push:
-    branches: [main]
+    branches: [main, develop]
 
 jobs:
   lint:
@@ -80,4 +80,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
 
       - name: Changeset status
-        run: pnpm exec changeset status --since=origin/main
+        # Compare against the PR's base branch (develop / main), not a fixed
+        # branch — otherwise a develop-targeted PR is diffed against main and
+        # picks up unrelated already-merged changesets once the two diverge.
+        run: pnpm exec changeset status --since=origin/${{ github.base_ref }}

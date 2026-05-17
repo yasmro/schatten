@@ -216,6 +216,7 @@ Ask, in order:
   roadmap (Phase 2 introduces the data-attribute class API)
 - [state-token-guideline](state-token-guideline.md) — names and shapes of state
   semantic tokens (subject to this contract from v1.0)
-- [lint-rules-guideline](lint-rules-guideline.md) — Biome rules; a future
-  custom rule will enforce "no primitive color classes in components" so the
-  public CSS-variable surface stays the only color contract
+- [lint-rules-guideline](lint-rules-guideline.md) — Biome rules and GritQL
+  plugins; the `no-primitive-color` plugin enforces "no primitive color
+  classes in components" so the public CSS-variable surface stays the only
+  color contract

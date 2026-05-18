@@ -61,12 +61,6 @@ jobs:
 
   size:
     runs-on: ubuntu-latest
-    # size-limit-action posts a size-diff comment on the PR — it only makes
-    # sense on pull_request events, and needs write access to do so.
-    if: github.event_name == 'pull_request'
-    permissions:
-      contents: read
-      pull-requests: write
     steps:
       - uses: actions/checkout@v6
 
@@ -77,15 +71,20 @@ jobs:
           node-version: 22
           cache: pnpm
 
+      - run: pnpm install --frozen-lockfile
+
+      # `size-limit` measures files in dist/, so the package must be built
+      # first. build:css relies on lightningcss-cli's postinstall binary —
+      # enabled via pnpm.onlyBuiltDependencies in package.json.
+      - name: Build
+        run: pnpm build
+
+      # andresz1/size-limit-action was evaluated for its PR size-diff comment
+      # but it prunes devDependencies before measuring, which drops size-limit
+      # itself; it is also pinned to a deprecated Node 20 runtime. A plain
+      # `pnpm size` gate is reliable and fails the check on any budget breach.
       - name: Check bundle size
-        uses: andresz1/size-limit-action@v1
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          # The action installs deps and builds both the PR branch and the
-          # base branch itself, then diffs the two — no separate
-          # install/build step is needed before it.
-          package_manager: pnpm
-          build_script: build
+        run: pnpm size
 
   changeset:
     runs-on: ubuntu-latest

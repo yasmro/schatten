@@ -319,7 +319,7 @@ pnpm size:why          # Inspect what contributes to the bundle size
 
 Bundle size is monitored in CI with [`size-limit`](https://github.com/ai/size-limit).
 The budgets live in [`.size-limit.json`](.size-limit.json) and a `size` CI job
-posts a size diff comment on every PR. The tracked entry points are:
+fails the build when any budget is exceeded. The tracked entry points are:
 
 | Entry | Budget | What it covers |
 | --- | --- | --- |

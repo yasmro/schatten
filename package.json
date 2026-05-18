@@ -71,11 +71,12 @@
   ],
   "scripts": {
     "dev": "storybook dev -p 6006",
-    "build": "pnpm clean:dist && pnpm build:js && pnpm build:css && pnpm build:copy-css",
+    "build": "pnpm clean:dist && pnpm build:js && pnpm check:use-client && pnpm build:css && pnpm build:copy-css",
     "clean:dist": "rm -rf dist",
     "build:js": "tsup",
     "build:css": "lightningcss src/schatten.css -o dist/schatten.css --minify --bundle",
     "build:copy-css": "node scripts/copy-css-assets.mjs",
+    "check:use-client": "node scripts/check-use-client-banner.mjs",
     "build:storybook": "storybook build",
     "test": "vitest",
     "test:ui": "vitest --ui",

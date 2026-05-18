@@ -162,6 +162,12 @@ pnpm test:vrt -- --grep "Button"
 have not visually verified.** This is the single most important rule in
 this document.
 
+> The procedure below is an **interim discipline**. The structural fix —
+> per-region snapshots, so a state you did not touch can never be
+> silently re-baselined — is tracked in
+> [#237](https://github.com/yasmro/schatten/issues/237). When that lands,
+> this section is replaced by the per-region convention.
+
 ### Why blind updates are dangerous
 
 Snapshots are **story-level** — one screenshot per story, not per variant

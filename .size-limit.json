@@ -8,7 +8,7 @@
     "name": "components/lv1 (Button only, tree-shaken)",
     "path": "dist/components/lv1/index.js",
     "import": "{ Button }",
-    "limit": "55 KB"
+    "limit": "12 KB"
   },
   {
     "name": "variants",

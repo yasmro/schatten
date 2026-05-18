@@ -262,7 +262,15 @@ export const Colors: Story = {
       <p className="text-sm text-foreground-muted mb-3">
         Form controls that cannot be acted on (<code>disabled</code>) or are display-only (
         <code>readOnly</code>) consume these tokens. They are not state tokens in the{' '}
-        <code>error</code>/<code>success</code>/… sense — there is no <code>hover</code> slot.
+        <code>error</code>/<code>success</code>/… sense — there is no <code>hover</code> slot. To
+        see these tokens applied on real controls — every state, side by side — open{' '}
+        <a
+          href="?path=/story/foundation-form-states--form-states"
+          className="underline underline-offset-2 text-info"
+        >
+          Foundation → Form States
+        </a>
+        .
       </p>
       <div className="border border-border rounded-xl px-5">
         <ColorRow

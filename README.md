@@ -173,6 +173,140 @@ their `icon` props. It is declared `optional` in `peerDependenciesMeta` only so
 that Layer A (CSS / token-only) consumers — who never touch the React layer —
 are not warned about a dependency they do not need.
 
+## SSR / Next.js App Router
+
+From **v0.8.0**, every Schatten lv1 component bundle carries a `'use client'`
+directive at the top (injected at build time via tsup's `banner.js`, see
+[#116](https://github.com/yasmro/schatten/issues/116)). This means you can
+**import Schatten components from a Next.js App Router Server Component
+without a build error** — the directive marks the module as a Client
+Component boundary for you. The components themselves still render on the
+client; only the import is friction-free.
+
+### Basic usage
+
+No wrapper, no provider — import and render:
+
+```tsx
+// app/page.tsx — a Server Component is fine
+import { Button } from '@yasmro/schatten'
+
+export default function Page() {
+  return <Button variant="primary">Click me</Button>
+}
+```
+
+Import the CSS bundle once, in the root layout:
+
+```tsx
+// app/layout.tsx
+import '@yasmro/schatten/schatten.css'
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en">
+      <body>{children}</body>
+    </html>
+  )
+}
+```
+
+### Theme switching *(Coming in v0.9.0)*
+
+Runtime light/dark and seasonal (Special) theme switching will be driven by
+a `ThemeProvider` / `useTheme` pair landing in **v0.9.0**
+([#128](https://github.com/yasmro/schatten/issues/128)). Because it relies on
+React context and state, it must be mounted as a Client Component:
+
+```tsx
+// app/providers.tsx — Coming in v0.9.0
+'use client'
+import { ThemeProvider } from '@yasmro/schatten'
+
+export function Providers({ children }: { children: React.ReactNode }) {
+  return <ThemeProvider>{children}</ThemeProvider>
+}
+```
+
+```tsx
+// app/layout.tsx — Coming in v0.9.0
+import { Providers } from './providers'
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en">
+      <body>
+        <Providers>{children}</Providers>
+      </body>
+    </html>
+  )
+}
+```
+
+Until v0.9.0 ships, set the theme on `<html>` directly — `class="dark"` for
+Mode and `data-theme="season--spring-early"` for a Special. The cascade is
+plain CSS (see
+[`.claude/rules/theme-architecture.md`](.claude/rules/theme-architecture.md)),
+so no React runtime is involved.
+
+### FOUC avoidance *(Coming in v0.9.0)*
+
+A server-rendered page can briefly flash the wrong Mode before the client
+resolves the user's preference (FOUC — flash of unstyled content). The fix is
+a tiny synchronous inline script in `<head>` that sets the `<html>` class
+before first paint. The exact snippet ships with the v0.9.0 theming work and
+is documented in [#129](https://github.com/yasmro/schatten/issues/129):
+
+```tsx
+// app/layout.tsx — Coming in v0.9.0
+<head>
+  <script
+    dangerouslySetInnerHTML={{
+      __html: `/* FOUC-avoidance snippet — finalized in v0.9.0 (#129) */`,
+    }}
+  />
+</head>
+```
+
+### Remix
+
+Remix renders on both the server and the client without a React Server
+Component boundary, so the `'use client'` directive is a no-op there — import
+and use Schatten components exactly as you would in any React app. Import
+`@yasmro/schatten/schatten.css` from your `root.tsx` via the `links` export
+or a direct `import`.
+
+### Astro
+
+Use Schatten React components as [Astro islands](https://docs.astro.build/en/concepts/islands/)
+with a client directive so the component hydrates in the browser:
+
+```astro
+---
+// src/pages/index.astro
+import '@yasmro/schatten/schatten.css'
+import { Button } from '@yasmro/schatten'
+---
+
+<Button client:load>Click me</Button>
+```
+
+For static, non-interactive markup you can skip React entirely and apply the
+CVA variant classes to a plain element — see
+[Astro / Vue / Svelte](#astro--vue--svelte) under Quick start.
+
+### Known constraints (v0.8.0)
+
+- **Class-based (no-React) usage is limited.** The `data-*`-attribute
+  component classes (`.btn`, `.input`, …) do not exist yet, so vanilla HTML
+  and Astro cannot style components by class name alone. Use the exported
+  `buttonVariants()` / `inputVariants()` … bridge in the meantime. Full
+  class API lands in **v0.14.0**
+  ([#58](https://github.com/yasmro/schatten/issues/58) /
+  [#154](https://github.com/yasmro/schatten/issues/154)).
+- **`ThemeProvider` / FOUC snippet are not available yet** — both arrive in
+  **v0.9.0** (see the two sections above).
+
 ## Usage
 
 ### Recommended import path

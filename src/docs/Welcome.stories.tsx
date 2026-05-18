@@ -68,7 +68,7 @@ const ComponentCard = ({
       {children}
     </div>
     <div className="px-4 py-3 border-t border-border">
-      <p className="text-sm font-semibold text-accent group-hover:underline">{name}</p>
+      <p className="text-sm font-semibold text-vermillion group-hover:underline">{name}</p>
       <p className="text-xs text-foreground-muted mt-0.5">{description}</p>
     </div>
   </a>
@@ -318,13 +318,13 @@ export const Overview: Story = {
           >
             <div className="flex items-center justify-center h-40 bg-surface">
               <div className="flex gap-1">
-                {['bg-solid', 'bg-foreground-muted', 'bg-accent', 'bg-destructive'].map((c) => (
+                {['bg-solid', 'bg-foreground-muted', 'bg-vermillion', 'bg-destructive'].map((c) => (
                   <div key={c} className={`w-8 h-8 rounded-lg ${c}`} />
                 ))}
               </div>
             </div>
             <div className="px-4 py-3 border-t border-border">
-              <p className="text-sm font-semibold text-accent group-hover:underline">Color</p>
+              <p className="text-sm font-semibold text-vermillion group-hover:underline">Color</p>
               <p className="text-xs text-foreground-muted mt-0.5">Color tokens and scales.</p>
             </div>
           </a>
@@ -341,7 +341,9 @@ export const Overview: Story = {
               </div>
             </div>
             <div className="px-4 py-3 border-t border-border">
-              <p className="text-sm font-semibold text-accent group-hover:underline">Typography</p>
+              <p className="text-sm font-semibold text-vermillion group-hover:underline">
+                Typography
+              </p>
               <p className="text-xs text-foreground-muted mt-0.5">Font scales and text styles.</p>
             </div>
           </a>

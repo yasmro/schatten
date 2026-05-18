@@ -83,6 +83,15 @@ describe('Text', () => {
       rerender(<Text color="inherit">x</Text>)
       expect(getEl()).toHaveClass('text-inherit')
     })
+
+    it('applies brand color classes', () => {
+      const { container, rerender } = render(<Text color="vermillion">x</Text>)
+      const getEl = () => container.firstElementChild as HTMLElement
+      expect(getEl()).toHaveClass('text-vermillion')
+
+      rerender(<Text color="indigo">x</Text>)
+      expect(getEl()).toHaveClass('text-indigo')
+    })
   })
 
   describe('align', () => {

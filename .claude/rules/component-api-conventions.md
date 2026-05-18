@@ -105,10 +105,10 @@ needing an emphatic non-state surface use `neutral + solid`; brand
 expression on Pattern B happens through the theme layer (Mode × Special,
 see [theme-architecture](theme-architecture.md)) and through state
 variants like `error` (which uses vermillion). Adding an `accent` tone
-that routes back to either `--color-solid` or `--color-accent` was
-considered and rejected because the visual would have overlapped
-`neutral + solid` without adding a distinguishable role (2026-05-17
-review).
+that routes back to `--color-solid` (or to a brand-named token like
+`--color-vermillion`) was considered and rejected because the visual
+would have overlapped `neutral + solid` without adding a distinguishable
+role (2026-05-17 review).
 
 ### Shape vocabulary (`appearance`)
 

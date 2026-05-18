@@ -156,6 +156,58 @@ pnpm test:vrt:update
 pnpm test:vrt -- --grep "Button"
 ```
 
+## Re-baselining (updating snapshots)
+
+**Never run `pnpm test:vrt:update` as the first command on a change you
+have not visually verified.** This is the single most important rule in
+this document.
+
+### Why blind updates are dangerous
+
+Snapshots are **story-level** — one screenshot per story, not per variant
+(the [storybook-guideline](storybook-guideline.md) deliberately groups many
+states into one story, e.g. `AllVariants`). So a story's PNG bakes in *every*
+state it renders at once.
+
+That means: when you legitimately change *one* thing in a story (remove a
+variant, retune a token, add a row), `test:vrt:update` re-captures the
+**whole image**. If anything *else* in that same frame regressed at the same
+time — a neighbouring variant drifted, a token leaked, spacing shifted — the
+regression is silently absorbed into the new baseline. And because git shows
+a re-baselined PNG only as `Binary files differ`, **a reviewer cannot tell
+an intended change from a smuggled-in regression.** The author is the last
+line of defense.
+
+### The procedure — diff before you update
+
+1. **Run plain `pnpm test:vrt` first** and let the affected tests fail.
+2. **Open the diff artifacts** Playwright writes under
+   `test-results/<test>/` — each failure has `*-actual.png`,
+   `*-expected.png`, and `*-diff.png`.
+3. **Confirm the `-diff.png` highlights *only* the pixels you intended to
+   change.** If anything else lit up, that is a regression — fix it (or
+   explain it) *before* re-baselining, not after.
+4. **Only then** run `pnpm test:vrt:update` (scope it with `--grep` to the
+   story you verified, so unrelated stories are not re-captured).
+
+### Brand-new snapshots
+
+A story with no existing baseline has nothing to diff against — the first
+run writes the PNG and reports a failure. **Open the generated file under
+`__snapshots__/` and eyeball it** before committing; that view is the only
+review the new baseline gets.
+
+### Sub-threshold drift — a stale-baseline trap
+
+`toHaveScreenshot` tolerates up to `maxDiffPixelRatio: 0.01` (see
+[`playwright.config.ts`](../../playwright.config.ts)). If you change a token
+and the snapshot still **passes**, it may be because the visual delta fell
+under that 1% threshold — `test:vrt:update` then writes **nothing**, and the
+committed baseline no longer reflects the current values. When you have
+intentionally changed something a snapshot covers, force a faithful
+re-capture by **deleting the PNG and re-running** `pnpm test:vrt`, rather
+than trusting a green `test:vrt:update`.
+
 ## Snapshot Naming
 
 Snapshots are named `{story}-{theme}.png`:

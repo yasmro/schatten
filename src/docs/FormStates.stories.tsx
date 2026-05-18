@@ -286,10 +286,11 @@ const InteractiveStates = () => (
         focused
       </h3>
       <p className="text-xs text-foreground-subtle mb-3">
-        Keyboard / programmatic focus — the field below is <Code>autoFocus</Code>ed on mount so the{' '}
-        <Code>ring</Code> token is visible. Tab between controls to see it elsewhere.
+        Keyboard / programmatic focus — click or Tab into the field below to see the{' '}
+        <Code>ring</Code> / <Code>ring-offset</Code> tokens. Like hover, Storybook cannot pin a
+        focus snapshot, so it is shown as a live control.
       </p>
-      <Input placeholder="Focused on mount" autoFocus />
+      <Input placeholder="Focus me" />
     </div>
   </div>
 )

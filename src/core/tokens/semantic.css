@@ -52,10 +52,18 @@
    * themselves (朱 vermillion / 藍 indigo). Unlike state tokens, these
    * name the color, not a meaning. Themes / Specials may retune them;
    * `info` and Mode-owned tokens may not.
+   *
+   * Both brand colors share one shade rule: `-600` in light, `-400`
+   * in dark. This is the only pair where every `*-foreground`-on-base
+   * solid pairing clears WCAG AA for both hues (vermillion light 4.86 /
+   * dark 6.84, indigo light 7.03 / dark 5.73). A 1-step shift (`-600`/
+   * `-500`) would fail indigo dark; `-500`/`-400` would fail vermillion
+   * light — the hue ramps differ, so the AA-safe shade is mode-driven,
+   * not 1-step-driven.
    */
   --color-vermillion: var(--vermillion-600);
   --color-vermillion-foreground: var(--paper-white);
-  --color-indigo: var(--indigo-500);
+  --color-indigo: var(--indigo-600);
   --color-indigo-foreground: var(--paper-white);
 
   /* Borders */
@@ -154,7 +162,7 @@
     --color-destructive-foreground: var(--paper-white-inverted);
     --color-destructive-subtle: var(--vermillion-900);
 
-    --color-vermillion: var(--vermillion-500);
+    --color-vermillion: var(--vermillion-400);
     --color-vermillion-foreground: var(--paper-white-inverted);
     --color-indigo: var(--indigo-400);
     --color-indigo-foreground: var(--paper-white-inverted);
@@ -221,7 +229,7 @@
   --color-destructive-foreground: var(--paper-white-inverted);
   --color-destructive-subtle: var(--vermillion-900);
 
-  --color-vermillion: var(--vermillion-500);
+  --color-vermillion: var(--vermillion-400);
   --color-vermillion-foreground: var(--paper-white-inverted);
   --color-indigo: var(--indigo-400);
   --color-indigo-foreground: var(--paper-white-inverted);

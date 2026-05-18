@@ -24,10 +24,10 @@ Components consume **only Layer 2**. Never reference primitive scales (`vermilli
 
 ```
 Layer 1: Primitive (raw OKLCH scales — same in light/dark)
-   vermillion-*  green-*  amber-*  blue-*  ...
+   red-*  vermillion-*  green-*  amber-*  blue-*  ...
 
 Layer 2: Semantic (meaning — light/dark mapping happens here)
-   destructive ◀── vermillion ──▶ error
+   destructive ◀── red ──▶ error
    success     ◀── green
    warning     ◀── amber
    info        ◀── blue (independent of the theme scale)
@@ -35,6 +35,18 @@ Layer 2: Semantic (meaning — light/dark mapping happens here)
 Layer 3: Components (consume semantic only)
    bg-error / text-error / border-error / ring-error / bg-error-subtle ...
 ```
+
+**`red` vs `vermillion` — two separate primitives, same value today.** The
+danger colors (`error` / `destructive`) reference a dedicated `red` primitive
+scale; the brand 朱 references `vermillion`. `red` is currently a value-identical
+copy of `vermillion` (hue 22, same L/C at every shade) — the split is a
+deliberate *governance seam*, not a visual change. It exists so brand 朱 and
+danger red can be retuned independently: retuning brand vermillion no longer
+drags every error state along (and vice versa). Whether danger red *should*
+diverge in hue from brand vermillion is a designer-owned aesthetic call,
+tracked separately in design spike
+[#239](https://github.com/yasmro/schatten/issues/239) — do not merge the two
+scales back together.
 
 ## Enforcement — the `no-primitive-color` lint plugin
 
@@ -103,7 +115,7 @@ The tokens form two natural treatment pairs, named to match Pattern B's
 
 ## `destructive` vs `error`
 
-They share the **same primitive** (vermillion) so they look identical, but are **semantically
+They share the **same primitive** (`red`) so they look identical, but are **semantically
 distinct**:
 
 | | `destructive` | `error` |
@@ -133,7 +145,7 @@ Each state shifts shades between modes:
 | Dark | `*-500` | `*-400` | `paper-white-inverted` | `*-900` |
 
 The dark-mode `foreground = paper-white-inverted` (`#1a1a1a`) is intentional: in dark mode the
-state `base` shifts brighter (e.g. `vermillion-500`), and dark text on a bright saturated
+state `base` shifts brighter (e.g. `red-500`), and dark text on a bright saturated
 fill achieves higher WCAG contrast than white-on-bright. Verify visually in `Foundation/Color`
 → "Solid Treatments (a11y audit)" before introducing new state-driven UI.
 

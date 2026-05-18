@@ -197,7 +197,7 @@ export const Colors: Story = {
 
       <SubsectionTitle>Error</SubsectionTitle>
       <p className="text-sm text-foreground-muted mb-3">
-        Form validation and error notifications. Visually shares vermillion with{' '}
+        Form validation and error notifications. Shares the <code>red</code> primitive with{' '}
         <code>destructive</code>, but is semantically distinct.
       </p>
       <div className="border border-border rounded-xl px-5">
@@ -555,6 +555,28 @@ export const Colors: Story = {
           { level: '800', className: 'bg-indigo-800' },
           { level: '900', className: 'bg-indigo-900' },
           { level: '950', className: 'bg-indigo-950' },
+        ]}
+      />
+
+      <SubsectionTitle>Red</SubsectionTitle>
+      <p className="text-sm text-foreground-muted mb-3">
+        Danger scale — backs the <code>error</code> and <code>destructive</code> semantics. A
+        value-identical copy of <code>vermillion</code> today; kept as a separate primitive so brand
+        朱 and danger red can be retuned independently (see issue #239).
+      </p>
+      <ScaleRow
+        shades={[
+          { level: '50', className: 'bg-red-50' },
+          { level: '100', className: 'bg-red-100' },
+          { level: '200', className: 'bg-red-200' },
+          { level: '300', className: 'bg-red-300' },
+          { level: '400', className: 'bg-red-400' },
+          { level: '500', className: 'bg-red-500' },
+          { level: '600', className: 'bg-red-600' },
+          { level: '700', className: 'bg-red-700' },
+          { level: '800', className: 'bg-red-800' },
+          { level: '900', className: 'bg-red-900' },
+          { level: '950', className: 'bg-red-950' },
         ]}
       />
 

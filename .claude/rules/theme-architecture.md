@@ -81,8 +81,11 @@ A few tokens are pinned by intent and **must not** be moved by either axis:
 - `--color-info-*` references `blue-*` directly. Themes that retune the
   theme scale must not drift `info`'s meaning. See
   [state-token-guideline](state-token-guideline.md#info-independence-from-the-theme-scale).
-- Primitives (`--vermillion-*`, `--green-*`, `--blue-*`, …) are theme-agnostic
-  by definition and live one layer below semantics.
+- Primitives (`--red-*`, `--vermillion-*`, `--green-*`, `--blue-*`, …) are
+  theme-agnostic by definition and live one layer below semantics. Note `red`
+  (danger/error) and `vermillion` (brand 朱) are separate primitives even
+  though they hold the same value today — see
+  [state-token-guideline](state-token-guideline.md#three-layer-hierarchy).
 
 ### Specials must not override non-interactive state tokens
 

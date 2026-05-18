@@ -47,6 +47,14 @@ export default defineConfig([
   // becomes its own module, shared code (`cn`, variants, Radix) lands in
   // chunks. The barrel re-exports from those entries, so `import { Button }`
   // tree-shakes down to Button + its chunks only.
+  //
+  // `banner.js` injects the `'use client'` directive at the top of every
+  // emitted component file. Without it, importing Schatten components from a
+  // Next.js App Router Server Component fails the build, because the output
+  // uses client-only React features (hooks, context, Radix event wiring).
+  // The directive is only valid on the React build groups — the
+  // variants/tokens and seasonal groups are framework-agnostic and must NOT
+  // be marked client-only (see issue #116).
   {
     entry: {
       ...componentBarrelEntries,
@@ -56,6 +64,9 @@ export default defineConfig([
     dts: false,
     splitting: true,
     external: ['react', 'react-dom', 'lucide-react'],
+    banner: {
+      js: "'use client';",
+    },
     esbuildOptions(options) {
       options.jsx = 'automatic'
     },
@@ -63,11 +74,16 @@ export default defineConfig([
   // Components — CJS. Barrels only: `require()` consumers do not tree-shake,
   // and emitting per-component CJS files would duplicate the bundled Radix
   // code across 17 standalone bundles and bloat the published package.
+  // Carries the same `'use client'` banner as the ESM group (see above) so
+  // the `.cjs` barrels are equally safe to import from a Server Component.
   {
     entry: componentBarrelEntries,
     format: ['cjs'],
     dts: false,
     external: ['react', 'react-dom', 'lucide-react'],
+    banner: {
+      js: "'use client';",
+    },
     esbuildOptions(options) {
       options.jsx = 'automatic'
     },

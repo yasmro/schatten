@@ -59,6 +59,33 @@ jobs:
       - name: Unit tests
         run: pnpm vitest run
 
+  size:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # `size-limit` measures files in dist/, so the package must be built
+      # first. build:css relies on lightningcss-cli's postinstall binary —
+      # enabled via pnpm.onlyBuiltDependencies in package.json.
+      - name: Build
+        run: pnpm build
+
+      # andresz1/size-limit-action was evaluated for its PR size-diff comment
+      # but it prunes devDependencies before measuring, which drops size-limit
+      # itself; it is also pinned to a deprecated Node 20 runtime. A plain
+      # `pnpm size` gate is reliable and fails the check on any budget breach.
+      - name: Check bundle size
+        run: pnpm size
+
   changeset:
     runs-on: ubuntu-latest
     if: |

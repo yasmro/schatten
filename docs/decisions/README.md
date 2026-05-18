@@ -14,6 +14,8 @@ contributors (or your future self) might reasonably want to re-litigate:
 - API choices where multiple defensible options were on the table
 - Accessibility / contrast trade-offs that go beyond WCAG minimums
 - Theme / Mode / Special partitioning decisions
+- Build / bundling / packaging trade-offs — output layout, tree-shaking,
+  entry points, `exports`-map shape
 - "We considered X but rejected it because Y" — capture both X and Y
 
 Skip an entry when:

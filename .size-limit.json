@@ -1,0 +1,23 @@
+[
+  {
+    "name": "components/lv1 (all)",
+    "path": "dist/components/lv1/index.js",
+    "limit": "60 KB"
+  },
+  {
+    "name": "components/lv1 (Button only, tree-shaken)",
+    "path": "dist/components/lv1/index.js",
+    "import": "{ Button }",
+    "limit": "12 KB"
+  },
+  {
+    "name": "variants",
+    "path": "dist/variants/index.js",
+    "limit": "5 KB"
+  },
+  {
+    "name": "schatten.css",
+    "path": "dist/schatten.css",
+    "limit": "5 KB"
+  }
+]

@@ -310,7 +310,27 @@ pnpm lint              # Biome CI checks
 pnpm lint:fix          # Biome auto-fix
 pnpm lint:pkg          # publint — validate package.json / exports shape
 pnpm typecheck         # tsc --noEmit
+
+pnpm size              # Check bundle size against .size-limit.json
+pnpm size:why          # Inspect what contributes to the bundle size
 ```
+
+### Bundle size
+
+Bundle size is monitored in CI with [`size-limit`](https://github.com/ai/size-limit).
+The budgets live in [`.size-limit.json`](.size-limit.json) and a `size` CI job
+fails the build when any budget is exceeded. The tracked entry points are:
+
+| Entry | Budget | What it covers |
+| --- | --- | --- |
+| `components/lv1 (all)` | 60 KB | The full `lv1` component bundle. |
+| `components/lv1 (Button only, tree-shaken)` | 55 KB | A single-component import — a canary for tree-shakeability. |
+| `variants` | 5 KB | The framework-agnostic CVA variants entry. |
+| `schatten.css` | 5 KB | The standalone CSS bundle. |
+
+Budgets are measured minified + brotlied and exclude peer dependencies
+(`react`, `react-dom`, `lucide-react`). They are initial values — re-calibrate
+against real measurements as the surface grows.
 
 ## Release
 

@@ -34,9 +34,11 @@ export const tokens = {
     destructiveForeground: 'var(--color-destructive-foreground)',
     destructiveSubtle: 'var(--color-destructive-subtle)',
 
-    // Accent
-    accent: 'var(--color-accent)',
-    accentForeground: 'var(--color-accent-foreground)',
+    // Brand-named — the brand colors as themselves (朱 vermillion / 藍 indigo)
+    vermillion: 'var(--color-vermillion)',
+    vermillionForeground: 'var(--color-vermillion-foreground)',
+    indigo: 'var(--color-indigo)',
+    indigoForeground: 'var(--color-indigo-foreground)',
 
     // Borders
     border: 'var(--color-border)',

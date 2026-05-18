@@ -20,7 +20,8 @@ export type SeasonalThemeId = `season--${SeasonTheme}`
  * CSS custom properties a Special theme is permitted to override.
  *
  * The architecture pins Specials to the "expressive layer" only — the
- * theme scale and (optionally) the accent pair. Anything else is
+ * theme scale and (optionally) the brand-named tokens (`--color-vermillion`
+ * / `--color-indigo` and their `-foreground` pair). Anything else is
  * Mode-owned. The literal union here narrows `allowedTokens` so that
  * future Specials can't quietly add Mode-owned entries (e.g.
  * `'--color-background'`) at the type level; that mistake now fails
@@ -31,8 +32,10 @@ export type SeasonalThemeId = `season--${SeasonTheme}`
  */
 export type AllowedSpecialToken =
   | `--color-theme-${string}`
-  | '--color-accent'
-  | `--color-accent-${string}`
+  | '--color-vermillion'
+  | '--color-vermillion-foreground'
+  | '--color-indigo'
+  | '--color-indigo-foreground'
 
 /**
  * CSS custom properties a Special theme MUST NOT override. Mirrored in

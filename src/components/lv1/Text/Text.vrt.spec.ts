@@ -7,6 +7,7 @@ const stories = [
   'label-sizes',
   'heading-sizes',
   'colors',
+  'brand-colors',
   'state-colors',
   'inverted-color',
   'truncated',

@@ -45,9 +45,11 @@
   --color-destructive-foreground: var(--color-destructive-foreground);
   --color-destructive-subtle: var(--color-destructive-subtle);
 
-  /* Accent */
-  --color-accent: var(--color-accent);
-  --color-accent-foreground: var(--color-accent-foreground);
+  /* Brand-named (朱 vermillion / 藍 indigo) */
+  --color-vermillion: var(--color-vermillion);
+  --color-vermillion-foreground: var(--color-vermillion-foreground);
+  --color-indigo: var(--color-indigo);
+  --color-indigo-foreground: var(--color-indigo-foreground);
 
   /* Border */
   --color-border: var(--color-border);

@@ -56,7 +56,7 @@
   --paper-cream-inverted: #44403a;
 
   /* Brand: Vermillion (朱) — Japanese traditional vermillion, brand anchor: 600 ≈ #c53d43.
-   * The first brand color; backs the --color-accent semantic. */
+   * The first brand color; backs the --color-vermillion / --color-destructive / --color-error semantics. */
   --vermillion-50: oklch(0.98 0.02 22);
   --vermillion-100: oklch(0.96 0.04 22);
   --vermillion-200: oklch(0.91 0.08 22);

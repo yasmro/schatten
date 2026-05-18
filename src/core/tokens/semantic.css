@@ -47,9 +47,16 @@
   --color-destructive-foreground: var(--paper-white);
   --color-destructive-subtle: var(--vermillion-50);
 
-  /* Accent */
-  --color-accent: var(--vermillion-500);
-  --color-accent-foreground: var(--paper-white);
+  /*
+   * Brand-named tokens — the two Schatten brand colors exposed as
+   * themselves (朱 vermillion / 藍 indigo). Unlike state tokens, these
+   * name the color, not a meaning. Themes / Specials may retune them;
+   * `info` and Mode-owned tokens may not.
+   */
+  --color-vermillion: var(--vermillion-600);
+  --color-vermillion-foreground: var(--paper-white);
+  --color-indigo: var(--indigo-500);
+  --color-indigo-foreground: var(--paper-white);
 
   /* Borders */
   --color-border: var(--gray-200);
@@ -147,8 +154,10 @@
     --color-destructive-foreground: var(--paper-white-inverted);
     --color-destructive-subtle: var(--vermillion-900);
 
-    --color-accent: var(--vermillion-400);
-    --color-accent-foreground: var(--gray-950);
+    --color-vermillion: var(--vermillion-500);
+    --color-vermillion-foreground: var(--paper-white-inverted);
+    --color-indigo: var(--indigo-400);
+    --color-indigo-foreground: var(--paper-white-inverted);
 
     --color-border: var(--gray-700);
     --color-border-strong: var(--ink-black-inverted);
@@ -212,8 +221,10 @@
   --color-destructive-foreground: var(--paper-white-inverted);
   --color-destructive-subtle: var(--vermillion-900);
 
-  --color-accent: var(--vermillion-400);
-  --color-accent-foreground: var(--gray-950);
+  --color-vermillion: var(--vermillion-500);
+  --color-vermillion-foreground: var(--paper-white-inverted);
+  --color-indigo: var(--indigo-400);
+  --color-indigo-foreground: var(--paper-white-inverted);
 
   --color-border: var(--gray-700);
   --color-border-strong: var(--ink-black-inverted);

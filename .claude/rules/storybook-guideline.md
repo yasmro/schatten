@@ -18,9 +18,14 @@
 **documentation surfaces**, not component stories. They are governed by a
 different set of conventions than the per-component stories above.
 
-- **No `Playground`, no `argTypes`, no Controls.** A Foundation page renders a
-  fixed reference layout — there is nothing for a user to tweak. Define the
-  page as a single `render`-based story; omit `args` and `argTypes` entirely.
+- **Primary story is a fixed `render`.** A Foundation page's main story
+  renders a fixed reference layout — there is nothing for a user to tweak, so
+  it carries no `args` / `argTypes` and no `Playground`. An *auxiliary*
+  `args`-driven story is allowed only when single-cell inspection is
+  genuinely useful (precedent: `Foundation/ThemeAudit`'s `PerSpecial`, which
+  drives one (Special × Mode) cell from `args` so a VRT spec can address it
+  by URL). Default to the fixed-render form; reach for `argTypes` only with
+  that kind of concrete inspection need.
 - **One concern per page.** Each Foundation page answers one question — "what
   colours exist" (`Foundation/Color`), "what does every form state look like"
   (`Foundation/Form States`). If a page starts answering two, split it.

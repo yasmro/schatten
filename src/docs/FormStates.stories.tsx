@@ -321,7 +321,7 @@ const TOKEN_ROWS: {
   },
   {
     state: 'error',
-    surface: 'background (error-subtle on Radio/Checkbox)',
+    surface: 'error-subtle (Input / Textarea / Checkbox / Radio)',
     foreground: 'foreground',
     border: 'border-error',
     other: 'ring-error (on focus)',

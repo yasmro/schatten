@@ -172,14 +172,17 @@ need to be intentional now, not later. Two checkpoints:
    shape (`base / hover / foreground / subtle` — see
    [state-token-guideline](state-token-guideline.md)) is final before 1.0.
 
-The class-name audit is scheduled for v0.14.0 (#58 Phase 2). The CSS variable
-audit has no fixed release yet; the only hard requirement is that it lands
-**before v1.0.0**. CONTRIBUTING.md (planned for v0.15.0) will reference this
-document as the source of truth for what consumers can rely on.
+The class-name audit is scheduled for v0.9.0 (#58 Phase 2, implemented by
+[#154](https://github.com/yasmro/schatten/issues/154) — pulled forward from
+v0.14.0 so it lands before the lv2 components, see #154 for the rationale).
+The CSS variable audit has no fixed release yet; the only hard requirement is
+that it lands **before v1.0.0**. CONTRIBUTING.md (planned for v0.15.0) will
+reference this document as the source of truth for what consumers can rely on.
 
 ## Manifest as the authoritative API listing (planned)
 
-A `dist/schatten.manifest.json` file is planned for v0.14.0. It will list every
+A `dist/schatten.manifest.json` file is planned for v0.9.0 (part of
+[#154](https://github.com/yasmro/schatten/issues/154)). It will list every
 public class, every CSS variable, and every exported symbol — i.e. the
 machine-readable form of this contract. The intent is for a CI lint to diff
 the generated manifest against the committed one and require a changeset when

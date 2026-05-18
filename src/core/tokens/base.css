@@ -132,6 +132,19 @@
   --color-gray-900: var(--gray-900);
   --color-gray-950: var(--gray-950);
 
+  /* Indigo scale (brand color — 藍) */
+  --color-indigo-50: var(--indigo-50);
+  --color-indigo-100: var(--indigo-100);
+  --color-indigo-200: var(--indigo-200);
+  --color-indigo-300: var(--indigo-300);
+  --color-indigo-400: var(--indigo-400);
+  --color-indigo-500: var(--indigo-500);
+  --color-indigo-600: var(--indigo-600);
+  --color-indigo-700: var(--indigo-700);
+  --color-indigo-800: var(--indigo-800);
+  --color-indigo-900: var(--indigo-900);
+  --color-indigo-950: var(--indigo-950);
+
   /* Blue scale */
   --color-blue-50: var(--blue-50);
   --color-blue-100: var(--blue-100);

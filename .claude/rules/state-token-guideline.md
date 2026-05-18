@@ -166,9 +166,12 @@ fill achieves higher WCAG contrast than white-on-bright. Verify visually in `Fou
    for `:root`, `@media (prefers-color-scheme: dark)`, and `.dark`.
 2. Register all four in `@theme` inside `src/core/tokens/base.css` so Tailwind utilities
    (`bg-{state}`, `bg-{state}-subtle`, …) become available.
-3. Add a subsection to `src/docs/Color.stories.tsx`.
-4. Add rows to the "Solid Treatments" and "Subtle Treatments" audit sections.
-5. Add a changeset (typically `minor` — additive feature).
+3. Add the four tokens (light + dark expected primitive) to the fixture in
+   `src/core/tokens/__tests__/resolution.test.ts` so the semantic→primitive
+   resolution is pinned and silent drift is caught.
+4. Add a subsection to `src/docs/Color.stories.tsx`.
+5. Add rows to the "Solid Treatments" and "Subtle Treatments" audit sections.
+6. Add a changeset (typically `minor` — additive feature).
 
 ## Non-interactive state tokens (`disabled` / `readOnly`)
 
@@ -246,10 +249,13 @@ so future re-tuning lands at one place. This mirrors the `destructive` /
 2. Add to `semantic.css` in all three blocks (`:root`, `@media (prefers-color-scheme: dark)`,
    `.dark`).
 3. Register in `base.css` `@theme`.
-4. Add a subsection to `src/docs/Color.stories.tsx` under "Non-Interactive
+4. Add the token(s) (light + dark expected primitive) to the
+   `NON_INTERACTIVE_STATE` fixture in
+   `src/core/tokens/__tests__/resolution.test.ts`.
+5. Add a subsection to `src/docs/Color.stories.tsx` under "Non-Interactive
    States" with a side-by-side preview against the existing non-interactive
    states (`disabled` / `readOnly`).
-5. Document the rationale in [docs/decisions/](../../docs/decisions/) — what
+6. Document the rationale in [docs/decisions/](../../docs/decisions/) — what
    the new state *means* (HTML semantics, form-submission behavior, focusability)
    matters more than what it looks like.
-6. Add a changeset (typically `minor` — additive feature).
+7. Add a changeset (typically `minor` — additive feature).

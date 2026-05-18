@@ -56,7 +56,8 @@
   --paper-cream-inverted: #44403a;
 
   /* Brand: Vermillion (朱) — Japanese traditional vermillion, brand anchor: 600 ≈ #c53d43.
-   * The first brand color; backs the --color-vermillion / --color-destructive / --color-error semantics. */
+   * The first brand color; backs the --color-vermillion semantic only. Danger colors
+   * (--color-error / --color-destructive) reference the separate `red` scale below. */
   --vermillion-50: oklch(0.98 0.02 22);
   --vermillion-100: oklch(0.96 0.04 22);
   --vermillion-200: oklch(0.91 0.08 22);
@@ -68,6 +69,21 @@
   --vermillion-800: oklch(0.36 0.11 22);
   --vermillion-900: oklch(0.27 0.07 22);
   --vermillion-950: oklch(0.15 0.05 22);
+
+  /* red — danger/error 専用スケール。現状 vermillion と同値だが、ブランド朱と
+     危険赤を独立に retune できるよう意図的に分離した継ぎ目。error/destructive のみが参照する。
+     色味を分岐させるかは #239 (design spike) で扱う。統合しないこと。 */
+  --red-50: oklch(0.98 0.02 22);
+  --red-100: oklch(0.96 0.04 22);
+  --red-200: oklch(0.91 0.08 22);
+  --red-300: oklch(0.83 0.13 22);
+  --red-400: oklch(0.74 0.17 22);
+  --red-500: oklch(0.64 0.18 22);
+  --red-600: oklch(0.56 0.17 22);
+  --red-700: oklch(0.46 0.14 22);
+  --red-800: oklch(0.36 0.11 22);
+  --red-900: oklch(0.27 0.07 22);
+  --red-950: oklch(0.15 0.05 22);
 
   /* Brand: Indigo (藍) — Japanese traditional indigo, the second brand color
    * alongside vermillion (朱). Distinct from --blue-* (which stays pinned to the

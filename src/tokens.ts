@@ -28,7 +28,7 @@ export const tokens = {
     solidForeground: 'var(--color-solid-foreground)',
     solidForegroundHover: 'var(--color-solid-foreground-hover)',
 
-    // Destructive (action color — shares vermillion with `error`)
+    // Destructive (action color — shares the `red` primitive with `error`)
     destructive: 'var(--color-destructive)',
     destructiveHover: 'var(--color-destructive-hover)',
     destructiveForeground: 'var(--color-destructive-foreground)',

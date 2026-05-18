@@ -514,6 +514,28 @@ export const Colors: Story = {
         ]}
       />
 
+      <SubsectionTitle>Indigo (藍)</SubsectionTitle>
+      <p className="text-sm text-foreground-muted mb-3">
+        Traditional Japanese indigo, the second brand color alongside vermillion. Deeper and more
+        saturated than the <code>blue</code> scale, which stays pinned to the lighter{' '}
+        <code>info</code> semantic.
+      </p>
+      <ScaleRow
+        shades={[
+          { level: '50', className: 'bg-indigo-50' },
+          { level: '100', className: 'bg-indigo-100' },
+          { level: '200', className: 'bg-indigo-200' },
+          { level: '300', className: 'bg-indigo-300' },
+          { level: '400', className: 'bg-indigo-400' },
+          { level: '500', className: 'bg-indigo-500' },
+          { level: '600', className: 'bg-indigo-600' },
+          { level: '700', className: 'bg-indigo-700' },
+          { level: '800', className: 'bg-indigo-800' },
+          { level: '900', className: 'bg-indigo-900' },
+          { level: '950', className: 'bg-indigo-950' },
+        ]}
+      />
+
       <SubsectionTitle>Green</SubsectionTitle>
       <ScaleRow
         shades={[

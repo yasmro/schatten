@@ -6,9 +6,17 @@ import '../src/styles/globals.css'
 
 // `STORYBOOK_CHANNEL` is injected by `.github/workflows/deploy-storybook.yml`:
 // the `develop` build (published at /schatten/next/) sets it to `next`, the
-// `main` build leaves it `stable`. Storybook exposes `STORYBOOK_`-prefixed env
-// vars to preview code, so this is also `undefined` in local dev and VRT runs.
-const isNextChannel = process.env.STORYBOOK_CHANNEL === 'next'
+// `main` build leaves it `stable`.
+//
+// Read via `import.meta.env`, NOT `process.env`: this file is bundled into the
+// browser preview iframe, where `process` is not a global. A bare `process.env`
+// reference there throws `ReferenceError: process is not defined` and aborts
+// story rendering — Storybook 10's Vite builder does not shim `process` for the
+// preview. Storybook's Vite builder does add `STORYBOOK_` to Vite's `envPrefix`,
+// so `STORYBOOK_`-prefixed vars surface on `import.meta.env` in both dev and
+// build, resolving to `undefined` in local dev / VRT where the var is unset.
+const importMetaEnv = (import.meta as ImportMeta & { env?: Record<string, string | undefined> }).env
+const isNextChannel = importMetaEnv?.STORYBOOK_CHANNEL === 'next'
 
 const BANNER_ID = 'schatten-unreleased-banner'
 

@@ -75,7 +75,16 @@ const semanticMediaDark = parseDeclarations(extractBlockBody(semanticCss, ':root
 const lightScope = new Map([...primitives, ...semanticLight])
 const darkScope = new Map([...primitives, ...semanticLight, ...semanticDark])
 
-/** Follow `var(...)` references to the leaf primitive (value is a literal). */
+/**
+ * Follow `var(...)` references to the leaf primitive (the variable whose
+ * value is a literal, not another `var()`).
+ *
+ * Only the bare single-reference form `var(--x)` is recognised as a chain
+ * link. Any other `var()` shape — a fallback (`var(--x, …)`), multiple
+ * references, a calc, … — throws instead of being silently treated as a
+ * leaf, so an unhandled form fails loud rather than mis-resolving to the
+ * semantic name itself.
+ */
 function resolveToPrimitive(varName: string, scope: Map<string, string>): string {
   const seen = new Set<string>()
   let current = varName
@@ -85,8 +94,14 @@ function resolveToPrimitive(varName: string, scope: Map<string, string>): string
     const value = scope.get(current)
     if (value === undefined) throw new Error(`unresolved var: ${current}`)
     const ref = value.match(/^var\(\s*(--[\w-]+)\s*\)$/)
-    if (!ref) return current.replace(/^--/, '')
-    current = ref[1]
+    if (ref) {
+      current = ref[1]
+      continue
+    }
+    if (value.includes('var(')) {
+      throw new Error(`unexpected var() form for ${current}: "${value}"`)
+    }
+    return current.replace(/^--/, '')
   }
 }
 
@@ -343,6 +358,14 @@ describe('semantic.css token resolution', () => {
     // mode and explicit `.dark` would render differently.
     it('keeps the @media dark block identical to the .dark block', () => {
       expect(Object.fromEntries(semanticMediaDark)).toEqual(Object.fromEntries(semanticDark))
+    })
+
+    // Guards the resolver itself: an unhandled `var()` shape (fallback,
+    // multi-ref, …) must throw, not silently resolve to the semantic name —
+    // otherwise the dangling-var sweep above would pass on a broken token.
+    it('throws on an unrecognised var() form instead of mis-resolving', () => {
+      const scope = new Map([['--color-foo', 'var(--bar, #fff)']])
+      expect(() => resolveToPrimitive('--color-foo', scope)).toThrow(/unexpected var\(\) form/)
     })
   })
 })

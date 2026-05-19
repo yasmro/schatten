@@ -45,6 +45,7 @@ When adding or modifying components, follow shadcn/ui conventions (Radix UI + CV
 `.claude/skills/` holds project-level skills (team-shared, checked into git):
 
 - **[add-lv1-component](.claude/skills/add-lv1-component/SKILL.md)** — scaffolds a new lv1 primitive. Generates the full 6-file set (variants CVA / tsx / stories / unit test / VRT spec / index) from placeholder templates, registers the component in [src/components/lv1/index.ts](src/components/lv1/index.ts) and [src/variants/index.ts](src/variants/index.ts), and follows every `.claude/rules/` guideline. Use it whenever you add a new lv1 — it structurally prevents test-less / VRT-less additions. Triggered automatically by requests like "add a new lv1 component" or invoked explicitly via the skill name.
+- **[add-vrt-spec](.claude/skills/add-vrt-spec/SKILL.md)** — generates a `{Name}.vrt.spec.ts` for an *existing* lv1 component: parses its stories, picks the right template (standard / animation / Portal), and pairs each VRT screenshot test with an `@axe-core/playwright` a11y assertion. When `@axe-core/playwright` is not yet installed (planned for v0.11.0) it emits a VRT-only spec to avoid a broken top-level import. Conforms to [.claude/rules/vrt-spec-guideline.md](.claude/rules/vrt-spec-guideline.md).
 
 ## Claude Code hooks
 

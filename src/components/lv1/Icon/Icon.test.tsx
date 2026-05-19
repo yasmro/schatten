@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import { Check, Search } from 'lucide-react'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { Icon } from './Icon'
 
 describe('Icon', () => {
@@ -61,6 +61,42 @@ describe('Icon', () => {
     it('lets an explicit aria-hidden override the decorative default', () => {
       const { container } = render(<Icon icon={Search} aria-hidden={false} />)
       expect(container.querySelector('svg')).toHaveAttribute('aria-hidden', 'false')
+    })
+
+    it('treats an empty-string aria-label as decorative, not a nameless role="img"', () => {
+      // Mirrors `aria-label={dynamicValue}` where the value resolves to ''.
+      const emptyLabel = ''
+      const { container } = render(<Icon icon={Search} aria-label={emptyLabel} />)
+      const svg = container.querySelector('svg') as SVGElement
+      expect(svg).toHaveAttribute('aria-hidden', 'true')
+      expect(svg).not.toHaveAttribute('role')
+    })
+
+    it('treats aria-labelledby as a label (role="img", no aria-hidden)', () => {
+      const { container } = render(
+        <>
+          <span id="icon-label">Search</span>
+          <Icon icon={Search} aria-labelledby="icon-label" />
+        </>,
+      )
+      const svg = container.querySelector('svg') as SVGElement
+      expect(svg).toHaveAttribute('role', 'img')
+      expect(svg).not.toHaveAttribute('aria-hidden')
+    })
+
+    it('warns when aria-hidden is set on a labelled icon', () => {
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      render(<Icon icon={Search} aria-label="Search" aria-hidden={true} />)
+      expect(warn).toHaveBeenCalledWith(expect.stringContaining('aria-hidden'))
+      warn.mockRestore()
+    })
+
+    it('does not warn for an ordinary decorative or labelled icon', () => {
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      render(<Icon icon={Search} />)
+      render(<Icon icon={Check} aria-label="Done" />)
+      expect(warn).not.toHaveBeenCalled()
+      warn.mockRestore()
     })
   })
 

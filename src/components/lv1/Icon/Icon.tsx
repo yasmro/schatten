@@ -39,23 +39,39 @@ export interface IconProps extends Omit<LucideProps, 'ref' | 'size' | 'color'>, 
  * Thin wrapper around a `lucide-react` icon that normalizes sizing and color
  * and applies accessibility defaults.
  *
- * Accessibility is driven by the standard `aria-label` attribute (inherited
- * from the SVG prop surface, so no dedicated prop is needed):
- * - Decorative by default: with no `aria-label`, `aria-hidden="true"` is set.
- * - Meaningful when labelled: with `aria-label`, `role="img"` is set so the
- *   icon is queryable via `getByRole('img', { name })`.
+ * Accessibility is driven by the standard `aria-label` / `aria-labelledby`
+ * attributes (inherited from the SVG prop surface, so no dedicated prop is
+ * needed):
+ * - Decorative by default: with no label, `aria-hidden="true"` is set. An
+ *   empty-string `aria-label` does not count as a label.
+ * - Meaningful when labelled: with `aria-label` (or `aria-labelledby`),
+ *   `role="img"` is set so the icon is queryable via
+ *   `getByRole('img', { name })`.
  *
  * `Icon` is not interactive — for a clickable icon use `<Button icon={…} />`.
  */
 export const Icon = forwardRef<SVGSVGElement, IconProps>(
   ({ icon: IconComponent, size, color, className, ...props }, ref) => {
-    const isDecorative = props['aria-label'] == null
+    // A non-empty `aria-label` / `aria-labelledby` makes the icon meaningful;
+    // anything else (including an empty-string label) is decorative.
+    const isLabelled = Boolean(props['aria-label']) || Boolean(props['aria-labelledby'])
+
+    if (
+      process.env.NODE_ENV !== 'production' &&
+      isLabelled &&
+      (props['aria-hidden'] === true || props['aria-hidden'] === 'true')
+    ) {
+      console.warn(
+        'Icon: `aria-hidden` is set on a labelled icon. A labelled icon is exposed to assistive tech via `role="img"`; `aria-hidden` removes it from the accessibility tree, contradicting the label. Drop one of them.',
+      )
+    }
+
     return (
       <IconComponent
         ref={ref}
         className={cn(iconVariants({ size, color }), className)}
-        aria-hidden={isDecorative ? true : undefined}
-        role={isDecorative ? undefined : 'img'}
+        aria-hidden={isLabelled ? undefined : true}
+        role={isLabelled ? 'img' : undefined}
         {...props}
       />
     )

@@ -40,6 +40,12 @@ When adding or modifying components, follow shadcn/ui conventions (Radix UI + CV
 - See [.claude/rules/api-stability.md](.claude/rules/api-stability.md) for the public API stability contract (effective from v1.0.0) — what counts as public API across React props, CSS classes, CSS variables, and CVA output, and the breaking-change policy
 - See [.claude/rules/component-testid-guideline.md](.claude/rules/component-testid-guideline.md) for the `data-testid` pass-through policy and the no-auto-testid rule
 
+## Claude Code skills
+
+`.claude/skills/` holds project-level skills (team-shared, checked into git):
+
+- **[add-lv1-component](.claude/skills/add-lv1-component/SKILL.md)** — scaffolds a new lv1 primitive. Generates the full 6-file set (variants CVA / tsx / stories / unit test / VRT spec / index) from placeholder templates, registers the component in [src/components/lv1/index.ts](src/components/lv1/index.ts) and [src/variants/index.ts](src/variants/index.ts), and follows every `.claude/rules/` guideline. Use it whenever you add a new lv1 — it structurally prevents test-less / VRT-less additions. Triggered automatically by requests like "add a new lv1 component" or invoked explicitly via the skill name.
+
 ## Claude Code hooks
 
 `.claude/settings.json` registers two project-level hooks (team-shared, checked into git — distinct from the per-user `.claude/settings.local.json`):

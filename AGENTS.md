@@ -65,7 +65,7 @@ pnpm changeset         # Create a changeset for user-facing changes
 - **Do not** write primitive color classes (`bg-red-500`, `text-blue-700`, `bg-vermillion-600`, …) directly in JSX or CSS. Use **state semantic tokens** (`bg-error`, `text-error-foreground`, `bg-error-subtle`, `bg-destructive`, …) so light/dark and seasonal themes stay correct. See [state-token-guideline](.claude/rules/state-token-guideline.md).
 - **Do not** confuse `destructive` and `error`. They share the same primitive (`red`) but are semantically distinct — `destructive` is for actions (e.g. `<Button variant="destructive">`), `error` is for form/notification state (e.g. `<Input isError>`). See [state-token-guideline](.claude/rules/state-token-guideline.md#destructive-vs-error).
 - **Do not** build new components with ad-hoc styles outside the design system. Compose existing `lv1` primitives, or extend the variant definitions in `src/variants/`.
-- **Do not** add a new `lv1` / `lv2` component without **Storybook story + Vitest test + VRT spec** alongside it. Follow the Storybook conventions (Playground story first, group by prop) and place the VRT spec at `ComponentName.vrt.spec.ts` next to the component.
+- **Do not** add a new `lv1` / `lv2` component without **Storybook story + Vitest test + VRT spec** alongside it. Follow the Storybook conventions (Playground story first, group by prop) and place the VRT spec at `ComponentName.vrt.spec.ts` next to the component. The canonical 6-file shape (variants / tsx / stories / test / vrt / index) is captured in [`.claude/skills/add-lv1-component/templates/`](.claude/skills/add-lv1-component/templates) — use those placeholder templates as the reference scaffold even if your tool cannot run the Claude Code skill itself.
 - **Do not** create individual stories for every prop value (`Default`, `Secondary`, `Outline` as separate exports). Group them into render stories (`AllVariants`, `Sizes`, `Disabled`, …). See [storybook-guideline](.claude/rules/storybook-guideline.md).
 - **Do not** write Storybook `description`, `argTypes`, button labels, etc. in Japanese — Storybook surfaces use **English only**.
 - **Do not** ship user-facing changes without a changeset entry. Run `pnpm changeset` and pick the appropriate semver bump. CI enforces this via `changeset status --since=origin/main`. For internal-only PRs (`.github/` workflow changes, docs, test-only additions), apply the `no-changeset` label to skip the check; dependabot PRs are auto-skipped.
@@ -87,7 +87,10 @@ pnpm changeset         # Create a changeset for user-facing changes
 | [.claude/rules/lint-rules-guideline.md](.claude/rules/lint-rules-guideline.md) | Biome rules added on top of `recommended` and the rationale for each. |
 | [.claude/rules/api-stability.md](.claude/rules/api-stability.md) | Public API stability contract (effective v1.0.0) — what is public, breaking-change policy, CHANGELOG conventions. |
 | [.claude/rules/component-testid-guideline.md](.claude/rules/component-testid-guideline.md) | `data-testid` pass-through policy, Portal content handling, no-auto-testid rule. |
+| [.claude/skills/add-lv1-component/](.claude/skills/add-lv1-component) | Claude Code skill that scaffolds a new lv1 — `templates/` doubles as the reference 6-file shape for any AI tool. |
 
 ## Maintenance
 
 When you add or remove a file under [`.claude/rules/`](.claude/rules), update **Required reading** and **Resource Map** above so AI agents pick it up automatically. CLAUDE.md's `Guidelines` section also lists the same files — keep both indexes in sync.
+
+When you change a rule that the [`add-lv1-component`](.claude/skills/add-lv1-component) skill depends on (component API conventions, testing, VRT, storybook, token usage), check that the skill's `templates/` still match the updated rule — the templates are a frozen scaffold and do not auto-update. `templates.test.ts` only guards their *syntax*, not their *conformance* to the rules.

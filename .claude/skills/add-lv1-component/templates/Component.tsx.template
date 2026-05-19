@@ -1,0 +1,46 @@
+import { forwardRef, type HTMLAttributes } from 'react'
+import { cn } from '../../../lib/utils'
+import {
+  type __ComponentName__Variants,
+  __componentName__Variants,
+} from '../../../variants/__component-name__'
+
+export interface __ComponentName__Props
+  extends HTMLAttributes<HTMLDivElement>,
+    __ComponentName__Variants {
+  /**
+   * Visual style of the __componentName__.
+   * - `neutral` — describe each option here (bullet list per option)
+   * @default 'neutral'
+   */
+  variant?: __ComponentName__Variants['variant']
+  /**
+   * Size of the __componentName__.
+   * @default 'md'
+   */
+  size?: __ComponentName__Variants['size']
+}
+
+/**
+ * __ComponentName__ — one-line description of what this primitive is for.
+ *
+ * Accessibility contract (component-architecture.md §8): an interactive
+ * component MUST render a native interactive element (or a Radix primitive)
+ * so it exposes a stable role + accessible name. A plain `<div>` is only
+ * acceptable for non-interactive display content.
+ */
+export const __ComponentName__ = forwardRef<HTMLDivElement, __ComponentName__Props>(
+  ({ className, variant, size, children, ...props }, ref) => {
+    return (
+      <div
+        ref={ref}
+        className={cn(__componentName__Variants({ variant, size }), className)}
+        {...props}
+      >
+        {children}
+      </div>
+    )
+  },
+)
+
+__ComponentName__.displayName = '__ComponentName__'

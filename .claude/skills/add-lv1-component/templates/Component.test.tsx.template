@@ -1,0 +1,37 @@
+import { render, screen } from '@testing-library/react'
+import { createRef } from 'react'
+import { describe, expect, it } from 'vitest'
+import { __ComponentName__ } from './__ComponentName__'
+
+describe('__ComponentName__', () => {
+  it('renders children', () => {
+    render(<__ComponentName__>Content</__ComponentName__>)
+    expect(screen.getByText('Content')).toBeInTheDocument()
+  })
+
+  it('forwards className to the root element', () => {
+    const { container } = render(
+      <__ComponentName__ className="custom-class">Content</__ComponentName__>,
+    )
+    expect(container.firstChild).toHaveClass('custom-class')
+  })
+
+  it('forwards data-* and other HTML attributes (testid pass-through)', () => {
+    // component-testid-guideline.md — every lv1 forwards `...props` to its root.
+    render(<__ComponentName__ data-testid="my-__component-name__">Content</__ComponentName__>)
+    expect(screen.getByTestId('my-__component-name__')).toBeInTheDocument()
+  })
+
+  it('forwards ref to the root element', () => {
+    const ref = createRef<HTMLDivElement>()
+    render(<__ComponentName__ ref={ref}>Content</__ComponentName__>)
+    expect(ref.current).toBeInstanceOf(HTMLDivElement)
+  })
+
+  // Fill these in once the real variant / size / state vocabulary exists.
+  // See .claude/rules/testing-guideline.md § Required test cases for the
+  // minimum set per component type (form / compound / action / display).
+  it.todo('applies a distinct class for each variant')
+  it.todo('applies a distinct class for each size')
+  it.todo('exposes a queryable accessible role + name (interactive components)')
+})

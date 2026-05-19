@@ -52,6 +52,9 @@ files and mirror real conventions, not invent structure.
 
 ### 4. Write the detailed design
 
+**詳細設計はすべて日本語で書く** — 見出し・本文・表・未解決の論点まで一貫して
+日本語にする（コード・型・issue 番号・識別子・ファイルパスは原語のまま）。
+
 Cover the following, adapting to the issue type (component / build / docs /
 CI):
 

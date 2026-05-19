@@ -108,6 +108,9 @@ decide. To act on one issue, hand off to `refinement-issue`.
 
 ## Output format
 
+**生成する文章はすべて日本語で書く** — 見出し・本文・グラフ中のラベル・調整提案
+まで一貫して日本語にする（コード・issue 番号・識別子・ファイルパスは原語のまま）。
+
 Present in chat, in this order:
 
 1. **全体像** — one or two sentences on what the milestone is about, plus the

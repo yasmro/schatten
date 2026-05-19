@@ -41,15 +41,30 @@
   --color-solid-foreground: var(--alabaster-100);
   --color-solid-foreground-hover: var(--alabaster-300);
 
-  /* Destructive — destructive actions (delete, remove). Shares vermillion with `error`. */
-  --color-destructive: var(--vermillion-600);
-  --color-destructive-hover: var(--vermillion-700);
+  /* Destructive — destructive actions (delete, remove). Shares the `red` primitive with `error`. */
+  --color-destructive: var(--red-600);
+  --color-destructive-hover: var(--red-700);
   --color-destructive-foreground: var(--paper-white);
-  --color-destructive-subtle: var(--vermillion-50);
+  --color-destructive-subtle: var(--red-50);
 
-  /* Accent */
-  --color-accent: var(--vermillion-500);
-  --color-accent-foreground: var(--paper-white);
+  /*
+   * Brand-named tokens — the two Schatten brand colors exposed as
+   * themselves (朱 vermillion / 藍 indigo). Unlike state tokens, these
+   * name the color, not a meaning. Themes / Specials may retune them;
+   * `info` and Mode-owned tokens may not.
+   *
+   * Both brand colors share one shade rule: `-600` in light, `-400`
+   * in dark. This is the only pair where every `*-foreground`-on-base
+   * solid pairing clears WCAG AA for both hues (vermillion light 4.86 /
+   * dark 6.84, indigo light 7.03 / dark 5.73). A 1-step shift (`-600`/
+   * `-500`) would fail indigo dark; `-500`/`-400` would fail vermillion
+   * light — the hue ramps differ, so the AA-safe shade is mode-driven,
+   * not 1-step-driven.
+   */
+  --color-vermillion: var(--vermillion-600);
+  --color-vermillion-foreground: var(--paper-white);
+  --color-indigo: var(--indigo-600);
+  --color-indigo-foreground: var(--paper-white);
 
   /* Borders */
   --color-border: var(--gray-200);
@@ -78,11 +93,11 @@
    *   subtle     : faint tinted background        — soft state surfaces
    */
 
-  /* Error — form validation, error notifications (visually shares vermillion with destructive) */
-  --color-error: var(--vermillion-600);
-  --color-error-hover: var(--vermillion-700);
+  /* Error — form validation, error notifications (visually shares the `red` primitive with destructive) */
+  --color-error: var(--red-600);
+  --color-error-hover: var(--red-700);
   --color-error-foreground: var(--paper-white);
-  --color-error-subtle: var(--vermillion-50);
+  --color-error-subtle: var(--red-50);
 
   /* Success */
   --color-success: var(--green-600);
@@ -142,13 +157,15 @@
     --color-solid-foreground: var(--alabaster-800);
     --color-solid-foreground-hover: var(--alabaster-700);
 
-    --color-destructive: var(--vermillion-500);
-    --color-destructive-hover: var(--vermillion-400);
+    --color-destructive: var(--red-500);
+    --color-destructive-hover: var(--red-400);
     --color-destructive-foreground: var(--paper-white-inverted);
-    --color-destructive-subtle: var(--vermillion-900);
+    --color-destructive-subtle: var(--red-900);
 
-    --color-accent: var(--vermillion-400);
-    --color-accent-foreground: var(--gray-950);
+    --color-vermillion: var(--vermillion-400);
+    --color-vermillion-foreground: var(--paper-white-inverted);
+    --color-indigo: var(--indigo-400);
+    --color-indigo-foreground: var(--paper-white-inverted);
 
     --color-border: var(--gray-700);
     --color-border-strong: var(--ink-black-inverted);
@@ -162,10 +179,10 @@
 
     /* State tokens — dark mode mappings */
 
-    --color-error: var(--vermillion-500);
-    --color-error-hover: var(--vermillion-400);
+    --color-error: var(--red-500);
+    --color-error-hover: var(--red-400);
     --color-error-foreground: var(--paper-white-inverted);
-    --color-error-subtle: var(--vermillion-900);
+    --color-error-subtle: var(--red-900);
 
     --color-success: var(--green-500);
     --color-success-hover: var(--green-400);
@@ -207,13 +224,15 @@
   --color-solid-foreground: var(--alabaster-800);
   --color-solid-foreground-hover: var(--alabaster-700);
 
-  --color-destructive: var(--vermillion-500);
-  --color-destructive-hover: var(--vermillion-400);
+  --color-destructive: var(--red-500);
+  --color-destructive-hover: var(--red-400);
   --color-destructive-foreground: var(--paper-white-inverted);
-  --color-destructive-subtle: var(--vermillion-900);
+  --color-destructive-subtle: var(--red-900);
 
-  --color-accent: var(--vermillion-400);
-  --color-accent-foreground: var(--gray-950);
+  --color-vermillion: var(--vermillion-400);
+  --color-vermillion-foreground: var(--paper-white-inverted);
+  --color-indigo: var(--indigo-400);
+  --color-indigo-foreground: var(--paper-white-inverted);
 
   --color-border: var(--gray-700);
   --color-border-strong: var(--ink-black-inverted);
@@ -227,10 +246,10 @@
 
   /* State tokens — dark mode mappings */
 
-  --color-error: var(--vermillion-500);
-  --color-error-hover: var(--vermillion-400);
+  --color-error: var(--red-500);
+  --color-error-hover: var(--red-400);
   --color-error-foreground: var(--paper-white-inverted);
-  --color-error-subtle: var(--vermillion-900);
+  --color-error-subtle: var(--red-900);
 
   --color-success: var(--green-500);
   --color-success-hover: var(--green-400);

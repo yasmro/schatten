@@ -78,16 +78,53 @@ is combined with `asChild` (an unsupported combination), and
 `actionButton.onClick` is undefined (a footgun — clicking the action button
 becomes a silent no-op). That's a feature, not noise.
 
+## GritQL plugins
+
+Beyond the built-in rules above, Biome 2.x's GritQL plugin support lets us
+ship custom checks. Plugins are `.grit` files under
+[`biome-plugins/`](../../biome-plugins) and are loaded via `plugins` arrays
+in [`biome.json`](../../biome.json) — either globally or, where the check
+should only apply to a subset of files, inside a scoped `overrides` entry.
+
+### `no-primitive-color` — `error`
+
+Bans Tailwind *primitive* color utility classes (`bg-red-500`,
+`text-gray-700`, `ring-vermillion-600`, …) in component JSX, forcing the
+use of Layer-2 semantic tokens (`bg-error`, `text-foreground-muted`, …).
+
+**Why:** primitive color classes are exactly the kind of thing an AI
+assistant emits from training-data muscle memory. A machine check stops
+them before review does, and keeps the public CSS-variable surface (the
+semantic tokens) as the only color contract. Set to `error` so it blocks
+CI, not just editor hover.
+
+**Scope:** a scoped `overrides` entry restricts the plugin to
+`src/components/**/*.tsx`, excluding `*.stories.tsx` / `*.test.tsx` —
+stories and docs render the primitive palette intentionally.
+
+**Limitations of GritQL plugins** (worth knowing before writing more):
+
+- A plugin diagnostic cannot register a named rule category, so it is
+  suppressed with `// biome-ignore lint/plugin: <reason>`, not a
+  rule-specific name.
+- GritQL (in Biome 2.4) cannot match a JSX attribute by name; the plugin
+  matches a whole JSX element and regex-scans its attribute text. CVA
+  variant files (`src/variants/*.ts`) are therefore out of reach.
+- Multiple top-level `where` blocks in one `.grit` file fail to compile —
+  combine alternatives with `or { … } where { … }`.
+- Regex capture groups `( … )` are treated as bindings; use
+  non-capturing `(?: … )`.
+
+The contract this plugin enforces lives in
+[state-token-guideline](state-token-guideline.md#enforcement--the-no-primitive-color-lint-plugin).
+
 ## Rules deliberately **not** added
 
 - **`nursery/useSortedClasses` (Tailwind utility sort)** — under consideration
   for Phase 2. Not enabled yet because it churns existing files and the
   ergonomic win is marginal compared to the diff cost.
-- **Custom rule banning primitive color classes (`bg-red-*`, …)** — planned
-  for v0.8.0. The convention is enforced today via [state-token-guideline](state-token-guideline.md)
-  and code review; a Biome custom rule will make it mechanical.
-- **Custom rule enforcing the component API contract** — planned for v0.8.0
-  alongside the primitive-color rule above. [component-api-conventions](component-api-conventions.md)
+- **Custom rule enforcing the component API contract** — planned for v0.8.0.
+  [component-api-conventions](component-api-conventions.md)
   defines two patterns (Role-based for `Button`; Tone × Shape for
   `Badge` / `Callout` / `Toast`) and a per-component variant matrix, but
   today the contract is only enforced via TS unions and code review —

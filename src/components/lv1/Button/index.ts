@@ -1,1 +1,1 @@
-export { Button, type ButtonProps, type IconName } from './Button'
+export { Button, type ButtonProps } from './Button'

@@ -24,7 +24,8 @@ export interface TextProps extends Omit<HTMLAttributes<HTMLElement>, 'color'>, T
    * - Foreground: `default` / `muted` / `subtle` (most → least prominent)
    * - State: `error` / `success` / `warning` / `info` (inline status text)
    * - Inverted: `inverted` / `inverted-muted` / `inverted-subtle` (for saturated surfaces)
-   * - Plus: `accent` (one-off emphasis), `inherit` (delegates to the parent)
+   * - Brand: `vermillion` (朱) / `indigo` (藍) — the brand colors for deliberate emphasis
+   * - Plus: `inherit` (delegates to the parent)
    * @default 'default'
    */
   color?: TextVariants['color']

@@ -1,4 +1,27 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
+import {
+  ArrowLeft,
+  ArrowRight,
+  Check,
+  ChevronLeft,
+  ChevronRight,
+  CircleAlert,
+  Clock,
+  Download,
+  ExternalLink,
+  Eye,
+  Globe,
+  Lock,
+  Mail,
+  Plus,
+  Search,
+  Send,
+  Sparkles,
+  Star,
+  Tag,
+  Trash2,
+  X,
+} from 'lucide-react'
 import { Badge } from './Badge'
 
 /**
@@ -60,10 +83,59 @@ const meta: Meta<typeof Badge> = {
       },
     },
     icon: {
-      description: 'Lucide icon name in PascalCase (e.g. "Check", "CircleAlert").',
-      control: 'text',
+      description:
+        'Lucide icon component to render. Import the icon from `lucide-react` and pass it directly (e.g. `icon={Check}`).',
+      // The select lists icon names for ergonomics; `mapping` resolves each
+      // name back to the actual `LucideIcon` component the prop expects.
+      control: 'select',
+      options: [
+        'ArrowLeft',
+        'ArrowRight',
+        'Check',
+        'ChevronLeft',
+        'ChevronRight',
+        'CircleAlert',
+        'Clock',
+        'Download',
+        'ExternalLink',
+        'Eye',
+        'Globe',
+        'Lock',
+        'Mail',
+        'Plus',
+        'Search',
+        'Send',
+        'Sparkles',
+        'Star',
+        'Tag',
+        'Trash2',
+        'X',
+      ],
+      mapping: {
+        ArrowLeft,
+        ArrowRight,
+        Check,
+        ChevronLeft,
+        ChevronRight,
+        CircleAlert,
+        Clock,
+        Download,
+        ExternalLink,
+        Eye,
+        Globe,
+        Lock,
+        Mail,
+        Plus,
+        Search,
+        Send,
+        Sparkles,
+        Star,
+        Tag,
+        Trash2,
+        X,
+      },
       table: {
-        type: { summary: 'IconName' },
+        type: { summary: 'LucideIcon' },
         defaultValue: { summary: '-' },
       },
     },
@@ -180,30 +252,30 @@ export const States: Story = {
   render: () => (
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap gap-4">
-        <Badge variant="success" icon="Check">
+        <Badge variant="success" icon={Check}>
           Active
         </Badge>
-        <Badge variant="warning" icon="Clock">
+        <Badge variant="warning" icon={Clock}>
           Pending
         </Badge>
-        <Badge variant="error" icon="X">
+        <Badge variant="error" icon={X}>
           Failed
         </Badge>
-        <Badge variant="info" icon="Sparkles">
+        <Badge variant="info" icon={Sparkles}>
           Beta
         </Badge>
       </div>
       <div className="flex flex-wrap gap-4">
-        <Badge variant="success" appearance="solid" icon="Check">
+        <Badge variant="success" appearance="solid" icon={Check}>
           Active
         </Badge>
-        <Badge variant="warning" appearance="solid" icon="Clock">
+        <Badge variant="warning" appearance="solid" icon={Clock}>
           Pending
         </Badge>
-        <Badge variant="error" appearance="solid" icon="X">
+        <Badge variant="error" appearance="solid" icon={X}>
           Failed
         </Badge>
-        <Badge variant="info" appearance="solid" icon="Sparkles">
+        <Badge variant="info" appearance="solid" icon={Sparkles}>
           Beta
         </Badge>
       </div>
@@ -226,16 +298,16 @@ export const Icons: Story = {
   name: 'Icons',
   render: () => (
     <div className="flex flex-wrap gap-4">
-      <Badge variant="success" icon="Check">
+      <Badge variant="success" icon={Check}>
         Success
       </Badge>
-      <Badge variant="error" icon="CircleAlert">
+      <Badge variant="error" icon={CircleAlert}>
         Error
       </Badge>
-      <Badge variant="neutral" appearance="subtle" icon="Clock">
+      <Badge variant="neutral" appearance="subtle" icon={Clock}>
         Pending
       </Badge>
-      <Badge variant="neutral" appearance="outline" icon="Tag">
+      <Badge variant="neutral" appearance="outline" icon={Tag}>
         Label
       </Badge>
     </div>
@@ -246,8 +318,8 @@ export const IconPositions: Story = {
   name: 'Icon Positions',
   render: () => (
     <div className="flex items-center gap-4">
-      <Badge icon="ArrowLeft">Start</Badge>
-      <Badge icon="ArrowRight" iconPosition="end">
+      <Badge icon={ArrowLeft}>Start</Badge>
+      <Badge icon={ArrowRight} iconPosition="end">
         End
       </Badge>
     </div>
@@ -258,11 +330,11 @@ export const IconOnly: Story = {
   name: 'Icon Only',
   render: () => (
     <div className="flex items-center gap-4">
-      <Badge icon="Check" size="sm" aria-label="Success" />
-      <Badge icon="Check" aria-label="Success" />
-      <Badge icon="Check" size="lg" aria-label="Success" />
-      <Badge variant="error" icon="X" aria-label="Error" />
-      <Badge variant="neutral" appearance="outline" icon="Star" aria-label="Starred" />
+      <Badge icon={Check} size="sm" aria-label="Success" />
+      <Badge icon={Check} aria-label="Success" />
+      <Badge icon={Check} size="lg" aria-label="Success" />
+      <Badge variant="error" icon={X} aria-label="Error" />
+      <Badge variant="neutral" appearance="outline" icon={Star} aria-label="Starred" />
     </div>
   ),
 }

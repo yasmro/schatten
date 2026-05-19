@@ -15,7 +15,7 @@ describe('SEASONAL_THEME_METADATA', () => {
     }
   })
 
-  it('allows only --color-theme-* today (loosen when accent enters allowlist)', () => {
+  it('allows only --color-theme-* today (loosen when brand tokens enter allowlist)', () => {
     for (const [, meta] of entries) {
       expect(meta.allowedTokens).toEqual(['--color-theme-*'])
     }

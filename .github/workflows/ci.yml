@@ -2,10 +2,10 @@ name: CI
 
 on:
   pull_request:
-    branches: [main]
+    branches: [main, develop]
     types: [opened, synchronize, reopened, labeled, unlabeled]
   push:
-    branches: [main]
+    branches: [main, develop]
 
 jobs:
   lint:
@@ -59,10 +59,41 @@ jobs:
       - name: Unit tests
         run: pnpm vitest run
 
+  size:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # `size-limit` measures files in dist/, so the package must be built
+      # first. build:css relies on lightningcss-cli's postinstall binary —
+      # enabled via pnpm.onlyBuiltDependencies in package.json.
+      - name: Build
+        run: pnpm build
+
+      # andresz1/size-limit-action was evaluated for its PR size-diff comment
+      # but it prunes devDependencies before measuring, which drops size-limit
+      # itself; it is also pinned to a deprecated Node 20 runtime. A plain
+      # `pnpm size` gate is reliable and fails the check on any budget breach.
+      - name: Check bundle size
+        run: pnpm size
+
   changeset:
     runs-on: ubuntu-latest
+    # Skipped on the develop→main release PR: that PR has consumed every
+    # changeset via `changeset version`, so a "no changeset found" failure is
+    # expected, not a mistake. The check guards feature PRs (base = develop).
     if: |
       github.event_name == 'pull_request' &&
+      github.base_ref != 'main' &&
       github.event.pull_request.user.login != 'dependabot[bot]' &&
       !contains(github.event.pull_request.labels.*.name, 'no-changeset')
     steps:
@@ -80,4 +111,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
 
       - name: Changeset status
-        run: pnpm exec changeset status --since=origin/main
+        # Compare against the PR's base branch (develop / main), not a fixed
+        # branch — otherwise a develop-targeted PR is diffed against main and
+        # picks up unrelated already-merged changesets once the two diverge.
+        run: pnpm exec changeset status --since=origin/${{ github.base_ref }}

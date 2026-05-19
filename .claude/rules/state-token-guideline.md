@@ -24,10 +24,10 @@ Components consume **only Layer 2**. Never reference primitive scales (`vermilli
 
 ```
 Layer 1: Primitive (raw OKLCH scales — same in light/dark)
-   vermillion-*  green-*  amber-*  blue-*  ...
+   red-*  vermillion-*  green-*  amber-*  blue-*  ...
 
 Layer 2: Semantic (meaning — light/dark mapping happens here)
-   destructive ◀── vermillion ──▶ error
+   destructive ◀── red ──▶ error
    success     ◀── green
    warning     ◀── amber
    info        ◀── blue (independent of the theme scale)
@@ -35,6 +35,64 @@ Layer 2: Semantic (meaning — light/dark mapping happens here)
 Layer 3: Components (consume semantic only)
    bg-error / text-error / border-error / ring-error / bg-error-subtle ...
 ```
+
+**`red` vs `vermillion` — two separate primitives, same value today.** The
+danger colors (`error` / `destructive`) reference a dedicated `red` primitive
+scale; the brand 朱 references `vermillion`. `red` is currently a value-identical
+copy of `vermillion` (hue 22, same L/C at every shade) — the split is a
+deliberate *governance seam*, not a visual change. It exists so brand 朱 and
+danger red can be retuned independently: retuning brand vermillion no longer
+drags every error state along (and vice versa). Whether danger red *should*
+diverge in hue from brand vermillion is a designer-owned aesthetic call,
+tracked separately in design spike
+[#239](https://github.com/yasmro/schatten/issues/239) — do not merge the two
+scales back together.
+
+## Enforcement — the `no-primitive-color` lint plugin
+
+The "components consume only Layer 2" rule is enforced mechanically by a
+Biome GritQL linter plugin
+([`biome-plugins/no-primitive-color.grit`](../../biome-plugins/no-primitive-color.grit),
+issue [#122](https://github.com/yasmro/schatten/issues/122)). It exists
+because primitive color classes are exactly the kind of thing an AI
+assistant writes from muscle memory (`bg-red-500`, `text-gray-700`) — a
+machine check catches them before review does.
+
+**What it flags.** Any Tailwind primitive color utility —
+`{bg,text,border,ring}-{family}-{shade}` — in component JSX. `{family}`
+covers the full Tailwind default palette *and* Schatten's own primitive
+scales (`vermillion`, `sumi`, `gray`, `blue`, `green`, `yellow`, `amber`,
+`purple`). Variant prefixes (`dark:bg-amber-500`,
+`hover:text-gray-700`) and classes inside a `cn(...)` expression are
+caught too.
+
+**What it allows.** Everything at Layer 2: state semantics (`bg-error`,
+`text-error-foreground`, `bg-success-subtle`), foreground tiers
+(`text-foreground-muted`), surfaces (`bg-surface`), and the semantic
+theme scale (`bg-theme-500` — `theme` is *not* a primitive family).
+
+**Scope.** Enabled through a scoped `overrides` entry in
+[`biome.json`](../../biome.json) that targets `src/components/**/*.tsx`
+and excludes `*.stories.tsx` / `*.test.tsx`. Stories and docs render the
+primitive palette on purpose (`Color.stories.tsx` *is* the palette
+documentation), so they are exempt by design.
+
+**Known gap.** The plugin matches JSX attributes only; it does **not**
+scan CVA variant definitions in `src/variants/*.ts` (bare class strings,
+no JSX). Primitive colors there remain a code-review concern — never
+hard-code `bg-vermillion-600` in a `cva(...)` block.
+
+**Suppressing.** A genuine exception is suppressed with the `lint/plugin`
+category — Biome plugins cannot register a named rule, so
+`lint/no-primitive-color` is *not* a valid category:
+
+```tsx
+// biome-ignore lint/plugin: <reason — why a primitive class is correct here>
+<div className="bg-vermillion-600" />
+```
+
+The plugin is exercised by [`no-primitive-color.test.ts`](../../biome-plugins/no-primitive-color.test.ts),
+which runs `biome lint` over fixture files and asserts the diagnostics.
 
 ## The 4-token shape
 
@@ -57,7 +115,7 @@ The tokens form two natural treatment pairs, named to match Pattern B's
 
 ## `destructive` vs `error`
 
-They share the **same primitive** (vermillion) so they look identical, but are **semantically
+They share the **same primitive** (`red`) so they look identical, but are **semantically
 distinct**:
 
 | | `destructive` | `error` |
@@ -87,7 +145,7 @@ Each state shifts shades between modes:
 | Dark | `*-500` | `*-400` | `paper-white-inverted` | `*-900` |
 
 The dark-mode `foreground = paper-white-inverted` (`#1a1a1a`) is intentional: in dark mode the
-state `base` shifts brighter (e.g. `vermillion-500`), and dark text on a bright saturated
+state `base` shifts brighter (e.g. `red-500`), and dark text on a bright saturated
 fill achieves higher WCAG contrast than white-on-bright. Verify visually in `Foundation/Color`
 → "Solid Treatments (a11y audit)" before introducing new state-driven UI.
 
@@ -108,9 +166,12 @@ fill achieves higher WCAG contrast than white-on-bright. Verify visually in `Fou
    for `:root`, `@media (prefers-color-scheme: dark)`, and `.dark`.
 2. Register all four in `@theme` inside `src/core/tokens/base.css` so Tailwind utilities
    (`bg-{state}`, `bg-{state}-subtle`, …) become available.
-3. Add a subsection to `src/docs/Color.stories.tsx`.
-4. Add rows to the "Solid Treatments" and "Subtle Treatments" audit sections.
-5. Add a changeset (typically `minor` — additive feature).
+3. Add the four tokens (light + dark expected primitive) to the fixture in
+   `src/core/tokens/__tests__/resolution.test.ts` so the semantic→primitive
+   resolution is pinned and silent drift is caught.
+4. Add a subsection to `src/docs/Color.stories.tsx`.
+5. Add rows to the "Solid Treatments" and "Subtle Treatments" audit sections.
+6. Add a changeset (typically `minor` — additive feature).
 
 ## Non-interactive state tokens (`disabled` / `readOnly`)
 
@@ -188,10 +249,13 @@ so future re-tuning lands at one place. This mirrors the `destructive` /
 2. Add to `semantic.css` in all three blocks (`:root`, `@media (prefers-color-scheme: dark)`,
    `.dark`).
 3. Register in `base.css` `@theme`.
-4. Add a subsection to `src/docs/Color.stories.tsx` under "Non-Interactive
+4. Add the token(s) (light + dark expected primitive) to the
+   `NON_INTERACTIVE_STATE` fixture in
+   `src/core/tokens/__tests__/resolution.test.ts`.
+5. Add a subsection to `src/docs/Color.stories.tsx` under "Non-Interactive
    States" with a side-by-side preview against the existing non-interactive
    states (`disabled` / `readOnly`).
-5. Document the rationale in [docs/decisions/](../../docs/decisions/) — what
+6. Document the rationale in [docs/decisions/](../../docs/decisions/) — what
    the new state *means* (HTML semantics, form-submission behavior, focusability)
    matters more than what it looks like.
-6. Add a changeset (typically `minor` — additive feature).
+7. Add a changeset (typically `minor` — additive feature).

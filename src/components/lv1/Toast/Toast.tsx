@@ -1,5 +1,5 @@
 import * as ToastPrimitive from '@radix-ui/react-toast'
-import { CircleAlert, CircleCheck, Info, type LucideIcon, TriangleAlert } from 'lucide-react'
+import { CircleAlert, CircleCheck, Info, type LucideIcon, TriangleAlert, X } from 'lucide-react'
 import { cn } from '../../../lib/utils'
 import './Toast.css'
 import { toastVariants } from '../../../variants/toast'
@@ -98,7 +98,7 @@ export function ToastItem({ toast }: ToastItemProps) {
             <Button
               variant={buttonVariant}
               size="sm"
-              icon="X"
+              icon={X}
               aria-label="Close"
               className="shrink-0"
             />

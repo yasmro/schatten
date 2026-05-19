@@ -141,7 +141,7 @@ export const Colors: Story = {
         />
       </div>
 
-      <SubsectionTitle>Destructive &amp; Accent</SubsectionTitle>
+      <SubsectionTitle>Destructive</SubsectionTitle>
       <div className="border border-border rounded-xl px-5">
         <ColorRow name="destructive" description="Destructive actions" className="bg-destructive" />
         <ColorRow
@@ -149,10 +149,31 @@ export const Colors: Story = {
           description="Text on destructive"
           className="bg-destructive-foreground border border-border"
         />
+      </div>
+
+      <SubsectionTitle>Brand</SubsectionTitle>
+      <p className="text-sm text-foreground-muted mb-3">
+        The two Schatten brand colors exposed as semantic tokens. Unlike state tokens, these name
+        the <em>color itself</em> (朱 vermillion / 藍 indigo) rather than a meaning — reach for them
+        for deliberate brand emphasis. The <code>-foreground</code> pair is the readable on-color
+        text.
+      </p>
+      <div className="border border-border rounded-xl px-5">
         <ColorRow
-          name="accent"
-          description="Vermillion accent for emphasis"
-          className="bg-accent"
+          name="vermillion"
+          description="Brand color — 朱 (vermillion)"
+          className="bg-vermillion"
+        />
+        <ColorRow
+          name="vermillion-foreground"
+          description="Text on vermillion"
+          className="bg-vermillion-foreground border border-border"
+        />
+        <ColorRow name="indigo" description="Brand color — 藍 (indigo)" className="bg-indigo" />
+        <ColorRow
+          name="indigo-foreground"
+          description="Text on indigo"
+          className="bg-indigo-foreground border border-border"
         />
       </div>
 
@@ -176,7 +197,7 @@ export const Colors: Story = {
 
       <SubsectionTitle>Error</SubsectionTitle>
       <p className="text-sm text-foreground-muted mb-3">
-        Form validation and error notifications. Visually shares vermillion with{' '}
+        Form validation and error notifications. Shares the <code>red</code> primitive with{' '}
         <code>destructive</code>, but is semantically distinct.
       </p>
       <div className="border border-border rounded-xl px-5">
@@ -496,7 +517,8 @@ export const Colors: Story = {
 
       <SubsectionTitle>Vermillion (朱)</SubsectionTitle>
       <p className="text-sm text-foreground-muted mb-3">
-        Traditional Japanese vermillion red, used as the accent color.
+        Traditional Japanese vermillion red — the primary Schatten brand color, surfaced at the
+        semantic layer as <code>--color-vermillion</code>.
       </p>
       <ScaleRow
         shades={[
@@ -511,6 +533,50 @@ export const Colors: Story = {
           { level: '800', className: 'bg-vermillion-800' },
           { level: '900', className: 'bg-vermillion-900' },
           { level: '950', className: 'bg-vermillion-950' },
+        ]}
+      />
+
+      <SubsectionTitle>Indigo (藍)</SubsectionTitle>
+      <p className="text-sm text-foreground-muted mb-3">
+        Traditional Japanese indigo, the second brand color alongside vermillion. Deeper and more
+        saturated than the <code>blue</code> scale, which stays pinned to the lighter{' '}
+        <code>info</code> semantic.
+      </p>
+      <ScaleRow
+        shades={[
+          { level: '50', className: 'bg-indigo-50' },
+          { level: '100', className: 'bg-indigo-100' },
+          { level: '200', className: 'bg-indigo-200' },
+          { level: '300', className: 'bg-indigo-300' },
+          { level: '400', className: 'bg-indigo-400' },
+          { level: '500', className: 'bg-indigo-500' },
+          { level: '600', className: 'bg-indigo-600' },
+          { level: '700', className: 'bg-indigo-700' },
+          { level: '800', className: 'bg-indigo-800' },
+          { level: '900', className: 'bg-indigo-900' },
+          { level: '950', className: 'bg-indigo-950' },
+        ]}
+      />
+
+      <SubsectionTitle>Red</SubsectionTitle>
+      <p className="text-sm text-foreground-muted mb-3">
+        Danger scale — backs the <code>error</code> and <code>destructive</code> semantics. A
+        value-identical copy of <code>vermillion</code> today; kept as a separate primitive so brand
+        朱 and danger red can be retuned independently (see issue #239).
+      </p>
+      <ScaleRow
+        shades={[
+          { level: '50', className: 'bg-red-50' },
+          { level: '100', className: 'bg-red-100' },
+          { level: '200', className: 'bg-red-200' },
+          { level: '300', className: 'bg-red-300' },
+          { level: '400', className: 'bg-red-400' },
+          { level: '500', className: 'bg-red-500' },
+          { level: '600', className: 'bg-red-600' },
+          { level: '700', className: 'bg-red-700' },
+          { level: '800', className: 'bg-red-800' },
+          { level: '900', className: 'bg-red-900' },
+          { level: '950', className: 'bg-red-950' },
         ]}
       />
 

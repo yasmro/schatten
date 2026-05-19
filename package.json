@@ -1,6 +1,6 @@
 {
   "name": "@yasmro/schatten",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "packageManager": "pnpm@10.33.0+sha512.10568bb4a6afb58c9eb3630da90cc9516417abebd3fabbe6739f0ae795728da1491e9db5a544c76ad8eb7570f5c4bb3d6c637b2cb41bfdcdb47fa823c8649319",
   "description": "Design system with CSS variants and React components",
   "type": "module",
@@ -66,15 +66,17 @@
     "dist"
   ],
   "sideEffects": [
-    "**/*.css",
-    "./dist/**/*.css"
+    "*.css",
+    "**/*.css"
   ],
   "scripts": {
     "dev": "storybook dev -p 6006",
-    "build": "pnpm clean:dist && pnpm build:js && pnpm build:css",
+    "build": "pnpm clean:dist && pnpm build:js && pnpm check:use-client && pnpm build:css && pnpm build:copy-css",
     "clean:dist": "rm -rf dist",
     "build:js": "tsup",
     "build:css": "lightningcss src/schatten.css -o dist/schatten.css --minify --bundle",
+    "build:copy-css": "node scripts/copy-css-assets.mjs",
+    "check:use-client": "node scripts/check-use-client-banner.mjs",
     "build:storybook": "storybook build",
     "test": "vitest",
     "test:ui": "vitest --ui",
@@ -83,6 +85,8 @@
     "lint": "biome ci .",
     "lint:fix": "biome check --write .",
     "lint:pkg": "publint",
+    "size": "size-limit",
+    "size:why": "size-limit --why",
     "check:theme-allowlist": "node scripts/check-theme-allowlist.mjs",
     "format": "biome format --write .",
     "typecheck": "tsc --noEmit -p tsconfig.test.json",
@@ -92,10 +96,14 @@
     "prepublishOnly": "pnpm build"
   },
   "peerDependencies": {
+    "lucide-react": "^1.0.0",
     "react": "^18.0.0 || ^19.0.0",
     "react-dom": "^18.0.0 || ^19.0.0"
   },
   "peerDependenciesMeta": {
+    "lucide-react": {
+      "optional": true
+    },
     "react": {
       "optional": true
     },
@@ -109,6 +117,7 @@
     "@changesets/cli": "^2.30.0",
     "@playwright/test": "^1.58.2",
     "@radix-ui/react-dialog": "^1.1.4",
+    "@size-limit/preset-small-lib": "^12.1.0",
     "@storybook/addon-docs": "10.3.6",
     "@storybook/react-vite": "10.3.6",
     "@tailwindcss/vite": "^4.2.2",
@@ -122,9 +131,11 @@
     "lefthook": "^2.1.4",
     "lightningcss": "^1.28.2",
     "lightningcss-cli": "^1.32.0",
+    "lucide-react": "^1.7.0",
     "publint": "^0.3.21",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "size-limit": "^12.1.0",
     "storybook": "10.3.6",
     "tailwindcss": "^4.2.2",
     "tsup": "^8.3.5",
@@ -142,13 +153,15 @@
     "@radix-ui/react-tooltip": "^1.2.8",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "lucide-react": "^1.7.0",
     "tailwind-merge": "^3.5.0"
   },
   "pnpm": {
     "overrides": {
       "postcss@<8.5.10": ">=8.5.10"
-    }
+    },
+    "onlyBuiltDependencies": [
+      "lightningcss-cli"
+    ]
   },
   "license": "MIT",
   "repository": {

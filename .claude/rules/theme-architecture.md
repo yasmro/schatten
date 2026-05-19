@@ -8,8 +8,8 @@ runtime:
 - **Mode** — exclusive (`light` / `dark`). Owns the base layer: surfaces,
   foregrounds, borders.
 - **Special** — exclusive (`season--*`, `brand--*`, vendor palettes, …).
-  Owns the expressive layer: the `theme` scale, `accent`, and other
-  "characteristic" tokens.
+  Owns the expressive layer: the `theme` scale, the brand-named tokens
+  (`vermillion` / `indigo`), and other "characteristic" tokens.
 
 Both axes are exclusive: exactly one Mode is active (`light` xor `dark`),
 and at most one Special is active (`data-theme="<name>"` set on `<html>`,
@@ -69,7 +69,7 @@ belongs to Mode.
 | Concern | Example tokens |
 |---|---|
 | Theme scale | `--color-theme-50` … `--color-theme-950` |
-| Accent (when a Special wants to retune it) | `--color-accent`, `--color-accent-foreground` |
+| Brand-named tokens (when a Special wants to retune them) | `--color-vermillion`, `--color-vermillion-foreground`, `--color-indigo`, `--color-indigo-foreground` |
 
 Rule of thumb: anything that expresses *brand character* — seasonality, an
 event identity, a customer's palette — belongs to Special.
@@ -81,8 +81,11 @@ A few tokens are pinned by intent and **must not** be moved by either axis:
 - `--color-info-*` references `blue-*` directly. Themes that retune the
   theme scale must not drift `info`'s meaning. See
   [state-token-guideline](state-token-guideline.md#info-independence-from-the-theme-scale).
-- Primitives (`--vermillion-*`, `--green-*`, `--blue-*`, …) are theme-agnostic
-  by definition and live one layer below semantics.
+- Primitives (`--red-*`, `--vermillion-*`, `--green-*`, `--blue-*`, …) are
+  theme-agnostic by definition and live one layer below semantics. Note `red`
+  (danger/error) and `vermillion` (brand 朱) are separate primitives even
+  though they hold the same value today — see
+  [state-token-guideline](state-token-guideline.md#three-layer-hierarchy).
 
 ### Specials must not override non-interactive state tokens
 
@@ -313,9 +316,9 @@ so future authors can replicate it.
 | `season--winter-early` | 250 | 11/7 – 12/21 | `--color-theme-*` |
 | `season--winter-deep`  | 0/240 | 12/22 – 2/3 | `--color-theme-*` |
 
-No existing seasonal theme touches surfaces, foregrounds, borders, accent,
-state colors, or info. **That is the contract** — keep it that way when
-adding new Specials.
+No existing seasonal theme touches surfaces, foregrounds, borders,
+brand-named tokens, state colors, or info. **That is the contract** —
+keep it that way when adding new Specials.
 
 ### Dark × Special — visual verification
 
@@ -384,7 +387,7 @@ prescribes:
 ## Quick reference
 
 - **Mode**  → `:root` (light) / `.dark` (dark) / `@media (prefers-color-scheme: dark)` (system) — owns surfaces, foregrounds, borders, state shade-shifts.
-- **Special** → `[data-theme="<name>"]` — owns the theme scale (`--color-theme-*`), optionally `accent`. Exclusive (one Special active at a time, or none).
+- **Special** → `[data-theme="<name>"]` — owns the theme scale (`--color-theme-*`), optionally the brand-named tokens (`--color-vermillion` / `--color-indigo`). Exclusive (one Special active at a time, or none).
 - **Cascade** → `Special > Mode > base semantic`. Specials win on specificity, not load order.
 - **Never** touch Mode-owned tokens or `info-*` from a Special.
 - **Components** keep referencing semantic tokens (`bg-theme-500`, `text-foreground`, …) — they don't need to know which axes are active.

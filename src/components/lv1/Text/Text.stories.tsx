@@ -20,8 +20,11 @@ import { Text } from './Text'
  *   solid Toast or Callout, a primary-colored fill, …). Mirrors the
  *   foreground hierarchy.
  *
- * Plus `accent` (one-off emphasis), and `inherit` (delegates to the
- * parent's color).
+ * - **Brand**: `vermillion` (朱) / `indigo` (藍) — the two Schatten
+ *   brand colors, for deliberate brand emphasis where neither a state
+ *   color nor a foreground tier is the right fit.
+ *
+ * Plus `inherit` (delegates to the parent's color).
  *
  * ## Element selection
  *
@@ -58,13 +61,14 @@ const meta: Meta<typeof Text> = {
     },
     color: {
       description:
-        'Color of the text.\n\n- `default` / `muted` / `subtle` form the primary → tertiary foreground hierarchy (most → least prominent).\n- State colors (`error` / `success` / `warning` / `info`) reference the corresponding state semantic tokens — use them for inline status text such as form errors or success notes.\n- `inverted` / `inverted-muted` / `inverted-subtle` mirror the foreground hierarchy on saturated surfaces (e.g. text inside a solid Toast or Callout, or on a primary-colored fill).',
+        'Color of the text.\n\n- `default` / `muted` / `subtle` form the primary → tertiary foreground hierarchy (most → least prominent).\n- State colors (`error` / `success` / `warning` / `info`) reference the corresponding state semantic tokens — use them for inline status text such as form errors or success notes.\n- `inverted` / `inverted-muted` / `inverted-subtle` mirror the foreground hierarchy on saturated surfaces (e.g. text inside a solid Toast or Callout, or on a primary-colored fill).\n- `vermillion` (朱) / `indigo` (藍) are the Schatten brand colors — use them for deliberate brand emphasis.',
       control: 'select',
       options: [
         'default',
         'muted',
         'subtle',
-        'accent',
+        'vermillion',
+        'indigo',
         'error',
         'success',
         'warning',
@@ -77,7 +81,7 @@ const meta: Meta<typeof Text> = {
       table: {
         type: {
           summary:
-            '"default" | "muted" | "subtle" | "accent" | "error" | "success" | "warning" | "info" | "inverted" | "inverted-muted" | "inverted-subtle" | "inherit"',
+            '"default" | "muted" | "subtle" | "vermillion" | "indigo" | "error" | "success" | "warning" | "info" | "inverted" | "inverted-muted" | "inverted-subtle" | "inherit"',
         },
         defaultValue: { summary: 'default' },
       },
@@ -216,7 +220,6 @@ export const Colors: Story = {
       <Text color="default">Default — primary text</Text>
       <Text color="muted">Muted — secondary / helper text</Text>
       <Text color="subtle">Subtle — tertiary text, faintest of the three</Text>
-      <Text color="accent">Accent color</Text>
       <div className="text-blue-500">
         <Text color="inherit">Inherit color (from parent)</Text>
       </div>
@@ -240,6 +243,24 @@ export const StateColors: Story = {
       <Text color="success">Success — Your changes were saved.</Text>
       <Text color="warning">Warning — 3 items were skipped.</Text>
       <Text color="info">Info — Beta features may change.</Text>
+    </div>
+  ),
+}
+
+export const BrandColors: Story = {
+  name: 'Brand Colors',
+  parameters: {
+    docs: {
+      description: {
+        story:
+          '`vermillion` (朱) and `indigo` (藍) are the two Schatten brand colors, exposed as the `--color-vermillion` / `--color-indigo` semantic tokens. Reach for them when a designer explicitly wants brand emphasis — neither a state color nor a foreground tier.',
+      },
+    },
+  },
+  render: () => (
+    <div className="flex flex-col gap-3">
+      <Text color="vermillion">Vermillion — 朱, the primary brand color</Text>
+      <Text color="indigo">Indigo — 藍, the second brand color</Text>
     </div>
   ),
 }

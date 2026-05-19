@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { DollarSign, Search, X } from 'lucide-react'
 import { describe, expect, it, vi } from 'vitest'
 import { Field } from '../Field/Field'
 import { Input } from './Input'
@@ -169,13 +170,13 @@ describe('Input', () => {
     })
 
     it('renders leading and trailing icons when no text adornment is provided', () => {
-      const { container } = render(<Input aria-label="search" iconLeft="Search" iconRight="X" />)
+      const { container } = render(<Input aria-label="search" iconLeft={Search} iconRight={X} />)
       const svgs = container.querySelectorAll('svg')
       expect(svgs).toHaveLength(2)
     })
 
     it('hides iconLeft when textLeft is set (text takes priority)', () => {
-      const { container } = render(<Input aria-label="amount" textLeft="$" iconLeft="DollarSign" />)
+      const { container } = render(<Input aria-label="amount" textLeft="$" iconLeft={DollarSign} />)
       // Only the text adornment renders; icon is suppressed.
       expect(container.querySelectorAll('svg')).toHaveLength(0)
       expect(screen.getByText('$')).toBeInTheDocument()

@@ -4,6 +4,54 @@ import { useEffect } from 'react'
 // Import Tailwind + design tokens + themes
 import '../src/styles/globals.css'
 
+// `STORYBOOK_CHANNEL` is injected by `.github/workflows/deploy-storybook.yml`:
+// the `develop` build (published at /schatten/next/) sets it to `next`, the
+// `main` build leaves it `stable`. Storybook exposes `STORYBOOK_`-prefixed env
+// vars to preview code, so this is also `undefined` in local dev and VRT runs.
+const isNextChannel = process.env.STORYBOOK_CHANNEL === 'next'
+
+const BANNER_ID = 'schatten-unreleased-banner'
+
+/**
+ * Mounts the develop (`/next/`) warning banner once into the preview `<body>`.
+ *
+ * It warns viewers that the page reflects unreleased, npm-unpublished tokens
+ * and APIs — see `.claude/rules/api-stability.md`. The manager sidebar carries
+ * the same marker (`.storybook/manager.ts`); this banner additionally covers
+ * direct `iframe.html` links, which never render the manager chrome.
+ *
+ * Mounted imperatively (not via the per-story decorator) so a Docs page — which
+ * renders many stories at once — shows exactly one banner instead of a stack.
+ */
+function mountUnreleasedBanner() {
+  if (document.getElementById(BANNER_ID)) return
+
+  const banner = document.createElement('div')
+  banner.id = BANNER_ID
+  banner.setAttribute('role', 'note')
+  Object.assign(banner.style, {
+    position: 'fixed',
+    top: '0',
+    left: '0',
+    right: '0',
+    zIndex: '2147483647',
+    display: 'flex',
+    gap: '0.5rem',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: '0.4rem 1rem',
+    backgroundColor: '#92400e',
+    color: '#fff',
+    font: '500 12px/1.4 system-ui, sans-serif',
+    textAlign: 'center',
+  })
+  banner.innerHTML =
+    '<span>⚠ 未リリース (develop) — 次バージョンの統合プレビューです。npm 未公開のトークン・API が含まれます。</span>' +
+    '<a href="https://yasmro.github.io/schatten/" style="color:#fff;text-decoration:underline;font-weight:700">公開版を見る →</a>'
+  document.body.appendChild(banner)
+}
+
 const preview: Preview = {
   parameters: {
     controls: {
@@ -89,8 +137,15 @@ const preview: Preview = {
         }
       }, [isDark, season])
 
+      useEffect(() => {
+        if (isNextChannel) mountUnreleasedBanner()
+      }, [])
+
       return (
-        <div className={`${isDark ? 'dark bg-background' : ''} p-8`}>
+        <div
+          className={`${isDark ? 'dark bg-background' : ''} p-8`}
+          style={isNextChannel ? { paddingTop: '3rem' } : undefined}
+        >
           <Story />
         </div>
       )

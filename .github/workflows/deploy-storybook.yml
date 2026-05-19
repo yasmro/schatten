@@ -2,7 +2,7 @@ name: Deploy Storybook to GitHub Pages
 
 on:
   push:
-    branches: [main]
+    branches: [main, develop]
   workflow_dispatch:
 
 permissions:
@@ -14,6 +14,26 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
+      # Resolve where this build is published, based on the pushed ref:
+      #   main    -> root (/schatten/)        — canonical, consumer-facing
+      #   develop -> /next/ (/schatten/next/) — unreleased integration preview
+      - name: Resolve deploy target
+        id: target
+        run: |
+          if [ "${{ github.ref }}" = "refs/heads/develop" ]; then
+            {
+              echo "base=/schatten/next/"
+              echo "channel=next"
+              echo "target-folder=next"
+            } >> "$GITHUB_OUTPUT"
+          else
+            {
+              echo "base=/schatten/"
+              echo "channel=stable"
+              echo "target-folder="
+            } >> "$GITHUB_OUTPUT"
+          fi
+
       - uses: pnpm/action-setup@v6
 
       - uses: actions/setup-node@v6
@@ -24,11 +44,19 @@ jobs:
       - run: pnpm install --frozen-lockfile
 
       - name: Build Storybook
+        env:
+          STORYBOOK_BASE: ${{ steps.target.outputs.base }}
+          STORYBOOK_CHANNEL: ${{ steps.target.outputs.channel }}
         run: pnpm build:storybook
 
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           folder: storybook-static
+          # main -> root; develop -> next/ subpath (root stays canonical)
+          target-folder: ${{ steps.target.outputs.target-folder }}
           clean: true
-          clean-exclude: pr
+          # main deploy must not wipe PR previews or the develop /next/ build
+          clean-exclude: |
+            pr
+            next

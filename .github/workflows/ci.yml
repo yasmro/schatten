@@ -88,8 +88,12 @@ jobs:
 
   changeset:
     runs-on: ubuntu-latest
+    # Skipped on the develop→main release PR: that PR has consumed every
+    # changeset via `changeset version`, so a "no changeset found" failure is
+    # expected, not a mistake. The check guards feature PRs (base = develop).
     if: |
       github.event_name == 'pull_request' &&
+      github.base_ref != 'main' &&
       github.event.pull_request.user.login != 'dependabot[bot]' &&
       !contains(github.event.pull_request.labels.*.name, 'no-changeset')
     steps:

@@ -86,10 +86,14 @@ const meta: Meta<typeof Icon> = {
     },
     'aria-label': {
       description:
-        'Accessible label. When provided, the icon gets role="img"; when omitted it is decorative (aria-hidden="true").',
+        'Accessible label. Forwarded to the `<svg>` as-is — the component never overrides it. ' +
+        'Its presence is what toggles the icon between decorative and meaningful: ' +
+        'omitted → `aria-hidden="true"` is auto-applied; provided → `role="img"` is auto-applied. ' +
+        'Those two auto-applied attributes can still be overridden by passing `aria-hidden` / `role` explicitly.',
       control: 'text',
       table: {
         type: { summary: 'string' },
+        defaultValue: { summary: 'none — icon is decorative (aria-hidden="true")' },
       },
     },
   },

@@ -4,9 +4,19 @@ on:
   pull_request:
     branches: [main, develop]
 
+# Cancel a superseded VRT run when new commits land on the same PR — otherwise
+# the obsolete runs keep sitting in the scarce macos-latest runner queue.
+concurrency:
+  group: vrt-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   vrt:
     runs-on: macos-latest
+    # Healthy runs finish in ~8 min. A render-time crash (e.g. an empty
+    # #storybook-root) makes every test burn its full timeout × retries and
+    # can otherwise occupy the runner for 2h+ — fail fast instead.
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v6
 

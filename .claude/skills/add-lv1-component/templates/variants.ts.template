@@ -1,0 +1,41 @@
+import { cva, type VariantProps } from 'class-variance-authority'
+
+/**
+ * CVA variant definition for `<__ComponentName__ />`.
+ *
+ * Keep this file in sync with the component's `Props` interface and its
+ * Storybook `argTypes`. See:
+ * - .claude/rules/component-api-conventions.md — variant vocabularies
+ * - .claude/rules/state-token-guideline.md — never hard-code primitive
+ *   colors (`bg-red-500`); always go through semantic tokens (`bg-error`, …)
+ */
+export const __componentName__Variants = cva(
+  // Base classes shared by every variant.
+  // For an INTERACTIVE component, keep the focus-visible ring chain:
+  //   focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring
+  //   focus-visible:ring-offset-2
+  // (component-architecture.md §8 — accessibility contract).
+  'inline-flex items-center',
+  {
+    variants: {
+      // Pattern A (Button-like): each value names a complete role.
+      // Pattern B (Badge/Callout/Toast-like): `variant` = tone, add a
+      //   separate `appearance` axis for shape/weight.
+      // Replace `neutral` with the real vocabulary for this component.
+      variant: {
+        neutral: '',
+      },
+      size: {
+        sm: '',
+        md: '',
+        lg: '',
+      },
+    },
+    defaultVariants: {
+      variant: 'neutral',
+      size: 'md',
+    },
+  },
+)
+
+export type __ComponentName__Variants = VariantProps<typeof __componentName__Variants>

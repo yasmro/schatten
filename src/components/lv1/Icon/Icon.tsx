@@ -33,23 +33,19 @@ export interface IconProps extends Omit<LucideProps, 'ref' | 'size' | 'color'>, 
    * @default 'inherit'
    */
   color?: IconVariants['color']
-  /**
-   * Accessible label. When provided, the icon is exposed to assistive tech
-   * with `role="img"`. When omitted, the icon is treated as decorative and
-   * `aria-hidden="true"` is applied automatically.
-   *
-   * `Icon` is not interactive — for a clickable icon use `<Button icon={…} />`.
-   */
-  'aria-label'?: string
 }
 
 /**
  * Thin wrapper around a `lucide-react` icon that normalizes sizing and color
  * and applies accessibility defaults.
  *
+ * Accessibility is driven by the standard `aria-label` attribute (inherited
+ * from the SVG prop surface, so no dedicated prop is needed):
  * - Decorative by default: with no `aria-label`, `aria-hidden="true"` is set.
  * - Meaningful when labelled: with `aria-label`, `role="img"` is set so the
  *   icon is queryable via `getByRole('img', { name })`.
+ *
+ * `Icon` is not interactive — for a clickable icon use `<Button icon={…} />`.
  */
 export const Icon = forwardRef<SVGSVGElement, IconProps>(
   ({ icon: IconComponent, size, color, className, ...props }, ref) => {

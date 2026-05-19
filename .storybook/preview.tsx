@@ -4,6 +4,53 @@ import { useEffect } from 'react'
 // Import Tailwind + design tokens + themes
 import '../src/styles/globals.css'
 
+// `STORYBOOK_CHANNEL` is injected by `.github/workflows/deploy-storybook.yml`:
+// the `develop` build (published at /schatten/next/) sets it to `next`, the
+// `main` build leaves it `stable`. Storybook exposes `STORYBOOK_`-prefixed env
+// vars to preview code, so this is also `undefined` in local dev and VRT runs.
+const isNextChannel = process.env.STORYBOOK_CHANNEL === 'next'
+
+/**
+ * Banner shown only on the develop (`/next/`) Storybook. It warns viewers that
+ * the page reflects unreleased, npm-unpublished tokens and APIs — see
+ * `.claude/rules/api-stability.md`. The canonical, consumer-facing docs stay
+ * at the root URL (the `main` build).
+ */
+function UnreleasedBanner() {
+  return (
+    <div
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 2147483647,
+        display: 'flex',
+        gap: '0.5rem',
+        flexWrap: 'wrap',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '0.4rem 1rem',
+        backgroundColor: '#92400e',
+        color: '#fff',
+        font: '500 12px/1.4 system-ui, sans-serif',
+        textAlign: 'center',
+      }}
+    >
+      <span>
+        ⚠ 未リリース (develop) — 次バージョンの統合プレビューです。npm 未公開のトークン・API
+        が含まれます。
+      </span>
+      <a
+        href="https://yasmro.github.io/schatten/"
+        style={{ color: '#fff', textDecoration: 'underline', fontWeight: 700 }}
+      >
+        公開版を見る →
+      </a>
+    </div>
+  )
+}
+
 const preview: Preview = {
   parameters: {
     controls: {
@@ -90,7 +137,11 @@ const preview: Preview = {
       }, [isDark, season])
 
       return (
-        <div className={`${isDark ? 'dark bg-background' : ''} p-8`}>
+        <div
+          className={`${isDark ? 'dark bg-background' : ''} p-8`}
+          style={isNextChannel ? { paddingTop: '3rem' } : undefined}
+        >
+          {isNextChannel && <UnreleasedBanner />}
           <Story />
         </div>
       )

@@ -34,6 +34,22 @@ import {
 } from 'lucide-react'
 import { Icon } from './Icon'
 
+const COLOR_OPTIONS = [
+  'inherit',
+  'default',
+  'muted',
+  'subtle',
+  'vermillion',
+  'indigo',
+  'error',
+  'success',
+  'warning',
+  'info',
+  'inverted',
+  'inverted-muted',
+  'inverted-subtle',
+] as const
+
 const meta: Meta<typeof Icon> = {
   title: 'Components/lv1/Icon',
   component: Icon,
@@ -59,6 +75,15 @@ const meta: Meta<typeof Icon> = {
         defaultValue: { summary: 'md' },
       },
     },
+    color: {
+      description: 'Color of the icon. Vocabulary mirrors `Text`’s `color`.',
+      control: 'select',
+      options: COLOR_OPTIONS,
+      table: {
+        type: { summary: COLOR_OPTIONS.map((c) => `"${c}"`).join(' | ') },
+        defaultValue: { summary: 'inherit' },
+      },
+    },
     'aria-label': {
       description:
         'Accessible label. When provided, the icon gets role="img"; when omitted it is decorative (aria-hidden="true").',
@@ -71,6 +96,7 @@ const meta: Meta<typeof Icon> = {
   args: {
     icon: Search,
     size: 'md',
+    color: 'inherit',
   },
 }
 
@@ -87,6 +113,46 @@ export const Sizes: Story = {
       <Icon icon={Search} size="sm" />
       <Icon icon={Search} size="md" />
       <Icon icon={Search} size="lg" />
+    </div>
+  ),
+}
+
+export const Colors: Story = {
+  name: 'Colors',
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'The `color` vocabulary mirrors `Text`. `inverted-*` colors are previewed on a dark surface.',
+      },
+    },
+  },
+  render: () => (
+    <div className="flex flex-col gap-4">
+      <div className="flex flex-wrap items-center gap-4">
+        {(['default', 'muted', 'subtle', 'vermillion', 'indigo'] as const).map((color) => (
+          <div key={color} className="flex flex-col items-center gap-1">
+            <Icon icon={Star} size="lg" color={color} />
+            <span className="text-xs text-foreground-muted">{color}</span>
+          </div>
+        ))}
+      </div>
+      <div className="flex flex-wrap items-center gap-4">
+        {(['error', 'success', 'warning', 'info'] as const).map((color) => (
+          <div key={color} className="flex flex-col items-center gap-1">
+            <Icon icon={CircleAlert} size="lg" color={color} />
+            <span className="text-xs text-foreground-muted">{color}</span>
+          </div>
+        ))}
+      </div>
+      <div className="flex flex-wrap items-center gap-4 rounded-md bg-foreground p-4">
+        {(['inverted', 'inverted-muted', 'inverted-subtle'] as const).map((color) => (
+          <div key={color} className="flex flex-col items-center gap-1">
+            <Icon icon={Star} size="lg" color={color} />
+            <span className="text-xs text-inverted-foreground-muted">{color}</span>
+          </div>
+        ))}
+      </div>
     </div>
   ),
 }
@@ -138,7 +204,7 @@ export const Gallery: Story = {
     <div className="grid grid-cols-6 gap-6">
       {GALLERY_ICONS.map(({ name, icon }) => (
         <div key={name} className="flex flex-col items-center gap-2">
-          <Icon icon={icon} size="lg" className="text-foreground" />
+          <Icon icon={icon} size="lg" color="default" />
           <span className="text-xs text-foreground-muted">{name}</span>
         </div>
       ))}

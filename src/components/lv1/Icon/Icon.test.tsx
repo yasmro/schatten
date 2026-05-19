@@ -25,6 +25,24 @@ describe('Icon', () => {
     })
   })
 
+  describe('color', () => {
+    it('inherits currentColor by default (text-inherit, not a fixed color)', () => {
+      const { container } = render(<Icon icon={Search} />)
+      const svg = container.querySelector('svg') as SVGElement
+      expect(svg).toHaveClass('text-inherit')
+      expect(svg).not.toHaveClass('text-foreground')
+    })
+
+    it('applies the semantic color token when color is set', () => {
+      const { rerender, container } = render(<Icon icon={Search} color="error" />)
+      const getSvg = () => container.querySelector('svg') as SVGElement
+      expect(getSvg()).toHaveClass('text-error')
+
+      rerender(<Icon icon={Search} color="vermillion" />)
+      expect(getSvg()).toHaveClass('text-vermillion')
+    })
+  })
+
   describe('accessibility', () => {
     it('is decorative by default — aria-hidden, no role', () => {
       const { container } = render(<Icon icon={Search} />)

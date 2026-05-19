@@ -1,5 +1,158 @@
 # @yasmro/schatten
 
+## 0.8.0
+
+### Minor Changes
+
+- [#236](https://github.com/yasmro/schatten/pull/236) [`4cc34a1`](https://github.com/yasmro/schatten/commit/4cc34a1436a0f7ea7625af7c88205f8ab26ac9f4) Thanks [@yasmro](https://github.com/yasmro)! - CSS API: introduce brand-named semantic tokens `--color-vermillion` (朱) and
+  `--color-indigo` (藍), each with a `-foreground` pair. They expose the two
+  Schatten brand colors at the semantic layer — naming the _color itself_ rather
+  than a meaning — so consumers and internal code reference `--color-vermillion`
+  instead of the `--vermillion-*` primitive scale. Registered in the Tailwind
+  `@theme`, so `text-vermillion` / `bg-vermillion` / `text-indigo` / `bg-indigo`
+  utilities are available.
+
+  Both brand colors share one shade rule: `-600` in light, `-400` in dark, with
+  the `-foreground` pair `paper-white` (light) / `paper-white-inverted` (dark).
+  This is the only pair where every `*-foreground`-on-base solid pairing clears
+  WCAG AA for normal text in both hues — vermillion 4.86 (light) / 6.84 (dark),
+  indigo 7.03 (light) / 5.73 (dark). A 1-step shift (`-600`/`-500`) would fail
+  indigo dark and `-500`/`-400` would fail vermillion light, because the two hue
+  ramps differ; the AA-safe shade is therefore mode-driven, not 1-step-driven.
+
+  BREAKING: the `--color-accent` / `--color-accent-foreground` semantic tokens are
+  removed, and `Text`'s `color` prop no longer accepts `"accent"`. With the
+  Pattern B `accent` tone already gone ([#205](https://github.com/yasmro/schatten/issues/205)), `--color-accent`'s only consumer
+  was `Text` — rather than keep a redundant role token aliasing vermillion, brand
+  color on `Text` now goes through the new brand-named tokens directly.
+
+  Migration:
+
+  - `<Text color="accent">` → `<Text color="vermillion">`. `Text` also gains
+    `color="indigo"` for the second brand color.
+  - Replace `bg-accent` / `text-accent` / `var(--color-accent)` (and the
+    `-foreground` variants) with the `vermillion` equivalent.
+  - The `tokens` export drops `tokens.color.accent` / `tokens.color.accentForeground`;
+    use `tokens.color.vermillion` / `.vermillionForeground` (or `.indigo` /
+    `.indigoForeground`) instead.
+
+  This is settled now (pre-1.0) deliberately: `api-stability.md` freezes CSS
+  variable names as BREAKING from v1.0.0, so the brand-named tokens land in
+  v0.8.0 to bake before the contract goes live. Closes [#185](https://github.com/yasmro/schatten/issues/185).
+
+- [#232](https://github.com/yasmro/schatten/pull/232) [`18a172e`](https://github.com/yasmro/schatten/commit/18a172e0e1ad1d5487254dcb838759d7ea8731c5) Thanks [@yasmro](https://github.com/yasmro)! - CSS API: add the `--indigo-*` primitive color scale (`--indigo-50` … `--indigo-950`),
+  a traditional Japanese indigo (藍) intended as the second brand color alongside
+  vermillion (朱). Registered in the Tailwind `@theme` so `bg-indigo-*` / `text-indigo-*`
+  utilities are available, and shown in the Foundation/Color story next to the
+  vermillion scale.
+
+  This is purely additive — `--blue-*` is untouched and stays pinned to the
+  `info` semantic. The indigo scale is hue-shifted toward purple (hue 265) and
+  more saturated than `blue`, giving a deeper, darker character. OKLCH values and
+  WCAG AA contrast were verified in [#181](https://github.com/yasmro/schatten/issues/181): solid treatment reaches 4.78 (light, on
+  `-500`) and 5.73 (dark, on `-400`).
+
+  Semantic-layer integration (`--color-indigo`) lands separately in [#185](https://github.com/yasmro/schatten/issues/185).
+
+- [#223](https://github.com/yasmro/schatten/pull/223) [`2a23290`](https://github.com/yasmro/schatten/commit/2a232904191d589b961097081d3f11730f9bac8b) Thanks [@yasmro](https://github.com/yasmro)! - BREAKING: `lucide-react` is now an **optional peer dependency** instead of a
+  bundled `dependency`, and the `icon` props on `Button`, `Badge`, `Input`, and
+  `Dialog` accept a Lucide **icon component** instead of a string name.
+
+  Why: `Button` / `Badge` / `Input` imported the whole icon barrel from
+  `lucide-react` (`import { icons }`) and resolved icons dynamically
+  (`icons[name]`). A dynamic lookup is not statically analyzable, so consumer
+  bundlers could not tree-shake it — importing _any_ schatten component pulled
+  all 1952 Lucide icon modules (~1.37 MB of unminified icon source) into the
+  consumer bundle. schatten's own `dist` now contains zero whole-barrel imports.
+
+  Migration:
+
+  - Install `lucide-react` yourself when you use schatten's React components —
+    it is now a peer dependency (`pnpm add lucide-react`). `Toast`, `Callout`,
+    `Select`, `Field`, and `Dialog` render Lucide icons internally, and
+    `Button` / `Badge` / `Input` accept Lucide icons via `icon` props. It is
+    declared `optional` in `peerDependenciesMeta` only so that Layer A
+    (CSS / token-only) consumers are not warned about it.
+  - Pass the icon **component** imported from `lucide-react`, not a name string:
+
+    ```tsx
+    // Before
+    import { Button } from "@yasmro/schatten";
+    <Button icon="Search" />;
+
+    // After
+    import { Search } from "lucide-react";
+    import { Button } from "@yasmro/schatten";
+    <Button icon={Search} />;
+    ```
+
+    This applies to `Button` / `Badge` `icon`, `Input` `iconLeft` / `iconRight`,
+    and `Dialog`'s `actionButton.icon` / `cancelButton.icon` /
+    `subActionButton.icon`.
+
+  Types: the `IconName` type export (previously `keyof typeof icons`) is removed.
+  Icon props are now typed as `LucideIcon` — import that type from `lucide-react`
+  if you need it.
+
+- [#240](https://github.com/yasmro/schatten/pull/240) [`236948e`](https://github.com/yasmro/schatten/commit/236948e21e31da7611fd27f9d4225d36fe562d83) Thanks [@yasmro](https://github.com/yasmro)! - CSS API: add the `--red-*` primitive color scale (`--red-50` … `--red-950`) and
+  repoint the `error` / `destructive` semantics off `vermillion` onto it.
+
+  `vermillion` previously backed both the brand 朱 (`--color-vermillion`) and the
+  danger colors (`--color-error` / `--color-destructive`), so retuning brand
+  vermillion would drag every error state along (and vice versa). The new `red`
+  scale is a dedicated danger primitive — `error` / `destructive` now reference
+  `--red-*`, while `--color-vermillion` keeps referencing `--vermillion-*`.
+
+  `red` is a **value-identical copy** of `vermillion` today (hue 22, same L/C at
+  every shade), so this is a governance seam, not a visual change — **no token
+  value moves and VRT snapshots are unchanged**. The split exists purely to make
+  brand 朱 and danger red independently retunable. Whether danger red _should_
+  diverge in hue from brand vermillion is a designer-owned call tracked in design
+  spike [#239](https://github.com/yasmro/schatten/issues/239).
+
+  Registered in the Tailwind `@theme` so `bg-red-*` / `text-red-*` utilities are
+  available, and shown in the Foundation/Color story next to the vermillion scale.
+
+### Patch Changes
+
+- [#228](https://github.com/yasmro/schatten/pull/228) [`63e1744`](https://github.com/yasmro/schatten/commit/63e1744d9960f7532ff933d4ab1a1796abf18b93) Thanks [@yasmro](https://github.com/yasmro)! - Make the `components/lv1` barrel tree-shakeable. `tsup` now builds each lv1
+  component as its own ESM entry with code splitting, instead of bundling all 17
+  components into one shared chunk. A consumer importing a single component drops
+  ~81 % — `import { Button }` goes from ~48 KB to ~9.7 KB (minified + brotlied).
+
+  No public API change: the `package.json#exports` map is unchanged (same `.`
+  and `./components/lv1` entry points), and consumers write imports exactly as
+  before. CJS keeps the single-barrel build (`require()` does not tree-shake).
+  See `docs/decisions/2026-05-lv1-barrel-tree-shaking.md` for the root-cause
+  analysis and the alternatives that were rejected.
+
+- [#223](https://github.com/yasmro/schatten/pull/223) [`2a23290`](https://github.com/yasmro/schatten/commit/2a232904191d589b961097081d3f11730f9bac8b) Thanks [@yasmro](https://github.com/yasmro)! - Normalize the `package.json` `sideEffects` field to `["*.css", "**/*.css"]`.
+  This declares that only CSS imports carry side effects, so consumer bundlers
+  can tree-shake unused component exports more aggressively. No public API
+  change.
+
+- [#220](https://github.com/yasmro/schatten/pull/220) [`68b0be2`](https://github.com/yasmro/schatten/commit/68b0be2b23e12d70759e55d7bff67784c1a5e098) Thanks [@yasmro](https://github.com/yasmro)! - Add the `no-primitive-color` Biome GritQL linter plugin. It bans Tailwind
+  primitive color utility classes (`bg-red-500`, `text-gray-700`,
+  `ring-vermillion-600`, …) in component JSX, enforcing the
+  state-token-guideline contract that components consume only Layer-2 semantic
+  tokens. Scoped to `src/components/**/*.tsx` (stories and tests are exempt).
+  Internal tooling only — no change to the published package surface.
+
+- [#225](https://github.com/yasmro/schatten/pull/225) [`94ecae0`](https://github.com/yasmro/schatten/commit/94ecae0a0162fb40b9ac2aff7fc3a8e9ec320ddf) Thanks [@yasmro](https://github.com/yasmro)! - SSR (Next.js App Router) support: the React component build now carries a
+  `'use client'` directive at the top of every emitted bundle.
+
+  Why: `src/` declares zero `'use client'` directives, so importing Schatten
+  components from a Next.js App Router **Server Component** failed the build —
+  the bundled output relies on client-only React features (hooks, context,
+  Radix event wiring) that a Server Component cannot run.
+
+  The directive is injected via tsup's `banner.js` on the React build group
+  only. `dist/components/index.{js,cjs}` and `dist/components/lv1/index.{js,cjs}`
+  (and their shared chunk) now start with `'use client';`. The framework-agnostic
+  build groups — `variants` / `tokens` / `themes/seasonal` — are intentionally
+  left untouched so non-React consumers (Astro, plain CSS) are not marked
+  client-only. Type definitions (`.d.ts`) are unaffected.
+
 ## 0.7.0
 
 ### Minor Changes

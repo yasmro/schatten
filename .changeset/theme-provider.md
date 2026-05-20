@@ -19,6 +19,12 @@ the previously-manual `document.documentElement.classList.toggle('dark')`
 - Optional `disableTransitionOnChange` strips CSS transitions during a swap
   for instant feedback.
 
+The README now documents the Provider, the `useTheme()` hook, and a
+synchronous FOUC-avoidance inline script (Next.js App Router / Vite /
+Remix variants + strict-CSP fallback) that mirrors the Provider's
+`localStorage` contract. The storage shape `{ mode, special }` under the
+default `storageKey` `'schatten-theme'` is part of the public API surface.
+
 New entry point: `@yasmro/schatten/providers`.
 
 Component / lv1 / lv2 / CSS API: unchanged.

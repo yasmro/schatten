@@ -7,6 +7,28 @@ global.ResizeObserver = class ResizeObserver {
   disconnect() {}
 }
 
+// jsdom does not implement `matchMedia`. ThemeProvider reads it to
+// resolve `prefers-color-scheme: dark` when `defaultMode="system"`.
+// Individual tests can `vi.stubGlobal('matchMedia', …)` to control
+// per-test behavior — this baseline polyfill ensures default `light`
+// resolution and no throws.
+if (typeof window !== 'undefined' && typeof window.matchMedia !== 'function') {
+  Object.defineProperty(window, 'matchMedia', {
+    configurable: true,
+    writable: true,
+    value: (query: string) => ({
+      matches: false,
+      media: query,
+      onchange: null,
+      addEventListener: () => {},
+      removeEventListener: () => {},
+      addListener: () => {},
+      removeListener: () => {},
+      dispatchEvent: () => false,
+    }),
+  })
+}
+
 // jsdom does not implement Pointer Events; polyfill the methods Radix calls.
 if (typeof Element !== 'undefined') {
   if (!Element.prototype.hasPointerCapture) {

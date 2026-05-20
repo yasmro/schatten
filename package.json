@@ -60,6 +60,14 @@
       },
       "import": "./dist/components/lv1/index.js",
       "require": "./dist/components/lv1/index.cjs"
+    },
+    "./providers": {
+      "types": {
+        "import": "./dist/providers/index.d.ts",
+        "require": "./dist/providers/index.d.cts"
+      },
+      "import": "./dist/providers/index.js",
+      "require": "./dist/providers/index.cjs"
     }
   },
   "files": [

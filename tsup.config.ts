@@ -32,6 +32,14 @@ const componentBarrelEntries = {
   'components/lv1/index': 'src/components/lv1/index.ts',
 }
 
+// React Context Providers (e.g. `<ThemeProvider>`). Same `'use client'`
+// + per-entry shape as the component bundles — published independently
+// at `@yasmro/schatten/providers` so a Server Component import doesn't
+// drag in the entire components barrel.
+const providerEntries = {
+  'providers/index': 'src/providers/index.ts',
+}
+
 export default defineConfig([
   // Variants & tokens (no React, for Astro / non-React consumers)
   {
@@ -59,6 +67,7 @@ export default defineConfig([
     entry: {
       ...componentBarrelEntries,
       ...lv1ComponentEntries,
+      ...providerEntries,
     },
     format: ['esm'],
     dts: false,
@@ -77,7 +86,7 @@ export default defineConfig([
   // Carries the same `'use client'` banner as the ESM group (see above) so
   // the `.cjs` barrels are equally safe to import from a Server Component.
   {
-    entry: componentBarrelEntries,
+    entry: { ...componentBarrelEntries, ...providerEntries },
     format: ['cjs'],
     dts: false,
     external: ['react', 'react-dom', 'lucide-react'],
@@ -88,11 +97,11 @@ export default defineConfig([
       options.jsx = 'automatic'
     },
   },
-  // Components — type declarations. Only the two published barrel entries
+  // Components & providers — type declarations. Only published barrel entries
   // need `.d.ts` / `.d.cts`; the per-component ESM entries are an internal
   // build detail and are not part of `package.json#exports`.
   {
-    entry: componentBarrelEntries,
+    entry: { ...componentBarrelEntries, ...providerEntries },
     format: ['esm', 'cjs'],
     dts: { only: true },
     external: ['react', 'react-dom', 'lucide-react'],

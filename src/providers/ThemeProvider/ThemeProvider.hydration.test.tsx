@@ -1,5 +1,6 @@
+import type * as React from 'react'
 import { act } from 'react'
-import { hydrateRoot } from 'react-dom/client'
+import { hydrateRoot, type Root } from 'react-dom/client'
 import { renderToString } from 'react-dom/server'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { ThemeProvider } from './ThemeProvider'
@@ -65,6 +66,23 @@ function installMatchMediaMock(initialDark: boolean) {
 // behaviour is verified deterministically by the regular tests in
 // `ThemeProvider.test.tsx`, so the warnings here are cosmetic.
 
+/**
+ * Tracks the React roots created in each test so afterEach can unmount
+ * them. Without explicit unmount, the Provider's effects (matchMedia
+ * subscription, MutationObserver) stay live past the test boundary and
+ * fire after Vitest has torn down jsdom — `window` is undefined at that
+ * point and the leftover work throws. CI catches this; local runs are
+ * lucky enough to schedule garbage collection first.
+ */
+const activeRoots: Root[] = []
+
+/** Hydrate + register for teardown. Use instead of `hydrateRoot` directly. */
+function hydrateAndTrack(container: Element, tree: React.ReactNode): Root {
+  const root = hydrateRoot(container, tree)
+  activeRoots.push(root)
+  return root
+}
+
 beforeEach(() => {
   document.documentElement.classList.remove('dark', 'light')
   document.documentElement.removeAttribute('data-theme')
@@ -72,12 +90,13 @@ beforeEach(() => {
   installMatchMediaMock(false)
 })
 
-afterEach(() => {
-  // Remove any container that a test appended so the hydrated React
-  // root is unmounted with the DOM node. Otherwise the Provider's
-  // MutationObserver / matchMedia subscription stays live into the next
-  // test, where `vi.restoreAllMocks()` has already cleared their backing
-  // doubles → leftover handlers throw.
+afterEach(async () => {
+  // Unmount every React root the test created. This stops the
+  // Provider's MutationObserver / matchMedia subscription / storage
+  // listener cleanly so no work is scheduled into a torn-down jsdom.
+  await act(async () => {
+    for (const root of activeRoots.splice(0)) root.unmount()
+  })
   for (const node of [...document.body.children]) node.remove()
   vi.restoreAllMocks()
   document.documentElement.classList.remove('dark', 'light')
@@ -99,7 +118,7 @@ describe('ThemeProvider (hydration)', () => {
     const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 
     await act(async () => {
-      hydrateRoot(container, tree)
+      hydrateAndTrack(container, tree)
     })
     await flushObserverMicrotasks()
 
@@ -123,7 +142,7 @@ describe('ThemeProvider (hydration)', () => {
     document.body.appendChild(container)
 
     await act(async () => {
-      hydrateRoot(container, tree)
+      hydrateAndTrack(container, tree)
     })
     await flushObserverMicrotasks()
 
@@ -147,7 +166,7 @@ describe('ThemeProvider (hydration)', () => {
     document.body.appendChild(container)
 
     await act(async () => {
-      hydrateRoot(container, tree)
+      hydrateAndTrack(container, tree)
     })
     await flushObserverMicrotasks()
 

@@ -281,6 +281,13 @@ theme — don't branch JSX subtrees on `mode`. Schatten components repaint
 through the CSS cascade with no React reconciliation, so a switch is free;
 JSX branching forfeits that.
 
+Multiple React roots on the same page (Astro Islands, micro-frontends,
+two separate React mounts) work without explicit coordination: each
+`ThemeProvider` observes `<html>` via `MutationObserver`, so when one
+root mutates Mode or Special, the others sync automatically. `modeSetting`
+(the `'system'` / `'light'` / `'dark'` choice itself) is not encoded in
+the DOM — keep the actual switcher in one root if you need to expose it.
+
 ### FOUC avoidance
 
 When `defaultMode="system"` (or any persisted selection differs from the

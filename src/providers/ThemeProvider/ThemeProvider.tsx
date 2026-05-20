@@ -233,6 +233,10 @@ export function ThemeProvider({
     if (typeof window.matchMedia !== 'function') return
 
     const mq = window.matchMedia(DARK_MODE_MEDIA_QUERY)
+    // Defensive: some test harnesses / polyfills make `matchMedia` itself
+    // exist but return `undefined`. Bail out rather than throwing —
+    // there's nothing to subscribe to in that case.
+    if (!mq || typeof mq.addEventListener !== 'function') return
     const handler = (event: MediaQueryListEvent) => {
       const resolved: ThemeMode = event.matches ? 'dark' : 'light'
       if (disableTransitionRef.current) suppressTransitionsOnce()
@@ -266,6 +270,48 @@ export function ThemeProvider({
     window.addEventListener('storage', handler)
     return () => window.removeEventListener('storage', handler)
   }, [persistKey, mode, special])
+
+  // DOM-as-source-of-truth sync — observe `<html>` for class / data-theme
+  // changes from ANY source and pull them back into React state.
+  //
+  // This is what makes multiple ThemeProvider instances in the same page
+  // (Astro Islands, micro-frontends, multiple React roots) stay
+  // consistent without an explicit message bus: when island A mutates
+  // <html>, island B's MutationObserver fires and reconciles its own
+  // `mode` / `special` state.
+  //
+  // The `storage` event only fires in *other* windows, so it does not
+  // cover same-page islands; MutationObserver does. The same path also
+  // catches external scripts that touch <html> directly (devtools,
+  // analytics SDKs, etc.) so the React tree never falls out of sync
+  // with the DOM.
+  //
+  // Note: `modeSetting` (the user-facing `'system'` / `'light'` /
+  // `'dark'` choice) is NOT derivable from the DOM and so is not
+  // synced here. That value remains local to each Provider instance.
+  // The recommended pattern is one switcher island per page.
+  useEffect(() => {
+    if (typeof document === 'undefined') return
+    if (typeof MutationObserver === 'undefined') return
+    const root = document.documentElement
+    const observer = new MutationObserver(() => {
+      const domDark = root.classList.contains('dark')
+      const domMode: ThemeMode = domDark ? 'dark' : 'light'
+      const domThemeAttr = root.getAttribute('data-theme')
+      const domSpecial: SpecialThemeId | null =
+        domThemeAttr !== null && isValidSpecial(domThemeAttr) ? domThemeAttr : null
+      // Use functional updates so a no-op (DOM matches state) avoids
+      // an unnecessary re-render — React bails out when the next state
+      // is referentially equal to the previous one.
+      setModeState((prev) => (prev === domMode ? prev : domMode))
+      setSpecialState((prev) => (prev === domSpecial ? prev : domSpecial))
+    })
+    observer.observe(root, {
+      attributes: true,
+      attributeFilter: ['class', 'data-theme'],
+    })
+    return () => observer.disconnect()
+  }, [])
 
   const setMode = useCallback<ThemeContextValue['setMode']>(
     (nextSetting) => {

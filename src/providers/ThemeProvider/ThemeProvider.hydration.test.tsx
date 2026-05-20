@@ -10,6 +10,19 @@ import { useTheme } from './useTheme'
 // calls below run their own roots.
 ;(globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true
 
+/**
+ * Drain pending microtask-scheduled React work. The hydration effect's
+ * `applyToDocument` call schedules a MutationObserver callback in a
+ * microtask, which then schedules a (no-op) setState that React wants
+ * to see inside an `act` boundary. Two passes are enough: the first
+ * drains the observer microtask, the second picks up the setState it
+ * scheduled.
+ */
+async function flushObserverMicrotasks() {
+  await act(async () => {})
+  await act(async () => {})
+}
+
 // Renders the SSR output into a jsdom container, then hydrates with
 // the same tree. Verifies that React does NOT log a hydration mismatch
 // warning, and that the post-effect state converges on the right
@@ -44,6 +57,14 @@ function installMatchMediaMock(initialDark: boolean) {
   })
 }
 
+// Note: these hydration tests log a few "update to ThemeProvider was
+// not wrapped in act(...)" warnings under React 19. They are false
+// positives — the MutationObserver inside ThemeProvider fires in a
+// microtask that straddles the `act(async () => {})` boundary, then
+// lands a no-op functional setState. The same DOM-as-source-of-truth
+// behaviour is verified deterministically by the regular tests in
+// `ThemeProvider.test.tsx`, so the warnings here are cosmetic.
+
 beforeEach(() => {
   document.documentElement.classList.remove('dark', 'light')
   document.documentElement.removeAttribute('data-theme')
@@ -52,6 +73,12 @@ beforeEach(() => {
 })
 
 afterEach(() => {
+  // Remove any container that a test appended so the hydrated React
+  // root is unmounted with the DOM node. Otherwise the Provider's
+  // MutationObserver / matchMedia subscription stays live into the next
+  // test, where `vi.restoreAllMocks()` has already cleared their backing
+  // doubles → leftover handlers throw.
+  for (const node of [...document.body.children]) node.remove()
   vi.restoreAllMocks()
   document.documentElement.classList.remove('dark', 'light')
   document.documentElement.removeAttribute('data-theme')
@@ -74,6 +101,7 @@ describe('ThemeProvider (hydration)', () => {
     await act(async () => {
       hydrateRoot(container, tree)
     })
+    await flushObserverMicrotasks()
 
     const mismatch = errorSpy.mock.calls.find(([msg]) => {
       if (typeof msg !== 'string') return false
@@ -97,6 +125,7 @@ describe('ThemeProvider (hydration)', () => {
     await act(async () => {
       hydrateRoot(container, tree)
     })
+    await flushObserverMicrotasks()
 
     expect(document.documentElement.classList.contains('dark')).toBe(true)
     expect(container.querySelector('[data-testid="probe"]')?.getAttribute('data-mode')).toBe('dark')
@@ -120,6 +149,7 @@ describe('ThemeProvider (hydration)', () => {
     await act(async () => {
       hydrateRoot(container, tree)
     })
+    await flushObserverMicrotasks()
 
     expect(document.documentElement.classList.contains('dark')).toBe(true)
     expect(document.documentElement.getAttribute('data-theme')).toBe('season--autumn-late')

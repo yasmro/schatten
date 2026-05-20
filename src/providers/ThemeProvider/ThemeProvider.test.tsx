@@ -389,6 +389,167 @@ describe('ThemeProvider', () => {
     })
   })
 
+  describe('DOM-as-source-of-truth (MutationObserver sync)', () => {
+    // MutationObserver fires asynchronously via microtask. `act` flushes
+    // microtasks so React state lands before assertions.
+
+    it('updates mode when an external script adds the .dark class on <html>', async () => {
+      render(
+        <ThemeProvider defaultMode="light">
+          <Consumer />
+        </ThemeProvider>,
+      )
+      expect(screen.getByTestId('mode')).toHaveTextContent('light')
+
+      await act(async () => {
+        document.documentElement.classList.add('dark')
+      })
+
+      expect(screen.getByTestId('mode')).toHaveTextContent('dark')
+    })
+
+    it('updates mode when an external script removes the .dark class', async () => {
+      render(
+        <ThemeProvider defaultMode="dark">
+          <Consumer />
+        </ThemeProvider>,
+      )
+      expect(screen.getByTestId('mode')).toHaveTextContent('dark')
+
+      await act(async () => {
+        document.documentElement.classList.remove('dark')
+      })
+
+      expect(screen.getByTestId('mode')).toHaveTextContent('light')
+    })
+
+    it('updates special when an external script sets data-theme', async () => {
+      render(
+        <ThemeProvider>
+          <Consumer />
+        </ThemeProvider>,
+      )
+      expect(screen.getByTestId('special')).toHaveTextContent('null')
+
+      await act(async () => {
+        document.documentElement.setAttribute('data-theme', 'season--autumn-late')
+      })
+
+      expect(screen.getByTestId('special')).toHaveTextContent('season--autumn-late')
+    })
+
+    it('updates special to null when an external script removes data-theme', async () => {
+      render(
+        <ThemeProvider defaultSpecial="season--summer-peak">
+          <Consumer />
+        </ThemeProvider>,
+      )
+      expect(screen.getByTestId('special')).toHaveTextContent('season--summer-peak')
+
+      await act(async () => {
+        document.documentElement.removeAttribute('data-theme')
+      })
+
+      expect(screen.getByTestId('special')).toHaveTextContent('null')
+    })
+
+    it('rejects unknown data-theme values (stays null)', async () => {
+      render(
+        <ThemeProvider>
+          <Consumer />
+        </ThemeProvider>,
+      )
+
+      await act(async () => {
+        document.documentElement.setAttribute('data-theme', 'nonsense--xyz')
+      })
+
+      expect(screen.getByTestId('special')).toHaveTextContent('null')
+    })
+
+    it('syncs mode across two ThemeProvider instances in the same page (Astro Islands)', async () => {
+      function IslandA() {
+        const { mode, setMode } = useTheme()
+        return (
+          <>
+            <span data-testid="A-mode">{mode}</span>
+            <button type="button" onClick={() => setMode('dark')}>
+              A-set-dark
+            </button>
+          </>
+        )
+      }
+
+      function IslandB() {
+        const { mode } = useTheme()
+        return <span data-testid="B-mode">{mode}</span>
+      }
+
+      const user = userEvent.setup()
+      render(
+        <>
+          <div>
+            <ThemeProvider defaultMode="light" storageKey={null}>
+              <IslandA />
+            </ThemeProvider>
+          </div>
+          <div>
+            <ThemeProvider defaultMode="light" storageKey={null}>
+              <IslandB />
+            </ThemeProvider>
+          </div>
+        </>,
+      )
+
+      expect(screen.getByTestId('A-mode')).toHaveTextContent('light')
+      expect(screen.getByTestId('B-mode')).toHaveTextContent('light')
+
+      // A clicks set-dark — DOM mutates — B's MutationObserver should sync.
+      await user.click(screen.getByRole('button', { name: 'A-set-dark' }))
+
+      expect(screen.getByTestId('A-mode')).toHaveTextContent('dark')
+      expect(screen.getByTestId('B-mode')).toHaveTextContent('dark')
+    })
+
+    it('syncs special across two ThemeProvider instances in the same page', async () => {
+      function IslandA() {
+        const { setSpecial } = useTheme()
+        return (
+          <button type="button" onClick={() => setSpecial('season--spring-late')}>
+            A-set-spring
+          </button>
+        )
+      }
+
+      function IslandB() {
+        const { special } = useTheme()
+        return <span data-testid="B-special">{special ?? 'null'}</span>
+      }
+
+      const user = userEvent.setup()
+      render(
+        <>
+          <div>
+            <ThemeProvider storageKey={null}>
+              <IslandA />
+            </ThemeProvider>
+          </div>
+          <div>
+            <ThemeProvider storageKey={null}>
+              <IslandB />
+            </ThemeProvider>
+          </div>
+        </>,
+      )
+
+      expect(screen.getByTestId('B-special')).toHaveTextContent('null')
+
+      await user.click(screen.getByRole('button', { name: 'A-set-spring' }))
+
+      expect(screen.getByTestId('B-special')).toHaveTextContent('season--spring-late')
+    })
+  })
+
   describe('disableTransitionOnChange', () => {
     it('injects and removes a transition-blocking style tag on mode change', async () => {
       const user = userEvent.setup()

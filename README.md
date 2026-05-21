@@ -211,62 +211,197 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 }
 ```
 
-### Theme switching *(Coming in v0.9.0)*
+### Theme switching
 
-Runtime light/dark and seasonal (Special) theme switching will be driven by
-a `ThemeProvider` / `useTheme` pair landing in **v0.9.0**
-([#128](https://github.com/yasmro/schatten/issues/128)). Because it relies on
-React context and state, it must be mounted as a Client Component:
+Runtime light/dark and seasonal (Special) theme switching is driven by the
+`ThemeProvider` / `useTheme` pair exported from `@yasmro/schatten/providers`
+(added in **v0.9.0**, [#128](https://github.com/yasmro/schatten/issues/128)).
+The Provider is a thin wrapper around the existing `<html>` contract
+(`.dark` class for Mode + `data-theme="<id>"` for Special — see
+[`.claude/rules/theme-architecture.md`](.claude/rules/theme-architecture.md)),
+so Schatten components themselves never subscribe to it — they're repainted
+via the CSS cascade.
 
-```tsx
-// app/providers.tsx — Coming in v0.9.0
-'use client'
-import { ThemeProvider } from '@yasmro/schatten'
-
-export function Providers({ children }: { children: React.ReactNode }) {
-  return <ThemeProvider>{children}</ThemeProvider>
-}
-```
+The Provider is a Client Component (its bundle ships with a `'use client'`
+banner), so you can import it from a Server Component layout directly — no
+wrapper file needed:
 
 ```tsx
-// app/layout.tsx — Coming in v0.9.0
-import { Providers } from './providers'
+// app/layout.tsx
+import '@yasmro/schatten/schatten.css'
+import { ThemeProvider } from '@yasmro/schatten/providers'
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body>
-        <Providers>{children}</Providers>
+        <ThemeProvider defaultMode="system" defaultSpecial="auto-seasonal">
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   )
 }
 ```
 
-Until v0.9.0 ships, set the theme on `<html>` directly — `class="dark"` for
-Mode and `data-theme="season--spring-early"` for a Special. The cascade is
-plain CSS (see
-[`.claude/rules/theme-architecture.md`](.claude/rules/theme-architecture.md)),
-so no React runtime is involved.
+```tsx
+// Anywhere in a Client Component
+'use client'
+import { useTheme } from '@yasmro/schatten/providers'
 
-### FOUC avoidance *(Coming in v0.9.0)*
+export function ThemeSwitcher() {
+  const { mode, modeSetting, setMode } = useTheme()
+  return (
+    <select value={modeSetting} onChange={(e) => setMode(e.target.value as never)}>
+      <option value="system">System</option>
+      <option value="light">Light</option>
+      <option value="dark">Dark</option>
+    </select>
+  )
+}
+```
 
-A server-rendered page can briefly flash the wrong Mode before the client
-resolves the user's preference (FOUC — flash of unstyled content). The fix is
-a tiny synchronous inline script in `<head>` that sets the `<html>` class
-before first paint. The exact snippet ships with the v0.9.0 theming work and
-is documented in [#129](https://github.com/yasmro/schatten/issues/129):
+**Props (most useful)**:
+
+- `defaultMode`: `'light' | 'dark' | 'system'` — `'system'` subscribes to `prefers-color-scheme: dark`. Default `'system'`.
+- `defaultSpecial`: a `SpecialThemeId` (e.g. `'season--spring-late'`), `'auto-seasonal'` (resolves the current date), or `null`. Default `null`.
+- `storageKey`: `localStorage` key used to persist the user's selection across reloads. Default `'schatten-theme'`; pass `null` to disable persistence.
+- `disableTransitionOnChange`: pass `true` for instantaneous swaps (suppresses CSS transitions during a Mode/Special change).
+
+**`useTheme()` returns**:
+
+- `mode`: the **resolved** `'light' | 'dark'` value (use this for CSS judgments).
+- `modeSetting`: the **raw** setting including `'system'` (use this for UI toggles that need to show the system-tracking state).
+- `setMode(setting)`: pass `'system'` to return to OS-following.
+- `special` / `setSpecial(id | null)`: writes / removes `data-theme`.
+- `isHydrated`: `true` once the client effect has reconciled with `localStorage` + `matchMedia`.
+
+Reach for `useTheme()` only when you need to **read or mutate** the active
+theme — don't branch JSX subtrees on `mode`. Schatten components repaint
+through the CSS cascade with no React reconciliation, so a switch is free;
+JSX branching forfeits that.
+
+Multiple React roots on the same page (Astro Islands, micro-frontends,
+two separate React mounts) work without explicit coordination: each
+`ThemeProvider` observes `<html>` via `MutationObserver`, so when one
+root mutates Mode or Special, the others sync automatically. `modeSetting`
+(the `'system'` / `'light'` / `'dark'` choice itself) is not encoded in
+the DOM — keep the actual switcher in one root if you need to expose it.
+
+### FOUC avoidance
+
+When `defaultMode="system"` (or any persisted selection differs from the
+SSR default), a server-rendered page can briefly flash light before the
+client effect upgrades the DOM. The fix is a tiny synchronous inline
+script in `<head>` that mirrors the same `localStorage` / `matchMedia`
+logic the Provider runs — but **before** first paint
+([#129](https://github.com/yasmro/schatten/issues/129)).
+
+The snippet contract is fixed: it reads the same JSON shape the Provider
+writes (`{ mode, special }`) under the same `storageKey` (default
+`'schatten-theme'`). Drop it in as the very first `<head>` child:
+
+#### Next.js App Router
 
 ```tsx
-// app/layout.tsx — Coming in v0.9.0
+// app/layout.tsx
+import '@yasmro/schatten/schatten.css'
+import { ThemeProvider } from '@yasmro/schatten/providers'
+
+const themeInitScript = `(function(){try{var s=localStorage.getItem('schatten-theme');var t=s?JSON.parse(s):{};var m=t.mode||'system';var d=m==='dark'||(m==='system'&&window.matchMedia('(prefers-color-scheme: dark)').matches);if(d)document.documentElement.classList.add('dark');if(t.special)document.documentElement.setAttribute('data-theme',t.special)}catch(e){}})();`
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+      </head>
+      <body>
+        <ThemeProvider defaultMode="system">{children}</ThemeProvider>
+      </body>
+    </html>
+  )
+}
+```
+
+`suppressHydrationWarning` on `<html>` is required because the script
+mutates that element before React hydrates the tree.
+
+#### Vite / plain HTML
+
+```html
+<!-- index.html -->
 <head>
-  <script
-    dangerouslySetInnerHTML={{
-      __html: `/* FOUC-avoidance snippet — finalized in v0.9.0 (#129) */`,
-    }}
-  />
+  <script>
+    (function () {
+      try {
+        var s = localStorage.getItem('schatten-theme')
+        var t = s ? JSON.parse(s) : {}
+        var m = t.mode || 'system'
+        var d =
+          m === 'dark' ||
+          (m === 'system' &&
+            window.matchMedia('(prefers-color-scheme: dark)').matches)
+        if (d) document.documentElement.classList.add('dark')
+        if (t.special) document.documentElement.setAttribute('data-theme', t.special)
+      } catch (e) {}
+    })()
+  </script>
+  <link rel="stylesheet" href="/path/to/schatten.css" />
 </head>
 ```
+
+#### Remix
+
+Render the snippet in `root.tsx`'s `<head>`:
+
+```tsx
+// app/root.tsx
+import { Links, Meta, Outlet, Scripts, ScrollRestoration } from '@remix-run/react'
+
+const themeInitScript = `(function(){try{var s=localStorage.getItem('schatten-theme');var t=s?JSON.parse(s):{};var m=t.mode||'system';var d=m==='dark'||(m==='system'&&window.matchMedia('(prefers-color-scheme: dark)').matches);if(d)document.documentElement.classList.add('dark');if(t.special)document.documentElement.setAttribute('data-theme',t.special)}catch(e){}})();`
+
+export default function App() {
+  return (
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+        <Meta />
+        <Links />
+      </head>
+      <body>
+        <Outlet />
+        <ScrollRestoration />
+        <Scripts />
+      </body>
+    </html>
+  )
+}
+```
+
+#### Strict CSP environments
+
+If your CSP forbids inline scripts, either (a) attach a `nonce` to the
+`<script>` element matching your `script-src 'nonce-…'` directive, or
+(b) move the snippet into a standalone `.js` file served from your own
+origin and reference it with `<script src="/theme-init.js">`.
+
+The snippet runs **synchronously** and **must not be deferred** — `defer`
+/ `async` / loading from a delayed CDN re-introduces the flash this
+exists to prevent.
+
+#### What the snippet handles
+
+- Reads `localStorage.schatten-theme` if present, otherwise treats it as
+  `mode='system'` with no Special.
+- Adds `class="dark"` to `<html>` when the resolved Mode is dark.
+- Writes `data-theme="<id>"` when the persisted Special is set.
+- Wraps everything in `try/catch` so a disabled-storage or private window
+  silently falls back to the SSR default — never throws.
+
+If you customize `storageKey` on the Provider, update the `'schatten-theme'`
+literal in the snippet to match. The two values are a public contract: a
+mismatch silently breaks FOUC avoidance with no error.
 
 ### Remix
 

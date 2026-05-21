@@ -33,8 +33,9 @@ CHANGELOG:
 | CSS class names | `.btn`, `.btn--primary`, `.input-wrapper`, `[data-variant="solid"]` (Phase 2 of #58) |
 | CSS custom properties | `--color-primary-600`, `--color-error`, `--spacing-4`, `--font-sans` |
 | CVA output strings | The class string returned by `buttonVariants({ variant: 'primary' })` |
-| Multi-entry exports | `@yasmro/schatten/components/lv1`, `/tokens`, `/variants`, `/themes/default`, `/themes/seasonal` |
+| Multi-entry exports | `@yasmro/schatten/components/lv1`, `/tokens`, `/variants`, `/themes/default`, `/themes/seasonal`, `/providers` |
 | Theme contract | Which CSS variables a custom theme must define to be valid |
+| Provider runtime contract | The `localStorage` key (`'schatten-theme'`) and JSON shape (`{ mode, special }`) that `<ThemeProvider>` reads/writes. This is the contract the FOUC inline snippet ([#129](https://github.com/yasmro/schatten/issues/129)) and any consumer-side persistence code depends on. Renaming the key, adding/removing a field, or changing field semantics is a breaking change. See [#262](https://github.com/yasmro/schatten/issues/262) for the upcoming SHA-256 hash publication that further pins the inline snippet body. |
 
 ## What is **not** public API
 

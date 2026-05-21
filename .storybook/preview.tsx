@@ -116,8 +116,14 @@ const preview: Preview = {
       const theme = context.globals.theme
       const season = context.globals.season
       const isDark = theme === 'dark'
+      // Stories that own their own theme state (e.g. ThemeProvider
+      // stories) opt out of this decorator to avoid two writers racing
+      // on `<html>`. Stories declare it via:
+      //   parameters: { disableGlobalThemeDecorator: true }
+      const disableGlobalThemeDecorator = context.parameters?.disableGlobalThemeDecorator === true
 
       useEffect(() => {
+        if (disableGlobalThemeDecorator) return
         const root = document.documentElement
         const body = document.body
 
@@ -143,7 +149,7 @@ const preview: Preview = {
         } else {
           root.removeAttribute('data-theme')
         }
-      }, [isDark, season])
+      }, [isDark, season, disableGlobalThemeDecorator])
 
       useEffect(() => {
         if (isNextChannel) mountUnreleasedBanner()
@@ -151,7 +157,7 @@ const preview: Preview = {
 
       return (
         <div
-          className={`${isDark ? 'dark bg-background' : ''} p-8`}
+          className={`${isDark && !disableGlobalThemeDecorator ? 'dark bg-background' : ''} p-8`}
           style={isNextChannel ? { paddingTop: '3rem' } : undefined}
         >
           <Story />

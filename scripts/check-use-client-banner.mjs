@@ -32,10 +32,17 @@ function collectBundles(dir) {
 
 const errors = []
 
-// Must carry the directive — every emitted bundle under dist/components.
-const reactBundles = existsSync('dist/components') ? collectBundles('dist/components') : []
+// Must carry the directive — every emitted bundle under dist/components
+// AND dist/providers (Provider entry — same client-only constraints as
+// component bundles).
+const reactBundleDirs = ['dist/components', 'dist/providers']
+const reactBundles = reactBundleDirs.flatMap((dir) =>
+  existsSync(dir) ? collectBundles(dir) : [],
+)
 if (reactBundles.length === 0) {
-  errors.push('dist/components has no .js/.cjs output — did `pnpm build:js` run?')
+  errors.push(
+    `${reactBundleDirs.join(' / ')} has no .js/.cjs output — did \`pnpm build:js\` run?`,
+  )
 }
 for (const file of reactBundles) {
   if (firstLine(file) !== DIRECTIVE) {
@@ -58,4 +65,4 @@ if (errors.length > 0) {
   process.exit(1)
 }
 
-console.log(`check-use-client-banner: OK — ${reactBundles.length} component bundles carry ${DIRECTIVE}`)
+console.log(`check-use-client-banner: OK — ${reactBundles.length} React bundles carry ${DIRECTIVE}`)

@@ -3,6 +3,8 @@
   "include": [
     "src/**/*",
     "biome-plugins/**/*.ts",
+    "scripts/**/*.test.ts",
+    "scripts/**/*.d.mts",
     ".claude/skills/**/*.test.ts",
     "vitest.setup.ts"
   ],

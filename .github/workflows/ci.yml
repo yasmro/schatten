@@ -86,6 +86,39 @@ jobs:
       - name: Check bundle size
         run: pnpm size
 
+  manifest:
+    runs-on: ubuntu-latest
+    # Skipped on the develop→main release PR for the same reason as
+    # `changeset`: `changeset version` consumes every changeset, so the
+    # diff-needs-changeset heuristic in scripts/check-manifest-diff.mjs
+    # produces a misleading error. Dependabot bumps cannot meaningfully
+    # change the CSS surface either.
+    if: |
+      github.event_name == 'pull_request' &&
+      github.base_ref != 'main' &&
+      github.event.pull_request.user.login != 'dependabot[bot]'
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0          # `changeset status --since=origin/<base>` needs full history
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      # The manifest is generated from dist/schatten.css, so the package
+      # must be built before the gate can compare against the committed
+      # snapshot. `size` runs an independent build for an independent
+      # check; the two are kept as separate jobs so a failure on either
+      # is immediately distinguishable in the PR's checks list.
+      - name: Build
+        run: pnpm build
+      - name: Check manifest diff
+        run: pnpm check:manifest
+        env:
+          GITHUB_BASE_REF: ${{ github.base_ref }}
+
   changeset:
     runs-on: ubuntu-latest
     # Skipped on the develop→main release PR: that PR has consumed every

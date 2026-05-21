@@ -285,17 +285,17 @@ Every public `.st-*` class, every `[data-*]` / `[aria-*]` styling
 hook, and every public `--color-*` / `--spacing-*` / `--font-*`
 variable is enumerated in `src/__generated__/schatten.manifest.json`,
 regenerated at build time into `dist/schatten.manifest.json`. The
-CI gate (added in [#265](https://github.com/yasmro/schatten/issues/265))
-fails when the generated manifest differs from the committed one
-and a changeset has not accompanied the diff.
+CI gate (`pnpm check:manifest`, shipped in
+[#265](https://github.com/yasmro/schatten/issues/265)) fails when the
+generated manifest differs from the committed one and prints the
+per-section set difference (added / removed entries) inline, so the
+surface change is visible to the PR reviewer directly from the CI log.
+When the drift is intentional, `pnpm update:manifest` rewrites the
+snapshot and the change must ship with a `CSS API:` changeset.
 
 This is the mechanical enforcement of
 [api-stability.md](api-stability.md): a CSS rename can't slip through
 review unnoticed because the manifest is the diff a reviewer sees.
-
-Until the manifest pipeline lands (alongside #265), the contract is
-the union of this document and the per-component `*.css` files
-inside `src/components/lv1/`.
 
 ## Adding or modifying a class
 
@@ -318,8 +318,9 @@ inside `src/components/lv1/`.
    a `minor` bump is sufficient for additive changes; renames /
    removals go through the breaking-change policy (`BREAKING:`
    prefix, still `minor` pre-1.0, `major` post-1.0).
-6. **Regenerate the manifest** (once #265 lands — `pnpm build`
-   will pick it up) and inspect the diff before commit.
+6. **Regenerate the manifest** with `pnpm update:manifest` (or rely on
+   `pnpm build`'s `build:manifest` step + `pnpm check:manifest` to spot
+   the drift) and inspect the diff before commit.
 
 If the class shape you need can't be expressed within the
 conventions above, **stop and discuss in the PR** rather than

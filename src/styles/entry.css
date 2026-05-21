@@ -62,7 +62,17 @@
 
 /* Base reset — the same rules that used to live in `src/schatten.css`,
  * now scoped to `@layer reset` so consumer utilities / their own resets
- * always win on the cascade. */
+ * always win on the cascade.
+ *
+ * Tailwind v4 preflight (`@layer base`, ~97 bytes in dist) already covers
+ * `* { box-sizing: border-box; margin: 0; padding: 0 }` and `body
+ * { margin: 0 }`, so the matching rules below are idempotently redundant.
+ * They are kept deliberately: (a) they pin Schatten's contract regardless
+ * of whether a future entry tree imports `tailwindcss/theme + utilities`
+ * separately (skipping preflight), and (b) they let `@layer reset` carry
+ * the Schatten-specific body defaults (`background-color`, `color`,
+ * `font-family`, `line-height`, font-smoothing) as one coherent block
+ * instead of split between two layers. The dist cost is < 60 bytes. */
 @layer reset {
   *,
   *::before,

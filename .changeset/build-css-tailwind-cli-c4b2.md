@@ -36,7 +36,17 @@ Highlights:
   for the `.st-*` rules sweep-1..7 will add. Current dist size:
   ~32 KB minified.
 
+README has been synced with the current roadmap: stale `v0.14.0` /
+`v0.7.0` references are now `v0.9.0` / `v0.8.0`, and the legacy
+`<button class="btn" data-variant="solid">` example markup is updated to
+the BEM shape (`<button class="st-btn st-btn--primary">`) defined in
+`.claude/rules/css-api.md`.
+
 Component / lv1 / public CSS class API: unchanged. This sub-issue
 (#264, part of #154) only swaps the build pipeline and closes the
 Tooltip / Dialog import gap; the `.st-*` class API itself lands in the
 sweep PRs that follow.
+
+Follow-ups tracked separately:
+- #276 — sweep-3 着地時に CSS size budget を実測再評価
+- #277 — vanilla-HTML 実機検証 Storybook + VRT story (sweep-1 で骨組み)

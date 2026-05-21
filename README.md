@@ -5,8 +5,8 @@
 > **A two-layer design system: framework-agnostic CSS + optional React components.**
 
 Schatten is designed to work **without React**. Use it as plain CSS classes
-(`<button class="btn btn--primary">`) in vanilla HTML, Astro, Vue, or Svelte —
-and optionally lean on the React component layer
+(`<button class="st-btn st-btn--primary">`) in vanilla HTML, Astro, Vue, or
+Svelte — and optionally lean on the React component layer
 (`<Button variant="primary">`) for richer composition.
 
 Inspired by [shadcn/ui](https://ui.shadcn.com/), customized for the Schatten
@@ -37,8 +37,8 @@ Built on Radix UI primitives, styled with Tailwind CSS v4, and authored with
   rel="stylesheet"
 />
 
-<!-- Coming in v1.0: -->
-<button class="btn btn--primary">Click me</button>
+<!-- Coming in v0.9.0 (per .claude/rules/css-api.md): -->
+<button class="st-btn st-btn--primary">Click me</button>
 ```
 
 ### React
@@ -119,9 +119,12 @@ one.
 ### Layer A — Framework-agnostic CSS
 
 The CSS bundle (`@yasmro/schatten/schatten.css`) ships design tokens
-(primitive → semantic) and, going forward, component classes keyed on
-`data-*` attributes (`<button class="btn" data-variant="solid">`). No
-JavaScript runtime is required.
+(primitive → semantic) and, going forward, component classes following
+BEM (see [css-api.md](.claude/rules/css-api.md): prefix `st-`, modifiers
+as `--variant`, sub-elements as `__name`, e.g.
+`<button class="st-btn st-btn--primary">`). State is conveyed via HTML /
+ARIA attributes (`[aria-invalid]`, `[aria-busy]`, `[data-state]`), not
+modifier classes. No JavaScript runtime is required.
 
 - **Tokens** today (v0.8.0): primitive scales, semantic tokens, base reset, animation keyframes
 - **Component classes** ([css-api.md](.claude/rules/css-api.md) — [#58](https://github.com/yasmro/schatten/issues/58) Phase 2): land in v0.9.0

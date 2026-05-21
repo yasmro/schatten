@@ -1,8 +1,7 @@
 # pnpm 10 reads build-script approval from this file. Without it pnpm skips
-# package postinstall scripts — including lightningcss-cli's, whose postinstall
-# places the platform binary that `pnpm build:css` invokes. Keeping the list
-# here (rather than package.json#pnpm) stops `pnpm install` from appending a
-# duplicate `onlyBuiltDependencies` key back into package.json.
+# package postinstall scripts — including esbuild's, which Storybook / tsup
+# rely on. Keeping the list here (rather than package.json#pnpm) stops
+# `pnpm install` from appending a duplicate `onlyBuiltDependencies` key back
+# into package.json.
 onlyBuiltDependencies:
   - esbuild
-  - lightningcss-cli

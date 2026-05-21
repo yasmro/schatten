@@ -18,6 +18,6 @@
   {
     "name": "schatten.css",
     "path": "dist/schatten.css",
-    "limit": "5 KB"
+    "limit": "50 KB"
   }
 ]

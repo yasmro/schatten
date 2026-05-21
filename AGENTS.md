@@ -11,7 +11,7 @@
 - **Framework**: React 18 / 19 + TypeScript
 - **Styling**: Tailwind CSS v4 + CVA
 - **Primitives**: Radix UI
-- **Build / Test / VRT**: tsup + Lightning CSS / Vitest / Playwright
+- **Build / Test / VRT**: tsup + Tailwind CSS v4 CLI / Vitest / Playwright
 - **Lint / Format**: Biome
 - **Release**: Changesets
 - **Package manager**: pnpm

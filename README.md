@@ -121,7 +121,7 @@ JavaScript runtime is required.
 
 - **Tokens** today (v0.7.0): primitive scales, semantic tokens, base reset
 - **Component classes** ([#58](https://github.com/yasmro/schatten/issues/58) Phase 2): land in v0.14.0
-- **Build**: Lightning CSS
+- **Build**: Tailwind CSS v4 CLI
 
 Stable from **v1.0.0**: class names and CSS custom properties are
 part of the public API contract (see

@@ -121,7 +121,8 @@ directly:
 | Radix popper side | `[data-side="top" \| "right" \| "bottom" \| "left"]` | `.st-tooltip__content[data-side="bottom"]` |
 | Toast swipe | `[data-swipe="start" \| "move" \| "end" \| "cancel"]` | `.st-toast[data-swipe="end"]` |
 | Separator orientation | `[data-orientation="horizontal" \| "vertical"]` | `.st-separator[data-orientation="horizontal"]` |
-| Field error propagation | `[data-error="true"]` | `.st-field[data-error="true"]` |
+| Field / FieldSet error propagation | `[data-error="true"]` | `.st-field[data-error="true"]`, `.st-fieldset[data-error="true"]` |
+| Field / FieldSet disabled propagation | `[data-disabled="true"]` | `.st-field[data-disabled="true"]`, `.st-fieldset[data-disabled="true"]` |
 
 ### Why attribute-driven state
 
@@ -334,7 +335,8 @@ pattern after 1.0 is `major`-bump-grade.
   modifier, emitted side-by-side.
 - **State**: attributes, not classes — `:disabled`, `:read-only`,
   `[aria-invalid="true"]`, `[aria-busy="true"]`, `[data-state]`,
-  `[data-side]`, `[data-swipe]`, `[data-orientation]`.
+  `[data-side]`, `[data-swipe]`, `[data-orientation]`,
+  `[data-error]`, `[data-disabled]` (Field / FieldSet propagation).
 - **Layer order**: `reset, tokens, components, utilities`.
 - **Dark / seasonal**: token-driven by default; `:where(.dark)
   .st-*` when a rule (not just a value) differs.

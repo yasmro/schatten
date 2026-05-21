@@ -38,6 +38,7 @@ When adding or modifying components, follow shadcn/ui conventions (Radix UI + CV
 - See [.claude/rules/testing-guideline.md](.claude/rules/testing-guideline.md) for unit test conventions (required cases per component type, writing style, typed factories)
 - See [.claude/rules/lint-rules-guideline.md](.claude/rules/lint-rules-guideline.md) for the Biome rules added on top of `recommended` and the rationale for each
 - See [.claude/rules/api-stability.md](.claude/rules/api-stability.md) for the public API stability contract (effective from v1.0.0) — what counts as public API across React props, CSS classes, CSS variables, and CVA output, and the breaking-change policy
+- See [.claude/rules/css-api.md](.claude/rules/css-api.md) for the framework-agnostic CSS class API — prefix `st-`, BEM convention, attribute-driven state (`[aria-invalid]` / `[aria-busy]` / `[data-state]` / …), `@layer` order, dark / seasonal cascade, and the "no color-only signal" rule
 - See [.claude/rules/component-testid-guideline.md](.claude/rules/component-testid-guideline.md) for the `data-testid` pass-through policy and the no-auto-testid rule
 
 ## Claude Code skills

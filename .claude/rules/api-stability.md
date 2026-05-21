@@ -30,7 +30,7 @@ CHANGELOG:
 |---|---|
 | React component props | `<Button variant="primary">`, `<Input isError>`, `<Toast variant="error">` |
 | Exported TypeScript types | `ButtonProps`, `IconName`, `FieldContextValue`, the return type of `buttonVariants()` |
-| CSS class names | `.btn`, `.btn--primary`, `.input-wrapper`, `[data-variant="solid"]` (Phase 2 of #58) |
+| CSS class names | `.st-btn`, `.st-btn--primary`, `.st-input-wrapper`, `.st-callout__icon`, plus the `[aria-invalid="true"]` / `[aria-busy="true"]` / `[data-state]` / `[data-side]` state hooks they target. The naming convention (prefix `st-`, BEM, attribute-driven state) is fixed in [css-api.md](css-api.md); this document only sets the breaking-change policy that sits on top. |
 | CSS custom properties | `--color-primary-600`, `--color-error`, `--spacing-4`, `--font-sans` |
 | CVA output strings | The class string returned by `buttonVariants({ variant: 'primary' })` |
 | Multi-entry exports | `@yasmro/schatten/components/lv1`, `/tokens`, `/variants`, `/themes/default`, `/themes/seasonal`, `/providers` |
@@ -72,21 +72,32 @@ we will not consider their breakage when scoping a release.
 CSS breakage is easy to miss because TypeScript can't catch it. Treat these as
 breaking:
 
-- Renaming or removing a documented CSS class (`.btn`, `.input-wrapper`).
+- Renaming or removing a documented `.st-*` class (`.st-btn`,
+  `.st-input-wrapper`, `.st-dialog__content`, …). The naming shape is fixed in
+  [css-api.md](css-api.md); renaming the `st-` prefix itself, the BEM
+  separators, or the block name of an existing component are all `major`.
 - Renaming or removing a CSS custom property declared in `src/core/tokens/`
   or `src/themes/`.
 - Changing the *meaning* of a class — e.g. swapping which selector a class
-  applies to, or changing the CSS cascade order in a way that flips precedence.
-- Removing a `data-*` attribute that the documented selectors target
-  (e.g. `[data-variant="solid"]`).
+  applies to, repointing `.st-btn--primary` from `--color-solid` to a
+  different token, or changing the CSS cascade order in a way that flips
+  precedence between the `tokens` / `components` / `utilities` layers.
+- Removing or repurposing a `data-*` / `aria-*` attribute that documented
+  selectors target — e.g. dropping `[data-state="open"]` from
+  `.st-dialog__content`, or moving error styling off `[aria-invalid="true"]`
+  onto a new state class. The full state-attribute table is in
+  [css-api.md §state](css-api.md#state-is-expressed-as-attributes-not-classes).
 
 These are **not** breaking:
 
 - Tweaking a token's color value (`--color-primary-600` going from one hex to
   a slightly different hex) — call this out in the CHANGELOG but it's a `minor`
   or `patch`, not `major`.
-- Adding new utility classes or new data attributes.
-- Refactoring internal CSS that has no documented class name attached.
+- Adding new `.st-*` classes, new modifier values, new sub-elements, or new
+  documented state attributes.
+- Refactoring internal CSS that has no documented class name attached — e.g.
+  collapsing a `:where(.dark) .st-btn--primary { … }` rule into a token swap,
+  provided the resulting cascade is observably identical.
 
 ## CHANGELOG conventions
 
@@ -117,8 +128,11 @@ BREAKING: `<Input isError>` is renamed to `<Input invalid>` for parity with
 ARIA. Replace all occurrences in your code. See docs/migrations/v2-input-invalid.md
 for a sed snippet and a checklist.
 
-CSS API: `.input-wrapper[data-error]` is renamed to `[data-invalid]` for the
-same reason.
+CSS API: `.st-input-wrapper` now routes its error state via
+`[aria-invalid="true"]` (the standard hook from [css-api.md](css-api.md)).
+The previous `[data-error]` attribute is removed. Consumers writing vanilla
+HTML must swap `<div data-error class="st-input-wrapper">` to `<div
+class="st-input-wrapper"><input aria-invalid="true" …></div>`.
 ```
 
 ## CVA output stability
@@ -160,6 +174,31 @@ or `tailwind-merge` to peer deps, the same rules apply.
 - **Bumping a tooling dep that affects output** (e.g. `class-variance-authority`
   in a way that changes the emitted class string) is covered separately by
   the "CVA output stability" section above and is a `major`.
+
+## CSS class naming — frozen by [css-api.md](css-api.md)
+
+The class-naming surface itself — prefix, BEM shape, attribute-driven state,
+`@layer` order — is pinned in [css-api.md](css-api.md). That document is
+the source of truth for *what* the classes are called; this document is the
+source of truth for *what happens* when one of them is renamed, removed, or
+repointed.
+
+Two consequences worth pinning here:
+
+- **The `st-` prefix is part of the v1.0 contract.** Renaming it post-1.0 is
+  `major`. Pre-1.0 it would still ship with a `BREAKING:` CHANGELOG line so
+  early adopters can sed-migrate.
+- **State attributes are the contract, not the styling classes.** Consumers
+  rely on `[aria-invalid="true"]` triggering the same error visual that
+  `<Input isError>` does. Moving error styling off `[aria-invalid]` onto a
+  new class — or vice versa — is `major`, because it forces every vanilla-HTML
+  consumer to rewrite their attribute wiring. (See [css-api.md §state](css-api.md#state-is-expressed-as-attributes-not-classes)
+  for the full attribute table.)
+
+The class-name audit is tracked by
+[#154](https://github.com/yasmro/schatten/issues/154) (v0.9.0) and writes
+every public class into the manifest below. Once #154 ships, the manifest
+becomes the diff a reviewer sees on every CSS change.
 
 ## CSS variable naming — settle before 1.0
 
@@ -218,8 +257,13 @@ Ask, in order:
 
 ## Related
 
+- [css-api.md](css-api.md) — the CSS class-naming convention this document
+  freezes (prefix `st-`, BEM, attribute-driven state, `@layer` order,
+  dark/seasonal pattern, no-color-alone)
 - [#58](https://github.com/yasmro/schatten/issues/58) — framework-agnostic CSS
-  roadmap (Phase 2 introduces the data-attribute class API)
+  roadmap (Phase 2 introduces the `.st-*` class API)
+- [#154](https://github.com/yasmro/schatten/issues/154) — Phase 2 implementation
+  tracker (CSS sweep + manifest pipeline, v0.9.0)
 - [state-token-guideline](state-token-guideline.md) — names and shapes of state
   semantic tokens (subject to this contract from v1.0)
 - [lint-rules-guideline](lint-rules-guideline.md) — Biome rules and GritQL

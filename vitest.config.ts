@@ -8,6 +8,7 @@ export default defineConfig({
     include: [
       'src/**/*.test.{ts,tsx}',
       'biome-plugins/**/*.test.ts',
+      'scripts/**/*.test.ts',
       '.claude/skills/**/*.test.ts',
     ],
   },

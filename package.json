@@ -18,6 +18,7 @@
       "require": "./dist/components/index.cjs"
     },
     "./schatten.css": "./dist/schatten.css",
+    "./schatten.manifest.json": "./dist/schatten.manifest.json",
     "./core/tokens": "./dist/core/tokens/index.css",
     "./themes/default": "./dist/themes/default/index.css",
     "./themes/seasonal": {
@@ -79,11 +80,14 @@
   ],
   "scripts": {
     "dev": "storybook dev -p 6006",
-    "build": "pnpm clean:dist && pnpm build:js && pnpm check:use-client && pnpm build:css && pnpm build:copy-css",
+    "build": "pnpm clean:dist && pnpm build:js && pnpm check:use-client && pnpm build:css && pnpm build:copy-css && pnpm build:manifest",
     "clean:dist": "rm -rf dist",
     "build:js": "tsup",
     "build:css": "tailwindcss -i src/styles/entry.css -o dist/schatten.css --minify",
     "build:copy-css": "node scripts/copy-css-assets.mjs",
+    "build:manifest": "node scripts/generate-manifest.mjs",
+    "update:manifest": "node scripts/generate-manifest.mjs --commit",
+    "check:manifest": "node scripts/check-manifest-diff.mjs",
     "check:use-client": "node scripts/check-use-client-banner.mjs",
     "build:storybook": "storybook build",
     "test": "vitest",
@@ -139,6 +143,7 @@
     "jsdom": "29",
     "lefthook": "^2.1.4",
     "lucide-react": "^1.7.0",
+    "postcss": "^8.5.10",
     "publint": "^0.3.21",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

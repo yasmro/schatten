@@ -1,0 +1,157 @@
+/*
+ * Text — `.st-text` class API.
+ *
+ * Five orthogonal modifier axes:
+ * - variant: body | label | heading
+ * - size:    xs | sm | md | lg | xl | 2xl
+ * - color:   13 options (foreground / state / inverted / brand / inherit)
+ * - align:   left | center | right
+ * - truncate: presence-only
+ *
+ * The (variant × size) typography combinations are written as
+ * double-class selectors (`.st-text--body.st-text--md`) — they share the
+ * `--text-{variant}-{size}-*` token chain that lives in
+ * `core/tokens/typography.css`. We use raw CSS `font-size: var(...)`
+ * rather than `@apply text-[length:var(...)]` because Tailwind v4's
+ * arbitrary-value `@apply` resolution is unstable for the `text-{size}`
+ * length pathway (see #154 Q4).
+ *
+ * Color/align/truncate modifiers go through `@apply` because they map to
+ * stable, named Tailwind utilities backed by `@theme` tokens.
+ *
+ * See: .claude/rules/css-api.md, #266 詳細設計 §4.2.
+ */
+@layer components {
+  .st-text {
+    @apply text-foreground antialiased;
+  }
+
+  /* ===== variant × size: typography ===== */
+  /* body — xs / sm / md / lg */
+  .st-text--body.st-text--xs {
+    font-size: var(--text-body-xs-size);
+    line-height: var(--text-body-xs-leading);
+    font-weight: var(--text-body-xs-weight);
+  }
+  .st-text--body.st-text--sm {
+    font-size: var(--text-body-sm-size);
+    line-height: var(--text-body-sm-leading);
+    font-weight: var(--text-body-sm-weight);
+  }
+  .st-text--body.st-text--md {
+    font-size: var(--text-body-md-size);
+    line-height: var(--text-body-md-leading);
+    font-weight: var(--text-body-md-weight);
+  }
+  .st-text--body.st-text--lg {
+    font-size: var(--text-body-lg-size);
+    line-height: var(--text-body-lg-leading);
+    font-weight: var(--text-body-lg-weight);
+  }
+
+  /* label — xs / sm / md / lg */
+  .st-text--label.st-text--xs {
+    font-size: var(--text-label-xs-size);
+    line-height: var(--text-label-xs-leading);
+    font-weight: var(--text-label-xs-weight);
+  }
+  .st-text--label.st-text--sm {
+    font-size: var(--text-label-sm-size);
+    line-height: var(--text-label-sm-leading);
+    font-weight: var(--text-label-sm-weight);
+  }
+  .st-text--label.st-text--md {
+    font-size: var(--text-label-md-size);
+    line-height: var(--text-label-md-leading);
+    font-weight: var(--text-label-md-weight);
+  }
+  .st-text--label.st-text--lg {
+    font-size: var(--text-label-lg-size);
+    line-height: var(--text-label-lg-leading);
+    font-weight: var(--text-label-lg-weight);
+  }
+
+  /* heading — sm / md / lg / xl / 2xl */
+  .st-text--heading.st-text--sm {
+    font-size: var(--text-heading-sm-size);
+    line-height: var(--text-heading-sm-leading);
+    font-weight: var(--text-heading-sm-weight);
+  }
+  .st-text--heading.st-text--md {
+    font-size: var(--text-heading-md-size);
+    line-height: var(--text-heading-md-leading);
+    font-weight: var(--text-heading-md-weight);
+  }
+  .st-text--heading.st-text--lg {
+    font-size: var(--text-heading-lg-size);
+    line-height: var(--text-heading-lg-leading);
+    font-weight: var(--text-heading-lg-weight);
+  }
+  .st-text--heading.st-text--xl {
+    font-size: var(--text-heading-xl-size);
+    line-height: var(--text-heading-xl-leading);
+    font-weight: var(--text-heading-xl-weight);
+  }
+  .st-text--heading.st-text--2xl {
+    font-size: var(--text-heading-2xl-size);
+    line-height: var(--text-heading-2xl-leading);
+    font-weight: var(--text-heading-2xl-weight);
+  }
+
+  /* ===== color (13) ===== */
+  .st-text--default {
+    @apply text-foreground;
+  }
+  .st-text--muted {
+    @apply text-foreground-muted;
+  }
+  .st-text--subtle {
+    @apply text-foreground-subtle;
+  }
+  .st-text--inherit {
+    @apply text-inherit;
+  }
+  .st-text--inverted {
+    @apply text-inverted-foreground;
+  }
+  .st-text--inverted-muted {
+    @apply text-inverted-foreground-muted;
+  }
+  .st-text--inverted-subtle {
+    @apply text-inverted-foreground-subtle;
+  }
+  .st-text--error {
+    @apply text-error;
+  }
+  .st-text--success {
+    @apply text-success;
+  }
+  .st-text--warning {
+    @apply text-warning;
+  }
+  .st-text--info {
+    @apply text-info;
+  }
+  .st-text--vermillion {
+    @apply text-vermillion;
+  }
+  .st-text--indigo {
+    @apply text-indigo;
+  }
+
+  /* ===== align ===== */
+  .st-text--align-left {
+    @apply text-left;
+  }
+  .st-text--align-center {
+    @apply text-center;
+  }
+  .st-text--align-right {
+    @apply text-right;
+  }
+
+  /* ===== truncate (presence-only) ===== */
+  .st-text--truncate {
+    @apply truncate;
+  }
+}

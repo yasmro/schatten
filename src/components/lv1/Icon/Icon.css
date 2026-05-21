@@ -1,0 +1,76 @@
+/*
+ * Icon — `.st-icon` class API.
+ *
+ * Two orthogonal modifier axes:
+ * - size:  sm | md | lg  (16 / 20 / 24 px)
+ * - color: 13 options (same vocabulary as Text)
+ *
+ * `.st-icon` itself has no base styling — every visual property lives on a
+ * modifier (`--sm/--md/--lg` for sizing, `--{color}` for fill). The CVA
+ * always emits the root class alongside the modifiers, so JSX consumers
+ * write `cn(iconVariants(...))` and vanilla-HTML consumers write
+ * `class="st-icon st-icon--md st-icon--inherit"` — both produce a working
+ * icon. The root class is still part of the *contract* (it's what
+ * documents an element as an Icon) even though it carries no CSS itself.
+ *
+ * Consequence for the manifest: `dist/schatten.css` doesn't contain a
+ * `.st-icon { … }` rule (Tailwind's minify drops empty rules), so the
+ * manifest's `classes` list won't include `st-icon` either. This is the
+ * honest outcome — there is no CSS to inspect under that name. The
+ * functional modifiers all appear in the manifest as expected.
+ *
+ * See: .claude/rules/css-api.md, #266 詳細設計 §4.3 + 補遺 (post-build).
+ */
+@layer components {
+  /* ===== size ===== */
+  .st-icon--sm {
+    @apply size-4;
+  }
+  .st-icon--md {
+    @apply size-5;
+  }
+  .st-icon--lg {
+    @apply size-6;
+  }
+
+  /* ===== color (13) — same vocabulary as Text ===== */
+  .st-icon--inherit {
+    @apply text-inherit;
+  }
+  .st-icon--default {
+    @apply text-foreground;
+  }
+  .st-icon--muted {
+    @apply text-foreground-muted;
+  }
+  .st-icon--subtle {
+    @apply text-foreground-subtle;
+  }
+  .st-icon--inverted {
+    @apply text-inverted-foreground;
+  }
+  .st-icon--inverted-muted {
+    @apply text-inverted-foreground-muted;
+  }
+  .st-icon--inverted-subtle {
+    @apply text-inverted-foreground-subtle;
+  }
+  .st-icon--error {
+    @apply text-error;
+  }
+  .st-icon--success {
+    @apply text-success;
+  }
+  .st-icon--warning {
+    @apply text-warning;
+  }
+  .st-icon--info {
+    @apply text-info;
+  }
+  .st-icon--vermillion {
+    @apply text-vermillion;
+  }
+  .st-icon--indigo {
+    @apply text-indigo;
+  }
+}

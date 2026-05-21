@@ -35,16 +35,20 @@
 /* Seasonal palettes (data-theme attribute) */
 @import "../themes/seasonal/themes.css";
 
-/* Component CSS — keyframes today; the `.st-*` rules added by #154
- * sweep-1..7 will live under `@layer components` and import the same
- * way. Tooltip / Dialog were previously missing from the bundled dist
- * (they shipped only via the React `.tsx` side-effect import) — those
- * imports below close that gap so vanilla-HTML consumers get the
+/* Component CSS — keyframes (Spinner / Toast / Tooltip / Dialog) plus the
+ * `.st-*` semantic class rules added by #154 sweep-1..7 under
+ * `@layer components`. Tooltip / Dialog were previously missing from the
+ * bundled dist (they shipped only via the React `.tsx` side-effect import)
+ * — those imports close that gap so vanilla-HTML consumers get the
  * enter/exit animations too. */
 @import "../components/lv1/Spinner/Spinner.css";
 @import "../components/lv1/Toast/Toast.css";
 @import "../components/lv1/Tooltip/Tooltip.css";
 @import "../components/lv1/Dialog/Dialog.css";
+/* #266 sweep-1 — Separator / Text / Icon class API */
+@import "../components/lv1/Separator/Separator.css";
+@import "../components/lv1/Text/Text.css";
+@import "../components/lv1/Icon/Icon.css";
 
 /* Class-based dark mode variant — matches `src/styles/globals.css` so
  * `.dark` toggling behaves identically in Storybook and in the dist. */

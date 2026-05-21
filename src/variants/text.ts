@@ -1,128 +1,58 @@
 import { cva, type VariantProps } from 'class-variance-authority'
 
-export const textVariants = cva('text-foreground antialiased', {
+/**
+ * Variants for the `Text` component — class-name concatenation only.
+ *
+ * The actual typography rules live in
+ * `src/components/lv1/Text/Text.css` under `@layer components`. This file
+ * is the public class-string mapper: a tuple of `(variant, size, color,
+ * align, truncate)` translates to a side-by-side chain of `.st-text--*`
+ * modifiers that the CSS resolves through specificity (the
+ * `variant × size` compound is encoded as a double-class selector in
+ * `.st-text--body.st-text--md`).
+ *
+ * See: .claude/rules/css-api.md, #266 詳細設計 §4.2.
+ */
+export const textVariants = cva('st-text', {
   variants: {
     variant: {
-      body: '',
-      label: '',
-      heading: '',
+      body: 'st-text--body',
+      label: 'st-text--label',
+      heading: 'st-text--heading',
     },
     size: {
-      xs: '',
-      sm: '',
-      md: '',
-      lg: '',
-      xl: '',
-      '2xl': '',
+      xs: 'st-text--xs',
+      sm: 'st-text--sm',
+      md: 'st-text--md',
+      lg: 'st-text--lg',
+      xl: 'st-text--xl',
+      '2xl': 'st-text--2xl',
     },
     color: {
-      default: 'text-foreground',
-      muted: 'text-foreground-muted',
-      subtle: 'text-foreground-subtle',
-      vermillion: 'text-vermillion',
-      indigo: 'text-indigo',
-      error: 'text-error',
-      success: 'text-success',
-      warning: 'text-warning',
-      info: 'text-info',
-      inverted: 'text-inverted-foreground',
-      'inverted-muted': 'text-inverted-foreground-muted',
-      'inverted-subtle': 'text-inverted-foreground-subtle',
-      inherit: 'text-inherit',
+      default: 'st-text--default',
+      muted: 'st-text--muted',
+      subtle: 'st-text--subtle',
+      vermillion: 'st-text--vermillion',
+      indigo: 'st-text--indigo',
+      error: 'st-text--error',
+      success: 'st-text--success',
+      warning: 'st-text--warning',
+      info: 'st-text--info',
+      inverted: 'st-text--inverted',
+      'inverted-muted': 'st-text--inverted-muted',
+      'inverted-subtle': 'st-text--inverted-subtle',
+      inherit: 'st-text--inherit',
     },
     align: {
-      left: 'text-left',
-      center: 'text-center',
-      right: 'text-right',
+      left: 'st-text--align-left',
+      center: 'st-text--align-center',
+      right: 'st-text--align-right',
     },
     truncate: {
-      true: 'truncate',
+      true: 'st-text--truncate',
       false: '',
     },
   },
-  compoundVariants: [
-    // Body
-    {
-      variant: 'body',
-      size: 'xs',
-      class:
-        'text-[length:var(--text-body-xs-size)] leading-[var(--text-body-xs-leading)] font-[number:var(--text-body-xs-weight)]',
-    },
-    {
-      variant: 'body',
-      size: 'sm',
-      class:
-        'text-[length:var(--text-body-sm-size)] leading-[var(--text-body-sm-leading)] font-[number:var(--text-body-sm-weight)]',
-    },
-    {
-      variant: 'body',
-      size: 'md',
-      class:
-        'text-[length:var(--text-body-md-size)] leading-[var(--text-body-md-leading)] font-[number:var(--text-body-md-weight)]',
-    },
-    {
-      variant: 'body',
-      size: 'lg',
-      class:
-        'text-[length:var(--text-body-lg-size)] leading-[var(--text-body-lg-leading)] font-[number:var(--text-body-lg-weight)]',
-    },
-    // Label
-    {
-      variant: 'label',
-      size: 'xs',
-      class:
-        'text-[length:var(--text-label-xs-size)] leading-[var(--text-label-xs-leading)] font-[number:var(--text-label-xs-weight)]',
-    },
-    {
-      variant: 'label',
-      size: 'sm',
-      class:
-        'text-[length:var(--text-label-sm-size)] leading-[var(--text-label-sm-leading)] font-[number:var(--text-label-sm-weight)]',
-    },
-    {
-      variant: 'label',
-      size: 'md',
-      class:
-        'text-[length:var(--text-label-md-size)] leading-[var(--text-label-md-leading)] font-[number:var(--text-label-md-weight)]',
-    },
-    {
-      variant: 'label',
-      size: 'lg',
-      class:
-        'text-[length:var(--text-label-lg-size)] leading-[var(--text-label-lg-leading)] font-[number:var(--text-label-lg-weight)]',
-    },
-    // Heading
-    {
-      variant: 'heading',
-      size: 'sm',
-      class:
-        'text-[length:var(--text-heading-sm-size)] leading-[var(--text-heading-sm-leading)] font-[number:var(--text-heading-sm-weight)]',
-    },
-    {
-      variant: 'heading',
-      size: 'md',
-      class:
-        'text-[length:var(--text-heading-md-size)] leading-[var(--text-heading-md-leading)] font-[number:var(--text-heading-md-weight)]',
-    },
-    {
-      variant: 'heading',
-      size: 'lg',
-      class:
-        'text-[length:var(--text-heading-lg-size)] leading-[var(--text-heading-lg-leading)] font-[number:var(--text-heading-lg-weight)]',
-    },
-    {
-      variant: 'heading',
-      size: 'xl',
-      class:
-        'text-[length:var(--text-heading-xl-size)] leading-[var(--text-heading-xl-leading)] font-[number:var(--text-heading-xl-weight)]',
-    },
-    {
-      variant: 'heading',
-      size: '2xl',
-      class:
-        'text-[length:var(--text-heading-2xl-size)] leading-[var(--text-heading-2xl-leading)] font-[number:var(--text-heading-2xl-weight)]',
-    },
-  ],
   defaultVariants: {
     variant: 'body',
     size: 'md',

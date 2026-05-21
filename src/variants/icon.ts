@@ -1,34 +1,39 @@
 import { cva, type VariantProps } from 'class-variance-authority'
 
 /**
- * Variants for the `Icon` component.
+ * Variants for the `Icon` component — class-name concatenation only.
  *
- * The `color` vocabulary mirrors `textVariants` so an icon and the text it
+ * The actual size/color rules live in
+ * `src/components/lv1/Icon/Icon.css` under `@layer components`. The
+ * `color` vocabulary mirrors `textVariants` so an icon and the text it
  * sits next to can be tinted with the same token. `color` defaults to
- * `inherit` (the icon takes the surrounding `currentColor`) so `Icon` stays
- * composition-safe inside already-colored surfaces such as a solid Button.
+ * `inherit` (the icon takes the surrounding `currentColor`) so `Icon`
+ * stays composition-safe inside already-colored surfaces such as a solid
+ * Button.
+ *
+ * See: .claude/rules/css-api.md, #266 詳細設計 §4.3.
  */
-export const iconVariants = cva('', {
+export const iconVariants = cva('st-icon', {
   variants: {
     size: {
-      sm: 'size-4', // 16px
-      md: 'size-5', // 20px
-      lg: 'size-6', // 24px
+      sm: 'st-icon--sm', // 16px
+      md: 'st-icon--md', // 20px
+      lg: 'st-icon--lg', // 24px
     },
     color: {
-      inherit: 'text-inherit',
-      default: 'text-foreground',
-      muted: 'text-foreground-muted',
-      subtle: 'text-foreground-subtle',
-      vermillion: 'text-vermillion',
-      indigo: 'text-indigo',
-      error: 'text-error',
-      success: 'text-success',
-      warning: 'text-warning',
-      info: 'text-info',
-      inverted: 'text-inverted-foreground',
-      'inverted-muted': 'text-inverted-foreground-muted',
-      'inverted-subtle': 'text-inverted-foreground-subtle',
+      inherit: 'st-icon--inherit',
+      default: 'st-icon--default',
+      muted: 'st-icon--muted',
+      subtle: 'st-icon--subtle',
+      vermillion: 'st-icon--vermillion',
+      indigo: 'st-icon--indigo',
+      error: 'st-icon--error',
+      success: 'st-icon--success',
+      warning: 'st-icon--warning',
+      info: 'st-icon--info',
+      inverted: 'st-icon--inverted',
+      'inverted-muted': 'st-icon--inverted-muted',
+      'inverted-subtle': 'st-icon--inverted-subtle',
     },
   },
   defaultVariants: {

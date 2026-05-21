@@ -1,0 +1,24 @@
+/*
+ * Separator — `.st-separator` class API.
+ *
+ * Orientation is expressed via Radix's `data-orientation` attribute rather
+ * than a `--horizontal` / `--vertical` modifier. Radix Separator emits the
+ * attribute on every render, so the attribute selector reaches the same
+ * styling target as a modifier class would — without growing the public
+ * class surface for a state that the markup already pins.
+ *
+ * See: .claude/rules/css-api.md, #266 詳細設計 §4.1.
+ */
+@layer components {
+  .st-separator {
+    @apply shrink-0 bg-border;
+  }
+
+  .st-separator[data-orientation="horizontal"] {
+    @apply h-px w-full;
+  }
+
+  .st-separator[data-orientation="vertical"] {
+    @apply h-full w-px;
+  }
+}

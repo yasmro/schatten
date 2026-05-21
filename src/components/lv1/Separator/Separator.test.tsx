@@ -37,4 +37,9 @@ describe('Separator', () => {
     render(<Separator data-testid="sep" className="custom-class" />)
     expect(screen.getByTestId('sep')).toHaveClass('custom-class')
   })
+
+  it('emits the canonical st-separator class chain', () => {
+    render(<Separator data-testid="sep" />)
+    expect(screen.getByTestId('sep')).toHaveClass('st-separator')
+  })
 })

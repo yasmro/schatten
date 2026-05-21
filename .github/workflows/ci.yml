@@ -74,8 +74,8 @@ jobs:
       - run: pnpm install --frozen-lockfile
 
       # `size-limit` measures files in dist/, so the package must be built
-      # first. build:css relies on lightningcss-cli's postinstall binary —
-      # enabled via pnpm.onlyBuiltDependencies in package.json.
+      # first. build:css now runs `@tailwindcss/cli` against
+      # `src/styles/entry.css` (no native postinstall step required).
       - name: Build
         run: pnpm build
 

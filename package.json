@@ -82,7 +82,7 @@
     "build": "pnpm clean:dist && pnpm build:js && pnpm check:use-client && pnpm build:css && pnpm build:copy-css",
     "clean:dist": "rm -rf dist",
     "build:js": "tsup",
-    "build:css": "lightningcss src/schatten.css -o dist/schatten.css --minify --bundle",
+    "build:css": "tailwindcss -i src/styles/entry.css -o dist/schatten.css --minify",
     "build:copy-css": "node scripts/copy-css-assets.mjs",
     "check:use-client": "node scripts/check-use-client-banner.mjs",
     "build:storybook": "storybook build",
@@ -128,6 +128,7 @@
     "@size-limit/preset-small-lib": "^12.1.0",
     "@storybook/addon-docs": "10.3.6",
     "@storybook/react-vite": "10.3.6",
+    "@tailwindcss/cli": "^4.2.2",
     "@tailwindcss/vite": "^4.2.2",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.1.0",
@@ -137,8 +138,6 @@
     "@types/react-dom": "^19.0.2",
     "jsdom": "29",
     "lefthook": "^2.1.4",
-    "lightningcss": "^1.28.2",
-    "lightningcss-cli": "^1.32.0",
     "lucide-react": "^1.7.0",
     "publint": "^0.3.21",
     "react": "^19.0.0",
@@ -166,10 +165,7 @@
   "pnpm": {
     "overrides": {
       "postcss@<8.5.10": ">=8.5.10"
-    },
-    "onlyBuiltDependencies": [
-      "lightningcss-cli"
-    ]
+    }
   },
   "license": "MIT",
   "repository": {

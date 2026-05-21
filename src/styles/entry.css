@@ -1,0 +1,92 @@
+/*
+ * Schatten — framework-agnostic CSS entry
+ *
+ * This is the build entry for `dist/schatten.css` (compiled by
+ * `pnpm build:css` via `@tailwindcss/cli`). Consumers ship a single
+ * `<link>` / `@import "@yasmro/schatten/schatten.css"` and get tokens,
+ * default theme, seasonal palettes, the base reset, and the component
+ * keyframes — no consumer Tailwind setup required.
+ *
+ * `source(none)` disables Tailwind v4's automatic source scanning: this
+ * file ships its own static rules and does not need utility classes
+ * generated from JSX. Storybook keeps its own entry — see
+ * `src/styles/globals.css` — that DOES scan sources, because story
+ * surfaces render the CVA utility output that this dist file deliberately
+ * does not bake in. The `.st-*` component classes that #154 will add are
+ * authored with `@apply` inside `@layer components`, which Tailwind
+ * resolves without source scanning.
+ *
+ * Layer order (per .claude/rules/css-api.md): reset < tokens < components
+ * < utilities. Tailwind v4's own `theme` / `base` layers slot in front of
+ * `components`; we declare `reset, tokens` here so the eventual `@layer
+ * components { .st-* … }` rules in sweep PRs land at the correct cascade
+ * tier without re-declaring the order in every component file.
+ */
+@layer reset, tokens, components, utilities;
+
+@import "tailwindcss" source(none);
+
+/* Tokens + Tailwind v4 @theme registration */
+@import "../core/tokens/base.css";
+
+/* Default theme (no [data-theme] active) */
+@import "../themes/default/index.css";
+
+/* Seasonal palettes (data-theme attribute) */
+@import "../themes/seasonal/themes.css";
+
+/* Component CSS — keyframes today; the `.st-*` rules added by #154
+ * sweep-1..7 will live under `@layer components` and import the same
+ * way. Tooltip / Dialog were previously missing from the bundled dist
+ * (they shipped only via the React `.tsx` side-effect import) — those
+ * imports below close that gap so vanilla-HTML consumers get the
+ * enter/exit animations too. */
+@import "../components/lv1/Spinner/Spinner.css";
+@import "../components/lv1/Toast/Toast.css";
+@import "../components/lv1/Tooltip/Tooltip.css";
+@import "../components/lv1/Dialog/Dialog.css";
+
+/* Class-based dark mode variant — matches `src/styles/globals.css` so
+ * `.dark` toggling behaves identically in Storybook and in the dist. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/*
+ * Font configuration. Consumers override `--font-sans` to layer in their
+ * own brand fonts:
+ *
+ *   :root { --font-sans: "Your Font", var(--font-sans-fallback); }
+ */
+:root {
+  --font-sans: var(--font-sans-fallback);
+}
+
+/* Base reset — the same rules that used to live in `src/schatten.css`,
+ * now scoped to `@layer reset` so consumer utilities / their own resets
+ * always win on the cascade.
+ *
+ * Tailwind v4 preflight (`@layer base`, ~97 bytes in dist) already covers
+ * `* { box-sizing: border-box; margin: 0; padding: 0 }` and `body
+ * { margin: 0 }`, so the matching rules below are idempotently redundant.
+ * They are kept deliberately: (a) they pin Schatten's contract regardless
+ * of whether a future entry tree imports `tailwindcss/theme + utilities`
+ * separately (skipping preflight), and (b) they let `@layer reset` carry
+ * the Schatten-specific body defaults (`background-color`, `color`,
+ * `font-family`, `line-height`, font-smoothing) as one coherent block
+ * instead of split between two layers. The dist cost is < 60 bytes. */
+@layer reset {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    line-height: var(--leading-normal);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}

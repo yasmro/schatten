@@ -111,52 +111,72 @@ describe('extractManifest', () => {
   })
 
   describe('cssVariables', () => {
-    it('captures public-prefix custom properties', () => {
+    it('captures declarations from inside `@layer theme { … }` (the @theme output)', () => {
+      // Tailwind v4 compiles `@theme { --foo: …; }` to `@layer theme { :root, :host { --foo: …; } }`.
+      // The manifest captures every `--*` inside that layer regardless of prefix —
+      // `@theme` registration is the authoritative public-surface signal.
       const css = `
-        :root {
-          --color-error: oklch(0.6 0.2 22);
-          --color-foreground: oklch(0.18 0 0);
-          --spacing-4: 1rem;
-          --radius-md: 0.375rem;
-          --font-sans: ui-sans-serif;
-          --shadow-md: 0 1px 2px black;
-          --z-modal: 50;
-          --text-body-md-size: 1rem;
+        @layer theme {
+          :root, :host {
+            --color-error: oklch(0.6 0.2 22);
+            --font-sans: ui-sans-serif;
+            --leading-normal: 1.5;
+            --any-public-name-without-a-known-prefix: 7;
+          }
         }
       `
       expect(extractManifest(css).cssVariables).toEqual([
+        '--any-public-name-without-a-known-prefix',
         '--color-error',
-        '--color-foreground',
         '--font-sans',
-        '--radius-md',
-        '--shadow-md',
-        '--spacing-4',
-        '--text-body-md-size',
-        '--z-modal',
+        '--leading-normal',
       ])
     })
 
-    it('excludes non-public custom properties', () => {
+    it('ignores declarations outside `@layer theme` even when they share a name shape', () => {
+      // This is the central regression that motivated #280: pre-fix the prefix
+      // heuristic captured anything matching `--font-*` / `--text-*` / `--spacing-*`,
+      // dragging in font-weight scalars and fallback stacks declared in the
+      // source token files but never registered via @theme.
       const css = `
         :root {
-          --internal-magic: 42;
-          --schatten-spinner-duration: 2s;
-          --my-app-var: blue;
+          --font-bold: 700;
+          --font-sans-fallback: ui-sans-serif, system-ui;
+          --text-xs: 0.75rem;
+          --spacing-1-5: 0.375rem;
+        }
+        @layer base {
+          :root {
+            --reset-thing: anything;
+          }
         }
       `
       expect(extractManifest(css).cssVariables).toEqual([])
     })
 
-    it('captures from dark-mode and theme selectors', () => {
+    it('captures across multiple `@layer theme` blocks and dedupes', () => {
       const css = `
-        :root[data-theme="season--winter-deep"] {
-          --color-theme-500: oklch(0.5 0.15 240);
+        @layer theme {
+          :root, :host { --color-error: red; }
         }
-        .dark {
-          --color-error: oklch(0.55 0.2 22);
+        @layer theme {
+          :root, :host { --color-error: red; --color-success: green; }
         }
       `
-      expect(extractManifest(css).cssVariables).toEqual(['--color-error', '--color-theme-500'])
+      expect(extractManifest(css).cssVariables).toEqual(['--color-error', '--color-success'])
+    })
+
+    it('does not capture non-custom-property decls inside @layer theme', () => {
+      const css = `
+        @layer theme {
+          :root, :host {
+            --color-error: red;
+            color: blue;            /* not a custom property */
+            font-size: 1rem;
+          }
+        }
+      `
+      expect(extractManifest(css).cssVariables).toEqual(['--color-error'])
     })
   })
 

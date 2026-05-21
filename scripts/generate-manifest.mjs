@@ -26,20 +26,6 @@ import { readFileSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import postcss from 'postcss'
 
-// CSS variables that ride on these prefixes ARE part of the public surface
-// because base.css `@theme { … }` emits them as Tailwind utilities. A
-// `--my-internal-x` declared inside a component's CSS file is not — these
-// prefixes are the cheap proxy for "did the author go through @theme?".
-const PUBLIC_VAR_PREFIXES = [
-  '--color-',
-  '--font-',
-  '--text-',
-  '--spacing-',
-  '--radius-',
-  '--shadow-',
-  '--z-',
-]
-
 // Public class shape, enforced by .claude/rules/css-api.md. `.tooltip-content`
 // and similar legacy names that still live in dist today (the pre-sweep
 // component CSS) are excluded by construction.
@@ -79,10 +65,20 @@ export function extractManifest(css) {
     }
   })
 
-  root.walkDecls((decl) => {
-    if (!decl.prop.startsWith('--')) return
-    if (!PUBLIC_VAR_PREFIXES.some((p) => decl.prop.startsWith(p))) return
-    cssVariables.add(decl.prop)
+  // Public CSS variables = exactly the declarations Tailwind v4 emits from
+  // `@theme { … }` directives. In compiled dist CSS, those directives land
+  // as `@layer theme { :root, :host { --foo: …; } }`. Variables declared in
+  // source `:root` blocks outside `@theme` (font-weight scalars in
+  // typography.css, fallback stacks like `--font-sans-fallback`, raw scale
+  // tokens like `--text-xs` that route to a Tailwind utility instead of
+  // staying named) are implementation primitives and not part of the
+  // contract — they must not appear in the manifest.
+  root.walkAtRules('layer', (layerRule) => {
+    if (layerRule.params !== 'theme') return
+    layerRule.walkDecls((decl) => {
+      if (!decl.prop.startsWith('--')) return
+      cssVariables.add(decl.prop)
+    })
   })
 
   const sorted = (set) => [...set].sort()

@@ -48,18 +48,13 @@ describe('src/__generated__/schatten.manifest.json (committed snapshot)', () => 
   })
 
   describe('cssVariables', () => {
-    it('every entry begins with a public-surface prefix', () => {
-      const publicPrefixes = [
-        '--color-',
-        '--font-',
-        '--text-',
-        '--spacing-',
-        '--radius-',
-        '--shadow-',
-        '--z-',
-      ]
+    it('every entry is a CSS custom property (`--*`)', () => {
+      // The authoritative public-surface signal is "inside @layer theme",
+      // not a prefix — see scripts/generate-manifest.mjs. So the surface
+      // can grow new public namespaces (`--leading-*`, `--default-*`, …)
+      // without needing to keep a prefix list in sync.
       for (const v of committed.cssVariables) {
-        expect(publicPrefixes.some((p) => v.startsWith(p))).toBe(true)
+        expect(v).toMatch(/^--[a-z][a-z0-9-]*$/)
       }
     })
 

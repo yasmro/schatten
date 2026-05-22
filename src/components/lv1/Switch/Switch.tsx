@@ -9,6 +9,7 @@ import {
 import { useFieldContext } from '../../../contexts/field'
 import { cn } from '../../../lib/utils'
 import { type SwitchVariants, switchThumbVariants, switchVariants } from '../../../variants/switch'
+import './Switch.css'
 
 export interface SwitchProps
   extends Omit<ComponentPropsWithoutRef<typeof SwitchPrimitive.Root>, 'size'>,
@@ -29,22 +30,10 @@ export interface SwitchProps
 }
 
 const CheckIcon = () => (
-  <svg viewBox="0 0 16 16" fill="none" className="size-full" aria-hidden="true">
+  <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
     <path d="M2.5 8.5L3.5 7.5L6.5 10.5L12.5 3.5L13.5 4.5L6.5 12.5Z" fill="currentColor" />
   </svg>
 )
-
-const checkIconSizeClasses = {
-  sm: 'size-2.5',
-  md: 'size-3',
-  lg: 'size-3.5',
-} as const
-
-const labelSizeClasses = {
-  sm: 'text-xs',
-  md: 'text-sm',
-  lg: 'text-base',
-} as const
 
 export const Switch = forwardRef<ElementRef<typeof SwitchPrimitive.Root>, SwitchProps>(
   (
@@ -70,46 +59,26 @@ export const Switch = forwardRef<ElementRef<typeof SwitchPrimitive.Root>, Switch
     const ariaDescribedBy = field?.describedBy ?? ariaDescribedByProp
 
     return (
-      <div
-        className={cn(
-          'inline-flex items-center gap-2 cursor-pointer',
-          disabled && 'cursor-not-allowed',
-          className,
-        )}
-      >
+      <div className={cn('st-switch-wrapper', className)}>
         <SwitchPrimitive.Root
           ref={ref}
           id={id}
-          className={cn(
-            'group',
-            switchVariants({ size }),
-            isError &&
-              'border-error bg-error-subtle focus-visible:ring-error data-[state=checked]:border-error data-[state=checked]:bg-error',
-          )}
+          className={cn(switchVariants({ size }))}
           aria-invalid={isError || undefined}
           aria-describedby={ariaDescribedBy}
           disabled={disabled}
           {...props}
         >
-          <span
-            className={cn(
-              'absolute left-1 flex items-center justify-center text-background opacity-0 transition-opacity duration-200 group-data-[state=checked]:opacity-100',
-              checkIconSizeClasses[size ?? 'md'],
-            )}
-          >
+          {/* Check icon fades in on `[data-state="checked"]` — driven by
+           * .st-switch[data-state="checked"] .st-switch__check { opacity: 1 }
+           * in Switch.css. JSX carries no opacity utility classes. */}
+          <span className="st-switch__check">
             <CheckIcon />
           </span>
           <SwitchPrimitive.Thumb className={cn(switchThumbVariants({ size }))} />
         </SwitchPrimitive.Root>
         {label && (
-          <label
-            htmlFor={id}
-            className={cn(
-              labelSizeClasses[size ?? 'md'],
-              'text-foreground cursor-pointer select-none',
-              disabled && 'cursor-not-allowed text-foreground-disabled',
-            )}
-          >
+          <label htmlFor={id} className="st-switch-wrapper__label">
             {label}
           </label>
         )}

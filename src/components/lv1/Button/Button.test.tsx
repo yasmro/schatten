@@ -10,20 +10,30 @@ describe('Button', () => {
     expect(screen.getByRole('button', { name: 'Click me' })).toBeInTheDocument()
   })
 
+  it('emits the canonical st-btn class chain', () => {
+    render(
+      <Button variant="primary" size="md">
+        Save
+      </Button>,
+    )
+    expect(screen.getByRole('button')).toHaveClass('st-btn', 'st-btn--primary', 'st-btn--md')
+  })
+
   it('renders with different variants', () => {
     const { rerender } = render(<Button variant="secondary">Secondary</Button>)
-    expect(screen.getByRole('button')).toHaveClass('border')
+    expect(screen.getByRole('button')).toHaveClass('st-btn--secondary')
 
     rerender(<Button variant="tertiary">Tertiary</Button>)
-    expect(screen.getByRole('button')).not.toHaveClass('border')
+    expect(screen.getByRole('button')).toHaveClass('st-btn--tertiary')
+    expect(screen.getByRole('button')).not.toHaveClass('st-btn--secondary')
   })
 
   it('renders with different sizes', () => {
     const { rerender } = render(<Button size="sm">Small</Button>)
-    expect(screen.getByRole('button')).toHaveClass('h-8')
+    expect(screen.getByRole('button')).toHaveClass('st-btn--sm')
 
     rerender(<Button size="lg">Large</Button>)
-    expect(screen.getByRole('button')).toHaveClass('h-12')
+    expect(screen.getByRole('button')).toHaveClass('st-btn--lg')
   })
 
   it('can be disabled', () => {
@@ -43,7 +53,7 @@ describe('Button', () => {
   it('renders icon at start position by default', () => {
     render(<Button icon={Search}>Search</Button>)
     const button = screen.getByRole('button')
-    const contentSpan = button.querySelector(':scope > span:last-child') as HTMLElement
+    const contentSpan = button.querySelector('.st-btn__content') as HTMLElement
     const svg = contentSpan.querySelector('svg')
     expect(svg).toBeInTheDocument()
     expect(svg?.getAttribute('aria-hidden')).toBe('true')
@@ -57,26 +67,64 @@ describe('Button', () => {
       </Button>,
     )
     const button = screen.getByRole('button')
-    const contentSpan = button.querySelector(':scope > span:last-child') as HTMLElement
+    const contentSpan = button.querySelector('.st-btn__content') as HTMLElement
     const svg = contentSpan.querySelector('svg')
     expect(svg).toBeInTheDocument()
     expect(contentSpan.lastChild).toBe(svg)
   })
 
-  it('renders icon-only button with square aspect ratio', () => {
+  it('emits st-btn--icon-only when icon is present without children', () => {
     render(<Button icon={Plus} aria-label="Add" />)
     const button = screen.getByRole('button', { name: 'Add' })
-    const contentSpan = button.querySelector(':scope > span:last-child') as HTMLElement
+    const contentSpan = button.querySelector('.st-btn__content') as HTMLElement
     expect(contentSpan.querySelector('svg')).toBeInTheDocument()
-    expect(button).toHaveClass('aspect-square')
-    expect(button).toHaveClass('px-0')
+    expect(button).toHaveClass('st-btn--icon-only')
+  })
+
+  it('does not emit st-btn--icon-only when children are present', () => {
+    render(<Button icon={Plus}>Add</Button>)
+    expect(screen.getByRole('button')).not.toHaveClass('st-btn--icon-only')
   })
 
   it('renders without icon when icon prop is not provided', () => {
     render(<Button>No Icon</Button>)
     const button = screen.getByRole('button')
-    const contentSpan = button.querySelector(':scope > span:last-child') as HTMLElement
+    const contentSpan = button.querySelector('.st-btn__content') as HTMLElement
     expect(contentSpan.querySelector('svg')).not.toBeInTheDocument()
+  })
+
+  describe('link variant', () => {
+    it('emits the size modifier alongside --link (CSS resets non-font axes)', () => {
+      render(
+        <Button variant="link" size="lg">
+          Docs
+        </Button>,
+      )
+      // Verifies the sweep-3 contract: `--link` and `--lg` are both emitted;
+      // the CSS rule for .st-btn--link.st-btn--lg only changes font-size.
+      expect(screen.getByRole('button')).toHaveClass('st-btn', 'st-btn--link', 'st-btn--lg')
+    })
+
+    it('uses a flat DOM (no spinner overlay or content wrapper)', () => {
+      render(<Button variant="link">Docs</Button>)
+      const button = screen.getByRole('button')
+      // Link variant intentionally skips .st-btn__spinner-overlay and
+      // .st-btn__content — see Button.tsx early return.
+      expect(button.querySelector('.st-btn__spinner-overlay')).toBeNull()
+      expect(button.querySelector('.st-btn__content')).toBeNull()
+    })
+
+    it('renders icon inline as a direct child', () => {
+      render(
+        <Button variant="link" icon={ArrowRight} iconPosition="end">
+          Next
+        </Button>,
+      )
+      const button = screen.getByRole('button')
+      // SVG is a direct child of the button itself (no content wrapper).
+      const svg = button.querySelector(':scope > svg')
+      expect(svg).toBeInTheDocument()
+    })
   })
 
   describe('isLoading', () => {
@@ -90,33 +138,37 @@ describe('Button', () => {
       expect(screen.getByRole('button')).toBeDisabled()
     })
 
-    it('hides content when isLoading is true', () => {
+    it('keeps content wrapper but lets CSS fade it via [aria-busy]', () => {
       render(<Button isLoading>Submit</Button>)
       const button = screen.getByRole('button')
-      const contentSpan = button.querySelector(':scope > span:last-child') as HTMLElement
-      expect(contentSpan).toHaveClass('opacity-0')
+      const contentSpan = button.querySelector('.st-btn__content') as HTMLElement
+      // Opacity is driven by .st-btn[aria-busy="true"] .st-btn__content in
+      // Button.css — JSX no longer toggles opacity classes per-state.
+      expect(contentSpan).toBeInTheDocument()
+      expect(contentSpan.className).not.toContain('opacity-')
     })
 
-    it('shows spinner overlay with opacity-100 when loading', () => {
-      render(<Button isLoading>Submit</Button>)
-      const button = screen.getByRole('button')
-      const spinnerSpan = button.querySelector(':scope > span:first-child') as HTMLElement
-      expect(spinnerSpan).toHaveClass('opacity-100')
-    })
-
-    it('hides spinner when isLoading is false', () => {
+    it('keeps spinner overlay span but lets CSS reveal it via [aria-busy]', () => {
       render(<Button>Submit</Button>)
       const button = screen.getByRole('button')
-      const spinnerSpan = button.querySelector(':scope > span:first-child') as HTMLElement
-      // Spinner overlay exists but is hidden with opacity-0
-      expect(spinnerSpan).toHaveClass('opacity-0')
+      const spinnerSpan = button.querySelector('.st-btn__spinner-overlay') as HTMLElement
+      expect(spinnerSpan).toBeInTheDocument()
+      expect(spinnerSpan.className).not.toContain('opacity-')
       expect(spinnerSpan).toHaveAttribute('aria-hidden', 'true')
+    })
+
+    it('removes aria-hidden from spinner overlay while loading', () => {
+      render(<Button isLoading>Submit</Button>)
+      const button = screen.getByRole('button')
+      const spinnerSpan = button.querySelector('.st-btn__spinner-overlay') as HTMLElement
+      // When loading, the spinner enters the a11y tree.
+      expect(spinnerSpan).not.toHaveAttribute('aria-hidden', 'true')
     })
 
     it('sets aria-busy when isLoading is true', () => {
       render(<Button isLoading>Submit</Button>)
-      // aria-busy is the hook the variant uses to restore the variant
-      // colours during loading (instead of the disabled token treatment).
+      // aria-busy is the styling hook that CSS uses to restore the variant
+      // colours and switch the overlay's opacity.
       expect(screen.getByRole('button')).toHaveAttribute('aria-busy', 'true')
     })
 
@@ -138,16 +190,6 @@ describe('Button', () => {
       // browser blocks click delivery. aria-busy is purely a styling hook
       // and does not bypass the disabled attribute.
       expect(onClick).not.toHaveBeenCalled()
-    })
-
-    it('applies cursor-wait while loading (overrides cursor-not-allowed)', () => {
-      render(<Button isLoading>Submit</Button>)
-      // The doubled `aria-busy:disabled:cursor-wait` modifier wins
-      // specificity over `disabled:cursor-not-allowed` when both attributes
-      // are present, so the loading cursor reads as "processing" rather
-      // than "forbidden".
-      const button = screen.getByRole('button')
-      expect(button.className).toContain('aria-busy:disabled:cursor-wait')
     })
   })
 })

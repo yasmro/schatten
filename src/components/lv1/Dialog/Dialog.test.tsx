@@ -186,8 +186,9 @@ describe('Dialog', () => {
   it('uses primary action variant by default', () => {
     render(<Controlled />)
     const action = screen.getByRole('button', { name: 'Confirm' })
-    // Button primary variant uses bg-solid utility class
-    expect(action.className).toContain('bg-solid')
+    // After #268 sweep-3 the bg-solid utility lives inside the .st-btn--primary
+    // CSS rule — the JSX-visible signal is the modifier class itself.
+    expect(action.className).toContain('st-btn--primary')
   })
 
   it('uses destructive action variant when specified', () => {
@@ -195,7 +196,7 @@ describe('Dialog', () => {
       <Controlled actionButton={{ label: 'Delete', variant: 'destructive', onClick: () => {} }} />,
     )
     const action = screen.getByRole('button', { name: 'Delete' })
-    expect(action.className).toContain('bg-destructive')
+    expect(action.className).toContain('st-btn--destructive')
   })
 
   it('caps body height with overflow-y-auto so long content scrolls inside the dialog', () => {

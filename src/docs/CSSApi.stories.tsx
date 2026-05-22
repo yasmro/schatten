@@ -263,7 +263,7 @@ export const Reference: Story = {
       <Section
         id="spinner"
         title="Spinner — .st-spinner"
-        intro="Loading indicator. Two modifier axes (variant × size) plus three sub-element classes used by the ripple-type SVG. Animation timing is exposed via two consumer-overridable CSS variables: --schatten-spinner-duration and --schatten-spinner-ripple-delay."
+        intro="Loading indicator. Two modifier axes (variant × size) plus six sub-element classes spanning the two animation types (default: rotor / track / arc; ripple: dot / ripple-1 / ripple-2). SVG sizing is handled automatically via the .st-spinner > svg child selector — no Tailwind utility needed. Ripple timing is exposed via two consumer-overridable CSS variables (--schatten-spinner-duration / --schatten-spinner-ripple-delay); default-type rotation is hardcoded to 1s linear infinite."
         attributes={[
           {
             name: 'role="status"',
@@ -284,14 +284,9 @@ export const Reference: Story = {
       >
         <div className="flex items-center gap-6">
           <div className="st-spinner st-spinner--default st-spinner--sm" role="status">
-            <svg
-              className="size-full animate-spin"
-              viewBox="0 0 24 24"
-              fill="none"
-              aria-hidden="true"
-            >
+            <svg className="st-spinner__rotor" viewBox="0 0 24 24" fill="none" aria-hidden="true">
               <circle
-                className="opacity-25"
+                className="st-spinner__track"
                 cx="12"
                 cy="12"
                 r="10"
@@ -299,7 +294,7 @@ export const Reference: Story = {
                 strokeWidth="3"
               />
               <path
-                className="opacity-75"
+                className="st-spinner__arc"
                 d="M22 12a10 10 0 0 0-10-10"
                 stroke="currentColor"
                 strokeWidth="3"
@@ -309,14 +304,9 @@ export const Reference: Story = {
             <span className="sr-only">Loading</span>
           </div>
           <div className="st-spinner st-spinner--default st-spinner--md" role="status">
-            <svg
-              className="size-full animate-spin"
-              viewBox="0 0 24 24"
-              fill="none"
-              aria-hidden="true"
-            >
+            <svg className="st-spinner__rotor" viewBox="0 0 24 24" fill="none" aria-hidden="true">
               <circle
-                className="opacity-25"
+                className="st-spinner__track"
                 cx="12"
                 cy="12"
                 r="10"
@@ -324,7 +314,7 @@ export const Reference: Story = {
                 strokeWidth="3"
               />
               <path
-                className="opacity-75"
+                className="st-spinner__arc"
                 d="M22 12a10 10 0 0 0-10-10"
                 stroke="currentColor"
                 strokeWidth="3"
@@ -334,7 +324,7 @@ export const Reference: Story = {
             <span className="sr-only">Loading</span>
           </div>
           <div className="st-spinner st-spinner--default st-spinner--lg" role="status">
-            <svg className="size-full" viewBox="0 0 72 72" fill="none" aria-hidden="true">
+            <svg viewBox="0 0 72 72" fill="none" aria-hidden="true">
               <circle className="st-spinner__dot" cx="36" cy="36" r="2.6" />
               <circle
                 className="st-spinner__ripple-1"
@@ -356,10 +346,11 @@ export const Reference: Story = {
             <span className="sr-only">Loading</span>
           </div>
         </div>
-        <CodeBlock>{`<!-- Default (rotating circle) -->
+        <CodeBlock>{`<!-- Default (rotating circle) — SVG carries the rotor + opacity stack -->
 <div class="st-spinner st-spinner--default st-spinner--md" role="status">
-  <svg class="size-full animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-    <!-- … -->
+  <svg class="st-spinner__rotor" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <circle class="st-spinner__track" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" />
+    <path class="st-spinner__arc" d="M22 12a10 10 0 0 0-10-10" stroke="currentColor" stroke-width="3" />
   </svg>
   <span class="sr-only">Loading</span>
 </div>
@@ -378,9 +369,23 @@ export const Reference: Story = {
 <!-- variant: --default | --inverted (use --inverted on saturated surfaces) -->
 <!-- size   : --sm (16px) | --md (24px) | --lg (32px) -->
 
-<!-- Consumer-overridable timing (declared on :root) -->
+<!-- Sub-elements (default type) -->
+<!-- __rotor : the SVG itself, rotates 360deg / 1s (replaces Tailwind animate-spin) -->
+<!-- __track : background ring (opacity 0.25) -->
+<!-- __arc   : moving arc (opacity 0.75) -->
+
+<!-- Sub-elements (ripple type) -->
+<!-- __dot       : central pulsing dot -->
+<!-- __ripple-1  : outer ripple wave (no delay) -->
+<!-- __ripple-2  : outer ripple wave (delayed by --schatten-spinner-ripple-delay) -->
+
+<!-- Consumer-overridable timing (declared on :root, ripple type only) -->
 <!-- --schatten-spinner-duration        default 2.8s -->
-<!-- --schatten-spinner-ripple-delay    default 1.1s -->`}</CodeBlock>
+<!-- --schatten-spinner-ripple-delay    default 1.1s -->
+
+<!-- Default-type rotation is hardcoded 1s linear infinite. SVG sizing is
+     handled by the .st-spinner > svg child selector — no Tailwind utility
+     is required on the inner SVG. -->`}</CodeBlock>
       </Section>
 
       <Section

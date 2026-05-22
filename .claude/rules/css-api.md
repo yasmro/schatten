@@ -248,6 +248,107 @@ the React side (it carries through for a11y wiring of
 Vanilla HTML consumers writing the modifier class get a working
 separator with no required attribute.
 
+## Structural `:has()` for layout selection
+
+Beyond runtime state (handled by attribute selectors, §State above) and
+author configuration (handled by modifier classes, §Exception above),
+some components need to switch layout based on **which sub-elements the
+author chose to render**. This is a third axis — call it *structural*
+because the signal is the DOM shape itself, not a runtime event and not
+a prop value.
+
+The contract is `:has()` on the block's documented sub-element classes:
+
+```css
+@layer components {
+  /* Default: single-content alignment */
+  .st-callout {
+    align-items: center;
+  }
+
+  /* Title + body present: anchor icon to the heading top */
+  .st-callout:has(.st-callout__title):has(.st-callout__body) {
+    align-items: flex-start;
+  }
+
+  /* The same selector cascades to descendants that need the multi-line nudge */
+  .st-callout:has(.st-callout__title):has(.st-callout__body) .st-callout__icon {
+    margin-top: 0.125rem;
+  }
+}
+```
+
+### Why not push the decision into JSX
+
+The straightforward alternative is to compute a boolean in the component
+(`const hasMultiLine = !!(title && body)`) and toggle a Tailwind utility
+or a class from JSX. Doing that has two costs:
+
+- **The JSX side carries layout logic that the CSS-only consumer cannot
+  reproduce.** A vanilla-HTML user writing the same sub-element chain
+  would get the single-content alignment regardless of whether they
+  included `__title` and `__body`. The CSS path and the JSX path stop
+  agreeing — exactly the gap the framework-agnostic surface is meant to
+  close.
+- **The component grows a derived signal that future maintainers can
+  re-introduce silently.** PR #288's review caught a stale comment
+  pointing at a `hasMultiLine` variable that had already been removed —
+  the kind of bookkeeping debt that a JSX-side branch invites and that
+  the CSS-side `:has()` makes structurally impossible.
+
+Pushing the decision to CSS via `:has()` keeps **the DOM shape the
+single source of truth** for layout — whichever path emits the shape,
+the same layout follows.
+
+### Rules
+
+- **Use only for *structural* signals**, never for runtime state.
+  State (`isError` / `isLoading` / Radix `data-state`) keeps going
+  through the attribute selectors in §State above; the two patterns
+  are not interchangeable. The line is *"does the DOM shape change in
+  response to a UX event?"* (state — attribute) vs. *"is the DOM
+  shape a fixed property of how the author wrote the markup?"*
+  (structure — `:has()`).
+- **Match against documented sub-element classes**, not against
+  arbitrary child selectors (`:has(svg)` / `:has(button)`). The
+  sub-element class is the contract that survives consumer DOM
+  refactors; a tag-based `:has()` couples the rule to incidental
+  markup.
+- **The block must own the layout for `:has()` to fire usefully on
+  direct descendants.** The Callout pattern works because `__title` /
+  `__body` / `__icon` are *immediate children* of `.st-callout`. A
+  wrapper `<div>` inserted between block and sub-elements either
+  breaks `:has(> .sub-element)` matching or shifts the layout target
+  invisibly. Pin the direct-children structure with a unit test so
+  future refactors can't silently insert a wrapper (see
+  [Callout.test.tsx](../../src/components/lv1/Callout/Callout.test.tsx)
+  `renders icon + content as direct children of the root`).
+- **Sub-elements named in `:has()` selectors are part of the public
+  surface contract.** Renaming `.st-callout__title` to
+  `.st-callout__heading` would silently break the layout rule even if
+  the manifest still lists both. The
+  [api-stability.md](api-stability.md) breaking-change policy applies
+  — a rename is `major` post-1.0.
+
+### Browser support
+
+`:has()` is supported in Safari 15.4+, Firefox 121+, and Chrome 105+.
+Schatten's Tailwind v4 baseline already requires these versions, so
+adopting `:has()` does not introduce a new browser-support floor.
+
+### Today's usage
+
+- **Callout** ([Callout.css](../../src/components/lv1/Callout/Callout.css))
+  — `.st-callout:has(.st-callout__title):has(.st-callout__body)` toggles
+  `align-items` from `center` to `flex-start` so the icon anchors to
+  the heading when both heading and body are present. The same selector
+  also nudges `.st-callout__icon { margin-top: 0.125rem }` for optical
+  centering against the title's cap-height.
+
+When you reach for `:has()` in a future component, walk the four rules
+above before authoring. If the layout decision feels closer to "runtime
+state changed" than to "DOM shape says so," go back to §State.
+
 ## `@layer` order
 
 `dist/schatten.css` declares its layer order once, near the top of
@@ -572,6 +673,11 @@ Two consequences:
   `[aria-invalid="true"]`, `[aria-busy="true"]`, `[data-state]`,
   `[data-side]`, `[data-swipe]`, `[data-error]`, `[data-disabled]`
   (Field / FieldSet propagation).
+- **Structure**: `:has()` on documented sub-element classes for
+  layout decisions that depend on which sub-elements the author
+  rendered (`.st-callout:has(.st-callout__title):has(.st-callout__body)`).
+  Three-axis rule: **state → attribute, structure → `:has()`, author
+  config → modifier.** Never use `:has()` for runtime state.
 - **Layer order**: `reset, tokens, components, utilities`.
 - **Dark / seasonal**: token-driven by default; `:where(.dark)
   .st-*` when a rule (not just a value) differs.

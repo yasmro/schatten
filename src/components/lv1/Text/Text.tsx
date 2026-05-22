@@ -2,6 +2,7 @@ import { Slot } from '@radix-ui/react-slot'
 import { forwardRef, type HTMLAttributes } from 'react'
 import { cn } from '../../../lib/utils'
 import { type TextVariants, textVariants } from '../../../variants/text'
+import './Text.css'
 
 type TextElement = 'p' | 'span' | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
 

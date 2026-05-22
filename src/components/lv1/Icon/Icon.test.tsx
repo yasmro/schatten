@@ -9,37 +9,42 @@ describe('Icon', () => {
     expect(container.querySelector('svg')).toBeInTheDocument()
   })
 
+  it('emits the canonical st-icon class chain for default props', () => {
+    render(<Icon icon={Search} data-testid="i" />)
+    expect(screen.getByTestId('i')).toHaveClass('st-icon', 'st-icon--md', 'st-icon--inherit')
+  })
+
   describe('sizes', () => {
-    it('applies size classes', () => {
+    it('applies size modifier classes', () => {
       const { rerender, container } = render(<Icon icon={Search} size="sm" />)
       const getSvg = () => container.querySelector('svg') as SVGElement
-      expect(getSvg()).toHaveClass('size-4')
+      expect(getSvg()).toHaveClass('st-icon--sm')
 
       rerender(<Icon icon={Search} size="lg" />)
-      expect(getSvg()).toHaveClass('size-6')
+      expect(getSvg()).toHaveClass('st-icon--lg')
     })
 
-    it('defaults to md size', () => {
+    it('defaults to the md size modifier', () => {
       const { container } = render(<Icon icon={Search} />)
-      expect(container.querySelector('svg')).toHaveClass('size-5')
+      expect(container.querySelector('svg')).toHaveClass('st-icon--md')
     })
   })
 
   describe('color', () => {
-    it('inherits currentColor by default (text-inherit, not a fixed color)', () => {
+    it('inherits currentColor by default via st-icon--inherit (not a fixed color)', () => {
       const { container } = render(<Icon icon={Search} />)
       const svg = container.querySelector('svg') as SVGElement
-      expect(svg).toHaveClass('text-inherit')
-      expect(svg).not.toHaveClass('text-foreground')
+      expect(svg).toHaveClass('st-icon--inherit')
+      expect(svg).not.toHaveClass('st-icon--default')
     })
 
-    it('applies the semantic color token when color is set', () => {
+    it('applies the semantic color modifier when color is set', () => {
       const { rerender, container } = render(<Icon icon={Search} color="error" />)
       const getSvg = () => container.querySelector('svg') as SVGElement
-      expect(getSvg()).toHaveClass('text-error')
+      expect(getSvg()).toHaveClass('st-icon--error')
 
       rerender(<Icon icon={Search} color="vermillion" />)
-      expect(getSvg()).toHaveClass('text-vermillion')
+      expect(getSvg()).toHaveClass('st-icon--vermillion')
     })
   })
 
@@ -100,10 +105,10 @@ describe('Icon', () => {
     })
   })
 
-  it('forwards className alongside the size class', () => {
+  it('forwards className alongside the size modifier class', () => {
     const { container } = render(<Icon icon={Search} className="text-info" />)
     const svg = container.querySelector('svg') as SVGElement
-    expect(svg).toHaveClass('size-5')
+    expect(svg).toHaveClass('st-icon--md')
     expect(svg).toHaveClass('text-info')
   })
 

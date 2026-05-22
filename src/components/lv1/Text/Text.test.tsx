@@ -8,6 +8,16 @@ describe('Text', () => {
     expect(screen.getByText('Hello')).toBeInTheDocument()
   })
 
+  it('emits the canonical st-text class chain for default props', () => {
+    render(<Text data-testid="t">Hello</Text>)
+    expect(screen.getByTestId('t')).toHaveClass(
+      'st-text',
+      'st-text--body',
+      'st-text--md',
+      'st-text--default',
+    )
+  })
+
   describe('default element', () => {
     it('renders <p> for variant="body" by default', () => {
       const { container } = render(<Text>Body</Text>)
@@ -64,56 +74,56 @@ describe('Text', () => {
         </Text>,
       )
       const link = screen.getByRole('link')
-      expect(link).toHaveClass('text-error')
+      expect(link).toHaveClass('st-text--error')
     })
   })
 
   describe('color', () => {
-    it('applies semantic color classes', () => {
+    it('applies semantic color modifier classes', () => {
       const { container, rerender } = render(<Text color="error">x</Text>)
       const getEl = () => container.firstElementChild as HTMLElement
-      expect(getEl()).toHaveClass('text-error')
+      expect(getEl()).toHaveClass('st-text--error')
 
       rerender(<Text color="success">x</Text>)
-      expect(getEl()).toHaveClass('text-success')
+      expect(getEl()).toHaveClass('st-text--success')
 
       rerender(<Text color="muted">x</Text>)
-      expect(getEl()).toHaveClass('text-foreground-muted')
+      expect(getEl()).toHaveClass('st-text--muted')
 
       rerender(<Text color="inherit">x</Text>)
-      expect(getEl()).toHaveClass('text-inherit')
+      expect(getEl()).toHaveClass('st-text--inherit')
     })
 
-    it('applies brand color classes', () => {
+    it('applies brand color modifier classes', () => {
       const { container, rerender } = render(<Text color="vermillion">x</Text>)
       const getEl = () => container.firstElementChild as HTMLElement
-      expect(getEl()).toHaveClass('text-vermillion')
+      expect(getEl()).toHaveClass('st-text--vermillion')
 
       rerender(<Text color="indigo">x</Text>)
-      expect(getEl()).toHaveClass('text-indigo')
+      expect(getEl()).toHaveClass('st-text--indigo')
     })
   })
 
   describe('align', () => {
-    it('applies alignment classes', () => {
+    it('applies alignment modifier classes', () => {
       const { container, rerender } = render(<Text align="center">x</Text>)
       const getEl = () => container.firstElementChild as HTMLElement
-      expect(getEl()).toHaveClass('text-center')
+      expect(getEl()).toHaveClass('st-text--align-center')
 
       rerender(<Text align="right">x</Text>)
-      expect(getEl()).toHaveClass('text-right')
+      expect(getEl()).toHaveClass('st-text--align-right')
     })
   })
 
   describe('truncate', () => {
-    it('applies truncate class when truncate is true', () => {
+    it('applies the truncate modifier when truncate is true', () => {
       const { container } = render(<Text truncate>long</Text>)
-      expect(container.firstElementChild).toHaveClass('truncate')
+      expect(container.firstElementChild).toHaveClass('st-text--truncate')
     })
 
-    it('does not apply truncate class by default', () => {
+    it('does not apply the truncate modifier by default', () => {
       const { container } = render(<Text>short</Text>)
-      expect(container.firstElementChild).not.toHaveClass('truncate')
+      expect(container.firstElementChild).not.toHaveClass('st-text--truncate')
     })
   })
 

@@ -1,0 +1,36 @@
+/*
+ * Separator — `.st-separator` class API.
+ *
+ * Orientation is an author configuration (not runtime state), so it
+ * goes through a modifier class per the css-api.md rule
+ * ("variant / appearance / size / orientation → modifier"). The
+ * matching `data-orientation` attribute is still emitted by Radix on
+ * the React path for a11y wiring (`aria-orientation` mirrors it when
+ * `decorative={false}`), but it does **not** drive styling — the CSS
+ * here only targets `.st-separator--horizontal` /
+ * `.st-separator--vertical`. Vanilla HTML consumers therefore only
+ * need the modifier class to get a working separator; setting
+ * `data-orientation` is optional (recommended for DOM parity with
+ * the React output and for a11y).
+ *
+ * Uses raw CSS + `var(--color-*)` rather than `@apply`, per
+ * css-api.md "Component CSS authoring conventions".
+ *
+ * See: .claude/rules/css-api.md, #266 詳細設計 §4.1.
+ */
+@layer components {
+  .st-separator {
+    flex-shrink: 0;
+    background-color: var(--color-border);
+  }
+
+  .st-separator--horizontal {
+    height: 1px;
+    width: 100%;
+  }
+
+  .st-separator--vertical {
+    height: 100%;
+    width: 1px;
+  }
+}

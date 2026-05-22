@@ -257,7 +257,19 @@ importing from a higher one) are forbidden.
 
 Most styling lives in Tailwind classes composed through CVA. A `.css` file
 next to a `.tsx` is allowed **only** when the styling expresses something
-Tailwind / CVA cannot reasonably express:
+Tailwind / CVA cannot reasonably express.
+
+> **Exception — `.st-{block}` class API definitions.** The `{Component}.css`
+> files added by [#154](https://github.com/yasmro/schatten/issues/154)
+> sweep-1〜7 are **exempt from the table below**: they ARE the SSOT for
+> the public class API per [css-api.md](css-api.md), and authoring them
+> with `@apply` against semantic tokens is the intended pattern. CVA
+> simplifies to class-name concatenation only, and the visual rules
+> (static colors, spacing, typography, hover/focus, light/dark, layout)
+> all land in the component's own `.css` under `@layer components`. The
+> table below remains the rule for any *other* lv1-local CSS — animation,
+> scoped variables, `prefers-reduced-motion`, conditional
+> `animation-play-state`.
 
 | Allowed | Not allowed |
 |---|---|

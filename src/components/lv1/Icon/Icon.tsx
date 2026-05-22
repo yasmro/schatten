@@ -2,6 +2,7 @@ import type { LucideIcon, LucideProps } from 'lucide-react'
 import { forwardRef } from 'react'
 import { cn } from '../../../lib/utils'
 import { type IconVariants, iconVariants } from '../../../variants/icon'
+import './Icon.css'
 
 export interface IconProps extends Omit<LucideProps, 'ref' | 'size' | 'color'>, IconVariants {
   /**

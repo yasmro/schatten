@@ -214,6 +214,27 @@ intentionally changed something a snapshot covers, force a faithful
 re-capture by **deleting the PNG and re-running** `pnpm test:vrt`, rather
 than trusting a green `test:vrt:update`.
 
+### The mirror trap — `rm` + regenerate without `test:vrt` first
+
+The complementary mistake is to **delete the PNG and regenerate immediately**
+when you *suspect* a change but haven't verified one is needed. Doing so:
+
+1. Bypasses the 1% threshold check that would tell you "actually no real
+   diff" — Playwright happily writes a new baseline with whatever
+   sub-pixel font / antialiasing noise this run produced.
+2. Inflates the PR diff with regenerated PNGs that aren't carrying any
+   visual contract change. Reviewers can't tell what the migration
+   actually changed visually.
+3. Forfeits a free signal: a clean `pnpm test:vrt` pass against the
+   existing baseline is **proof that the visual contract held**. For
+   token-driven refactors (where the migration *shouldn't* change
+   render) this signal is the whole point.
+
+**Always run `pnpm test:vrt` first.** Only delete + regenerate when the
+test actually fails and you've confirmed via `*-diff.png` that the
+change is intended and unavoidable. This was learned the expensive way
+during #266 sweep-1 — see PR #282 for the receipts.
+
 ## Snapshot Naming
 
 Snapshots are named `{story}-{theme}.png`:

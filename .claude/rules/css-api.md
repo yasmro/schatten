@@ -120,7 +120,6 @@ directly:
 | Radix runtime state | `[data-state="open" \| "closed" \| "checked" \| …]` | `.st-dialog__content[data-state="open"]` |
 | Radix popper side | `[data-side="top" \| "right" \| "bottom" \| "left"]` | `.st-tooltip__content[data-side="bottom"]` |
 | Toast swipe | `[data-swipe="start" \| "move" \| "end" \| "cancel"]` | `.st-toast[data-swipe="end"]` |
-| Separator orientation | `[data-orientation="horizontal" \| "vertical"]` | `.st-separator[data-orientation="horizontal"]` |
 | Field / FieldSet error propagation | `[data-error="true"]` | `.st-field[data-error="true"]`, `.st-fieldset[data-error="true"]` |
 | Field / FieldSet disabled propagation | `[data-disabled="true"]` | `.st-field[data-disabled="true"]`, `.st-fieldset[data-disabled="true"]` |
 
@@ -139,10 +138,13 @@ directly:
   also setting `aria-invalid="true"` — the class doesn't exist. This
   is the CSS incarnation of the "do not rely on color alone" rule
   from [component-architecture.md §8](component-architecture.md#8-accessibility-contract).
-- **Symmetry with Radix.** Radix already emits `[data-state]`,
-  `[data-side]`, `[data-orientation]` as styling hooks; piggybacking
-  on them keeps the React and vanilla paths visually identical
-  without re-deriving state in a parallel class.
+- **Symmetry with Radix.** Radix already emits `[data-state]` and
+  `[data-side]` as runtime state hooks; piggybacking on them keeps the
+  React and vanilla paths visually identical without re-deriving state
+  in a parallel class. (Radix also emits `[data-orientation]`, but
+  that one reflects *author configuration*, not runtime state, so it
+  goes through a modifier class — see "Exception: variant /
+  appearance / size / orientation" below.)
 
 ### Authoring consequences
 
@@ -157,13 +159,23 @@ directly:
   rule (`.st-btn:disabled`). Author state rules **after** the base
   rule in the source.
 
-### Exception: variant / appearance / size
+### Exception: variant / appearance / size / orientation
 
-These three axes are **not** state — they're the author's
-configuration choice — and they go through modifier classes
-(`--primary`, `--subtle`, `--md`) rather than attributes. The line is
-*"state changes at runtime in response to UX events"* (attribute) vs.
-*"configuration the author wrote once"* (modifier).
+These axes are **not** state — they're the author's configuration
+choice — and they go through modifier classes (`--primary`,
+`--subtle`, `--md`, `--horizontal`) rather than attributes. The line
+is *"state changes at runtime in response to UX events"* (attribute)
+vs. *"configuration the author wrote once"* (modifier).
+
+Separator's `orientation` belongs here even though Radix happens to
+also emit it as `[data-orientation]` — the value is set once by the
+author at construction, never flipped at runtime by user input. The
+matching `data-orientation` attribute is therefore informational on
+the React side (it carries through for a11y wiring of
+`aria-orientation`) but does **not** drive styling: the CSS targets
+`.st-separator--horizontal` / `.st-separator--vertical` instead.
+Vanilla HTML consumers writing the modifier class get a working
+separator with no required attribute.
 
 ## `@layer` order
 
@@ -327,17 +339,80 @@ conventions above, **stop and discuss in the PR** rather than
 introducing a dialect. The cost of cleaning up a one-off naming
 pattern after 1.0 is `major`-bump-grade.
 
+### Component CSS authoring conventions — raw CSS over `@apply`
+
+Component CSS files (`src/components/lv1/{X}/{X}.css`) **must use raw
+CSS + `var(--color-*)` directly**, not Tailwind's `@apply` shortcut:
+
+```css
+/* ✅ Right — raw CSS, framework-agnostic */
+.st-text--error { color: var(--color-error); }
+.st-icon--md    { width: 1.25rem; height: 1.25rem; }
+
+/* ❌ Wrong — depends on Tailwind v4 @apply resolution */
+.st-text--error { @apply text-error; }
+.st-icon--md    { @apply size-5; }
+```
+
+Why the rule: Tailwind v4 requires `@reference` in component CSS files
+that use `@apply`, so each file can be processed independently by Vite
+in dev mode (Storybook). But adding `@reference "globals.css"` (or
+similar) to a component CSS file **suppresses `@theme` emission from
+the dist build**, because Tailwind sees the reference and dedupes the
+theme block out of the final `dist/schatten.css` — every `--color-*`
+variable disappears from the manifest. This is a Tailwind v4 / Vite /
+Storybook integration corner case discovered during #266 sweep-1; raw
+CSS sidesteps it entirely.
+
+Beyond compatibility, raw CSS is also **more readable for a
+framework-agnostic CSS consumer** — they can read
+`.st-text--error { color: var(--color-error); }` and immediately
+understand the contract, with no Tailwind utility-name decoder ring
+required.
+
+Use `@apply` only inside keyframe / `prefers-reduced-motion` /
+animation-specific CSS where it genuinely helps (the existing
+Spinner.css / Tooltip.css / Dialog.css / Toast.css don't trip this
+because they have no `@apply` for tokens — only `@keyframes`).
+
+### Empty base rules are dropped by `--minify`
+
+Tailwind v4's `--minify` flag strips CSS rules with no declarations.
+Writing `.st-{block} { }` to "document the root class" does **not**
+keep it in `dist/schatten.css`, and the manifest generator (which
+parses the compiled dist) consequently won't list it either —
+the rule simply isn't there.
+
+This is fine. The root class still appears in JSX output
+(`<svg class="st-icon st-icon--md st-icon--inherit">`) because the
+CVA always emits it alongside the modifiers, and consumers writing
+vanilla HTML write the same class chain. The functional contract is
+carried entirely by the modifiers, which **are** in the manifest.
+
+Two consequences:
+
+1. **Don't author empty base rules expecting manifest presence.**
+   `Icon.css` discovered this during sweep-1 (#266) — the comment
+   in that file documents the outcome and the rationale for not
+   working around it.
+2. **If a block genuinely needs CSS that applies regardless of
+   modifier, give the base a real declaration.** `.st-text` does
+   this (`@apply text-foreground antialiased`), and survives minify
+   into both dist and manifest. The choice should be driven by
+   "does this need to render with no modifiers?" — not by manifest
+   bookkeeping.
+
 ## Quick reference
 
 - **Prefix**: `st-` (frozen for v1.0).
 - **BEM**: `.st-{block}` / `.st-{block}--{modifier}` /
   `.st-{block}__{element}`.
-- **Modifiers**: variant / appearance / size — one axis per
-  modifier, emitted side-by-side.
+- **Modifiers**: variant / appearance / size / orientation — one
+  axis per modifier, emitted side-by-side.
 - **State**: attributes, not classes — `:disabled`, `:read-only`,
   `[aria-invalid="true"]`, `[aria-busy="true"]`, `[data-state]`,
-  `[data-side]`, `[data-swipe]`, `[data-orientation]`,
-  `[data-error]`, `[data-disabled]` (Field / FieldSet propagation).
+  `[data-side]`, `[data-swipe]`, `[data-error]`, `[data-disabled]`
+  (Field / FieldSet propagation).
 - **Layer order**: `reset, tokens, components, utilities`.
 - **Dark / seasonal**: token-driven by default; `:where(.dark)
   .st-*` when a rule (not just a value) differs.

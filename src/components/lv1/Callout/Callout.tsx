@@ -98,11 +98,12 @@ export const Callout = forwardRef<HTMLDivElement, CalloutProps>(
     // that callsites can normalise on the prop form without worrying that
     // a stray `{children}` from a wrapper will silently take precedence.
     const body = description ?? children
-    // Layout-mode signal kept for accessibility wiring only — the visual
-    // alignment (icon-next-to-title vs icon-centered) is driven entirely
-    // by the `:has(.st-callout__title):has(.st-callout__body)` selector
-    // in Callout.css, so this component carries no flex/items utility
-    // classes anymore.
+    // Multi-line alignment (icon-top vs icon-center) is handled by the
+    // `:has(.st-callout__title):has(.st-callout__body)` selector in
+    // Callout.css — JSX carries no flex/items utility classes here.
+    // Do not re-introduce a `hasMultiLine` JSX conditional; the CSS
+    // contract relies on title / body sub-elements being direct children
+    // of `.st-callout` so `:has()` can detect them.
 
     return (
       <div ref={ref} className={cn(calloutVariants({ variant, appearance }), className)} {...props}>

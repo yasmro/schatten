@@ -443,7 +443,7 @@ export const Reference: Story = {
       <Section
         id="callout"
         title="Callout — .st-callout"
-        intro="Inline status block. Pattern B (tone × shape): five variants × two appearances, with sub-element classes (__icon / __title / __body) for layout. No default ARIA role — pass role=&quot;status&quot; (polite) or role=&quot;alert&quot; (assertive) for dynamic callouts."
+        intro="Inline status block. Pattern B (tone × shape): five variants × two appearances. Sub-elements (__icon / __content / __title / __body / __action) sit directly under the block — layout (display: flex) is on .st-callout itself, with align-items auto-switching between center (single-content) and start (multi-line, via :has()). No default ARIA role — pass role=&quot;status&quot; (polite) or role=&quot;alert&quot; (assertive) for dynamic callouts."
         attributes={[
           {
             name: 'role',
@@ -460,62 +460,68 @@ export const Reference: Story = {
       >
         <div className="space-y-3">
           <div className="st-callout st-callout--info st-callout--subtle">
-            <div className="flex gap-3 items-start">
-              <svg
-                className="st-callout__icon"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                aria-hidden="true"
-              >
-                <circle cx="12" cy="12" r="10" />
-                <path d="M12 16v-4" />
-                <path d="M12 8h.01" />
-              </svg>
-              <div className="flex min-w-0 flex-1 flex-col gap-1">
-                <div className="st-callout__title">Heads up</div>
-                <div className="st-callout__body">
-                  Subtle appearance — tinted background, tone color text.
-                </div>
+            <svg
+              className="st-callout__icon"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <path d="M12 16v-4" />
+              <path d="M12 8h.01" />
+            </svg>
+            <div className="st-callout__content">
+              <div className="st-callout__title">Heads up</div>
+              <div className="st-callout__body">
+                Subtle appearance — tinted background, tone color text.
               </div>
             </div>
           </div>
           <div className="st-callout st-callout--error st-callout--solid">
-            <div className="flex gap-3 items-start">
-              <svg
-                className="st-callout__icon"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                aria-hidden="true"
-              >
-                <circle cx="12" cy="12" r="10" />
-                <line x1="12" x2="12" y1="8" y2="12" />
-                <line x1="12" x2="12.01" y1="16" y2="16" />
-              </svg>
-              <div className="flex min-w-0 flex-1 flex-col gap-1">
-                <div className="st-callout__title">Failed</div>
-                <div className="st-callout__body">
-                  Solid appearance — saturated fill, inverted foreground.
-                </div>
+            <svg
+              className="st-callout__icon"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <line x1="12" x2="12" y1="8" y2="12" />
+              <line x1="12" x2="12.01" y1="16" y2="16" />
+            </svg>
+            <div className="st-callout__content">
+              <div className="st-callout__title">Failed</div>
+              <div className="st-callout__body">
+                Solid appearance — saturated fill, inverted foreground.
               </div>
             </div>
           </div>
         </div>
-        <CodeBlock>{`<div class="st-callout st-callout--info st-callout--subtle" role="status">
-  <div class="flex gap-3 items-start">
-    <svg class="st-callout__icon" aria-hidden="true">…</svg>
-    <div class="flex min-w-0 flex-1 flex-col gap-1">
-      <div class="st-callout__title">Heads up</div>
-      <div class="st-callout__body">…</div>
-    </div>
+        <CodeBlock>{`<!-- Layout is on .st-callout itself — sub-elements sit directly under it -->
+<div class="st-callout st-callout--info st-callout--subtle" role="status">
+  <svg class="st-callout__icon" aria-hidden="true">…</svg>
+  <div class="st-callout__content">
+    <div class="st-callout__title">Heads up</div>
+    <div class="st-callout__body">…</div>
   </div>
+</div>
+
+<!-- With action / close button (both use the __action trailing slot) -->
+<div class="st-callout st-callout--warning st-callout--subtle">
+  <svg class="st-callout__icon" aria-hidden="true">…</svg>
+  <div class="st-callout__content">
+    <div class="st-callout__title">Unsaved changes</div>
+    <div class="st-callout__body">…</div>
+  </div>
+  <div class="st-callout__action"><button>Save now</button></div>
+  <button class="st-callout__action" aria-label="Close">…</button>
 </div>
 
 <!-- Modifier vocabulary -->
@@ -524,11 +530,15 @@ export const Reference: Story = {
                   (both first-class; emit alongside variant) -->
 
 <!-- Sub-elements -->
-<!-- __icon  : variant icon wrapper (sizes itself to 20px square) -->
-<!-- __title : bold heading -->
-<!-- __body  : description content -->
+<!-- __icon    : variant icon wrapper (sizes itself to 20px square) -->
+<!-- __content : title + body column (flex-col, fills remaining space) -->
+<!-- __title   : bold heading -->
+<!-- __body    : description content -->
+<!-- __action  : trailing slot for action / close button (shrink-0) -->
 
-<!-- The Close button is rendered via .st-btn (sweep-3) — not a Callout sub-element. -->`}</CodeBlock>
+<!-- Layout alignment is automatic:
+       - title-only or body-only → align-items: center
+       - title AND body present  → align-items: flex-start  (via :has()) -->`}</CodeBlock>
       </Section>
 
       <p className="st-text st-text--body st-text--sm st-text--subtle mt-8">

@@ -100,39 +100,31 @@ export const Parity: Story = {
       <div className="space-y-3">
         <p className="text-xs mb-2 text-foreground-muted">Vanilla HTML</p>
         <div className="st-callout st-callout--neutral st-callout--subtle">
-          <div className="flex gap-3 items-start">
-            <InfoSvg />
-            <div className="flex min-w-0 flex-1 flex-col gap-1">
-              <div className="st-callout__title">Neutral subtle</div>
-              <div className="st-callout__body">The quick brown fox jumps over the lazy dog.</div>
-            </div>
+          <InfoSvg />
+          <div className="st-callout__content">
+            <div className="st-callout__title">Neutral subtle</div>
+            <div className="st-callout__body">The quick brown fox jumps over the lazy dog.</div>
           </div>
         </div>
         <div className="st-callout st-callout--success st-callout--subtle">
-          <div className="flex gap-3 items-start">
-            <CheckSvg />
-            <div className="flex min-w-0 flex-1 flex-col gap-1">
-              <div className="st-callout__title">Saved</div>
-              <div className="st-callout__body">Changes have been persisted.</div>
-            </div>
+          <CheckSvg />
+          <div className="st-callout__content">
+            <div className="st-callout__title">Saved</div>
+            <div className="st-callout__body">Changes have been persisted.</div>
           </div>
         </div>
         <div className="st-callout st-callout--error st-callout--solid">
-          <div className="flex gap-3 items-start">
-            <AlertSvg />
-            <div className="flex min-w-0 flex-1 flex-col gap-1">
-              <div className="st-callout__title">Failed</div>
-              <div className="st-callout__body">Could not connect to the upstream.</div>
-            </div>
+          <AlertSvg />
+          <div className="st-callout__content">
+            <div className="st-callout__title">Failed</div>
+            <div className="st-callout__body">Could not connect to the upstream.</div>
           </div>
         </div>
         <div className="st-callout st-callout--info st-callout--subtle">
-          <div className="flex gap-3 items-center">
-            <InfoSvg />
-            <div className="flex min-w-0 flex-1 flex-col gap-1">
-              <div className="st-callout__body">
-                Title-less body — runs centered alongside the icon.
-              </div>
+          <InfoSvg />
+          <div className="st-callout__content">
+            <div className="st-callout__body">
+              Title-less body — runs centered alongside the icon.
             </div>
           </div>
         </div>

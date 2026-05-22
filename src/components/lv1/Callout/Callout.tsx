@@ -98,33 +98,32 @@ export const Callout = forwardRef<HTMLDivElement, CalloutProps>(
     // that callsites can normalise on the prop form without worrying that
     // a stray `{children}` from a wrapper will silently take precedence.
     const body = description ?? children
-    // Mirror Toast's two-regime alignment: title-only (or body-only) sits
-    // visually centered, title+body uses top alignment so the icon stays
-    // next to the heading.
-    const hasMultiLine = !!(title && body)
+    // Layout-mode signal kept for accessibility wiring only — the visual
+    // alignment (icon-next-to-title vs icon-centered) is driven entirely
+    // by the `:has(.st-callout__title):has(.st-callout__body)` selector
+    // in Callout.css, so this component carries no flex/items utility
+    // classes anymore.
 
     return (
       <div ref={ref} className={cn(calloutVariants({ variant, appearance }), className)} {...props}>
-        <div className={cn('flex gap-3', hasMultiLine ? 'items-start' : 'items-center')}>
-          <Icon className={cn('st-callout__icon', hasMultiLine && 'mt-0.5')} aria-hidden="true" />
-          <div className="flex min-w-0 flex-1 flex-col gap-1">
-            {title && <div className="st-callout__title">{title}</div>}
-            {body && <div className="st-callout__body">{body}</div>}
-          </div>
-
-          {action && <div className="shrink-0">{action}</div>}
-
-          {onClose && (
-            <Button
-              variant={buttonVariant}
-              size="sm"
-              icon={X}
-              aria-label="Close"
-              className="shrink-0"
-              onClick={onClose}
-            />
-          )}
+        <Icon className="st-callout__icon" aria-hidden="true" />
+        <div className="st-callout__content">
+          {title && <div className="st-callout__title">{title}</div>}
+          {body && <div className="st-callout__body">{body}</div>}
         </div>
+
+        {action && <div className="st-callout__action">{action}</div>}
+
+        {onClose && (
+          <Button
+            variant={buttonVariant}
+            size="sm"
+            icon={X}
+            aria-label="Close"
+            className="st-callout__action"
+            onClick={onClose}
+          />
+        )}
       </div>
     )
   },

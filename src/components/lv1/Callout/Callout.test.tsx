@@ -89,6 +89,23 @@ describe('Callout', () => {
     expect(screen.getByRole('button', { name: 'Close' })).toBeInTheDocument()
   })
 
+  it('wraps the action node in a __action sub-element slot', () => {
+    const { container } = render(
+      <Callout title="With action" action={<Button size="sm">Save</Button>}>
+        Body
+      </Callout>,
+    )
+    const actionSlot = container.querySelector('.st-callout__action')
+    expect(actionSlot).toBeInTheDocument()
+    expect(actionSlot?.querySelector('button')).toHaveTextContent('Save')
+  })
+
+  it('applies __action to the close button so it inherits the trailing-slot layout', () => {
+    const { container } = render(<Callout title="X" onClose={() => {}} />)
+    const closeBtn = container.querySelector('button[aria-label="Close"]')
+    expect(closeBtn).toHaveClass('st-callout__action')
+  })
+
   it('applies the subtle modifier for the chosen variant', () => {
     const { container } = render(<Callout variant="success" appearance="subtle" />)
     const root = container.firstChild as HTMLElement
@@ -101,16 +118,23 @@ describe('Callout', () => {
     expect(root).toHaveClass('st-callout--error', 'st-callout--solid')
   })
 
-  it('uses items-center when there is only a title', () => {
+  it('renders icon + content as direct children of the root (no inner flex wrapper)', () => {
     const { container } = render(<Callout title="Only" />)
-    expect(container.querySelector('.items-center')).toBeInTheDocument()
-    expect(container.querySelector('.items-start')).not.toBeInTheDocument()
+    const root = container.firstChild as HTMLElement
+    // Layout is on `.st-callout` itself — children sit directly under
+    // it rather than inside an extra flex `<div>`. This guarantees that
+    // the CSS-driven `:has()` align-items rule works (it targets
+    // immediate descendants).
+    expect(root.querySelector('svg.st-callout__icon')?.parentElement).toBe(root)
+    expect(root.querySelector('.st-callout__content')?.parentElement).toBe(root)
   })
 
-  it('uses items-start when both title and body are present', () => {
+  it('renders both title and body inside the __content sub-element when both are present', () => {
     const { container } = render(<Callout title="Heading">Body</Callout>)
-    expect(container.querySelector('.items-start')).toBeInTheDocument()
-    expect(container.querySelector('.items-center')).not.toBeInTheDocument()
+    const content = container.querySelector('.st-callout__content') as HTMLElement
+    expect(content).toBeInTheDocument()
+    expect(content.querySelector('.st-callout__title')).toHaveTextContent('Heading')
+    expect(content.querySelector('.st-callout__body')).toHaveTextContent('Body')
   })
 
   it('forwards ref to the root element', () => {

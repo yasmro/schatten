@@ -35,7 +35,14 @@ describe('Spinner', () => {
       const { container } = render(<Spinner data-testid="s" />)
       const svg = container.querySelector('svg')
       expect(svg).toBeInTheDocument()
-      expect(svg?.classList.contains('animate-spin')).toBe(true)
+      // Default-type SVG carries the rotor class — its CSS rule applies the
+      // `schatten-spin` animation. This is what replaced the legacy
+      // `animate-spin` Tailwind utility in #285.
+      expect(svg).toHaveClass('st-spinner__rotor')
+      // Inner track + arc shapes carry their own sub-element classes for
+      // the opacity stack — previously inline `opacity-25` / `opacity-75`.
+      expect(container.querySelector('.st-spinner__track')).toBeInTheDocument()
+      expect(container.querySelector('.st-spinner__arc')).toBeInTheDocument()
     })
 
     it('renders the ripple variant when type="ripple"', () => {

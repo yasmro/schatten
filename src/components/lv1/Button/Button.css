@@ -249,6 +249,29 @@
     height: 1.25rem;
   }
 
+  /* Link × size double-class rules at (0,2,0) specificity — these MUST
+   * exist to override the regular .st-btn--{size} rules' height + padding,
+   * which would otherwise win on source order (both at (0,1,0); the .st-btn--{size}
+   * block is declared later in this file). Pre-sweep link picked text-xs/sm/base
+   * absolute font-sizes via the linkSizeClass JSX helper; this is its CSS-level
+   * counterpart, preserved per-size so paragraph-embedded link text doesn't
+   * lose the size differentiation. */
+  .st-btn--link.st-btn--sm {
+    font-size: 0.75rem;
+    height: auto;
+    padding: 0;
+  }
+  .st-btn--link.st-btn--md {
+    font-size: 0.875rem;
+    height: auto;
+    padding: 0;
+  }
+  .st-btn--link.st-btn--lg {
+    font-size: 1rem;
+    height: auto;
+    padding: 0;
+  }
+
   /* Link variant + icon sizing — link uses inline DOM (no __content
    * wrapper), so target the direct svg child of the .st-btn--link element. */
   .st-btn--link.st-btn--sm > svg {

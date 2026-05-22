@@ -38,8 +38,14 @@ describe('Separator', () => {
     expect(screen.getByTestId('sep')).toHaveClass('custom-class')
   })
 
-  it('emits the canonical st-separator class chain', () => {
+  it('emits the canonical st-separator class chain (horizontal by default)', () => {
     render(<Separator data-testid="sep" />)
-    expect(screen.getByTestId('sep')).toHaveClass('st-separator')
+    expect(screen.getByTestId('sep')).toHaveClass('st-separator', 'st-separator--horizontal')
+  })
+
+  it('emits the st-separator--vertical modifier when orientation="vertical"', () => {
+    render(<Separator data-testid="sep" orientation="vertical" />)
+    expect(screen.getByTestId('sep')).toHaveClass('st-separator', 'st-separator--vertical')
+    expect(screen.getByTestId('sep')).not.toHaveClass('st-separator--horizontal')
   })
 })

@@ -23,7 +23,11 @@ export const Separator = forwardRef<ComponentRef<typeof SeparatorPrimitive.Root>
       ref={ref}
       orientation={orientation}
       decorative={decorative}
-      className={cn('st-separator', className)}
+      className={cn(
+        'st-separator',
+        orientation === 'vertical' ? 'st-separator--vertical' : 'st-separator--horizontal',
+        className,
+      )}
       {...props}
     />
   ),

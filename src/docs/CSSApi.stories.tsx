@@ -16,7 +16,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite'
  * - The class names follow the convention in [css-api.md](.claude/rules/css-api.md):
  *   `.st-{block}` / `.st-{block}--{modifier}` / `.st-{block}__{element}`,
  *   one axis per modifier, attribute-driven state (`[aria-invalid]`,
- *   `[data-state]`, `[data-orientation]`, …).
+ *   `[data-state]`, `[data-swipe]`, …).
  * - Pixel parity between the React side and the vanilla HTML side is
  *   verified per-component in each `{Component}.parity.stories.tsx` and
  *   pinned by `{Component}.parity.vrt.spec.ts`.
@@ -101,31 +101,41 @@ export const Reference: Story = {
       <Section
         id="separator"
         title="Separator — .st-separator"
-        intro="Visual divider. Orientation comes from the data-orientation attribute (no --horizontal / --vertical modifier)."
+        intro="Visual divider. Orientation is an author configuration and goes through a modifier class (--horizontal / --vertical), matching the css-api.md author-config → modifier principle."
         attributes={[
-          {
-            name: 'data-orientation',
-            meaning: '"horizontal" or "vertical"',
-            required: 'always',
-          },
           {
             name: 'role',
             meaning: '"separator" for semantic dividers, "none" / omit for decorative',
-            required: 'when-applicable',
+            required: 'recommended',
           },
           {
             name: 'aria-orientation',
-            meaning: 'Mirrors data-orientation for assistive tech (only for role="separator")',
-            required: 'when-applicable',
+            meaning:
+              'For non-decorative vertical separators (assistive tech announces orientation)',
+            required: 'role="separator" + vertical only',
+          },
+          {
+            name: 'data-orientation',
+            meaning:
+              'Informational only — Radix emits this on the React side; vanilla HTML may include it for DOM parity but it does not drive styling',
+            required: 'optional',
           },
         ]}
       >
         <div className="w-72 space-y-3">
           <span className="st-text st-text--body st-text--sm st-text--muted">Above</span>
-          <div className="st-separator" data-orientation="horizontal" role="none" />
+          <div className="st-separator st-separator--horizontal" role="none" />
           <span className="st-text st-text--body st-text--sm st-text--muted">Below</span>
         </div>
-        <CodeBlock>{`<div class="st-separator" data-orientation="horizontal" role="none"></div>`}</CodeBlock>
+        <CodeBlock>{`<!-- Decorative -->
+<div class="st-separator st-separator--horizontal" role="none"></div>
+
+<!-- Semantic vertical separator (announced to screen readers) -->
+<div class="st-separator st-separator--vertical"
+     role="separator" aria-orientation="vertical"></div>
+
+<!-- Modifier vocabulary -->
+<!-- orientation: --horizontal | --vertical -->`}</CodeBlock>
       </Section>
 
       <Section

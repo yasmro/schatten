@@ -44,14 +44,28 @@ export const Parity: Story = {
         <p className="text-xs mb-2 text-foreground-muted">Vanilla HTML</p>
         <div className="space-y-3">
           <p className="text-sm">Above</p>
-          <div className="st-separator" data-orientation="horizontal" role="none" />
+          {/* `data-orientation` is informational here — Radix sets it on the React
+              side for a11y wiring, but styling is driven by the modifier class. */}
+          <div
+            className="st-separator st-separator--horizontal"
+            data-orientation="horizontal"
+            role="none"
+          />
           <p className="text-sm">Below</p>
         </div>
         <div className="mt-6 flex h-6 items-center gap-3 text-sm">
           <span>A</span>
-          <div className="st-separator" data-orientation="vertical" role="none" />
+          <div
+            className="st-separator st-separator--vertical"
+            data-orientation="vertical"
+            role="none"
+          />
           <span>B</span>
-          <div className="st-separator" data-orientation="vertical" role="none" />
+          <div
+            className="st-separator st-separator--vertical"
+            data-orientation="vertical"
+            role="none"
+          />
           <span>C</span>
         </div>
       </div>

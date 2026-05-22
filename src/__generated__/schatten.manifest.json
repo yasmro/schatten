@@ -18,6 +18,8 @@
     "st-icon--vermillion",
     "st-icon--warning",
     "st-separator",
+    "st-separator--horizontal",
+    "st-separator--vertical",
     "st-text",
     "st-text--2xl",
     "st-text--align-center",
@@ -47,7 +49,6 @@
     "st-text--xs"
   ],
   "dataAttributes": [
-    "data-orientation",
     "data-side",
     "data-state",
     "data-swipe",

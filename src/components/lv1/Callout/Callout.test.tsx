@@ -15,6 +15,15 @@ describe('Callout', () => {
     expect(screen.getByText('Body content')).toBeInTheDocument()
   })
 
+  it('emits the canonical st-callout class chain for default props', () => {
+    const { container } = render(<Callout title="Hello" />)
+    expect(container.firstChild as HTMLElement).toHaveClass(
+      'st-callout',
+      'st-callout--neutral',
+      'st-callout--subtle',
+    )
+  })
+
   it('renders body via the `description` prop', () => {
     render(<Callout title="Heads up" description="From the prop" />)
     expect(screen.getByText('From the prop')).toBeInTheDocument()
@@ -30,14 +39,25 @@ describe('Callout', () => {
     expect(screen.queryByText('from children')).not.toBeInTheDocument()
   })
 
-  it('renders the variant icon (decorative, aria-hidden)', () => {
+  it('renders the variant icon with the __icon sub-element class (decorative)', () => {
     const { container } = render(
       <Callout variant="success" title="Saved">
         Done.
       </Callout>,
     )
-    const icon = container.querySelector('svg[aria-hidden="true"]')
+    const icon = container.querySelector('svg.st-callout__icon')
     expect(icon).toBeInTheDocument()
+    expect(icon).toHaveAttribute('aria-hidden', 'true')
+  })
+
+  it('renders title with the __title sub-element class', () => {
+    render(<Callout title="Heads up">Body</Callout>)
+    expect(screen.getByText('Heads up')).toHaveClass('st-callout__title')
+  })
+
+  it('renders body with the __body sub-element class', () => {
+    render(<Callout title="Heads up">Body content</Callout>)
+    expect(screen.getByText('Body content')).toHaveClass('st-callout__body')
   })
 
   it('does not render a close button by default', () => {
@@ -69,20 +89,16 @@ describe('Callout', () => {
     expect(screen.getByRole('button', { name: 'Close' })).toBeInTheDocument()
   })
 
-  it('applies the subtle compound classes for the chosen variant', () => {
+  it('applies the subtle modifier for the chosen variant', () => {
     const { container } = render(<Callout variant="success" appearance="subtle" />)
     const root = container.firstChild as HTMLElement
-    expect(root.className).toContain('bg-success-subtle')
-    expect(root.className).toContain('text-success')
-    expect(root.className).toContain('border-success')
+    expect(root).toHaveClass('st-callout--success', 'st-callout--subtle')
   })
 
-  it('applies the solid compound classes for the chosen variant', () => {
+  it('applies the solid modifier for the chosen variant', () => {
     const { container } = render(<Callout variant="error" appearance="solid" />)
     const root = container.firstChild as HTMLElement
-    expect(root.className).toContain('bg-error')
-    expect(root.className).toContain('text-error-foreground')
-    expect(root.className).toContain('border-transparent')
+    expect(root).toHaveClass('st-callout--error', 'st-callout--solid')
   })
 
   it('uses items-center when there is only a title', () => {

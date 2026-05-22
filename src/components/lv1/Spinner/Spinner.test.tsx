@@ -8,6 +8,15 @@ describe('Spinner', () => {
     expect(screen.getByRole('status')).toBeInTheDocument()
   })
 
+  it('emits the canonical st-spinner class chain for default props', () => {
+    render(<Spinner data-testid="s" />)
+    expect(screen.getByTestId('s')).toHaveClass(
+      'st-spinner',
+      'st-spinner--default',
+      'st-spinner--md',
+    )
+  })
+
   it('renders a visually-hidden default label "Loading"', () => {
     render(<Spinner />)
     const labelEl = screen.getByText('Loading')
@@ -31,39 +40,39 @@ describe('Spinner', () => {
 
     it('renders the ripple variant when type="ripple"', () => {
       const { container } = render(<Spinner type="ripple" />)
-      // The ripple variant has dot + 2 concentric ripples; check for the
-      // unique class names rather than counting SVG children, which can
-      // change with future tweaks.
-      expect(container.querySelector('.schatten-spinner-dot')).toBeInTheDocument()
-      expect(container.querySelectorAll('.schatten-spinner-ripple')).toHaveLength(2)
+      // Ripple variant: 1 dot + 2 concentric ripples → assert by sub-element
+      // class names rather than counting children, which can drift.
+      expect(container.querySelector('.st-spinner__dot')).toBeInTheDocument()
+      expect(container.querySelector('.st-spinner__ripple-1')).toBeInTheDocument()
+      expect(container.querySelector('.st-spinner__ripple-2')).toBeInTheDocument()
     })
   })
 
   describe('sizes', () => {
-    it('applies size classes', () => {
+    it('applies size modifier classes', () => {
       const { rerender, container } = render(<Spinner size="sm" />)
       const getRoot = () => container.firstChild as HTMLElement
-      expect(getRoot()).toHaveClass('size-4')
+      expect(getRoot()).toHaveClass('st-spinner--sm')
 
       rerender(<Spinner size="lg" />)
-      expect(getRoot()).toHaveClass('size-8')
+      expect(getRoot()).toHaveClass('st-spinner--lg')
     })
 
     it('defaults to md size', () => {
       const { container } = render(<Spinner />)
-      expect(container.firstChild as HTMLElement).toHaveClass('size-6')
+      expect(container.firstChild as HTMLElement).toHaveClass('st-spinner--md')
     })
   })
 
   describe('variants', () => {
-    it('uses text-foreground for default variant', () => {
+    it('uses --default variant modifier by default', () => {
       const { container } = render(<Spinner />)
-      expect(container.firstChild as HTMLElement).toHaveClass('text-foreground')
+      expect(container.firstChild as HTMLElement).toHaveClass('st-spinner--default')
     })
 
-    it('uses text-inverted-foreground for inverted variant', () => {
+    it('uses --inverted variant modifier when variant="inverted"', () => {
       const { container } = render(<Spinner variant="inverted" />)
-      expect(container.firstChild as HTMLElement).toHaveClass('text-inverted-foreground')
+      expect(container.firstChild as HTMLElement).toHaveClass('st-spinner--inverted')
     })
   })
 

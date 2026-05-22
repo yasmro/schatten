@@ -49,6 +49,9 @@
 @import "../components/lv1/Separator/Separator.css";
 @import "../components/lv1/Text/Text.css";
 @import "../components/lv1/Icon/Icon.css";
+/* #267 sweep-2 — Spinner is imported above (animations); add Badge / Callout class API */
+@import "../components/lv1/Badge/Badge.css";
+@import "../components/lv1/Callout/Callout.css";
 
 /* Class-based dark mode variant — matches `src/styles/globals.css` so
  * `.dark` toggling behaves identically in Storybook and in the dist. */

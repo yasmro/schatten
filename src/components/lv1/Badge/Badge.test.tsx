@@ -9,6 +9,16 @@ describe('Badge', () => {
     expect(screen.getByText('New')).toBeInTheDocument()
   })
 
+  it('emits the canonical st-badge class chain for default props', () => {
+    const { container } = render(<Badge>Tag</Badge>)
+    expect(container.firstChild as HTMLElement).toHaveClass(
+      'st-badge',
+      'st-badge--neutral',
+      'st-badge--subtle',
+      'st-badge--md',
+    )
+  })
+
   it('forwards className to the root element', () => {
     const { container } = render(<Badge className="custom-class">Tag</Badge>)
     const root = container.firstChild as HTMLElement
@@ -27,71 +37,64 @@ describe('Badge', () => {
   })
 
   describe('variants × appearance', () => {
-    it('applies subtle appearance classes for error variant', () => {
+    it('applies the subtle modifier for error variant', () => {
       const { container } = render(
         <Badge variant="error" appearance="subtle">
           Error
         </Badge>,
       )
       const root = container.firstChild as HTMLElement
-      expect(root.className).toContain('bg-error-subtle')
-      expect(root.className).toContain('text-error')
-      expect(root.className).toContain('border-error')
+      expect(root).toHaveClass('st-badge--error', 'st-badge--subtle')
     })
 
-    it('applies solid appearance classes for success variant', () => {
+    it('applies the solid modifier for success variant', () => {
       const { container } = render(
         <Badge variant="success" appearance="solid">
           Saved
         </Badge>,
       )
       const root = container.firstChild as HTMLElement
-      expect(root.className).toContain('bg-success')
-      expect(root.className).toContain('text-success-foreground')
-      expect(root.className).toContain('border-transparent')
+      expect(root).toHaveClass('st-badge--success', 'st-badge--solid')
     })
 
-    it('applies outline appearance classes for info variant', () => {
+    it('applies the outline modifier for info variant', () => {
       const { container } = render(
         <Badge variant="info" appearance="outline">
           Info
         </Badge>,
       )
       const root = container.firstChild as HTMLElement
-      expect(root.className).toContain('text-info')
-      expect(root.className).toContain('border-info')
+      expect(root).toHaveClass('st-badge--info', 'st-badge--outline')
     })
 
     it('applies neutral variant + subtle appearance by default', () => {
       const { container } = render(<Badge>Default</Badge>)
       const root = container.firstChild as HTMLElement
-      expect(root.className).toContain('bg-surface-hover')
-      expect(root.className).toContain('border-border-strong')
+      expect(root).toHaveClass('st-badge--neutral', 'st-badge--subtle')
     })
 
-    it('applies the solid fill when neutral + solid is passed', () => {
+    it('emits both --neutral and --solid when variant=neutral + appearance=solid', () => {
       const { container } = render(
         <Badge variant="neutral" appearance="solid">
           Solid
         </Badge>,
       )
       const root = container.firstChild as HTMLElement
-      // neutral + solid reuses the `--color-solid` token (the same one
-      // Button primary uses) — both express "the main interactive fill".
-      // This is the 1:1 visual successor of legacy `default + solid`.
-      expect(root.className).toContain('bg-solid')
-      expect(root.className).toContain('text-solid-foreground')
+      // The double-class selector `.st-badge--neutral.st-badge--solid` reaches
+      // the `--color-solid` token at render time — both modifiers must be
+      // present for the rule to match.
+      expect(root).toHaveClass('st-badge--neutral', 'st-badge--solid')
     })
   })
 
   describe('sizes', () => {
-    it('applies size classes', () => {
+    it('applies size modifier classes', () => {
       const { container, rerender } = render(<Badge size="sm">Small</Badge>)
       const getRoot = () => container.firstChild as HTMLElement
-      expect(getRoot().className).toContain('text-[10px]')
+      expect(getRoot()).toHaveClass('st-badge--sm')
 
       rerender(<Badge size="lg">Large</Badge>)
-      expect(getRoot().className).toContain('text-sm')
+      expect(getRoot()).toHaveClass('st-badge--lg')
     })
   })
 
@@ -123,18 +126,17 @@ describe('Badge', () => {
       expect(root.querySelector('svg')).not.toBeInTheDocument()
     })
 
-    it('applies icon-only square layout when icon is set without children', () => {
+    it('applies --icon-only modifier when icon is set without children', () => {
       const { container } = render(<Badge icon={Check} aria-label="Done" />)
       const root = container.firstChild as HTMLElement
-      expect(root.className).toContain('aspect-square')
-      expect(root.className).toContain('p-1')
+      expect(root).toHaveClass('st-badge--icon-only')
       expect(root.querySelector('svg')).toBeInTheDocument()
     })
 
-    it('does not apply icon-only layout when both icon and children are present', () => {
+    it('does not apply --icon-only when both icon and children are present', () => {
       const { container } = render(<Badge icon={Check}>Done</Badge>)
       const root = container.firstChild as HTMLElement
-      expect(root.className).not.toContain('aspect-square')
+      expect(root).not.toHaveClass('st-badge--icon-only')
     })
   })
 

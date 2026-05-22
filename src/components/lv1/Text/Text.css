@@ -11,19 +11,21 @@
  * The (variant × size) typography combinations are written as
  * double-class selectors (`.st-text--body.st-text--md`) — they share the
  * `--text-{variant}-{size}-*` token chain that lives in
- * `core/tokens/typography.css`. We use raw CSS `font-size: var(...)`
- * rather than `@apply text-[length:var(...)]` because Tailwind v4's
- * arbitrary-value `@apply` resolution is unstable for the `text-{size}`
- * length pathway (see #154 Q4).
+ * `core/tokens/typography.css`.
  *
- * Color/align/truncate modifiers go through `@apply` because they map to
- * stable, named Tailwind utilities backed by `@theme` tokens.
+ * Uses raw CSS + `var(--color-*)` throughout rather than `@apply
+ * text-foreground` etc., to avoid Tailwind v4 / Vite / Storybook
+ * integration issues (`@reference` directive in component CSS interferes
+ * with dist `@theme` output). See css-api.md "Component CSS authoring
+ * conventions".
  *
  * See: .claude/rules/css-api.md, #266 詳細設計 §4.2.
  */
 @layer components {
   .st-text {
-    @apply text-foreground antialiased;
+    color: var(--color-foreground);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   /* ===== variant × size: typography ===== */
@@ -100,58 +102,60 @@
 
   /* ===== color (13) ===== */
   .st-text--default {
-    @apply text-foreground;
+    color: var(--color-foreground);
   }
   .st-text--muted {
-    @apply text-foreground-muted;
+    color: var(--color-foreground-muted);
   }
   .st-text--subtle {
-    @apply text-foreground-subtle;
+    color: var(--color-foreground-subtle);
   }
   .st-text--inherit {
-    @apply text-inherit;
+    color: inherit;
   }
   .st-text--inverted {
-    @apply text-inverted-foreground;
+    color: var(--color-inverted-foreground);
   }
   .st-text--inverted-muted {
-    @apply text-inverted-foreground-muted;
+    color: var(--color-inverted-foreground-muted);
   }
   .st-text--inverted-subtle {
-    @apply text-inverted-foreground-subtle;
+    color: var(--color-inverted-foreground-subtle);
   }
   .st-text--error {
-    @apply text-error;
+    color: var(--color-error);
   }
   .st-text--success {
-    @apply text-success;
+    color: var(--color-success);
   }
   .st-text--warning {
-    @apply text-warning;
+    color: var(--color-warning);
   }
   .st-text--info {
-    @apply text-info;
+    color: var(--color-info);
   }
   .st-text--vermillion {
-    @apply text-vermillion;
+    color: var(--color-vermillion);
   }
   .st-text--indigo {
-    @apply text-indigo;
+    color: var(--color-indigo);
   }
 
   /* ===== align ===== */
   .st-text--align-left {
-    @apply text-left;
+    text-align: left;
   }
   .st-text--align-center {
-    @apply text-center;
+    text-align: center;
   }
   .st-text--align-right {
-    @apply text-right;
+    text-align: right;
   }
 
   /* ===== truncate (presence-only) ===== */
   .st-text--truncate {
-    @apply truncate;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 }

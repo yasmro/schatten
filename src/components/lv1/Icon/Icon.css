@@ -6,12 +6,12 @@
  * - color: 13 options (same vocabulary as Text)
  *
  * `.st-icon` itself has no base styling — every visual property lives on a
- * modifier (`--sm/--md/--lg` for sizing, `--{color}` for fill). The CVA
- * always emits the root class alongside the modifiers, so JSX consumers
- * write `cn(iconVariants(...))` and vanilla-HTML consumers write
- * `class="st-icon st-icon--md st-icon--inherit"` — both produce a working
- * icon. The root class is still part of the *contract* (it's what
- * documents an element as an Icon) even though it carries no CSS itself.
+ * modifier. The CVA always emits the root class alongside the modifiers,
+ * so JSX consumers write `cn(iconVariants(...))` and vanilla-HTML
+ * consumers write `class="st-icon st-icon--md st-icon--inherit"` — both
+ * produce a working icon. The root class is still part of the *contract*
+ * (it's what documents an element as an Icon) even though it carries no
+ * CSS itself.
  *
  * Consequence for the manifest: `dist/schatten.css` doesn't contain a
  * `.st-icon { … }` rule (Tailwind's minify drops empty rules), so the
@@ -19,58 +19,65 @@
  * honest outcome — there is no CSS to inspect under that name. The
  * functional modifiers all appear in the manifest as expected.
  *
- * See: .claude/rules/css-api.md, #266 詳細設計 §4.3 + 補遺 (post-build).
+ * Uses raw CSS + `var(--color-*)` throughout rather than `@apply size-4`
+ * / `@apply text-foreground` etc., to avoid Tailwind v4 / Vite / Storybook
+ * integration issues. See css-api.md "Component CSS authoring conventions".
+ *
+ * See: .claude/rules/css-api.md, #266 詳細設計 §4.3.
  */
 @layer components {
-  /* ===== size ===== */
+  /* ===== size (16 / 20 / 24 px) ===== */
   .st-icon--sm {
-    @apply size-4;
+    width: 1rem;
+    height: 1rem;
   }
   .st-icon--md {
-    @apply size-5;
+    width: 1.25rem;
+    height: 1.25rem;
   }
   .st-icon--lg {
-    @apply size-6;
+    width: 1.5rem;
+    height: 1.5rem;
   }
 
   /* ===== color (13) — same vocabulary as Text ===== */
   .st-icon--inherit {
-    @apply text-inherit;
+    color: inherit;
   }
   .st-icon--default {
-    @apply text-foreground;
+    color: var(--color-foreground);
   }
   .st-icon--muted {
-    @apply text-foreground-muted;
+    color: var(--color-foreground-muted);
   }
   .st-icon--subtle {
-    @apply text-foreground-subtle;
+    color: var(--color-foreground-subtle);
   }
   .st-icon--inverted {
-    @apply text-inverted-foreground;
+    color: var(--color-inverted-foreground);
   }
   .st-icon--inverted-muted {
-    @apply text-inverted-foreground-muted;
+    color: var(--color-inverted-foreground-muted);
   }
   .st-icon--inverted-subtle {
-    @apply text-inverted-foreground-subtle;
+    color: var(--color-inverted-foreground-subtle);
   }
   .st-icon--error {
-    @apply text-error;
+    color: var(--color-error);
   }
   .st-icon--success {
-    @apply text-success;
+    color: var(--color-success);
   }
   .st-icon--warning {
-    @apply text-warning;
+    color: var(--color-warning);
   }
   .st-icon--info {
-    @apply text-info;
+    color: var(--color-info);
   }
   .st-icon--vermillion {
-    @apply text-vermillion;
+    color: var(--color-vermillion);
   }
   .st-icon--indigo {
-    @apply text-indigo;
+    color: var(--color-indigo);
   }
 }

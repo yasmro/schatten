@@ -7,18 +7,26 @@
  * styling target as a modifier class would — without growing the public
  * class surface for a state that the markup already pins.
  *
+ * Uses raw CSS + `var(--color-*)` rather than `@apply text-foreground`
+ * etc., to avoid Tailwind v4 / Vite / Storybook integration issues
+ * (`@reference` directive in component CSS interferes with the dist
+ * `@theme` output). See css-api.md "Component CSS authoring conventions".
+ *
  * See: .claude/rules/css-api.md, #266 詳細設計 §4.1.
  */
 @layer components {
   .st-separator {
-    @apply shrink-0 bg-border;
+    flex-shrink: 0;
+    background-color: var(--color-border);
   }
 
   .st-separator[data-orientation="horizontal"] {
-    @apply h-px w-full;
+    height: 1px;
+    width: 100%;
   }
 
   .st-separator[data-orientation="vertical"] {
-    @apply h-full w-px;
+    height: 100%;
+    width: 1px;
   }
 }

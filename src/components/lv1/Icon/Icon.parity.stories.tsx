@@ -25,6 +25,13 @@ type Story = StoryObj<typeof Icon>
 // Inline copy of the Lucide `<Search>` SVG body — kept as raw markup so the
 // vanilla half doesn't pull in React/Lucide and can be lifted straight into a
 // non-React project.
+//
+// Pinned to `lucide-react@1.x` (currently 1.14.0 in this repo). When
+// `lucide-react` is bumped, re-verify that the `<circle>` + `<path>` shape
+// below still matches the Lucide source — a path divergence would surface
+// as a parity-VRT pixel diff between the React side and this vanilla side,
+// not as a build failure. The icon name (`Search`) is also pinned: Lucide
+// occasionally renames icons across majors.
 const SearchSvgBody = (
   <>
     <circle cx="11" cy="11" r="8" />

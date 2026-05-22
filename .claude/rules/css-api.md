@@ -327,6 +327,69 @@ conventions above, **stop and discuss in the PR** rather than
 introducing a dialect. The cost of cleaning up a one-off naming
 pattern after 1.0 is `major`-bump-grade.
 
+### Component CSS authoring conventions — raw CSS over `@apply`
+
+Component CSS files (`src/components/lv1/{X}/{X}.css`) **must use raw
+CSS + `var(--color-*)` directly**, not Tailwind's `@apply` shortcut:
+
+```css
+/* ✅ Right — raw CSS, framework-agnostic */
+.st-text--error { color: var(--color-error); }
+.st-icon--md    { width: 1.25rem; height: 1.25rem; }
+
+/* ❌ Wrong — depends on Tailwind v4 @apply resolution */
+.st-text--error { @apply text-error; }
+.st-icon--md    { @apply size-5; }
+```
+
+Why the rule: Tailwind v4 requires `@reference` in component CSS files
+that use `@apply`, so each file can be processed independently by Vite
+in dev mode (Storybook). But adding `@reference "globals.css"` (or
+similar) to a component CSS file **suppresses `@theme` emission from
+the dist build**, because Tailwind sees the reference and dedupes the
+theme block out of the final `dist/schatten.css` — every `--color-*`
+variable disappears from the manifest. This is a Tailwind v4 / Vite /
+Storybook integration corner case discovered during #266 sweep-1; raw
+CSS sidesteps it entirely.
+
+Beyond compatibility, raw CSS is also **more readable for a
+framework-agnostic CSS consumer** — they can read
+`.st-text--error { color: var(--color-error); }` and immediately
+understand the contract, with no Tailwind utility-name decoder ring
+required.
+
+Use `@apply` only inside keyframe / `prefers-reduced-motion` /
+animation-specific CSS where it genuinely helps (the existing
+Spinner.css / Tooltip.css / Dialog.css / Toast.css don't trip this
+because they have no `@apply` for tokens — only `@keyframes`).
+
+### Empty base rules are dropped by `--minify`
+
+Tailwind v4's `--minify` flag strips CSS rules with no declarations.
+Writing `.st-{block} { }` to "document the root class" does **not**
+keep it in `dist/schatten.css`, and the manifest generator (which
+parses the compiled dist) consequently won't list it either —
+the rule simply isn't there.
+
+This is fine. The root class still appears in JSX output
+(`<svg class="st-icon st-icon--md st-icon--inherit">`) because the
+CVA always emits it alongside the modifiers, and consumers writing
+vanilla HTML write the same class chain. The functional contract is
+carried entirely by the modifiers, which **are** in the manifest.
+
+Two consequences:
+
+1. **Don't author empty base rules expecting manifest presence.**
+   `Icon.css` discovered this during sweep-1 (#266) — the comment
+   in that file documents the outcome and the rationale for not
+   working around it.
+2. **If a block genuinely needs CSS that applies regardless of
+   modifier, give the base a real declaration.** `.st-text` does
+   this (`@apply text-foreground antialiased`), and survives minify
+   into both dist and manifest. The choice should be driven by
+   "does this need to render with no modifiers?" — not by manifest
+   bookkeeping.
+
 ## Quick reference
 
 - **Prefix**: `st-` (frozen for v1.0).

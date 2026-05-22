@@ -1,19 +1,27 @@
 import { cva, type VariantProps } from 'class-variance-authority'
 
-export const checkboxVariants = cva(
-  'peer relative inline-flex shrink-0 items-center justify-center border border-border-strong bg-transparent text-foreground transition-colors duration-200 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-ring-offset disabled:cursor-not-allowed disabled:bg-surface-disabled disabled:border-border-disabled disabled:text-foreground-disabled',
-  {
-    variants: {
-      size: {
-        sm: 'size-4',
-        md: 'size-5',
-        lg: 'size-6',
-      },
-    },
-    defaultVariants: {
-      size: 'md',
+/**
+ * Variants for the `Checkbox` component — class-name concatenation only.
+ *
+ * Visual rules live in
+ * `src/components/lv1/Checkbox/Checkbox.css` under `@layer components`.
+ * The wrapper class (`.st-checkbox-wrapper`) and the indicator class
+ * (`.st-checkbox__indicator`) are emitted by Checkbox.tsx directly — only
+ * the block + size axes flow through CVA.
+ *
+ * See: .claude/rules/css-api.md, #268 sweep-3.
+ */
+export const checkboxVariants = cva('st-checkbox', {
+  variants: {
+    size: {
+      sm: 'st-checkbox--sm',
+      md: 'st-checkbox--md',
+      lg: 'st-checkbox--lg',
     },
   },
-)
+  defaultVariants: {
+    size: 'md',
+  },
+})
 
 export type CheckboxVariants = VariantProps<typeof checkboxVariants>

@@ -1,44 +1,42 @@
 import { cva, type VariantProps } from 'class-variance-authority'
 
-export const buttonVariants = cva(
-  // When `aria-busy="true"` (set by Button while `isLoading`), the variant
-  // colours are restored at full opacity and the cursor switches to
-  // `wait` — matching the "processing, please wait" semantic of aria-busy
-  // rather than the "not-allowed" semantic of plain disabled. The button
-  // still has the native `disabled` attribute, so it remains uninteractive.
-  'btn inline-flex items-center justify-center gap-2 whitespace-nowrap leading-none font-medium antialiased cursor-pointer no-underline transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-ring-offset disabled:cursor-not-allowed aria-busy:disabled:cursor-wait [&_svg]:pointer-events-none [&_svg]:shrink-0',
-  {
-    variants: {
-      variant: {
-        primary:
-          'bg-solid text-solid-foreground not-disabled:hover:bg-solid-hover not-disabled:hover:text-solid-foreground-hover disabled:bg-surface-disabled disabled:text-foreground-disabled aria-busy:disabled:bg-solid aria-busy:disabled:text-solid-foreground',
-        secondary:
-          'border border-border-strong bg-transparent text-foreground not-disabled:hover:bg-surface-hover disabled:border-border-disabled disabled:text-foreground-disabled aria-busy:disabled:border-border-strong aria-busy:disabled:text-foreground',
-        tertiary:
-          'text-foreground not-disabled:hover:bg-surface-hover disabled:text-foreground-disabled aria-busy:disabled:text-foreground',
-        /**
-         * Borderless ghost button intended for use *on top of* a saturated
-         * surface (e.g. solid Toast, primary-colored banner). Inherits the
-         * inverted foreground color and hover-tints with a translucent
-         * overlay so it stays legible regardless of the surrounding fill.
-         */
-        inverted:
-          'text-inverted-foreground not-disabled:hover:bg-current/10 disabled:text-foreground-disabled aria-busy:disabled:text-inverted-foreground',
-        destructive:
-          'bg-destructive text-destructive-foreground not-disabled:hover:bg-destructive-hover disabled:bg-surface-disabled disabled:text-foreground-disabled aria-busy:disabled:bg-destructive aria-busy:disabled:text-destructive-foreground',
-        link: '',
-      },
-      size: {
-        md: 'h-10 px-5 py-2 text-sm [&_svg]:size-4',
-        sm: 'h-8 px-3 text-xs [&_svg]:size-3.5',
-        lg: 'h-12 px-8 text-base [&_svg]:size-5',
-      },
+/**
+ * Variants for the `Button` component — class-name concatenation only.
+ *
+ * The actual visual rules live in
+ * `src/components/lv1/Button/Button.css` under `@layer components`. CVA
+ * here is the public class-string mapper: a `(variant, size)` tuple
+ * translates to a side-by-side chain of `.st-btn--*` modifiers.
+ *
+ * Pattern A (single-axis role) — `variant` carries the role + colour and
+ * `size` carries the dimensions. The `link` variant emits the same `--sm/md/lg`
+ * size modifier as the others; the CSS rule for `.st-btn--link` resets the
+ * non-applicable axes (height / padding) so only font-size matters for
+ * link sizing. The `--icon-only` modifier is added outside CVA by
+ * `Button.tsx` (see Badge precedent — #267 sweep-2).
+ *
+ * See: .claude/rules/css-api.md, #268 sweep-3.
+ */
+export const buttonVariants = cva('st-btn', {
+  variants: {
+    variant: {
+      primary: 'st-btn--primary',
+      secondary: 'st-btn--secondary',
+      tertiary: 'st-btn--tertiary',
+      inverted: 'st-btn--inverted',
+      destructive: 'st-btn--destructive',
+      link: 'st-btn--link',
     },
-    defaultVariants: {
-      variant: 'primary',
-      size: 'md',
+    size: {
+      sm: 'st-btn--sm',
+      md: 'st-btn--md',
+      lg: 'st-btn--lg',
     },
   },
-)
+  defaultVariants: {
+    variant: 'primary',
+    size: 'md',
+  },
+})
 
 export type ButtonVariants = VariantProps<typeof buttonVariants>

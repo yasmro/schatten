@@ -1,0 +1,334 @@
+/*
+ * Button — `.st-btn` class API.
+ *
+ * Pattern A (single-axis role). Modifier axes:
+ * - variant:  primary | secondary | tertiary | inverted | destructive | link
+ * - size:     sm | md | lg
+ * - icon-only: presence-only (Button.tsx emits this when `!children && !!icon`
+ *              — CVA cannot express that judgment, so it lives outside CVA
+ *              per css-api.md "CVA-external modifier emission")
+ *
+ * Sub-elements (non-link variants only — link uses inline DOM):
+ * - `.st-btn__spinner-overlay`  — absolute-positioned loading spinner box
+ *                                  (visible when the host has `[aria-busy="true"]`)
+ * - `.st-btn__content`          — inline-flex row holding icon + children
+ *                                  (fades out when the host has `[aria-busy="true"]`)
+ *
+ * State is expressed as attributes (per css-api.md §state):
+ * - `:disabled`                 — standard disabled treatment
+ * - `[aria-busy="true"]:disabled` — restores variant colour + switches cursor
+ *                                  to `wait`, communicating "processing" rather
+ *                                  than "not allowed"
+ *
+ * The `link` variant has its own discipline:
+ * - inline element, no height / padding / focus-ring offset
+ * - `.st-btn--link { font-size: inherit }` so a `<a class="st-btn st-btn--link">`
+ *   embedded in a paragraph follows the surrounding text. When a size
+ *   modifier is present (`.st-btn--link.st-btn--{size}`) it overrides the
+ *   inherited size with a fixed value.
+ * - DOES NOT use `__spinner-overlay` / `__content` — Button.tsx renders a
+ *   different markup for link (no spinner, no content wrapper).
+ *
+ * Inner `<svg>` sizing:
+ * - `.st-btn--{size} .st-btn__content > svg` — content icons (Plus / Search / …)
+ * - `.st-btn__spinner-overlay > .st-spinner { width: 1em; height: 1em }`
+ *   — Spinner follows the button's font-size; the `<Spinner size="sm">` prop
+ *   passed from Button.tsx only controls SVG track/arc thickness.
+ *
+ * Uses raw CSS + `var(--color-*)` throughout, per css-api.md
+ * "Component CSS authoring conventions — raw CSS over @apply".
+ *
+ * See: .claude/rules/css-api.md, #268 sweep-3.
+ */
+@layer components {
+  /* ===== base ===== */
+  .st-btn {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    white-space: nowrap;
+    line-height: 1;
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    transition:
+      color 200ms,
+      background-color 200ms,
+      border-color 200ms;
+  }
+  .st-btn:focus-visible {
+    outline: none;
+    box-shadow:
+      0 0 0 2px var(--color-ring-offset),
+      0 0 0 4px var(--color-ring);
+  }
+  .st-btn:disabled {
+    cursor: not-allowed;
+  }
+  /* aria-busy carries the "processing" semantic — restore the variant
+   * colours (overridden below per variant) and switch the cursor to
+   * `wait`. The native `disabled` attribute is still set, so the button
+   * remains uninteractive. */
+  .st-btn[aria-busy="true"]:disabled {
+    cursor: wait;
+  }
+  .st-btn > svg {
+    pointer-events: none;
+    flex-shrink: 0;
+  }
+
+  /* ===== variant: primary ===== */
+  .st-btn--primary {
+    background-color: var(--color-solid);
+    color: var(--color-solid-foreground);
+  }
+  .st-btn--primary:not(:disabled):hover {
+    background-color: var(--color-solid-hover);
+    color: var(--color-solid-foreground-hover);
+  }
+  .st-btn--primary:disabled {
+    background-color: var(--color-surface-disabled);
+    color: var(--color-foreground-disabled);
+  }
+  .st-btn--primary[aria-busy="true"]:disabled {
+    background-color: var(--color-solid);
+    color: var(--color-solid-foreground);
+  }
+
+  /* ===== variant: secondary ===== */
+  .st-btn--secondary {
+    background-color: transparent;
+    color: var(--color-foreground);
+    border: 1px solid var(--color-border-strong);
+  }
+  .st-btn--secondary:not(:disabled):hover {
+    background-color: var(--color-surface-hover);
+  }
+  .st-btn--secondary:disabled {
+    border-color: var(--color-border-disabled);
+    color: var(--color-foreground-disabled);
+  }
+  .st-btn--secondary[aria-busy="true"]:disabled {
+    border-color: var(--color-border-strong);
+    color: var(--color-foreground);
+  }
+
+  /* ===== variant: tertiary ===== */
+  .st-btn--tertiary {
+    background-color: transparent;
+    color: var(--color-foreground);
+  }
+  .st-btn--tertiary:not(:disabled):hover {
+    background-color: var(--color-surface-hover);
+  }
+  .st-btn--tertiary:disabled {
+    color: var(--color-foreground-disabled);
+  }
+  .st-btn--tertiary[aria-busy="true"]:disabled {
+    color: var(--color-foreground);
+  }
+
+  /* ===== variant: inverted =====
+   * Borderless ghost button placed on top of a saturated surface
+   * (solid Toast / primary banner). Inherits `--color-inverted-foreground`
+   * and hover-tints with a translucent current-colour overlay so it
+   * stays legible regardless of the surrounding fill. */
+  .st-btn--inverted {
+    background-color: transparent;
+    color: var(--color-inverted-foreground);
+  }
+  .st-btn--inverted:not(:disabled):hover {
+    background-color: color-mix(in srgb, currentColor 10%, transparent);
+  }
+  .st-btn--inverted:disabled {
+    color: var(--color-foreground-disabled);
+  }
+  .st-btn--inverted[aria-busy="true"]:disabled {
+    color: var(--color-inverted-foreground);
+  }
+
+  /* ===== variant: destructive ===== */
+  .st-btn--destructive {
+    background-color: var(--color-destructive);
+    color: var(--color-destructive-foreground);
+  }
+  .st-btn--destructive:not(:disabled):hover {
+    background-color: var(--color-destructive-hover);
+  }
+  .st-btn--destructive:disabled {
+    background-color: var(--color-surface-disabled);
+    color: var(--color-foreground-disabled);
+  }
+  .st-btn--destructive[aria-busy="true"]:disabled {
+    background-color: var(--color-destructive);
+    color: var(--color-destructive-foreground);
+  }
+
+  /* ===== variant: link =====
+   * Inline text-link styling. Different DOM shape from the other variants
+   * (Button.tsx early-returns for link with no spinner overlay / content
+   * wrapper), so this rule deliberately overrides the .st-btn base layout
+   * back to `display: inline` and clears height/padding so the size
+   * modifiers below only switch font-size. */
+  .st-btn--link {
+    display: inline;
+    background-color: transparent;
+    color: var(--color-foreground);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    /* Reset `.st-btn` base properties that would corrupt inline paragraph
+     * layout — pre-sweep the link variant was rendered via an early-return
+     * branch that never picked up `.btn` base, so these properties never
+     * applied. Post-sweep all variants share the `.st-btn` base, so we have
+     * to undo each one explicitly:
+     *   - `font-size: inherit`  — follow the surrounding paragraph
+     *   - `font-weight: inherit` — pre-sweep link was 400, base sets 500
+     *   - `line-height: inherit` — base's `1` collides with paragraph 1.5
+     *                              and breaks the inline line-box
+     *   - `white-space: normal`  — base's `nowrap` would forbid wrapping
+     * Size modifiers override `font-size` again below. */
+    font-size: inherit;
+    font-weight: inherit;
+    line-height: inherit;
+    white-space: normal;
+    height: auto;
+    padding: 0;
+    /* drop the variant transitions baseline doesn't need; keep only colour
+     * for the hover smoothing, and the focus-ring's offset goes to 0 below. */
+  }
+  .st-btn--link:focus-visible {
+    box-shadow:
+      0 0 0 0 var(--color-ring-offset),
+      0 0 0 2px var(--color-ring);
+  }
+  .st-btn--link:not(:disabled):hover {
+    color: var(--color-foreground-muted);
+    text-decoration-color: transparent;
+  }
+  .st-btn--link:disabled {
+    color: var(--color-foreground-disabled);
+  }
+
+  /* ===== size ===== */
+  /* Non-link sizes (height + padding + base font-size). The same modifier
+   * applies to link too, but the .st-btn--link rule above clears height /
+   * padding so only the font-size from these rules ends up effective. */
+  .st-btn--sm {
+    height: 2rem;
+    padding: 0 0.75rem;
+    font-size: 0.75rem;
+  }
+  .st-btn--md {
+    height: 2.5rem;
+    padding: 0.5rem 1.25rem;
+    font-size: 0.875rem;
+  }
+  .st-btn--lg {
+    height: 3rem;
+    padding: 0 2rem;
+    font-size: 1rem;
+  }
+
+  /* Content-area icon sizing per size modifier. Scoped to .st-btn__content
+   * so the spinner overlay's inner Spinner is NOT affected (the Spinner has
+   * its own sizing chain via .st-btn__spinner-overlay > .st-spinner below). */
+  .st-btn--sm .st-btn__content > svg {
+    width: 0.875rem;
+    height: 0.875rem;
+  }
+  .st-btn--md .st-btn__content > svg {
+    width: 1rem;
+    height: 1rem;
+  }
+  .st-btn--lg .st-btn__content > svg {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+
+  /* Link × size double-class rules at (0,2,0) specificity — these MUST
+   * exist to override the regular .st-btn--{size} rules' height + padding,
+   * which would otherwise win on source order (both at (0,1,0); the .st-btn--{size}
+   * block is declared later in this file). Pre-sweep link picked text-xs/sm/base
+   * absolute font-sizes via the linkSizeClass JSX helper; this is its CSS-level
+   * counterpart, preserved per-size so paragraph-embedded link text doesn't
+   * lose the size differentiation. */
+  .st-btn--link.st-btn--sm {
+    font-size: 0.75rem;
+    height: auto;
+    padding: 0;
+  }
+  .st-btn--link.st-btn--md {
+    font-size: 0.875rem;
+    height: auto;
+    padding: 0;
+  }
+  .st-btn--link.st-btn--lg {
+    font-size: 1rem;
+    height: auto;
+    padding: 0;
+  }
+
+  /* Link variant + icon sizing — link uses inline DOM (no __content
+   * wrapper), so target the direct svg child of the .st-btn--link element. */
+  .st-btn--link.st-btn--sm > svg {
+    width: 0.75em;
+    height: 0.75em;
+  }
+  .st-btn--link.st-btn--md > svg {
+    width: 0.75em;
+    height: 0.75em;
+  }
+  .st-btn--link.st-btn--lg > svg {
+    width: 0.75em;
+    height: 0.75em;
+  }
+
+  /* ===== icon-only =====
+   * Emitted by Button.tsx when `!children && !!icon`. Pairs with the
+   * size modifier — see Badge precedent. */
+  .st-btn--icon-only {
+    aspect-ratio: 1 / 1;
+    padding: 0;
+  }
+
+  /* ===== sub-elements ===== */
+  /* Loading overlay — absolute-positioned, fades in via `[aria-busy="true"]`
+   * on the parent. JSX still sets `aria-hidden` on this span so the spinner
+   * leaves the a11y tree when not loading. */
+  .st-btn__spinner-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 300ms;
+    opacity: 0;
+  }
+  .st-btn[aria-busy="true"] .st-btn__spinner-overlay {
+    opacity: 1;
+  }
+  /* Spinner size follows the button's font-size. The <Spinner size="sm">
+   * prop passed from Button.tsx only controls SVG track / arc thickness;
+   * outer width / height here wins on cascade order (Spinner.css is
+   * imported before Button.css in entry.css). */
+  .st-btn__spinner-overlay > .st-spinner {
+    width: 1em;
+    height: 1em;
+  }
+
+  /* Content row — fades out when loading so the spinner overlay reads as
+   * "the only thing in the button". */
+  .st-btn__content {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: opacity 300ms;
+  }
+  .st-btn[aria-busy="true"] .st-btn__content {
+    opacity: 0;
+  }
+}

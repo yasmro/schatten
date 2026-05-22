@@ -1,9 +1,12 @@
 // Component CSS for vanilla examples — loaded for the side-effect.
 import '../components/lv1/Badge/Badge.css'
+import '../components/lv1/Button/Button.css'
 import '../components/lv1/Callout/Callout.css'
+import '../components/lv1/Checkbox/Checkbox.css'
 import '../components/lv1/Icon/Icon.css'
 import '../components/lv1/Separator/Separator.css'
 import '../components/lv1/Spinner/Spinner.css'
+import '../components/lv1/Switch/Switch.css'
 import '../components/lv1/Text/Text.css'
 
 import type { Meta, StoryObj } from '@storybook/react-vite'
@@ -25,8 +28,9 @@ import type { Meta, StoryObj } from '@storybook/react-vite'
  *   pinned by `{Component}.parity.vrt.spec.ts`.
  *
  * **Coverage today**: sweep-1 (Separator, Text, Icon) + sweep-2 (Spinner,
- * Badge, Callout) of #154. The remaining 12 lv1 components arrive in
- * sweep-3 through sweep-7 and will be added here as each sweep lands.
+ * Badge, Callout) + sweep-3 (Button, Checkbox, Switch) of #154. The
+ * remaining 9 lv1 components arrive in sweep-4 through sweep-7 and will
+ * be added here as each sweep lands.
  */
 const meta: Meta = {
   title: 'Foundation/CSS API',
@@ -90,11 +94,11 @@ const CodeBlock = ({ children }: { children: string }) => (
 )
 
 export const Reference: Story = {
-  name: 'Reference (sweep-1 + sweep-2)',
+  name: 'Reference (sweep-1 → sweep-3)',
   render: () => (
     <div className="p-8 max-w-4xl mx-auto">
       <h1 className="st-text st-text--heading st-text--2xl st-text--default mb-2">
-        CSS API — sweep-1 + sweep-2 reference
+        CSS API — sweep-1 → sweep-3 reference
       </h1>
       <p className="st-text st-text--body st-text--md st-text--muted mb-8">
         The classes below are emitted by `dist/schatten.css`. Import it once and the markup samples
@@ -546,9 +550,348 @@ export const Reference: Story = {
        - title AND body present  → align-items: flex-start  (via :has()) -->`}</CodeBlock>
       </Section>
 
+      <Section
+        id="button"
+        title="Button — .st-btn"
+        intro="Action element. Pattern A (single-axis role): six variants × three sizes plus the --icon-only modifier. Loading state is signalled by aria-busy='true' alongside disabled; CSS routes the cursor to wait and fades the content / spinner overlay sub-elements. The link variant uses a flat DOM (no overlay / content wrapper) and inherits font-size by default so a <a class='st-btn st-btn--link'> embedded in a paragraph follows the surrounding text."
+        attributes={[
+          {
+            name: 'type="button"',
+            meaning: 'Avoid implicit form submission on <button>',
+            required: 'when inside <form>',
+          },
+          {
+            name: 'aria-label',
+            meaning: 'Required for icon-only buttons (no visible text)',
+            required: 'when --icon-only',
+          },
+          {
+            name: 'aria-busy="true" + disabled',
+            meaning: 'Loading state — CSS reveals the spinner overlay and switches cursor to wait',
+            required: 'while loading',
+          },
+          {
+            name: 'aria-hidden on spinner overlay',
+            meaning: 'Set on .st-btn__spinner-overlay when NOT loading (hide from a11y tree)',
+            required: 'always (toggle inverse of loading)',
+          },
+        ]}
+      >
+        <div className="space-y-3">
+          <div className="flex flex-wrap items-center gap-3">
+            <button type="button" className="st-btn st-btn--primary st-btn--md">
+              <span className="st-btn__spinner-overlay" aria-hidden="true" />
+              <span className="st-btn__content">Primary</span>
+            </button>
+            <button type="button" className="st-btn st-btn--secondary st-btn--md">
+              <span className="st-btn__spinner-overlay" aria-hidden="true" />
+              <span className="st-btn__content">Secondary</span>
+            </button>
+            <button type="button" className="st-btn st-btn--tertiary st-btn--md">
+              <span className="st-btn__spinner-overlay" aria-hidden="true" />
+              <span className="st-btn__content">Tertiary</span>
+            </button>
+            <button type="button" className="st-btn st-btn--destructive st-btn--md">
+              <span className="st-btn__spinner-overlay" aria-hidden="true" />
+              <span className="st-btn__content">Destructive</span>
+            </button>
+          </div>
+          <div className="flex flex-wrap items-center gap-3">
+            <button type="button" className="st-btn st-btn--link st-btn--sm">
+              Small link
+            </button>
+            <button type="button" className="st-btn st-btn--link st-btn--md">
+              Medium link
+            </button>
+            <button type="button" className="st-btn st-btn--link st-btn--lg">
+              Large link
+            </button>
+          </div>
+        </div>
+        <CodeBlock>{`<!-- Non-link variants — keep the __spinner-overlay + __content structure -->
+<button type="button" class="st-btn st-btn--primary st-btn--md">
+  <span class="st-btn__spinner-overlay" aria-hidden="true">
+    <!-- Spinner SVG, only visible when host has aria-busy="true" -->
+  </span>
+  <span class="st-btn__content">Save</span>
+</button>
+
+<!-- Loading — set both aria-busy and disabled; remove aria-hidden from overlay -->
+<button type="button" class="st-btn st-btn--primary st-btn--md"
+        aria-busy="true" disabled>
+  <span class="st-btn__spinner-overlay">…spinner…</span>
+  <span class="st-btn__content">Saving</span>
+</button>
+
+<!-- Icon-only — add --icon-only and aria-label -->
+<button type="button" class="st-btn st-btn--primary st-btn--md st-btn--icon-only"
+        aria-label="Add">
+  <span class="st-btn__spinner-overlay" aria-hidden="true"></span>
+  <span class="st-btn__content"><svg aria-hidden="true">…</svg></span>
+</button>
+
+<!-- Link — flat DOM, no overlay / content wrapper. Size modifier only
+     affects font-size; height + padding stay at zero / inherit. -->
+<a href="/docs" class="st-btn st-btn--link st-btn--md">Docs</a>
+
+<!-- Modifier vocabulary -->
+<!-- variant   : --primary | --secondary | --tertiary | --inverted | --destructive | --link -->
+<!-- size      : --sm | --md | --lg
+                 (link uses these for font-size only; height/padding reset) -->
+<!-- icon-only : --icon-only (presence-only; square aspect ratio) -->
+
+<!-- Sub-elements (non-link variants only) -->
+<!-- __spinner-overlay : absolute-positioned loading box (CSS shows on [aria-busy]) -->
+<!-- __content         : inline-flex row holding icon + children (CSS fades on [aria-busy]) -->
+
+<!-- State attributes -->
+<!-- :disabled                       — standard disabled treatment -->
+<!-- [aria-busy="true"]:disabled     — restores variant colour + cursor: wait -->`}</CodeBlock>
+      </Section>
+
+      <Section
+        id="checkbox"
+        title="Checkbox — .st-checkbox + .st-checkbox-wrapper"
+        intro="Two blocks: the wrapper carries the inline-flex layout for [checkbox] + <label>; the inner block is the Radix Root (the actual button). The label's font-size is derived from the inner checkbox's size modifier via :has(), so vanilla HTML consumers only set the size class on the checkbox itself."
+        attributes={[
+          {
+            name: 'role="checkbox"',
+            meaning: 'Schatten renders Radix Root which already provides the role',
+            required: 'always (Radix-provided)',
+          },
+          {
+            name: 'aria-checked',
+            meaning: '"true" / "false" / "mixed" (mixed for indeterminate)',
+            required: 'always',
+          },
+          {
+            name: 'data-state',
+            meaning: '"checked" / "unchecked" / "indeterminate" — drives the indicator visibility',
+            required: 'always',
+          },
+          {
+            name: 'aria-invalid="true"',
+            meaning: 'Error state — CSS shifts border + bg-subtle + focus-ring',
+            required: 'when in error',
+          },
+          {
+            name: '<label for={id}>',
+            meaning: 'Associates with the checkbox via id (the wrapper sees it)',
+            required: 'when label present',
+          },
+        ]}
+      >
+        <div className="space-y-3">
+          <div className="flex items-center gap-6">
+            <div className="st-checkbox-wrapper">
+              {/* biome-ignore lint/a11y/useSemanticElements: Mirrors Radix's
+               * Checkbox.Root output — vanilla HTML consumers replicate the
+               * <button role="checkbox"> shape, not <input type="checkbox">. */}
+              <button
+                type="button"
+                id="doc-cb-1"
+                role="checkbox"
+                aria-checked={false}
+                data-state="unchecked"
+                className="st-checkbox st-checkbox--md"
+              >
+                <span className="st-checkbox__indicator">
+                  <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                    <path
+                      d="M2.5 8.5L3.5 7.5L6.5 10.5L12.5 3.5L13.5 4.5L6.5 12.5Z"
+                      fill="currentColor"
+                    />
+                  </svg>
+                </span>
+              </button>
+              <label htmlFor="doc-cb-1" className="st-checkbox-wrapper__label">
+                Unchecked
+              </label>
+            </div>
+            <div className="st-checkbox-wrapper">
+              {/* biome-ignore lint/a11y/useSemanticElements: see preceding comment */}
+              <button
+                type="button"
+                id="doc-cb-2"
+                role="checkbox"
+                aria-checked={true}
+                data-state="checked"
+                className="st-checkbox st-checkbox--md"
+              >
+                <span className="st-checkbox__indicator">
+                  <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                    <path
+                      d="M2.5 8.5L3.5 7.5L6.5 10.5L12.5 3.5L13.5 4.5L6.5 12.5Z"
+                      fill="currentColor"
+                    />
+                  </svg>
+                </span>
+              </button>
+              <label htmlFor="doc-cb-2" className="st-checkbox-wrapper__label">
+                Checked
+              </label>
+            </div>
+            <div className="st-checkbox-wrapper">
+              {/* biome-ignore lint/a11y/useSemanticElements: see preceding comment */}
+              <button
+                type="button"
+                id="doc-cb-3"
+                role="checkbox"
+                aria-checked="mixed"
+                data-state="indeterminate"
+                className="st-checkbox st-checkbox--md"
+              >
+                <span className="st-checkbox__indicator">
+                  <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                    <path d="M3 8H13" stroke="currentColor" strokeWidth="2.5" />
+                  </svg>
+                </span>
+              </button>
+              <label htmlFor="doc-cb-3" className="st-checkbox-wrapper__label">
+                Indeterminate
+              </label>
+            </div>
+          </div>
+        </div>
+        <CodeBlock>{`<div class="st-checkbox-wrapper">
+  <button type="button" id="terms"
+          role="checkbox" aria-checked="false"
+          data-state="unchecked"
+          class="st-checkbox st-checkbox--md">
+    <span class="st-checkbox__indicator">
+      <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+        <path d="…" fill="currentColor" />
+      </svg>
+    </span>
+  </button>
+  <label for="terms" class="st-checkbox-wrapper__label">Accept terms</label>
+</div>
+
+<!-- Modifier vocabulary -->
+<!-- size: --sm (16px) | --md (20px) | --lg (24px) -->
+
+<!-- Sub-elements -->
+<!-- .st-checkbox-wrapper          — outer flex container (label sizing derived via :has) -->
+<!-- .st-checkbox-wrapper__label   — internal <label> -->
+<!-- .st-checkbox__indicator       — absolute-positioned check / minus icon
+                                      (hidden via CSS when [data-state="unchecked"]) -->
+
+<!-- State attributes -->
+<!-- [data-state]      — "checked" / "unchecked" / "indeterminate" -->
+<!-- [aria-invalid]    — error styling -->
+<!-- :disabled         — disabled tokens (wrapper :has() also picks this up) -->`}</CodeBlock>
+      </Section>
+
+      <Section
+        id="switch"
+        title="Switch — .st-switch + .st-switch-wrapper"
+        intro="On/off toggle. Same wrapper + block shape as Checkbox. The thumb's position and the check-icon's opacity are both driven by .st-switch[data-state='checked'] descendant selectors — no Tailwind 'group' utility on the JSX."
+        attributes={[
+          {
+            name: 'role="switch"',
+            meaning: 'Radix Root provides the role',
+            required: 'always (Radix-provided)',
+          },
+          {
+            name: 'aria-checked',
+            meaning: '"true" / "false" — switches are binary',
+            required: 'always',
+          },
+          {
+            name: 'data-state',
+            meaning: '"checked" / "unchecked" — drives thumb position + check icon visibility',
+            required: 'always',
+          },
+          {
+            name: 'aria-invalid="true"',
+            meaning: 'Error state — CSS shifts border + bg + checked-state bg to error tokens',
+            required: 'when in error',
+          },
+        ]}
+      >
+        <div className="space-y-3">
+          <div className="flex items-center gap-6">
+            <div className="st-switch-wrapper">
+              <button
+                type="button"
+                id="doc-sw-1"
+                role="switch"
+                aria-checked={false}
+                data-state="unchecked"
+                className="st-switch st-switch--md"
+              >
+                <span className="st-switch__check">
+                  <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                    <path
+                      d="M2.5 8.5L3.5 7.5L6.5 10.5L12.5 3.5L13.5 4.5L6.5 12.5Z"
+                      fill="currentColor"
+                    />
+                  </svg>
+                </span>
+                <span className="st-switch__thumb" data-state="unchecked" />
+              </button>
+              <label htmlFor="doc-sw-1" className="st-switch-wrapper__label">
+                Off
+              </label>
+            </div>
+            <div className="st-switch-wrapper">
+              <button
+                type="button"
+                id="doc-sw-2"
+                role="switch"
+                aria-checked={true}
+                data-state="checked"
+                className="st-switch st-switch--md"
+              >
+                <span className="st-switch__check">
+                  <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                    <path
+                      d="M2.5 8.5L3.5 7.5L6.5 10.5L12.5 3.5L13.5 4.5L6.5 12.5Z"
+                      fill="currentColor"
+                    />
+                  </svg>
+                </span>
+                <span className="st-switch__thumb" data-state="checked" />
+              </button>
+              <label htmlFor="doc-sw-2" className="st-switch-wrapper__label">
+                On
+              </label>
+            </div>
+          </div>
+        </div>
+        <CodeBlock>{`<div class="st-switch-wrapper">
+  <button type="button" id="notifications"
+          role="switch" aria-checked="false"
+          data-state="unchecked"
+          class="st-switch st-switch--md">
+    <span class="st-switch__check">
+      <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+        <path d="…" fill="currentColor" />
+      </svg>
+    </span>
+    <span class="st-switch__thumb" data-state="unchecked"></span>
+  </button>
+  <label for="notifications" class="st-switch-wrapper__label">Notifications</label>
+</div>
+
+<!-- Modifier vocabulary -->
+<!-- size: --sm | --md | --lg (track width × height pairs) -->
+
+<!-- Sub-elements -->
+<!-- .st-switch-wrapper          — outer flex container (cursor: pointer) -->
+<!-- .st-switch-wrapper__label   — internal <label> -->
+<!-- .st-switch__thumb           — sliding circle (translate driven by parent [data-state]) -->
+<!-- .st-switch__check           — checkmark icon (opacity driven by parent [data-state]) -->
+
+<!-- State attributes -->
+<!-- [data-state]      — "checked" / "unchecked" -->
+<!-- [aria-invalid]    — error styling -->
+<!-- :disabled         — disabled tokens -->`}</CodeBlock>
+      </Section>
+
       <p className="st-text st-text--body st-text--sm st-text--subtle mt-8">
-        Coming in subsequent sweeps: Button / Checkbox / Switch (sweep-3), Input / Textarea / Radio
-        (sweep-4), Select / Tooltip (sweep-5), Toast / Dialog (sweep-6), Field / FieldSet (sweep-7).
+        Coming in subsequent sweeps: Input / Textarea / Radio (sweep-4), Select / Tooltip (sweep-5),
+        Toast / Dialog (sweep-6), Field / FieldSet (sweep-7).
       </p>
     </div>
   ),

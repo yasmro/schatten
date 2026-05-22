@@ -52,6 +52,10 @@
 /* #267 sweep-2 — Spinner is imported above (animations); add Badge / Callout class API */
 @import "../components/lv1/Badge/Badge.css";
 @import "../components/lv1/Callout/Callout.css";
+/* #268 sweep-3 — Button / Checkbox / Switch class API */
+@import "../components/lv1/Button/Button.css";
+@import "../components/lv1/Checkbox/Checkbox.css";
+@import "../components/lv1/Switch/Switch.css";
 
 /* Class-based dark mode variant — matches `src/styles/globals.css` so
  * `.dark` toggling behaves identically in Storybook and in the dist. */

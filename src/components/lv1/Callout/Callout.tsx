@@ -3,6 +3,7 @@ import { forwardRef, type HTMLAttributes, type ReactNode } from 'react'
 import { cn } from '../../../lib/utils'
 import { type CalloutVariants, calloutVariants } from '../../../variants/callout'
 import { Button } from '../Button'
+import './Callout.css'
 
 export type CalloutVariant = 'neutral' | 'success' | 'error' | 'warning' | 'info'
 export type CalloutAppearance = 'subtle' | 'solid'
@@ -105,10 +106,10 @@ export const Callout = forwardRef<HTMLDivElement, CalloutProps>(
     return (
       <div ref={ref} className={cn(calloutVariants({ variant, appearance }), className)} {...props}>
         <div className={cn('flex gap-3', hasMultiLine ? 'items-start' : 'items-center')}>
-          <Icon className={cn('size-5 shrink-0', hasMultiLine && 'mt-0.5')} aria-hidden="true" />
+          <Icon className={cn('st-callout__icon', hasMultiLine && 'mt-0.5')} aria-hidden="true" />
           <div className="flex min-w-0 flex-1 flex-col gap-1">
-            {title && <div className="text-sm font-semibold leading-tight">{title}</div>}
-            {body && <div className="text-sm leading-snug opacity-90">{body}</div>}
+            {title && <div className="st-callout__title">{title}</div>}
+            {body && <div className="st-callout__body">{body}</div>}
           </div>
 
           {action && <div className="shrink-0">{action}</div>}

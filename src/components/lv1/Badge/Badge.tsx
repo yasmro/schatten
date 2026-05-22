@@ -2,6 +2,7 @@ import type { LucideIcon } from 'lucide-react'
 import { forwardRef, type HTMLAttributes } from 'react'
 import { cn } from '../../../lib/utils'
 import { type BadgeVariants, badgeVariants } from '../../../variants/badge'
+import './Badge.css'
 
 export interface BadgeProps extends HTMLAttributes<HTMLDivElement>, BadgeVariants {
   /**
@@ -50,13 +51,17 @@ export const Badge = forwardRef<HTMLDivElement, BadgeProps>(
     ref,
   ) => {
     const IconComponent = icon ?? null
+    // `--icon-only` is judged from props (`!children && !!icon`) which CVA's
+    // variants model cannot express, so the modifier is added outside CVA.
+    // This is the precedent for sweep-2 onward — a documented escape hatch
+    // for state-derived modifiers that don't slot into a CVA axis.
     const isIconOnly = !children && !!icon
 
     return (
       <div
         className={cn(
           badgeVariants({ variant, appearance, size }),
-          isIconOnly && 'aspect-square p-1',
+          isIconOnly && 'st-badge--icon-only',
           className,
         )}
         ref={ref}

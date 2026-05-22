@@ -1,98 +1,50 @@
 import { cva, type VariantProps } from 'class-variance-authority'
 
-export const badgeVariants = cva(
-  'inline-flex items-center rounded-full border font-semibold leading-none antialiased transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg]:size-[1em]',
-  {
-    variants: {
-      variant: {
-        neutral: '',
-        success: '',
-        error: '',
-        warning: '',
-        info: '',
-      },
-      appearance: {
-        solid: '',
-        subtle: '',
-        outline: '',
-      },
-      size: {
-        sm: 'px-2 py-1 text-[10px] gap-1',
-        md: 'px-2.5 py-1 text-xs gap-1.5',
-        lg: 'px-3 py-1.5 text-sm gap-1.5',
-      },
+/**
+ * Variants for the `Badge` component — class-name concatenation only.
+ *
+ * The actual visual rules live in
+ * `src/components/lv1/Badge/Badge.css` under `@layer components`. CVA
+ * here is the public class-string mapper: a `(variant, appearance, size)`
+ * tuple translates to a side-by-side chain of `.st-badge--*` modifiers,
+ * with the tone × appearance combination resolved by **double-class
+ * selectors** in CSS (`.st-badge--success.st-badge--solid` etc.). The
+ * default appearance (`subtle`) is first-class — its CSS rule is written
+ * via the same double-class form as `solid` and `outline`, mirroring the
+ * sweep-1 Icon precedent where the default color also has a CSS rule.
+ *
+ * The `.st-badge--icon-only` modifier is NOT emitted by CVA — it is
+ * conditionally added in `Badge.tsx` based on `!children && !!icon`,
+ * because that judgment lives outside CVA's variants model. See css-api.md
+ * "Adding or modifying a class" for the CVA-external modifier pattern.
+ *
+ * See: .claude/rules/css-api.md, #267 sweep-2.
+ */
+export const badgeVariants = cva('st-badge', {
+  variants: {
+    variant: {
+      neutral: 'st-badge--neutral',
+      success: 'st-badge--success',
+      error: 'st-badge--error',
+      warning: 'st-badge--warning',
+      info: 'st-badge--info',
     },
-    compoundVariants: [
-      // neutral — non-state baseline. 1:1 successor of legacy `default`
-      // (renamed in v0.7.0, no visual change). `solid` reuses the
-      // `--color-solid` token that also powers Button primary — both are
-      // "the main interactive fill" semantically.
-      {
-        variant: 'neutral',
-        appearance: 'solid',
-        class: 'border-transparent bg-solid text-solid-foreground',
-      },
-      {
-        variant: 'neutral',
-        appearance: 'subtle',
-        class: 'bg-surface-hover text-foreground border-border-strong',
-      },
-      { variant: 'neutral', appearance: 'outline', class: 'text-foreground border-border-strong' },
-      // success
-      {
-        variant: 'success',
-        appearance: 'solid',
-        class: 'border-transparent bg-success text-success-foreground',
-      },
-      {
-        variant: 'success',
-        appearance: 'subtle',
-        class: 'bg-success-subtle text-success border-success',
-      },
-      { variant: 'success', appearance: 'outline', class: 'text-success border-success' },
-      // error
-      {
-        variant: 'error',
-        appearance: 'solid',
-        class: 'border-transparent bg-error text-error-foreground',
-      },
-      {
-        variant: 'error',
-        appearance: 'subtle',
-        class: 'bg-error-subtle text-error border-error',
-      },
-      { variant: 'error', appearance: 'outline', class: 'text-error border-error' },
-      // warning
-      {
-        variant: 'warning',
-        appearance: 'solid',
-        class: 'border-transparent bg-warning text-warning-foreground',
-      },
-      {
-        variant: 'warning',
-        appearance: 'subtle',
-        class: 'bg-warning-subtle text-warning border-warning',
-      },
-      { variant: 'warning', appearance: 'outline', class: 'text-warning border-warning' },
-      // info
-      {
-        variant: 'info',
-        appearance: 'solid',
-        class: 'border-transparent bg-info text-info-foreground',
-      },
-      {
-        variant: 'info',
-        appearance: 'subtle',
-        class: 'bg-info-subtle text-info border-info',
-      },
-      { variant: 'info', appearance: 'outline', class: 'text-info border-info' },
-    ],
-    defaultVariants: {
-      variant: 'neutral',
-      appearance: 'subtle',
-      size: 'md',
+    appearance: {
+      solid: 'st-badge--solid',
+      subtle: 'st-badge--subtle',
+      outline: 'st-badge--outline',
+    },
+    size: {
+      sm: 'st-badge--sm',
+      md: 'st-badge--md',
+      lg: 'st-badge--lg',
     },
   },
-)
+  defaultVariants: {
+    variant: 'neutral',
+    appearance: 'subtle',
+    size: 'md',
+  },
+})
 
 export type BadgeVariants = VariantProps<typeof badgeVariants>

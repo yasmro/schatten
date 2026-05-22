@@ -104,6 +104,77 @@ Schatten classes follow a strict three-form BEM:
   catches this on JSX; CVA `.ts` files and component `.css` files
   remain a code-review concern.
 
+## Composing modifiers — double-class selectors for Pattern B
+
+Pattern A components (`Button`) have a single visual axis (`variant`),
+so each modifier maps 1-to-1 to a CSS rule: `.st-btn--primary { … }`.
+
+Pattern B components (`Badge`, `Callout`, `Toast`) have **two orthogonal
+visual axes** — `variant` (tone) × `appearance` (shape). Both axes can
+contribute to the same CSS property (e.g. `background-color`), so a CSS
+rule attached to a single modifier (`.st-badge--success { … }`) cannot
+express "success and subtle" vs "success and solid" without one
+overriding the other.
+
+The contract is **double-class selectors** — every Pattern B
+combination is written as `.st-{block}--{tone}.st-{block}--{shape}`:
+
+```css
+@layer components {
+  /* tone × appearance — every combination, no single-tone rule */
+  .st-callout--neutral.st-callout--subtle { … }
+  .st-callout--neutral.st-callout--solid  { … }
+  .st-callout--success.st-callout--subtle { … }
+  .st-callout--success.st-callout--solid  { … }
+  /* error / warning / info — same shape */
+}
+```
+
+### Rules
+
+- **No single-tone or single-shape rule.** Do not write
+  `.st-callout--success { background: … }` and expect `.st-callout--solid`
+  to override it. Always write both modifiers together. The CVA on the
+  TypeScript side already emits both as side-by-side classes
+  (`<Callout variant="success" appearance="solid">` →
+  `st-callout st-callout--success st-callout--solid`), so the CSS just
+  has to match the chain consumers actually write.
+- **The default appearance is first-class — not a marker.** When the
+  component has a default `appearance` (e.g. `subtle`), write its rule
+  via the same double-class form (`.st-{block}--{tone}.st-{block}--subtle`).
+  Do not bake the default's styles into the tone-only rule
+  (`.st-{block}--{tone}`) and leave `subtle` as an empty marker. This
+  matches the sweep-1 Icon precedent — Icon's default `color="inherit"`
+  has its own CSS rule (`.st-icon--inherit { color: inherit }`), not an
+  empty class for minify to drop.
+- **Specificity is `(0,2,0)` for every combination.** Source order
+  inside `@layer components` doesn't matter — the cascade resolves
+  combinations by author intent expressed in the class chain, not by
+  which rule was loaded last.
+- **Sub-elements are independent of the tone/shape combination.**
+  `.st-callout__icon` / `__title` / `__body` are styled by their own
+  single-class rules. The tone × shape combination governs only the
+  block's own background / color / border.
+
+### Why not single-tone rule + appearance override
+
+The straightforward alternative is "write `.st-callout--success` with
+the subtle treatment, then have `.st-callout--solid` override the
+background." That works in source order but breaks the cascade contract:
+
+- Source order becomes part of the contract — any reordering of rules
+  changes precedence.
+- Consumers who write `class="st-callout st-callout--success"` (without
+  any appearance) inherit the default `subtle` look, but the CSS rule
+  they actually hit is `.st-callout--success`. Naming the rule after
+  the tone alone implies the rule *is* the tone, which it isn't — it's
+  the tone-at-default-appearance.
+- Adding a third appearance (`outline`) later forces the consumer to
+  remember the override stack mentally.
+
+The double-class form removes the stack: every combination is one
+self-contained rule, named for the combination that actually applies.
+
 ## State is expressed as attributes, not classes
 
 Schatten **does not** emit state classes (`st-input--error`,
@@ -339,6 +410,86 @@ conventions above, **stop and discuss in the PR** rather than
 introducing a dialect. The cost of cleaning up a one-off naming
 pattern after 1.0 is `major`-bump-grade.
 
+### CVA-external modifier emission (props-derived modifiers)
+
+Most modifiers map directly to a CVA `variants` axis — `variant`,
+`appearance`, `size`, `orientation`. CVA emits the matching class
+unconditionally when the prop is provided, and the CSS rule attached to
+that class fires.
+
+Some modifiers depend on **a derived condition the component computes
+from its props**, not on a single prop value. These cannot be expressed
+inside the CVA `variants` shape (CVA only switches on tuples of prop
+values). The contract is: **add the modifier outside CVA, in the
+component's `.tsx`, with `cn(…)` and a boolean expression** —
+
+```tsx
+// src/components/lv1/Badge/Badge.tsx
+const isIconOnly = !children && !!icon
+
+return (
+  <div
+    className={cn(
+      badgeVariants({ variant, appearance, size }),
+      isIconOnly && 'st-badge--icon-only',
+      className,
+    )}
+    {...props}
+  >
+    {/* … */}
+  </div>
+)
+```
+
+### Rules
+
+- **Document the modifier in the component's `.css` file** the same
+  way as any other modifier — block, axis name, what it expresses. The
+  manifest cannot tell whether a modifier came from CVA or from a
+  `cn(…)` expression, so the `.css` file is the only record of intent.
+- **Keep the judgment inside the component**, not in a utility. If
+  another component needs the same modifier, copy the boolean
+  expression rather than extracting a helper — the conditions for "is
+  this icon-only" or "is this error-and-not-loading" are component-
+  specific shapes, and a shared helper would force them to converge
+  artificially.
+- **Single-axis still applies.** Even when emitted outside CVA, the
+  modifier expresses **one axis** (`--icon-only` is presence-only;
+  `--has-error` would flip on a derived `isErrorAndNotLoading` boolean).
+  Don't fold multiple conditions into one collapsed modifier name
+  (`--icon-only-and-small` is wrong — emit `--icon-only` and
+  `--sm` separately).
+- **The CVA variants tuple stays clean.** Don't add a synthetic
+  `iconOnly: boolean` variant to CVA just to get class emission —
+  that would re-introduce the props-into-CVA coupling this rule is
+  meant to avoid. CVA's role is "(prop tuple) → (class chain)";
+  derived modifiers come from the component, not from CVA.
+
+### Why not push the derived condition into CVA
+
+You can technically synthesize a CVA variant from a derived condition
+by computing the boolean before passing it in:
+
+```tsx
+// ❌ Anti-pattern
+badgeVariants({ variant, appearance, size, iconOnly: !children && !!icon })
+```
+
+But this:
+
+- Adds a variant axis that consumers see in the CVA `VariantProps`
+  type even though the component decides it (`iconOnly` becomes a
+  prop-shaped value that isn't actually a prop).
+- Forces every consumer of `badgeVariants(...)` (CSS-only `.tsx`
+  authors, `buttonVariants`-style external usage) to know about the
+  derived axis.
+- Conflates "the public prop API" with "the public class API" — they
+  should be allowed to diverge when the component genuinely encodes
+  a state the prop API doesn't expose.
+
+Keep CVA pure to the prop surface; emit derived modifiers in the
+`.tsx` with `cn(…)`.
+
 ### Component CSS authoring conventions — raw CSS over `@apply`
 
 Component CSS files (`src/components/lv1/{X}/{X}.css`) **must use raw
@@ -409,6 +560,14 @@ Two consequences:
   `.st-{block}__{element}`.
 - **Modifiers**: variant / appearance / size / orientation — one
   axis per modifier, emitted side-by-side.
+- **Pattern B composition**: tone × shape via **double-class
+  selectors** (`.st-callout--success.st-callout--subtle`). Default
+  appearance is first-class — write its rule via the same double-class
+  form, never as an empty marker.
+- **Derived modifiers**: when a modifier depends on a props-derived
+  condition CVA can't express (e.g. `!children && !!icon`), emit it
+  outside CVA in the component's `.tsx` via `cn(…)`. Keep CVA pure to
+  the prop surface.
 - **State**: attributes, not classes — `:disabled`, `:read-only`,
   `[aria-invalid="true"]`, `[aria-busy="true"]`, `[data-state]`,
   `[data-side]`, `[data-swipe]`, `[data-error]`, `[data-disabled]`

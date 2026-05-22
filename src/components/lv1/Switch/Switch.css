@@ -51,14 +51,19 @@
     cursor: not-allowed;
     color: var(--color-foreground-disabled);
   }
+  /* line-height must be set alongside font-size — see the matching comment
+   * in Checkbox.css for the rationale. */
   .st-switch-wrapper:has(.st-switch--sm) .st-switch-wrapper__label {
     font-size: 0.75rem;
+    line-height: 1rem;
   }
   .st-switch-wrapper:has(.st-switch--md) .st-switch-wrapper__label {
     font-size: 0.875rem;
+    line-height: 1.25rem;
   }
   .st-switch-wrapper:has(.st-switch--lg) .st-switch-wrapper__label {
     font-size: 1rem;
+    line-height: 1.5rem;
   }
 
   /* ===== block ===== */

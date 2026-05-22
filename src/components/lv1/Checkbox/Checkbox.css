@@ -48,16 +48,25 @@
     cursor: not-allowed;
     color: var(--color-foreground-disabled);
   }
-  /* Label font-size is derived from the inner checkbox size — vanilla HTML
-   * consumers only write the size on the checkbox itself. */
+  /* Label font-size + line-height pair, derived from the inner checkbox
+   * size — vanilla HTML consumers only write the size on the checkbox itself.
+   *
+   * `line-height` must be set alongside `font-size`: Tailwind's `text-xs/sm/base`
+   * utilities ship paired font-size + line-height, so the pre-sweep label
+   * (using Tailwind utilities) had a fixed line-height per size. Setting
+   * font-size alone leaves line-height to inherit `<body>`'s `var(--leading-normal)`
+   * (~1.5), which adds ~1px per row vs the pre-sweep render. */
   .st-checkbox-wrapper:has(.st-checkbox--sm) .st-checkbox-wrapper__label {
     font-size: 0.75rem;
+    line-height: 1rem;
   }
   .st-checkbox-wrapper:has(.st-checkbox--md) .st-checkbox-wrapper__label {
     font-size: 0.875rem;
+    line-height: 1.25rem;
   }
   .st-checkbox-wrapper:has(.st-checkbox--lg) .st-checkbox-wrapper__label {
     font-size: 1rem;
+    line-height: 1.5rem;
   }
 
   /* ===== block ===== */

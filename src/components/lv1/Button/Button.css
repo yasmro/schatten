@@ -180,9 +180,21 @@
     color: var(--color-foreground);
     text-decoration: underline;
     text-underline-offset: 4px;
-    /* inherit so an `<a class="st-btn st-btn--link">` embedded in a
-     * paragraph follows the surrounding text. Size modifiers override. */
+    /* Reset `.st-btn` base properties that would corrupt inline paragraph
+     * layout — pre-sweep the link variant was rendered via an early-return
+     * branch that never picked up `.btn` base, so these properties never
+     * applied. Post-sweep all variants share the `.st-btn` base, so we have
+     * to undo each one explicitly:
+     *   - `font-size: inherit`  — follow the surrounding paragraph
+     *   - `font-weight: inherit` — pre-sweep link was 400, base sets 500
+     *   - `line-height: inherit` — base's `1` collides with paragraph 1.5
+     *                              and breaks the inline line-box
+     *   - `white-space: normal`  — base's `nowrap` would forbid wrapping
+     * Size modifiers override `font-size` again below. */
     font-size: inherit;
+    font-weight: inherit;
+    line-height: inherit;
+    white-space: normal;
     height: auto;
     padding: 0;
     /* drop the variant transitions baseline doesn't need; keep only colour

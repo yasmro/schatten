@@ -1,23 +1,40 @@
 import { cva, type VariantProps } from 'class-variance-authority'
 
-export const inputWrapperVariants = cva(
-  'flex w-full items-center border bg-transparent text-foreground transition-colors duration-200 has-focus-visible:outline-none has-focus-visible:ring-2 has-focus-visible:ring-ring has-focus-visible:ring-offset-2 has-focus-visible:ring-offset-ring-offset',
-  {
-    variants: {
-      size: {
-        sm: 'h-8 px-3 text-xs gap-1.5',
-        md: 'h-10 px-4 text-sm gap-2',
-        lg: 'h-12 px-5 text-base gap-2.5',
-      },
-    },
-    defaultVariants: {
-      size: 'md',
+/**
+ * Variants for the `Input` component — class-name concatenation only.
+ *
+ * Visual rules live in
+ * `src/components/lv1/Input/Input.css` under `@layer components`.
+ *
+ * - `inputWrapperVariants` emits the outer wrapper class chain
+ *   (`st-input-wrapper [st-input-wrapper--{size}]`). Size lives on the
+ *   wrapper so the inner `<input>` can inherit `font` from it
+ *   (Q-S4-6).
+ * - `inputVariants` emits the inner block class (`st-input`). Size is
+ *   not part of this axis — the wrapper carries it. The `--date`
+ *   derived modifier is appended outside CVA in Input.tsx (Q-S4-4,
+ *   matching the Badge `--icon-only` precedent from sweep-2).
+ *
+ * State (`isError` / `readOnly` / `disabled`) is read directly off the
+ * inner `<input>`'s native attributes by
+ * `.st-input-wrapper:has(.st-input[...])` selectors — no state class
+ * flows through CVA.
+ *
+ * See: .claude/rules/css-api.md, #269 sweep-4.
+ */
+export const inputWrapperVariants = cva('st-input-wrapper', {
+  variants: {
+    size: {
+      sm: 'st-input-wrapper--sm',
+      md: 'st-input-wrapper--md',
+      lg: 'st-input-wrapper--lg',
     },
   },
-)
+  defaultVariants: {
+    size: 'md',
+  },
+})
 
-export const inputVariants = cva(
-  'flex-1 min-w-0 bg-transparent text-foreground outline-none placeholder:text-foreground-muted disabled:cursor-not-allowed disabled:text-foreground-disabled file:border-0 file:bg-transparent file:text-sm file:font-medium',
-)
+export const inputVariants = cva('st-input')
 
 export type InputVariants = VariantProps<typeof inputWrapperVariants>

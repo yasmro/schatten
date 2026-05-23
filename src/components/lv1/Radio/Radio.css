@@ -1,0 +1,175 @@
+/*
+ * Radio — `.st-radio-group` + `.st-radio-wrapper` + `.st-radio` class API.
+ *
+ * Three nested levels per the #269 spec (Q-S4-1, Q-S4-2):
+ *
+ * - `.st-radio-group`              `RadioGroupPrimitive.Root`. Flex column
+ *                                  with a 0.5rem gap. Consumer-supplied
+ *                                  `className` (e.g. `flex flex-row gap-4`
+ *                                  for horizontal layout) wins via the
+ *                                  `utilities` layer.
+ * - `.st-radio-wrapper`            per-item outer `<div>`. Mirrors the
+ *                                  sweep-3 Checkbox / Switch shape so
+ *                                  vanilla HTML consumers can replicate
+ *                                  the `[radio] + <label>` row.
+ * - `.st-radio-wrapper__label`     internal `<label>`. Font-size +
+ *                                  line-height + cursor + disabled
+ *                                  recoloring are all derived from the
+ *                                  inner `.st-radio` via `:has()` — same
+ *                                  precedent as Checkbox.css.
+ * - `.st-radio`                    `RadioGroupPrimitive.Item`. Rounded
+ *                                  pill, border, focus ring. Owns the
+ *                                  state surfaces (`:disabled`,
+ *                                  `[aria-invalid="true"]`).
+ * - `.st-radio--sm/md/lg`          outer ring size (16 / 20 / 24px).
+ * - `.st-radio__indicator`         `RadioGroupPrimitive.Indicator`.
+ *                                  Absolute-positioned centring wrapper.
+ *                                  Radix unmounts the indicator when
+ *                                  unchecked (unlike Checkbox, which
+ *                                  uses `forceMount`), so there is no
+ *                                  CSS hide rule — the element simply
+ *                                  is not in the DOM in that state.
+ * - `.st-radio__dot`               inner filled circle `<span>` (Q-S4-2,
+ *                                  carries its own class so it appears
+ *                                  in the manifest). Background is
+ *                                  `currentColor` so it inherits the
+ *                                  radio's `color` token (foreground →
+ *                                  foreground-disabled when disabled).
+ *
+ * State is expressed as attributes (per css-api.md §state):
+ * - `[data-state="checked"]` / `"unchecked"` — Radix emits
+ * - `[aria-invalid="true"]`                  — error treatment
+ * - `:disabled`                              — disabled tokens; wrapper's
+ *                                              `:has()` also picks this
+ *                                              up for the label
+ *
+ * Uses raw CSS + `var(--color-*)` throughout, per css-api.md
+ * "Component CSS authoring conventions — raw CSS over @apply".
+ *
+ * See: .claude/rules/css-api.md, #269 sweep-4.
+ */
+@layer components {
+  /* ===== group ===== */
+  .st-radio-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  /* ===== wrapper ===== */
+  .st-radio-wrapper {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .st-radio-wrapper__label {
+    color: var(--color-foreground);
+    cursor: pointer;
+    user-select: none;
+  }
+  .st-radio-wrapper:has(.st-radio:disabled) .st-radio-wrapper__label {
+    cursor: not-allowed;
+    color: var(--color-foreground-disabled);
+  }
+  /* Label font-size + line-height pair, derived from the inner radio's
+   * size — vanilla HTML consumers only write the size class on the radio
+   * itself. Same line-height-with-font-size rationale as Checkbox.css. */
+  .st-radio-wrapper:has(.st-radio--sm) .st-radio-wrapper__label {
+    font-size: 0.75rem;
+    line-height: 1rem;
+  }
+  .st-radio-wrapper:has(.st-radio--md) .st-radio-wrapper__label {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+  }
+  .st-radio-wrapper:has(.st-radio--lg) .st-radio-wrapper__label {
+    font-size: 1rem;
+    line-height: 1.5rem;
+  }
+
+  /* ===== block ===== */
+  .st-radio {
+    position: relative;
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9999px;
+    border: 1px solid var(--color-border-strong);
+    background-color: transparent;
+    color: var(--color-foreground);
+    cursor: pointer;
+    transition:
+      color 200ms,
+      background-color 200ms,
+      border-color 200ms;
+  }
+  .st-radio:focus-visible {
+    outline: none;
+    box-shadow:
+      0 0 0 2px var(--color-ring-offset),
+      0 0 0 4px var(--color-ring);
+  }
+  .st-radio:disabled {
+    cursor: not-allowed;
+    background-color: var(--color-surface-disabled);
+    border-color: var(--color-border-disabled);
+    color: var(--color-foreground-disabled);
+  }
+  .st-radio[aria-invalid="true"] {
+    border-color: var(--color-error);
+    background-color: var(--color-error-subtle);
+  }
+  .st-radio[aria-invalid="true"]:focus-visible {
+    box-shadow:
+      0 0 0 2px var(--color-ring-offset),
+      0 0 0 4px var(--color-error);
+  }
+
+  /* ===== size ===== */
+  .st-radio--sm {
+    width: 1rem;
+    height: 1rem;
+  }
+  .st-radio--md {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+  .st-radio--lg {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+
+  /* ===== indicator =====
+   * Radix Radio unmounts the indicator when unchecked, so no CSS hide
+   * rule is needed. (Compare with Checkbox.css which uses `forceMount`
+   * + `[data-state="unchecked"] { display: none }`.) */
+  .st-radio__indicator {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* ===== dot =====
+   * The dot inherits `color` from `.st-radio`, so when the radio shifts
+   * to `foreground-disabled` the dot follows. No separate disabled rule
+   * is needed. */
+  .st-radio__dot {
+    border-radius: 9999px;
+    background-color: currentColor;
+  }
+  .st-radio--sm .st-radio__dot {
+    width: 0.625rem;
+    height: 0.625rem;
+  }
+  .st-radio--md .st-radio__dot {
+    width: 0.75rem;
+    height: 0.75rem;
+  }
+  .st-radio--lg .st-radio__dot {
+    width: 1rem;
+    height: 1rem;
+  }
+}

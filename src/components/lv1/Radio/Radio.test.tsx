@@ -16,6 +16,15 @@ describe('RadioGroup', () => {
     expect(screen.getAllByRole('radio')).toHaveLength(3)
   })
 
+  it('emits st-radio-group on the group root', () => {
+    const { container } = render(
+      <RadioGroup>
+        <Radio value="a" label="A" />
+      </RadioGroup>,
+    )
+    expect(container.querySelector('[role="radiogroup"]')).toHaveClass('st-radio-group')
+  })
+
   it('selects a single radio at a time (controlled)', async () => {
     const user = userEvent.setup()
     const onValueChange = vi.fn()
@@ -57,7 +66,7 @@ describe('RadioGroup', () => {
     }
   })
 
-  it('propagates isError to all radios', () => {
+  it('propagates isError to all radios via aria-invalid', () => {
     render(
       <RadioGroup isError>
         <Radio value="a" label="A" />
@@ -66,7 +75,6 @@ describe('RadioGroup', () => {
     )
     for (const r of screen.getAllByRole('radio')) {
       expect(r).toHaveAttribute('aria-invalid', 'true')
-      expect(r.className).toContain('border-error')
     }
   })
 
@@ -76,7 +84,7 @@ describe('RadioGroup', () => {
         <Radio value="a" label="A" />
       </RadioGroup>,
     )
-    expect(screen.getByRole('radio')).toHaveClass('size-6')
+    expect(screen.getByRole('radio')).toHaveClass('st-radio--lg')
   })
 
   it('sets aria-invalid on the group itself when isError', () => {
@@ -91,6 +99,54 @@ describe('RadioGroup', () => {
 })
 
 describe('Radio', () => {
+  it('emits the canonical st-radio class chain', () => {
+    render(
+      <RadioGroup>
+        <Radio value="a" label="A" />
+      </RadioGroup>,
+    )
+    expect(screen.getByRole('radio')).toHaveClass('st-radio', 'st-radio--md')
+  })
+
+  it('wraps each Radio in .st-radio-wrapper', () => {
+    render(
+      <RadioGroup>
+        <Radio value="a" label="A" />
+      </RadioGroup>,
+    )
+    const radio = screen.getByRole('radio')
+    expect(radio.parentElement).toHaveClass('st-radio-wrapper')
+  })
+
+  it('puts .st-radio-wrapper__label on the internal <label>', () => {
+    render(
+      <RadioGroup>
+        <Radio value="a" label="Option A" />
+      </RadioGroup>,
+    )
+    expect(screen.getByText('Option A')).toHaveClass('st-radio-wrapper__label')
+  })
+
+  it('renders .st-radio__indicator with .st-radio__dot inside when checked', () => {
+    const { container } = render(
+      <RadioGroup defaultValue="a">
+        <Radio value="a" label="A" />
+      </RadioGroup>,
+    )
+    const indicator = container.querySelector('.st-radio__indicator')
+    expect(indicator).toBeInTheDocument()
+    expect(indicator?.querySelector('.st-radio__dot')).toBeInTheDocument()
+  })
+
+  it('does not render .st-radio__indicator when unchecked (Radix unmounts it)', () => {
+    const { container } = render(
+      <RadioGroup>
+        <Radio value="a" label="A" />
+      </RadioGroup>,
+    )
+    expect(container.querySelector('.st-radio__indicator')).not.toBeInTheDocument()
+  })
+
   it('renders label and associates it via htmlFor', () => {
     render(
       <RadioGroup>
@@ -110,8 +166,8 @@ describe('Radio', () => {
       </RadioGroup>,
     )
     const [a, b] = screen.getAllByRole('radio')
-    expect(a).toHaveClass('size-4')
-    expect(b).toHaveClass('size-6')
+    expect(a).toHaveClass('st-radio--sm')
+    expect(b).toHaveClass('st-radio--lg')
   })
 
   it('per-item disabled does not affect siblings', () => {
@@ -174,7 +230,7 @@ describe('Radio', () => {
     })
   })
 
-  it('forwards className on wrapping div', () => {
+  it('forwards className on the radio wrapper', () => {
     const { container } = render(
       <RadioGroup>
         <Radio value="a" label="A" className="custom-wrap" />

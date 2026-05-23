@@ -112,4 +112,24 @@ describe('Tooltip', () => {
 
     expect(screen.getByRole('tooltip')).toBeInTheDocument()
   })
+
+  describe('class API', () => {
+    it('content carries the st-tooltip__content class when open', () => {
+      render(
+        <TooltipProvider>
+          <Tooltip open>
+            <TooltipTrigger>
+              <button type="button">Hover me</button>
+            </TooltipTrigger>
+            <TooltipContent>Tooltip content</TooltipContent>
+          </Tooltip>
+        </TooltipProvider>,
+      )
+      // Radix renders role="tooltip" on the content element; the parent
+      // wrapper holds the className we set (matches the existing
+      // `custom-class` test pattern above).
+      const tooltip = screen.getByRole('tooltip').parentElement
+      expect(tooltip).toHaveClass('st-tooltip__content')
+    })
+  })
 })

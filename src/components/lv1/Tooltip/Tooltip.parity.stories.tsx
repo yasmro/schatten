@@ -17,16 +17,17 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './Tool
  * paints any element it lands on with the right surface treatment,
  * regardless of where that element sits in the DOM.
  *
- * The story therefore shows tooltips as **standalone boxes**, not
- * attached to triggers via Popper. The React side still uses the
- * full `<Tooltip open><TooltipTrigger><TooltipContent>` chain
- * (Radix requires it), but the trigger is a static label rendered
- * inline with the portaled content. The vanilla side simply renders
- * a `<div class="st-tooltip__content">` in normal document flow,
- * with no `data-state` (the open / close animations are intentional
- * scope-out — they'd require either Radix-style runtime state
- * toggling or transform-based positioning that conflicts with the
- * animation system).
+ * The story uses `side="bottom"` (only) so the React tooltip portal
+ * never overlaps the column header. The vanilla side renders a
+ * static `<div class="st-tooltip__content">` below its trigger via
+ * normal document flow — no `data-state`, no `position: absolute`,
+ * no transform-based positioning (the open / close animations are
+ * intentional scope-out — they'd require either Radix-style runtime
+ * state toggling or transform-based positioning that conflicts
+ * with the animation system).
+ *
+ * The four `side` variants (top / right / bottom / left) are covered
+ * by the existing `Tooltip.vrt.spec.ts` `Sides` story.
  */
 const meta: Meta<typeof TooltipContent> = {
   title: 'Components/lv1/Tooltip',
@@ -46,14 +47,10 @@ const meta: Meta<typeof TooltipContent> = {
 export default meta
 type Story = StoryObj<typeof TooltipContent>
 
-// Lucide-free inline arrow SVG — matches TooltipPrimitive.Arrow's
-// default render shape (10x5 viewBox, fill from CSS class). `side` flips
-// the triangle so the point faces the trigger.
-function VanillaArrow({ side }: { side: 'top' | 'bottom' }) {
-  // Arrow Y-flip for `data-side="top"` (Radix flips it via CSS rotate;
-  // here we precompute the SVG path direction so vanilla has no runtime
-  // dependency on transform values).
-  const points = side === 'top' ? '0,0 30,0 15,10' : '0,10 30,10 15,0'
+// Inline arrow SVG matching TooltipPrimitive.Arrow's default render
+// (10x5 viewBox, fill from CSS class). For `side="bottom"` the arrow
+// sits at the top of the tooltip box, point facing up toward the trigger.
+function VanillaArrowBottom() {
   return (
     <svg
       className="st-tooltip__arrow"
@@ -65,11 +62,10 @@ function VanillaArrow({ side }: { side: 'top' | 'bottom' }) {
       style={{
         display: 'block',
         marginInline: 'auto',
-        marginTop: side === 'bottom' ? -1 : 0,
-        marginBottom: side === 'top' ? -1 : 0,
+        marginTop: -1,
       }}
     >
-      <polygon points={points} />
+      <polygon points="0,10 30,10 15,0" />
     </svg>
   )
 }
@@ -83,74 +79,39 @@ export const Parity: Story = {
         gridTemplateColumns: '1fr 1fr',
         gap: 64,
         maxWidth: 720,
-        // Top padding so the React-side `side="top"` portal has room to
-        // render above its trigger without overlapping the "React"
-        // column header.
-        paddingTop: 64,
       }}
     >
       {/* ===== React side =====
-       * Standard Radix usage — `<Tooltip open>` keeps the content
-       * mounted. Buttons act as triggers. Popper positions the content
-       * relative to each button. */}
+       * Standard Radix usage with `<Tooltip open>` and `side="bottom"`.
+       * The portal lands below the trigger, so it never overlaps the
+       * column header above. */}
       <div>
         <p className="text-xs mb-4 text-foreground-muted">React</p>
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 64,
-            alignItems: 'flex-start',
-          }}
-        >
+        <div style={{ paddingBottom: 64 }}>
           <Tooltip open>
             <TooltipTrigger>
               <button type="button" className="st-btn st-btn--secondary st-btn--md">
-                Top
+                Trigger
               </button>
             </TooltipTrigger>
-            <TooltipContent side="top">Tooltip on top</TooltipContent>
-          </Tooltip>
-
-          <Tooltip open>
-            <TooltipTrigger>
-              <button type="button" className="st-btn st-btn--secondary st-btn--md">
-                Bottom
-              </button>
-            </TooltipTrigger>
-            <TooltipContent side="bottom">Tooltip on bottom</TooltipContent>
+            <TooltipContent side="bottom">Tooltip content</TooltipContent>
           </Tooltip>
         </div>
       </div>
 
       {/* ===== Vanilla HTML side =====
-       * Static boxes — no `data-state`, no `position: absolute`, no
-       * transform-based positioning. The contract this proves is
-       * "the tooltip-content + arrow render the right visual"; the
-       * position is whatever document flow gives. */}
+       * Button + tooltip-content stacked in normal document flow.
+       * No `data-state`, no `position: absolute`, no transform —
+       * proving the class API alone produces the right visual box. */}
       <div>
         <p className="text-xs mb-4 text-foreground-muted">Vanilla HTML</p>
-        <div
-          style={{ display: 'flex', flexDirection: 'column', gap: 64, alignItems: 'flex-start' }}
-        >
-          <div>
-            <div className="st-tooltip__content" role="tooltip" style={{ marginBottom: 4 }}>
-              Tooltip on top
-              <VanillaArrow side="top" />
-            </div>
-            <button type="button" className="st-btn st-btn--secondary st-btn--md">
-              Top
-            </button>
-          </div>
-
-          <div>
-            <button type="button" className="st-btn st-btn--secondary st-btn--md">
-              Bottom
-            </button>
-            <div className="st-tooltip__content" role="tooltip" style={{ marginTop: 4 }}>
-              <VanillaArrow side="bottom" />
-              Tooltip on bottom
-            </div>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+          <button type="button" className="st-btn st-btn--secondary st-btn--md">
+            Trigger
+          </button>
+          <div className="st-tooltip__content" role="tooltip" style={{ marginTop: 4 }}>
+            <VanillaArrowBottom />
+            Tooltip content
           </div>
         </div>
       </div>

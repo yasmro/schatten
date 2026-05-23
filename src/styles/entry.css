@@ -60,6 +60,9 @@
 @import "../components/lv1/Input/Input.css";
 @import "../components/lv1/Textarea/Textarea.css";
 @import "../components/lv1/Radio/Radio.css";
+/* #270 sweep-5 — Select class API (Tooltip is imported above for its keyframes;
+ * the same file now also carries its `@layer components` rules). */
+@import "../components/lv1/Select/Select.css";
 
 /* Class-based dark mode variant — matches `src/styles/globals.css` so
  * `.dark` toggling behaves identically in Storybook and in the dist. */

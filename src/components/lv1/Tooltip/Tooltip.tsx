@@ -55,14 +55,11 @@ const TooltipContent = forwardRef<
     <TooltipPrimitive.Content
       ref={ref}
       sideOffset={4}
-      className={cn(
-        'tooltip-content z-[var(--z-tooltip)] bg-foreground px-3 py-1.5 text-sm text-background shadow-md',
-        className,
-      )}
+      className={cn('st-tooltip__content', className)}
       {...props}
     >
       {children}
-      <TooltipPrimitive.Arrow className="fill-foreground" />
+      <TooltipPrimitive.Arrow className="st-tooltip__arrow" />
     </TooltipPrimitive.Content>
   </TooltipPrimitive.Portal>
 ))

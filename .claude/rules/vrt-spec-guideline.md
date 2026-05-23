@@ -143,6 +143,74 @@ Only include stories that represent distinct visual states:
 - Include: `AllVariants`, `Sizes`, `States`, `Disabled`, `ErrorState`
 - Exclude: `Playground` (interactive, not for VRT)
 
+## Parity stories — when to write one, when to skip
+
+The `#154` sweeps that publish the `.st-*` class API also typically ship a
+`{Component}.parity.stories.tsx` whose VRT screenshot proves the React side
+and a hand-written vanilla HTML side render pixel-identically. Parity stories
+are the structural enforcement of "the class API alone produces the React
+visual" — but only for components a vanilla consumer can realistically use.
+
+### Skip parity for compound + JS-driven components
+
+For components in the [#297](https://github.com/yasmro/schatten/issues/297)
+classification **区分 C (静的描画のみ)** or **区分 D (JS 必須)** — i.e.,
+Tooltip, Select, Dialog, Toast — **do not author a parity story or a
+`*.parity.vrt.spec.ts`**. The class API still exists and is documented in the
+manifest, but there is no realistic vanilla use case to prove parity against:
+
+- 区分 D (Select / Dialog / Toast): the compound behaviour (open / close /
+  select / focus trap) requires Radix-equivalent JS that Schatten does not
+  ship. A vanilla consumer who writes `<button class="st-select__trigger">`
+  has a styled button that opens nothing — the "parity" is performative.
+- 区分 C (Tooltip): static `.st-tooltip__content` is renderable in vanilla
+  HTML, but positioning requires Floating UI / Popper logic, and the
+  hover / focus trigger requires self-written JS. The visual contract is
+  trivial enough (single dark / light box + arrow) that the manifest entry
+  and the unit-test `class API` describe block cover it.
+
+Write parity only for **区分 A (完全 vanilla 可)** and **区分 B (ブラウザが
+ハンドル)** components:
+
+- 区分 A: Button, Badge, Callout, Text, Icon, Separator, Spinner.
+- 区分 B: Input, Textarea, Checkbox, Switch, Radio.
+
+These are where a vanilla consumer plausibly writes
+`<button class="st-btn st-btn--primary">` or `<input class="st-input">` and
+expects parity with the React render. The parity VRT structurally enforces
+that.
+
+### What replaces parity for skipped components
+
+When you skip the parity story, the contract is still defended by:
+
+- **Manifest** (`src/__generated__/schatten.manifest.json`) — the
+  `.st-*` classes the component emits are listed there. Renaming or removing
+  one fails `pnpm check:manifest` in CI.
+- **Unit test `class API` describe block** — a 3-4 line test that calls
+  `render(<Component …/>)` and asserts `toHaveClass('st-component__part',
+  'st-component__part--modifier')`. Sweep-3/4/5 components carry this
+  pattern.
+- **Existing component VRT** (`{Component}.vrt.spec.ts`) — visual regression
+  on the React side is still captured; the Tailwind utility → semantic class
+  translation is verified via diff against existing baselines.
+
+### Decision flow
+
+When adding a new lv1 component or sweeping an existing one, ask:
+
+1. Is the component fully renderable + interactive in vanilla HTML using
+   only the `.st-*` class chain and HTML/ARIA attributes?
+   - Yes (区分 A/B) → write the parity story + VRT spec.
+   - No (区分 C/D) → skip parity; rely on manifest + class API unit test.
+2. If borderline (e.g., a static decorative-only compound), default to
+   **skip** — adding parity later is non-breaking, removing it later is a
+   semver-noisy churn.
+
+The future docs effort in [#297](https://github.com/yasmro/schatten/issues/297)
+will document the 5-区分 classification in `css-api.md`; this rule's parity
+decision tree references the same classification.
+
 ## Running VRT Tests
 
 ```bash

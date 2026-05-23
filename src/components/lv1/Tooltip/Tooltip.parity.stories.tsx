@@ -2,23 +2,31 @@ import type { Meta, StoryObj } from '@storybook/react-vite'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './Tooltip'
 
 /**
- * Parity stories — React `<Tooltip open>` and a hand-written
- * `<div class="st-tooltip__content" role="tooltip" data-state="instant-open"
- *   data-side="…" style="position:fixed; …">` must render pixel-identical.
- * Backs the VRT in `Tooltip.parity.vrt.spec.ts`.
+ * Parity story — React `<TooltipContent>` and a hand-written
+ * `<div class="st-tooltip__content">` must produce **the same visual
+ * box** (background / foreground colour / padding / font / shadow /
+ * arrow fill). Backs the VRT in `Tooltip.parity.vrt.spec.ts`.
  *
- * The Radix React build does positioning via the Floating UI–compatible
- * Popper, which a vanilla consumer cannot replicate without their own JS.
- * The vanilla side here uses inline `position: fixed` with hand-picked
- * `top` / `left` values so the parity screenshot still proves the
- * static visual contract (background / colour / padding / shadow /
- * arrow) is the same on both sides.
+ * **Scope: content visual only, NOT positioning.**
  *
- * Trigger-side parity is not asserted here — `TooltipTrigger` does not
- * carry a dedicated class (it merges onto its child via Radix asChild),
- * so there is no class chain to compare against. The Button parity
- * story (#268 sweep-3) already covers the trigger's `<Button>`
- * appearance.
+ * Radix React Tooltip portals its content into `document.body` and
+ * uses Popper / Floating UI to compute the screen position relative
+ * to the trigger. A vanilla consumer cannot replicate that without
+ * their own JS (see #297, phase-5). What Schatten's class API DOES
+ * give them is the *appearance* — the `.st-tooltip__content` rule
+ * paints any element it lands on with the right surface treatment,
+ * regardless of where that element sits in the DOM.
+ *
+ * The story therefore shows tooltips as **standalone boxes**, not
+ * attached to triggers via Popper. The React side still uses the
+ * full `<Tooltip open><TooltipTrigger><TooltipContent>` chain
+ * (Radix requires it), but the trigger is a static label rendered
+ * inline with the portaled content. The vanilla side simply renders
+ * a `<div class="st-tooltip__content">` in normal document flow,
+ * with no `data-state` (the open / close animations are intentional
+ * scope-out — they'd require either Radix-style runtime state
+ * toggling or transform-based positioning that conflicts with the
+ * animation system).
  */
 const meta: Meta<typeof TooltipContent> = {
   title: 'Components/lv1/Tooltip',
@@ -38,17 +46,14 @@ const meta: Meta<typeof TooltipContent> = {
 export default meta
 type Story = StoryObj<typeof TooltipContent>
 
-// Lucide-free inline arrow SVG — matches Radix's TooltipPrimitive.Arrow
-// render shape (width 10, height 5, transform from data-side rotation).
-// Side-specific transforms are handled by Radix at runtime, so the vanilla
-// side carries pre-computed `transform` strings per side.
-function VanillaArrow({ side }: { side: 'top' | 'right' | 'bottom' | 'left' }) {
-  const transform = {
-    top: 'translateY(-100%) rotate(180deg)',
-    right: 'rotate(-90deg)',
-    bottom: 'translateX(-50%)',
-    left: 'translateX(-50%) rotate(90deg)',
-  }[side]
+// Lucide-free inline arrow SVG — matches TooltipPrimitive.Arrow's
+// default render shape (10x5 viewBox, fill from CSS class). `side` flips
+// the triangle so the point faces the trigger.
+function VanillaArrow({ side }: { side: 'top' | 'bottom' }) {
+  // Arrow Y-flip for `data-side="top"` (Radix flips it via CSS rotate;
+  // here we precompute the SVG path direction so vanilla has no runtime
+  // dependency on transform values).
+  const points = side === 'top' ? '0,0 30,0 15,10' : '0,10 30,10 15,0'
   return (
     <svg
       className="st-tooltip__arrow"
@@ -56,10 +61,15 @@ function VanillaArrow({ side }: { side: 'top' | 'right' | 'bottom' | 'left' }) {
       height="5"
       viewBox="0 0 30 10"
       preserveAspectRatio="none"
-      style={{ position: 'absolute', transform }}
       aria-hidden="true"
+      style={{
+        display: 'block',
+        marginInline: 'auto',
+        marginTop: side === 'bottom' ? -1 : 0,
+        marginBottom: side === 'top' ? -1 : 0,
+      }}
     >
-      <polygon points="0,0 30,0 15,10" />
+      <polygon points={points} />
     </svg>
   )
 }
@@ -67,12 +77,28 @@ function VanillaArrow({ side }: { side: 'top' | 'right' | 'bottom' | 'left' }) {
 export const Parity: Story = {
   name: 'React vs Vanilla HTML',
   render: () => (
-    <div className="grid grid-cols-2 gap-12 max-w-3xl">
-      {/* ===== React side ===== */}
-      <div className="space-y-32">
-        <p className="text-xs mb-2 text-foreground-muted">React</p>
-
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 64 }}>
+    <div
+      style={{
+        display: 'grid',
+        gridTemplateColumns: '1fr 1fr',
+        gap: 64,
+        maxWidth: 720,
+      }}
+    >
+      {/* ===== React side =====
+       * Standard Radix usage — `<Tooltip open>` keeps the content
+       * mounted. Buttons act as triggers. Popper positions the content
+       * relative to each button. */}
+      <div>
+        <p className="text-xs mb-4 text-foreground-muted">React</p>
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 64,
+            alignItems: 'flex-start',
+          }}
+        >
           <Tooltip open>
             <TooltipTrigger>
               <button type="button" className="st-btn st-btn--secondary st-btn--md">
@@ -94,55 +120,32 @@ export const Parity: Story = {
       </div>
 
       {/* ===== Vanilla HTML side =====
-       * `position: fixed` is used because the parity story sits at the
-       * top of a `padded` layout — `top` / `left` values are matched to
-       * Radix Popper's placement for the matching React tooltip above.
-       * The exact pixel positions will differ slightly run-to-run, but
-       * the *content* (background / padding / colour / arrow) is the
-       * contract this story proves. The VRT spec pauses animations so
-       * the still frame is deterministic. */}
-      <div className="space-y-32">
-        <p className="text-xs mb-2 text-foreground-muted">Vanilla HTML</p>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 64 }}>
-          <div style={{ position: 'relative', minHeight: 100 }}>
-            <button type="button" className="st-btn st-btn--secondary st-btn--md">
-              Top
-            </button>
-            <div
-              className="st-tooltip__content"
-              role="tooltip"
-              data-state="instant-open"
-              data-side="top"
-              style={{
-                position: 'absolute',
-                bottom: '100%',
-                left: '50%',
-                transform: 'translateX(-50%) translateY(-4px)',
-              }}
-            >
+       * Static boxes — no `data-state`, no `position: absolute`, no
+       * transform-based positioning. The contract this proves is
+       * "the tooltip-content + arrow render the right visual"; the
+       * position is whatever document flow gives. */}
+      <div>
+        <p className="text-xs mb-4 text-foreground-muted">Vanilla HTML</p>
+        <div
+          style={{ display: 'flex', flexDirection: 'column', gap: 64, alignItems: 'flex-start' }}
+        >
+          <div>
+            <div className="st-tooltip__content" role="tooltip" style={{ marginBottom: 4 }}>
               Tooltip on top
               <VanillaArrow side="top" />
             </div>
+            <button type="button" className="st-btn st-btn--secondary st-btn--md">
+              Top
+            </button>
           </div>
 
-          <div style={{ position: 'relative', minHeight: 100 }}>
+          <div>
             <button type="button" className="st-btn st-btn--secondary st-btn--md">
               Bottom
             </button>
-            <div
-              className="st-tooltip__content"
-              role="tooltip"
-              data-state="instant-open"
-              data-side="bottom"
-              style={{
-                position: 'absolute',
-                top: '100%',
-                left: '50%',
-                transform: 'translateX(-50%) translateY(4px)',
-              }}
-            >
-              Tooltip on bottom
+            <div className="st-tooltip__content" role="tooltip" style={{ marginTop: 4 }}>
               <VanillaArrow side="bottom" />
+              Tooltip on bottom
             </div>
           </div>
         </div>

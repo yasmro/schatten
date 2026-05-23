@@ -35,21 +35,20 @@
 /* Seasonal palettes (data-theme attribute) */
 @import "../themes/seasonal/themes.css";
 
-/* Component CSS — keyframes (Spinner / Toast / Tooltip / Dialog) plus the
- * `.st-*` semantic class rules added by #154 sweep-1..7 under
- * `@layer components`. Tooltip / Dialog were previously missing from the
- * bundled dist (they shipped only via the React `.tsx` side-effect import)
- * — those imports close that gap so vanilla-HTML consumers get the
- * enter/exit animations too. */
-@import "../components/lv1/Spinner/Spinner.css";
-@import "../components/lv1/Toast/Toast.css";
-@import "../components/lv1/Tooltip/Tooltip.css";
-@import "../components/lv1/Dialog/Dialog.css";
+/* Component CSS — `.st-*` semantic class rules under `@layer components`
+ * plus keyframes (Spinner / Toast / Tooltip / Dialog). Order matches
+ * #154 sweep dependency: leaf primitives first, then compound + portal
+ * last. Within `@layer components` source order is the tie-breaker when
+ * two rules share specificity, so sweep-6 (Toast / Dialog) intentionally
+ * lands AFTER sweep-3 (Button) — Dialog composes Button internally, and
+ * we want any future cross-cutting rule on `.st-btn` to be overridable
+ * by a Dialog-specific rule, not the reverse. */
 /* #266 sweep-1 — Separator / Text / Icon class API */
 @import "../components/lv1/Separator/Separator.css";
 @import "../components/lv1/Text/Text.css";
 @import "../components/lv1/Icon/Icon.css";
-/* #267 sweep-2 — Spinner is imported above (animations); add Badge / Callout class API */
+/* #267 sweep-2 — Spinner (animations) + Badge / Callout class API */
+@import "../components/lv1/Spinner/Spinner.css";
 @import "../components/lv1/Badge/Badge.css";
 @import "../components/lv1/Callout/Callout.css";
 /* #268 sweep-3 — Button / Checkbox / Switch class API */
@@ -60,9 +59,13 @@
 @import "../components/lv1/Input/Input.css";
 @import "../components/lv1/Textarea/Textarea.css";
 @import "../components/lv1/Radio/Radio.css";
-/* #270 sweep-5 — Select class API (Tooltip is imported above for its keyframes;
- * the same file now also carries its `@layer components` rules). */
+/* #270 sweep-5 — Tooltip (keyframes + class API) + Select class API */
+@import "../components/lv1/Tooltip/Tooltip.css";
 @import "../components/lv1/Select/Select.css";
+/* #271 sweep-6 — Toast / Dialog class API. Must land after sweep-3
+ * (Button) since both Toast and Dialog compose .st-btn internally. */
+@import "../components/lv1/Toast/Toast.css";
+@import "../components/lv1/Dialog/Dialog.css";
 
 /* Class-based dark mode variant — matches `src/styles/globals.css` so
  * `.dark` toggling behaves identically in Storybook and in the dist. */

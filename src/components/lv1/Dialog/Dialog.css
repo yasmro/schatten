@@ -1,5 +1,181 @@
-/* Dialog enter / exit animations */
+/*
+ * Dialog — `.st-dialog__*` class API.
+ *
+ * Dialog has no `.st-dialog` block root: Radix's `DialogPrimitive.Root`
+ * emits no DOM, and the Overlay + Content are mounted into a Portal
+ * directly under `<body>`. There is no physical parent that ties them
+ * together, so the SSOT is the 8 sub-element classes listed below.
+ *
+ * Sub-elements:
+ * - `.st-dialog__overlay`      — fixed-inset dim layer (animation target)
+ * - `.st-dialog__content`      — centered modal panel (fixed; animation target)
+ * - `.st-dialog__header`       — title + description block
+ * - `.st-dialog__title`        — Radix Title (h2 by default)
+ * - `.st-dialog__description`  — Radix Description (optional)
+ * - `.st-dialog__body`         — children scroll region (only emitted when children present)
+ * - `.st-dialog__footer`       — flex container for action / cancel / sub-action buttons
+ * - `.st-dialog__close`        — absolute-positioned wrapper for the close ✕ button
+ *
+ * Footer note — the per-button `order-N` Tailwind utilities (`order-1`,
+ * `sm:order-3`, etc.) stay on the `<Button>` element in Dialog.tsx. They
+ * exist for the React-side Radix focus trap (DOM order is
+ * Action → Cancel → SubAction so the action button gets initial focus),
+ * which has no vanilla HTML counterpart. Vanilla consumers writing the
+ * markup directly should put the buttons in visual order — no `order-*`
+ * utility classes needed.
+ *
+ * State attributes (Radix-emitted, drive animation only):
+ * - `[data-state="open"|"closed"]` — fade-in / zoom-in on open,
+ *                                     fade-out / zoom-out on close
+ *
+ * IMPORTANT — animation vs centering: Tailwind v4 used to emit centering
+ * via the standalone `translate:` property; we keep that approach here
+ * (set `translate: -50% -50%` on `.st-dialog__content`). The keyframes
+ * animate `transform: scale(...)` ONLY, so the standalone `translate:`
+ * value is unaffected and the dialog stays centered throughout the
+ * animation. Animating `transform: translate(-50%, -50%) scale(...)`
+ * would compose on top of `translate:` and double the offset — that's
+ * the historical regression pinned in the legacy `.dialog-content`
+ * comment.
+ *
+ * Uses raw CSS + `var(--color-*)` throughout, per css-api.md
+ * "Component CSS authoring conventions — raw CSS over @apply".
+ *
+ * See: .claude/rules/css-api.md, #271 sweep-6.
+ */
+@layer components {
+  /* ===== overlay ===== */
+  .st-dialog__overlay {
+    position: fixed;
+    inset: 0;
+    z-index: var(--z-modal-backdrop);
+    background-color: rgb(0 0 0 / 0.5);
+  }
+  .st-dialog__overlay[data-state="open"] {
+    animation: dialog-overlay-fade-in 200ms ease-out;
+  }
+  .st-dialog__overlay[data-state="closed"] {
+    animation: dialog-overlay-fade-out 150ms ease-in;
+  }
 
+  /* ===== content ===== */
+  .st-dialog__content {
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    translate: -50% -50%;
+    z-index: var(--z-modal);
+    width: calc(100vw - 2rem);
+    max-width: 28rem; /* max-w-md */
+    /* Cap height to viewport so very long bodies don't push the dialog
+     * off-screen. `overflow: hidden` here, plus `min-height: 0;
+     * overflow-y: auto` on `.st-dialog__body`, makes the body the only
+     * scrolling region; header / footer stay pinned. */
+    max-height: calc(100vh - 2rem);
+    overflow: hidden;
+    background-color: var(--color-background);
+    border: 1px solid var(--color-border-strong);
+    box-shadow: var(--shadow-lg);
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem; /* gap-6 */
+    padding: 1.5rem; /* p-6 */
+  }
+  .st-dialog__content[data-state="open"] {
+    animation: dialog-content-zoom-in 200ms ease-out;
+  }
+  .st-dialog__content[data-state="closed"] {
+    animation: dialog-content-zoom-out 150ms ease-in;
+  }
+
+  /* ===== header ===== */
+  .st-dialog__header {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem; /* gap-1.5 */
+    /* Reserve space for the absolute-positioned close ✕ button so the
+     * header text never sits behind it. Kept constant regardless of
+     * `isCloseButtonVisible`; matching the pre-sweep behaviour where
+     * the header always shipped `pr-8`. */
+    padding-right: 2rem;
+  }
+  .st-dialog__title {
+    font-size: 1.125rem; /* text-lg */
+    font-weight: 600;
+    line-height: 1.25;
+    color: var(--color-foreground);
+  }
+  .st-dialog__description {
+    font-size: 0.875rem;
+    /* Tailwind v4 `text-sm` ships `font-size` + `line-height` as a pair
+     * (0.875rem / 1.25rem). The pre-sweep JSX wrote `text-sm` without an
+     * explicit `leading-*`, so we have to declare line-height here too —
+     * otherwise the value would fall back to the body's
+     * `var(--leading-normal)` (≈ 1.5) and multi-line descriptions would
+     * drift wider than before. Same precedent as Input.css size pairs. */
+    line-height: 1.25rem;
+    color: var(--color-foreground-muted);
+  }
+
+  /* ===== body ===== */
+  .st-dialog__body {
+    min-height: 0;
+    overflow-y: auto;
+    font-size: 0.875rem;
+    /* See `.st-dialog__description` — same Tailwind v4 text-sm pair.
+     * This rule is load-bearing for the `long-content` VRT: long
+     * paragraphs accumulate line-height drift, so an omitted line-height
+     * would shift every line below the first by ~3px. */
+    line-height: 1.25rem;
+    color: var(--color-foreground);
+  }
+
+  /* ===== footer =====
+   * `.st-dialog__footer` is a flex container only. Per-button order is
+   * a JSX-side concern (Tailwind utility on each Button — see comment
+   * at the top of this file). */
+  .st-dialog__footer {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  @media (min-width: 640px) {
+    /* sm: breakpoint */
+    .st-dialog__footer {
+      flex-direction: row;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 0.5rem;
+    }
+  }
+
+  /* ===== close button wrapper ===== */
+  .st-dialog__close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .st-dialog__overlay,
+    .st-dialog__content {
+      animation: none;
+    }
+  }
+}
+
+/*
+ * Dialog enter / exit keyframes.
+ *
+ * Overlay: simple opacity fade.
+ * Content: opacity + scale only — `transform: scale(...)` here composes
+ *          safely with `translate: -50% -50%` on `.st-dialog__content`.
+ *
+ * Declared outside `@layer components` so the keyframes are global and
+ * shared across the dist.
+ */
 @keyframes dialog-overlay-fade-in {
   from {
     opacity: 0;
@@ -18,14 +194,6 @@
   }
 }
 
-/*
- * Animate `scale` / `opacity` only — Tailwind v4 emits centering via the
- * standalone `translate:` CSS property (not `transform: translate(...)`),
- * so the element stays at translate(-50%, -50%) throughout. Putting a
- * `translate(-50%, -50%)` inside `transform` here would compose on top of
- * Tailwind's `translate:` property and double the offset, jittering the
- * dialog into the corner during the animation.
- */
 @keyframes dialog-content-zoom-in {
   from {
     opacity: 0;
@@ -45,28 +213,5 @@
   to {
     opacity: 0;
     transform: scale(0.98);
-  }
-}
-
-.dialog-overlay[data-state="open"] {
-  animation: dialog-overlay-fade-in 200ms ease-out;
-}
-
-.dialog-overlay[data-state="closed"] {
-  animation: dialog-overlay-fade-out 150ms ease-in;
-}
-
-.dialog-content[data-state="open"] {
-  animation: dialog-content-zoom-in 200ms ease-out;
-}
-
-.dialog-content[data-state="closed"] {
-  animation: dialog-content-zoom-out 150ms ease-in;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .dialog-overlay,
-  .dialog-content {
-    animation: none;
   }
 }

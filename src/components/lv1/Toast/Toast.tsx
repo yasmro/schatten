@@ -22,6 +22,22 @@ export interface ToastItemProps {
  * Renders a single toast inside a Radix Toast.Provider. Internal; consumers
  * should use the `toast()` imperative API and mount a single `<Toaster />`
  * at the app root.
+ *
+ * DOM contract (consumed by Toast.css `:has()` selectors):
+ *
+ *     <li class="st-toast st-toast--{tone} st-toast--{shape}">
+ *       <svg class="st-toast__icon" aria-hidden="true" />        ◀ direct child
+ *       <div class="st-toast__content">                          ◀ direct child
+ *         <div class="st-toast__title">…</div>
+ *         <div class="st-toast__description">…</div>             ◀ optional
+ *       </div>
+ *       <button class="st-btn st-btn--…">…</button>              ◀ direct child
+ *     </li>
+ *
+ * `:has(.st-toast__description)` flips alignment from `center` to
+ * `flex-start` when a description is present, so `__icon` / `__content`
+ * MUST stay direct children of `.st-toast` for the structural selector
+ * to match.
  */
 export function ToastItem({ toast }: ToastItemProps) {
   const handleOpenChange = (open: boolean) => {
@@ -50,61 +66,35 @@ export function ToastItem({ toast }: ToastItemProps) {
       duration={toast.duration}
       className={cn(toastVariants({ variant: toast.variant, appearance: toast.appearance }))}
     >
-      {/*
-       * Two layout regimes share the same flex row:
-       *   - title only          → `items-center` so the single line of text
-       *                            sits at the vertical center of the toast
-       *                            (X button height would otherwise create
-       *                            empty space below).
-       *   - title + description → `items-start` so the icon stays next to
-       *                            the title, the natural "header" position.
-       * `min-w-0` lets the content column shrink below its intrinsic width
-       * so a long action label cannot overflow into title/description.
-       */}
-      <div className={cn('flex gap-3', toast.description ? 'items-start' : 'items-center')}>
-        <Icon className={cn('size-5 shrink-0', toast.description && 'mt-0.5')} aria-hidden="true" />
-        <div className="flex min-w-0 flex-1 flex-col gap-1">
-          {toast.title && (
-            <ToastPrimitive.Title className="text-sm font-semibold leading-tight">
-              {toast.title}
-            </ToastPrimitive.Title>
-          )}
-          {toast.description && (
-            <ToastPrimitive.Description className="text-sm leading-snug opacity-90">
-              {toast.description}
-            </ToastPrimitive.Description>
-          )}
-        </div>
-
-        {hasAction && toast.action ? (
-          <ToastPrimitive.Action
-            asChild
-            altText={
-              toast.action.altText ??
-              (typeof toast.action.label === 'string' ? toast.action.label : 'Action')
-            }
-          >
-            <Button
-              variant={buttonVariant}
-              size="sm"
-              onClick={handleActionClick}
-              className="shrink-0"
-            >
-              {toast.action.label}
-            </Button>
-          </ToastPrimitive.Action>
-        ) : (
-          <ToastPrimitive.Close asChild>
-            <Button
-              variant={buttonVariant}
-              size="sm"
-              icon={X}
-              aria-label="Close"
-              className="shrink-0"
-            />
-          </ToastPrimitive.Close>
+      <Icon className="st-toast__icon" aria-hidden="true" />
+      <div className="st-toast__content">
+        {toast.title && (
+          <ToastPrimitive.Title className="st-toast__title">{toast.title}</ToastPrimitive.Title>
+        )}
+        {toast.description && (
+          <ToastPrimitive.Description className="st-toast__description">
+            {toast.description}
+          </ToastPrimitive.Description>
         )}
       </div>
+
+      {hasAction && toast.action ? (
+        <ToastPrimitive.Action
+          asChild
+          altText={
+            toast.action.altText ??
+            (typeof toast.action.label === 'string' ? toast.action.label : 'Action')
+          }
+        >
+          <Button variant={buttonVariant} size="sm" onClick={handleActionClick}>
+            {toast.action.label}
+          </Button>
+        </ToastPrimitive.Action>
+      ) : (
+        <ToastPrimitive.Close asChild>
+          <Button variant={buttonVariant} size="sm" icon={X} aria-label="Close" />
+        </ToastPrimitive.Close>
+      )}
     </ToastPrimitive.Root>
   )
 }

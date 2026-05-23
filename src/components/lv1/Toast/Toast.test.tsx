@@ -140,19 +140,21 @@ describe('Toaster integration', () => {
     act(() => {
       handle = toast({ title: 'Saved', variant: 'success', appearance: 'subtle' })
     })
-    // `border-success` only appears in the subtle compound variant; `border-transparent`
-    // only appears in the solid one. Use those as discriminators rather than `bg-success`
-    // which is a substring of `bg-success-subtle`.
-    const initialClass = document.querySelector('li.toast-item')?.className ?? ''
-    expect(initialClass).toContain('bg-success-subtle')
-    expect(initialClass).toContain('border-success')
-    expect(initialClass).not.toContain('border-transparent')
+    // After #271 sweep-6 the appearance is expressed via the `.st-toast--{shape}`
+    // modifier; the actual visual rule lives inside the
+    // `.st-toast--success.st-toast--subtle` double-class selector in Toast.css.
+    // We assert on the JSX-visible modifier class chain, not on Tailwind utility
+    // substrings (those no longer exist on the className).
+    const initialClass = document.querySelector('li.st-toast')?.className ?? ''
+    expect(initialClass).toContain('st-toast--success')
+    expect(initialClass).toContain('st-toast--subtle')
+    expect(initialClass).not.toContain('st-toast--solid')
 
     act(() => handle.update({ appearance: 'solid' }))
-    const updatedClass = document.querySelector('li.toast-item')?.className ?? ''
-    expect(updatedClass).not.toContain('bg-success-subtle')
-    expect(updatedClass).toContain('border-transparent')
-    expect(updatedClass).toContain('text-success-foreground')
+    const updatedClass = document.querySelector('li.st-toast')?.className ?? ''
+    expect(updatedClass).toContain('st-toast--success')
+    expect(updatedClass).toContain('st-toast--solid')
+    expect(updatedClass).not.toContain('st-toast--subtle')
   })
 
   it('renders an accessible close button labeled "Close"', () => {
@@ -199,5 +201,46 @@ describe('Toaster integration', () => {
     const { result } = renderHook(() => useToast())
     expect(result.current.toasts).toHaveLength(0)
     vi.useRealTimers()
+  })
+
+  it('emits the canonical st-toast class chain on the li', () => {
+    render(<Toaster />)
+    act(() => {
+      toast({ title: 'Hello', variant: 'error', appearance: 'solid' })
+    })
+    const li = document.querySelector('li.st-toast')
+    expect(li).not.toBeNull()
+    expect(li?.className).toContain('st-toast')
+    expect(li?.className).toContain('st-toast--error')
+    expect(li?.className).toContain('st-toast--solid')
+  })
+
+  it('emits st-toaster + position modifier on the viewport ol', () => {
+    render(<Toaster position="top-right" />)
+    const ol = document.querySelector('ol.st-toaster')
+    expect(ol).not.toBeNull()
+    expect(ol?.className).toContain('st-toaster--top-right')
+  })
+
+  it('places icon / content / button as direct children of .st-toast', () => {
+    // The `:has(.st-toast__description)` selector in Toast.css flips alignment
+    // when a description is present; that depends on `__description` being a
+    // descendant of `.st-toast`, and on `__icon` / `__content` / the trailing
+    // button being direct children so the JSX-side flex layout matches the
+    // CSS-side selector graph. A future wrapper inserted between would break
+    // the structural assumption silently.
+    render(<Toaster />)
+    act(() => {
+      toast({ title: 'Hello', description: 'World' })
+    })
+    const li = document.querySelector('li.st-toast')
+    expect(li).not.toBeNull()
+
+    const directChildren = Array.from(li?.children ?? [])
+    // Expect exactly 3 direct children: the icon SVG, the content div, the close button.
+    expect(directChildren).toHaveLength(3)
+    expect(directChildren[0]?.classList.contains('st-toast__icon')).toBe(true)
+    expect(directChildren[1]?.classList.contains('st-toast__content')).toBe(true)
+    expect(directChildren[2]?.tagName).toBe('BUTTON')
   })
 })

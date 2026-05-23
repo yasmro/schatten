@@ -1,10 +1,252 @@
 /*
- * Toast enter / exit animations.
+ * Toast — `.st-toast` + `.st-toaster` class API.
+ *
+ * Pattern B (tone × shape) for the per-toast `<li>`, plus a 6-value
+ * `--{position}` modifier for the viewport `<ol>`. Modifier axes:
+ *
+ * - `.st-toast` block (per-toast `<li>` Radix Root emits):
+ *   - variant (tone):  neutral | success | error | warning | info
+ *   - appearance (shape): subtle | solid
+ * - `.st-toaster` block (viewport `<ol>` Radix Provider+Viewport emits):
+ *   - position: top-{left|center|right} | bottom-{left|center|right}
+ *
+ * Sub-elements (per-toast):
+ * - `.st-toast__icon`         — variant icon (sized 20px, shrink-0)
+ * - `.st-toast__content`      — title + description column (flex-col, min-w-0)
+ * - `.st-toast__title`        — bold heading
+ * - `.st-toast__description`  — optional body
+ *
+ * The action / close `<button>` is rendered as a `.st-btn` chain directly
+ * inside `.st-toast` — no wrapper class. Toast.tsx renders action OR close
+ * (exclusive), so the single trailing button is right-justified by the
+ * content column's `flex: 1` claim on remaining horizontal space.
+ *
+ * Visual rules for tone × shape use DOUBLE-CLASS selectors
+ * (`.st-toast--success.st-toast--subtle` etc.). The default appearance
+ * (`subtle`) is first-class — its CSS rule uses the same double-class
+ * form as `solid`, matching the Callout sweep-2 precedent.
+ *
+ * Two-regime alignment (icon-center for title-only, icon-top for
+ * title+description) is driven by `:has(.st-toast__description)` —
+ * JSX carries no `items-*` conditional. Mirrors the Callout
+ * `:has(.st-callout__title):has(.st-callout__body)` pattern.
+ *
+ * State attributes (Radix-emitted, drive animation only):
+ * - `[data-state="open"|"closed"]`         — enter / exit dissolve
+ * - `[data-swipe="move"|"cancel"|"end"]`   — swipe-to-dismiss handoff
+ * - `prefers-reduced-motion: reduce`        — disables animation
+ *
+ * Uses raw CSS + `var(--color-*)` throughout, per css-api.md
+ * "Component CSS authoring conventions — raw CSS over @apply".
+ *
+ * See: .claude/rules/css-api.md, #271 sweep-6.
+ */
+@layer components {
+  /* ===== viewport ===== */
+  .st-toaster {
+    position: fixed;
+    z-index: var(--z-toast);
+    display: flex;
+    max-height: 100vh;
+    width: 100%;
+    max-width: 24rem; /* max-w-sm */
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 1rem;
+    outline: none;
+  }
+  .st-toaster--top-left {
+    top: 0;
+    left: 0;
+  }
+  .st-toaster--top-center {
+    top: 0;
+    left: 50%;
+    translate: -50% 0;
+  }
+  .st-toaster--top-right {
+    top: 0;
+    right: 0;
+  }
+  .st-toaster--bottom-left {
+    bottom: 0;
+    left: 0;
+  }
+  .st-toaster--bottom-center {
+    bottom: 0;
+    left: 50%;
+    translate: -50% 0;
+  }
+  .st-toaster--bottom-right {
+    bottom: 0;
+    right: 0;
+  }
+
+  /* ===== toast base ===== */
+  .st-toast {
+    position: relative;
+    pointer-events: auto;
+    width: 100%;
+    overflow: hidden;
+    border-width: 1px;
+    border-style: solid;
+    padding: 1rem;
+    box-shadow: var(--shadow-md);
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+  }
+  /* Multi-line regime: when a description is present, anchor the icon next
+   * to the heading rather than vertically centering the whole row. Uses
+   * :has() so the JSX side carries no conditional class. */
+  .st-toast:has(.st-toast__description) {
+    align-items: flex-start;
+  }
+
+  /* ===== variant × appearance (Pattern B, double-class) ===== */
+  /* neutral */
+  .st-toast--neutral.st-toast--subtle {
+    background-color: var(--color-surface);
+    color: var(--color-foreground);
+    border-color: var(--color-border-strong);
+  }
+  .st-toast--neutral.st-toast--solid {
+    background-color: var(--color-solid);
+    color: var(--color-solid-foreground);
+    border-color: transparent;
+  }
+
+  /* success */
+  .st-toast--success.st-toast--subtle {
+    background-color: var(--color-success-subtle);
+    color: var(--color-success);
+    border-color: var(--color-success);
+  }
+  .st-toast--success.st-toast--solid {
+    background-color: var(--color-success);
+    color: var(--color-success-foreground);
+    border-color: transparent;
+  }
+
+  /* error */
+  .st-toast--error.st-toast--subtle {
+    background-color: var(--color-error-subtle);
+    color: var(--color-error);
+    border-color: var(--color-error);
+  }
+  .st-toast--error.st-toast--solid {
+    background-color: var(--color-error);
+    color: var(--color-error-foreground);
+    border-color: transparent;
+  }
+
+  /* warning */
+  .st-toast--warning.st-toast--subtle {
+    background-color: var(--color-warning-subtle);
+    color: var(--color-warning);
+    border-color: var(--color-warning);
+  }
+  .st-toast--warning.st-toast--solid {
+    background-color: var(--color-warning);
+    color: var(--color-warning-foreground);
+    border-color: transparent;
+  }
+
+  /* info */
+  .st-toast--info.st-toast--subtle {
+    background-color: var(--color-info-subtle);
+    color: var(--color-info);
+    border-color: var(--color-info);
+  }
+  .st-toast--info.st-toast--solid {
+    background-color: var(--color-info);
+    color: var(--color-info-foreground);
+    border-color: transparent;
+  }
+
+  /* ===== sub-elements ===== */
+  .st-toast__icon {
+    flex-shrink: 0;
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+  /* Multi-line regime: nudge icon down a touch so its optical center sits
+   * next to the heading's cap height rather than its baseline. */
+  .st-toast:has(.st-toast__description) .st-toast__icon {
+    margin-top: 0.125rem;
+  }
+
+  .st-toast__content {
+    display: flex;
+    min-width: 0;
+    flex: 1;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  /* The trailing action / close button must NOT shrink — Toast.tsx renders
+   * action OR close as a `.st-btn` direct child of `.st-toast` (Pattern B
+   * `:has()` selector relies on direct-child structure, pinned by the
+   * `places icon / content / button as direct children of .st-toast`
+   * unit test). With the content column claiming `flex: 1; min-width: 0`,
+   * the trailing button would otherwise shrink to `min-content` for long
+   * action labels at narrow viewport widths. Reproducing the pre-sweep
+   * `className="shrink-0"` defence via a block-scoped structural selector
+   * keeps it out of other components' `.st-btn` cascade. */
+  .st-toast > .st-btn {
+    flex-shrink: 0;
+  }
+
+  .st-toast__title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    line-height: 1.25;
+  }
+  .st-toast__description {
+    font-size: 0.875rem;
+    line-height: 1.375;
+    opacity: 0.9;
+  }
+
+  /* ===== Radix data-swipe transition reset ===== */
+  .st-toast[data-swipe="move"] {
+    transition: none;
+  }
+  .st-toast[data-swipe="cancel"] {
+    transition: transform 200ms ease-out;
+    transform: translate(0, 0);
+  }
+
+  /* ===== enter / exit animations ===== */
+  .st-toast[data-state="open"] {
+    animation: toast-dissolve-in 320ms ease-out;
+  }
+  .st-toast[data-state="closed"] {
+    animation: toast-dissolve-out 220ms ease-in;
+  }
+  .st-toast[data-swipe="end"] {
+    animation: toast-dissolve-out 200ms ease-in;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .st-toast[data-state="open"],
+    .st-toast[data-state="closed"],
+    .st-toast[data-swipe="end"] {
+      animation: none;
+    }
+  }
+}
+
+/*
+ * Toast enter / exit keyframes.
  *
  * Dissolve = opacity fade with a subtle scale shift to feel alive but not
  * showy. Position-agnostic — works regardless of where the viewport sits.
+ *
+ * Declared outside `@layer components` so the keyframes are global and
+ * shared across the dist (Tailwind v4 + raw CSS pattern, matching the
+ * Callout sweep-2 / Spinner / Tooltip / Dialog precedent).
  */
-
 @keyframes toast-dissolve-in {
   from {
     opacity: 0;
@@ -24,27 +266,5 @@
   to {
     opacity: 0;
     transform: scale(0.98);
-  }
-}
-
-.toast-item[data-state="open"] {
-  animation: toast-dissolve-in 320ms ease-out;
-}
-
-.toast-item[data-state="closed"] {
-  animation: toast-dissolve-out 220ms ease-in;
-}
-
-/* Swipe-to-dismiss handoff: cancel uses a transform transition (Toast.tsx
- * passes through Radix's swipe data attributes), end fades out. */
-.toast-item[data-swipe="end"] {
-  animation: toast-dissolve-out 200ms ease-in;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .toast-item[data-state="open"],
-  .toast-item[data-state="closed"],
-  .toast-item[data-swipe="end"] {
-    animation: none;
   }
 }

@@ -3,6 +3,7 @@ import '../components/lv1/Badge/Badge.css'
 import '../components/lv1/Button/Button.css'
 import '../components/lv1/Callout/Callout.css'
 import '../components/lv1/Checkbox/Checkbox.css'
+import '../components/lv1/Dialog/Dialog.css'
 import '../components/lv1/Icon/Icon.css'
 import '../components/lv1/Input/Input.css'
 import '../components/lv1/Radio/Radio.css'
@@ -11,6 +12,7 @@ import '../components/lv1/Spinner/Spinner.css'
 import '../components/lv1/Switch/Switch.css'
 import '../components/lv1/Text/Text.css'
 import '../components/lv1/Textarea/Textarea.css'
+import '../components/lv1/Toast/Toast.css'
 
 import type { Meta, StoryObj } from '@storybook/react-vite'
 
@@ -97,11 +99,11 @@ const CodeBlock = ({ children }: { children: string }) => (
 )
 
 export const Reference: Story = {
-  name: 'Reference (sweep-1 → sweep-4)',
+  name: 'Reference (sweep-1 → sweep-6)',
   render: () => (
     <div className="p-8 max-w-4xl mx-auto">
       <h1 className="st-text st-text--heading st-text--2xl st-text--default mb-2">
-        CSS API — sweep-1 → sweep-4 reference
+        CSS API — sweep-1 → sweep-6 reference
       </h1>
       <p className="st-text st-text--body st-text--md st-text--muted mb-8">
         The classes below are emitted by `dist/schatten.css`. Import it once and the markup samples
@@ -1225,9 +1227,171 @@ export const Reference: Story = {
 <!-- :disabled         disabled tokens (wrapper :has() recolours label too) -->`}</CodeBlock>
       </Section>
 
+      <Section
+        id="toast"
+        title="Toast — .st-toast + .st-toaster"
+        intro="Transient notification mounted into a portal viewport. The per-toast <li> uses Pattern B (tone × shape) via double-class selectors; the viewport <ol> takes a 6-value --{position} modifier. The CSS surface covers ONLY the static visual frame — enter/exit dissolve animation, swipe-to-dismiss handoff, auto-dismiss timing, and stacking order are all React + Radix concerns set via the toast() store and the [data-state] / [data-swipe] attributes Radix emits. Vanilla HTML consumers get the visual shell; they need their own JS for any dynamic behavior (or simply render static toasts as inline status messages)."
+        attributes={[
+          {
+            name: 'role',
+            meaning: '"status" for polite announcements, "alert" for assertive',
+            required: 'required for vanilla — Radix sets this automatically for React',
+          },
+          {
+            name: 'aria-live',
+            meaning: '"polite" (most toasts) or "assertive" (urgent — errors)',
+            required: 'required for vanilla — pair with role',
+          },
+          {
+            name: 'aria-label',
+            meaning: 'On the close button',
+            required: 'always',
+          },
+        ]}
+      >
+        <p className="st-text st-text--body st-text--sm st-text--muted mb-3">
+          The toaster renders fixed-positioned against the viewport, so an inline live preview here
+          would visually overlap the rest of the reference page. See Components/lv1/Toast for the
+          rendered behaviour; the snippet below is the markup contract.
+        </p>
+        <CodeBlock>{`<ol class="st-toaster st-toaster--bottom-center">
+  <li class="st-toast st-toast--success st-toast--subtle"
+      role="status" aria-live="polite">
+    <svg class="st-toast__icon" aria-hidden="true">…</svg>
+    <div class="st-toast__content">
+      <div class="st-toast__title">Saved</div>
+      <div class="st-toast__description">…</div>
+    </div>
+    <button type="button"
+            class="st-btn st-btn--tertiary st-btn--sm st-btn--icon-only"
+            aria-label="Close">
+      <svg aria-hidden="true">…</svg>
+    </button>
+  </li>
+</ol>
+
+<!-- Modifier vocabulary -->
+<!-- .st-toast variant (tone, Pattern B axis 1):
+       --neutral | --success | --error | --warning | --info -->
+<!-- .st-toast appearance (shape, Pattern B axis 2):
+       --subtle | --solid -->
+<!-- .st-toaster position (one of six):
+       --top-left   --top-center   --top-right
+       --bottom-left --bottom-center --bottom-right -->
+
+<!-- Sub-elements (direct children of .st-toast) -->
+<!-- .st-toast__icon         variant icon (20px, shrink-0) -->
+<!-- .st-toast__content      title + description column (min-w-0, flex-col) -->
+<!-- .st-toast__title        bold heading -->
+<!-- .st-toast__description  optional body; triggers icon-top alignment
+                             via :has() when present -->
+
+<!-- State attributes (set by Radix in the React path — vanilla
+     HTML consumers do not get animation / swipe / auto-dismiss) -->
+<!-- [data-state="open"|"closed"]   enter / exit dissolve animation -->
+<!-- [data-swipe="move"|"cancel"|"end"]  swipe-to-dismiss handoff -->
+
+<!-- The action / close button is rendered as a .st-btn chain directly
+     inside .st-toast — no wrapper. Toast.tsx renders action OR close
+     (exclusive); the content column's flex:1 pushes the button right. -->`}</CodeBlock>
+      </Section>
+
+      <Section
+        id="dialog"
+        title="Dialog — .st-dialog__*"
+        intro="Modal overlay + content panel mounted into a portal. Dialog has no .st-dialog block root: Radix's Root emits no DOM, and Overlay + Content are sibling portal children. The 8 sub-element classes below are the SSOT. Vanilla HTML consumers DO NOT get Radix's focus trap, ESC dismissal, or aria-* auto-wiring — those must be implemented separately if needed."
+        attributes={[
+          {
+            name: 'role="dialog"',
+            meaning: 'Identifies the content panel as a dialog',
+            required: 'always (vanilla)',
+          },
+          {
+            name: 'aria-modal="true"',
+            meaning: 'Tells assistive tech the dialog blocks the rest of the page',
+            required: 'always (vanilla)',
+          },
+          {
+            name: 'aria-labelledby',
+            meaning: 'Points at the .st-dialog__title id',
+            required: 'always (vanilla)',
+          },
+          {
+            name: 'aria-describedby',
+            meaning: 'Points at the .st-dialog__description id (when present)',
+            required: 'when description is rendered',
+          },
+          {
+            name: 'aria-label',
+            meaning: 'On the close button',
+            required: 'always',
+          },
+        ]}
+      >
+        <p className="st-text st-text--body st-text--sm st-text--muted mb-3">
+          The dialog renders fixed-positioned at the viewport center. The static reference below
+          shows the markup; in production the overlay covers the page and the content sits on top.
+        </p>
+        <CodeBlock>{`<!-- DialogPrimitive.Root: no DOM output in React.
+     For vanilla HTML, write the overlay + content as portal children. -->
+<div class="st-dialog__overlay"></div>
+<div class="st-dialog__content"
+     role="dialog"
+     aria-modal="true"
+     aria-labelledby="dialog-title"
+     aria-describedby="dialog-desc">
+  <div class="st-dialog__header">
+    <h2 id="dialog-title" class="st-dialog__title">Confirm action</h2>
+    <p  id="dialog-desc"  class="st-dialog__description">
+      Are you sure you want to proceed?
+    </p>
+  </div>
+  <div class="st-dialog__body">
+    <p>Optional body content. Long content scrolls inside the
+       cap-height of the dialog frame.</p>
+  </div>
+  <div class="st-dialog__footer">
+    <!-- Visual order in vanilla = DOM order. React side reverses for
+         Radix focus reasons (Action gets initial focus); vanilla
+         consumers just write left → right. -->
+    <button type="button"
+            class="st-btn st-btn--secondary st-btn--md">Cancel</button>
+    <button type="button"
+            class="st-btn st-btn--primary st-btn--md">Confirm</button>
+  </div>
+  <div class="st-dialog__close">
+    <button type="button"
+            class="st-btn st-btn--tertiary st-btn--sm st-btn--icon-only"
+            aria-label="Close">
+      <svg aria-hidden="true">…</svg>
+    </button>
+  </div>
+</div>
+
+<!-- Sub-elements -->
+<!-- .st-dialog__overlay      fixed-inset dim layer (z-modal-backdrop) -->
+<!-- .st-dialog__content      fixed center-stage panel (z-modal) -->
+<!-- .st-dialog__header       title + description block; reserves
+                              padding-right for the close button -->
+<!-- .st-dialog__title        Radix Title (h2 by default) -->
+<!-- .st-dialog__description  Radix Description (optional, but
+                              required by aria-describedby) -->
+<!-- .st-dialog__body         children scroll region — capped height,
+                              overflow-y-auto inside the frame -->
+<!-- .st-dialog__footer       flex container; column on mobile, row on
+                              sm+; per-button order is consumer's call -->
+<!-- .st-dialog__close        absolute-positioned wrapper for the
+                              close ✕ button (top-right) -->
+
+<!-- State attributes (set by Radix in the React path; vanilla HTML
+     consumers do NOT get the enter / exit animation) -->
+<!-- [data-state="open"|"closed"]  on overlay AND content — drives the
+                                    fade-in / zoom-in / fade-out / zoom-out
+                                    keyframes -->`}</CodeBlock>
+      </Section>
+
       <p className="st-text st-text--body st-text--sm st-text--subtle mt-8">
-        Coming in subsequent sweeps: Select / Tooltip (sweep-5), Toast / Dialog (sweep-6), Field /
-        FieldSet (sweep-7).
+        Coming in subsequent sweeps: Field / FieldSet (sweep-7).
       </p>
     </div>
   ),

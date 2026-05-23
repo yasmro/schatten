@@ -370,3 +370,33 @@ export const LongContent: Story = {
     />
   ),
 }
+
+/**
+ * Pins the regression guard for the trailing action button's `flex-shrink: 0`
+ * (Toast.css `.st-toast > .st-btn`). Without it, a multi-word action label
+ * would compress to `min-content` at narrow viewport widths because the
+ * content column claims `flex: 1`. Use this story for manual visual checks
+ * when touching Toast layout; the matching VRT capture is intentionally
+ * omitted to avoid baseline churn on a doc-only fixture.
+ */
+export const LongActionLabel: Story = {
+  name: 'Long Action Label',
+  render: () => (
+    <AutoFireDemo
+      inputs={[
+        {
+          variant: 'info',
+          title: 'New version ready',
+          description: 'A fresh build of the app is available.',
+          action: { label: 'View details and full report', onClick: () => {} },
+        },
+        {
+          variant: 'success',
+          appearance: 'solid',
+          title: 'Saved across all devices',
+          action: { label: 'View details and full report', onClick: () => {} },
+        },
+      ]}
+    />
+  ),
+}

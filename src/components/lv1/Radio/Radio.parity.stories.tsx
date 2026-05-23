@@ -126,13 +126,13 @@ export const Parity: Story = {
 
         <div>
           <p className="text-xs text-foreground-muted mb-2">Sizes</p>
-          <RadioGroup defaultValue="md" size="sm">
+          <RadioGroup defaultValue="sm" size="sm">
             <Radio value="sm" label="Small" />
           </RadioGroup>
           <RadioGroup defaultValue="md" size="md" className="mt-2">
             <Radio value="md" label="Medium" />
           </RadioGroup>
-          <RadioGroup defaultValue="md" size="lg" className="mt-2">
+          <RadioGroup defaultValue="lg" size="lg" className="mt-2">
             <Radio value="lg" label="Large" />
           </RadioGroup>
         </div>

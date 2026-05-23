@@ -1,0 +1,92 @@
+/*
+ * Textarea — `.st-textarea` class API.
+ *
+ * Single-element primitive: state attributes (`[aria-invalid="true"]`,
+ * `:read-only`, `:disabled`) all land on the same `<textarea>`, so state
+ * precedence is encoded in CSS source order — default < error < readOnly
+ * < disabled. Vanilla HTML consumers set the matching attributes (per
+ * css-api.md §state) and get the same precedence.
+ *
+ * Modifier axes:
+ * - size: sm | md | lg (each declares paired font-size + line-height
+ *                       + padding; Tailwind text-xs/sm/base ships line
+ *                       heights, so we set both alongside the size to
+ *                       avoid inherited line-height drift)
+ *
+ * State is expressed as attributes (per css-api.md §state):
+ * - `[aria-invalid="true"]` — error treatment (border + bg-subtle +
+ *                              focus-ring re-colour)
+ * - `:read-only`            — warm-tint readOnly surface
+ * - `:disabled`             — disabled tokens; wins on source order
+ *
+ * Focus ring is a 2px ring + 2px offset emitted via `box-shadow` — same
+ * shape as the sweep-3 Checkbox / Switch focus treatment, so the visual
+ * stays consistent across form controls.
+ *
+ * Uses raw CSS + `var(--color-*)` throughout, per css-api.md
+ * "Component CSS authoring conventions — raw CSS over @apply".
+ *
+ * See: .claude/rules/css-api.md, #269 sweep-4.
+ */
+@layer components {
+  /* ===== block ===== */
+  .st-textarea {
+    width: 100%;
+    border: 1px solid var(--color-border-strong);
+    background-color: transparent;
+    color: var(--color-foreground);
+    transition:
+      color 200ms,
+      background-color 200ms,
+      border-color 200ms;
+  }
+  .st-textarea::placeholder {
+    color: var(--color-foreground-muted);
+  }
+  .st-textarea:focus-visible {
+    outline: none;
+    box-shadow:
+      0 0 0 2px var(--color-ring-offset),
+      0 0 0 4px var(--color-ring);
+  }
+
+  /* state precedence — source order:
+   * default < [aria-invalid="true"] < :read-only < :disabled */
+  .st-textarea[aria-invalid="true"] {
+    border-color: var(--color-error);
+    background-color: var(--color-error-subtle);
+  }
+  .st-textarea[aria-invalid="true"]:focus-visible {
+    box-shadow:
+      0 0 0 2px var(--color-ring-offset),
+      0 0 0 4px var(--color-error);
+  }
+  .st-textarea:read-only {
+    cursor: text;
+    background-color: var(--color-surface-readonly);
+    border-color: var(--color-border-readonly);
+  }
+  .st-textarea:disabled {
+    cursor: not-allowed;
+    background-color: var(--color-surface-disabled);
+    border-color: var(--color-border-disabled);
+    color: var(--color-foreground-disabled);
+  }
+
+  /* ===== size ===== */
+  .st-textarea--sm {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.75rem;
+    line-height: 1rem;
+  }
+  .st-textarea--md {
+    padding: 0.625rem 1rem;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+  }
+  .st-textarea--lg {
+    padding: 0.75rem 1.25rem;
+    font-size: 1rem;
+    line-height: 1.5rem;
+  }
+}

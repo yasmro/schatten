@@ -11,6 +11,11 @@ describe('Textarea', () => {
     expect(ta.tagName.toLowerCase()).toBe('textarea')
   })
 
+  it('emits the canonical st-textarea class chain', () => {
+    render(<Textarea aria-label="bio" size="md" />)
+    expect(screen.getByRole('textbox')).toHaveClass('st-textarea', 'st-textarea--md')
+  })
+
   it('renders the placeholder', () => {
     render(<Textarea aria-label="bio" placeholder="Tell us about yourself" />)
     expect(screen.getByPlaceholderText('Tell us about yourself')).toBeInTheDocument()
@@ -22,34 +27,32 @@ describe('Textarea', () => {
   })
 
   describe('sizes', () => {
-    it('applies size classes', () => {
+    it('applies size modifier classes', () => {
       const { rerender } = render(<Textarea aria-label="bio" size="sm" />)
-      expect(screen.getByRole('textbox')).toHaveClass('text-xs')
+      expect(screen.getByRole('textbox')).toHaveClass('st-textarea--sm')
 
       rerender(<Textarea aria-label="bio" size="lg" />)
-      expect(screen.getByRole('textbox')).toHaveClass('text-base')
+      expect(screen.getByRole('textbox')).toHaveClass('st-textarea--lg')
     })
 
     it('defaults to md size', () => {
       render(<Textarea aria-label="bio" />)
-      expect(screen.getByRole('textbox')).toHaveClass('text-sm')
+      expect(screen.getByRole('textbox')).toHaveClass('st-textarea--md')
     })
   })
 
   describe('error state', () => {
-    it('applies error classes and aria-invalid when isError is true', () => {
+    it('sets aria-invalid when isError is true (border + bg shift driven by CSS)', () => {
       render(<Textarea aria-label="bio" isError />)
       const ta = screen.getByRole('textbox')
-      expect(ta.className).toContain('border-error')
-      expect(ta.className).toContain('bg-error-subtle')
+      // Visual treatment lives in the .st-textarea[aria-invalid="true"]
+      // CSS rule — the test pins the attribute that triggers it.
       expect(ta).toHaveAttribute('aria-invalid', 'true')
     })
 
-    it('uses border-border-strong (no error) when isError is false', () => {
+    it('does not set aria-invalid when isError is false', () => {
       render(<Textarea aria-label="bio" />)
-      const ta = screen.getByRole('textbox')
-      expect(ta.className).toContain('border-border-strong')
-      expect(ta).not.toHaveAttribute('aria-invalid')
+      expect(screen.getByRole('textbox')).not.toHaveAttribute('aria-invalid')
     })
   })
 
@@ -66,13 +69,6 @@ describe('Textarea', () => {
       expect(screen.getByRole('textbox')).toHaveAttribute('readonly')
     })
 
-    it('applies readOnly tokens to the textarea', () => {
-      render(<Textarea aria-label="bio" readOnly />)
-      const ta = screen.getByRole('textbox')
-      expect(ta.className).toContain('bg-surface-readonly')
-      expect(ta.className).toContain('border-border-readonly')
-    })
-
     it('does not commit typed input when readOnly', async () => {
       const user = userEvent.setup()
       render(<Textarea aria-label="bio" readOnly defaultValue="value" />)
@@ -82,18 +78,13 @@ describe('Textarea', () => {
       expect(ta.value).toBe('value')
     })
 
-    it('readOnly visual wins over isError when both are true', () => {
+    it('still exposes aria-invalid when readOnly + isError are both set (visual precedence pinned by VRT)', () => {
+      // CSS source order encodes the visual precedence (readOnly wins over
+      // error for surface / border tokens), but aria-invalid stays on so
+      // assistive tech sees the error state.
       render(<Textarea aria-label="bio" readOnly isError />)
       const ta = screen.getByRole('textbox')
-      // tailwind-merge dedupes conflicting bg / border utilities; readOnly
-      // is concatenated after the isError ternary so its tokens win, while
-      // the unconflicting focus-visible:ring-error survives. aria-invalid
-      // is still emitted so assistive tech sees the error.
-      expect(ta.className).toContain('bg-surface-readonly')
-      expect(ta.className).toContain('border-border-readonly')
-      expect(ta.className).not.toContain('bg-error-subtle')
-      expect(ta.className).not.toContain('border-error')
-      expect(ta.className).toContain('focus-visible:ring-error')
+      expect(ta).toHaveAttribute('readonly')
       expect(ta).toHaveAttribute('aria-invalid', 'true')
     })
   })
@@ -127,9 +118,7 @@ describe('Textarea', () => {
           <Textarea />
         </Field>,
       )
-      const ta = screen.getByRole('textbox')
-      expect(ta.className).toContain('border-error')
-      expect(ta).toHaveAttribute('aria-invalid', 'true')
+      expect(screen.getByRole('textbox')).toHaveAttribute('aria-invalid', 'true')
     })
 
     it('inherits disabled from Field', () => {

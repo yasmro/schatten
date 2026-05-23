@@ -1,19 +1,24 @@
 import { cva, type VariantProps } from 'class-variance-authority'
 
-export const textareaVariants = cva(
-  'w-full border bg-transparent text-foreground transition-colors duration-200 placeholder:text-foreground-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-ring-offset disabled:cursor-not-allowed disabled:bg-surface-disabled disabled:border-border-disabled disabled:text-foreground-disabled',
-  {
-    variants: {
-      size: {
-        sm: 'px-3 py-2 text-xs',
-        md: 'px-4 py-2.5 text-sm',
-        lg: 'px-5 py-3 text-base',
-      },
-    },
-    defaultVariants: {
-      size: 'md',
+/**
+ * Variants for the `Textarea` component — class-name concatenation only.
+ *
+ * Visual rules live in
+ * `src/components/lv1/Textarea/Textarea.css` under `@layer components`.
+ *
+ * See: .claude/rules/css-api.md, #269 sweep-4.
+ */
+export const textareaVariants = cva('st-textarea', {
+  variants: {
+    size: {
+      sm: 'st-textarea--sm',
+      md: 'st-textarea--md',
+      lg: 'st-textarea--lg',
     },
   },
-)
+  defaultVariants: {
+    size: 'md',
+  },
+})
 
 export type TextareaVariants = VariantProps<typeof textareaVariants>

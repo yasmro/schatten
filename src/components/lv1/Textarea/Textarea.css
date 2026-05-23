@@ -1,0 +1,98 @@
+/*
+ * Textarea — `.st-textarea` class API.
+ *
+ * Single-element form input — no wrapper layer (Input ships a wrapper to
+ * host leading/trailing adornments; Textarea has none, so the block is the
+ * element itself).
+ *
+ * Modifier axes:
+ * - size: sm | md | lg (padding × font-size pair)
+ *
+ * State is expressed as attributes (per css-api.md §state) — no
+ * `--error` / `--readonly` / `--disabled` modifier classes:
+ * - `[aria-invalid="true"]` — error treatment (border / bg-subtle /
+ *                              focus-ring re-colour)
+ * - `:read-only`             — read-only tokens (surface-readonly /
+ *                              border-readonly / cursor:text)
+ * - `:disabled`              — disabled tokens (surface-disabled /
+ *                              border-disabled / foreground-disabled /
+ *                              cursor:not-allowed)
+ *
+ * State precedence is encoded by source order — all three rules target the
+ * same element at specificity (0,1,0) for the bare attribute / pseudo, so
+ * the later rule wins:
+ *
+ *   [aria-invalid]  <  :read-only  <  :disabled
+ *
+ * This matches the legacy tailwind-merge precedence (disabled tokens
+ * concatenated after read-only after error in Textarea.tsx) so the visual
+ * is unchanged.
+ *
+ * Uses raw CSS + `var(--color-*)` throughout, per css-api.md
+ * "Component CSS authoring conventions — raw CSS over @apply".
+ *
+ * See: .claude/rules/css-api.md, #269 sweep-4.
+ */
+@layer components {
+  /* ===== block ===== */
+  .st-textarea {
+    width: 100%;
+    background-color: transparent;
+    color: var(--color-foreground);
+    border: 1px solid var(--color-border-strong);
+    transition:
+      color 200ms,
+      background-color 200ms,
+      border-color 200ms;
+  }
+  .st-textarea::placeholder {
+    color: var(--color-foreground-muted);
+  }
+  .st-textarea:focus-visible {
+    outline: none;
+    box-shadow:
+      0 0 0 2px var(--color-ring-offset),
+      0 0 0 4px var(--color-ring);
+  }
+
+  /* ===== state — source order encodes precedence ===== */
+  .st-textarea[aria-invalid="true"] {
+    border-color: var(--color-error);
+    background-color: var(--color-error-subtle);
+  }
+  .st-textarea[aria-invalid="true"]:focus-visible {
+    box-shadow:
+      0 0 0 2px var(--color-ring-offset),
+      0 0 0 4px var(--color-error);
+  }
+  .st-textarea:read-only {
+    cursor: text;
+    background-color: var(--color-surface-readonly);
+    border-color: var(--color-border-readonly);
+  }
+  .st-textarea:disabled {
+    cursor: not-allowed;
+    background-color: var(--color-surface-disabled);
+    border-color: var(--color-border-disabled);
+    color: var(--color-foreground-disabled);
+  }
+
+  /* ===== size — padding + paired font-size / line-height =====
+   * font-size + line-height set together so multi-line textareas render
+   * the same row height as the legacy Tailwind `text-{xs,sm,base}` pair. */
+  .st-textarea--sm {
+    padding: 0.5rem 0.75rem; /* py-2 px-3 */
+    font-size: 0.75rem; /* text-xs */
+    line-height: 1rem;
+  }
+  .st-textarea--md {
+    padding: 0.625rem 1rem; /* py-2.5 px-4 */
+    font-size: 0.875rem; /* text-sm */
+    line-height: 1.25rem;
+  }
+  .st-textarea--lg {
+    padding: 0.75rem 1.25rem; /* py-3 px-5 */
+    font-size: 1rem; /* text-base */
+    line-height: 1.5rem;
+  }
+}

@@ -4,10 +4,13 @@ import '../components/lv1/Button/Button.css'
 import '../components/lv1/Callout/Callout.css'
 import '../components/lv1/Checkbox/Checkbox.css'
 import '../components/lv1/Icon/Icon.css'
+import '../components/lv1/Input/Input.css'
+import '../components/lv1/Radio/Radio.css'
 import '../components/lv1/Separator/Separator.css'
 import '../components/lv1/Spinner/Spinner.css'
 import '../components/lv1/Switch/Switch.css'
 import '../components/lv1/Text/Text.css'
+import '../components/lv1/Textarea/Textarea.css'
 
 import type { Meta, StoryObj } from '@storybook/react-vite'
 
@@ -28,9 +31,9 @@ import type { Meta, StoryObj } from '@storybook/react-vite'
  *   pinned by `{Component}.parity.vrt.spec.ts`.
  *
  * **Coverage today**: sweep-1 (Separator, Text, Icon) + sweep-2 (Spinner,
- * Badge, Callout) + sweep-3 (Button, Checkbox, Switch) of #154. The
- * remaining 9 lv1 components arrive in sweep-4 through sweep-7 and will
- * be added here as each sweep lands.
+ * Badge, Callout) + sweep-3 (Button, Checkbox, Switch) + sweep-4 (Input,
+ * Textarea, Radio) of #154. The remaining 6 lv1 components arrive in
+ * sweep-5 through sweep-7 and will be added here as each sweep lands.
  */
 const meta: Meta = {
   title: 'Foundation/CSS API',
@@ -94,11 +97,11 @@ const CodeBlock = ({ children }: { children: string }) => (
 )
 
 export const Reference: Story = {
-  name: 'Reference (sweep-1 → sweep-3)',
+  name: 'Reference (sweep-1 → sweep-4)',
   render: () => (
     <div className="p-8 max-w-4xl mx-auto">
       <h1 className="st-text st-text--heading st-text--2xl st-text--default mb-2">
-        CSS API — sweep-1 → sweep-3 reference
+        CSS API — sweep-1 → sweep-4 reference
       </h1>
       <p className="st-text st-text--body st-text--md st-text--muted mb-8">
         The classes below are emitted by `dist/schatten.css`. Import it once and the markup samples
@@ -889,9 +892,248 @@ export const Reference: Story = {
 <!-- :disabled         — disabled tokens -->`}</CodeBlock>
       </Section>
 
+      <Section
+        id="input"
+        title="Input — .st-input-wrapper + .st-input"
+        intro="Two blocks: the wrapper carries layout / border / bg / size modifier / focus-visible ring; the inner <input> is transparent and inherits font / color from the wrapper. State (error / read-only / disabled) is read off the inner input via :has() — vanilla HTML consumers set the matching HTML/ARIA attribute, never a modifier class. The wrapper-click-to-focus ergonomic is React-only — vanilla HTML consumers must click the <input> directly."
+        attributes={[
+          {
+            name: 'aria-invalid="true"',
+            meaning: 'Error state — CSS shifts border + bg-subtle + focus-ring via wrapper :has()',
+            required: 'when in error',
+          },
+          {
+            name: ':disabled / disabled',
+            meaning: 'Disabled tokens propagate through :has(.st-input:disabled) on the wrapper',
+            required: 'when disabled',
+          },
+          {
+            name: ':read-only / readonly',
+            meaning: 'Read-only tokens propagate through :has(.st-input:read-only) on the wrapper',
+            required: 'when read-only',
+          },
+          {
+            name: '<label for={id}>',
+            meaning: 'Associates an external label with the input id (Field provides this)',
+            required: 'when externally labelled',
+          },
+        ]}
+      >
+        <div className="space-y-3">
+          <div className="st-input-wrapper st-input-wrapper--md w-80">
+            <input type="email" id="doc-in-1" className="st-input" placeholder="you@example.com" />
+          </div>
+          <div className="st-input-wrapper st-input-wrapper--md w-80">
+            <span className="st-input__text-left">$</span>
+            <input type="text" id="doc-in-2" className="st-input" placeholder="0.00" />
+            <span className="st-input__text-right">USD</span>
+          </div>
+          <div className="st-input-wrapper st-input-wrapper--md w-80">
+            <input
+              type="text"
+              id="doc-in-3"
+              className="st-input"
+              aria-invalid="true"
+              defaultValue="Invalid"
+            />
+          </div>
+          <div className="st-input-wrapper st-input-wrapper--md w-80">
+            <input
+              type="text"
+              id="doc-in-4"
+              className="st-input"
+              readOnly
+              defaultValue="Read-only"
+            />
+          </div>
+        </div>
+        <CodeBlock>{`<div class="st-input-wrapper st-input-wrapper--md">
+  <span class="st-input__text-left">$</span>
+  <input type="text" id="amount" class="st-input" placeholder="0.00" />
+  <span class="st-input__text-right">USD</span>
+</div>
+
+<!-- Modifier vocabulary -->
+<!-- size (on the wrapper): --sm | --md | --lg -->
+<!-- derived (on the input): --date  — type ∈ date / datetime-local / month / week / time -->
+
+<!-- Sub-elements -->
+<!-- .st-input-wrapper           — outer flex container (border + bg + size) -->
+<!-- .st-input                   — inner <input> (transparent fill) -->
+<!-- .st-input__text-left/-right — leading / trailing text adornment <span> -->
+<!-- .st-input__icon-left/-right — leading / trailing Lucide/SVG icon -->
+
+<!-- State attributes — set on the inner <input>, NOT a modifier class -->
+<!-- [aria-invalid="true"]   — error styling on the wrapper via :has() -->
+<!-- :disabled               — disabled tokens (wrapper :has picks it up) -->
+<!-- :read-only              — read-only tokens (wrapper :has picks it up) -->
+
+<!-- Precedence (CSS source order):
+     default < [aria-invalid] < :read-only < :disabled
+     The disabled visual wins over read-only over error, matching the
+     legacy tailwind-merge precedence in Input.tsx. aria-invalid still
+     stays on the element so screen readers see the error state. -->`}</CodeBlock>
+      </Section>
+
+      <Section
+        id="textarea"
+        title="Textarea — .st-textarea"
+        intro="Single-element form input (no wrapper layer). State (error / read-only / disabled) is expressed as attributes on the textarea itself; the CSS encodes the precedence with source order."
+        attributes={[
+          {
+            name: 'aria-invalid="true"',
+            meaning: 'Error state — CSS shifts border + bg-subtle + focus-ring',
+            required: 'when in error',
+          },
+          {
+            name: ':disabled / disabled',
+            meaning: 'Disabled tokens',
+            required: 'when disabled',
+          },
+          {
+            name: ':read-only / readonly',
+            meaning: 'Read-only tokens',
+            required: 'when read-only',
+          },
+        ]}
+      >
+        <div className="space-y-3 w-80">
+          <textarea
+            className="st-textarea st-textarea--md"
+            rows={3}
+            placeholder="Tell us about yourself"
+          />
+          <textarea
+            className="st-textarea st-textarea--md"
+            rows={3}
+            aria-invalid="true"
+            defaultValue="Error state"
+          />
+        </div>
+        <CodeBlock>{`<textarea class="st-textarea st-textarea--md" rows="3"
+          placeholder="Tell us about yourself"></textarea>
+
+<!-- Modifier vocabulary -->
+<!-- size: --sm | --md | --lg  (padding × paired font-size/line-height) -->
+
+<!-- State attributes -->
+<!-- [aria-invalid="true"]   — error styling -->
+<!-- :disabled               — disabled tokens -->
+<!-- :read-only              — read-only tokens -->
+
+<!-- Precedence (CSS source order):
+     default < [aria-invalid] < :read-only < :disabled -->`}</CodeBlock>
+      </Section>
+
+      <Section
+        id="radio"
+        title="Radio — .st-radio-group + .st-radio-wrapper + .st-radio"
+        intro="Three blocks: the group root carries the layout container; each radio is wrapped in inline-flex for [radio] + <label>; the inner block is the Radix Item (the actual radio button). The label's font-size and the dot's size are both derived from the inner radio's size modifier via :has(). Unlike Checkbox, Radix Item Indicator UNMOUNTS when unchecked — vanilla HTML mirrors this by only rendering the indicator chain when checked."
+        attributes={[
+          {
+            name: 'role="radiogroup"',
+            meaning: 'On the .st-radio-group root (Radix provides on React side)',
+            required: 'always',
+          },
+          {
+            name: 'role="radio"',
+            meaning: 'On each .st-radio (Radix Item provides on React side)',
+            required: 'always',
+          },
+          {
+            name: 'aria-checked',
+            meaning: '"true" / "false" on each radio button',
+            required: 'always',
+          },
+          {
+            name: 'data-state',
+            meaning:
+              '"checked" / "unchecked" — drives the indicator presence (and any future state styling)',
+            required: 'always',
+          },
+          {
+            name: 'aria-invalid="true"',
+            meaning: 'Error state — CSS shifts border + bg-subtle + focus-ring',
+            required: 'when in error',
+          },
+        ]}
+      >
+        <div role="radiogroup" aria-label="doc-radio-example" className="st-radio-group">
+          <div className="st-radio-wrapper">
+            {/* biome-ignore lint/a11y/useSemanticElements: Mirrors Radix's
+             * RadioGroup.Item output (<button role="radio">). */}
+            <button
+              type="button"
+              id="doc-r-1"
+              role="radio"
+              aria-checked={false}
+              data-state="unchecked"
+              className="st-radio st-radio--md"
+            />
+            <label htmlFor="doc-r-1" className="st-radio-wrapper__label">
+              Unchecked
+            </label>
+          </div>
+          <div className="st-radio-wrapper">
+            {/* biome-ignore lint/a11y/useSemanticElements: see preceding comment */}
+            <button
+              type="button"
+              id="doc-r-2"
+              role="radio"
+              aria-checked={true}
+              data-state="checked"
+              className="st-radio st-radio--md"
+            >
+              <span className="st-radio__indicator">
+                <span className="st-radio__dot" />
+              </span>
+            </button>
+            <label htmlFor="doc-r-2" className="st-radio-wrapper__label">
+              Checked
+            </label>
+          </div>
+        </div>
+        <CodeBlock>{`<div role="radiogroup" aria-label="Pick one" class="st-radio-group">
+  <div class="st-radio-wrapper">
+    <button type="button" id="opt-a"
+            role="radio" aria-checked="false"
+            data-state="unchecked"
+            class="st-radio st-radio--md"></button>
+    <label for="opt-a" class="st-radio-wrapper__label">Option A</label>
+  </div>
+  <div class="st-radio-wrapper">
+    <button type="button" id="opt-b"
+            role="radio" aria-checked="true"
+            data-state="checked"
+            class="st-radio st-radio--md">
+      <span class="st-radio__indicator">
+        <span class="st-radio__dot"></span>
+      </span>
+    </button>
+    <label for="opt-b" class="st-radio-wrapper__label">Option B</label>
+  </div>
+</div>
+
+<!-- Modifier vocabulary -->
+<!-- size (on .st-radio): --sm (16px) | --md (20px) | --lg (24px) -->
+
+<!-- Sub-elements -->
+<!-- .st-radio-group            — group root (flex column with gap) -->
+<!-- .st-radio-wrapper          — per-radio flex container (label sizing via :has) -->
+<!-- .st-radio-wrapper__label   — internal <label> -->
+<!-- .st-radio__indicator       — absolute-positioned flex container around the dot
+                                  (render ONLY when [data-state="checked"]; Radix unmounts on uncheck) -->
+<!-- .st-radio__dot             — the visible dot (currentColor, size paired with radio) -->
+
+<!-- State attributes -->
+<!-- [data-state]      — "checked" / "unchecked" -->
+<!-- [aria-invalid]    — error styling -->
+<!-- :disabled         — disabled tokens (wrapper :has() also picks this up for label) -->`}</CodeBlock>
+      </Section>
+
       <p className="st-text st-text--body st-text--sm st-text--subtle mt-8">
-        Coming in subsequent sweeps: Input / Textarea / Radio (sweep-4), Select / Tooltip (sweep-5),
-        Toast / Dialog (sweep-6), Field / FieldSet (sweep-7).
+        Coming in subsequent sweeps: Select / Tooltip (sweep-5), Toast / Dialog (sweep-6), Field /
+        FieldSet (sweep-7).
       </p>
     </div>
   ),

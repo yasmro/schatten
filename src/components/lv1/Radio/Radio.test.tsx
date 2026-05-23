@@ -16,6 +16,16 @@ describe('RadioGroup', () => {
     expect(screen.getAllByRole('radio')).toHaveLength(3)
   })
 
+  it('emits st-radio-group on the root', () => {
+    const { container } = render(
+      <RadioGroup>
+        <Radio value="a" label="A" />
+      </RadioGroup>,
+    )
+    const group = container.querySelector('[role="radiogroup"]')
+    expect(group).toHaveClass('st-radio-group')
+  })
+
   it('selects a single radio at a time (controlled)', async () => {
     const user = userEvent.setup()
     const onValueChange = vi.fn()
@@ -57,7 +67,9 @@ describe('RadioGroup', () => {
     }
   })
 
-  it('propagates isError to all radios', () => {
+  it('propagates isError to all radios via aria-invalid', () => {
+    // Visual border / bg shift lives in
+    // .st-radio[aria-invalid="true"] CSS — the test pins the attribute.
     render(
       <RadioGroup isError>
         <Radio value="a" label="A" />
@@ -66,17 +78,16 @@ describe('RadioGroup', () => {
     )
     for (const r of screen.getAllByRole('radio')) {
       expect(r).toHaveAttribute('aria-invalid', 'true')
-      expect(r.className).toContain('border-error')
     }
   })
 
-  it('propagates size to child radios', () => {
+  it('propagates size to child radios as st-radio--{size}', () => {
     render(
       <RadioGroup size="lg">
         <Radio value="a" label="A" />
       </RadioGroup>,
     )
-    expect(screen.getByRole('radio')).toHaveClass('size-6')
+    expect(screen.getByRole('radio')).toHaveClass('st-radio--lg')
   })
 
   it('sets aria-invalid on the group itself when isError', () => {
@@ -91,6 +102,24 @@ describe('RadioGroup', () => {
 })
 
 describe('Radio', () => {
+  it('emits the canonical st-radio class chain', () => {
+    render(
+      <RadioGroup>
+        <Radio value="a" label="A" />
+      </RadioGroup>,
+    )
+    expect(screen.getByRole('radio')).toHaveClass('st-radio', 'st-radio--md')
+  })
+
+  it('wraps each Radio in .st-radio-wrapper', () => {
+    const { container } = render(
+      <RadioGroup>
+        <Radio value="a" label="A" />
+      </RadioGroup>,
+    )
+    expect(container.querySelector('.st-radio-wrapper')).toBeInTheDocument()
+  })
+
   it('renders label and associates it via htmlFor', () => {
     render(
       <RadioGroup>
@@ -100,9 +129,25 @@ describe('Radio', () => {
     const radio = screen.getByRole('radio')
     const label = screen.getByText('Option A')
     expect(label).toHaveAttribute('for', radio.id)
+    expect(label).toHaveClass('st-radio-wrapper__label')
   })
 
-  it('per-item size overrides group size', () => {
+  it('renders .st-radio__indicator with .st-radio__dot inside (when checked)', () => {
+    // Radix Item Indicator is unmounted when unchecked, so check the checked
+    // state where the indicator is present.
+    render(
+      <RadioGroup defaultValue="a">
+        <Radio value="a" label="A" />
+      </RadioGroup>,
+    )
+    const radio = screen.getByRole('radio')
+    const indicator = radio.querySelector('.st-radio__indicator')
+    const dot = indicator?.querySelector('.st-radio__dot')
+    expect(indicator).toBeInTheDocument()
+    expect(dot).toBeInTheDocument()
+  })
+
+  it('per-item size overrides group size (st-radio--{size})', () => {
     render(
       <RadioGroup size="lg">
         <Radio value="a" label="A" size="sm" />
@@ -110,8 +155,8 @@ describe('Radio', () => {
       </RadioGroup>,
     )
     const [a, b] = screen.getAllByRole('radio')
-    expect(a).toHaveClass('size-4')
-    expect(b).toHaveClass('size-6')
+    expect(a).toHaveClass('st-radio--sm')
+    expect(b).toHaveClass('st-radio--lg')
   })
 
   it('per-item disabled does not affect siblings', () => {
@@ -174,12 +219,14 @@ describe('Radio', () => {
     })
   })
 
-  it('forwards className on wrapping div', () => {
+  it('forwards className on wrapping div, alongside .st-radio-wrapper', () => {
     const { container } = render(
       <RadioGroup>
         <Radio value="a" label="A" className="custom-wrap" />
       </RadioGroup>,
     )
-    expect(container.querySelector('.custom-wrap')).toBeInTheDocument()
+    const wrapper = container.querySelector('.custom-wrap')
+    expect(wrapper).toBeInTheDocument()
+    expect(wrapper).toHaveClass('st-radio-wrapper')
   })
 })

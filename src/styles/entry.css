@@ -56,6 +56,10 @@
 @import "../components/lv1/Button/Button.css";
 @import "../components/lv1/Checkbox/Checkbox.css";
 @import "../components/lv1/Switch/Switch.css";
+/* #269 sweep-4 — Input / Textarea / Radio class API */
+@import "../components/lv1/Input/Input.css";
+@import "../components/lv1/Textarea/Textarea.css";
+@import "../components/lv1/Radio/Radio.css";
 
 /* Class-based dark mode variant — matches `src/styles/globals.css` so
  * `.dark` toggling behaves identically in Storybook and in the dist. */

@@ -2,6 +2,7 @@ import { forwardRef, type TextareaHTMLAttributes, useId } from 'react'
 import { useFieldContext } from '../../../contexts/field'
 import { cn } from '../../../lib/utils'
 import { type TextareaVariants, textareaVariants } from '../../../variants/textarea'
+import './Textarea.css'
 
 export interface TextareaProps
   extends Omit<TextareaHTMLAttributes<HTMLTextAreaElement>, 'size'>,
@@ -44,14 +45,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
     return (
       <textarea
         id={id}
-        className={cn(
-          textareaVariants({ size }),
-          isError
-            ? 'border-error bg-error-subtle focus-visible:ring-error'
-            : 'border-border-strong',
-          readOnly && 'cursor-text bg-surface-readonly border-border-readonly',
-          className,
-        )}
+        className={cn(textareaVariants({ size }), className)}
         ref={ref}
         disabled={disabled}
         readOnly={readOnly}

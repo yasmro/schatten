@@ -83,6 +83,10 @@ export const Parity: Story = {
         gridTemplateColumns: '1fr 1fr',
         gap: 64,
         maxWidth: 720,
+        // Top padding so the React-side `side="top"` portal has room to
+        // render above its trigger without overlapping the "React"
+        // column header.
+        paddingTop: 64,
       }}
     >
       {/* ===== React side =====

@@ -202,18 +202,26 @@
 
   /* popper offset per side — Radix only emits [data-side] when
    * `position="popper"`. For `item-aligned` positioning the attribute
-   * is absent and these rules don't fire (no JSX branch needed). */
+   * is absent and these rules don't fire (no JSX branch needed).
+   *
+   * Uses the modern `translate:` CSS property (not `transform:
+   * translate(...)`) so the offset composes additively with Radix
+   * Popper's `transform: translate3d(...)` positioning AND with our
+   * own `select-content-open` keyframe's `transform: scale(...)` —
+   * the three live on independent CSS properties. This mirrors
+   * Tailwind v4's compilation of pre-sweep's `data-[side=bottom]:translate-y-1`
+   * (see Dialog.css for the same precedent). */
   .st-select__content[data-side="bottom"] {
-    margin-top: 0.25rem;
+    translate: 0 0.25rem;
   }
   .st-select__content[data-side="top"] {
-    margin-bottom: 0.25rem;
+    translate: 0 -0.25rem;
   }
   .st-select__content[data-side="left"] {
-    margin-right: 0.25rem;
+    translate: -0.25rem 0;
   }
   .st-select__content[data-side="right"] {
-    margin-left: 0.25rem;
+    translate: 0.25rem 0;
   }
 
   /* ===== viewport ===== */

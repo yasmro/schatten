@@ -690,7 +690,7 @@ score:
 
 - [`examples/lighthouse-100/nextjs`](examples/lighthouse-100/nextjs) —
   Next.js 15 App Router; uses per-component subpath imports and
-  SSR-emitted `data-theme`.
+  Next.js's built-in critical-CSS inlining for the token layer.
 - [`examples/lighthouse-100/vanilla`](examples/lighthouse-100/vanilla)
   — plain HTML; inlines tokens, preloads component CSS, no framework.
 

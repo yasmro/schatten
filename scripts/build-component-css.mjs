@@ -44,17 +44,39 @@ function discoverComponents() {
     throw new Error(`build-component-css: lv1 directory "${LV1_DIR}" not found`)
   }
 
+  // Every lv1 dir MUST ship a class-API `.css` file (post-#154 contract — see
+  // css-api.md "Exception — `.st-{block}` class API definitions"). A
+  // dir-without-css is therefore a hard error, not a silent skip: if it were
+  // silent, a newly-added lv1 would lose its per-component CSS subpath
+  // (`@yasmro/schatten/css/<slug>`) without any signal until a consumer hit
+  // a 404. The `check-lv1-companions` PostToolUse hook catches this at edit
+  // time; this build-time check is the backstop.
   const entries = []
+  const missingCss = []
   for (const name of readdirSync(LV1_DIR)) {
     const dir = join(LV1_DIR, name)
     if (!statSync(dir).isDirectory()) continue
+    const tsxFile = join(dir, `${name}.tsx`)
+    // `.tsx` presence is the marker for "this is a real lv1 component dir,"
+    // distinguishing it from incidental sub-folders (`__snapshots__`, etc.).
+    if (!existsSync(tsxFile)) continue
     const cssFile = join(dir, `${name}.css`)
-    if (!existsSync(cssFile)) continue
+    if (!existsSync(cssFile)) {
+      missingCss.push(name)
+      continue
+    }
     // Slug matches the `.st-<block>` block name convention in css-api.md:
     // lowercased component name (e.g. `FieldSet` → `fieldset`,
     // `Button` → `button`). The subpath consumers import follows the same
     // shape — `@yasmro/schatten/css/fieldset`, `@yasmro/schatten/css/button`.
     entries.push({ name, slug: name.toLowerCase(), srcCss: cssFile })
+  }
+
+  if (missingCss.length > 0) {
+    throw new Error(
+      `build-component-css: lv1 component(s) missing the class-API CSS file: ${missingCss.join(', ')}. ` +
+        `Add src/components/lv1/<Name>/<Name>.css per css-api.md (every lv1 ships a per-component .st-* rule file).`,
+    )
   }
 
   if (entries.length === 0) {

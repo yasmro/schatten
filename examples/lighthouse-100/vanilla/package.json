@@ -1,0 +1,17 @@
+{
+  "name": "schatten-lighthouse-vanilla",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Lighthouse-100 reference setup for Schatten as plain HTML with the .st-* class API.",
+  "scripts": {
+    "prepare-css": "node scripts/prepare-css.mjs",
+    "build": "pnpm prepare-css",
+    "start": "serve -s public -p 4173",
+    "lhci": "lhci autorun"
+  },
+  "devDependencies": {
+    "@lhci/cli": "^0.14.0",
+    "@yasmro/schatten": "^0.9.0",
+    "serve": "^14.2.0"
+  }
+}

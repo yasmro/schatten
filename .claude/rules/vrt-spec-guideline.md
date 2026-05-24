@@ -143,6 +143,55 @@ Only include stories that represent distinct visual states:
 - Include: `AllVariants`, `Sizes`, `States`, `Disabled`, `ErrorState`
 - Exclude: `Playground` (interactive, not for VRT)
 
+### Adding a new story → add it to the VRT roster (or document the skip)
+
+When you add a new story to `{Component}.stories.tsx`, the **same PR** must do
+one of:
+
+1. **Add the story id to the `stories` array in `{Component}.vrt.spec.ts`** and
+   generate the light + dark baselines. This is the default and what almost
+   every story should do.
+2. **Explicitly skip it** by leaving a one-line comment in the spec file's
+   `stories` array stating the reason (e.g. `// 'playground' — interactive
+   only; not a distinct visual state`). The comment must name the skipped
+   story so a reviewer can grep for it.
+
+Why this is a hard rule, not "best effort":
+
+- VRT roster drift is silent — Storybook ships the story regardless of
+  whether `{Component}.vrt.spec.ts` knows about it, and a missing story
+  produces no failing test. The miss is invisible until a visual
+  regression ships to production.
+- This is exactly how [#302](https://github.com/yasmro/schatten/pull/302)'s
+  Button link-icon orphan bug slipped past CI: `LinkVariant` existed in
+  `Button.stories.tsx` from sweep-3 onwards but was never added to the VRT
+  roster, so no baseline existed to fail against.
+- The cost of adding a story to the roster is two `pnpm test:vrt:update`
+  PNGs and a one-line array entry. The cost of letting drift accumulate is
+  one bug per component per regression cycle.
+
+What counts as a legitimate skip reason:
+
+- `Playground` and other interactive-only stories that don't have a stable
+  visual state (skip with `// '<id>' — Playground / interactive only`).
+- Component-specific stories whose visual is already covered by an
+  AllVariants-style story (skip with `// '<id>' — visual covered by 'all-variants'`).
+- Stories that intentionally have no deterministic baseline (e.g. a story
+  showing randomized data — skip with `// '<id>' — non-deterministic data`).
+
+What is **not** a legitimate skip reason:
+
+- "We'll add it later" — file an issue and link it from the skip comment,
+  or do it now.
+- "It's just a small variant" — small visual states are exactly what VRT
+  catches that unit tests don't.
+- Silence (no skip comment) — silent skip is what this rule prevents.
+
+When the lefthook pre-commit hook or a future CI lint catches an orphaned
+story (defined as: a `*.stories.tsx` export that is neither in the spec's
+`stories` array nor mentioned in a skip comment), treat the warning as
+blocking — fix the roster, do not bypass.
+
 ## Parity stories — when to write one, when to skip
 
 The `#154` sweeps that publish the `.st-*` class API also typically ship a

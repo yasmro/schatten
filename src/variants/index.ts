@@ -2,6 +2,12 @@ export { type BadgeVariants, badgeVariants } from './badge'
 export { type ButtonVariants, buttonVariants } from './button'
 export { type CalloutVariants, calloutVariants } from './callout'
 export { type CheckboxVariants, checkboxVariants } from './checkbox'
+export { type FieldVariants, fieldVariants } from './field'
+export {
+  type FieldSetVariants,
+  fieldsetChildrenVariants,
+  fieldsetVariants,
+} from './fieldset'
 export { type IconVariants, iconVariants } from './icon'
 export { type InputVariants, inputVariants, inputWrapperVariants } from './input'
 export { type RadioVariants, radioVariants } from './radio'

@@ -21,15 +21,11 @@ Built on Radix UI primitives, styled with Tailwind CSS v4, and authored with
 
 ### Vanilla HTML
 
-> **Status (v0.8.0):** The CSS bundle currently ships design tokens + base
-> reset + animation keyframes for `Spinner` / `Toast` / `Tooltip` / `Dialog`.
-> Component classes like `.st-btn` / `.st-input` (see
-> [css-api.md](.claude/rules/css-api.md)) are scheduled to land in
-> **v0.9.0** (pulled forward from v0.14.0 — see
-> [#58](https://github.com/yasmro/schatten/issues/58) /
-> [#154](https://github.com/yasmro/schatten/issues/154)). Until then,
-> styling components without React requires building on top of the token
-> layer.
+The CSS bundle ships design tokens, the base reset, animation keyframes,
+**and the full set of `.st-*` component classes** for every lv1
+component (see [css-api.md](.claude/rules/css-api.md)). One `<link>` to
+`schatten.css` is enough — **no Tailwind setup, no JavaScript runtime,
+no build step required.**
 
 ```html
 <link
@@ -37,7 +33,6 @@ Built on Radix UI primitives, styled with Tailwind CSS v4, and authored with
   rel="stylesheet"
 />
 
-<!-- Coming in v0.9.0 (per .claude/rules/css-api.md): -->
 <button class="st-btn st-btn--primary">Click me</button>
 ```
 
@@ -58,57 +53,35 @@ export function App() {
 
 ### Astro / Vue / Svelte
 
-Import the CSS bundle once at your app entry, then call the exported CVA
-variant functions to get the class string for any non-React element. This
-path works today — the utilities used by `buttonVariants`,
-`badgeVariants`, `inputVariants`, etc. are baked into `schatten.css`.
+Import the CSS bundle once at your app entry, then write `.st-*` class
+chains directly on any element. **No JavaScript import needed.**
 
 ```astro
 ---
 // src/pages/index.astro
 import '@yasmro/schatten/schatten.css'
-import { buttonVariants } from '@yasmro/schatten/variants'
 ---
 
-<button class={buttonVariants({ variant: 'primary' })}>Click me</button>
-<a href="/docs" class={buttonVariants({ variant: 'secondary' })}>Docs</a>
+<button class="st-btn st-btn--primary">Click me</button>
+<a href="/docs" class="st-btn st-btn--secondary">Docs</a>
 ```
 
 ```vue
 <!-- Vue -->
-<script setup lang="ts">
-import { buttonVariants } from '@yasmro/schatten/variants'
-</script>
 <template>
-  <button :class="buttonVariants({ variant: 'primary' })">Click me</button>
+  <button class="st-btn st-btn--primary">Click me</button>
 </template>
 ```
 
 ```svelte
 <!-- Svelte -->
-<script lang="ts">
-  import { buttonVariants } from '@yasmro/schatten/variants'
-</script>
-<button class={buttonVariants({ variant: 'primary' })}>Click me</button>
-```
-
-When the `.st-*` class API lands (v0.9.0, see
-[css-api.md](.claude/rules/css-api.md) and
-[#58](https://github.com/yasmro/schatten/issues/58) /
-[#154](https://github.com/yasmro/schatten/issues/154)), the same code
-drops the JS import entirely:
-
-```astro
----
-import '@yasmro/schatten/schatten.css'
----
-
-<!-- v0.9.0 onward — no buttonVariants() needed -->
 <button class="st-btn st-btn--primary">Click me</button>
-<a href="/docs" class="st-btn st-btn--outline">Docs</a>
 ```
 
-Until then, `buttonVariants(...)` is the recommended bridge.
+The exported CVA variant functions (`buttonVariants`, `badgeVariants`,
+…) are still available from `@yasmro/schatten/variants` for cases where
+you want the class string computed programmatically — but for static
+markup the `.st-*` chain is the simpler path.
 
 ## Two-layer architecture
 
@@ -126,9 +99,9 @@ as `--variant`, sub-elements as `__name`, e.g.
 ARIA attributes (`[aria-invalid]`, `[aria-busy]`, `[data-state]`), not
 modifier classes. No JavaScript runtime is required.
 
-- **Tokens** today (v0.8.0): primitive scales, semantic tokens, base reset, animation keyframes
-- **Component classes** ([css-api.md](.claude/rules/css-api.md) — [#58](https://github.com/yasmro/schatten/issues/58) Phase 2): land in v0.9.0
-- **Build**: Tailwind CSS v4 CLI
+- **Tokens**: primitive scales, semantic tokens, base reset, animation keyframes
+- **Component classes** ([css-api.md](.claude/rules/css-api.md) — [#58](https://github.com/yasmro/schatten/issues/58) Phase 2): every lv1 component is reachable via `.st-*` since v0.9.0
+- **Build**: Tailwind CSS v4 CLI — used internally to compile `dist/schatten.css`. **Consumers do not need to install Tailwind.**
 
 Stable from **v1.0.0**: class names and CSS custom properties are
 part of the public API contract (see

@@ -7,9 +7,19 @@ When adding or modifying components, follow shadcn/ui conventions (Radix UI + CV
 
 ## Tech Stack
 
+> **Consumers do NOT need Tailwind.** Schatten is internally built with
+> Tailwind CSS v4 CLI, but the published `dist/schatten.css` ships all
+> design tokens, the base reset, and the full `.st-*` component class
+> API as ready-to-use CSS (since v0.9.0, all 18 lv1 components covered).
+> Consumers `import '@yasmro/schatten/schatten.css'` once and write
+> `<button class="st-btn st-btn--primary">` (or use the React layer) —
+> no Tailwind setup, no PostCSS, no build step required on the consumer
+> side. The Tailwind reference below describes Schatten's *internal*
+> implementation, not a consumer prerequisite.
+
 - **Base**: shadcn/ui
 - **Framework**: React + TypeScript
-- **Styling**: Tailwind CSS + class-variance-authority (CVA)
+- **Styling**: Tailwind CSS + class-variance-authority (CVA) — internal; consumers see `.st-*` classes
 - **Primitives**: Radix UI
 - **Storybook**: Component documentation & visual testing
 - **Build**: tsup

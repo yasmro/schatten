@@ -353,57 +353,55 @@ describe('FieldSet', () => {
   })
 
   describe('layout props', () => {
-    it('applies flex-row when direction is row', () => {
+    it('applies --row modifier on __children when direction is row', () => {
       const { container } = render(
         <FieldSet legend="Test" direction="row">
           <input />
         </FieldSet>,
       )
-      const childrenWrapper = container.querySelector('fieldset > div')
-      expect(childrenWrapper).toHaveClass('flex-row')
-      expect(childrenWrapper).not.toHaveClass('flex-col')
+      const childrenWrapper = container.querySelector('.st-fieldset__children')
+      expect(childrenWrapper).toHaveClass('st-fieldset__children--row')
     })
 
-    it('applies flex-col when direction is column (default)', () => {
+    it('does NOT emit a direction modifier when direction is column (default)', () => {
       const { container } = render(
         <FieldSet legend="Test">
           <input />
         </FieldSet>,
       )
-      const childrenWrapper = container.querySelector('fieldset > div')
-      expect(childrenWrapper).toHaveClass('flex-col')
-      expect(childrenWrapper).not.toHaveClass('flex-row')
+      const childrenWrapper = container.querySelector('.st-fieldset__children')
+      expect(childrenWrapper).not.toHaveClass('st-fieldset__children--row')
     })
 
-    it('applies flex-wrap when wrap is true', () => {
+    it('applies --wrap modifier on __children when wrap is true', () => {
       const { container } = render(
         <FieldSet legend="Test" wrap>
           <input />
         </FieldSet>,
       )
-      const childrenWrapper = container.querySelector('fieldset > div')
-      expect(childrenWrapper).toHaveClass('flex-wrap')
+      const childrenWrapper = container.querySelector('.st-fieldset__children')
+      expect(childrenWrapper).toHaveClass('st-fieldset__children--wrap')
     })
 
-    it('does not apply flex-wrap by default', () => {
+    it('does not apply --wrap by default', () => {
       const { container } = render(
         <FieldSet legend="Test">
           <input />
         </FieldSet>,
       )
-      const childrenWrapper = container.querySelector('fieldset > div')
-      expect(childrenWrapper).not.toHaveClass('flex-wrap')
+      const childrenWrapper = container.querySelector('.st-fieldset__children')
+      expect(childrenWrapper).not.toHaveClass('st-fieldset__children--wrap')
     })
 
-    it('combines direction and wrap props', () => {
+    it('combines direction and wrap modifiers', () => {
       const { container } = render(
         <FieldSet legend="Test" direction="row" wrap>
           <input />
         </FieldSet>,
       )
-      const childrenWrapper = container.querySelector('fieldset > div')
-      expect(childrenWrapper).toHaveClass('flex-row')
-      expect(childrenWrapper).toHaveClass('flex-wrap')
+      const childrenWrapper = container.querySelector('.st-fieldset__children')
+      expect(childrenWrapper).toHaveClass('st-fieldset__children--row')
+      expect(childrenWrapper).toHaveClass('st-fieldset__children--wrap')
     })
   })
 
@@ -418,34 +416,86 @@ describe('FieldSet', () => {
       expect(screen.getByTestId('input')).toBeInTheDocument()
     })
 
-    it('does not apply mt-4 to children wrapper when no header', () => {
+    // NB: header-spacing (`margin-top: 1rem` on __children when legend or
+    // description is present) is structural CSS — :has(> .st-fieldset__legend)
+    // / :has(> .st-fieldset__description) in FieldSet.css. JSDOM doesn't lay
+    // out CSS so we can't observe the computed margin here; the structural
+    // contract (legend / description / children are direct children of root)
+    // is pinned by the `class API` block below, and the visual outcome is
+    // pinned by VRT.
+  })
+
+  describe('class API', () => {
+    it('emits .st-fieldset on the root <fieldset>', () => {
       const { container } = render(
-        <FieldSet>
+        <FieldSet legend="x">
           <input />
         </FieldSet>,
       )
-      const childrenWrapper = container.querySelector('fieldset > div')
-      expect(childrenWrapper).not.toHaveClass('mt-4')
+      expect(container.querySelector('fieldset')).toHaveClass('st-fieldset')
     })
 
-    it('applies mt-4 to children wrapper when legend is provided', () => {
+    it('emits .st-fieldset__legend / __description / __children / __error', () => {
       const { container } = render(
-        <FieldSet legend="Test">
+        <FieldSet legend="L" description="D" error="E">
           <input />
         </FieldSet>,
       )
-      const childrenWrapper = container.querySelector('fieldset > div')
-      expect(childrenWrapper).toHaveClass('mt-4')
+      expect(container.querySelector('.st-fieldset__legend')).toBeInTheDocument()
+      expect(container.querySelector('.st-fieldset__description')).toBeInTheDocument()
+      expect(container.querySelector('.st-fieldset__children')).toBeInTheDocument()
+      expect(container.querySelector('.st-fieldset__error')).toBeInTheDocument()
     })
 
-    it('applies mt-4 to children wrapper when description is provided without legend', () => {
+    it('places legend / description / children / error as direct children of the root fieldset', () => {
+      // Pins the `:has(> .st-fieldset__legend)` and
+      // `:has(> .st-fieldset__description)` selectors in FieldSet.css —
+      // a future wrapper insertion would break the structural margin-top
+      // rule, which this test catches.
       const { container } = render(
-        <FieldSet description="Help text">
+        <FieldSet legend="L" description="D" error="E">
           <input />
         </FieldSet>,
       )
-      const childrenWrapper = container.querySelector('fieldset > div')
-      expect(childrenWrapper).toHaveClass('mt-4')
+      const fs = container.querySelector('fieldset')
+      if (!fs) throw new Error('fieldset not rendered')
+      expect(fs.querySelector(':scope > .st-fieldset__legend')).toBeInTheDocument()
+      expect(fs.querySelector(':scope > .st-fieldset__description')).toBeInTheDocument()
+      expect(fs.querySelector(':scope > .st-fieldset__children')).toBeInTheDocument()
+      expect(fs.querySelector(':scope > .st-fieldset__error')).toBeInTheDocument()
+    })
+  })
+
+  describe('3-layer propagation (FieldSet → Field → input)', () => {
+    it('propagates [data-error] from FieldSet root to Field root via context', () => {
+      const { container } = render(
+        <FieldSet legend="x" isError>
+          <Field label="y">
+            <Input data-testid="i" />
+          </Field>
+        </FieldSet>,
+      )
+      expect(container.querySelector('fieldset.st-fieldset')).toHaveAttribute('data-error', 'true')
+      expect(container.querySelector('.st-field')).toHaveAttribute('data-error', 'true')
+      expect(screen.getByTestId('i')).toHaveAttribute('aria-invalid', 'true')
+    })
+
+    it('propagates [data-disabled] through FieldSet → Field → input chain', () => {
+      const { container } = render(
+        <FieldSet legend="x" disabled>
+          <Field label="y">
+            <Input data-testid="i" />
+          </Field>
+        </FieldSet>,
+      )
+      expect(container.querySelector('fieldset.st-fieldset')).toHaveAttribute(
+        'data-disabled',
+        'true',
+      )
+      expect(container.querySelector('.st-field')).toHaveAttribute('data-disabled', 'true')
+      // native fieldset disabled cascade reaches the input through React's
+      // explicit `disabled` prop on the form control.
+      expect(screen.getByTestId('i')).toBeDisabled()
     })
   })
 })

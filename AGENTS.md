@@ -8,8 +8,17 @@
 
 **Schatten** is a design system component library based on [shadcn/ui](https://ui.shadcn.com/), customized for the Schatten brand. Components are built on Radix UI primitives, styled with Tailwind CSS v4, and authored with `class-variance-authority` (CVA).
 
+> **Consumers do NOT need Tailwind.** Schatten is internally built with
+> Tailwind CSS v4 CLI, but the published `dist/schatten.css` ships all
+> design tokens, the base reset, and the full `.st-*` component class
+> API as ready-to-use CSS. Consumers `import '@yasmro/schatten/schatten.css'`
+> once and write `<button class="st-btn st-btn--primary">` (or use the
+> React layer) — no Tailwind setup, no PostCSS, no build step required
+> on the consumer side. The "Tailwind v4" references below describe
+> Schatten's *internal* implementation, not a consumer prerequisite.
+
 - **Framework**: React 18 / 19 + TypeScript
-- **Styling**: Tailwind CSS v4 + CVA
+- **Styling**: Tailwind CSS v4 + CVA (internal — consumers see `.st-*` classes)
 - **Primitives**: Radix UI
 - **Build / Test / VRT**: tsup + Tailwind CSS v4 CLI / Vitest / Playwright
 - **Lint / Format**: Biome

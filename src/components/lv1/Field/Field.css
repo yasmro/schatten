@@ -1,0 +1,115 @@
+/*
+ * Field — `.st-field` class API.
+ *
+ * Layout + context wrapper. The CSS surface is intentionally thin
+ * (flex column, gap, typography) — Field is a layout primitive that
+ * groups label / description / children / error vertically and routes
+ * `id` / `isError` / `disabled` / `describedBy` via FieldContext.
+ *
+ * Sub-elements:
+ * - `.st-field__label-row`        — flex row holding the `<label>` and
+ *                                   the optional tooltip info icon.
+ * - `.st-field__label`            — the externally-associated `<label>`
+ *                                   (`htmlFor` pairs with the inner
+ *                                   form input via FieldContext.id).
+ * - `.st-field__required-marker`  — the `*` span next to the label
+ *                                   when `required` is set.
+ * - `.st-field__info`             — the Lucide `Info` icon that opens
+ *                                   the tooltip on hover/focus.
+ * - `.st-field__description`      — the description `<label htmlFor>`.
+ *                                   Rendered as a `<label>` (not a
+ *                                   `<p>`) so clicking the description
+ *                                   focuses the input — see
+ *                                   field-context-guideline.md.
+ * - `.st-field__error`            — the error `<p>` below children.
+ *
+ * Derived modifiers (emitted from JSX via `cn()`, not CVA):
+ * - `.st-field--grow`     / `--grow-0`     — `flexGrow={1 | 0}`
+ * - `.st-field--shrink`   / `--shrink-0`   — `flexShrink={1 | 0}`
+ *
+ * `flexBasis` accepts arbitrary CSS values (e.g. `"12rem"`, `"50%"`)
+ * and stays inline `style` — it cannot live in a finite modifier set.
+ *
+ * State attributes (set on the root by React):
+ * - `[data-disabled="true"]` — when Field collapses `disabled` from
+ *                              its own prop or its parent FieldSet.
+ * - `[data-error="true"]`    — observability hook for the FieldSet →
+ *                              Field collapse chain. The Field root
+ *                              does NOT change visually based on it;
+ *                              error visuals are owned by the inner
+ *                              form input (`.st-input-wrapper:has(
+ *                              .st-input[aria-invalid])`). Consumers
+ *                              who want to attach external styling can
+ *                              hook this attribute themselves.
+ *
+ * Uses raw CSS + `var(--color-*)` throughout, per css-api.md
+ * "Component CSS authoring conventions — raw CSS over @apply".
+ *
+ * See: .claude/rules/css-api.md, #272 sweep-7.
+ */
+@layer components {
+  .st-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+  }
+
+  /* Derived flex modifiers (Badge `--icon-only` precedent — emitted
+   * outside CVA from Field.tsx via cn()). */
+  .st-field--grow {
+    flex-grow: 1;
+  }
+  .st-field--grow-0 {
+    flex-grow: 0;
+  }
+  .st-field--shrink {
+    flex-shrink: 1;
+  }
+  .st-field--shrink-0 {
+    flex-shrink: 0;
+  }
+
+  /* ===== sub-elements ===== */
+  .st-field__label-row {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  .st-field__label {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--color-foreground);
+  }
+
+  .st-field__required-marker {
+    margin-left: 0.125rem;
+    color: var(--color-error);
+  }
+
+  .st-field__info {
+    width: 1rem;
+    height: 1rem;
+    color: var(--color-foreground-muted);
+    cursor: help;
+  }
+
+  .st-field__description {
+    /* `-mt` collapses the root's gap-1.5 so description sits tight under
+     * the label; `mb` then re-introduces a smaller gap before children.
+     * Net spacing: label → description ≈ 0, description → children =
+     * 0.25rem. */
+    display: block;
+    margin-top: -0.375rem;
+    margin-bottom: 0.25rem;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    color: var(--color-foreground-muted);
+  }
+
+  .st-field__error {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    color: var(--color-error);
+  }
+}

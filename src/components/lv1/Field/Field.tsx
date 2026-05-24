@@ -3,7 +3,9 @@ import { type ReactNode, useId, useMemo } from 'react'
 import { FieldContext, type FieldContextValue } from '../../../contexts/field'
 import { useFieldSetContext } from '../../../contexts/fieldset'
 import { cn } from '../../../lib/utils'
+import { fieldVariants } from '../../../variants/field'
 import { Tooltip, TooltipContent, TooltipTrigger } from '../Tooltip/Tooltip'
+import './Field.css'
 
 export interface FieldProps {
   /** Label text for the field. Associated with the input via `htmlFor`. */
@@ -41,8 +43,8 @@ export interface FieldProps {
   className?: string
 }
 
-const flexGrowClasses = { 0: 'grow-0', 1: 'grow' } as const
-const flexShrinkClasses = { 0: 'shrink-0', 1: 'shrink' } as const
+const flexGrowClasses = { 0: 'st-field--grow-0', 1: 'st-field--grow' } as const
+const flexShrinkClasses = { 0: 'st-field--shrink-0', 1: 'st-field--shrink' } as const
 
 export function Field({
   label,
@@ -82,27 +84,25 @@ export function Field({
     <FieldContext.Provider value={contextValue}>
       <div
         className={cn(
-          'flex flex-col gap-1.5',
+          fieldVariants(),
           flexGrow !== undefined && flexGrowClasses[flexGrow],
           flexShrink !== undefined && flexShrinkClasses[flexShrink],
           className,
         )}
         style={flexBasis ? { flexBasis } : undefined}
         data-disabled={effectiveDisabled || undefined}
+        data-error={isError || undefined}
       >
         {label && (
-          <div className="flex items-center gap-1">
-            <label htmlFor={id} className="text-base font-bold text-foreground">
+          <div className="st-field__label-row">
+            <label htmlFor={id} className="st-field__label">
               {label}
-              {required && <span className="text-error ml-0.5">*</span>}
+              {required && <span className="st-field__required-marker">*</span>}
             </label>
             {tooltip && (
               <Tooltip>
                 <TooltipTrigger>
-                  <Info
-                    className="size-4 text-foreground-muted cursor-help"
-                    aria-label="More information"
-                  />
+                  <Info className="st-field__info" aria-label="More information" />
                 </TooltipTrigger>
                 <TooltipContent>{tooltip}</TooltipContent>
               </Tooltip>
@@ -110,17 +110,13 @@ export function Field({
           </div>
         )}
         {description && (
-          <label
-            htmlFor={id}
-            id={descriptionId}
-            className="-mt-1.5 mb-1 block text-sm text-foreground-muted"
-          >
+          <label htmlFor={id} id={descriptionId} className="st-field__description">
             {description}
           </label>
         )}
         {children}
         {error && (
-          <p id={errorId} className="text-sm text-error">
+          <p id={errorId} className="st-field__error">
             {error}
           </p>
         )}

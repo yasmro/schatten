@@ -4,6 +4,8 @@ import '../components/lv1/Button/Button.css'
 import '../components/lv1/Callout/Callout.css'
 import '../components/lv1/Checkbox/Checkbox.css'
 import '../components/lv1/Dialog/Dialog.css'
+import '../components/lv1/Field/Field.css'
+import '../components/lv1/FieldSet/FieldSet.css'
 import '../components/lv1/Icon/Icon.css'
 import '../components/lv1/Input/Input.css'
 import '../components/lv1/Radio/Radio.css'
@@ -32,10 +34,10 @@ import type { Meta, StoryObj } from '@storybook/react-vite'
  *   verified per-component in each `{Component}.parity.stories.tsx` and
  *   pinned by `{Component}.parity.vrt.spec.ts`.
  *
- * **Coverage today**: sweep-1 (Separator, Text, Icon) + sweep-2 (Spinner,
- * Badge, Callout) + sweep-3 (Button, Checkbox, Switch) + sweep-4 (Input,
- * Textarea, Radio) of #154. The remaining 6 lv1 components arrive in
- * sweep-5 through sweep-7 and will be added here as each sweep lands.
+ * **Coverage**: all 18 lv1 components — sweep-1 (Separator, Text, Icon)
+ * + sweep-2 (Spinner, Badge, Callout) + sweep-3 (Button, Checkbox,
+ * Switch) + sweep-4 (Input, Textarea, Radio) + sweep-5 (Tooltip, Select)
+ * + sweep-6 (Toast, Dialog) + sweep-7 (Field, FieldSet) of #154.
  */
 const meta: Meta = {
   title: 'Foundation/CSS API',
@@ -46,6 +48,94 @@ const meta: Meta = {
 
 export default meta
 type Story = StoryObj
+
+/**
+ * Page chrome stylesheet — scoped to this docs page via the
+ * `.cssapi-doc__*` prefix. Deliberately NOT prefixed with `.st-` because
+ * these classes are NOT part of the public CSS API (api-stability.md).
+ *
+ * The stylesheet lives inline in the story so this page demonstrates
+ * the "no Tailwind setup required" promise of v0.9.0 end-to-end: the
+ * Foundation/CSS API page itself renders only against tokens and the
+ * `.st-*` chains it documents, with no consumer-Tailwind dependency.
+ */
+const ChromeStyles = () => (
+  <style>{`
+    .cssapi-doc { padding: 2rem; max-width: 64rem; margin: 0 auto; }
+    .cssapi-doc__section { margin-bottom: 3rem; }
+    .cssapi-doc__panel {
+      padding: 1rem;
+      border: 1px solid var(--color-border);
+      border-radius: 0.375rem;
+      background-color: var(--color-surface);
+    }
+    .cssapi-doc__title-spacing { margin-bottom: 0.5rem; }
+    .cssapi-doc__intro-spacing { margin-bottom: 1rem; }
+    .cssapi-doc__intro-spacing--lg { margin-bottom: 2rem; }
+    .cssapi-doc__attr-wrapper { margin-bottom: 1rem; }
+    .cssapi-doc__attr-table {
+      width: 100%;
+      max-width: 42rem;
+      font-size: 0.875rem;
+      border-collapse: collapse;
+    }
+    .cssapi-doc__attr-table th,
+    .cssapi-doc__attr-table td {
+      padding: 0.25rem 1rem 0.25rem 0;
+      text-align: left;
+      border-bottom: 1px solid var(--color-border);
+    }
+    .cssapi-doc__attr-table th { font-weight: 500; }
+    .cssapi-doc__attr-table td:last-child,
+    .cssapi-doc__attr-table th:last-child {
+      padding-right: 0;
+      color: var(--color-foreground-muted);
+    }
+    .cssapi-doc__attr-name {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.75rem;
+    }
+    .cssapi-doc__code {
+      margin-top: 0.75rem;
+      padding: 0.75rem;
+      background-color: var(--color-surface-hover);
+      border-radius: 0.25rem;
+      overflow-x: auto;
+      font-size: 0.75rem;
+    }
+    .cssapi-doc__row {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .cssapi-doc__row--tight { gap: 0.75rem; }
+    .cssapi-doc__row--wide  { gap: 1.5rem; }
+    .cssapi-doc__stack {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    .cssapi-doc__stack--tight { gap: 0.5rem; }
+    .cssapi-doc__col-narrow { width: 5rem; }
+    .cssapi-doc__col-wide   { width: 18rem; }
+    .cssapi-doc__col-form   { width: 20rem; }
+    .cssapi-doc__label {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.75rem;
+      color: var(--color-foreground-muted);
+    }
+    .cssapi-doc__sr-only {
+      position: absolute;
+      width: 1px; height: 1px;
+      padding: 0; margin: -1px;
+      overflow: hidden;
+      clip: rect(0,0,0,0);
+      white-space: nowrap;
+      border-width: 0;
+    }
+  `}</style>
+)
 
 const Section = ({
   id,
@@ -60,86 +150,92 @@ const Section = ({
   attributes?: { name: string; meaning: string; required: string }[]
   children: React.ReactNode
 }) => (
-  <section id={id} className="mb-12">
-    <h2 className="st-text st-text--heading st-text--lg st-text--default mb-2">{title}</h2>
-    <p className="st-text st-text--body st-text--md st-text--muted mb-4">{intro}</p>
+  <section id={id} className="cssapi-doc__section">
+    <h2 className="st-text st-text--heading st-text--lg st-text--default cssapi-doc__title-spacing">
+      {title}
+    </h2>
+    <p className="st-text st-text--body st-text--md st-text--muted cssapi-doc__intro-spacing">
+      {intro}
+    </p>
     {attributes && attributes.length > 0 && (
-      <div className="mb-4">
-        <h3 className="st-text st-text--label st-text--sm st-text--default mb-2">
+      <div className="cssapi-doc__attr-wrapper">
+        <h3 className="st-text st-text--label st-text--sm st-text--default cssapi-doc__title-spacing">
           Required attributes for vanilla HTML usage
         </h3>
-        <table className="w-full max-w-2xl text-sm border-collapse">
+        <table className="cssapi-doc__attr-table">
           <thead>
-            <tr className="border-b border-border">
-              <th className="text-left py-1 pr-4 font-medium">Attribute</th>
-              <th className="text-left py-1 pr-4 font-medium">Meaning</th>
-              <th className="text-left py-1 font-medium">When</th>
+            <tr>
+              <th>Attribute</th>
+              <th>Meaning</th>
+              <th>When</th>
             </tr>
           </thead>
           <tbody>
             {attributes.map((a) => (
-              <tr key={a.name} className="border-b border-border">
-                <td className="py-1 pr-4 font-mono text-xs">{a.name}</td>
-                <td className="py-1 pr-4">{a.meaning}</td>
-                <td className="py-1 text-foreground-muted">{a.required}</td>
+              <tr key={a.name}>
+                <td className="cssapi-doc__attr-name">{a.name}</td>
+                <td>{a.meaning}</td>
+                <td>{a.required}</td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
     )}
-    <div className="rounded-md border border-border p-4 bg-surface">{children}</div>
+    <div className="cssapi-doc__panel">{children}</div>
   </section>
 )
 
 const CodeBlock = ({ children }: { children: string }) => (
-  <pre className="mt-3 text-xs bg-surface-hover p-3 rounded overflow-x-auto">
+  <pre className="cssapi-doc__code">
     <code>{children}</code>
   </pre>
 )
 
 export const Reference: Story = {
-  name: 'Reference (sweep-1 → sweep-6)',
+  name: 'Reference (all 18 lv1 components)',
   render: () => (
-    <div className="p-8 max-w-4xl mx-auto">
-      <h1 className="st-text st-text--heading st-text--2xl st-text--default mb-2">
-        CSS API — sweep-1 → sweep-6 reference
-      </h1>
-      <p className="st-text st-text--body st-text--md st-text--muted mb-8">
-        The classes below are emitted by `dist/schatten.css`. Import it once and the markup samples
-        render with no React and no consumer Tailwind setup.
-      </p>
+    <>
+      <ChromeStyles />
+      <div className="cssapi-doc">
+        <h1 className="st-text st-text--heading st-text--2xl st-text--default cssapi-doc__title-spacing">
+          CSS API — every lv1 component
+        </h1>
+        <p className="st-text st-text--body st-text--md st-text--muted cssapi-doc__intro-spacing--lg">
+          The classes below are emitted by `dist/schatten.css`. Import it once and the markup
+          samples render with no React and no consumer Tailwind setup.
+        </p>
 
-      <Section
-        id="separator"
-        title="Separator — .st-separator"
-        intro="Visual divider. Orientation is an author configuration and goes through a modifier class (--horizontal / --vertical), matching the css-api.md author-config → modifier principle."
-        attributes={[
-          {
-            name: 'role',
-            meaning: '"separator" for semantic dividers, "none" / omit for decorative',
-            required: 'recommended',
-          },
-          {
-            name: 'aria-orientation',
-            meaning:
-              'For non-decorative vertical separators (assistive tech announces orientation)',
-            required: 'role="separator" + vertical only',
-          },
-          {
-            name: 'data-orientation',
-            meaning:
-              'Informational only — Radix emits this on the React side; vanilla HTML may include it for DOM parity but it does not drive styling',
-            required: 'optional',
-          },
-        ]}
-      >
-        <div className="w-72 space-y-3">
-          <span className="st-text st-text--body st-text--sm st-text--muted">Above</span>
-          <div className="st-separator st-separator--horizontal" role="none" />
-          <span className="st-text st-text--body st-text--sm st-text--muted">Below</span>
-        </div>
-        <CodeBlock>{`<!-- Decorative -->
+        <Section
+          id="separator"
+          title="Separator — .st-separator"
+          intro="Visual divider. Orientation is an author configuration and goes through a modifier class (--horizontal / --vertical), matching the css-api.md author-config → modifier principle."
+          attributes={[
+            {
+              name: 'role',
+              meaning: '"separator" for semantic dividers, "none" / omit for decorative',
+              required: 'recommended',
+            },
+            {
+              name: 'aria-orientation',
+              meaning:
+                'For non-decorative vertical separators (assistive tech announces orientation)',
+              required: 'role="separator" + vertical only',
+            },
+            {
+              name: 'data-orientation',
+              meaning:
+                'Informational only — Radix emits this on the React side; vanilla HTML may include it for DOM parity but it does not drive styling',
+              required: 'optional',
+            },
+          ]}
+        >
+          <div className="cssapi-doc__col-wide cssapi-doc__stack">
+            <span className="st-text st-text--body st-text--sm st-text--muted">Above</span>
+            <div className="st-separator st-separator--horizontal" role="none" />
+            <span className="st-text st-text--body st-text--sm st-text--muted">Below</span>
+          </div>
+          <CodeBlock>{`<!-- Decorative -->
 <div class="st-separator st-separator--horizontal" role="none"></div>
 
 <!-- Semantic vertical separator (announced to screen readers) -->
@@ -148,31 +244,35 @@ export const Reference: Story = {
 
 <!-- Modifier vocabulary -->
 <!-- orientation: --horizontal | --vertical -->`}</CodeBlock>
-      </Section>
+        </Section>
 
-      <Section
-        id="text"
-        title="Text — .st-text"
-        intro="Typography primitive. Five orthogonal axes (variant × size × color × align × truncate), all emitted as side-by-side modifiers — never collapsed."
-      >
-        <div className="space-y-2">
-          <h2 className="st-text st-text--heading st-text--lg st-text--default">Heading lg</h2>
-          <p className="st-text st-text--body st-text--md st-text--default">
-            Body md, default color.
-          </p>
-          <p className="st-text st-text--body st-text--sm st-text--muted">Body sm, muted color.</p>
-          <p className="st-text st-text--body st-text--md st-text--error">Body md, error color.</p>
-          <p className="st-text st-text--body st-text--md st-text--vermillion">
-            Body md, vermillion (朱).
-          </p>
-          <p className="st-text st-text--body st-text--md st-text--default st-text--align-right">
-            Right-aligned body.
-          </p>
-          <p className="st-text st-text--body st-text--md st-text--default st-text--truncate w-64">
-            A very long line that should be truncated on overflow.
-          </p>
-        </div>
-        <CodeBlock>{`<p class="st-text st-text--body st-text--md st-text--default">Body text.</p>
+        <Section
+          id="text"
+          title="Text — .st-text"
+          intro="Typography primitive. Five orthogonal axes (variant × size × color × align × truncate), all emitted as side-by-side modifiers — never collapsed."
+        >
+          <div className="cssapi-doc__stack cssapi-doc__stack--tight">
+            <h2 className="st-text st-text--heading st-text--lg st-text--default">Heading lg</h2>
+            <p className="st-text st-text--body st-text--md st-text--default">
+              Body md, default color.
+            </p>
+            <p className="st-text st-text--body st-text--sm st-text--muted">
+              Body sm, muted color.
+            </p>
+            <p className="st-text st-text--body st-text--md st-text--error">
+              Body md, error color.
+            </p>
+            <p className="st-text st-text--body st-text--md st-text--vermillion">
+              Body md, vermillion (朱).
+            </p>
+            <p className="st-text st-text--body st-text--md st-text--default st-text--align-right">
+              Right-aligned body.
+            </p>
+            <p className="st-text st-text--body st-text--md st-text--default st-text--truncate w-64">
+              A very long line that should be truncated on overflow.
+            </p>
+          </div>
+          <CodeBlock>{`<p class="st-text st-text--body st-text--md st-text--default">Body text.</p>
 <h2 class="st-text st-text--heading st-text--lg st-text--default">Heading.</h2>
 <label class="st-text st-text--label st-text--sm st-text--default" for="x">Label</label>
 
@@ -186,70 +286,70 @@ export const Reference: Story = {
               | --vermillion | --indigo -->
 <!-- align   : --align-left | --align-center | --align-right -->
 <!-- truncate: --truncate (presence-only) -->`}</CodeBlock>
-      </Section>
+        </Section>
 
-      <Section
-        id="icon"
-        title="Icon — .st-icon"
-        intro="SVG icon primitive. The root class itself has no CSS body — every visual property lives on a modifier. Pair with any inline SVG (e.g. a Lucide path)."
-        attributes={[
-          {
-            name: 'aria-hidden="true"',
-            meaning: 'Decorative icons',
-            required: 'always (decorative)',
-          },
-          {
-            name: 'role="img" + aria-label',
-            meaning: 'Meaningful icons that carry information',
-            required: 'when-applicable',
-          },
-        ]}
-      >
-        <div className="flex items-center gap-4">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="st-icon st-icon--sm st-icon--default"
-            aria-hidden="true"
-          >
-            <circle cx="11" cy="11" r="8" />
-            <path d="m21 21-4.3-4.3" />
-          </svg>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="st-icon st-icon--md st-icon--error"
-            aria-hidden="true"
-          >
-            <circle cx="11" cy="11" r="8" />
-            <path d="m21 21-4.3-4.3" />
-          </svg>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="st-icon st-icon--lg st-icon--vermillion"
-            aria-hidden="true"
-          >
-            <circle cx="11" cy="11" r="8" />
-            <path d="m21 21-4.3-4.3" />
-          </svg>
-        </div>
-        <CodeBlock>{`<svg class="st-icon st-icon--md st-icon--inherit" aria-hidden="true"
+        <Section
+          id="icon"
+          title="Icon — .st-icon"
+          intro="SVG icon primitive. The root class itself has no CSS body — every visual property lives on a modifier. Pair with any inline SVG (e.g. a Lucide path)."
+          attributes={[
+            {
+              name: 'aria-hidden="true"',
+              meaning: 'Decorative icons',
+              required: 'always (decorative)',
+            },
+            {
+              name: 'role="img" + aria-label',
+              meaning: 'Meaningful icons that carry information',
+              required: 'when-applicable',
+            },
+          ]}
+        >
+          <div className="cssapi-doc__row">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="st-icon st-icon--sm st-icon--default"
+              aria-hidden="true"
+            >
+              <circle cx="11" cy="11" r="8" />
+              <path d="m21 21-4.3-4.3" />
+            </svg>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="st-icon st-icon--md st-icon--error"
+              aria-hidden="true"
+            >
+              <circle cx="11" cy="11" r="8" />
+              <path d="m21 21-4.3-4.3" />
+            </svg>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="st-icon st-icon--lg st-icon--vermillion"
+              aria-hidden="true"
+            >
+              <circle cx="11" cy="11" r="8" />
+              <path d="m21 21-4.3-4.3" />
+            </svg>
+          </div>
+          <CodeBlock>{`<svg class="st-icon st-icon--md st-icon--inherit" aria-hidden="true"
      xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
      fill="none" stroke="currentColor" stroke-width="2"
      stroke-linecap="round" stroke-linejoin="round">
@@ -267,95 +367,95 @@ export const Reference: Story = {
      "st-icon". The class still works in JSX (.st-icon st-icon--md
      st-icon--inherit) and in vanilla HTML — every visual contribution
      comes from a modifier. -->`}</CodeBlock>
-      </Section>
+        </Section>
 
-      <Section
-        id="spinner"
-        title="Spinner — .st-spinner"
-        intro="Loading indicator. Two modifier axes (variant × size) plus six sub-element classes spanning the two animation types (default: rotor / track / arc; ripple: dot / ripple-1 / ripple-2). SVG sizing is handled automatically via the .st-spinner > svg child selector — no Tailwind utility needed. Ripple timing is exposed via two consumer-overridable CSS variables (--schatten-spinner-duration / --schatten-spinner-ripple-delay); default-type rotation is hardcoded to 1s linear infinite."
-        attributes={[
-          {
-            name: 'role="status"',
-            meaning: 'Announces the loading state to assistive tech',
-            required: 'always',
-          },
-          {
-            name: 'aria-hidden="true" (on inner SVG)',
-            meaning: 'The SVG is decorative; the visually-hidden label carries the meaning',
-            required: 'always',
-          },
-          {
-            name: '<span class="sr-only">…</span>',
-            meaning: 'Accessible label rendered visually-hidden',
-            required: 'always',
-          },
-        ]}
-      >
-        <div className="flex items-center gap-6">
-          <div className="st-spinner st-spinner--default st-spinner--sm" role="status">
-            <svg className="st-spinner__rotor" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <circle
-                className="st-spinner__track"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                strokeWidth="3"
-              />
-              <path
-                className="st-spinner__arc"
-                d="M22 12a10 10 0 0 0-10-10"
-                stroke="currentColor"
-                strokeWidth="3"
-                strokeLinecap="round"
-              />
-            </svg>
-            <span className="sr-only">Loading</span>
+        <Section
+          id="spinner"
+          title="Spinner — .st-spinner"
+          intro="Loading indicator. Two modifier axes (variant × size) plus six sub-element classes spanning the two animation types (default: rotor / track / arc; ripple: dot / ripple-1 / ripple-2). SVG sizing is handled automatically via the .st-spinner > svg child selector — no Tailwind utility needed. Ripple timing is exposed via two consumer-overridable CSS variables (--schatten-spinner-duration / --schatten-spinner-ripple-delay); default-type rotation is hardcoded to 1s linear infinite."
+          attributes={[
+            {
+              name: 'role="status"',
+              meaning: 'Announces the loading state to assistive tech',
+              required: 'always',
+            },
+            {
+              name: 'aria-hidden="true" (on inner SVG)',
+              meaning: 'The SVG is decorative; the visually-hidden label carries the meaning',
+              required: 'always',
+            },
+            {
+              name: '<span class="sr-only">…</span>',
+              meaning: 'Accessible label rendered visually-hidden',
+              required: 'always',
+            },
+          ]}
+        >
+          <div className="cssapi-doc__row cssapi-doc__row--wide">
+            <div className="st-spinner st-spinner--default st-spinner--sm" role="status">
+              <svg className="st-spinner__rotor" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <circle
+                  className="st-spinner__track"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="3"
+                />
+                <path
+                  className="st-spinner__arc"
+                  d="M22 12a10 10 0 0 0-10-10"
+                  stroke="currentColor"
+                  strokeWidth="3"
+                  strokeLinecap="round"
+                />
+              </svg>
+              <span className="cssapi-doc__sr-only">Loading</span>
+            </div>
+            <div className="st-spinner st-spinner--default st-spinner--md" role="status">
+              <svg className="st-spinner__rotor" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <circle
+                  className="st-spinner__track"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="3"
+                />
+                <path
+                  className="st-spinner__arc"
+                  d="M22 12a10 10 0 0 0-10-10"
+                  stroke="currentColor"
+                  strokeWidth="3"
+                  strokeLinecap="round"
+                />
+              </svg>
+              <span className="cssapi-doc__sr-only">Loading</span>
+            </div>
+            <div className="st-spinner st-spinner--default st-spinner--lg" role="status">
+              <svg viewBox="0 0 72 72" fill="none" aria-hidden="true">
+                <circle className="st-spinner__dot" cx="36" cy="36" r="2.6" />
+                <circle
+                  className="st-spinner__ripple-1"
+                  cx="36"
+                  cy="36"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="1.4"
+                />
+                <circle
+                  className="st-spinner__ripple-2"
+                  cx="36"
+                  cy="36"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="1.2"
+                />
+              </svg>
+              <span className="cssapi-doc__sr-only">Loading</span>
+            </div>
           </div>
-          <div className="st-spinner st-spinner--default st-spinner--md" role="status">
-            <svg className="st-spinner__rotor" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <circle
-                className="st-spinner__track"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                strokeWidth="3"
-              />
-              <path
-                className="st-spinner__arc"
-                d="M22 12a10 10 0 0 0-10-10"
-                stroke="currentColor"
-                strokeWidth="3"
-                strokeLinecap="round"
-              />
-            </svg>
-            <span className="sr-only">Loading</span>
-          </div>
-          <div className="st-spinner st-spinner--default st-spinner--lg" role="status">
-            <svg viewBox="0 0 72 72" fill="none" aria-hidden="true">
-              <circle className="st-spinner__dot" cx="36" cy="36" r="2.6" />
-              <circle
-                className="st-spinner__ripple-1"
-                cx="36"
-                cy="36"
-                r="10"
-                stroke="currentColor"
-                strokeWidth="1.4"
-              />
-              <circle
-                className="st-spinner__ripple-2"
-                cx="36"
-                cy="36"
-                r="10"
-                stroke="currentColor"
-                strokeWidth="1.2"
-              />
-            </svg>
-            <span className="sr-only">Loading</span>
-          </div>
-        </div>
-        <CodeBlock>{`<!-- Default (rotating circle) — SVG carries the rotor + opacity stack -->
+          <CodeBlock>{`<!-- Default (rotating circle) — SVG carries the rotor + opacity stack -->
 <div class="st-spinner st-spinner--default st-spinner--md" role="status">
   <svg class="st-spinner__rotor" viewBox="0 0 24 24" fill="none" aria-hidden="true">
     <circle class="st-spinner__track" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" />
@@ -395,47 +495,59 @@ export const Reference: Story = {
 <!-- Default-type rotation is hardcoded 1s linear infinite. SVG sizing is
      handled by the .st-spinner > svg child selector — no Tailwind utility
      is required on the inner SVG. -->`}</CodeBlock>
-      </Section>
+        </Section>
 
-      <Section
-        id="badge"
-        title="Badge — .st-badge"
-        intro="Status descriptor. Pattern B (tone × shape): five variants × three appearances, all written as double-class selectors so every combination shares the same specificity. Includes --icon-only modifier for square icon-only chips."
-        attributes={[
-          {
-            name: 'aria-label',
-            meaning: 'Required for icon-only badges (no visible text)',
-            required: 'when --icon-only',
-          },
-        ]}
-      >
-        <div className="space-y-3">
-          <div className="flex flex-wrap items-center gap-3">
-            <span className="w-20 text-xs font-mono text-foreground-muted">subtle</span>
-            <div className="st-badge st-badge--neutral st-badge--subtle st-badge--md">neutral</div>
-            <div className="st-badge st-badge--success st-badge--subtle st-badge--md">success</div>
-            <div className="st-badge st-badge--error st-badge--subtle st-badge--md">error</div>
-            <div className="st-badge st-badge--warning st-badge--subtle st-badge--md">warning</div>
-            <div className="st-badge st-badge--info st-badge--subtle st-badge--md">info</div>
+        <Section
+          id="badge"
+          title="Badge — .st-badge"
+          intro="Status descriptor. Pattern B (tone × shape): five variants × three appearances, all written as double-class selectors so every combination shares the same specificity. Includes --icon-only modifier for square icon-only chips."
+          attributes={[
+            {
+              name: 'aria-label',
+              meaning: 'Required for icon-only badges (no visible text)',
+              required: 'when --icon-only',
+            },
+          ]}
+        >
+          <div className="cssapi-doc__stack">
+            <div className="cssapi-doc__row cssapi-doc__row--tight">
+              <span className="cssapi-doc__col-narrow cssapi-doc__label">subtle</span>
+              <div className="st-badge st-badge--neutral st-badge--subtle st-badge--md">
+                neutral
+              </div>
+              <div className="st-badge st-badge--success st-badge--subtle st-badge--md">
+                success
+              </div>
+              <div className="st-badge st-badge--error st-badge--subtle st-badge--md">error</div>
+              <div className="st-badge st-badge--warning st-badge--subtle st-badge--md">
+                warning
+              </div>
+              <div className="st-badge st-badge--info st-badge--subtle st-badge--md">info</div>
+            </div>
+            <div className="cssapi-doc__row cssapi-doc__row--tight">
+              <span className="cssapi-doc__col-narrow cssapi-doc__label">solid</span>
+              <div className="st-badge st-badge--neutral st-badge--solid st-badge--md">neutral</div>
+              <div className="st-badge st-badge--success st-badge--solid st-badge--md">success</div>
+              <div className="st-badge st-badge--error st-badge--solid st-badge--md">error</div>
+              <div className="st-badge st-badge--warning st-badge--solid st-badge--md">warning</div>
+              <div className="st-badge st-badge--info st-badge--solid st-badge--md">info</div>
+            </div>
+            <div className="cssapi-doc__row cssapi-doc__row--tight">
+              <span className="cssapi-doc__col-narrow cssapi-doc__label">outline</span>
+              <div className="st-badge st-badge--neutral st-badge--outline st-badge--md">
+                neutral
+              </div>
+              <div className="st-badge st-badge--success st-badge--outline st-badge--md">
+                success
+              </div>
+              <div className="st-badge st-badge--error st-badge--outline st-badge--md">error</div>
+              <div className="st-badge st-badge--warning st-badge--outline st-badge--md">
+                warning
+              </div>
+              <div className="st-badge st-badge--info st-badge--outline st-badge--md">info</div>
+            </div>
           </div>
-          <div className="flex flex-wrap items-center gap-3">
-            <span className="w-20 text-xs font-mono text-foreground-muted">solid</span>
-            <div className="st-badge st-badge--neutral st-badge--solid st-badge--md">neutral</div>
-            <div className="st-badge st-badge--success st-badge--solid st-badge--md">success</div>
-            <div className="st-badge st-badge--error st-badge--solid st-badge--md">error</div>
-            <div className="st-badge st-badge--warning st-badge--solid st-badge--md">warning</div>
-            <div className="st-badge st-badge--info st-badge--solid st-badge--md">info</div>
-          </div>
-          <div className="flex flex-wrap items-center gap-3">
-            <span className="w-20 text-xs font-mono text-foreground-muted">outline</span>
-            <div className="st-badge st-badge--neutral st-badge--outline st-badge--md">neutral</div>
-            <div className="st-badge st-badge--success st-badge--outline st-badge--md">success</div>
-            <div className="st-badge st-badge--error st-badge--outline st-badge--md">error</div>
-            <div className="st-badge st-badge--warning st-badge--outline st-badge--md">warning</div>
-            <div className="st-badge st-badge--info st-badge--outline st-badge--md">info</div>
-          </div>
-        </div>
-        <CodeBlock>{`<!-- variant × appearance combination resolved by double-class selectors -->
+          <CodeBlock>{`<!-- variant × appearance combination resolved by double-class selectors -->
 <span class="st-badge st-badge--success st-badge--subtle st-badge--md">Saved</span>
 <span class="st-badge st-badge--error st-badge--solid st-badge--md">Failed</span>
 <span class="st-badge st-badge--info st-badge--outline st-badge--md">Beta</span>
@@ -452,73 +564,73 @@ export const Reference: Story = {
                   (all three are first-class; emit alongside variant) -->
 <!-- size       : --sm | --md | --lg -->
 <!-- icon-only  : --icon-only (presence-only; square aspect ratio) -->`}</CodeBlock>
-      </Section>
+        </Section>
 
-      <Section
-        id="callout"
-        title="Callout — .st-callout"
-        intro="Inline status block. Pattern B (tone × shape): five variants × two appearances. Sub-elements (__icon / __content / __title / __body / __action) sit directly under the block — layout (display: flex) is on .st-callout itself, with align-items auto-switching between center (single-content) and start (multi-line, via :has()). No default ARIA role — pass role=&quot;status&quot; (polite) or role=&quot;alert&quot; (assertive) for dynamic callouts."
-        attributes={[
-          {
-            name: 'role',
-            meaning:
-              '"status" (polite) or "alert" (assertive) for dynamic callouts; omit for static',
-            required: 'when-dynamic',
-          },
-          {
-            name: 'aria-hidden="true" (on icon SVG)',
-            meaning: 'The icon is decorative; the title text carries the meaning',
-            required: 'always (icon)',
-          },
-        ]}
-      >
-        <div className="space-y-3">
-          <div className="st-callout st-callout--info st-callout--subtle">
-            <svg
-              className="st-callout__icon"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden="true"
-            >
-              <circle cx="12" cy="12" r="10" />
-              <path d="M12 16v-4" />
-              <path d="M12 8h.01" />
-            </svg>
-            <div className="st-callout__content">
-              <div className="st-callout__title">Heads up</div>
-              <div className="st-callout__body">
-                Subtle appearance — tinted background, tone color text.
+        <Section
+          id="callout"
+          title="Callout — .st-callout"
+          intro="Inline status block. Pattern B (tone × shape): five variants × two appearances. Sub-elements (__icon / __content / __title / __body / __action) sit directly under the block — layout (display: flex) is on .st-callout itself, with align-items auto-switching between center (single-content) and start (multi-line, via :has()). No default ARIA role — pass role=&quot;status&quot; (polite) or role=&quot;alert&quot; (assertive) for dynamic callouts."
+          attributes={[
+            {
+              name: 'role',
+              meaning:
+                '"status" (polite) or "alert" (assertive) for dynamic callouts; omit for static',
+              required: 'when-dynamic',
+            },
+            {
+              name: 'aria-hidden="true" (on icon SVG)',
+              meaning: 'The icon is decorative; the title text carries the meaning',
+              required: 'always (icon)',
+            },
+          ]}
+        >
+          <div className="cssapi-doc__stack">
+            <div className="st-callout st-callout--info st-callout--subtle">
+              <svg
+                className="st-callout__icon"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <circle cx="12" cy="12" r="10" />
+                <path d="M12 16v-4" />
+                <path d="M12 8h.01" />
+              </svg>
+              <div className="st-callout__content">
+                <div className="st-callout__title">Heads up</div>
+                <div className="st-callout__body">
+                  Subtle appearance — tinted background, tone color text.
+                </div>
+              </div>
+            </div>
+            <div className="st-callout st-callout--error st-callout--solid">
+              <svg
+                className="st-callout__icon"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <circle cx="12" cy="12" r="10" />
+                <line x1="12" x2="12" y1="8" y2="12" />
+                <line x1="12" x2="12.01" y1="16" y2="16" />
+              </svg>
+              <div className="st-callout__content">
+                <div className="st-callout__title">Failed</div>
+                <div className="st-callout__body">
+                  Solid appearance — saturated fill, inverted foreground.
+                </div>
               </div>
             </div>
           </div>
-          <div className="st-callout st-callout--error st-callout--solid">
-            <svg
-              className="st-callout__icon"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden="true"
-            >
-              <circle cx="12" cy="12" r="10" />
-              <line x1="12" x2="12" y1="8" y2="12" />
-              <line x1="12" x2="12.01" y1="16" y2="16" />
-            </svg>
-            <div className="st-callout__content">
-              <div className="st-callout__title">Failed</div>
-              <div className="st-callout__body">
-                Solid appearance — saturated fill, inverted foreground.
-              </div>
-            </div>
-          </div>
-        </div>
-        <CodeBlock>{`<!-- Layout is on .st-callout itself — sub-elements sit directly under it -->
+          <CodeBlock>{`<!-- Layout is on .st-callout itself — sub-elements sit directly under it -->
 <div class="st-callout st-callout--info st-callout--subtle" role="status">
   <svg class="st-callout__icon" aria-hidden="true">…</svg>
   <div class="st-callout__content">
@@ -553,67 +665,68 @@ export const Reference: Story = {
 <!-- Layout alignment is automatic:
        - title-only or body-only → align-items: center
        - title AND body present  → align-items: flex-start  (via :has()) -->`}</CodeBlock>
-      </Section>
+        </Section>
 
-      <Section
-        id="button"
-        title="Button — .st-btn"
-        intro="Action element. Pattern A (single-axis role): six variants × three sizes plus the --icon-only modifier. Loading state is signalled by aria-busy='true' alongside disabled; CSS routes the cursor to wait and fades the content / spinner overlay sub-elements. The link variant uses a flat DOM (no overlay / content wrapper) and inherits font-size by default so a <a class='st-btn st-btn--link'> embedded in a paragraph follows the surrounding text."
-        attributes={[
-          {
-            name: 'type="button"',
-            meaning: 'Avoid implicit form submission on <button>',
-            required: 'when inside <form>',
-          },
-          {
-            name: 'aria-label',
-            meaning: 'Required for icon-only buttons (no visible text)',
-            required: 'when --icon-only',
-          },
-          {
-            name: 'aria-busy="true" + disabled',
-            meaning: 'Loading state — CSS reveals the spinner overlay and switches cursor to wait',
-            required: 'while loading',
-          },
-          {
-            name: 'aria-hidden on spinner overlay',
-            meaning: 'Set on .st-btn__spinner-overlay when NOT loading (hide from a11y tree)',
-            required: 'always (toggle inverse of loading)',
-          },
-        ]}
-      >
-        <div className="space-y-3">
-          <div className="flex flex-wrap items-center gap-3">
-            <button type="button" className="st-btn st-btn--primary st-btn--md">
-              <span className="st-btn__spinner-overlay" aria-hidden="true" />
-              <span className="st-btn__content">Primary</span>
-            </button>
-            <button type="button" className="st-btn st-btn--secondary st-btn--md">
-              <span className="st-btn__spinner-overlay" aria-hidden="true" />
-              <span className="st-btn__content">Secondary</span>
-            </button>
-            <button type="button" className="st-btn st-btn--tertiary st-btn--md">
-              <span className="st-btn__spinner-overlay" aria-hidden="true" />
-              <span className="st-btn__content">Tertiary</span>
-            </button>
-            <button type="button" className="st-btn st-btn--destructive st-btn--md">
-              <span className="st-btn__spinner-overlay" aria-hidden="true" />
-              <span className="st-btn__content">Destructive</span>
-            </button>
+        <Section
+          id="button"
+          title="Button — .st-btn"
+          intro="Action element. Pattern A (single-axis role): six variants × three sizes plus the --icon-only modifier. Loading state is signalled by aria-busy='true' alongside disabled; CSS routes the cursor to wait and fades the content / spinner overlay sub-elements. The link variant uses a flat DOM (no overlay / content wrapper) and inherits font-size by default so a <a class='st-btn st-btn--link'> embedded in a paragraph follows the surrounding text."
+          attributes={[
+            {
+              name: 'type="button"',
+              meaning: 'Avoid implicit form submission on <button>',
+              required: 'when inside <form>',
+            },
+            {
+              name: 'aria-label',
+              meaning: 'Required for icon-only buttons (no visible text)',
+              required: 'when --icon-only',
+            },
+            {
+              name: 'aria-busy="true" + disabled',
+              meaning:
+                'Loading state — CSS reveals the spinner overlay and switches cursor to wait',
+              required: 'while loading',
+            },
+            {
+              name: 'aria-hidden on spinner overlay',
+              meaning: 'Set on .st-btn__spinner-overlay when NOT loading (hide from a11y tree)',
+              required: 'always (toggle inverse of loading)',
+            },
+          ]}
+        >
+          <div className="cssapi-doc__stack">
+            <div className="cssapi-doc__row cssapi-doc__row--tight">
+              <button type="button" className="st-btn st-btn--primary st-btn--md">
+                <span className="st-btn__spinner-overlay" aria-hidden="true" />
+                <span className="st-btn__content">Primary</span>
+              </button>
+              <button type="button" className="st-btn st-btn--secondary st-btn--md">
+                <span className="st-btn__spinner-overlay" aria-hidden="true" />
+                <span className="st-btn__content">Secondary</span>
+              </button>
+              <button type="button" className="st-btn st-btn--tertiary st-btn--md">
+                <span className="st-btn__spinner-overlay" aria-hidden="true" />
+                <span className="st-btn__content">Tertiary</span>
+              </button>
+              <button type="button" className="st-btn st-btn--destructive st-btn--md">
+                <span className="st-btn__spinner-overlay" aria-hidden="true" />
+                <span className="st-btn__content">Destructive</span>
+              </button>
+            </div>
+            <div className="cssapi-doc__row cssapi-doc__row--tight">
+              <button type="button" className="st-btn st-btn--link st-btn--sm">
+                Small link
+              </button>
+              <button type="button" className="st-btn st-btn--link st-btn--md">
+                Medium link
+              </button>
+              <button type="button" className="st-btn st-btn--link st-btn--lg">
+                Large link
+              </button>
+            </div>
           </div>
-          <div className="flex flex-wrap items-center gap-3">
-            <button type="button" className="st-btn st-btn--link st-btn--sm">
-              Small link
-            </button>
-            <button type="button" className="st-btn st-btn--link st-btn--md">
-              Medium link
-            </button>
-            <button type="button" className="st-btn st-btn--link st-btn--lg">
-              Large link
-            </button>
-          </div>
-        </div>
-        <CodeBlock>{`<!-- Non-link variants — keep the __spinner-overlay + __content structure -->
+          <CodeBlock>{`<!-- Non-link variants — keep the __spinner-overlay + __content structure -->
 <button type="button" class="st-btn st-btn--primary st-btn--md">
   <span class="st-btn__spinner-overlay" aria-hidden="true">
     <!-- Spinner SVG, only visible when host has aria-busy="true" -->
@@ -652,113 +765,114 @@ export const Reference: Story = {
 <!-- State attributes -->
 <!-- :disabled                       — standard disabled treatment -->
 <!-- [aria-busy="true"]:disabled     — restores variant colour + cursor: wait -->`}</CodeBlock>
-      </Section>
+        </Section>
 
-      <Section
-        id="checkbox"
-        title="Checkbox — .st-checkbox + .st-checkbox-wrapper"
-        intro="Two blocks: the wrapper carries the inline-flex layout for [checkbox] + <label>; the inner block is the Radix Root (the actual button). The label's font-size is derived from the inner checkbox's size modifier via :has(), so vanilla HTML consumers only set the size class on the checkbox itself."
-        attributes={[
-          {
-            name: 'role="checkbox"',
-            meaning: 'Schatten renders Radix Root which already provides the role',
-            required: 'always (Radix-provided)',
-          },
-          {
-            name: 'aria-checked',
-            meaning: '"true" / "false" / "mixed" (mixed for indeterminate)',
-            required: 'always',
-          },
-          {
-            name: 'data-state',
-            meaning: '"checked" / "unchecked" / "indeterminate" — drives the indicator visibility',
-            required: 'always',
-          },
-          {
-            name: 'aria-invalid="true"',
-            meaning: 'Error state — CSS shifts border + bg-subtle + focus-ring',
-            required: 'when in error',
-          },
-          {
-            name: '<label for={id}>',
-            meaning: 'Associates with the checkbox via id (the wrapper sees it)',
-            required: 'when label present',
-          },
-        ]}
-      >
-        <div className="space-y-3">
-          <div className="flex items-center gap-6">
-            <div className="st-checkbox-wrapper">
-              {/* biome-ignore lint/a11y/useSemanticElements: Mirrors Radix's
-               * Checkbox.Root output — vanilla HTML consumers replicate the
-               * <button role="checkbox"> shape, not <input type="checkbox">. */}
-              <button
-                type="button"
-                id="doc-cb-1"
-                role="checkbox"
-                aria-checked={false}
-                data-state="unchecked"
-                className="st-checkbox st-checkbox--md"
-              >
-                <span className="st-checkbox__indicator">
-                  <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                    <path
-                      d="M2.5 8.5L3.5 7.5L6.5 10.5L12.5 3.5L13.5 4.5L6.5 12.5Z"
-                      fill="currentColor"
-                    />
-                  </svg>
-                </span>
-              </button>
-              <label htmlFor="doc-cb-1" className="st-checkbox-wrapper__label">
-                Unchecked
-              </label>
-            </div>
-            <div className="st-checkbox-wrapper">
-              {/* biome-ignore lint/a11y/useSemanticElements: see preceding comment */}
-              <button
-                type="button"
-                id="doc-cb-2"
-                role="checkbox"
-                aria-checked={true}
-                data-state="checked"
-                className="st-checkbox st-checkbox--md"
-              >
-                <span className="st-checkbox__indicator">
-                  <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                    <path
-                      d="M2.5 8.5L3.5 7.5L6.5 10.5L12.5 3.5L13.5 4.5L6.5 12.5Z"
-                      fill="currentColor"
-                    />
-                  </svg>
-                </span>
-              </button>
-              <label htmlFor="doc-cb-2" className="st-checkbox-wrapper__label">
-                Checked
-              </label>
-            </div>
-            <div className="st-checkbox-wrapper">
-              {/* biome-ignore lint/a11y/useSemanticElements: see preceding comment */}
-              <button
-                type="button"
-                id="doc-cb-3"
-                role="checkbox"
-                aria-checked="mixed"
-                data-state="indeterminate"
-                className="st-checkbox st-checkbox--md"
-              >
-                <span className="st-checkbox__indicator">
-                  <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                    <path d="M3 8H13" stroke="currentColor" strokeWidth="2.5" />
-                  </svg>
-                </span>
-              </button>
-              <label htmlFor="doc-cb-3" className="st-checkbox-wrapper__label">
-                Indeterminate
-              </label>
+        <Section
+          id="checkbox"
+          title="Checkbox — .st-checkbox + .st-checkbox-wrapper"
+          intro="Two blocks: the wrapper carries the inline-flex layout for [checkbox] + <label>; the inner block is the Radix Root (the actual button). The label's font-size is derived from the inner checkbox's size modifier via :has(), so vanilla HTML consumers only set the size class on the checkbox itself."
+          attributes={[
+            {
+              name: 'role="checkbox"',
+              meaning: 'Schatten renders Radix Root which already provides the role',
+              required: 'always (Radix-provided)',
+            },
+            {
+              name: 'aria-checked',
+              meaning: '"true" / "false" / "mixed" (mixed for indeterminate)',
+              required: 'always',
+            },
+            {
+              name: 'data-state',
+              meaning:
+                '"checked" / "unchecked" / "indeterminate" — drives the indicator visibility',
+              required: 'always',
+            },
+            {
+              name: 'aria-invalid="true"',
+              meaning: 'Error state — CSS shifts border + bg-subtle + focus-ring',
+              required: 'when in error',
+            },
+            {
+              name: '<label for={id}>',
+              meaning: 'Associates with the checkbox via id (the wrapper sees it)',
+              required: 'when label present',
+            },
+          ]}
+        >
+          <div className="cssapi-doc__stack">
+            <div className="cssapi-doc__row cssapi-doc__row--wide">
+              <div className="st-checkbox-wrapper">
+                {/* biome-ignore lint/a11y/useSemanticElements: Mirrors Radix's
+                 * Checkbox.Root output — vanilla HTML consumers replicate the
+                 * <button role="checkbox"> shape, not <input type="checkbox">. */}
+                <button
+                  type="button"
+                  id="doc-cb-1"
+                  role="checkbox"
+                  aria-checked={false}
+                  data-state="unchecked"
+                  className="st-checkbox st-checkbox--md"
+                >
+                  <span className="st-checkbox__indicator">
+                    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                      <path
+                        d="M2.5 8.5L3.5 7.5L6.5 10.5L12.5 3.5L13.5 4.5L6.5 12.5Z"
+                        fill="currentColor"
+                      />
+                    </svg>
+                  </span>
+                </button>
+                <label htmlFor="doc-cb-1" className="st-checkbox-wrapper__label">
+                  Unchecked
+                </label>
+              </div>
+              <div className="st-checkbox-wrapper">
+                {/* biome-ignore lint/a11y/useSemanticElements: see preceding comment */}
+                <button
+                  type="button"
+                  id="doc-cb-2"
+                  role="checkbox"
+                  aria-checked={true}
+                  data-state="checked"
+                  className="st-checkbox st-checkbox--md"
+                >
+                  <span className="st-checkbox__indicator">
+                    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                      <path
+                        d="M2.5 8.5L3.5 7.5L6.5 10.5L12.5 3.5L13.5 4.5L6.5 12.5Z"
+                        fill="currentColor"
+                      />
+                    </svg>
+                  </span>
+                </button>
+                <label htmlFor="doc-cb-2" className="st-checkbox-wrapper__label">
+                  Checked
+                </label>
+              </div>
+              <div className="st-checkbox-wrapper">
+                {/* biome-ignore lint/a11y/useSemanticElements: see preceding comment */}
+                <button
+                  type="button"
+                  id="doc-cb-3"
+                  role="checkbox"
+                  aria-checked="mixed"
+                  data-state="indeterminate"
+                  className="st-checkbox st-checkbox--md"
+                >
+                  <span className="st-checkbox__indicator">
+                    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                      <path d="M3 8H13" stroke="currentColor" strokeWidth="2.5" />
+                    </svg>
+                  </span>
+                </button>
+                <label htmlFor="doc-cb-3" className="st-checkbox-wrapper__label">
+                  Indeterminate
+                </label>
+              </div>
             </div>
           </div>
-        </div>
-        <CodeBlock>{`<div class="st-checkbox-wrapper">
+          <CodeBlock>{`<div class="st-checkbox-wrapper">
   <button type="button" id="terms"
           role="checkbox" aria-checked="false"
           data-state="unchecked"
@@ -785,86 +899,86 @@ export const Reference: Story = {
 <!-- [data-state]      — "checked" / "unchecked" / "indeterminate" -->
 <!-- [aria-invalid]    — error styling -->
 <!-- :disabled         — disabled tokens (wrapper :has() also picks this up) -->`}</CodeBlock>
-      </Section>
+        </Section>
 
-      <Section
-        id="switch"
-        title="Switch — .st-switch + .st-switch-wrapper"
-        intro="On/off toggle. Same wrapper + block shape as Checkbox. The thumb's position and the check-icon's opacity are both driven by .st-switch[data-state='checked'] descendant selectors — no Tailwind 'group' utility on the JSX."
-        attributes={[
-          {
-            name: 'role="switch"',
-            meaning: 'Radix Root provides the role',
-            required: 'always (Radix-provided)',
-          },
-          {
-            name: 'aria-checked',
-            meaning: '"true" / "false" — switches are binary',
-            required: 'always',
-          },
-          {
-            name: 'data-state',
-            meaning: '"checked" / "unchecked" — drives thumb position + check icon visibility',
-            required: 'always',
-          },
-          {
-            name: 'aria-invalid="true"',
-            meaning: 'Error state — CSS shifts border + bg + checked-state bg to error tokens',
-            required: 'when in error',
-          },
-        ]}
-      >
-        <div className="space-y-3">
-          <div className="flex items-center gap-6">
-            <div className="st-switch-wrapper">
-              <button
-                type="button"
-                id="doc-sw-1"
-                role="switch"
-                aria-checked={false}
-                data-state="unchecked"
-                className="st-switch st-switch--md"
-              >
-                <span className="st-switch__check">
-                  <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                    <path
-                      d="M2.5 8.5L3.5 7.5L6.5 10.5L12.5 3.5L13.5 4.5L6.5 12.5Z"
-                      fill="currentColor"
-                    />
-                  </svg>
-                </span>
-                <span className="st-switch__thumb" data-state="unchecked" />
-              </button>
-              <label htmlFor="doc-sw-1" className="st-switch-wrapper__label">
-                Off
-              </label>
-            </div>
-            <div className="st-switch-wrapper">
-              <button
-                type="button"
-                id="doc-sw-2"
-                role="switch"
-                aria-checked={true}
-                data-state="checked"
-                className="st-switch st-switch--md"
-              >
-                <span className="st-switch__check">
-                  <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                    <path
-                      d="M2.5 8.5L3.5 7.5L6.5 10.5L12.5 3.5L13.5 4.5L6.5 12.5Z"
-                      fill="currentColor"
-                    />
-                  </svg>
-                </span>
-                <span className="st-switch__thumb" data-state="checked" />
-              </button>
-              <label htmlFor="doc-sw-2" className="st-switch-wrapper__label">
-                On
-              </label>
+        <Section
+          id="switch"
+          title="Switch — .st-switch + .st-switch-wrapper"
+          intro="On/off toggle. Same wrapper + block shape as Checkbox. The thumb's position and the check-icon's opacity are both driven by .st-switch[data-state='checked'] descendant selectors — no Tailwind 'group' utility on the JSX."
+          attributes={[
+            {
+              name: 'role="switch"',
+              meaning: 'Radix Root provides the role',
+              required: 'always (Radix-provided)',
+            },
+            {
+              name: 'aria-checked',
+              meaning: '"true" / "false" — switches are binary',
+              required: 'always',
+            },
+            {
+              name: 'data-state',
+              meaning: '"checked" / "unchecked" — drives thumb position + check icon visibility',
+              required: 'always',
+            },
+            {
+              name: 'aria-invalid="true"',
+              meaning: 'Error state — CSS shifts border + bg + checked-state bg to error tokens',
+              required: 'when in error',
+            },
+          ]}
+        >
+          <div className="cssapi-doc__stack">
+            <div className="cssapi-doc__row cssapi-doc__row--wide">
+              <div className="st-switch-wrapper">
+                <button
+                  type="button"
+                  id="doc-sw-1"
+                  role="switch"
+                  aria-checked={false}
+                  data-state="unchecked"
+                  className="st-switch st-switch--md"
+                >
+                  <span className="st-switch__check">
+                    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                      <path
+                        d="M2.5 8.5L3.5 7.5L6.5 10.5L12.5 3.5L13.5 4.5L6.5 12.5Z"
+                        fill="currentColor"
+                      />
+                    </svg>
+                  </span>
+                  <span className="st-switch__thumb" data-state="unchecked" />
+                </button>
+                <label htmlFor="doc-sw-1" className="st-switch-wrapper__label">
+                  Off
+                </label>
+              </div>
+              <div className="st-switch-wrapper">
+                <button
+                  type="button"
+                  id="doc-sw-2"
+                  role="switch"
+                  aria-checked={true}
+                  data-state="checked"
+                  className="st-switch st-switch--md"
+                >
+                  <span className="st-switch__check">
+                    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                      <path
+                        d="M2.5 8.5L3.5 7.5L6.5 10.5L12.5 3.5L13.5 4.5L6.5 12.5Z"
+                        fill="currentColor"
+                      />
+                    </svg>
+                  </span>
+                  <span className="st-switch__thumb" data-state="checked" />
+                </button>
+                <label htmlFor="doc-sw-2" className="st-switch-wrapper__label">
+                  On
+                </label>
+              </div>
             </div>
           </div>
-        </div>
-        <CodeBlock>{`<div class="st-switch-wrapper">
+          <CodeBlock>{`<div class="st-switch-wrapper">
   <button type="button" id="notifications"
           role="switch" aria-checked="false"
           data-state="unchecked"
@@ -892,89 +1006,89 @@ export const Reference: Story = {
 <!-- [data-state]      — "checked" / "unchecked" -->
 <!-- [aria-invalid]    — error styling -->
 <!-- :disabled         — disabled tokens -->`}</CodeBlock>
-      </Section>
+        </Section>
 
-      <Section
-        id="input"
-        title="Input — .st-input-wrapper + .st-input"
-        intro="Single-line text input. Two blocks: the wrapper carries the flex row, border, background, focus ring, and the disabled / readOnly / error surfaces; the inner .st-input is just flex-1 with inherited font + color. State (aria-invalid / read-only / disabled) is read off the inner input via :has() — vanilla HTML consumers set the attributes on the <input> and the wrapper restyles automatically. Sub-elements .st-input__icon-left/right and .st-input__text-left/right inherit sizing from the wrapper size modifier."
-        attributes={[
-          {
-            name: '<label for={id}>',
-            meaning: 'Pairs with the inner input via id',
-            required: 'when externally labelled',
-          },
-          {
-            name: 'aria-invalid="true"',
-            meaning:
-              'Error state — wrapper recolors border + background via .st-input-wrapper:has(.st-input[aria-invalid="true"])',
-            required: 'when in error',
-          },
-          {
-            name: 'readonly',
-            meaning: 'Warm-tint readOnly surface; value still focusable',
-            required: 'when display-only',
-          },
-          {
-            name: 'disabled',
-            meaning: 'Disabled tokens; cursor flips to not-allowed',
-            required: 'when not interactable',
-          },
-          {
-            name: 'aria-describedby',
-            meaning: 'Links to description / error message id (Schatten <Field> auto-wires this)',
-            required: 'when description present',
-          },
-        ]}
-      >
-        <div className="space-y-3 w-80">
-          <div className="st-input-wrapper st-input-wrapper--md">
-            <input
-              type="text"
-              placeholder="Default"
-              className="st-input"
-              aria-label="doc-input-default"
-            />
+        <Section
+          id="input"
+          title="Input — .st-input-wrapper + .st-input"
+          intro="Single-line text input. Two blocks: the wrapper carries the flex row, border, background, focus ring, and the disabled / readOnly / error surfaces; the inner .st-input is just flex-1 with inherited font + color. State (aria-invalid / read-only / disabled) is read off the inner input via :has() — vanilla HTML consumers set the attributes on the <input> and the wrapper restyles automatically. Sub-elements .st-input__icon-left/right and .st-input__text-left/right inherit sizing from the wrapper size modifier."
+          attributes={[
+            {
+              name: '<label for={id}>',
+              meaning: 'Pairs with the inner input via id',
+              required: 'when externally labelled',
+            },
+            {
+              name: 'aria-invalid="true"',
+              meaning:
+                'Error state — wrapper recolors border + background via .st-input-wrapper:has(.st-input[aria-invalid="true"])',
+              required: 'when in error',
+            },
+            {
+              name: 'readonly',
+              meaning: 'Warm-tint readOnly surface; value still focusable',
+              required: 'when display-only',
+            },
+            {
+              name: 'disabled',
+              meaning: 'Disabled tokens; cursor flips to not-allowed',
+              required: 'when not interactable',
+            },
+            {
+              name: 'aria-describedby',
+              meaning: 'Links to description / error message id (Schatten <Field> auto-wires this)',
+              required: 'when description present',
+            },
+          ]}
+        >
+          <div className="cssapi-doc__stack cssapi-doc__col-form">
+            <div className="st-input-wrapper st-input-wrapper--md">
+              <input
+                type="text"
+                placeholder="Default"
+                className="st-input"
+                aria-label="doc-input-default"
+              />
+            </div>
+            <div className="st-input-wrapper st-input-wrapper--md">
+              <span className="st-input__text-left">$</span>
+              <input
+                type="number"
+                placeholder="0.00"
+                className="st-input"
+                aria-label="doc-input-amount"
+              />
+              <span className="st-input__text-right">USD</span>
+            </div>
+            <div className="st-input-wrapper st-input-wrapper--md">
+              <input
+                type="text"
+                placeholder="Error"
+                className="st-input"
+                aria-invalid="true"
+                aria-label="doc-input-error"
+              />
+            </div>
+            <div className="st-input-wrapper st-input-wrapper--md">
+              <input
+                type="text"
+                defaultValue="Read-only"
+                readOnly
+                className="st-input"
+                aria-label="doc-input-readonly"
+              />
+            </div>
+            <div className="st-input-wrapper st-input-wrapper--md">
+              <input
+                type="text"
+                defaultValue="Disabled"
+                disabled
+                className="st-input"
+                aria-label="doc-input-disabled"
+              />
+            </div>
           </div>
-          <div className="st-input-wrapper st-input-wrapper--md">
-            <span className="st-input__text-left">$</span>
-            <input
-              type="number"
-              placeholder="0.00"
-              className="st-input"
-              aria-label="doc-input-amount"
-            />
-            <span className="st-input__text-right">USD</span>
-          </div>
-          <div className="st-input-wrapper st-input-wrapper--md">
-            <input
-              type="text"
-              placeholder="Error"
-              className="st-input"
-              aria-invalid="true"
-              aria-label="doc-input-error"
-            />
-          </div>
-          <div className="st-input-wrapper st-input-wrapper--md">
-            <input
-              type="text"
-              defaultValue="Read-only"
-              readOnly
-              className="st-input"
-              aria-label="doc-input-readonly"
-            />
-          </div>
-          <div className="st-input-wrapper st-input-wrapper--md">
-            <input
-              type="text"
-              defaultValue="Disabled"
-              disabled
-              className="st-input"
-              aria-label="doc-input-disabled"
-            />
-          </div>
-        </div>
-        <CodeBlock>{`<div class="st-input-wrapper st-input-wrapper--md">
+          <CodeBlock>{`<div class="st-input-wrapper st-input-wrapper--md">
   <input id="email" type="email" class="st-input" placeholder="you@example.com" />
 </div>
 
@@ -1019,65 +1133,65 @@ export const Reference: Story = {
 
 <!-- NB: wrapper-click → focus-input is React-only ergonomics.
      Vanilla HTML consumers click the <input> itself. -->`}</CodeBlock>
-      </Section>
+        </Section>
 
-      <Section
-        id="textarea"
-        title="Textarea — .st-textarea"
-        intro="Multi-line text input. Single-element primitive: all state (aria-invalid / read-only / disabled) lives on the same <textarea>, so precedence is plain CSS source order (default < error < readOnly < disabled). Same focus ring shape as Input / Checkbox / Switch."
-        attributes={[
-          {
-            name: '<label for={id}>',
-            meaning: 'Pairs with the textarea via id',
-            required: 'when externally labelled',
-          },
-          {
-            name: 'aria-invalid="true"',
-            meaning: 'Error state — border + bg-subtle + error focus ring',
-            required: 'when in error',
-          },
-          {
-            name: 'readonly',
-            meaning: 'Warm-tint readOnly surface',
-            required: 'when display-only',
-          },
-          {
-            name: 'disabled',
-            meaning: 'Disabled tokens; wins over readOnly + error on source order',
-            required: 'when not interactable',
-          },
-        ]}
-      >
-        <div className="space-y-3 w-80">
-          <textarea
-            rows={3}
-            placeholder="Default"
-            className="st-textarea st-textarea--md"
-            aria-label="doc-textarea-default"
-          />
-          <textarea
-            rows={2}
-            placeholder="Error"
-            className="st-textarea st-textarea--md"
-            aria-invalid="true"
-            aria-label="doc-textarea-error"
-          />
-          <textarea
-            rows={2}
-            defaultValue="Read-only"
-            readOnly
-            className="st-textarea st-textarea--md"
-            aria-label="doc-textarea-readonly"
-          />
-          <textarea
-            rows={2}
-            defaultValue="Disabled"
-            disabled
-            className="st-textarea st-textarea--md"
-            aria-label="doc-textarea-disabled"
-          />
-        </div>
-        <CodeBlock>{`<textarea id="bio" rows="4" class="st-textarea st-textarea--md"
+        <Section
+          id="textarea"
+          title="Textarea — .st-textarea"
+          intro="Multi-line text input. Single-element primitive: all state (aria-invalid / read-only / disabled) lives on the same <textarea>, so precedence is plain CSS source order (default < error < readOnly < disabled). Same focus ring shape as Input / Checkbox / Switch."
+          attributes={[
+            {
+              name: '<label for={id}>',
+              meaning: 'Pairs with the textarea via id',
+              required: 'when externally labelled',
+            },
+            {
+              name: 'aria-invalid="true"',
+              meaning: 'Error state — border + bg-subtle + error focus ring',
+              required: 'when in error',
+            },
+            {
+              name: 'readonly',
+              meaning: 'Warm-tint readOnly surface',
+              required: 'when display-only',
+            },
+            {
+              name: 'disabled',
+              meaning: 'Disabled tokens; wins over readOnly + error on source order',
+              required: 'when not interactable',
+            },
+          ]}
+        >
+          <div className="cssapi-doc__stack cssapi-doc__col-form">
+            <textarea
+              rows={3}
+              placeholder="Default"
+              className="st-textarea st-textarea--md"
+              aria-label="doc-textarea-default"
+            />
+            <textarea
+              rows={2}
+              placeholder="Error"
+              className="st-textarea st-textarea--md"
+              aria-invalid="true"
+              aria-label="doc-textarea-error"
+            />
+            <textarea
+              rows={2}
+              defaultValue="Read-only"
+              readOnly
+              className="st-textarea st-textarea--md"
+              aria-label="doc-textarea-readonly"
+            />
+            <textarea
+              rows={2}
+              defaultValue="Disabled"
+              disabled
+              className="st-textarea st-textarea--md"
+              aria-label="doc-textarea-disabled"
+            />
+          </div>
+          <CodeBlock>{`<textarea id="bio" rows="4" class="st-textarea st-textarea--md"
           placeholder="Tell us about yourself"></textarea>
 
 <!-- Error -->
@@ -1094,99 +1208,99 @@ export const Reference: Story = {
 <!-- [aria-invalid="true"] — error tokens -->
 <!-- :read-only            — warm readOnly surface -->
 <!-- :disabled             — disabled tokens (wins on source order) -->`}</CodeBlock>
-      </Section>
+        </Section>
 
-      <Section
-        id="radio"
-        title="Radio — .st-radio-group + .st-radio-wrapper + .st-radio"
-        intro="Single-select group. Three nested levels: the group root (Radix RadioGroup.Root), the per-item wrapper carrying the [radio] + <label> row, and the inner Radix RadioGroup.Item. Radix unmounts the indicator when unchecked, so vanilla HTML consumers omit the .st-radio__indicator element entirely for unchecked items (compare with Checkbox where the indicator is always in the tree)."
-        attributes={[
-          {
-            name: 'role="radiogroup" (on the group root)',
-            meaning: 'Radix RadioGroup.Root provides the role',
-            required: 'always (Radix-provided)',
-          },
-          {
-            name: 'role="radio"',
-            meaning: 'Radix RadioGroup.Item provides the role',
-            required: 'always (Radix-provided)',
-          },
-          {
-            name: 'aria-checked',
-            meaning: '"true" or "false" — radios are binary within the group',
-            required: 'always',
-          },
-          {
-            name: 'data-state',
-            meaning: '"checked" / "unchecked" — drives indicator presence',
-            required: 'always',
-          },
-          {
-            name: 'aria-invalid="true"',
-            meaning: 'Error state — border + bg-subtle + focus-ring re-colour',
-            required: 'when in error',
-          },
-          {
-            name: '<label for={id}>',
-            meaning: 'Associates with the radio via id (the wrapper sees it)',
-            required: 'when label present',
-          },
-        ]}
-      >
-        <div className="space-y-3">
-          <div role="radiogroup" className="st-radio-group">
-            <div className="st-radio-wrapper">
-              {/* biome-ignore lint/a11y/useSemanticElements: Mirrors Radix's
-               * RadioGroup.Item output — vanilla HTML consumers replicate the
-               * <button role="radio"> shape, not <input type="radio">. */}
-              <button
-                type="button"
-                id="doc-radio-a"
-                role="radio"
-                aria-checked={false}
-                data-state="unchecked"
-                className="st-radio st-radio--md"
-              />
-              <label htmlFor="doc-radio-a" className="st-radio-wrapper__label">
-                Option A
-              </label>
-            </div>
-            <div className="st-radio-wrapper">
-              {/* biome-ignore lint/a11y/useSemanticElements: see preceding comment */}
-              <button
-                type="button"
-                id="doc-radio-b"
-                role="radio"
-                aria-checked={true}
-                data-state="checked"
-                className="st-radio st-radio--md"
-              >
-                <span className="st-radio__indicator">
-                  <span className="st-radio__dot" />
-                </span>
-              </button>
-              <label htmlFor="doc-radio-b" className="st-radio-wrapper__label">
-                Option B (selected)
-              </label>
-            </div>
-            <div className="st-radio-wrapper">
-              {/* biome-ignore lint/a11y/useSemanticElements: see preceding comment */}
-              <button
-                type="button"
-                id="doc-radio-c"
-                role="radio"
-                aria-checked={false}
-                data-state="unchecked"
-                disabled
-                className="st-radio st-radio--md"
-              />
-              <label htmlFor="doc-radio-c" className="st-radio-wrapper__label">
-                Option C (disabled)
-              </label>
+        <Section
+          id="radio"
+          title="Radio — .st-radio-group + .st-radio-wrapper + .st-radio"
+          intro="Single-select group. Three nested levels: the group root (Radix RadioGroup.Root), the per-item wrapper carrying the [radio] + <label> row, and the inner Radix RadioGroup.Item. Radix unmounts the indicator when unchecked, so vanilla HTML consumers omit the .st-radio__indicator element entirely for unchecked items (compare with Checkbox where the indicator is always in the tree)."
+          attributes={[
+            {
+              name: 'role="radiogroup" (on the group root)',
+              meaning: 'Radix RadioGroup.Root provides the role',
+              required: 'always (Radix-provided)',
+            },
+            {
+              name: 'role="radio"',
+              meaning: 'Radix RadioGroup.Item provides the role',
+              required: 'always (Radix-provided)',
+            },
+            {
+              name: 'aria-checked',
+              meaning: '"true" or "false" — radios are binary within the group',
+              required: 'always',
+            },
+            {
+              name: 'data-state',
+              meaning: '"checked" / "unchecked" — drives indicator presence',
+              required: 'always',
+            },
+            {
+              name: 'aria-invalid="true"',
+              meaning: 'Error state — border + bg-subtle + focus-ring re-colour',
+              required: 'when in error',
+            },
+            {
+              name: '<label for={id}>',
+              meaning: 'Associates with the radio via id (the wrapper sees it)',
+              required: 'when label present',
+            },
+          ]}
+        >
+          <div className="cssapi-doc__stack">
+            <div role="radiogroup" className="st-radio-group">
+              <div className="st-radio-wrapper">
+                {/* biome-ignore lint/a11y/useSemanticElements: Mirrors Radix's
+                 * RadioGroup.Item output — vanilla HTML consumers replicate the
+                 * <button role="radio"> shape, not <input type="radio">. */}
+                <button
+                  type="button"
+                  id="doc-radio-a"
+                  role="radio"
+                  aria-checked={false}
+                  data-state="unchecked"
+                  className="st-radio st-radio--md"
+                />
+                <label htmlFor="doc-radio-a" className="st-radio-wrapper__label">
+                  Option A
+                </label>
+              </div>
+              <div className="st-radio-wrapper">
+                {/* biome-ignore lint/a11y/useSemanticElements: see preceding comment */}
+                <button
+                  type="button"
+                  id="doc-radio-b"
+                  role="radio"
+                  aria-checked={true}
+                  data-state="checked"
+                  className="st-radio st-radio--md"
+                >
+                  <span className="st-radio__indicator">
+                    <span className="st-radio__dot" />
+                  </span>
+                </button>
+                <label htmlFor="doc-radio-b" className="st-radio-wrapper__label">
+                  Option B (selected)
+                </label>
+              </div>
+              <div className="st-radio-wrapper">
+                {/* biome-ignore lint/a11y/useSemanticElements: see preceding comment */}
+                <button
+                  type="button"
+                  id="doc-radio-c"
+                  role="radio"
+                  aria-checked={false}
+                  data-state="unchecked"
+                  disabled
+                  className="st-radio st-radio--md"
+                />
+                <label htmlFor="doc-radio-c" className="st-radio-wrapper__label">
+                  Option C (disabled)
+                </label>
+              </div>
             </div>
           </div>
-        </div>
-        <CodeBlock>{`<div role="radiogroup" class="st-radio-group">
+          <CodeBlock>{`<div role="radiogroup" class="st-radio-group">
   <div class="st-radio-wrapper">
     <button type="button" id="r-a"
             role="radio" aria-checked="false"
@@ -1225,36 +1339,36 @@ export const Reference: Story = {
 <!-- [data-state]      "checked" / "unchecked" — drives indicator presence -->
 <!-- [aria-invalid]    error styling -->
 <!-- :disabled         disabled tokens (wrapper :has() recolours label too) -->`}</CodeBlock>
-      </Section>
+        </Section>
 
-      <Section
-        id="toast"
-        title="Toast — .st-toast + .st-toaster"
-        intro="Transient notification mounted into a portal viewport. The per-toast <li> uses Pattern B (tone × shape) via double-class selectors; the viewport <ol> takes a 6-value --{position} modifier. The CSS surface covers ONLY the static visual frame — enter/exit dissolve animation, swipe-to-dismiss handoff, auto-dismiss timing, and stacking order are all React + Radix concerns set via the toast() store and the [data-state] / [data-swipe] attributes Radix emits. Vanilla HTML consumers get the visual shell; they need their own JS for any dynamic behavior (or simply render static toasts as inline status messages)."
-        attributes={[
-          {
-            name: 'role',
-            meaning: '"status" for polite announcements, "alert" for assertive',
-            required: 'required for vanilla — Radix sets this automatically for React',
-          },
-          {
-            name: 'aria-live',
-            meaning: '"polite" (most toasts) or "assertive" (urgent — errors)',
-            required: 'required for vanilla — pair with role',
-          },
-          {
-            name: 'aria-label',
-            meaning: 'On the close button',
-            required: 'always',
-          },
-        ]}
-      >
-        <p className="st-text st-text--body st-text--sm st-text--muted mb-3">
-          The toaster renders fixed-positioned against the viewport, so an inline live preview here
-          would visually overlap the rest of the reference page. See Components/lv1/Toast for the
-          rendered behaviour; the snippet below is the markup contract.
-        </p>
-        <CodeBlock>{`<ol class="st-toaster st-toaster--bottom-center">
+        <Section
+          id="toast"
+          title="Toast — .st-toast + .st-toaster"
+          intro="Transient notification mounted into a portal viewport. The per-toast <li> uses Pattern B (tone × shape) via double-class selectors; the viewport <ol> takes a 6-value --{position} modifier. The CSS surface covers ONLY the static visual frame — enter/exit dissolve animation, swipe-to-dismiss handoff, auto-dismiss timing, and stacking order are all React + Radix concerns set via the toast() store and the [data-state] / [data-swipe] attributes Radix emits. Vanilla HTML consumers get the visual shell; they need their own JS for any dynamic behavior (or simply render static toasts as inline status messages)."
+          attributes={[
+            {
+              name: 'role',
+              meaning: '"status" for polite announcements, "alert" for assertive',
+              required: 'required for vanilla — Radix sets this automatically for React',
+            },
+            {
+              name: 'aria-live',
+              meaning: '"polite" (most toasts) or "assertive" (urgent — errors)',
+              required: 'required for vanilla — pair with role',
+            },
+            {
+              name: 'aria-label',
+              meaning: 'On the close button',
+              required: 'always',
+            },
+          ]}
+        >
+          <p className="st-text st-text--body st-text--sm st-text--muted mb-3">
+            The toaster renders fixed-positioned against the viewport, so an inline live preview
+            here would visually overlap the rest of the reference page. See Components/lv1/Toast for
+            the rendered behaviour; the snippet below is the markup contract.
+          </p>
+          <CodeBlock>{`<ol class="st-toaster st-toaster--bottom-center">
   <li class="st-toast st-toast--success st-toast--subtle"
       role="status" aria-live="polite">
     <svg class="st-toast__icon" aria-hidden="true">…</svg>
@@ -1294,45 +1408,45 @@ export const Reference: Story = {
 <!-- The action / close button is rendered as a .st-btn chain directly
      inside .st-toast — no wrapper. Toast.tsx renders action OR close
      (exclusive); the content column's flex:1 pushes the button right. -->`}</CodeBlock>
-      </Section>
+        </Section>
 
-      <Section
-        id="dialog"
-        title="Dialog — .st-dialog__*"
-        intro="Modal overlay + content panel mounted into a portal. Dialog has no .st-dialog block root: Radix's Root emits no DOM, and Overlay + Content are sibling portal children. The 8 sub-element classes below are the SSOT. Vanilla HTML consumers DO NOT get Radix's focus trap, ESC dismissal, or aria-* auto-wiring — those must be implemented separately if needed."
-        attributes={[
-          {
-            name: 'role="dialog"',
-            meaning: 'Identifies the content panel as a dialog',
-            required: 'always (vanilla)',
-          },
-          {
-            name: 'aria-modal="true"',
-            meaning: 'Tells assistive tech the dialog blocks the rest of the page',
-            required: 'always (vanilla)',
-          },
-          {
-            name: 'aria-labelledby',
-            meaning: 'Points at the .st-dialog__title id',
-            required: 'always (vanilla)',
-          },
-          {
-            name: 'aria-describedby',
-            meaning: 'Points at the .st-dialog__description id (when present)',
-            required: 'when description is rendered',
-          },
-          {
-            name: 'aria-label',
-            meaning: 'On the close button',
-            required: 'always',
-          },
-        ]}
-      >
-        <p className="st-text st-text--body st-text--sm st-text--muted mb-3">
-          The dialog renders fixed-positioned at the viewport center. The static reference below
-          shows the markup; in production the overlay covers the page and the content sits on top.
-        </p>
-        <CodeBlock>{`<!-- DialogPrimitive.Root: no DOM output in React.
+        <Section
+          id="dialog"
+          title="Dialog — .st-dialog__*"
+          intro="Modal overlay + content panel mounted into a portal. Dialog has no .st-dialog block root: Radix's Root emits no DOM, and Overlay + Content are sibling portal children. The 8 sub-element classes below are the SSOT. Vanilla HTML consumers DO NOT get Radix's focus trap, ESC dismissal, or aria-* auto-wiring — those must be implemented separately if needed."
+          attributes={[
+            {
+              name: 'role="dialog"',
+              meaning: 'Identifies the content panel as a dialog',
+              required: 'always (vanilla)',
+            },
+            {
+              name: 'aria-modal="true"',
+              meaning: 'Tells assistive tech the dialog blocks the rest of the page',
+              required: 'always (vanilla)',
+            },
+            {
+              name: 'aria-labelledby',
+              meaning: 'Points at the .st-dialog__title id',
+              required: 'always (vanilla)',
+            },
+            {
+              name: 'aria-describedby',
+              meaning: 'Points at the .st-dialog__description id (when present)',
+              required: 'when description is rendered',
+            },
+            {
+              name: 'aria-label',
+              meaning: 'On the close button',
+              required: 'always',
+            },
+          ]}
+        >
+          <p className="st-text st-text--body st-text--sm st-text--muted mb-3">
+            The dialog renders fixed-positioned at the viewport center. The static reference below
+            shows the markup; in production the overlay covers the page and the content sits on top.
+          </p>
+          <CodeBlock>{`<!-- DialogPrimitive.Root: no DOM output in React.
      For vanilla HTML, write the overlay + content as portal children. -->
 <div class="st-dialog__overlay"></div>
 <div class="st-dialog__content"
@@ -1388,11 +1502,215 @@ export const Reference: Story = {
 <!-- [data-state="open"|"closed"]  on overlay AND content — drives the
                                     fade-in / zoom-in / fade-out / zoom-out
                                     keyframes -->`}</CodeBlock>
-      </Section>
+        </Section>
 
-      <p className="st-text st-text--body st-text--sm st-text--subtle mt-8">
-        Coming in subsequent sweeps: Field / FieldSet (sweep-7).
-      </p>
-    </div>
+        <Section
+          id="field"
+          title="Field — .st-field"
+          intro="Layout + a11y wrapper around a single form input. Stacks label / description / children / error vertically and pairs the external <label htmlFor> with the input id. Vanilla HTML consumers wire htmlFor / id / aria-describedby manually — the framework-agnostic CSS does not auto-wire ARIA."
+          attributes={[
+            {
+              name: 'htmlFor (label) + id (input)',
+              meaning: 'Pairs the external label with the form control',
+              required: 'always when label is present',
+            },
+            {
+              name: 'aria-describedby',
+              meaning: 'Links the input to the description / error message id',
+              required: 'when description or error is present',
+            },
+            {
+              name: 'aria-invalid="true"',
+              meaning:
+                'Set on the inner input to drive the error visual (NOT on the .st-field root)',
+              required: 'when the value is invalid',
+            },
+            {
+              name: 'data-error="true"',
+              meaning:
+                'Observability hook on .st-field root — does NOT drive built-in visuals; consumers may attach external styling to it',
+              required: 'optional (mirror of aria-invalid for external observability)',
+            },
+            {
+              name: 'data-disabled="true"',
+              meaning: 'Set on .st-field root when the field is disabled',
+              required: 'optional',
+            },
+          ]}
+        >
+          <div className="cssapi-doc__col-form cssapi-doc__stack">
+            <div className="st-field">
+              <div className="st-field__label-row">
+                <label htmlFor="cssapi-field-email" className="st-field__label">
+                  Email
+                </label>
+              </div>
+              <label
+                htmlFor="cssapi-field-email"
+                id="cssapi-field-email-desc"
+                className="st-field__description"
+              >
+                We never share your email
+              </label>
+              <div className="st-input-wrapper st-input-wrapper--md">
+                <input
+                  id="cssapi-field-email"
+                  type="email"
+                  className="st-input"
+                  defaultValue="user@example.com"
+                  aria-describedby="cssapi-field-email-desc"
+                />
+              </div>
+            </div>
+            <div className="st-field" data-error="true">
+              <div className="st-field__label-row">
+                <label htmlFor="cssapi-field-name" className="st-field__label">
+                  Name<span className="st-field__required-marker">*</span>
+                </label>
+              </div>
+              <div className="st-input-wrapper st-input-wrapper--md">
+                <input
+                  id="cssapi-field-name"
+                  className="st-input"
+                  required
+                  aria-invalid="true"
+                  aria-describedby="cssapi-field-name-error"
+                />
+              </div>
+              <p id="cssapi-field-name-error" className="st-field__error">
+                Name is required
+              </p>
+            </div>
+          </div>
+          <CodeBlock>{`<!-- Basic field (label + description + input) -->
+<div class="st-field">
+  <div class="st-field__label-row">
+    <label for="email" class="st-field__label">Email</label>
+  </div>
+  <label for="email" id="email-desc" class="st-field__description">
+    We never share your email
+  </label>
+  <div class="st-input-wrapper st-input-wrapper--md">
+    <input id="email" type="email" class="st-input"
+           aria-describedby="email-desc">
+  </div>
+</div>
+
+<!-- Required + error -->
+<div class="st-field" data-error="true">
+  <div class="st-field__label-row">
+    <label for="name" class="st-field__label">
+      Name<span class="st-field__required-marker">*</span>
+    </label>
+  </div>
+  <div class="st-input-wrapper st-input-wrapper--md">
+    <input id="name" class="st-input" required
+           aria-invalid="true" aria-describedby="name-error">
+  </div>
+  <p id="name-error" class="st-field__error">Name is required</p>
+</div>
+
+<!-- Modifier vocabulary (derived from props in React; emit alongside .st-field) -->
+<!-- flex grow:    --grow | --grow-0 -->
+<!-- flex shrink:  --shrink | --shrink-0 -->
+<!-- flex basis:   inline style="flex-basis: 12rem" (CSS values are arbitrary) -->
+
+<!-- Sub-elements -->
+<!-- .st-field__label-row       label + optional tooltip info icon  -->
+<!-- .st-field__label           the <label htmlFor> for the input    -->
+<!-- .st-field__required-marker the * span next to the label         -->
+<!-- .st-field__info            tooltip info icon (Lucide Info)      -->
+<!-- .st-field__description     <label htmlFor> rendered as clickable
+                                description (clicks focus the input) -->
+<!-- .st-field__error           error <p> below the input            -->`}</CodeBlock>
+        </Section>
+
+        <Section
+          id="fieldset"
+          title="FieldSet — .st-fieldset"
+          intro="Group wrapper around multiple Field instances. Uses native <fieldset> + <legend> so disabling the fieldset cascades to every form control inside. Direction (column / row) and wrap layout live on the inner .st-fieldset__children wrapper."
+          attributes={[
+            {
+              name: 'aria-describedby',
+              meaning: 'Links the fieldset to its description / error message ids',
+              required: 'when description or error is present',
+            },
+            {
+              name: 'aria-invalid="true"',
+              meaning: 'Set on the root <fieldset> when the group has an error',
+              required: 'when isError is true',
+            },
+            {
+              name: 'disabled',
+              meaning:
+                'Native <fieldset disabled> — browser cascades to every descendant form control automatically',
+              required: 'when the group is disabled',
+            },
+            {
+              name: 'data-error="true" / data-disabled="true"',
+              meaning: 'Observability hooks mirroring aria-invalid / disabled',
+              required: 'optional',
+            },
+          ]}
+        >
+          <fieldset className="st-fieldset" aria-describedby="cssapi-fs-desc">
+            <legend className="st-fieldset__legend">Personal Info</legend>
+            <p id="cssapi-fs-desc" className="st-fieldset__description">
+              Optional details
+            </p>
+            <div className="st-fieldset__children">
+              <div className="st-field">
+                <div className="st-field__label-row">
+                  <label htmlFor="cssapi-fs-first" className="st-field__label">
+                    First name
+                  </label>
+                </div>
+                <div className="st-input-wrapper st-input-wrapper--md">
+                  <input id="cssapi-fs-first" className="st-input" />
+                </div>
+              </div>
+              <div className="st-field">
+                <div className="st-field__label-row">
+                  <label htmlFor="cssapi-fs-last" className="st-field__label">
+                    Last name
+                  </label>
+                </div>
+                <div className="st-input-wrapper st-input-wrapper--md">
+                  <input id="cssapi-fs-last" className="st-input" />
+                </div>
+              </div>
+            </div>
+          </fieldset>
+          <CodeBlock>{`<fieldset class="st-fieldset" aria-describedby="fs-desc">
+  <legend class="st-fieldset__legend">Personal Info</legend>
+  <p id="fs-desc" class="st-fieldset__description">Optional details</p>
+  <div class="st-fieldset__children">
+    <div class="st-field"> … </div>
+    <div class="st-field"> … </div>
+  </div>
+  <!-- optional group-level error message -->
+  <p id="fs-error" class="st-fieldset__error">Address is required</p>
+</fieldset>
+
+<!-- Modifier vocabulary (on .st-fieldset__children, not the root) -->
+<!-- direction:  --row     (default = column, no modifier emitted) -->
+<!-- wrap:       --wrap                                            -->
+
+<!-- Structural CSS -->
+<!-- The 1rem margin-top between header (legend or description) and
+     children is driven by :has(> .st-fieldset__legend) /
+     :has(> .st-fieldset__description) selectors — header presence is
+     determined by the DOM shape itself. No "hasHeader" class is needed
+     on the root. -->
+
+<!-- Sub-elements -->
+<!-- .st-fieldset__legend       the <legend> (HTML-mandated first child) -->
+<!-- .st-fieldset__description  description <p> below the legend         -->
+<!-- .st-fieldset__children     inner <div> flex container with the
+                                actual fields                            -->
+<!-- .st-fieldset__error        group-level error <p>                    -->`}</CodeBlock>
+        </Section>
+      </div>
+    </>
   ),
 }

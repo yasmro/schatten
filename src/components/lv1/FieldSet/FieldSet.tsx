@@ -1,6 +1,8 @@
 import { type ReactNode, useId, useMemo } from 'react'
 import { FieldSetContext, type FieldSetContextValue } from '../../../contexts/fieldset'
 import { cn } from '../../../lib/utils'
+import { fieldsetChildrenVariants, fieldsetVariants } from '../../../variants/fieldset'
+import './FieldSet.css'
 
 export interface FieldSetProps {
   /** Legend text for the fieldset. Omit for layout-only grouping. */
@@ -62,36 +64,25 @@ export function FieldSet({
     [isError, disabled],
   )
 
-  const hasHeader = legend || description
-
   return (
     <FieldSetContext.Provider value={contextValue}>
       <fieldset
-        className={cn('flex flex-col', className)}
+        className={cn(fieldsetVariants(), className)}
         disabled={disabled}
         aria-describedby={describedBy}
         aria-invalid={isError || undefined}
         data-disabled={disabled || undefined}
         data-error={isError || undefined}
       >
-        {legend && <legend className="text-lg font-bold text-foreground">{legend}</legend>}
+        {legend && <legend className="st-fieldset__legend">{legend}</legend>}
         {description && (
-          <p id={descriptionId} className="text-sm text-foreground-muted">
+          <p id={descriptionId} className="st-fieldset__description">
             {description}
           </p>
         )}
-        <div
-          className={cn(
-            'flex gap-4',
-            hasHeader && 'mt-4',
-            direction === 'row' ? 'flex-row' : 'flex-col',
-            wrap && 'flex-wrap',
-          )}
-        >
-          {children}
-        </div>
+        <div className={fieldsetChildrenVariants({ direction, wrap })}>{children}</div>
         {error && (
-          <p id={errorId} className="mt-4 text-sm text-error">
+          <p id={errorId} className="st-fieldset__error">
             {error}
           </p>
         )}

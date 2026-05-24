@@ -93,6 +93,7 @@
     "sync:readme": "node scripts/sync-readme-components.mjs",
     "check:readme": "node scripts/sync-readme-components.mjs --check",
     "check:use-client": "node scripts/check-use-client-banner.mjs",
+    "audit:coverage": "node scripts/audit-coverage.mjs",
     "build:storybook": "storybook build",
     "test": "vitest",
     "test:ui": "vitest --ui",

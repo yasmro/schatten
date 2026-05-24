@@ -248,6 +248,70 @@ the React side (it carries through for a11y wiring of
 Vanilla HTML consumers writing the modifier class get a working
 separator with no required attribute.
 
+### Variant: visual-less observability hook
+
+The default contract above is that **a state attribute drives a visual
+rule**: `aria-invalid="true"` on `.st-input` triggers the red border;
+`data-state="open"` on `.st-dialog__content` drives the open keyframe.
+The state attribute and the visual change land together so the consumer
+gets exactly one mental model — "attribute X means look Y".
+
+There is one **approved variant**: an attribute that is emitted from a
+component root **for external observability** but has **no built-in
+visual rule** attached to it on that same root. The canonical case is
+Field's `[data-error]` ([Field.tsx](../../src/components/lv1/Field/Field.tsx),
+[Field.css](../../src/components/lv1/Field/Field.css)):
+
+- Field is a layout wrapper around a single form input. Field's own
+  `error` visual responsibility lives on the **inner** form input via
+  `.st-input-wrapper:has(.st-input[aria-invalid])` (sweep-4
+  precedent) — the Field root itself has no border / background to
+  flip when the field is invalid.
+- But the FieldSet → Field collapse chain (`field-context-guideline.md`)
+  is invisible to a CSS consumer who can't run React. Emitting
+  `[data-error="true"]` on the Field root makes that collapsed state
+  **observable from the DOM**, so a consumer can opt into external
+  styling — `.consumer-card:has(.st-field[data-error="true"]) { … }` —
+  without re-deriving the state in their own JS.
+
+**Allowance criteria** — all three must hold:
+
+1. **The component itself owns no visual that the attribute would
+   drive.** Field root has no surface / border / background to flip on
+   error. If the component DOES have such a visual (Input wrapper,
+   Toast, Callout), the attribute MUST drive it — adding a visual-less
+   hook on top of a visually-driven attribute creates a confused
+   contract.
+2. **The state is a useful external hook.** The attribute reflects a
+   state another layer (consumer styles, a wrapping `:has()` rule,
+   integration tests) can plausibly want to query. "Useful" means
+   there's at least a hypothetical scenario; not "every internal
+   boolean gets emitted." Defaults to **no** when in doubt.
+3. **The intent is documented in both the CSS file and the public
+   docs.** The `.css` file header comment must say "observability hook,
+   does NOT drive visuals on this root" so a future contributor doesn't
+   delete the attribute as dead code OR add `.st-x[data-y="true"] { … }`
+   thinking it's missing. The component's `CSSApi.stories.tsx` attribute
+   table must list it with that wording.
+
+**Anti-patterns to refuse**:
+
+- Emitting `data-*` "just in case it's useful later" — the public
+  surface grows for no concrete consumer. If you're not sure what the
+  hook is for, don't add it.
+- Adding a visual-less hook **and** later adding a visual rule on the
+  same selector. If the visual is justified, that's no longer a
+  visual-less hook — it's a normal state attribute, and the older
+  "observability-only" framing must be removed from the docs at the
+  same time.
+
+The trade-off this variant accepts is a small one: the consumer sees
+one more attribute on the root than the visuals strictly require, and
+the docs carry one more line of explanation. In exchange, the
+React-collapsed state is queryable from CSS / DOM / tests without
+re-implementing the collapse logic. Use sparingly — currently only
+`Field[data-error]` qualifies.
+
 ## Structural `:has()` for layout selection
 
 Beyond runtime state (handled by attribute selectors, §State above) and
@@ -673,6 +737,12 @@ Two consequences:
   `[aria-invalid="true"]`, `[aria-busy="true"]`, `[data-state]`,
   `[data-side]`, `[data-swipe]`, `[data-error]`, `[data-disabled]`
   (Field / FieldSet propagation).
+- **Visual-less observability hook (variant)**: a state attribute MAY
+  be emitted without a matching visual rule on the same root, **only
+  when** (a) the root has no visual to drive, (b) the state is a
+  useful external hook, and (c) the intent is documented in both the
+  `.css` header and `CSSApi.stories.tsx`. Only `Field[data-error]`
+  qualifies today.
 - **Structure**: `:has()` on documented sub-element classes for
   layout decisions that depend on which sub-elements the author
   rendered (`.st-callout:has(.st-callout__title):has(.st-callout__body)`).

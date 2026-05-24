@@ -1,4 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
+import { Field } from '../Field/Field'
+import { Input } from '../Input/Input'
 import { FieldSet } from './FieldSet'
 
 /**
@@ -7,17 +9,20 @@ import { FieldSet } from './FieldSet'
  * pixel-identical. Backs the VRT in `FieldSet.parity.vrt.spec.ts`.
  *
  * FieldSet is in #297 区分 A (layout / context wrapper, fully renderable
- * in vanilla HTML). Nested `<Field>` / form inputs are NOT part of this
- * parity surface — their own classes are covered by sweep-4 / sweep-7
- * Field parity. Here we verify the FieldSet chrome (legend / description
- * / children layout / error) matches across paths, using a single
- * `<input>` per item so the chrome is the dominant signal.
+ * in vanilla HTML). The nested `<Field>` / form input class chains are
+ * covered by their own sweeps; we wire them in here so the demo shows a
+ * realistic combined surface (FieldSet wrapping Fields wrapping Inputs)
+ * rather than bare `<input>` elements that would render without a
+ * visual frame.
  *
- * The `:has(> .st-fieldset__legend)` structural rule that pushes
- * `__children` down by 1rem is exercised by the header-present case;
- * the structural contract is independently pinned in
- * FieldSet.test.tsx → `class API` → `places legend / description /
- * children / error as direct children of the root fieldset`.
+ * The error case (Address) demonstrates that:
+ * - FieldSet root carries `[data-error]` + `[aria-invalid]` for
+ *   external observability, but does NOT itself drive a visual border
+ *   (matches the visual-less observability hook variant — css-api.md
+ *   §state).
+ * - The inner Field's form input carries `[aria-invalid]` via the
+ *   FieldSet → Field → input collapse chain, which IS visually
+ *   styled by `.st-input-wrapper:has(.st-input[aria-invalid])` (sweep-4).
  */
 const meta: Meta<typeof FieldSet> = {
   title: 'Components/lv1/FieldSet',
@@ -37,11 +42,17 @@ export const Parity: Story = {
       <div className="space-y-6">
         <p className="text-xs text-foreground-muted">React</p>
         <FieldSet legend="Personal Info" description="Optional details">
-          <input id="rfs1" placeholder="First name" />
-          <input id="rfs2" placeholder="Last name" />
+          <Field label="First name">
+            <Input id="rfs1" />
+          </Field>
+          <Field label="Last name">
+            <Input id="rfs2" />
+          </Field>
         </FieldSet>
-        <FieldSet legend="Address" error="Address is required">
-          <input id="rfs3" placeholder="Street" />
+        <FieldSet legend="Address" error="Address is required" isError>
+          <Field label="Street">
+            <Input id="rfs3" />
+          </Field>
         </FieldSet>
       </div>
       <div className="space-y-6">
@@ -52,8 +63,26 @@ export const Parity: Story = {
             Optional details
           </p>
           <div className="st-fieldset__children">
-            <input id="vfs1" placeholder="First name" />
-            <input id="vfs2" placeholder="Last name" />
+            <div className="st-field">
+              <div className="st-field__label-row">
+                <label htmlFor="vfs1" className="st-field__label">
+                  First name
+                </label>
+              </div>
+              <div className="st-input-wrapper st-input-wrapper--md">
+                <input id="vfs1" className="st-input" />
+              </div>
+            </div>
+            <div className="st-field">
+              <div className="st-field__label-row">
+                <label htmlFor="vfs2" className="st-field__label">
+                  Last name
+                </label>
+              </div>
+              <div className="st-input-wrapper st-input-wrapper--md">
+                <input id="vfs2" className="st-input" />
+              </div>
+            </div>
           </div>
         </fieldset>
         <fieldset
@@ -64,7 +93,16 @@ export const Parity: Story = {
         >
           <legend className="st-fieldset__legend">Address</legend>
           <div className="st-fieldset__children">
-            <input id="vfs3" placeholder="Street" />
+            <div className="st-field" data-error="true">
+              <div className="st-field__label-row">
+                <label htmlFor="vfs3" className="st-field__label">
+                  Street
+                </label>
+              </div>
+              <div className="st-input-wrapper st-input-wrapper--md">
+                <input id="vfs3" className="st-input" aria-invalid="true" />
+              </div>
+            </div>
           </div>
           <p id="vfs3-error" className="st-fieldset__error">
             Address is required

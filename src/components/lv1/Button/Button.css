@@ -172,33 +172,48 @@
    * Inline text-link styling. Different DOM shape from the other variants
    * (Button.tsx early-returns for link with no spinner overlay / content
    * wrapper), so this rule deliberately overrides the .st-btn base layout
-   * back to `display: inline` and clears height/padding so the size
-   * modifiers below only switch font-size. */
+   * back to an inline-level element and clears height/padding so the size
+   * modifiers below only switch font-size.
+   *
+   * We use `inline-flex` (not bare `inline`) for one specific reason: the
+   * link's flat DOM is `<a>{text}<svg/></a>` — text node and svg as direct
+   * siblings, no inner wrapper. Two side-effects of that shape:
+   *   1. Tailwind v4 preflight sets `svg { display: block }`. An inline
+   *      parent with a `display: block` child forces a line break, so a
+   *      trailing icon orphans onto its own row.
+   *   2. There is no CSS selector that targets "svg adjacent to a text
+   *      node sibling", so we cannot place a position-aware margin between
+   *      text and icon from CSS alone.
+   * `inline-flex` resolves both at once: the svg becomes a flex item (block
+   * display ignored, no forced break), `gap: 0.25rem` puts a 4px space
+   * between text and icon regardless of `iconPosition`, and
+   * `align-items: baseline` keeps the icon vertically aligned to the text
+   * baseline within the surrounding paragraph.
+   *
+   * Other `.st-btn` base properties still need explicit undo:
+   *   - `font-size: inherit`  — follow the surrounding paragraph
+   *   - `font-weight: inherit` — pre-sweep link was 400, base sets 500
+   *   - `line-height: inherit` — base's `1` collides with paragraph 1.5
+   *                              and breaks the inline line-box
+   *   - `white-space: nowrap`  — already the base value; kept here as
+   *                              defence in depth so a future relaxation of
+   *                              the base rule doesn't reintroduce a
+   *                              breakable point inside the link.
+   * Size modifiers override `font-size` again below. */
   .st-btn--link {
-    display: inline;
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.25rem;
     background-color: transparent;
     color: var(--color-foreground);
     text-decoration: underline;
     text-underline-offset: 4px;
-    /* Reset `.st-btn` base properties that would corrupt inline paragraph
-     * layout — pre-sweep the link variant was rendered via an early-return
-     * branch that never picked up `.btn` base, so these properties never
-     * applied. Post-sweep all variants share the `.st-btn` base, so we have
-     * to undo each one explicitly:
-     *   - `font-size: inherit`  — follow the surrounding paragraph
-     *   - `font-weight: inherit` — pre-sweep link was 400, base sets 500
-     *   - `line-height: inherit` — base's `1` collides with paragraph 1.5
-     *                              and breaks the inline line-box
-     *   - `white-space: normal`  — base's `nowrap` would forbid wrapping
-     * Size modifiers override `font-size` again below. */
     font-size: inherit;
     font-weight: inherit;
     line-height: inherit;
-    white-space: normal;
+    white-space: nowrap;
     height: auto;
     padding: 0;
-    /* drop the variant transitions baseline doesn't need; keep only colour
-     * for the hover smoothing, and the focus-ring's offset goes to 0 below. */
   }
   .st-btn--link:focus-visible {
     box-shadow:
@@ -273,7 +288,10 @@
   }
 
   /* Link variant + icon sizing — link uses inline DOM (no __content
-   * wrapper), so target the direct svg child of the .st-btn--link element. */
+   * wrapper), so target the direct svg child of the .st-btn--link element.
+   * The svg's `display: block` (Tailwind preflight) and vertical alignment
+   * are absorbed by `.st-btn--link`'s `inline-flex` + `align-items:
+   * baseline`, so we only have to set size here. */
   .st-btn--link.st-btn--sm > svg {
     width: 0.75em;
     height: 0.75em;

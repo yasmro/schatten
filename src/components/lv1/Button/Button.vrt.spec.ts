@@ -10,6 +10,14 @@ const stories = [
   'loading',
   'disabled',
   'inverted-on-saturated-surfaces',
+  // `link-variant` covers paragraph-embedded link buttons with a trailing
+  // icon. The combination is fragile: Tailwind preflight makes `svg` a
+  // `display: block` element, and the link variant has no inline-flex
+  // wrapper, so a regression where the svg breaks to its own line is easy
+  // to introduce. The fix in Button.css (`.st-btn--link > svg { display:
+  // inline-block }` + `white-space: nowrap` on the link) needs a VRT
+  // backstop so a future cascade tweak can't silently undo it.
+  'link-variant',
 ] as const
 
 const themes = ['light', 'dark'] as const

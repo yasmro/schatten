@@ -1,0 +1,26 @@
+{
+  "name": "schatten-lighthouse-nextjs",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Lighthouse-100 reference setup for Schatten on Next.js App Router.",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lhci": "lhci autorun"
+  },
+  "dependencies": {
+    "@yasmro/schatten": "^0.9.0",
+    "lucide-react": "^1.7.0",
+    "next": "^15.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@lhci/cli": "^0.14.0",
+    "@types/node": "^22.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "typescript": "^5.6.0"
+  }
+}

@@ -537,7 +537,8 @@ the escape hatch for "only import what you use" scenarios.
 
 A detailed delivery recipe (critical-CSS inlining, defer patterns,
 Lighthouse "Reduce unused CSS" remediation) lives in
-[#293](https://github.com/yasmro/schatten/issues/293).
+[Performance](#performance) below, with runnable examples in
+[`examples/lighthouse-100/`](examples/lighthouse-100/).
 
 ### Seasonal themes
 
@@ -562,6 +563,142 @@ function Banner({ tone }: { tone: ColorToken }) {
   Something went wrong
 </div>
 ```
+
+## Performance
+
+Schatten ships as a single installable package, which trades shadcn's
+copy-paste-no-unused-code property for ergonomics. The delivery modes
+below close that gap — pick one based on the bundle budget. All three
+target a 100/100/100/100 Lighthouse score; the differentiators are how
+much of the library you carry and where it loads.
+
+### Three delivery modes
+
+| Mode | What you import | Bundle behavior | When to choose |
+|---|---|---|---|
+| **Easy** | `import '@yasmro/schatten/schatten.css'` | Full integrated stylesheet ships; unused selectors remain | Prototyping; using most of the library; bundle size is not the bottleneck |
+| **Optimized — per-component CSS** | `import '@yasmro/schatten/core/tokens'` + `import '@yasmro/schatten/themes/default'` + `import '@yasmro/schatten/css/<component>'` for each component used | Only the rules for components you import (≤ 1.5 KB brotli each, see [budgets](#per-component-css-budgets)) | Production, especially when only a handful of components are used |
+| **Optimized — Tailwind preset** *(planned)* | A `@yasmro/schatten/tailwind-preset` configures the consumer's Tailwind to compile + purge Schatten alongside the rest of the app's CSS | One purged stylesheet — only the utilities actually emitted by your JSX survive | Apps that already run Tailwind and want a single optimized stylesheet |
+
+The Tailwind preset row is intentionally aspirational — it lands when a
+concrete consumer ask exists. The per-component path is the
+production-ready story today.
+
+### Lighthouse audit mapping
+
+| Audit | Easy mode | Optimized — per-component |
+|---|---|---|
+| **Reduce unused CSS** | Substantial unused% on a small app — the full `.st-*` table is shipped | ~0% unused — only imported components carry rules |
+| **Eliminate render-blocking resources** | One `<link>` blocks first paint | Inline tokens in `<head>` + defer component CSS (recipe below) |
+| **Avoid enormous network payloads** | All seasonal themes shipped together | Import `themes/seasonal` only when a Special is used |
+| **Cumulative Layout Shift (CLS)** | Theme swap after JS load reflows content | SSR-emitted `<html data-theme>` + the [FOUC snippet](#fouc-avoidance) eliminate the swap window |
+
+### Critical CSS recipe
+
+The token layer (`core/tokens` + `themes/default`) defines every CSS
+variable that Schatten components consume via `var(--color-*)`. Inlining
+it in `<head>` means the first paint already has correct typography,
+spacing, and color scheme; component CSS can then arrive asynchronously
+without re-flowing the page.
+
+#### Next.js App Router
+
+Next.js inlines CSS imported anywhere in the React tree as one
+`<style>` tag in the document `<head>`. Import the token layer in your
+root layout and the per-component CSS adjacent to where it is used —
+Next.js handles deduplication and ordering automatically:
+
+```tsx
+// app/layout.tsx
+import '@yasmro/schatten/core/tokens'
+import '@yasmro/schatten/themes/default'
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en">
+      <body>{children}</body>
+    </html>
+  )
+}
+```
+
+```tsx
+// app/page.tsx
+import '@yasmro/schatten/css/button'
+import '@yasmro/schatten/css/badge'
+import { Button, Badge } from '@yasmro/schatten'
+
+export default function Page() {
+  return (
+    <main>
+      <Button variant="primary">Save</Button>
+      <Badge variant="success">Active</Badge>
+    </main>
+  )
+}
+```
+
+No `_document` boilerplate, no `<style>` duplication. The downside is
+that all per-component CSS Next.js sees gets concatenated into the same
+critical chunk — keep imports adjacent to usage so route-level code
+splitting can prune them when a route does not need them.
+
+#### Vanilla HTML — inline + preload
+
+For static HTML (Astro static pages, plain HTML), inline the tokens
+directly and `preload` the component CSS so it downloads in parallel
+with first paint without blocking it:
+
+```html
+<head>
+  <style>/* paste contents of node_modules/@yasmro/schatten/dist/core/tokens/index.css */</style>
+  <style>/* paste contents of node_modules/@yasmro/schatten/dist/themes/default/index.css */</style>
+  <link
+    rel="preload"
+    as="style"
+    href="/css/button.css"
+    onload="this.rel='stylesheet'"
+  >
+  <noscript><link rel="stylesheet" href="/css/button.css"></noscript>
+</head>
+```
+
+The `preload` + `onload="this.rel='stylesheet'"` pattern starts the
+fetch immediately, then promotes the stylesheet to render-applying once
+it arrives. `<noscript>` keeps the page styled when JavaScript is
+disabled.
+
+### Per-component CSS budgets
+
+Every lv1 component's CSS subpath is size-limit-budgeted at **1.5 KB
+brotli**, with a **20 KB** aggregate cap across all 18 components. The
+full list lives in [`.size-limit.json`](.size-limit.json), with
+matching entries in the API contract
+([api-stability.md](.claude/rules/api-stability.md#manifest-as-the-authoritative-api-listing)).
+
+The CI `size` job re-measures every PR and fails when any single
+component or the aggregate exceeds its budget. The manifest pins the
+*names* of public classes / attributes / variables; size-limit pins the
+*cost* of carrying each component. Together they keep the per-component
+delivery story honest: a rename trips `pnpm check:manifest`, a runaway
+component CSS trips `pnpm size`.
+
+### Runnable examples
+
+End-to-end runnable demos that target a 100/100/100/100 Lighthouse
+score:
+
+- [`examples/lighthouse-100/nextjs`](examples/lighthouse-100/nextjs) —
+  Next.js 15 App Router; uses per-component subpath imports and
+  SSR-emitted `data-theme`.
+- [`examples/lighthouse-100/vanilla`](examples/lighthouse-100/vanilla)
+  — plain HTML; inlines tokens, preloads component CSS, no framework.
+
+Each example ships a `lighthouserc.json` that asserts a 100% score
+across Performance / Accessibility / Best Practices / SEO via
+[`@lhci/cli`](https://github.com/GoogleChrome/lighthouse-ci). Run
+`pnpm install && pnpm lhci` inside an example to reproduce the
+measurement.
 
 ## Components
 

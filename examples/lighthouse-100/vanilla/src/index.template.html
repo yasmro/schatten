@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Schatten — Lighthouse 100 demo (vanilla)</title>
+    <meta
+      name="description"
+      content="A static HTML page using the Schatten .st-* class API with per-component CSS subpaths, targeting a 100/100/100/100 Lighthouse score."
+    />
+
+    <!--
+      Critical CSS: token + theme layer inlined as <style>.
+      Every .st-* rule references these CSS variables via var(--color-*),
+      so first paint must already have them. `prepare-css.mjs` substitutes
+      the placeholder comments below with the contents of
+      `node_modules/@yasmro/schatten/dist/{core/tokens,themes/default}/index.css`.
+    -->
+    <style>/* @inline:core/tokens */</style>
+    <style>/* @inline:themes/default */</style>
+
+    <!--
+      Per-component CSS: preloaded so the fetch starts immediately, then
+      promoted to a render-applying stylesheet with onload. <noscript>
+      keeps it functional with JavaScript disabled.
+    -->
+    <link
+      rel="preload"
+      as="style"
+      href="/css/button.css"
+      onload="this.rel='stylesheet'"
+    />
+    <link
+      rel="preload"
+      as="style"
+      href="/css/badge.css"
+      onload="this.rel='stylesheet'"
+    />
+    <noscript>
+      <link rel="stylesheet" href="/css/button.css" />
+      <link rel="stylesheet" href="/css/badge.css" />
+    </noscript>
+  </head>
+  <body>
+    <main
+      style="
+        max-width: 640px;
+        margin: 0 auto;
+        padding: 4rem 1.5rem;
+        display: grid;
+        gap: 1.5rem;
+        font-family: system-ui, sans-serif;
+      "
+    >
+      <h1 style="font-size: 1.75rem; margin: 0;">
+        Schatten — Lighthouse 100 demo (vanilla)
+      </h1>
+      <p style="margin: 0; line-height: 1.6;">
+        This page is plain HTML — no React, no JavaScript runtime. The
+        component CSS is preloaded in parallel with first paint and
+        promoted to a stylesheet once it arrives.
+      </p>
+      <div style="display: flex; align-items: center; gap: 0.75rem;">
+        <button class="st-btn st-btn--primary st-btn--md" type="button">
+          Save
+        </button>
+        <button class="st-btn st-btn--secondary st-btn--md" type="button">
+          Cancel
+        </button>
+        <span class="st-badge st-badge--success st-badge--subtle st-badge--md">
+          Active
+        </span>
+      </div>
+    </main>
+  </body>
+</html>

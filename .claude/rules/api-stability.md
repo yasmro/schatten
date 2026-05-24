@@ -261,6 +261,36 @@ about what is public, treat the manifest as the source of truth and update
 this document. Landed alongside
 [#265](https://github.com/yasmro/schatten/issues/265).
 
+### Per-component CSS size budgets
+
+Each `@yasmro/schatten/css/<component>` subpath shipped by
+[#291](https://github.com/yasmro/schatten/issues/291) carries a
+size-limit budget enforced by the CI `size` job. The budgets live in
+[`.size-limit.json`](../../.size-limit.json):
+
+- Every lv1 component: **≤ 1.5 KB brotli**.
+- Aggregate across all 18 lv1 components: **≤ 20 KB brotli**.
+- The integrated `dist/schatten.css`: **≤ 50 KB brotli**.
+
+The manifest and the size-limit budgets are **two complementary
+contracts** on the same CSS surface:
+
+| Pin | Mechanism | Failure mode |
+|---|---|---|
+| Name of every public `.st-*` class / state attribute / `--color-*` variable | `pnpm check:manifest` against `src/__generated__/schatten.manifest.json` | A rename / removal / addition without the right `CSS API:` changeset entry fails CI |
+| Cost of every per-component CSS subpath | `pnpm size` against `.size-limit.json` | A runaway component CSS — e.g. a new variant that doubles the bundle — fails CI |
+
+A change that touches either contract goes through the same
+breaking-change policy as the rest of this document. Adjusting a budget
+*upward* is an additive surface change (`minor` pre-1.0, document it in
+the changeset); pruning it *downward* without a corresponding source
+shrink is breaking because consumers' historical artifact sizes may
+exceed the new limit on re-build.
+
+The per-component delivery story (and the Lighthouse audit mapping it
+addresses) is documented for consumers in the README's
+[Performance](../../README.md#performance) section.
+
 ## When you're about to ship a change
 
 Ask, in order:

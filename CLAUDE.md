@@ -68,3 +68,12 @@ When adding or modifying components, follow shadcn/ui conventions (Radix UI + CV
 Both hooks are **non-blocking** — they print to `hookSpecificOutput.additionalContext` and always exit 0. They complement (do not replace) the lefthook pre-commit step.
 
 In addition to those hooks, the CI `lint` job runs **`pnpm check:readme`** ([scripts/sync-readme-components.mjs](scripts/sync-readme-components.mjs)) — verifies that the "Available components" list in [README.md](README.md) matches the lv1 directories on disk (filtered to those that ship a `.tsx` + `.css` pair). When a new lv1 is added but the README block is not regenerated, this gate fails the PR with a `current vs expected` diff. Run `pnpm sync:readme` locally to fix the drift.
+
+## Claude Code commands
+
+`.claude/commands/` holds project-level slash commands (team-shared, checked into git):
+
+- **[/audit-coverage](.claude/commands/audit-coverage.md)** — scans every lv1 component for the required companion files (test / VRT spec / class-API CSS / `__snapshots__/` baseline / `index.ts` re-export, plus `*.parity.stories.tsx` / `*.parity.vrt.spec.ts` for classification A/B per [vrt-spec-guideline](.claude/rules/vrt-spec-guideline.md)). Reports the per-component status as a markdown table plus a "missing files" action list, and lists orphaned exports (entries in `src/components/lv1/index.ts` without a matching directory). The library-wide periodic counterpart to the single-component / session-end hooks above; the script underneath is [scripts/audit-coverage.mjs](scripts/audit-coverage.mjs) and is also runnable as `pnpm audit:coverage` (CI flag `--check`, JSON output `--json`).
+- **[/review-pr](.claude/commands/review-pr.md)** — self-review the current branch's PR (or the local diff). Emits the canonical 3-section output (2 perspectives × ship verdict × prioritised improvements).
+- **[/implement-and-review](.claude/commands/implement-and-review.md)** — single-shot "implement → quality gates → PR → /review-pr" flow for a task or `#<issue>`. PR base is always `develop` (the repo's release flow is `develop → main`).
+- **[/release](.claude/commands/release.md)** — consume pending changesets, bump version, tag / npm publish / GitHub Release.

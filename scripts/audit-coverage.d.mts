@@ -29,14 +29,20 @@ export interface AuditRow {
 export interface AuditResult {
   readonly rows: readonly AuditRow[]
   readonly orphanedExports: readonly string[]
-  readonly lv2DirSeen: boolean
+  /**
+   * True when `src/components/lv2/` contains at least one direct
+   * subdirectory (a real component, not just the empty placeholder).
+   * Stays false while the dir exists but is empty — see
+   * scripts/audit-coverage.mjs `runAudit` for the rationale.
+   */
+  readonly lv2HasComponents: boolean
 }
 
 export interface RenderTableOptions {
   readonly format?: 'markdown' | 'plain'
   readonly generatedAt?: string
   readonly orphanedExports?: readonly string[]
-  readonly lv2DirSeen?: boolean
+  readonly lv2HasComponents?: boolean
 }
 
 export interface RenderJsonOptions {

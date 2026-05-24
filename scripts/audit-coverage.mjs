@@ -238,7 +238,7 @@ const CELL_GLYPH = {
  * }} [opts]
  */
 export function renderTable(rows, opts = {}) {
-  const { format = 'markdown', generatedAt, orphanedExports = [], lv2DirSeen = false } = opts
+  const { format = 'markdown', generatedAt, orphanedExports = [], lv2HasComponents = false } = opts
   const date = (generatedAt ?? new Date().toISOString()).slice(0, 10)
 
   const total = rows.length
@@ -307,11 +307,11 @@ export function renderTable(rows, opts = {}) {
     lines.push('')
   }
 
-  if (lv2DirSeen) {
+  if (lv2HasComponents) {
     lines.push(
       format === 'markdown'
-        ? '> Note: `src/components/lv2/` exists but is out of scope for this audit (lv2 deferred to post-1.0).'
-        : 'Note: src/components/lv2/ exists but is out of scope for this audit (lv2 deferred to post-1.0).',
+        ? '> Note: `src/components/lv2/` now contains components but is out of scope for this audit (lv2 deferred to post-1.0). Update `scripts/audit-coverage.mjs` to audit lv2.'
+        : 'Note: src/components/lv2/ now contains components but is out of scope for this audit (lv2 deferred to post-1.0). Update scripts/audit-coverage.mjs to audit lv2.',
     )
     lines.push('')
   }
@@ -372,9 +372,14 @@ export function runAudit(projectDir) {
   )
 
   const orphanedExports = [...exportedNames].filter((n) => !names.includes(n)).sort()
-  const lv2DirSeen = existsSync(path.join(projectDir, LV2_DIR_REL))
+  // The lv2 directory itself ships as an empty placeholder today (lv2 is
+  // deferred to post-1.0). Only flag it once it actually contains a
+  // component directory — otherwise the note prints on every audit and
+  // becomes background noise, defeating its purpose as a reminder for
+  // when lv2 finally lands.
+  const lv2HasComponents = discoverComponents(path.join(projectDir, LV2_DIR_REL)).length > 0
 
-  return { rows, orphanedExports, lv2DirSeen }
+  return { rows, orphanedExports, lv2HasComponents }
 }
 
 /** @returns {boolean} true when the audit found any required-file gap. */
@@ -402,11 +407,20 @@ function printHelp() {
       'Usage: node scripts/audit-coverage.mjs [options]',
       '',
       'Options:',
-      '  --check           Exit 1 when any required file is missing (for CI use)',
-      '  --json            Output machine-readable JSON instead of markdown',
-      '  --format=plain    Output plain text instead of markdown',
-      '  --format=markdown Output markdown (default)',
-      '  -h, --help        Show this message',
+      '  --check           Exit 1 when any required companion file is missing or an',
+      '                    orphaned export is found; exit 0 otherwise (CI use).',
+      '  --json            Output machine-readable JSON instead of markdown.',
+      '                    Schema is documented in scripts/audit-coverage.d.mts',
+      '                    (AuditRow / AuditFiles / CellState) and pinned by',
+      '                    scripts/__tests__/audit-coverage.test.ts.',
+      '  --format=plain    Output plain text (tab-separated) instead of markdown.',
+      '  --format=markdown Output markdown (default).',
+      '  -h, --help        Show this message.',
+      '',
+      'Exit codes:',
+      '  0  Audit succeeded (or --check found no gaps).',
+      '  1  --check found a missing required file or an orphaned export.',
+      '  2  Argument parsing failed.',
       '',
     ].join('\n'),
   )
@@ -432,7 +446,7 @@ function main() {
     : renderTable(audit.rows, {
         format: opts.format,
         orphanedExports: audit.orphanedExports,
-        lv2DirSeen: audit.lv2DirSeen,
+        lv2HasComponents: audit.lv2HasComponents,
       })
   process.stdout.write(output)
 

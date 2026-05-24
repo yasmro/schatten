@@ -336,10 +336,15 @@ describe('renderTable / renderJson', () => {
     expect(out).toContain('LegacyThing')
   })
 
-  it('notes the lv2 directory when present but defers it', () => {
-    const out = renderTable(sampleRows(), { generatedAt: fixedAt, lv2DirSeen: true })
+  it('notes the lv2 directory only when it has actual components', () => {
+    const out = renderTable(sampleRows(), { generatedAt: fixedAt, lv2HasComponents: true })
     expect(out).toContain('lv2/')
     expect(out).toContain('post-1.0')
+  })
+
+  it('stays quiet about lv2 when the dir is empty (no note printed)', () => {
+    const out = renderTable(sampleRows(), { generatedAt: fixedAt, lv2HasComponents: false })
+    expect(out).not.toContain('lv2/')
   })
 
   it('matches the documented JSON schema', () => {
@@ -368,7 +373,21 @@ describe('runAudit', () => {
     expect(result.rows.map((r) => r.name)).toEqual(['Button', 'Dialog'])
     expect(result.rows[1].exempt).toBe(true)
     expect(result.orphanedExports).toEqual(['GoneAway'])
-    expect(result.lv2DirSeen).toBe(false)
+    expect(result.lv2HasComponents).toBe(false)
+  })
+
+  it('stays lv2HasComponents=false when the lv2 dir exists but is empty', () => {
+    makeLv1Dir()
+    mkdirSync(join(workDir, 'src/components/lv2'), { recursive: true })
+    const result = runAudit(workDir)
+    expect(result.lv2HasComponents).toBe(false)
+  })
+
+  it('flips lv2HasComponents=true when the lv2 dir contains a component subdir', () => {
+    makeLv1Dir()
+    mkdirSync(join(workDir, 'src/components/lv2/FormField'), { recursive: true })
+    const result = runAudit(workDir)
+    expect(result.lv2HasComponents).toBe(true)
   })
 
   it('hasFailures returns true on missing required files OR orphaned exports', () => {

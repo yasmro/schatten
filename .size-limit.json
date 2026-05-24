@@ -19,5 +19,28 @@
     "name": "schatten.css",
     "path": "dist/schatten.css",
     "limit": "50 KB"
-  }
+  },
+  {
+    "name": "css/* (per-component aggregate)",
+    "path": "dist/css/*.css",
+    "limit": "20 KB"
+  },
+  { "name": "css/badge", "path": "dist/css/badge.css", "limit": "1.5 KB" },
+  { "name": "css/button", "path": "dist/css/button.css", "limit": "1.5 KB" },
+  { "name": "css/callout", "path": "dist/css/callout.css", "limit": "1.5 KB" },
+  { "name": "css/checkbox", "path": "dist/css/checkbox.css", "limit": "1.5 KB" },
+  { "name": "css/dialog", "path": "dist/css/dialog.css", "limit": "1.5 KB" },
+  { "name": "css/field", "path": "dist/css/field.css", "limit": "1.5 KB" },
+  { "name": "css/fieldset", "path": "dist/css/fieldset.css", "limit": "1.5 KB" },
+  { "name": "css/icon", "path": "dist/css/icon.css", "limit": "1.5 KB" },
+  { "name": "css/input", "path": "dist/css/input.css", "limit": "1.5 KB" },
+  { "name": "css/radio", "path": "dist/css/radio.css", "limit": "1.5 KB" },
+  { "name": "css/select", "path": "dist/css/select.css", "limit": "1.5 KB" },
+  { "name": "css/separator", "path": "dist/css/separator.css", "limit": "1.5 KB" },
+  { "name": "css/spinner", "path": "dist/css/spinner.css", "limit": "1.5 KB" },
+  { "name": "css/switch", "path": "dist/css/switch.css", "limit": "1.5 KB" },
+  { "name": "css/text", "path": "dist/css/text.css", "limit": "1.5 KB" },
+  { "name": "css/textarea", "path": "dist/css/textarea.css", "limit": "1.5 KB" },
+  { "name": "css/toast", "path": "dist/css/toast.css", "limit": "1.5 KB" },
+  { "name": "css/tooltip", "path": "dist/css/tooltip.css", "limit": "1.5 KB" }
 ]

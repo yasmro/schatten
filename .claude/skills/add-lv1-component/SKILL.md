@@ -5,10 +5,10 @@ description: >-
   Use whenever the user wants to add, create, or generate a new lv1 / primitive
   component (e.g. "add a new lv1 component", "新しいコンポーネントを追加して",
   "lv1 に Alert を作って", "Banner コンポーネントを新設"). Generates the full
-  6-file set — variants CVA / tsx / stories / unit test / VRT spec / index —
-  in a form that complies with every .claude/rules/ guideline, and registers
-  the component in src/components/lv1/index.ts. Prevents test-less or
-  VRT-less component additions structurally.
+  7-file set — variants CVA / tsx / css / stories / unit test / VRT spec /
+  index — in a form that complies with every .claude/rules/ guideline, and
+  registers the component in src/components/lv1/index.ts. Prevents test-less,
+  VRT-less, or css-less component additions structurally.
 ---
 
 # add-lv1-component
@@ -25,13 +25,16 @@ For a component named `Foo`:
 |---|---|
 | `src/variants/foo.ts` | CVA variant definition (`fooVariants` + `FooVariants` type) |
 | `src/components/lv1/Foo/Foo.tsx` | The component (`forwardRef`, typed `Props`, TSDoc) |
+| `src/components/lv1/Foo/Foo.css` | Class-API CSS — the SSOT for `.st-foo` / `.st-foo--<modifier>` rules, also published per-component at `@yasmro/schatten/css/foo` (#291) |
 | `src/components/lv1/Foo/Foo.stories.tsx` | Storybook — `Playground` + grouped render stories |
 | `src/components/lv1/Foo/Foo.test.tsx` | Vitest unit test |
 | `src/components/lv1/Foo/Foo.vrt.spec.ts` | Playwright VRT spec |
 | `src/components/lv1/Foo/index.ts` | Folder barrel re-export |
 
 Plus an edit to **`src/components/lv1/index.ts`** adding the public re-export,
-and to **`src/variants/index.ts`** adding the variants re-export.
+and to **`src/variants/index.ts`** adding the variants re-export, and an
+import line in **`src/styles/entry.css`** so the new `.css` lands in the
+integrated `dist/schatten.css`.
 
 ## Templates
 
@@ -93,13 +96,23 @@ requires a discussion per `component-api-conventions.md`.
 ### Step 3 — Generate the files
 
 1. Copy each file in [`templates/`](templates/) to its destination, renaming
-   `Component.*` → `<Name>.*` and `variants.ts` → `<kebab>.ts`.
+   `Component.*` → `<Name>.*` and `variants.ts` → `<kebab>.ts`. The `.css`
+   template lands at `src/components/lv1/<Name>/<Name>.css` — it is
+   the SSOT for the public `.st-<kebab>` class API and is published per-
+   component at `@yasmro/schatten/css/<kebab>` (#291), so it is **not
+   optional**: the `build:component-css` step fails the build when any
+   lv1 dir is missing this file, and the `check-lv1-companions`
+   PostToolUse hook warns at edit time.
 2. Substitute every placeholder token (table above).
 3. Adapt to the Step 2 answers:
    - Replace the placeholder `variant: { neutral: '' }` with the real
      vocabulary; for Pattern B add the `appearance` axis.
    - Fill CVA classes with **semantic tokens only** (`bg-error`,
      `text-foreground-muted`, …) — never primitive classes (`bg-red-500`).
+   - In `<Name>.css`, replace each `TODO(<Name>)` marker with real rules
+     that mirror the CVA chain (so React and vanilla HTML render
+     identically). Author per `.claude/rules/css-api.md` — raw CSS +
+     `var(--color-*)`, no `@apply`, state via attribute selectors.
    - Form components: drop `variant`, add `isError`, wire `FieldContext`
      per `.claude/rules/field-context-guideline.md`.
    - Replace the `it.todo(...)` placeholders in the test with real
@@ -109,6 +122,10 @@ requires a discussion per `component-api-conventions.md`.
 4. Edit `src/components/lv1/index.ts` — add the re-export, keeping the list
    alphabetically sorted.
 5. Edit `src/variants/index.ts` — add the variants re-export, alphabetically.
+6. Edit `src/styles/entry.css` — add
+   `@import "../components/lv1/<Name>/<Name>.css";` in the
+   "Component CSS" block so the new rules land in the integrated
+   `dist/schatten.css` alongside the per-component subpath.
 
 ### Step 4 — Strip the scaffold residue
 
@@ -117,7 +134,7 @@ finished component. After Step 3, grep the generated files and make sure none
 of these remain:
 
 ```sh
-grep -rn 'it\.todo(\|describe each option here\|__ComponentName__\|__componentName__\|__component-name__' \
+grep -rn 'it\.todo(\|describe each option here\|TODO(\|__ComponentName__\|__componentName__\|__component-name__' \
   src/components/lv1/<Name> src/variants/<kebab>.ts
 ```
 
@@ -128,6 +145,10 @@ grep -rn 'it\.todo(\|describe each option here\|__ComponentName__\|__componentNa
   `testing-guideline.md` § Required test cases. A component that ships with
   `it.todo` is an under-tested component — the `check-lv1-companions.mjs`
   hook only checks that the test *file* exists, not that it is meaningful.
+- `TODO(<Name>)` — a stub CSS rule from `Component.css.template`. Each
+  one must be filled in with a real rule (or the whole modifier deleted
+  if your CVA does not have that axis value). The build does not detect
+  empty rule bodies; this grep is the structural check.
 - `describe each option here` and similar instruction text inside TSDoc —
   replace with the real per-option documentation.
 
@@ -143,6 +164,8 @@ pnpm lint:fix          # auto-format — generated indentation/line-wrapping is
 pnpm typecheck
 pnpm lint              # confirm lint + format are clean
 pnpm test --run src/components/lv1/<Name>
+pnpm build:component-css   # the new per-component CSS subpath (#291) — fails
+                           # loudly if `<Name>.css` is missing
 ```
 
 VRT baselines do not exist yet — the first `pnpm test:vrt` run writes them.

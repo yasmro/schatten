@@ -4,12 +4,13 @@ import { fileURLToPath } from 'node:url'
 import ts from 'typescript'
 import { describe, expect, it } from 'vitest'
 
-// The 6 placeholder templates in `templates/` are expanded by the
+// The 7 placeholder templates in `templates/` are expanded by the
 // add-lv1-component skill, but carry a `.template` extension so neither
 // `tsc` nor Biome inspects them during normal CI. This test is the standing
 // guard: it expands every template with a probe name and asserts the result
-// is syntactically valid TypeScript — so a template that drifts into broken
-// syntax is caught here, not the next time someone runs the skill.
+// is syntactically valid TypeScript (or CSS — see the TS-skip branch below)
+// so a template that drifts into broken syntax is caught here, not the
+// next time someone runs the skill.
 
 const here = dirname(fileURLToPath(import.meta.url))
 const templatesDir = join(here, 'templates')
@@ -31,8 +32,9 @@ function expand(source: string): string {
 const templates = readdirSync(templatesDir).filter((file) => file.endsWith('.template'))
 
 describe('add-lv1-component templates', () => {
-  it('ships exactly the documented 6-file set', () => {
+  it('ships exactly the documented 7-file set', () => {
     expect([...templates].sort()).toEqual([
+      'Component.css.template',
       'Component.stories.tsx.template',
       'Component.test.tsx.template',
       'Component.tsx.template',
@@ -51,6 +53,13 @@ describe('add-lv1-component templates', () => {
           expect(expanded).not.toContain(token)
         }
       })
+
+      // The CSS template is not TypeScript and cannot be transpiled with
+      // `ts.transpileModule`. The structural guard for CSS is the
+      // "no un-substituted placeholder" test above plus the build-time
+      // check in `scripts/build-component-css.mjs` (which fails the build
+      // if any lv1 dir is missing its `.css` file post-#291).
+      if (file.endsWith('.css.template')) return
 
       it('expands to syntactically valid TypeScript', () => {
         const isTsx = file.endsWith('.tsx.template')

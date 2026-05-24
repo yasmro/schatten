@@ -496,6 +496,49 @@ import '@yasmro/schatten/themes/default'
 This is the most reliable Layer A path today — it works in any framework
 that can `import` a CSS file.
 
+### Per-component CSS
+
+If you only need a handful of components and want to keep the CSS payload
+as small as possible — or you're authoring vanilla HTML and writing
+`<button class="st-btn st-btn--primary">` directly — each `lv1` component
+ships its own subpath under `@yasmro/schatten/css/<component>`. Each file
+contains just that component's `.st-*` rules, minified (≤ ~1 KB gzipped
+each today; max measured 1026 B for `css/select`, with a `size-limit`
+budget of 1.5 KB enforced in CI).
+
+```html
+<!-- vanilla HTML — design tokens + just the Button rules -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@yasmro/schatten/dist/core/tokens/index.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@yasmro/schatten/dist/themes/default/index.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@yasmro/schatten/dist/css/button.css">
+
+<button class="st-btn st-btn--primary st-btn--md">Save</button>
+```
+
+```ts
+// bundler-based — same shape, declared via subpath imports
+import '@yasmro/schatten/core/tokens'
+import '@yasmro/schatten/themes/default'
+import '@yasmro/schatten/css/button'
+```
+
+Available components (one subpath per lv1):
+<!-- generated:lv1-components:start -->
+`badge` · `button` · `callout` · `checkbox` · `dialog` · `field` ·
+`fieldset` · `icon` · `input` · `radio` · `select` · `separator` ·
+`spinner` · `switch` · `text` · `textarea` · `toast` · `tooltip`.
+<!-- generated:lv1-components:end -->
+
+Tokens must be imported separately — the per-component files reference
+`var(--color-*)` but do not redeclare the variables themselves. The
+integrated `@yasmro/schatten/schatten.css` is still the right default
+for projects that use most of the library; per-component subpaths are
+the escape hatch for "only import what you use" scenarios.
+
+A detailed delivery recipe (critical-CSS inlining, defer patterns,
+Lighthouse "Reduce unused CSS" remediation) lives in
+[#293](https://github.com/yasmro/schatten/issues/293).
+
 ### Seasonal themes
 
 ```tsx

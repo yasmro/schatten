@@ -25,6 +25,14 @@ jobs:
       - name: Biome CI
         run: pnpm lint
 
+      # README's "Available components" list is derived from
+      # `src/components/lv1/`. A new lv1 added without re-running
+      # `pnpm sync:readme` is an invisible consumer-facing gap — this gate
+      # surfaces the drift in the PR's checks list. No build required:
+      # the script only reads the lv1 directories and the README.
+      - name: README components drift
+        run: pnpm check:readme
+
   typecheck:
     runs-on: ubuntu-latest
     steps:

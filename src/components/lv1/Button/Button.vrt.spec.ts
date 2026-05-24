@@ -12,11 +12,16 @@ const stories = [
   'inverted-on-saturated-surfaces',
   // `link-variant` covers paragraph-embedded link buttons with a trailing
   // icon. The combination is fragile: Tailwind preflight makes `svg` a
-  // `display: block` element, and the link variant has no inline-flex
-  // wrapper, so a regression where the svg breaks to its own line is easy
-  // to introduce. The fix in Button.css (`.st-btn--link > svg { display:
-  // inline-block }` + `white-space: nowrap` on the link) needs a VRT
-  // backstop so a future cascade tweak can't silently undo it.
+  // `display: block` element, and the link variant has no inner wrapper
+  // (the flat DOM is `<a>{text}<svg/></a>`). A `display: block` child of an
+  // inline parent forces a line break, which orphans a trailing icon onto
+  // its own row. The fix in Button.css (`.st-btn--link { display:
+  // inline-flex; align-items: baseline; gap: 0.25rem }`) turns the svg into
+  // a flex item — block display is ignored, the 4px gap separates text and
+  // icon, and the baseline keeps the icon vertically aligned with the
+  // surrounding paragraph text. This VRT backstop fails fast if a future
+  // cascade tweak (relaxing the display value, changing the gap, dropping
+  // baseline alignment) silently re-introduces the orphan.
   'link-variant',
 ] as const
 

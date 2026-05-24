@@ -77,7 +77,14 @@
   }
 
   .st-field__label {
+    /* `line-height: 1.5rem` matches Tailwind's `text-base` pair
+     * (1rem / 1.5rem) — pre-sweep JSX used `text-base font-bold`. Body's
+     * `var(--leading-normal)` also resolves to ~1.5rem at 1rem font, so
+     * the pre-sweep visual happens to coincide today, but pin it
+     * explicitly to survive future leading-normal retuning (sister rule
+     * to `.st-fieldset__legend` below). */
     font-size: 1rem;
+    line-height: 1.5rem;
     font-weight: 700;
     color: var(--color-foreground);
   }

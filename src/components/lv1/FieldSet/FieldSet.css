@@ -66,7 +66,14 @@
   }
 
   .st-fieldset__legend {
+    /* `line-height: 1.75rem` matches Tailwind's `text-lg` pair (1.125rem
+     * / 1.75rem) — pre-sweep JSX used `text-lg font-bold`, and inherited
+     * body `var(--leading-normal)` produces ~1.6875rem (1px shorter),
+     * which propagated a ~1px downstream vertical shift through every
+     * subsequent sub-element. Pin the line-height explicitly here so the
+     * pre-sweep baseline is preserved. */
     font-size: 1.125rem;
+    line-height: 1.75rem;
     font-weight: 700;
     color: var(--color-foreground);
   }

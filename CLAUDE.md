@@ -66,3 +66,5 @@ When adding or modifying components, follow shadcn/ui conventions (Radix UI + CV
 - **Stop** → [scripts/check-lv1-export-integrity.mjs](scripts/check-lv1-export-integrity.mjs). At session end, diffs the lv1 component directories against the `from './...'` re-exports in [src/components/lv1/index.ts](src/components/lv1/index.ts). Mismatches surface as a non-blocking system-reminder.
 
 Both hooks are **non-blocking** — they print to `hookSpecificOutput.additionalContext` and always exit 0. They complement (do not replace) the lefthook pre-commit step.
+
+In addition to those hooks, the CI `lint` job runs **`pnpm check:readme`** ([scripts/sync-readme-components.mjs](scripts/sync-readme-components.mjs)) — verifies that the "Available components" list in [README.md](README.md) matches the lv1 directories on disk (filtered to those that ship a `.tsx` + `.css` pair). When a new lv1 is added but the README block is not regenerated, this gate fails the PR with a `current vs expected` diff. Run `pnpm sync:readme` locally to fix the drift.

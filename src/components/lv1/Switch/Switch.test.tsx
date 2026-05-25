@@ -12,34 +12,44 @@ describe('Switch', () => {
     expect(sw).toHaveAttribute('data-state', 'unchecked')
   })
 
+  it('emits the canonical st-switch class chain', () => {
+    render(<Switch aria-label="sw" />)
+    const sw = screen.getByRole('switch')
+    expect(sw).toHaveClass('st-switch', 'st-switch--md')
+  })
+
+  it('wraps the switch in .st-switch-wrapper', () => {
+    const { container } = render(<Switch aria-label="sw" />)
+    expect(container.firstChild).toHaveClass('st-switch-wrapper')
+  })
+
   it('renders label and associates it via htmlFor', () => {
     render(<Switch label="Notifications" />)
     const sw = screen.getByRole('switch')
     const label = screen.getByText('Notifications')
     expect(label).toHaveAttribute('for', sw.id)
+    expect(label).toHaveClass('st-switch-wrapper__label')
   })
 
   describe('sizes', () => {
-    it('applies size classes', () => {
+    it('applies size modifier classes', () => {
       const { rerender } = render(<Switch aria-label="sw" size="sm" />)
-      expect(screen.getByRole('switch')).toHaveClass('h-4')
+      expect(screen.getByRole('switch')).toHaveClass('st-switch--sm')
 
       rerender(<Switch aria-label="sw" size="lg" />)
-      expect(screen.getByRole('switch')).toHaveClass('h-6')
+      expect(screen.getByRole('switch')).toHaveClass('st-switch--lg')
     })
 
     it('defaults to md size', () => {
       render(<Switch aria-label="sw" />)
-      expect(screen.getByRole('switch')).toHaveClass('h-5')
+      expect(screen.getByRole('switch')).toHaveClass('st-switch--md')
     })
   })
 
   describe('error state', () => {
-    it('applies error classes and aria-invalid when isError is true', () => {
+    it('sets aria-invalid when isError is true (visual driven by CSS)', () => {
       render(<Switch aria-label="sw" isError />)
-      const sw = screen.getByRole('switch')
-      expect(sw.className).toContain('border-error')
-      expect(sw).toHaveAttribute('aria-invalid', 'true')
+      expect(screen.getByRole('switch')).toHaveAttribute('aria-invalid', 'true')
     })
 
     it('does not set aria-invalid when isError is false', () => {
@@ -93,6 +103,34 @@ describe('Switch', () => {
     })
   })
 
+  describe('thumb + check icon', () => {
+    it('thumb gets st-switch__thumb (position driven by [data-state] in CSS)', () => {
+      render(<Switch aria-label="sw" />)
+      const sw = screen.getByRole('switch')
+      const thumb = sw.querySelector('.st-switch__thumb')
+      expect(thumb).toBeInTheDocument()
+      // No translate-x utility on JSX — position is set by
+      // .st-switch[data-state="checked"] .st-switch__thumb in Switch.css.
+      expect(thumb?.className).not.toContain('translate-x-')
+    })
+
+    it('check icon span carries .st-switch__check without group-data utilities', () => {
+      render(<Switch aria-label="sw" />)
+      const sw = screen.getByRole('switch')
+      const check = sw.querySelector('.st-switch__check')
+      expect(check).toBeInTheDocument()
+      expect(check?.className).not.toContain('group-data-')
+      expect(check?.className).not.toContain('opacity-')
+    })
+
+    it('JSX no longer adds the `group` Tailwind utility', () => {
+      render(<Switch aria-label="sw" />)
+      // The `group` class was previously needed for `group-data-[state=checked]:`
+      // child variants — CSS-driven sibling selectors made it redundant.
+      expect(screen.getByRole('switch')).not.toHaveClass('group')
+    })
+  })
+
   describe('Field context integration', () => {
     it('inherits isError from Field', () => {
       render(
@@ -100,9 +138,7 @@ describe('Switch', () => {
           <Switch aria-label="sw" />
         </Field>,
       )
-      const sw = screen.getByRole('switch')
-      expect(sw.className).toContain('border-error')
-      expect(sw).toHaveAttribute('aria-invalid', 'true')
+      expect(screen.getByRole('switch')).toHaveAttribute('aria-invalid', 'true')
     })
 
     it('inherits disabled from Field', () => {
@@ -138,6 +174,6 @@ describe('Switch', () => {
 
   it('forwards className to the wrapper', () => {
     const { container } = render(<Switch aria-label="sw" className="custom-class" />)
-    expect(container.firstChild as HTMLElement).toHaveClass('custom-class')
+    expect(container.firstChild as HTMLElement).toHaveClass('st-switch-wrapper', 'custom-class')
   })
 })

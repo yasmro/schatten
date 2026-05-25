@@ -1,7 +1,6 @@
 import * as DialogPrimitive from '@radix-ui/react-dialog'
 import { type LucideIcon, X } from 'lucide-react'
 import { type ReactNode, useCallback, useEffect } from 'react'
-import { cn } from '../../../lib/utils'
 import { Button } from '../Button'
 import { Separator } from '../Separator'
 import './Dialog.css'
@@ -117,12 +116,10 @@ export interface DialogProps {
 
 function Header({ title, description }: { title: string; description?: string }) {
   return (
-    <div className="shrink-0 flex flex-col gap-1.5 pr-8">
-      <DialogPrimitive.Title className="text-lg font-semibold leading-tight text-foreground">
-        {title}
-      </DialogPrimitive.Title>
+    <div className="st-dialog__header">
+      <DialogPrimitive.Title className="st-dialog__title">{title}</DialogPrimitive.Title>
       {description && (
-        <DialogPrimitive.Description className="text-sm text-foreground-muted">
+        <DialogPrimitive.Description className="st-dialog__description">
           {description}
         </DialogPrimitive.Description>
       )}
@@ -131,7 +128,7 @@ function Header({ title, description }: { title: string; description?: string })
 }
 
 function Body({ children }: { children: ReactNode }) {
-  return <div className="min-h-0 overflow-y-auto text-sm text-foreground">{children}</div>
+  return <div className="st-dialog__body">{children}</div>
 }
 
 function Footer({
@@ -160,12 +157,7 @@ function Footer({
   const isSubActionLoading = !!subActionButton?.isLoading
 
   return (
-    <div
-      className={cn(
-        'shrink-0 flex flex-col gap-2',
-        'sm:flex-row sm:items-center sm:gap-2 sm:justify-end',
-      )}
-    >
+    <div className="st-dialog__footer">
       <Button
         variant={actionButton.variant ?? 'primary'}
         isLoading={isActionLoading}
@@ -212,11 +204,11 @@ function Footer({
 }
 
 function CloseButton({ disabled }: { disabled: boolean }) {
-  // Wrap in an absolutely-positioned div: Button's own className ends with
-  // `relative` (positioning context for its spinner), which tailwind-merges
-  // away any `absolute` we'd pass on the Button itself.
+  // Wrap in `.st-dialog__close` (absolute-positioned): Button's own root has
+  // `position: relative` (spinner overlay anchor), so positioning has to
+  // live one level up.
   return (
-    <div className="absolute right-4 top-4">
+    <div className="st-dialog__close">
       <DialogPrimitive.Close asChild>
         <Button variant="tertiary" size="sm" icon={X} aria-label="Close" disabled={disabled} />
       </DialogPrimitive.Close>
@@ -263,9 +255,7 @@ export const Dialog = ({
   return (
     <DialogPrimitive.Root open={isOpen} onOpenChange={onOpenChange}>
       <DialogPrimitive.Portal>
-        <DialogPrimitive.Overlay
-          className={cn('dialog-overlay fixed inset-0 z-(--z-modal-backdrop) bg-black/50')}
-        />
+        <DialogPrimitive.Overlay className="st-dialog__overlay" />
         <DialogPrimitive.Content
           onEscapeKeyDown={blockWhileLoading}
           onPointerDownOutside={blockWhileLoading}
@@ -275,18 +265,7 @@ export const Dialog = ({
           // is omitted (and Radix's auto-wiring stays intact) when a
           // Description child IS being rendered.
           {...(description === undefined && { 'aria-describedby': undefined })}
-          className={cn(
-            'dialog-content fixed left-1/2 top-1/2 z-(--z-modal)',
-            '-translate-x-1/2 -translate-y-1/2',
-            'w-[calc(100vw-2rem)] max-w-md',
-            // Cap height to viewport so very long bodies don't push the
-            // dialog off-screen. `overflow-hidden` here, plus `min-h-0
-            // overflow-y-auto` on the body below, makes the body the only
-            // scrolling region; header / footer stay pinned.
-            'max-h-[calc(100vh-2rem)] overflow-hidden',
-            'bg-background border border-border-strong shadow-lg',
-            'flex flex-col gap-6 p-6',
-          )}
+          className="st-dialog__content"
         >
           <Header title={title} description={description} />
           {children && <Body>{children}</Body>}

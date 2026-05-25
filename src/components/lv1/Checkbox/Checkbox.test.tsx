@@ -12,33 +12,46 @@ describe('Checkbox', () => {
     expect(checkbox).toHaveAttribute('data-state', 'unchecked')
   })
 
+  it('emits the canonical st-checkbox class chain', () => {
+    render(<Checkbox aria-label="cb" />)
+    const checkbox = screen.getByRole('checkbox')
+    expect(checkbox).toHaveClass('st-checkbox', 'st-checkbox--md')
+  })
+
+  it('wraps the checkbox in .st-checkbox-wrapper', () => {
+    const { container } = render(<Checkbox aria-label="cb" />)
+    expect(container.firstChild).toHaveClass('st-checkbox-wrapper')
+  })
+
   it('renders label and associates it via htmlFor', () => {
     render(<Checkbox label="Subscribe" />)
     const checkbox = screen.getByRole('checkbox')
     const label = screen.getByText('Subscribe')
     expect(label).toHaveAttribute('for', checkbox.id)
+    expect(label).toHaveClass('st-checkbox-wrapper__label')
   })
 
   describe('sizes', () => {
-    it('applies size classes', () => {
+    it('applies size modifier classes', () => {
       const { rerender } = render(<Checkbox aria-label="cb" size="sm" />)
-      expect(screen.getByRole('checkbox')).toHaveClass('size-4')
+      expect(screen.getByRole('checkbox')).toHaveClass('st-checkbox--sm')
 
       rerender(<Checkbox aria-label="cb" size="lg" />)
-      expect(screen.getByRole('checkbox')).toHaveClass('size-6')
+      expect(screen.getByRole('checkbox')).toHaveClass('st-checkbox--lg')
     })
 
     it('defaults to md size', () => {
       render(<Checkbox aria-label="cb" />)
-      expect(screen.getByRole('checkbox')).toHaveClass('size-5')
+      expect(screen.getByRole('checkbox')).toHaveClass('st-checkbox--md')
     })
   })
 
   describe('error state', () => {
-    it('applies error classes and aria-invalid when isError is true', () => {
+    it('sets aria-invalid when isError is true (border + bg shift driven by CSS)', () => {
       render(<Checkbox aria-label="cb" isError />)
       const checkbox = screen.getByRole('checkbox')
-      expect(checkbox.className).toContain('border-error')
+      // Visual treatment lives in the .st-checkbox[aria-invalid="true"]
+      // CSS rule — the test pins the attribute that triggers it.
       expect(checkbox).toHaveAttribute('aria-invalid', 'true')
     })
 
@@ -90,6 +103,25 @@ describe('Checkbox', () => {
     })
   })
 
+  describe('indicator visibility', () => {
+    it('renders the indicator as a child of .st-checkbox (CSS hides when unchecked)', () => {
+      render(<Checkbox aria-label="cb" defaultChecked />)
+      const checkbox = screen.getByRole('checkbox')
+      const indicator = checkbox.querySelector('.st-checkbox__indicator')
+      // Indicator is forceMount-rendered. The unchecked-state hiding is
+      // driven by CSS (.st-checkbox[data-state="unchecked"] .st-checkbox__indicator
+      // { display: none }), so the element is present in either state.
+      expect(indicator).toBeInTheDocument()
+    })
+
+    it('JSX no longer carries data-[state=unchecked]:hidden utility', () => {
+      render(<Checkbox aria-label="cb" />)
+      const checkbox = screen.getByRole('checkbox')
+      const indicator = checkbox.querySelector('.st-checkbox__indicator')
+      expect(indicator?.className).not.toContain('data-[state=unchecked]:hidden')
+    })
+  })
+
   describe('label click', () => {
     it('focuses/toggles when label is clicked', async () => {
       const onCheckedChange = vi.fn()
@@ -108,7 +140,6 @@ describe('Checkbox', () => {
         </Field>,
       )
       const checkbox = screen.getByRole('checkbox')
-      expect(checkbox.className).toContain('border-error')
       expect(checkbox).toHaveAttribute('aria-invalid', 'true')
     })
 
@@ -151,9 +182,9 @@ describe('Checkbox', () => {
     })
   })
 
-  it('forwards className to the root element', () => {
+  it('forwards className to the wrapper element', () => {
     const { container } = render(<Checkbox aria-label="cb" className="custom-class" />)
     const wrapper = container.firstChild as HTMLElement
-    expect(wrapper).toHaveClass('custom-class')
+    expect(wrapper).toHaveClass('st-checkbox-wrapper', 'custom-class')
   })
 })

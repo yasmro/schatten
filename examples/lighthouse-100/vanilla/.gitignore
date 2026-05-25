@@ -1,0 +1,4 @@
+node_modules
+.lighthouseci
+public/index.html
+public/css

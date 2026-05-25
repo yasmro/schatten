@@ -11,6 +11,7 @@ import {
 import { useFieldContext } from '../../../contexts/field'
 import { cn } from '../../../lib/utils'
 import { type RadioVariants, radioVariants } from '../../../variants/radio'
+import './Radio.css'
 
 /* ----- RadioGroup Context ----- */
 
@@ -65,7 +66,7 @@ export const RadioGroup = forwardRef<ElementRef<typeof RadioGroupPrimitive.Root>
         <RadioGroupPrimitive.Root
           ref={ref}
           disabled={disabled}
-          className={cn('flex flex-col gap-2', className)}
+          className={cn('st-radio-group', className)}
           aria-invalid={isError || undefined}
           aria-describedby={ariaDescribedBy}
           {...props}
@@ -98,18 +99,6 @@ export interface RadioProps
   label?: ReactNode
 }
 
-const labelSizeClasses = {
-  sm: 'text-xs',
-  md: 'text-sm',
-  lg: 'text-base',
-} as const
-
-const indicatorSizeClasses = {
-  sm: 'size-2.5',
-  md: 'size-3',
-  lg: 'size-4',
-} as const
-
 export const Radio = forwardRef<ElementRef<typeof RadioGroupPrimitive.Item>, RadioProps>(
   (
     {
@@ -131,33 +120,22 @@ export const Radio = forwardRef<ElementRef<typeof RadioGroupPrimitive.Item>, Rad
     const id = idProp ?? autoId
 
     return (
-      <div className={cn('inline-flex items-center gap-2', className)}>
+      <div className={cn('st-radio-wrapper', className)}>
         <RadioGroupPrimitive.Item
           ref={ref}
           id={id}
-          className={cn(
-            radioVariants({ size }),
-            isError && 'border-error bg-error-subtle focus-visible:ring-error',
-          )}
+          className={cn(radioVariants({ size }))}
           aria-invalid={isError || undefined}
           disabled={disabled}
           {...props}
         >
-          <RadioGroupPrimitive.Indicator className="absolute inset-0 flex items-center justify-center">
-            <span
-              className={cn('rounded-full', 'bg-current', indicatorSizeClasses[size ?? 'md'])}
-            />
+          {/* Radix unmounts this when unchecked — no `forceMount`. */}
+          <RadioGroupPrimitive.Indicator className="st-radio__indicator">
+            <span className="st-radio__dot" />
           </RadioGroupPrimitive.Indicator>
         </RadioGroupPrimitive.Item>
         {label && (
-          <label
-            htmlFor={id}
-            className={cn(
-              labelSizeClasses[size ?? 'md'],
-              'text-foreground cursor-pointer select-none',
-              disabled && 'cursor-not-allowed text-foreground-disabled',
-            )}
-          >
+          <label htmlFor={id} className="st-radio-wrapper__label">
             {label}
           </label>
         )}

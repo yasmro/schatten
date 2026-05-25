@@ -1,6 +1,7 @@
 import * as SeparatorPrimitive from '@radix-ui/react-separator'
 import { type ComponentPropsWithoutRef, type ComponentRef, forwardRef } from 'react'
 import { cn } from '../../../lib/utils'
+import './Separator.css'
 
 export interface SeparatorProps extends ComponentPropsWithoutRef<typeof SeparatorPrimitive.Root> {
   /**
@@ -23,8 +24,8 @@ export const Separator = forwardRef<ComponentRef<typeof SeparatorPrimitive.Root>
       orientation={orientation}
       decorative={decorative}
       className={cn(
-        'shrink-0 bg-border',
-        orientation === 'horizontal' ? 'h-px w-full' : 'h-full w-px',
+        'st-separator',
+        orientation === 'vertical' ? 'st-separator--vertical' : 'st-separator--horizontal',
         className,
       )}
       {...props}

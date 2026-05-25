@@ -143,6 +143,7 @@ component uses.
 | `Callout` | B | `neutral` · `success` · `error` · `warning` · `info` | `solid` · `subtle` | No `outline` — Callouts need a tinted surface to convey state. |
 | `Toast` | B | `neutral` · `success` · `error` · `warning` · `info` | `solid` · `subtle` | Same shape subset as `Callout`. |
 | `Spinner` | — | `default` · `inverted` | — | Out of pattern. `default` for ordinary surfaces, `inverted` for use on saturated/colored surfaces (inside a solid Button, on a `*-foreground` background). Kept as a small special case rather than forced into Pattern A/B; revisit only if Spinner gains more color needs. |
+| `Icon` | — | (none) | — | Out of pattern. A `lucide-react` wrapper with `size` (`sm`/`md`/`lg`) + a `color` prop — no `variant`/`appearance`. `color` reuses `Text`'s vocabulary; see the `color` row in Common props. |
 | `Input` · `Textarea` · `Select` · `Checkbox` · `Radio` · `Switch` | — | (none — always neutral) | — | Error state via the `isError` prop, not `variant`. |
 | `Text` | (exception) | re-used for typography role: `body` \| `label` \| `heading` | — | Typography is structural, not chrome — color lives on a separate `color` prop. The **only** approved re-use of the `variant` prop name with different semantics. |
 | `Tooltip` · `Dialog` · `Separator` · `Field` · `FieldSet` | — | n/a — no color variants by design | — | Tooltip/Dialog are surfaces; Separator/Field/FieldSet are layout. |
@@ -191,7 +192,8 @@ different semantics in any component.
 | `required` | `boolean` | HTML standard. No `is` prefix. | Form components inside a `<Field>`. |
 | `id` | `string` | HTML standard. When inside `<Field>`, the field's `id` wins for label-association components (`Input` / `Textarea` / `Select`) — see [field-context-guideline](field-context-guideline.md). |
 | `asChild` | `boolean` | Delegates rendering to the child via Radix `Slot`. **Adoption criteria below.** | Only components that satisfy the criteria. |
-| `icon` | `LucideIcon` (from `lucide-react`) | A Lucide **icon component** rendered alongside content. Passed as a component, never a name string, so consumer bundles tree-shake icons. The icon vendor is fixed to Lucide; widening to a vendor-agnostic type later is non-breaking. | `Button` / `Badge` (`icon`); `Input` (`iconLeft` / `iconRight`); `Dialog` footer-button slots (`actionButton.icon` / `cancelButton.icon` / `subActionButton.icon`). |
+| `icon` | `LucideIcon` (from `lucide-react`) | A Lucide **icon component** rendered alongside content. Passed as a component, never a name string, so consumer bundles tree-shake icons. The icon vendor is fixed to Lucide; widening to a vendor-agnostic type later is non-breaking. | `Button` / `Badge` (`icon`); `Input` (`iconLeft` / `iconRight`); `Dialog` footer-button slots (`actionButton.icon` / `cancelButton.icon` / `subActionButton.icon`); the standalone `Icon` component (`icon`). |
+| `color` | union — the shared `Text` / `Icon` color vocabulary (`default` / `muted` / `subtle` · `error` / `success` / `warning` / `info` · `inverted` / `inverted-muted` / `inverted-subtle` · `vermillion` / `indigo` · `inherit`) | A foreground / state / inverted / brand color token. Distinct from `variant` (role/tone) and `appearance` (weight). | `Text` and `Icon` only — both share one vocabulary. Defaults differ by component: `Text` → `default`, `Icon` → `inherit` (composition-safe, takes the surrounding `currentColor`). |
 
 ### Boolean prop naming
 

@@ -18,6 +18,39 @@ src/components/lv1/ComponentName/
     └── story-name-dark.png
 ```
 
+### Shared markup fixtures — `__fixtures__/`
+
+When the **same** vanilla HTML or React markup needs to be rendered by
+both a Storybook story *and* a Playwright `page.setContent()` spec
+(integration-level VRT — see
+[`src/docs/CSSApiDist.vrt.spec.ts`](../../src/docs/CSSApiDist.vrt.spec.ts),
+#277), keep the markup in a `__fixtures__/` directory next to the
+spec, NOT inlined in both places:
+
+```
+src/docs/
+├── CSSApiParity.stories.tsx        Storybook story (imports React fixture)
+├── CSSApi.vrt.spec.ts              Storybook-mode VRT
+├── CSSApiDist.vrt.spec.ts          Storybook-free dist VRT
+└── __fixtures__/
+    ├── cssApiSamples.html.ts       String payloads only (SSOT)
+    └── cssApiSamples.tsx           React components + re-exports the strings
+```
+
+**Why split into `.html.ts` (strings) and `.tsx` (React)**: Playwright
+compiles spec files through Babel, which mis-parses `Component.css`
+side-effect imports (which lv1 React components carry) as TypeScript
+decorators. Importing the `.tsx` from a Playwright spec breaks; the
+`.html.ts` companion strips React imports out so it imports cleanly.
+Stories that need both string and React versions import from the
+`.tsx`, which re-exports the strings.
+
+**Why a fixture instead of inlined markup**: drift between the story
+copy and the spec copy can only be caught by reviewer grep
+otherwise. With the fixture, a markup typo can only appear on both
+verification paths or neither — the SSOT makes drift structurally
+impossible.
+
 ## Template
 
 ```typescript
@@ -143,6 +176,123 @@ Only include stories that represent distinct visual states:
 - Include: `AllVariants`, `Sizes`, `States`, `Disabled`, `ErrorState`
 - Exclude: `Playground` (interactive, not for VRT)
 
+### Adding a new story → add it to the VRT roster (or document the skip)
+
+When you add a new story to `{Component}.stories.tsx`, the **same PR** must do
+one of:
+
+1. **Add the story id to the `stories` array in `{Component}.vrt.spec.ts`** and
+   generate the light + dark baselines. This is the default and what almost
+   every story should do.
+2. **Explicitly skip it** by leaving a one-line comment in the spec file's
+   `stories` array stating the reason (e.g. `// 'playground' — interactive
+   only; not a distinct visual state`). The comment must name the skipped
+   story so a reviewer can grep for it.
+
+Why this is a hard rule, not "best effort":
+
+- VRT roster drift is silent — Storybook ships the story regardless of
+  whether `{Component}.vrt.spec.ts` knows about it, and a missing story
+  produces no failing test. The miss is invisible until a visual
+  regression ships to production.
+- This is exactly how [#302](https://github.com/yasmro/schatten/pull/302)'s
+  Button link-icon orphan bug slipped past CI: `LinkVariant` existed in
+  `Button.stories.tsx` from sweep-3 onwards but was never added to the VRT
+  roster, so no baseline existed to fail against.
+- The cost of adding a story to the roster is two `pnpm test:vrt:update`
+  PNGs and a one-line array entry. The cost of letting drift accumulate is
+  one bug per component per regression cycle.
+
+What counts as a legitimate skip reason:
+
+- `Playground` and other interactive-only stories that don't have a stable
+  visual state (skip with `// '<id>' — Playground / interactive only`).
+- Component-specific stories whose visual is already covered by an
+  AllVariants-style story (skip with `// '<id>' — visual covered by 'all-variants'`).
+- Stories that intentionally have no deterministic baseline (e.g. a story
+  showing randomized data — skip with `// '<id>' — non-deterministic data`).
+
+What is **not** a legitimate skip reason:
+
+- "We'll add it later" — file an issue and link it from the skip comment,
+  or do it now.
+- "It's just a small variant" — small visual states are exactly what VRT
+  catches that unit tests don't.
+- Silence (no skip comment) — silent skip is what this rule prevents.
+
+When the lefthook pre-commit hook or a future CI lint catches an orphaned
+story (defined as: a `*.stories.tsx` export that is neither in the spec's
+`stories` array nor mentioned in a skip comment), treat the warning as
+blocking — fix the roster, do not bypass.
+
+## Parity stories — when to write one, when to skip
+
+The `#154` sweeps that publish the `.st-*` class API also typically ship a
+`{Component}.parity.stories.tsx` whose VRT screenshot proves the React side
+and a hand-written vanilla HTML side render pixel-identically. Parity stories
+are the structural enforcement of "the class API alone produces the React
+visual" — but only for components a vanilla consumer can realistically use.
+
+### Skip parity for compound + JS-driven components
+
+For components in the [#297](https://github.com/yasmro/schatten/issues/297)
+classification **区分 C (静的描画のみ)** or **区分 D (JS 必須)** — i.e.,
+Tooltip, Select, Dialog, Toast — **do not author a parity story or a
+`*.parity.vrt.spec.ts`**. The class API still exists and is documented in the
+manifest, but there is no realistic vanilla use case to prove parity against:
+
+- 区分 D (Select / Dialog / Toast): the compound behaviour (open / close /
+  select / focus trap) requires Radix-equivalent JS that Schatten does not
+  ship. A vanilla consumer who writes `<button class="st-select__trigger">`
+  has a styled button that opens nothing — the "parity" is performative.
+- 区分 C (Tooltip): static `.st-tooltip__content` is renderable in vanilla
+  HTML, but positioning requires Floating UI / Popper logic, and the
+  hover / focus trigger requires self-written JS. The visual contract is
+  trivial enough (single dark / light box + arrow) that the manifest entry
+  and the unit-test `class API` describe block cover it.
+
+Write parity only for **区分 A (完全 vanilla 可)** and **区分 B (ブラウザが
+ハンドル)** components:
+
+- 区分 A: Button, Badge, Callout, Text, Icon, Separator, Spinner.
+- 区分 B: Input, Textarea, Checkbox, Switch, Radio.
+
+These are where a vanilla consumer plausibly writes
+`<button class="st-btn st-btn--primary">` or `<input class="st-input">` and
+expects parity with the React render. The parity VRT structurally enforces
+that.
+
+### What replaces parity for skipped components
+
+When you skip the parity story, the contract is still defended by:
+
+- **Manifest** (`src/__generated__/schatten.manifest.json`) — the
+  `.st-*` classes the component emits are listed there. Renaming or removing
+  one fails `pnpm check:manifest` in CI.
+- **Unit test `class API` describe block** — a 3-4 line test that calls
+  `render(<Component …/>)` and asserts `toHaveClass('st-component__part',
+  'st-component__part--modifier')`. Sweep-3/4/5 components carry this
+  pattern.
+- **Existing component VRT** (`{Component}.vrt.spec.ts`) — visual regression
+  on the React side is still captured; the Tailwind utility → semantic class
+  translation is verified via diff against existing baselines.
+
+### Decision flow
+
+When adding a new lv1 component or sweeping an existing one, ask:
+
+1. Is the component fully renderable + interactive in vanilla HTML using
+   only the `.st-*` class chain and HTML/ARIA attributes?
+   - Yes (区分 A/B) → write the parity story + VRT spec.
+   - No (区分 C/D) → skip parity; rely on manifest + class API unit test.
+2. If borderline (e.g., a static decorative-only compound), default to
+   **skip** — adding parity later is non-breaking, removing it later is a
+   semver-noisy churn.
+
+The future docs effort in [#297](https://github.com/yasmro/schatten/issues/297)
+will document the 5-区分 classification in `css-api.md`; this rule's parity
+decision tree references the same classification.
+
 ## Running VRT Tests
 
 ```bash
@@ -213,6 +363,66 @@ committed baseline no longer reflects the current values. When you have
 intentionally changed something a snapshot covers, force a faithful
 re-capture by **deleting the PNG and re-running** `pnpm test:vrt`, rather
 than trusting a green `test:vrt:update`.
+
+### The mirror trap — `rm` + regenerate without `test:vrt` first
+
+The complementary mistake is to **delete the PNG and regenerate immediately**
+when you *suspect* a change but haven't verified one is needed. Doing so:
+
+1. Bypasses the 1% threshold check that would tell you "actually no real
+   diff" — Playwright happily writes a new baseline with whatever
+   sub-pixel font / antialiasing noise this run produced.
+2. Inflates the PR diff with regenerated PNGs that aren't carrying any
+   visual contract change. Reviewers can't tell what the migration
+   actually changed visually.
+3. Forfeits a free signal: a clean `pnpm test:vrt` pass against the
+   existing baseline is **proof that the visual contract held**. For
+   token-driven refactors (where the migration *shouldn't* change
+   render) this signal is the whole point.
+
+**Always run `pnpm test:vrt` first.** Only delete + regenerate when the
+test actually fails and you've confirmed via `*-diff.png` that the
+change is intended and unavoidable. This was learned the expensive way
+during #266 sweep-1 — see PR #282 for the receipts.
+
+### Bulk re-baseline — Tailwind / `lucide-react` / `@radix-ui/*` major
+
+A small set of dependencies can shift the visual contract **without
+any source-file change** — listed in
+[api-stability.md §"Visual-contract-affecting dependencies"](api-stability.md#visual-contract-affecting-dependencies).
+When one of them gets a major bump, dozens of snapshots may drift
+simultaneously. The discipline above (`pnpm test:vrt` first → eyeball
+each `*-diff.png` → only then `--update-snapshots`) **does NOT bend**
+for these — bulk re-baseline without per-PNG review is exactly how a
+cascade-order regression like #277's preflight bug slips into the
+new baselines silently.
+
+The procedure:
+
+1. **Bump the dep on a dedicated branch**, separate from any other
+   schatten change. Snapshot diffs are otherwise unattributable.
+2. **Run `pnpm test:vrt` and let the failures land.** Expect 30+
+   diffs for a Tailwind / Radix major. Don't update yet.
+3. **Triage the diffs by category**, not by file:
+   - *Font / antialiasing micro-shifts* — acceptable, low risk.
+   - *Layout shifts* (positions, sizes, gaps) — flag and check the
+     dep's CHANGELOG for the cause.
+   - *Color / contrast shifts on `.st-*` rules* — **stop**. If a
+     `<button>`-rooted primitive is becoming transparent, you're
+     looking at #277's preflight bug again. Investigate the
+     `@layer` declaration BEFORE re-baselining.
+   - *Animation frames* — should never drift; if they do, the
+     `addStyleTag` animation-pause snippet is broken or the
+     keyframes themselves moved.
+4. **Re-baseline category-by-category**, scoped with `--grep`. NOT a
+   single `pnpm test:vrt:update` on the whole suite.
+5. **Commit per category** (e.g. one commit per affected story file
+   group), so a future bisect can locate which category's
+   re-baseline introduced a hidden regression.
+
+The category-by-category triage is what saved #277 from shipping the
+preflight bug ─ the new baselines for `dist-schatten-css-*` would
+have looked "almost right" without that triage. Don't shortcut it.
 
 ## Snapshot Naming
 

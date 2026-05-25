@@ -174,7 +174,7 @@ describe('Dialog', () => {
   it('blocks overlay click dismissal when a footer button is loading', () => {
     render(<Controlled actionButton={{ label: 'Confirm', onClick: () => {}, isLoading: true }} />)
 
-    const overlay = document.querySelector('.dialog-overlay')
+    const overlay = document.querySelector('.st-dialog__overlay')
     if (!overlay) throw new Error('overlay element not found')
 
     fireEvent.pointerDown(overlay)
@@ -186,8 +186,9 @@ describe('Dialog', () => {
   it('uses primary action variant by default', () => {
     render(<Controlled />)
     const action = screen.getByRole('button', { name: 'Confirm' })
-    // Button primary variant uses bg-solid utility class
-    expect(action.className).toContain('bg-solid')
+    // After #268 sweep-3 the bg-solid utility lives inside the .st-btn--primary
+    // CSS rule — the JSX-visible signal is the modifier class itself.
+    expect(action.className).toContain('st-btn--primary')
   })
 
   it('uses destructive action variant when specified', () => {
@@ -195,18 +196,20 @@ describe('Dialog', () => {
       <Controlled actionButton={{ label: 'Delete', variant: 'destructive', onClick: () => {} }} />,
     )
     const action = screen.getByRole('button', { name: 'Delete' })
-    expect(action.className).toContain('bg-destructive')
+    expect(action.className).toContain('st-btn--destructive')
   })
 
-  it('caps body height with overflow-y-auto so long content scrolls inside the dialog', () => {
+  it('renders the body inside .st-dialog__body so the scroll cap rule applies', () => {
+    // After #271 sweep-6 the height cap + overflow-y are encoded in the
+    // `.st-dialog__body` rule (Dialog.css), not as JSX-side Tailwind utilities.
+    // The JSX surface we can assert is the class chain itself.
     render(
       <Controlled>
         <p data-testid="dialog-body">long content</p>
       </Controlled>,
     )
     const body = screen.getByTestId('dialog-body').parentElement
-    expect(body).toHaveClass('overflow-y-auto')
-    expect(body).toHaveClass('min-h-0')
+    expect(body).toHaveClass('st-dialog__body')
   })
 
   it('warns in development when actionButton.onClick is undefined', () => {
@@ -221,5 +224,23 @@ describe('Dialog', () => {
     render(<Controlled actionButton={{ label: 'Confirm', onClick: () => {} }} />)
     expect(warn).not.toHaveBeenCalled()
     warn.mockRestore()
+  })
+
+  it('emits the canonical st-dialog__* sub-element classes', () => {
+    // Open dialog with description + body + close button + cancel button so
+    // every sub-element except subAction is exercised.
+    render(
+      <Controlled description="Helpful subtitle" cancelButton={{ label: 'Cancel' }}>
+        <p>Body content</p>
+      </Controlled>,
+    )
+    expect(document.querySelector('.st-dialog__overlay')).not.toBeNull()
+    expect(document.querySelector('.st-dialog__content')).not.toBeNull()
+    expect(document.querySelector('.st-dialog__header')).not.toBeNull()
+    expect(document.querySelector('.st-dialog__title')).not.toBeNull()
+    expect(document.querySelector('.st-dialog__description')).not.toBeNull()
+    expect(document.querySelector('.st-dialog__body')).not.toBeNull()
+    expect(document.querySelector('.st-dialog__footer')).not.toBeNull()
+    expect(document.querySelector('.st-dialog__close')).not.toBeNull()
   })
 })

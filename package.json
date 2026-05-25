@@ -18,6 +18,8 @@
       "require": "./dist/components/index.cjs"
     },
     "./schatten.css": "./dist/schatten.css",
+    "./schatten.manifest.json": "./dist/schatten.manifest.json",
+    "./css/*": "./dist/css/*.css",
     "./core/tokens": "./dist/core/tokens/index.css",
     "./themes/default": "./dist/themes/default/index.css",
     "./themes/seasonal": {
@@ -60,6 +62,14 @@
       },
       "import": "./dist/components/lv1/index.js",
       "require": "./dist/components/lv1/index.cjs"
+    },
+    "./providers": {
+      "types": {
+        "import": "./dist/providers/index.d.ts",
+        "require": "./dist/providers/index.d.cts"
+      },
+      "import": "./dist/providers/index.js",
+      "require": "./dist/providers/index.cjs"
     }
   },
   "files": [
@@ -71,17 +81,26 @@
   ],
   "scripts": {
     "dev": "storybook dev -p 6006",
-    "build": "pnpm clean:dist && pnpm build:js && pnpm check:use-client && pnpm build:css && pnpm build:copy-css",
+    "build": "pnpm clean:dist && pnpm build:js && pnpm check:use-client && pnpm build:css && pnpm build:component-css && pnpm build:copy-css && pnpm build:manifest",
     "clean:dist": "rm -rf dist",
     "build:js": "tsup",
-    "build:css": "lightningcss src/schatten.css -o dist/schatten.css --minify --bundle",
+    "build:css": "tailwindcss -i src/styles/entry.css -o dist/schatten.css --minify",
+    "build:component-css": "node scripts/build-component-css.mjs",
     "build:copy-css": "node scripts/copy-css-assets.mjs",
+    "build:manifest": "node scripts/generate-manifest.mjs",
+    "update:manifest": "node scripts/generate-manifest.mjs --commit",
+    "check:manifest": "node scripts/check-manifest-diff.mjs",
+    "sync:readme": "node scripts/sync-readme-components.mjs",
+    "check:readme": "node scripts/sync-readme-components.mjs --check",
     "check:use-client": "node scripts/check-use-client-banner.mjs",
+    "audit:coverage": "node scripts/audit-coverage.mjs",
+    "check:layer-order": "node scripts/check-layer-order.mjs",
     "build:storybook": "storybook build",
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:vrt": "playwright test",
     "test:vrt:update": "playwright test --update-snapshots",
+    "test:vrt:dist": "node scripts/ensure-dist.mjs && playwright test src/docs/CSSApiDist.vrt.spec.ts",
     "lint": "biome ci .",
     "lint:fix": "biome check --write .",
     "lint:pkg": "publint",
@@ -112,7 +131,7 @@
     }
   },
   "devDependencies": {
-    "@biomejs/biome": "2.4.14",
+    "@biomejs/biome": "2.4.15",
     "@changesets/changelog-github": "^0.7.0",
     "@changesets/cli": "^2.30.0",
     "@playwright/test": "^1.58.2",
@@ -120,6 +139,7 @@
     "@size-limit/preset-small-lib": "^12.1.0",
     "@storybook/addon-docs": "10.3.6",
     "@storybook/react-vite": "10.3.6",
+    "@tailwindcss/cli": "^4.2.2",
     "@tailwindcss/vite": "^4.2.2",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.1.0",
@@ -129,9 +149,8 @@
     "@types/react-dom": "^19.0.2",
     "jsdom": "29",
     "lefthook": "^2.1.4",
-    "lightningcss": "^1.28.2",
-    "lightningcss-cli": "^1.32.0",
     "lucide-react": "^1.7.0",
+    "postcss": "^8.5.10",
     "publint": "^0.3.21",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
@@ -158,10 +177,7 @@
   "pnpm": {
     "overrides": {
       "postcss@<8.5.10": ">=8.5.10"
-    },
-    "onlyBuiltDependencies": [
-      "lightningcss-cli"
-    ]
+    }
   },
   "license": "MIT",
   "repository": {

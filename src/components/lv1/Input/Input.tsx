@@ -4,6 +4,7 @@ import { useFieldContext } from '../../../contexts/field'
 import { mergeRefs } from '../../../lib/merge-refs'
 import { cn } from '../../../lib/utils'
 import { type InputVariants, inputVariants, inputWrapperVariants } from '../../../variants/input'
+import './Input.css'
 
 export interface InputProps
   extends Omit<InputHTMLAttributes<HTMLInputElement>, 'size'>,
@@ -38,12 +39,6 @@ export interface InputProps
 
 const dateTypes = new Set(['date', 'datetime-local', 'month', 'week', 'time'])
 
-const iconSizeMap = {
-  sm: 'size-3.5',
-  md: 'size-4',
-  lg: 'size-5',
-} as const
-
 export const Input = forwardRef<HTMLInputElement, InputProps>(
   (
     {
@@ -76,7 +71,6 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     const isDateType = dateTypes.has(type ?? '')
     const LeftIcon = !textLeft && iconLeft ? iconLeft : null
     const RightIcon = !textRight && iconRight ? iconRight : null
-    const iconSize = iconSizeMap[size ?? 'md']
 
     const handleWrapperClick = () => {
       if (!disabled) {
@@ -87,31 +81,13 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     return (
       // biome-ignore lint/a11y/noStaticElementInteractions: Wrapper delegates focus to input
       // biome-ignore lint/a11y/useKeyWithClickEvents: Input handles keyboard events
-      <div
-        className={cn(
-          inputWrapperVariants({ size }),
-          isError
-            ? 'border-error bg-error-subtle has-focus-visible:ring-error'
-            : 'border-border-strong',
-          readOnly && 'bg-surface-readonly border-border-readonly',
-          disabled
-            ? 'cursor-not-allowed bg-surface-disabled border-border-disabled text-foreground-disabled'
-            : 'cursor-text',
-          className,
-        )}
-        onClick={handleWrapperClick}
-      >
-        {textLeft && <span className="text-foreground-muted shrink-0">{textLeft}</span>}
-        {LeftIcon && (
-          <LeftIcon className={`text-foreground-muted shrink-0 ${iconSize}`} aria-hidden="true" />
-        )}
+      <div className={cn(inputWrapperVariants({ size }), className)} onClick={handleWrapperClick}>
+        {textLeft && <span className="st-input__text-left">{textLeft}</span>}
+        {LeftIcon && <LeftIcon className="st-input__icon-left" aria-hidden="true" />}
         <input
           type={type}
           id={id}
-          className={cn(
-            inputVariants(),
-            isDateType && '[&::-webkit-calendar-picker-indicator]:ml-auto',
-          )}
+          className={cn(inputVariants(), isDateType && 'st-input--date')}
           ref={mergeRefs(ref, inputRef)}
           disabled={disabled}
           readOnly={readOnly}
@@ -119,10 +95,8 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           aria-describedby={ariaDescribedBy}
           {...props}
         />
-        {textRight && <span className="text-foreground-muted shrink-0">{textRight}</span>}
-        {RightIcon && (
-          <RightIcon className={`text-foreground-muted shrink-0 ${iconSize}`} aria-hidden="true" />
-        )}
+        {textRight && <span className="st-input__text-right">{textRight}</span>}
+        {RightIcon && <RightIcon className="st-input__icon-right" aria-hidden="true" />}
       </div>
     )
   },

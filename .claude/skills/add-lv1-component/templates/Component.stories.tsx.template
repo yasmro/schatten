@@ -1,0 +1,86 @@
+import type { Meta, StoryObj } from '@storybook/react-vite'
+import { __ComponentName__ } from './__ComponentName__'
+
+/**
+ * __ComponentName__ — one-line description shown at the top of the
+ * autodocs page. Mirror the component's TSDoc header.
+ */
+const meta: Meta<typeof __ComponentName__> = {
+  title: 'Components/lv1/__ComponentName__',
+  component: __ComponentName__,
+  parameters: {
+    layout: 'centered',
+  },
+  tags: ['autodocs'],
+  argTypes: {
+    variant: {
+      description: 'Visual style of the __componentName__.',
+      control: 'select',
+      options: ['neutral'],
+      table: {
+        type: { summary: '"neutral"' },
+        defaultValue: { summary: 'neutral' },
+      },
+    },
+    size: {
+      description: 'Size of the __componentName__.',
+      control: 'select',
+      options: ['sm', 'md', 'lg'],
+      table: {
+        type: { summary: '"sm" | "md" | "lg"' },
+        defaultValue: { summary: 'md' },
+      },
+    },
+    children: {
+      description: 'Content displayed inside the __componentName__.',
+      control: 'text',
+      table: {
+        type: { summary: 'ReactNode' },
+      },
+    },
+  },
+}
+
+export default meta
+type Story = StoryObj<typeof __ComponentName__>
+
+const VARIANTS = ['neutral'] as const
+const SIZES = ['sm', 'md', 'lg'] as const
+
+/** Interactive single instance — always the first export (storybook-guideline.md). */
+export const Playground: Story = {
+  name: 'Playground',
+  args: {
+    variant: 'neutral',
+    size: 'md',
+    children: '__ComponentName__',
+  },
+}
+
+/** All visual variants side by side. Group by prop — do not create one story per value. */
+export const AllVariants: Story = {
+  name: 'All Variants',
+  render: () => (
+    <div className="flex flex-wrap items-center gap-4">
+      {VARIANTS.map((variant) => (
+        <__ComponentName__ key={variant} variant={variant}>
+          {variant}
+        </__ComponentName__>
+      ))}
+    </div>
+  ),
+}
+
+/** All size options side by side. */
+export const Sizes: Story = {
+  name: 'Sizes',
+  render: () => (
+    <div className="flex items-center gap-4">
+      {SIZES.map((size) => (
+        <__ComponentName__ key={size} size={size}>
+          {size}
+        </__ComponentName__>
+      ))}
+    </div>
+  ),
+}

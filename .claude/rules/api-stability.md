@@ -30,11 +30,12 @@ CHANGELOG:
 |---|---|
 | React component props | `<Button variant="primary">`, `<Input isError>`, `<Toast variant="error">` |
 | Exported TypeScript types | `ButtonProps`, `IconName`, `FieldContextValue`, the return type of `buttonVariants()` |
-| CSS class names | `.btn`, `.btn--primary`, `.input-wrapper`, `[data-variant="solid"]` (Phase 2 of #58) |
+| CSS class names | `.st-btn`, `.st-btn--primary`, `.st-input-wrapper`, `.st-callout__icon`, plus the `[aria-invalid="true"]` / `[aria-busy="true"]` / `[data-state]` / `[data-side]` state hooks they target. The naming convention (prefix `st-`, BEM, attribute-driven state) is fixed in [css-api.md](css-api.md); this document only sets the breaking-change policy that sits on top. |
 | CSS custom properties | `--color-primary-600`, `--color-error`, `--spacing-4`, `--font-sans` |
 | CVA output strings | The class string returned by `buttonVariants({ variant: 'primary' })` |
-| Multi-entry exports | `@yasmro/schatten/components/lv1`, `/tokens`, `/variants`, `/themes/default`, `/themes/seasonal` |
+| Multi-entry exports | `@yasmro/schatten/components/lv1`, `/tokens`, `/variants`, `/themes/default`, `/themes/seasonal`, `/providers` |
 | Theme contract | Which CSS variables a custom theme must define to be valid |
+| Provider runtime contract | The `localStorage` key (`'schatten-theme'`) and JSON shape (`{ mode, special }`) that `<ThemeProvider>` reads/writes. This is the contract the FOUC inline snippet ([#129](https://github.com/yasmro/schatten/issues/129)) and any consumer-side persistence code depends on. Renaming the key, adding/removing a field, or changing field semantics is a breaking change. See [#262](https://github.com/yasmro/schatten/issues/262) for the upcoming SHA-256 hash publication that further pins the inline snippet body. |
 
 ## What is **not** public API
 
@@ -71,21 +72,32 @@ we will not consider their breakage when scoping a release.
 CSS breakage is easy to miss because TypeScript can't catch it. Treat these as
 breaking:
 
-- Renaming or removing a documented CSS class (`.btn`, `.input-wrapper`).
+- Renaming or removing a documented `.st-*` class (`.st-btn`,
+  `.st-input-wrapper`, `.st-dialog__content`, …). The naming shape is fixed in
+  [css-api.md](css-api.md); renaming the `st-` prefix itself, the BEM
+  separators, or the block name of an existing component are all `major`.
 - Renaming or removing a CSS custom property declared in `src/core/tokens/`
   or `src/themes/`.
 - Changing the *meaning* of a class — e.g. swapping which selector a class
-  applies to, or changing the CSS cascade order in a way that flips precedence.
-- Removing a `data-*` attribute that the documented selectors target
-  (e.g. `[data-variant="solid"]`).
+  applies to, repointing `.st-btn--primary` from `--color-solid` to a
+  different token, or changing the CSS cascade order in a way that flips
+  precedence between the `tokens` / `components` / `utilities` layers.
+- Removing or repurposing a `data-*` / `aria-*` attribute that documented
+  selectors target — e.g. dropping `[data-state="open"]` from
+  `.st-dialog__content`, or moving error styling off `[aria-invalid="true"]`
+  onto a new state class. The full state-attribute table is in
+  [css-api.md §state](css-api.md#state-is-expressed-as-attributes-not-classes).
 
 These are **not** breaking:
 
 - Tweaking a token's color value (`--color-primary-600` going from one hex to
   a slightly different hex) — call this out in the CHANGELOG but it's a `minor`
   or `patch`, not `major`.
-- Adding new utility classes or new data attributes.
-- Refactoring internal CSS that has no documented class name attached.
+- Adding new `.st-*` classes, new modifier values, new sub-elements, or new
+  documented state attributes.
+- Refactoring internal CSS that has no documented class name attached — e.g.
+  collapsing a `:where(.dark) .st-btn--primary { … }` rule into a token swap,
+  provided the resulting cascade is observably identical.
 
 ## CHANGELOG conventions
 
@@ -116,8 +128,11 @@ BREAKING: `<Input isError>` is renamed to `<Input invalid>` for parity with
 ARIA. Replace all occurrences in your code. See docs/migrations/v2-input-invalid.md
 for a sed snippet and a checklist.
 
-CSS API: `.input-wrapper[data-error]` is renamed to `[data-invalid]` for the
-same reason.
+CSS API: `.st-input-wrapper` now routes its error state via
+`[aria-invalid="true"]` (the standard hook from [css-api.md](css-api.md)).
+The previous `[data-error]` attribute is removed. Consumers writing vanilla
+HTML must swap `<div data-error class="st-input-wrapper">` to `<div
+class="st-input-wrapper"><input aria-invalid="true" …></div>`.
 ```
 
 ## CVA output stability
@@ -160,6 +175,55 @@ or `tailwind-merge` to peer deps, the same rules apply.
   in a way that changes the emitted class string) is covered separately by
   the "CVA output stability" section above and is a `major`.
 
+## Visual-contract-affecting dependencies
+
+A small set of production / peer / dev dependencies can break the visual
+contract **without any source-file change** — a bump alone is enough.
+They're listed here as the single source of truth; any tooling that
+needs to react to such bumps (notably the [`prepare-release`](../skills/prepare-release/SKILL.md)
+skill's Step 3) should consult this table rather than duplicate it.
+
+| Dependency | Why it affects the visual contract |
+|---|---|
+| `lucide-react` | The Icon parity story ([`Icon.parity.stories.tsx`](../../src/components/lv1/Icon/Icon.parity.stories.tsx)) hand-pins inline SVG (`<circle>` + `<path>`) against a specific Lucide render. A Lucide bump that adjusts any icon's path / attributes drifts the parity baseline. |
+| `@radix-ui/*` (primitives that emit DOM — `react-checkbox` / `react-radio-group` / `react-select` / `react-separator` / `react-switch` / `react-toast` / `react-tooltip` / `react-dialog`) | Radix sometimes adds, renames, or removes `data-*` / `aria-*` attributes on its rendered primitives. Parity-covered components (Checkbox / Radio / Separator / Switch — 区分 A/B per [vrt-spec-guideline §Parity stories](vrt-spec-guideline.md#parity-stories--when-to-write-one-when-to-skip)) catch the drift via parity VRT; non-parity components (Tooltip / Dialog / Toast / Select — 区分 C/D) require manual verification because no parity baseline exists. |
+| `@radix-ui/react-slot` | Slot doesn't emit DOM of its own, but it's the `asChild` plumbing — a bump can change prop-merging order or ref-forwarding behavior, affecting every consumer that exposes `asChild` (Button / Text / Tooltip Trigger / Dialog Trigger / Dialog Close / Select Trigger). |
+| `tailwindcss` | The Tailwind v4 compiler's `@layer theme { … }` emission rules can shift between minor versions. The manifest's `cssVariables` section is extracted from that block (see [Manifest as the authoritative API listing](#manifest-as-the-authoritative-api-listing) above), so a Tailwind bump can silently add or drop variables from the public surface. |
+
+When adding a new dependency that can shift the visual contract without a
+source-side change (e.g. a positioning library like `@floating-ui/react`
+that owns Tooltip / Popover geometry, or an animation library that's
+applied via CSS class), extend this table **and** update the tooling
+that pivots on dep bumps (today: `prepare-release` Step 3). The skill's
+[`grep.test.ts`](../skills/prepare-release/grep.test.ts) gate catches
+drift between the SKILL.md grep pattern and the on-disk parity stories;
+the dep-list ↔ SKILL.md table sync is currently maintainer-reviewed.
+
+## CSS class naming — frozen by [css-api.md](css-api.md)
+
+The class-naming surface itself — prefix, BEM shape, attribute-driven state,
+`@layer` order — is pinned in [css-api.md](css-api.md). That document is
+the source of truth for *what* the classes are called; this document is the
+source of truth for *what happens* when one of them is renamed, removed, or
+repointed.
+
+Two consequences worth pinning here:
+
+- **The `st-` prefix is part of the v1.0 contract.** Renaming it post-1.0 is
+  `major`. Pre-1.0 it would still ship with a `BREAKING:` CHANGELOG line so
+  early adopters can sed-migrate.
+- **State attributes are the contract, not the styling classes.** Consumers
+  rely on `[aria-invalid="true"]` triggering the same error visual that
+  `<Input isError>` does. Moving error styling off `[aria-invalid]` onto a
+  new class — or vice versa — is `major`, because it forces every vanilla-HTML
+  consumer to rewrite their attribute wiring. (See [css-api.md §state](css-api.md#state-is-expressed-as-attributes-not-classes)
+  for the full attribute table.)
+
+The class-name audit is tracked by
+[#154](https://github.com/yasmro/schatten/issues/154) (v0.9.0) and writes
+every public class into the manifest below. Once #154 ships, the manifest
+becomes the diff a reviewer sees on every CSS change.
+
 ## CSS variable naming — settle before 1.0
 
 A CSS variable rename is `major` after 1.0. So names like `--vermillion-600`
@@ -181,21 +245,75 @@ v0.15.0 as a backstop); the only hard requirement is that it lands **before
 v1.0.0**. CONTRIBUTING.md (planned for v0.15.0) will reference this document as
 the source of truth for what consumers can rely on.
 
-## Manifest as the authoritative API listing (planned)
+## Manifest as the authoritative API listing
 
-A `dist/schatten.manifest.json` file is planned for v0.9.0 (part of
-[#154](https://github.com/yasmro/schatten/issues/154)). It will list every
-public class, every CSS variable, and every exported symbol — i.e. the
-machine-readable form of this contract. The intent is for a CI lint to diff
-the generated manifest against the committed one and require a changeset when
-it changes, so adds/removes/renames can't slip through review unnoticed.
+`dist/schatten.manifest.json` enumerates every public `.st-*` class, every
+state-hook attribute (`data-*` / `aria-invalid` / `aria-busy`), and every
+CSS custom property registered via Tailwind v4 `@theme { … }` — i.e. the
+machine-readable form of this contract. **`@theme` registration is the
+authoritative public-surface signal for CSS variables**: the generator
+extracts declarations from the `@layer theme { :root, :host { … } }` block
+that Tailwind compiles `@theme { … }` into, so primitives declared in
+source token files (`--font-bold`, `--font-sans-fallback`, raw
+`--text-xs`) that never go through `@theme` are intentionally excluded.
+The manifest ships under `@yasmro/schatten/schatten.manifest.json` and is
+regenerated by `pnpm build:manifest` from `dist/schatten.css`. Schema:
 
-Once the manifest exists, the **manifest is authoritative**. If it disagrees
-with this document about what is public, treat the manifest as the source of
-truth and update this document.
+```jsonc
+{
+  "$schemaVersion": 1,
+  "package": "@yasmro/schatten",
+  "version": "0.9.0",
+  "generatedAt": "2026-05-22T…",
+  "classes": ["st-btn", "st-btn--primary", …],
+  "dataAttributes": ["aria-busy", "data-state", …],
+  "cssVariables": ["--color-error", "--spacing-4", …]
+}
+```
 
-Until the manifest exists, this document and the `package.json` `exports` map
-together define the surface.
+A companion snapshot lives at `src/__generated__/schatten.manifest.json`,
+deliberately omitting `package` / `version` / `generatedAt` so the file is
+stable across `changeset version` bumps — this is the file CI's
+`pnpm check:manifest` diffs against. A drift between dist and the snapshot
+fails the `manifest` CI job, with the per-section set difference printed
+inline so the PR reviewer reads the surface change directly from the CI
+log. When the drift is intentional, `pnpm update:manifest` re-writes the
+snapshot and the change must ship with a `CSS API:` changeset.
+
+**The manifest is authoritative.** If it disagrees with this document
+about what is public, treat the manifest as the source of truth and update
+this document. Landed alongside
+[#265](https://github.com/yasmro/schatten/issues/265).
+
+### Per-component CSS size budgets
+
+Each `@yasmro/schatten/css/<component>` subpath shipped by
+[#291](https://github.com/yasmro/schatten/issues/291) carries a
+size-limit budget enforced by the CI `size` job. The budgets live in
+[`.size-limit.json`](../../.size-limit.json):
+
+- Every lv1 component: **≤ 1.5 KB brotli**.
+- Aggregate across all 18 lv1 components: **≤ 20 KB brotli**.
+- The integrated `dist/schatten.css`: **≤ 50 KB brotli**.
+
+The manifest and the size-limit budgets are **two complementary
+contracts** on the same CSS surface:
+
+| Pin | Mechanism | Failure mode |
+|---|---|---|
+| Name of every public `.st-*` class / state attribute / `--color-*` variable | `pnpm check:manifest` against `src/__generated__/schatten.manifest.json` | A rename / removal / addition without the right `CSS API:` changeset entry fails CI |
+| Cost of every per-component CSS subpath | `pnpm size` against `.size-limit.json` | A runaway component CSS — e.g. a new variant that doubles the bundle — fails CI |
+
+A change that touches either contract goes through the same
+breaking-change policy as the rest of this document. Adjusting a budget
+*upward* is an additive surface change (`minor` pre-1.0, document it in
+the changeset); pruning it *downward* without a corresponding source
+shrink is breaking because consumers' historical artifact sizes may
+exceed the new limit on re-build.
+
+The per-component delivery story (and the Lighthouse audit mapping it
+addresses) is documented for consumers in the README's
+[Performance](../../README.md#performance) section.
 
 ## When you're about to ship a change
 
@@ -217,8 +335,13 @@ Ask, in order:
 
 ## Related
 
+- [css-api.md](css-api.md) — the CSS class-naming convention this document
+  freezes (prefix `st-`, BEM, attribute-driven state, `@layer` order,
+  dark/seasonal pattern, no-color-alone)
 - [#58](https://github.com/yasmro/schatten/issues/58) — framework-agnostic CSS
-  roadmap (Phase 2 introduces the data-attribute class API)
+  roadmap (Phase 2 introduces the `.st-*` class API)
+- [#154](https://github.com/yasmro/schatten/issues/154) — Phase 2 implementation
+  tracker (CSS sweep + manifest pipeline, v0.9.0)
 - [state-token-guideline](state-token-guideline.md) — names and shapes of state
   semantic tokens (subject to this contract from v1.0)
 - [lint-rules-guideline](lint-rules-guideline.md) — Biome rules and GritQL

@@ -25,6 +25,21 @@ jobs:
       - name: Biome CI
         run: pnpm lint
 
+      # README's "Available components" list is derived from
+      # `src/components/lv1/`. A new lv1 added without re-running
+      # `pnpm sync:readme` is an invisible consumer-facing gap — this gate
+      # surfaces the drift in the PR's checks list. No build required:
+      # the script only reads the lv1 directories and the README.
+      - name: README components drift
+        run: pnpm check:readme
+
+      # Catches drift between `.claude/rules/css-api.md` §`@layer order` and
+      # `src/styles/entry.css` — exactly the kind of doc-vs-implementation
+      # mismatch that hid the preflight-priority bug fixed in #277. Runs in
+      # the `lint` job because it has no build dependency.
+      - name: CSS @layer order drift
+        run: pnpm check:layer-order
+
   typecheck:
     runs-on: ubuntu-latest
     steps:
@@ -74,8 +89,8 @@ jobs:
       - run: pnpm install --frozen-lockfile
 
       # `size-limit` measures files in dist/, so the package must be built
-      # first. build:css relies on lightningcss-cli's postinstall binary —
-      # enabled via pnpm.onlyBuiltDependencies in package.json.
+      # first. build:css now runs `@tailwindcss/cli` against
+      # `src/styles/entry.css` (no native postinstall step required).
       - name: Build
         run: pnpm build
 
@@ -85,6 +100,39 @@ jobs:
       # `pnpm size` gate is reliable and fails the check on any budget breach.
       - name: Check bundle size
         run: pnpm size
+
+  manifest:
+    runs-on: ubuntu-latest
+    # Skipped on the develop→main release PR for the same reason as
+    # `changeset`: `changeset version` consumes every changeset, so the
+    # diff-needs-changeset heuristic in scripts/check-manifest-diff.mjs
+    # produces a misleading error. Dependabot bumps cannot meaningfully
+    # change the CSS surface either.
+    if: |
+      github.event_name == 'pull_request' &&
+      github.base_ref != 'main' &&
+      github.event.pull_request.user.login != 'dependabot[bot]'
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0          # `changeset status --since=origin/<base>` needs full history
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      # The manifest is generated from dist/schatten.css, so the package
+      # must be built before the gate can compare against the committed
+      # snapshot. `size` runs an independent build for an independent
+      # check; the two are kept as separate jobs so a failure on either
+      # is immediately distinguishable in the PR's checks list.
+      - name: Build
+        run: pnpm build
+      - name: Check manifest diff
+        run: pnpm check:manifest
+        env:
+          GITHUB_BASE_REF: ${{ github.base_ref }}
 
   changeset:
     runs-on: ubuntu-latest

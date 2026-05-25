@@ -1,0 +1,142 @@
+/*
+ * Checkbox — `.st-checkbox` + `.st-checkbox-wrapper` class API.
+ *
+ * Two blocks per the Input precedent:
+ * - `.st-checkbox-wrapper`           — outer `<div>` carrying inline-flex
+ *                                      layout for `[checkbox] + <label>`
+ * - `.st-checkbox-wrapper__label`    — the internal `<label>` (`for` binds
+ *                                      to the Radix Root id)
+ * - `.st-checkbox`                   — Radix Root (the actual checkbox
+ *                                      button). border + bg + size modifier
+ * - `.st-checkbox__indicator`        — Radix Indicator. absolutely positioned
+ *                                      check / minus SVG, hidden when
+ *                                      `[data-state="unchecked"]`
+ *
+ * Modifier axes:
+ * - size: sm | md | lg
+ *
+ * State is expressed as attributes:
+ * - `[data-state="checked"]` / `[data-state="unchecked"]` /
+ *   `[data-state="indeterminate"]` — emitted by Radix
+ * - `[aria-invalid="true"]`         — error treatment (border + bg-subtle +
+ *                                      focus-ring re-colour)
+ * - `:disabled`                     — disabled tokens
+ *
+ * The wrapper's label sizing is derived from the inner checkbox's size
+ * modifier via `:has()` — vanilla HTML consumers write a single size class
+ * on the checkbox and the label follows (matches the Callout `:has(__title)`
+ * precedent).
+ *
+ * Uses raw CSS + `var(--color-*)` throughout, per css-api.md
+ * "Component CSS authoring conventions — raw CSS over @apply".
+ *
+ * See: .claude/rules/css-api.md, #268 sweep-3.
+ */
+@layer components {
+  /* ===== wrapper ===== */
+  .st-checkbox-wrapper {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .st-checkbox-wrapper__label {
+    color: var(--color-foreground);
+    cursor: pointer;
+    user-select: none;
+  }
+  .st-checkbox-wrapper:has(.st-checkbox:disabled) .st-checkbox-wrapper__label {
+    cursor: not-allowed;
+    color: var(--color-foreground-disabled);
+  }
+  /* Label font-size + line-height pair, derived from the inner checkbox
+   * size — vanilla HTML consumers only write the size on the checkbox itself.
+   *
+   * `line-height` must be set alongside `font-size`: Tailwind's `text-xs/sm/base`
+   * utilities ship paired font-size + line-height, so the pre-sweep label
+   * (using Tailwind utilities) had a fixed line-height per size. Setting
+   * font-size alone leaves line-height to inherit `<body>`'s `var(--leading-normal)`
+   * (~1.5), which adds ~1px per row vs the pre-sweep render. */
+  .st-checkbox-wrapper:has(.st-checkbox--sm) .st-checkbox-wrapper__label {
+    font-size: 0.75rem;
+    line-height: 1rem;
+  }
+  .st-checkbox-wrapper:has(.st-checkbox--md) .st-checkbox-wrapper__label {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+  }
+  .st-checkbox-wrapper:has(.st-checkbox--lg) .st-checkbox-wrapper__label {
+    font-size: 1rem;
+    line-height: 1.5rem;
+  }
+
+  /* ===== block ===== */
+  .st-checkbox {
+    position: relative;
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    background-color: transparent;
+    color: var(--color-foreground);
+    border: 1px solid var(--color-border-strong);
+    cursor: pointer;
+    transition:
+      color 200ms,
+      background-color 200ms,
+      border-color 200ms;
+  }
+  .st-checkbox:focus-visible {
+    outline: none;
+    box-shadow:
+      0 0 0 2px var(--color-ring-offset),
+      0 0 0 4px var(--color-ring);
+  }
+  .st-checkbox:disabled {
+    cursor: not-allowed;
+    background-color: var(--color-surface-disabled);
+    border-color: var(--color-border-disabled);
+    color: var(--color-foreground-disabled);
+  }
+  .st-checkbox[aria-invalid="true"] {
+    border-color: var(--color-error);
+    background-color: var(--color-error-subtle);
+  }
+  .st-checkbox[aria-invalid="true"]:focus-visible {
+    box-shadow:
+      0 0 0 2px var(--color-ring-offset),
+      0 0 0 4px var(--color-error);
+  }
+
+  /* ===== size ===== */
+  .st-checkbox--sm {
+    width: 1rem;
+    height: 1rem;
+  }
+  .st-checkbox--md {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+  .st-checkbox--lg {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+
+  /* ===== indicator ===== */
+  .st-checkbox__indicator {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: currentColor;
+  }
+  /* Hide indicator when unchecked. Radix renders `forceMount` so the
+   * element is always in the tree — CSS controls visibility. */
+  .st-checkbox[data-state="unchecked"] .st-checkbox__indicator {
+    display: none;
+  }
+  .st-checkbox__indicator > svg {
+    width: 75%;
+    height: 75%;
+  }
+}

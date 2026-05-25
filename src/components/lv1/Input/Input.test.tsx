@@ -22,32 +22,39 @@ describe('Input', () => {
     expect(screen.getByRole('spinbutton')).toHaveAttribute('type', 'number')
   })
 
+  it('emits the canonical st-input-wrapper class chain', () => {
+    const { container } = render(<Input aria-label="email" />)
+    expect(container.firstChild).toHaveClass('st-input-wrapper', 'st-input-wrapper--md')
+  })
+
+  it('emits st-input on the inner input', () => {
+    render(<Input aria-label="email" />)
+    expect(screen.getByRole('textbox')).toHaveClass('st-input')
+  })
+
   describe('sizes', () => {
-    it('applies size classes to the wrapper', () => {
+    it('applies the size modifier to the wrapper', () => {
       const { rerender, container } = render(<Input aria-label="email" size="sm" />)
-      expect(container.firstChild).toHaveClass('h-8')
+      expect(container.firstChild).toHaveClass('st-input-wrapper--sm')
 
       rerender(<Input aria-label="email" size="lg" />)
-      expect(container.firstChild).toHaveClass('h-12')
+      expect(container.firstChild).toHaveClass('st-input-wrapper--lg')
     })
 
-    it('defaults to md size', () => {
+    it('defaults to md', () => {
       const { container } = render(<Input aria-label="email" />)
-      expect(container.firstChild).toHaveClass('h-10')
+      expect(container.firstChild).toHaveClass('st-input-wrapper--md')
     })
   })
 
   describe('error state', () => {
-    it('applies error classes to wrapper and aria-invalid on input when isError is true', () => {
-      const { container } = render(<Input aria-label="email" isError />)
-      const wrapper = container.firstChild
-      expect(wrapper).toHaveClass('border-error', 'bg-error-subtle')
+    it('sets aria-invalid on the inner input when isError is true', () => {
+      render(<Input aria-label="email" isError />)
       expect(screen.getByRole('textbox')).toHaveAttribute('aria-invalid', 'true')
     })
 
-    it('uses border-border-strong when isError is false', () => {
-      const { container } = render(<Input aria-label="email" />)
-      expect(container.firstChild).toHaveClass('border-border-strong')
+    it('omits aria-invalid when isError is false', () => {
+      render(<Input aria-label="email" />)
       expect(screen.getByRole('textbox')).not.toHaveAttribute('aria-invalid')
     })
   })
@@ -58,17 +65,7 @@ describe('Input', () => {
       expect(screen.getByRole('textbox')).toBeDisabled()
     })
 
-    it('applies disabled tokens to the wrapper', () => {
-      const { container } = render(<Input aria-label="email" disabled />)
-      expect(container.firstChild).toHaveClass(
-        'cursor-not-allowed',
-        'bg-surface-disabled',
-        'border-border-disabled',
-        'text-foreground-disabled',
-      )
-    })
-
-    it('does not call onClick handler when wrapper is clicked while disabled', async () => {
+    it('does not focus the input when the wrapper is clicked while disabled', async () => {
       const user = userEvent.setup()
       render(<Input aria-label="email" disabled />)
       const input = screen.getByRole('textbox')
@@ -76,20 +73,16 @@ describe('Input', () => {
       expect(input).not.toHaveFocus()
     })
 
-    it('disabled visual wins over isError when both are true', () => {
-      const { container } = render(<Input aria-label="email" disabled isError />)
-      const wrapper = container.firstChild as HTMLElement
-      // tailwind-merge dedupes the conflicting bg / border utilities;
-      // the disabled token wins because it is concatenated after the
-      // isError ternary in the wrapper's cn() call.
-      expect(wrapper).toHaveClass('bg-surface-disabled', 'border-border-disabled')
-      expect(wrapper).not.toHaveClass('border-error')
-      expect(wrapper).not.toHaveClass('bg-error-subtle')
-      // The focus-ring modifier survives because it does not conflict
-      // with the unmodified disabled classes at the dedupe layer.
-      expect(wrapper.className).toContain('has-focus-visible:ring-error')
-      // aria-invalid is still emitted — assistive tech still sees the error.
-      expect(screen.getByRole('textbox')).toHaveAttribute('aria-invalid', 'true')
+    it('keeps aria-invalid on the input when both disabled and isError are set', () => {
+      // Visual precedence (disabled > error) lives in Input.css via
+      // `.st-input-wrapper:has(.st-input:disabled)` overriding the error
+      // surface in source order; the VRT pins the rendered result. Unit
+      // side, the input still announces the error to assistive tech via
+      // aria-invalid — that wiring is what matters here.
+      render(<Input aria-label="email" disabled isError />)
+      const input = screen.getByRole('textbox')
+      expect(input).toBeDisabled()
+      expect(input).toHaveAttribute('aria-invalid', 'true')
     })
   })
 
@@ -99,12 +92,7 @@ describe('Input', () => {
       expect(screen.getByRole('textbox')).toHaveAttribute('readonly')
     })
 
-    it('applies readOnly tokens to the wrapper', () => {
-      const { container } = render(<Input aria-label="email" readOnly />)
-      expect(container.firstChild).toHaveClass('bg-surface-readonly', 'border-border-readonly')
-    })
-
-    it('does not block typing focus — input is still focusable', async () => {
+    it('keeps the input focusable when readOnly', async () => {
       const user = userEvent.setup()
       render(<Input aria-label="email" readOnly defaultValue="value" />)
       const input = screen.getByRole('textbox')
@@ -121,28 +109,14 @@ describe('Input', () => {
       expect(input.value).toBe('value')
     })
 
-    it('readOnly visual wins over isError when both are true', () => {
-      const { container } = render(<Input aria-label="email" readOnly isError />)
-      const wrapper = container.firstChild as HTMLElement
-      // tailwind-merge dedupes the conflicting bg / border utilities;
-      // readOnly is concatenated after the isError ternary, so its
-      // tokens win at the wrapper level. The focus-ring modifier
-      // (`has-focus-visible:ring-error`) survives because it does not
-      // conflict with the unmodified readOnly classes.
-      expect(wrapper).toHaveClass('bg-surface-readonly', 'border-border-readonly')
-      expect(wrapper).not.toHaveClass('border-error')
-      expect(wrapper).not.toHaveClass('bg-error-subtle')
-      expect(wrapper.className).toContain('has-focus-visible:ring-error')
-      // aria-invalid is still emitted — assistive tech still sees the error.
-      expect(screen.getByRole('textbox')).toHaveAttribute('aria-invalid', 'true')
-    })
-
-    it('disabled visual wins over readOnly when both are true', () => {
-      const { container } = render(<Input aria-label="email" disabled readOnly />)
-      const wrapper = container.firstChild as HTMLElement
-      expect(wrapper).toHaveClass('bg-surface-disabled', 'border-border-disabled')
-      expect(wrapper).not.toHaveClass('bg-surface-readonly')
-      expect(wrapper).not.toHaveClass('border-border-readonly')
+    it('keeps aria-invalid on the input when both readOnly and isError are set', () => {
+      // Visual precedence (readOnly > error) is CSS source order on the
+      // wrapper. The aria-invalid attribute still lands so assistive tech
+      // is not muted.
+      render(<Input aria-label="email" readOnly isError />)
+      const input = screen.getByRole('textbox')
+      expect(input).toHaveAttribute('readonly')
+      expect(input).toHaveAttribute('aria-invalid', 'true')
     })
   })
 
@@ -163,16 +137,18 @@ describe('Input', () => {
   })
 
   describe('adornments', () => {
-    it('renders textLeft and textRight', () => {
+    it('renders textLeft / textRight with sub-element classes', () => {
       render(<Input aria-label="amount" textLeft="$" textRight="USD" />)
-      expect(screen.getByText('$')).toBeInTheDocument()
-      expect(screen.getByText('USD')).toBeInTheDocument()
+      expect(screen.getByText('$')).toHaveClass('st-input__text-left')
+      expect(screen.getByText('USD')).toHaveClass('st-input__text-right')
     })
 
-    it('renders leading and trailing icons when no text adornment is provided', () => {
+    it('renders leading and trailing icons with sub-element classes', () => {
       const { container } = render(<Input aria-label="search" iconLeft={Search} iconRight={X} />)
       const svgs = container.querySelectorAll('svg')
       expect(svgs).toHaveLength(2)
+      expect(svgs[0]).toHaveClass('st-input__icon-left')
+      expect(svgs[1]).toHaveClass('st-input__icon-right')
     })
 
     it('hides iconLeft when textLeft is set (text takes priority)', () => {
@@ -180,6 +156,30 @@ describe('Input', () => {
       // Only the text adornment renders; icon is suppressed.
       expect(container.querySelectorAll('svg')).toHaveLength(0)
       expect(screen.getByText('$')).toBeInTheDocument()
+    })
+  })
+
+  describe('date type', () => {
+    it('emits the st-input--date derived modifier when type is date', () => {
+      const { container } = render(<Input aria-label="dob" type="date" />)
+      const input = container.querySelector('input')
+      expect(input).toHaveClass('st-input', 'st-input--date')
+    })
+
+    it('also emits it for datetime-local / month / week / time', () => {
+      const { container, rerender } = render(<Input aria-label="t" type="datetime-local" />)
+      expect(container.querySelector('input')).toHaveClass('st-input--date')
+      rerender(<Input aria-label="t" type="month" />)
+      expect(container.querySelector('input')).toHaveClass('st-input--date')
+      rerender(<Input aria-label="t" type="week" />)
+      expect(container.querySelector('input')).toHaveClass('st-input--date')
+      rerender(<Input aria-label="t" type="time" />)
+      expect(container.querySelector('input')).toHaveClass('st-input--date')
+    })
+
+    it('omits st-input--date for non-date types', () => {
+      render(<Input aria-label="email" type="email" />)
+      expect(screen.getByRole('textbox')).not.toHaveClass('st-input--date')
     })
   })
 

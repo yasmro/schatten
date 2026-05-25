@@ -45,27 +45,55 @@ describe('Select', () => {
     expect(screen.getByRole('combobox')).toHaveTextContent('Apple')
   })
 
-  describe('sizes', () => {
-    it('applies size classes to the trigger', () => {
-      const { rerender } = render(<BasicSelect size="sm" />)
-      expect(screen.getByRole('combobox')).toHaveClass('h-8')
-
-      rerender(<BasicSelect size="lg" />)
-      expect(screen.getByRole('combobox')).toHaveClass('h-12')
+  describe('class API', () => {
+    it('emits the canonical st-select__trigger class chain', () => {
+      render(<BasicSelect size="md" />)
+      expect(screen.getByRole('combobox')).toHaveClass(
+        'st-select__trigger',
+        'st-select__trigger--md',
+      )
     })
 
-    it('defaults to md size', () => {
+    it('content carries the st-select__content class when open', async () => {
+      const user = userEvent.setup()
       render(<BasicSelect />)
-      expect(screen.getByRole('combobox')).toHaveClass('h-10')
+      await user.click(screen.getByRole('combobox'))
+      const listbox = await screen.findByRole('listbox')
+      expect(listbox).toHaveClass('st-select__content')
+    })
+
+    it('items carry the st-select__item class', async () => {
+      const user = userEvent.setup()
+      render(<BasicSelect />)
+      await user.click(screen.getByRole('combobox'))
+      const apple = await screen.findByRole('option', { name: 'Apple' })
+      expect(apple).toHaveClass('st-select__item')
+    })
+  })
+
+  describe('sizes', () => {
+    it('applies size modifier class to the trigger', () => {
+      const { rerender } = render(<BasicSelect size="sm" />)
+      expect(screen.getByRole('combobox')).toHaveClass('st-select__trigger--sm')
+
+      rerender(<BasicSelect size="lg" />)
+      expect(screen.getByRole('combobox')).toHaveClass('st-select__trigger--lg')
+    })
+
+    it('defaults to md size modifier', () => {
+      render(<BasicSelect />)
+      expect(screen.getByRole('combobox')).toHaveClass('st-select__trigger--md')
     })
   })
 
   describe('error state', () => {
-    it('applies error classes and aria-invalid when isError', () => {
+    it('sets aria-invalid when isError (visual is attribute-driven, no error modifier class)', () => {
       render(<BasicSelect isError />)
       const trigger = screen.getByRole('combobox')
-      expect(trigger.className).toContain('border-error')
+      // Error styling is wired via [aria-invalid="true"] in Select.css.
+      // No `--error` modifier class is emitted.
       expect(trigger).toHaveAttribute('aria-invalid', 'true')
+      expect(trigger.className).not.toMatch(/st-select__trigger--error/)
     })
 
     it('does not set aria-invalid when isError is false', () => {
@@ -126,14 +154,14 @@ describe('Select', () => {
       expect(label).toHaveAttribute('for', trigger.id)
     })
 
-    it('inherits isError from Field', () => {
+    it('inherits isError from Field (attribute-driven)', () => {
       render(
         <Field label="Fruit" error="Required">
           <BasicSelect />
         </Field>,
       )
       const trigger = screen.getByRole('combobox')
-      expect(trigger.className).toContain('border-error')
+      // Error styling rides on `[aria-invalid="true"]` (see Select.css).
       expect(trigger).toHaveAttribute('aria-invalid', 'true')
     })
 

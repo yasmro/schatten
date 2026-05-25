@@ -64,6 +64,67 @@ review without blocking CI.
 **When you do use `!`:** add a brief comment next to it explaining the
 invariant that makes the assertion safe.
 
+### `style/noRestrictedImports` — `error` (core / variants / themes scope)
+
+Inside `src/core/**` / `src/variants/**` / `src/themes/**` / `src/tokens.ts`,
+`react` / `react-dom` / `@radix-ui/*` imports are an `error` (applied via a
+scoped `overrides` entry in [biome.json](../../biome.json)).
+
+**Why:** v0.9.0 ([#291](https://github.com/yasmro/schatten/issues/291)) ships
+multi-entry `exports` so consumers can reach `@yasmro/schatten/variants` /
+`/tokens` / `/themes/*` as **framework-agnostic** subpaths. For that promise
+to hold, the *source* of those subpaths must actually be React-free — not
+just at distribution time. The `exports` map gates the package boundary;
+this lint gates the source boundary. Either one alone permits an "import
+slips in and the build still passes" failure mode.
+
+The architectural layer table in
+[component-architecture.md §6 Dependency direction](component-architecture.md#6-dependency-direction)
+already says `core/` / `variants/` / `themes/` may import from external
+packages *only* (no `react`, no Radix). This rule mechanises that table.
+`lib/` is deliberately out of scope — it's allowed to depend on React
+(see `src/lib/merge-refs.ts`), so React-typed helpers belong there.
+
+Same philosophy as `no-primitive-color` below: **structural invariants
+should be enforced by the linter, not by code review**.
+
+**Why `@radix-ui/*` is in the same scope:** Radix is React-only. A
+`@radix-ui/react-slot` import in `src/variants/` pulls in the React tree
+just as surely as a direct `react` import — and it's exactly the
+mistake someone reaching for `asChild` plumbing inside a CVA file might
+make. Blocking the namespace pattern (`@radix-ui/*`) catches every
+Radix subpackage in one entry.
+
+**Escape hatch:** none. If a helper genuinely needs React or Radix, it
+belongs in `src/lib/` (lib-layer helpers like
+[`merge-refs.ts`](../../src/lib/merge-refs.ts) already do this) or in
+`src/components/lv1/` (the React layer that owns Radix integration).
+
+**Scope additions:** if a new top-level directory under `src/` is
+introduced that should stay framework-agnostic, update the `includes`
+list in [biome.json](../../biome.json) explicitly. The current entries
+are `src/core/**`, `src/variants/**`, `src/themes/**`, `src/tokens.ts`
+— no implicit catch-all, so new directories don't acquire the
+restriction by accident or lose it silently.
+
+The same `noRestrictedImports` + scoped `overrides` shape is the
+intended enforcement mechanism for any future framework-agnostic
+layer (e.g. a hypothetical `src/foundation/` for compound primitives,
+or an `lv0/` tier introduced post-1.0). Extend the `includes` list
+of *this* override rather than introducing a new rule or a parallel
+plugin — the contract reads better as a single allow-list.
+
+**Verifying:** [`biome-plugins/boundary-no-react.test.ts`](../../biome-plugins/boundary-no-react.test.ts)
+runs `biome lint` over fixture files and asserts the diagnostic. A
+typo in the `paths` / `patterns` list, a misplaced `includes` glob, or
+a Biome version-up that changes the rule's surface all surface as a
+CI failure rather than as a quiet contract drift.
+
+(`biome-plugins/` thus holds two kinds of file: GritQL plugin sources
+like `no-primitive-color.grit`, **and** Biome-config regression tests
+like `boundary-no-react.test.ts`. Both exercise lint behaviour via
+fixtures and `biome lint`, so they live together.)
+
 ### `suspicious/noConsole` — `error` with `allow: ["warn", "error"]`
 
 **Why:** Stray `console.log` is the most common source of accidental noise

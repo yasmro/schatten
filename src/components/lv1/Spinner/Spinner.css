@@ -1,3 +1,52 @@
+/*
+ * Spinner — `.st-spinner` class API.
+ *
+ * Two modifier axes:
+ * - variant: default | inverted
+ * - size:    sm | md | lg  (16 / 24 / 32 px)
+ *
+ * Plus six sub-element classes used by the two SVG types:
+ *
+ * Default type (rotating circle):
+ * - `.st-spinner__rotor`      — outer SVG, rotates 360deg / 1s (matches
+ *                                Tailwind's `animate-spin`)
+ * - `.st-spinner__track`      — background ring (opacity 0.25)
+ * - `.st-spinner__arc`        — moving arc (opacity 0.75)
+ *
+ * Ripple type (concentric pulsing):
+ * - `.st-spinner__dot`        — central pulsing dot
+ * - `.st-spinner__ripple-1`   — outer ripple wave (no delay)
+ * - `.st-spinner__ripple-2`   — outer ripple wave (delayed by --schatten-spinner-ripple-delay)
+ *
+ * SVG sizing for both types is handled by the `.st-spinner > svg` child
+ * selector below — JSX / vanilla HTML consumers don't write a separate
+ * SVG sizing class, and the Tailwind `size-full` utility is no longer
+ * required on the inner SVG (closes #285's "Tailwind 不要" gap for the
+ * default-type Spinner).
+ *
+ * Public CSS variables (shipped since pre-sweep, kept verbatim — consumers
+ * may already override them):
+ * - `--schatten-spinner-duration`        (default `2.8s`, used by ripple type)
+ * - `--schatten-spinner-ripple-delay`    (default `1.1s`)
+ *
+ * Default-type animation duration is hardcoded `1s` to match Tailwind's
+ * `animate-spin` cadence. Introducing a `--schatten-spinner-default-duration`
+ * counterpart would expand the public surface — deferred to #286 (which
+ * also handles the `--st-*` rename of the existing variables).
+ *
+ * These two are declared on `:root` *outside* `@layer components`, matching
+ * their pre-sweep position. They are NOT registered through Tailwind v4
+ * `@theme { … }`, so they do not appear in `dist/schatten.manifest.json`'s
+ * `cssVariables` list — the contract is documented here and in the CSSApi
+ * story. Migrating them to `@theme` (so the manifest becomes the
+ * machine-checkable surface, per api-stability.md) is tracked separately.
+ *
+ * Uses raw CSS + `var(--color-*)` throughout, per css-api.md
+ * "Component CSS authoring conventions — raw CSS over @apply".
+ *
+ * See: .claude/rules/css-api.md, #267 sweep-2.
+ */
+
 :root {
   --schatten-spinner-duration: 2.8s;
   --schatten-spinner-ripple-delay: 1.1s;
@@ -29,21 +78,83 @@
   }
 }
 
-.schatten-spinner-dot {
-  animation: schatten-dot-breathe var(--schatten-spinner-duration) ease-in-out infinite;
-  transform-origin: center;
+@keyframes schatten-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
-.schatten-spinner-ripple {
-  transform-box: fill-box;
-  transform-origin: center;
-}
+@layer components {
+  /* ===== base layout ===== */
+  .st-spinner {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
 
-.schatten-spinner-ripple-1 {
-  animation: schatten-ripple-wave var(--schatten-spinner-duration) ease-out infinite;
-}
+  /* The inner SVG fills the .st-spinner box for both default and ripple
+   * types — sizing the outer .st-spinner via size modifiers is enough,
+   * the SVG inherits via this child selector and Spinner consumers don't
+   * need to write a Tailwind size utility. */
+  .st-spinner > svg {
+    width: 100%;
+    height: 100%;
+  }
 
-.schatten-spinner-ripple-2 {
-  animation: schatten-ripple-wave var(--schatten-spinner-duration) ease-out infinite
-    var(--schatten-spinner-ripple-delay);
+  /* ===== variant (color) ===== */
+  .st-spinner--default {
+    color: var(--color-foreground);
+  }
+  .st-spinner--inverted {
+    color: var(--color-inverted-foreground);
+  }
+
+  /* ===== size (16 / 24 / 32 px) ===== */
+  .st-spinner--sm {
+    width: 1rem;
+    height: 1rem;
+  }
+  .st-spinner--md {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+  .st-spinner--lg {
+    width: 2rem;
+    height: 2rem;
+  }
+
+  /* ===== sub-elements (default-type SVG) ===== */
+  /* The SVG itself spins; track + arc inside it are static shapes whose
+   * combined opacity creates the "progress arc on dim track" look. The
+   * 1s linear infinite cadence matches Tailwind's `animate-spin`, so
+   * default Spinner is now framework-agnostic. */
+  .st-spinner__rotor {
+    animation: schatten-spin 1s linear infinite;
+  }
+  .st-spinner__track {
+    opacity: 0.25;
+  }
+  .st-spinner__arc {
+    opacity: 0.75;
+  }
+
+  /* ===== sub-elements (ripple-type SVG) ===== */
+  .st-spinner__dot {
+    animation: schatten-dot-breathe var(--schatten-spinner-duration) ease-in-out infinite;
+    transform-origin: center;
+    fill: currentColor;
+  }
+
+  .st-spinner__ripple-1 {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: schatten-ripple-wave var(--schatten-spinner-duration) ease-out infinite;
+  }
+
+  .st-spinner__ripple-2 {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: schatten-ripple-wave var(--schatten-spinner-duration) ease-out infinite
+      var(--schatten-spinner-ripple-delay);
+  }
 }

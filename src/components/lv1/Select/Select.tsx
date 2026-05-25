@@ -4,6 +4,7 @@ import { type ComponentPropsWithoutRef, type ComponentRef, forwardRef, useId } f
 import { useFieldContext } from '../../../contexts/field'
 import { cn } from '../../../lib/utils'
 import { type SelectTriggerVariants, selectTriggerVariants } from '../../../variants/select'
+import './Select.css'
 
 /* ----- Root ----- */
 
@@ -11,11 +12,23 @@ const Select = SelectPrimitive.Root
 
 /* ----- Group ----- */
 
-const SelectGroup = SelectPrimitive.Group
+const SelectGroup = forwardRef<
+  ComponentRef<typeof SelectPrimitive.Group>,
+  ComponentPropsWithoutRef<typeof SelectPrimitive.Group>
+>(({ className, ...props }, ref) => (
+  <SelectPrimitive.Group ref={ref} className={cn('st-select__group', className)} {...props} />
+))
+SelectGroup.displayName = SelectPrimitive.Group.displayName
 
 /* ----- Value ----- */
 
-const SelectValue = SelectPrimitive.Value
+const SelectValue = forwardRef<
+  ComponentRef<typeof SelectPrimitive.Value>,
+  ComponentPropsWithoutRef<typeof SelectPrimitive.Value>
+>(({ className, ...props }, ref) => (
+  <SelectPrimitive.Value ref={ref} className={cn('st-select__value', className)} {...props} />
+))
+SelectValue.displayName = SelectPrimitive.Value.displayName
 
 /* ----- Trigger ----- */
 
@@ -57,27 +70,19 @@ const SelectTrigger = forwardRef<ComponentRef<typeof SelectPrimitive.Trigger>, S
     const disabled = field?.disabled ?? disabledProp
     const ariaDescribedBy = field?.describedBy ?? ariaDescribedByProp
 
-    const iconSize = size === 'lg' ? 'size-5' : size === 'sm' ? 'size-3.5' : 'size-4'
-
     return (
       <SelectPrimitive.Trigger
         ref={ref}
         id={id}
         disabled={disabled}
-        className={cn(
-          selectTriggerVariants({ size }),
-          isError
-            ? 'border-error bg-error-subtle focus-visible:ring-error'
-            : 'border-border-strong',
-          className,
-        )}
+        className={cn(selectTriggerVariants({ size }), className)}
         aria-invalid={isError || undefined}
         aria-describedby={ariaDescribedBy}
         {...props}
       >
         {children}
         <SelectPrimitive.Icon asChild>
-          <ChevronDown className={cn('text-foreground-muted shrink-0', iconSize)} />
+          <ChevronDown className="st-select__icon" />
         </SelectPrimitive.Icon>
       </SelectPrimitive.Trigger>
     )
@@ -93,10 +98,10 @@ const SelectScrollUpButton = forwardRef<
 >(({ className, ...props }, ref) => (
   <SelectPrimitive.ScrollUpButton
     ref={ref}
-    className={cn('flex cursor-default items-center justify-center py-1', className)}
+    className={cn('st-select__scroll-up', className)}
     {...props}
   >
-    <ChevronUp className="size-4" />
+    <ChevronUp />
   </SelectPrimitive.ScrollUpButton>
 ))
 SelectScrollUpButton.displayName = SelectPrimitive.ScrollUpButton.displayName
@@ -109,10 +114,10 @@ const SelectScrollDownButton = forwardRef<
 >(({ className, ...props }, ref) => (
   <SelectPrimitive.ScrollDownButton
     ref={ref}
-    className={cn('flex cursor-default items-center justify-center py-1', className)}
+    className={cn('st-select__scroll-down', className)}
     {...props}
   >
-    <ChevronDown className="size-4" />
+    <ChevronDown />
   </SelectPrimitive.ScrollDownButton>
 ))
 SelectScrollDownButton.displayName = SelectPrimitive.ScrollDownButton.displayName
@@ -133,25 +138,12 @@ const SelectContent = forwardRef<ComponentRef<typeof SelectPrimitive.Content>, S
     <SelectPrimitive.Portal container={container}>
       <SelectPrimitive.Content
         ref={ref}
-        className={cn(
-          'relative z-50 max-h-96 max-w-80 min-w-32 overflow-hidden border border-border-strong bg-background text-foreground shadow-md',
-          'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
-          'data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2',
-          position === 'popper' &&
-            'data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1',
-          className,
-        )}
+        className={cn('st-select__content', className)}
         position={position}
         {...props}
       >
         <SelectScrollUpButton />
-        <SelectPrimitive.Viewport
-          className={cn(
-            'p-1',
-            position === 'popper' &&
-              'h-(--radix-select-trigger-height) w-full min-w-(--radix-select-trigger-width)',
-          )}
-        >
+        <SelectPrimitive.Viewport className="st-select__viewport">
           {children}
         </SelectPrimitive.Viewport>
         <SelectScrollDownButton />
@@ -167,11 +159,7 @@ const SelectLabel = forwardRef<
   ComponentRef<typeof SelectPrimitive.Label>,
   ComponentPropsWithoutRef<typeof SelectPrimitive.Label>
 >(({ className, ...props }, ref) => (
-  <SelectPrimitive.Label
-    ref={ref}
-    className={cn('px-2 py-1.5 text-xs font-semibold text-foreground-muted', className)}
-    {...props}
-  />
+  <SelectPrimitive.Label ref={ref} className={cn('st-select__label', className)} {...props} />
 ))
 SelectLabel.displayName = SelectPrimitive.Label.displayName
 
@@ -181,20 +169,13 @@ const SelectItem = forwardRef<
   ComponentRef<typeof SelectPrimitive.Item>,
   ComponentPropsWithoutRef<typeof SelectPrimitive.Item>
 >(({ className, children, ...props }, ref) => (
-  <SelectPrimitive.Item
-    ref={ref}
-    className={cn(
-      'relative flex w-full cursor-pointer select-none items-center py-2.5 pl-8 pr-2 text-sm outline-none focus:bg-surface-hover data-disabled:cursor-not-allowed data-disabled:text-foreground-disabled',
-      className,
-    )}
-    {...props}
-  >
-    <span className="absolute left-2 flex size-4 items-center justify-center">
+  <SelectPrimitive.Item ref={ref} className={cn('st-select__item', className)} {...props}>
+    <span className="st-select__item-indicator">
       <SelectPrimitive.ItemIndicator>
-        <Check className="size-4" />
+        <Check />
       </SelectPrimitive.ItemIndicator>
     </span>
-    <SelectPrimitive.ItemText>{children}</SelectPrimitive.ItemText>
+    <SelectPrimitive.ItemText className="st-select__item-text">{children}</SelectPrimitive.ItemText>
   </SelectPrimitive.Item>
 ))
 SelectItem.displayName = SelectPrimitive.Item.displayName
@@ -207,7 +188,7 @@ const SelectSeparator = forwardRef<
 >(({ className, ...props }, ref) => (
   <SelectPrimitive.Separator
     ref={ref}
-    className={cn('-mx-1 my-1 h-px bg-border-strong', className)}
+    className={cn('st-select__separator', className)}
     {...props}
   />
 ))

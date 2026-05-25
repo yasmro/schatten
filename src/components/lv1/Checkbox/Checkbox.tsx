@@ -9,6 +9,7 @@ import {
 import { useFieldContext } from '../../../contexts/field'
 import { cn } from '../../../lib/utils'
 import { type CheckboxVariants, checkboxVariants } from '../../../variants/checkbox'
+import './Checkbox.css'
 
 export interface CheckboxProps
   extends Omit<ComponentPropsWithoutRef<typeof CheckboxPrimitive.Root>, 'size'>,
@@ -29,22 +30,16 @@ export interface CheckboxProps
 }
 
 const CheckIcon = () => (
-  <svg viewBox="0 0 16 16" fill="none" className="size-[75%]" aria-hidden="true">
+  <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
     <path d="M2.5 8.5L3.5 7.5L6.5 10.5L12.5 3.5L13.5 4.5L6.5 12.5Z" fill="currentColor" />
   </svg>
 )
 
 const MinusIcon = () => (
-  <svg viewBox="0 0 16 16" fill="none" className="size-[75%]" aria-hidden="true">
+  <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
     <path d="M3 8H13" stroke="currentColor" strokeWidth="2.5" strokeLinecap="butt" />
   </svg>
 )
-
-const labelSizeClasses = {
-  sm: 'text-xs',
-  md: 'text-sm',
-  lg: 'text-base',
-} as const
 
 export const Checkbox = forwardRef<ElementRef<typeof CheckboxPrimitive.Root>, CheckboxProps>(
   (
@@ -70,35 +65,26 @@ export const Checkbox = forwardRef<ElementRef<typeof CheckboxPrimitive.Root>, Ch
     const ariaDescribedBy = field?.describedBy ?? ariaDescribedByProp
 
     return (
-      <div className={cn('inline-flex items-center gap-2', className)}>
+      <div className={cn('st-checkbox-wrapper', className)}>
         <CheckboxPrimitive.Root
           ref={ref}
           id={id}
-          className={cn(
-            checkboxVariants({ size }),
-            isError && 'border-error bg-error-subtle focus-visible:ring-error',
-          )}
+          className={cn(checkboxVariants({ size }))}
           aria-invalid={isError || undefined}
           aria-describedby={ariaDescribedBy}
           disabled={disabled}
           {...props}
         >
-          <CheckboxPrimitive.Indicator
-            className="absolute inset-0 flex items-center justify-center text-current data-[state=unchecked]:hidden"
-            forceMount
-          >
+          {/* `forceMount` keeps the indicator in the DOM at all times.
+           * Visibility is driven by CSS — see
+           * `.st-checkbox[data-state="unchecked"] .st-checkbox__indicator
+           * { display: none }` in Checkbox.css. */}
+          <CheckboxPrimitive.Indicator className="st-checkbox__indicator" forceMount>
             {props.checked === 'indeterminate' ? <MinusIcon /> : <CheckIcon />}
           </CheckboxPrimitive.Indicator>
         </CheckboxPrimitive.Root>
         {label && (
-          <label
-            htmlFor={id}
-            className={cn(
-              labelSizeClasses[size ?? 'md'],
-              'text-foreground cursor-pointer select-none',
-              disabled && 'cursor-not-allowed text-foreground-disabled',
-            )}
-          >
+          <label htmlFor={id} className="st-checkbox-wrapper__label">
             {label}
           </label>
         )}

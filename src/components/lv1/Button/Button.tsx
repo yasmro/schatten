@@ -4,6 +4,7 @@ import { type ButtonHTMLAttributes, forwardRef } from 'react'
 import { cn } from '../../../lib/utils'
 import { type ButtonVariants, buttonVariants } from '../../../variants/button'
 import { Spinner } from '../Spinner'
+import './Button.css'
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement>, ButtonVariants {
   /**
@@ -67,36 +68,27 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   ) => {
     const Comp = asChild ? Slot : 'button'
     const IconComponent = icon ?? null
+    // `--icon-only` is judged from props (`!children && !!icon`) which CVA's
+    // variants model cannot express, so the modifier is added outside CVA.
+    // Matches the Badge precedent (#267 sweep-2).
     const isIconOnly = !children && !!icon
-    const resolvedSize = variant === 'link' ? undefined : size
 
-    const linkSizeClass = size === 'lg' ? 'text-base' : size === 'sm' ? 'text-xs' : 'text-sm'
-
+    // Link variant — different DOM shape (inline, no spinner overlay, no
+    // content wrapper). Early-return here so .st-btn--link's CSS overrides
+    // (display: inline, height: auto, padding: 0) apply cleanly to a flat
+    // element tree. isLoading is not supported on link (mirrors the
+    // pre-sweep behaviour — link is a text affordance, not an async CTA).
     if (variant === 'link') {
       return (
         <Comp
-          className={cn(
-            'inline underline underline-offset-4 text-foreground not-disabled:hover:text-foreground-muted not-disabled:hover:decoration-transparent not-disabled:hover:cursor-pointer transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0 disabled:cursor-not-allowed disabled:text-foreground-disabled',
-            linkSizeClass,
-            className,
-          )}
+          className={cn(buttonVariants({ variant, size }), className)}
           ref={ref}
           disabled={disabled}
           {...props}
         >
-          {IconComponent && iconPosition === 'start' && (
-            <IconComponent
-              className="inline size-[0.75em] align-[-0.05em] mr-1"
-              aria-hidden="true"
-            />
-          )}
+          {IconComponent && iconPosition === 'start' && <IconComponent aria-hidden="true" />}
           {children}
-          {IconComponent && iconPosition === 'end' && (
-            <IconComponent
-              className="inline size-[0.75em] align-[-0.05em] ml-1"
-              aria-hidden="true"
-            />
-          )}
+          {IconComponent && iconPosition === 'end' && <IconComponent aria-hidden="true" />}
         </Comp>
       )
     }
@@ -107,7 +99,11 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       }
       return (
         <Comp
-          className={cn(buttonVariants({ variant, size: resolvedSize, className }))}
+          className={cn(
+            buttonVariants({ variant, size }),
+            isIconOnly && 'st-btn--icon-only',
+            className,
+          )}
           ref={ref}
           {...props}
         >
@@ -119,25 +115,22 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     return (
       <Comp
         className={cn(
-          buttonVariants({ variant, size: resolvedSize, className }),
-          isIconOnly && 'aspect-square px-0',
-          'relative',
+          buttonVariants({ variant, size }),
+          isIconOnly && 'st-btn--icon-only',
+          className,
         )}
         ref={ref}
         disabled={disabled || isLoading}
         aria-busy={isLoading || undefined}
         {...props}
       >
-        <span
-          className={cn(
-            'absolute inset-0 flex items-center justify-center transition-opacity duration-300',
-            isLoading ? 'opacity-100' : 'opacity-0',
-          )}
-          aria-hidden={!isLoading}
-        >
+        {/* Spinner overlay visibility is driven by .st-btn[aria-busy="true"]
+         * .st-btn__spinner-overlay { opacity: 1 } in Button.css. JSX still
+         * sets aria-hidden so the spinner is hidden from assistive tech
+         * when not loading (CSS opacity doesn't affect the a11y tree). */}
+        <span className="st-btn__spinner-overlay" aria-hidden={!isLoading}>
           <Spinner
             size="sm"
-            className="size-[1em]"
             label="Loading"
             variant={
               variant === 'primary' || variant === 'destructive' || variant === 'inverted'
@@ -146,12 +139,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
             }
           />
         </span>
-        <span
-          className={cn(
-            'inline-flex items-center gap-2 transition-opacity duration-300',
-            isLoading ? 'opacity-0' : 'opacity-100',
-          )}
-        >
+        <span className="st-btn__content">
           {IconComponent && iconPosition === 'start' && <IconComponent aria-hidden="true" />}
           {children}
           {IconComponent && iconPosition === 'end' && <IconComponent aria-hidden="true" />}

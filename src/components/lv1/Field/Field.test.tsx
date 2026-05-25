@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { useFieldContext } from '../../../contexts/field'
+import { TooltipProvider } from '../Tooltip/Tooltip'
 import { Field } from './Field'
 
 // Test component to verify context values
@@ -177,66 +178,66 @@ describe('Field', () => {
   })
 
   describe('flex layout props', () => {
-    it('applies grow class when flexGrow is 1', () => {
+    it('applies grow modifier when flexGrow is 1', () => {
       const { container } = render(
         <Field label="Email" flexGrow={1}>
           <input />
         </Field>,
       )
       const fieldDiv = container.firstChild as HTMLElement
-      expect(fieldDiv).toHaveClass('grow')
+      expect(fieldDiv).toHaveClass('st-field--grow')
     })
 
-    it('applies grow-0 class when flexGrow is 0', () => {
+    it('applies grow-0 modifier when flexGrow is 0', () => {
       const { container } = render(
         <Field label="Email" flexGrow={0}>
           <input />
         </Field>,
       )
       const fieldDiv = container.firstChild as HTMLElement
-      expect(fieldDiv).toHaveClass('grow-0')
+      expect(fieldDiv).toHaveClass('st-field--grow-0')
     })
 
-    it('does not apply grow class by default', () => {
+    it('does not apply grow modifier by default', () => {
       const { container } = render(
         <Field label="Email">
           <input />
         </Field>,
       )
       const fieldDiv = container.firstChild as HTMLElement
-      expect(fieldDiv).not.toHaveClass('grow')
-      expect(fieldDiv).not.toHaveClass('grow-0')
+      expect(fieldDiv).not.toHaveClass('st-field--grow')
+      expect(fieldDiv).not.toHaveClass('st-field--grow-0')
     })
 
-    it('applies shrink-0 class when flexShrink is 0', () => {
+    it('applies shrink-0 modifier when flexShrink is 0', () => {
       const { container } = render(
         <Field label="Email" flexShrink={0}>
           <input />
         </Field>,
       )
       const fieldDiv = container.firstChild as HTMLElement
-      expect(fieldDiv).toHaveClass('shrink-0')
+      expect(fieldDiv).toHaveClass('st-field--shrink-0')
     })
 
-    it('applies shrink class when flexShrink is 1', () => {
+    it('applies shrink modifier when flexShrink is 1', () => {
       const { container } = render(
         <Field label="Email" flexShrink={1}>
           <input />
         </Field>,
       )
       const fieldDiv = container.firstChild as HTMLElement
-      expect(fieldDiv).toHaveClass('shrink')
+      expect(fieldDiv).toHaveClass('st-field--shrink')
     })
 
-    it('does not apply shrink class by default', () => {
+    it('does not apply shrink modifier by default', () => {
       const { container } = render(
         <Field label="Email">
           <input />
         </Field>,
       )
       const fieldDiv = container.firstChild as HTMLElement
-      expect(fieldDiv).not.toHaveClass('shrink')
-      expect(fieldDiv).not.toHaveClass('shrink-0')
+      expect(fieldDiv).not.toHaveClass('st-field--shrink')
+      expect(fieldDiv).not.toHaveClass('st-field--shrink-0')
     })
 
     it('applies flexBasis via inline style', () => {
@@ -266,9 +267,81 @@ describe('Field', () => {
         </Field>,
       )
       const fieldDiv = container.firstChild as HTMLElement
-      expect(fieldDiv).toHaveClass('grow')
-      expect(fieldDiv).toHaveClass('shrink-0')
+      expect(fieldDiv).toHaveClass('st-field--grow')
+      expect(fieldDiv).toHaveClass('st-field--shrink-0')
       expect(fieldDiv).toHaveStyle({ flexBasis: '50%' })
+    })
+  })
+
+  describe('class API', () => {
+    it('emits .st-field on the root', () => {
+      const { container } = render(
+        <Field label="Email">
+          <input />
+        </Field>,
+      )
+      expect(container.firstChild).toHaveClass('st-field')
+    })
+
+    it('emits .st-field__label-row / __label / __description / __error / __required-marker', () => {
+      const { container } = render(
+        <Field label="Email" description="Help" error="Bad" required>
+          <input />
+        </Field>,
+      )
+      expect(container.querySelector('.st-field__label-row')).toBeInTheDocument()
+      expect(container.querySelector('.st-field__label')).toBeInTheDocument()
+      expect(container.querySelector('.st-field__description')).toBeInTheDocument()
+      expect(container.querySelector('.st-field__error')).toBeInTheDocument()
+      const marker = container.querySelector('.st-field__required-marker')
+      expect(marker).toHaveTextContent('*')
+    })
+
+    it('emits .st-field__info when tooltip is provided', () => {
+      const { container } = render(
+        <TooltipProvider>
+          <Field label="Email" tooltip="more info">
+            <input />
+          </Field>
+        </TooltipProvider>,
+      )
+      expect(container.querySelector('.st-field__info')).toBeInTheDocument()
+    })
+
+    it('does not emit .st-field__info when tooltip is absent', () => {
+      const { container } = render(
+        <Field label="Email">
+          <input />
+        </Field>,
+      )
+      expect(container.querySelector('.st-field__info')).not.toBeInTheDocument()
+    })
+
+    it('emits data-error on the root when isError is true', () => {
+      const { container } = render(
+        <Field label="Email" isError>
+          <input />
+        </Field>,
+      )
+      expect(container.firstChild).toHaveAttribute('data-error', 'true')
+    })
+
+    it('emits data-error when error message is set', () => {
+      const { container } = render(
+        <Field label="Email" error="Invalid">
+          <input />
+        </Field>,
+      )
+      expect(container.firstChild).toHaveAttribute('data-error', 'true')
+    })
+
+    it('does NOT emit data-error when isError is false', () => {
+      const { container } = render(
+        <Field label="Email">
+          <input />
+        </Field>,
+      )
+      expect(container.firstChild).not.toHaveAttribute('data-error')
     })
   })
 })

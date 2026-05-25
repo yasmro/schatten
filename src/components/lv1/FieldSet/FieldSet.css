@@ -1,0 +1,117 @@
+/*
+ * FieldSet — `.st-fieldset` class API.
+ *
+ * Layout + context wrapper. Renders a native `<fieldset>` with reset
+ * chrome (no browser-default border / padding / margin) and stacks
+ * legend / description / children / error vertically.
+ *
+ * Sub-elements:
+ * - `.st-fieldset__legend`       — the `<legend>` (HTML-mandated direct
+ *                                   first child of `<fieldset>`).
+ * - `.st-fieldset__description`  — description `<p>` below the legend.
+ * - `.st-fieldset__children`     — inner `<div>` flex container that
+ *                                   holds the actual children
+ *                                   (typically `<Field>` instances).
+ *                                   Carries the `direction` / `wrap`
+ *                                   modifiers since layout responsibility
+ *                                   is scoped to it, not to the root.
+ * - `.st-fieldset__error`        — group-level error `<p>` rendered
+ *                                   after children.
+ *
+ * Modifiers (on `__children`):
+ * - `.st-fieldset__children--row`  — `direction="row"`. Default is
+ *                                    `column` (no modifier emitted).
+ * - `.st-fieldset__children--wrap` — `wrap` boolean.
+ *
+ * Structural layout (`:has()` direct-child selector):
+ * - When a header (legend or description) is present, `__children`
+ *   needs a `margin-top: 1rem` to separate it from the header. The old
+ *   JSX path computed `hasHeader` and toggled `mt-4`; here we let CSS
+ *   read the DOM shape directly via `:has(> .st-fieldset__legend)` /
+ *   `:has(> .st-fieldset__description)`. This keeps the vanilla HTML
+ *   consumer and the React consumer on the same code path — both
+ *   write the sub-element chain and the layout follows.
+ *
+ *   The unit test `places legend / description / children / error as
+ *   direct children` pins the direct-child structure so a future
+ *   wrapper insertion can't silently break this rule.
+ *
+ * State attributes (set on the root `<fieldset>` by React, unchanged
+ * from pre-sweep behaviour):
+ * - `[data-disabled="true"]` + native `disabled` attribute
+ * - `[data-error="true"]`
+ * - `[aria-invalid="true"]`
+ *
+ * None of these attributes drive visuals on the FieldSet root today —
+ * they are observability + a11y hooks. The visual error state flows
+ * through the inner form input's `[aria-invalid]` (set by the
+ * FieldContext collapse chain) and is styled by Input / Textarea /
+ * Select / Radio / Checkbox / Switch own CSS.
+ *
+ * Uses raw CSS + `var(--color-*)` throughout, per css-api.md
+ * "Component CSS authoring conventions — raw CSS over @apply".
+ *
+ * See: .claude/rules/css-api.md, #272 sweep-7.
+ */
+@layer components {
+  .st-fieldset {
+    /* Reset native fieldset chrome — browser defaults paint a 2px
+     * groove border + 0.35em–0.75em padding that we never want here. */
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    margin: 0;
+    border: 0;
+    padding: 0;
+  }
+
+  .st-fieldset__legend {
+    /* `line-height: 1.75rem` matches Tailwind's `text-lg` pair (1.125rem
+     * / 1.75rem) — pre-sweep JSX used `text-lg font-bold`, and inherited
+     * body `var(--leading-normal)` produces ~1.6875rem (1px shorter),
+     * which propagated a ~1px downstream vertical shift through every
+     * subsequent sub-element. Pin the line-height explicitly here so the
+     * pre-sweep baseline is preserved. */
+    font-size: 1.125rem;
+    line-height: 1.75rem;
+    font-weight: 700;
+    color: var(--color-foreground);
+  }
+
+  .st-fieldset__description {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    color: var(--color-foreground-muted);
+  }
+
+  .st-fieldset__children {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .st-fieldset__children--row {
+    flex-direction: row;
+  }
+  .st-fieldset__children--wrap {
+    flex-wrap: wrap;
+  }
+
+  /* Structural :has() — header (legend OR description) present →
+   * push children down by 1rem. Direct-child selector keeps the rule
+   * scoped to the FieldSet block and survives consumer DOM nesting
+   * (the consumer cannot place a wrapper between root and these
+   * sub-elements without also losing direct-child matching, which the
+   * unit test pins). */
+  .st-fieldset:has(> .st-fieldset__legend) > .st-fieldset__children,
+  .st-fieldset:has(> .st-fieldset__description) > .st-fieldset__children {
+    margin-top: 1rem;
+  }
+
+  .st-fieldset__error {
+    margin-top: 1rem;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    color: var(--color-error);
+  }
+}

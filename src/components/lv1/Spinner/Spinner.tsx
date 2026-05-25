@@ -29,10 +29,17 @@ export interface SpinnerProps extends HTMLAttributes<HTMLDivElement>, SpinnerVar
 }
 
 const DefaultSpinner = () => (
-  <svg className="size-full animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" />
+  <svg className="st-spinner__rotor" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <circle
+      className="st-spinner__track"
+      cx="12"
+      cy="12"
+      r="10"
+      stroke="currentColor"
+      strokeWidth="3"
+    />
     <path
-      className="opacity-75"
+      className="st-spinner__arc"
       d="M22 12a10 10 0 0 0-10-10"
       stroke="currentColor"
       strokeWidth="3"
@@ -42,10 +49,12 @@ const DefaultSpinner = () => (
 )
 
 const RippleSpinner = () => (
-  <svg className="size-full" viewBox="0 0 72 72" fill="none" aria-hidden="true">
-    <circle className="schatten-spinner-dot" cx="36" cy="36" r="2.6" fill="currentColor" />
+  // SVG sizing is handled by the `.st-spinner > svg` rule in Spinner.css
+  // — no `size-full` Tailwind utility needed here or on the default SVG.
+  <svg viewBox="0 0 72 72" fill="none" aria-hidden="true">
+    <circle className="st-spinner__dot" cx="36" cy="36" r="2.6" />
     <circle
-      className="schatten-spinner-ripple schatten-spinner-ripple-1"
+      className="st-spinner__ripple-1"
       cx="36"
       cy="36"
       r="10"
@@ -53,7 +62,7 @@ const RippleSpinner = () => (
       strokeWidth="1.4"
     />
     <circle
-      className="schatten-spinner-ripple schatten-spinner-ripple-2"
+      className="st-spinner__ripple-2"
       cx="36"
       cy="36"
       r="10"
@@ -67,7 +76,7 @@ export const Spinner = forwardRef<HTMLDivElement, SpinnerProps>(
   ({ className, variant, size, type, label = 'Loading', ...props }, ref) => {
     return (
       <div
-        className={cn(spinnerVariants({ variant, size, className }))}
+        className={cn(spinnerVariants({ variant, size }), className)}
         role="status"
         ref={ref}
         {...props}

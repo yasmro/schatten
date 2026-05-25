@@ -1,5 +1,12 @@
 {
   "extends": "./tsconfig.json",
-  "include": ["src/**/*", "biome-plugins/**/*.ts", "vitest.setup.ts"],
+  "include": [
+    "src/**/*",
+    "biome-plugins/**/*.ts",
+    "scripts/**/*.test.ts",
+    "scripts/**/*.d.mts",
+    ".claude/skills/**/*.test.ts",
+    "vitest.setup.ts"
+  ],
   "exclude": ["node_modules", "dist"]
 }

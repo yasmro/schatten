@@ -17,13 +17,15 @@ Anything not covered here defaults to **shadcn/ui + Radix conventions**.
 |---|---|---|
 | Folder | [`src/components/lv1/`](../../src/components/lv1) | [`src/components/lv2/`](../../src/components/lv2) |
 | Purpose | Single-responsibility primitive. Low-level, focused. | A composition of multiple lv1s shaped as a single component. |
-| Examples (today) | Button, Input, Field, FieldSet, Select, Dialog, Tooltip, … | (empty — first lv2s land in v0.9.0) |
+| Examples (today) | Button, Input, Field, FieldSet, Select, Dialog, Tooltip, … | (empty — first lv2s land post-1.0) |
 | Hypothetical lv2 | — | `FormField` = Field + Label + Input + error msg |
 
 **The promotion criterion (when a recurring composition becomes an lv2) is
 intentionally deferred** — it will be defined in a follow-up rule when the
-first lv2 lands (~v0.9.0). Until then, treat any composition of 3+ lv1s as
-a candidate that the DS owner will judge case-by-case.
+first lv2 lands. lv2 is scoped **post-1.0**: 1.0 freezes the lv1 + CSS
+contract, and lv2 (a composition of lv1s) ships afterward as additive
+`minor` releases. Until the first lv2 lands, treat any composition of 3+
+lv1s as a candidate that the DS owner will judge case-by-case.
 
 ## 2. Compound vs flat
 
@@ -255,7 +257,19 @@ importing from a higher one) are forbidden.
 
 Most styling lives in Tailwind classes composed through CVA. A `.css` file
 next to a `.tsx` is allowed **only** when the styling expresses something
-Tailwind / CVA cannot reasonably express:
+Tailwind / CVA cannot reasonably express.
+
+> **Exception — `.st-{block}` class API definitions.** The `{Component}.css`
+> files added by [#154](https://github.com/yasmro/schatten/issues/154)
+> sweep-1〜7 are **exempt from the table below**: they ARE the SSOT for
+> the public class API per [css-api.md](css-api.md), and authoring them
+> with `@apply` against semantic tokens is the intended pattern. CVA
+> simplifies to class-name concatenation only, and the visual rules
+> (static colors, spacing, typography, hover/focus, light/dark, layout)
+> all land in the component's own `.css` under `@layer components`. The
+> table below remains the rule for any *other* lv1-local CSS — animation,
+> scoped variables, `prefers-reduced-motion`, conditional
+> `animation-play-state`.
 
 | Allowed | Not allowed |
 |---|---|
@@ -440,7 +454,7 @@ fallback — that policy only holds if the contract below holds.
 ## When this rule changes
 
 - **§1 (lv2 promotion criterion):** will be defined as a follow-up rule
-  when the first lv2 lands (~v0.9.0).
+  when the first lv2 lands (scoped post-1.0).
 - **§3 (`asChild`):** the authoritative adoption list lives in
   [component-api-conventions.md](component-api-conventions.md). Keep
   this file's §3 narrowed to the *additional* constraints

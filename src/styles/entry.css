@@ -1,0 +1,124 @@
+/*
+ * Schatten — framework-agnostic CSS entry
+ *
+ * This is the build entry for `dist/schatten.css` (compiled by
+ * `pnpm build:css` via `@tailwindcss/cli`). Consumers ship a single
+ * `<link>` / `@import "@yasmro/schatten/schatten.css"` and get tokens,
+ * default theme, seasonal palettes, the base reset, and the component
+ * keyframes — no consumer Tailwind setup required.
+ *
+ * `source(none)` disables Tailwind v4's automatic source scanning: this
+ * file ships its own static rules and does not need utility classes
+ * generated from JSX. Storybook keeps its own entry — see
+ * `src/styles/globals.css` — that DOES scan sources, because story
+ * surfaces render the CVA utility output that this dist file deliberately
+ * does not bake in. The `.st-*` component classes that #154 will add are
+ * authored with `@apply` inside `@layer components`, which Tailwind
+ * resolves without source scanning.
+ *
+ * Layer order (per .claude/rules/css-api.md): theme < base < reset < tokens <
+ * components < utilities.
+ *
+ * The `theme` and `base` slots are reserved for Tailwind v4 (which emits its
+ * preflight reset into `@layer base` from `@import "tailwindcss"` below).
+ * They MUST be declared explicitly here ahead of schatten's own layers —
+ * otherwise the late-injected `@layer base { … }` from Tailwind gets a
+ * cascade slot AFTER our `@layer components { .st-btn … }` rules and the
+ * preflight `button { background-color: #0000 }` reset silently overrides
+ * the component visuals, breaking the vanilla-HTML contract (caught by
+ * `CSSApiDist.vrt.spec.ts`, #277). Putting `theme, base` first puts
+ * preflight at the lowest priority where it belongs — `.st-*` component
+ * rules win again.
+ */
+@layer theme, base, reset, tokens, components, utilities;
+
+@import "tailwindcss" source(none);
+
+/* Tokens + Tailwind v4 @theme registration */
+@import "../core/tokens/base.css";
+
+/* Default theme (no [data-theme] active) */
+@import "../themes/default/index.css";
+
+/* Seasonal palettes (data-theme attribute) */
+@import "../themes/seasonal/themes.css";
+
+/* Component CSS — `.st-*` semantic class rules under `@layer components`
+ * plus keyframes (Spinner / Toast / Tooltip / Dialog). Order matches
+ * #154 sweep dependency: leaf primitives first, then compound + portal
+ * last. Within `@layer components` source order is the tie-breaker when
+ * two rules share specificity, so sweep-6 (Toast / Dialog) intentionally
+ * lands AFTER sweep-3 (Button) — Dialog composes Button internally, and
+ * we want any future cross-cutting rule on `.st-btn` to be overridable
+ * by a Dialog-specific rule, not the reverse. */
+/* #266 sweep-1 — Separator / Text / Icon class API */
+@import "../components/lv1/Separator/Separator.css";
+@import "../components/lv1/Text/Text.css";
+@import "../components/lv1/Icon/Icon.css";
+/* #267 sweep-2 — Spinner (animations) + Badge / Callout class API */
+@import "../components/lv1/Spinner/Spinner.css";
+@import "../components/lv1/Badge/Badge.css";
+@import "../components/lv1/Callout/Callout.css";
+/* #268 sweep-3 — Button / Checkbox / Switch class API */
+@import "../components/lv1/Button/Button.css";
+@import "../components/lv1/Checkbox/Checkbox.css";
+@import "../components/lv1/Switch/Switch.css";
+/* #269 sweep-4 — Input / Textarea / Radio class API */
+@import "../components/lv1/Input/Input.css";
+@import "../components/lv1/Textarea/Textarea.css";
+@import "../components/lv1/Radio/Radio.css";
+/* #270 sweep-5 — Tooltip (keyframes + class API) + Select class API */
+@import "../components/lv1/Tooltip/Tooltip.css";
+@import "../components/lv1/Select/Select.css";
+/* #271 sweep-6 — Toast / Dialog class API. Must land after sweep-3
+ * (Button) since both Toast and Dialog compose .st-btn internally. */
+@import "../components/lv1/Toast/Toast.css";
+@import "../components/lv1/Dialog/Dialog.css";
+/* #272 sweep-7 — Field / FieldSet class API + #154 完了 */
+@import "../components/lv1/Field/Field.css";
+@import "../components/lv1/FieldSet/FieldSet.css";
+
+/* Class-based dark mode variant — matches `src/styles/globals.css` so
+ * `.dark` toggling behaves identically in Storybook and in the dist. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/*
+ * Font configuration. Consumers override `--font-sans` to layer in their
+ * own brand fonts:
+ *
+ *   :root { --font-sans: "Your Font", var(--font-sans-fallback); }
+ */
+:root {
+  --font-sans: var(--font-sans-fallback);
+}
+
+/* Base reset — the same rules that used to live in `src/schatten.css`,
+ * now scoped to `@layer reset` so consumer utilities / their own resets
+ * always win on the cascade.
+ *
+ * Tailwind v4 preflight (`@layer base`, ~97 bytes in dist) already covers
+ * `* { box-sizing: border-box; margin: 0; padding: 0 }` and `body
+ * { margin: 0 }`, so the matching rules below are idempotently redundant.
+ * They are kept deliberately: (a) they pin Schatten's contract regardless
+ * of whether a future entry tree imports `tailwindcss/theme + utilities`
+ * separately (skipping preflight), and (b) they let `@layer reset` carry
+ * the Schatten-specific body defaults (`background-color`, `color`,
+ * `font-family`, `line-height`, font-smoothing) as one coherent block
+ * instead of split between two layers. The dist cost is < 60 bytes. */
+@layer reset {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    line-height: var(--leading-normal);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}

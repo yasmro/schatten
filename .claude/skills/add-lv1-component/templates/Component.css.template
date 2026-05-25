@@ -1,0 +1,60 @@
+/*
+ * __ComponentName__ — `.st-__component-name__` class API.
+ *
+ * This file is the SSOT for the public `.st-*` class API for this
+ * component. It is bundled into the integrated stylesheet
+ * (`@yasmro/schatten/schatten.css`) AND published per-component at
+ * `@yasmro/schatten/css/__component-name__` (#291).
+ *
+ * Surface to fill in:
+ * - **Block** — `.st-__component-name__` (the component's root class).
+ * - **Modifiers** — `.st-__component-name__--<value>` for each CVA axis
+ *   in `../../../variants/__component-name__.ts`. One axis per modifier
+ *   (size / variant / appearance / orientation). See
+ *   `.claude/rules/css-api.md` §BEM convention.
+ * - **State** — attribute-driven, NOT classes. Use `:disabled`,
+ *   `[aria-invalid="true"]`, `[aria-busy="true"]`, `[data-state="..."]`
+ *   per `.claude/rules/css-api.md` §"State is expressed as attributes,
+ *   not classes". This is what keeps "color alone never signals state"
+ *   structurally true.
+ * - **Sub-elements** (compound components only) — `.st-__component-name____<part>`.
+ *
+ * Authoring conventions (`.claude/rules/css-api.md` §"Component CSS
+ * authoring conventions — raw CSS over `@apply`"):
+ * - Raw CSS + `var(--color-*)`. NO `@apply`, NO Tailwind utilities here.
+ * - All rules inside `@layer components`.
+ * - Reference semantic tokens (`--color-foreground`, `--color-solid`,
+ *   `--color-error`, …) declared in `src/core/tokens/`. Never primitives
+ *   (`--red-500` direct), never hard-coded colours.
+ */
+@layer components {
+  /* ===== base ===== */
+  .st-__component-name__ {
+    /* TODO(__ComponentName__): fill in the block's own rules. Match the
+     * CVA variant chain in `src/variants/__component-name__.ts` so React
+     * and vanilla HTML render identically — that parity is the whole
+     * point of having both a `.tsx` and a `.css` SSOT. */
+  }
+
+  /* ===== size modifiers ===== */
+  /* Mirror the `size` axis from your CVA. Delete any size your component
+   * does not support (e.g. some components are single-size). */
+  .st-__component-name__--sm {
+    /* TODO(__ComponentName__): size=sm rules */
+  }
+  .st-__component-name__--md {
+    /* TODO(__ComponentName__): size=md rules */
+  }
+  .st-__component-name__--lg {
+    /* TODO(__ComponentName__): size=lg rules */
+  }
+
+  /* ===== variant modifiers ===== */
+  /* Replace `neutral` with the real vocabulary from your CVA. For
+   * Pattern B (tone × shape) write double-class rules
+   * `.st-__component-name__--<tone>.st-__component-name__--<shape>` per
+   * css-api.md §"Composing modifiers — double-class selectors". */
+  .st-__component-name__--neutral {
+    /* TODO(__ComponentName__): variant=neutral rules */
+  }
+}

@@ -277,3 +277,46 @@ export const DisabledItems: Story = {
     </Select>
   ),
 }
+
+/**
+ * Content sub-element coverage in one frame — pins `defaultOpen` so VRT
+ * can capture the portaled content (label / item / separator / group /
+ * disabled item / item-indicator) in a single screenshot.
+ *
+ * The other stories above (Sizes / ErrorState / Disabled / …) keep
+ * their trigger-only focus on purpose — each one verifies a specific
+ * axis (size, error, disabled), and overloading them with content
+ * would blur the visual diff.
+ *
+ * Hidden from Docs (`docs.disable: true`) because Radix portals the
+ * open content into `document.body`, which on the docs page floats
+ * over the surrounding story descriptions and confuses readers. The
+ * story is still mounted for the dedicated story URL — which is what
+ * VRT targets — so this only suppresses the docs-tab rendering.
+ */
+export const OpenContent: Story = {
+  name: 'Open Content (VRT)',
+  parameters: { layout: 'padded', docs: { disable: true } },
+  render: () => (
+    <Select defaultOpen>
+      <SelectTrigger>
+        <SelectValue placeholder="Choose" />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectGroup>
+          <SelectLabel>Fruits</SelectLabel>
+          <SelectItem value="apple">Apple</SelectItem>
+          <SelectItem value="banana">Banana</SelectItem>
+        </SelectGroup>
+        <SelectSeparator />
+        <SelectGroup>
+          <SelectLabel>Vegetables</SelectLabel>
+          <SelectItem value="carrot">Carrot</SelectItem>
+          <SelectItem value="broccoli" disabled>
+            Broccoli (sold out)
+          </SelectItem>
+        </SelectGroup>
+      </SelectContent>
+    </Select>
+  ),
+}

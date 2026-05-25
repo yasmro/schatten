@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.4.14/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.4.15/schema.json",
   "assist": {
     "actions": {
       "source": {
@@ -55,13 +55,15 @@
       "src/**",
       ".storybook/**",
       "biome-plugins/**/*.ts",
+      "scripts/**/*.test.ts",
       "*.ts",
       "*.json",
       "!dist",
       "!node_modules",
       "!storybook-static",
       "!test-results",
-      "!pnpm-lock.yaml"
+      "!pnpm-lock.yaml",
+      "!src/__generated__/schatten.manifest.json"
     ]
   },
   "overrides": [
@@ -76,6 +78,31 @@
     {
       "includes": ["src/components/**/*.tsx", "!**/*.stories.tsx", "!**/*.test.tsx"],
       "plugins": ["./biome-plugins/no-primitive-color.grit"]
+    },
+    {
+      "includes": ["src/core/**", "src/variants/**", "src/themes/**", "src/tokens.ts"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "react": "core / variants / themes must stay framework-free. See .claude/rules/lint-rules-guideline.md.",
+                  "react-dom": "core / variants / themes must stay framework-free.",
+                  "react/jsx-runtime": "JSX must not appear in framework-agnostic source.",
+                  "react/jsx-dev-runtime": "JSX must not appear in framework-agnostic source."
+                },
+                "patterns": [
+                  { "group": ["react/*"] },
+                  { "group": ["react-dom/*"] },
+                  { "group": ["@radix-ui/*"] }
+                ]
+              }
+            }
+          }
+        }
+      }
     }
   ]
 }

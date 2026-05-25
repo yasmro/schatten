@@ -4,6 +4,62 @@ import { useEffect } from 'react'
 // Import Tailwind + design tokens + themes
 import '../src/styles/globals.css'
 
+// `STORYBOOK_CHANNEL` is injected by `.github/workflows/deploy-storybook.yml`:
+// the `develop` build (published at /schatten/next/) sets it to `next`, the
+// `main` build leaves it `stable`.
+//
+// Read via `import.meta.env`, NOT `process.env`: this file is bundled into the
+// browser preview iframe, where `process` is not a global. A bare `process.env`
+// reference there throws `ReferenceError: process is not defined` and aborts
+// story rendering — Storybook 10's Vite builder does not shim `process` for the
+// preview. Storybook's Vite builder does add `STORYBOOK_` to Vite's `envPrefix`,
+// so `STORYBOOK_`-prefixed vars surface on `import.meta.env` in both dev and
+// build, resolving to `undefined` in local dev / VRT where the var is unset.
+const importMetaEnv = (import.meta as ImportMeta & { env?: Record<string, string | undefined> }).env
+const isNextChannel = importMetaEnv?.STORYBOOK_CHANNEL === 'next'
+
+const BANNER_ID = 'schatten-unreleased-banner'
+
+/**
+ * Mounts the develop (`/next/`) warning banner once into the preview `<body>`.
+ *
+ * It warns viewers that the page reflects unreleased, npm-unpublished tokens
+ * and APIs — see `.claude/rules/api-stability.md`. The manager sidebar carries
+ * the same marker (`.storybook/manager.ts`); this banner additionally covers
+ * direct `iframe.html` links, which never render the manager chrome.
+ *
+ * Mounted imperatively (not via the per-story decorator) so a Docs page — which
+ * renders many stories at once — shows exactly one banner instead of a stack.
+ */
+function mountUnreleasedBanner() {
+  if (document.getElementById(BANNER_ID)) return
+
+  const banner = document.createElement('div')
+  banner.id = BANNER_ID
+  banner.setAttribute('role', 'note')
+  Object.assign(banner.style, {
+    position: 'fixed',
+    top: '0',
+    left: '0',
+    right: '0',
+    zIndex: '2147483647',
+    display: 'flex',
+    gap: '0.5rem',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: '0.4rem 1rem',
+    backgroundColor: '#92400e',
+    color: '#fff',
+    font: '500 12px/1.4 system-ui, sans-serif',
+    textAlign: 'center',
+  })
+  banner.innerHTML =
+    '<span>⚠ 未リリース (develop) — 次バージョンの統合プレビューです。npm 未公開のトークン・API が含まれます。</span>' +
+    '<a href="https://yasmro.github.io/schatten/" style="color:#fff;text-decoration:underline;font-weight:700">公開版を見る →</a>'
+  document.body.appendChild(banner)
+}
+
 const preview: Preview = {
   parameters: {
     controls: {
@@ -60,8 +116,14 @@ const preview: Preview = {
       const theme = context.globals.theme
       const season = context.globals.season
       const isDark = theme === 'dark'
+      // Stories that own their own theme state (e.g. ThemeProvider
+      // stories) opt out of this decorator to avoid two writers racing
+      // on `<html>`. Stories declare it via:
+      //   parameters: { disableGlobalThemeDecorator: true }
+      const disableGlobalThemeDecorator = context.parameters?.disableGlobalThemeDecorator === true
 
       useEffect(() => {
+        if (disableGlobalThemeDecorator) return
         const root = document.documentElement
         const body = document.body
 
@@ -87,10 +149,17 @@ const preview: Preview = {
         } else {
           root.removeAttribute('data-theme')
         }
-      }, [isDark, season])
+      }, [isDark, season, disableGlobalThemeDecorator])
+
+      useEffect(() => {
+        if (isNextChannel) mountUnreleasedBanner()
+      }, [])
 
       return (
-        <div className={`${isDark ? 'dark bg-background' : ''} p-8`}>
+        <div
+          className={`${isDark && !disableGlobalThemeDecorator ? 'dark bg-background' : ''} p-8`}
+          style={isNextChannel ? { paddingTop: '3rem' } : undefined}
+        >
           <Story />
         </div>
       )

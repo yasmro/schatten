@@ -3,6 +3,7 @@ import { forwardRef, type HTMLAttributes, type ReactNode } from 'react'
 import { cn } from '../../../lib/utils'
 import { type CalloutVariants, calloutVariants } from '../../../variants/callout'
 import { Button } from '../Button'
+import './Callout.css'
 
 export type CalloutVariant = 'neutral' | 'success' | 'error' | 'warning' | 'info'
 export type CalloutAppearance = 'subtle' | 'solid'
@@ -97,33 +98,33 @@ export const Callout = forwardRef<HTMLDivElement, CalloutProps>(
     // that callsites can normalise on the prop form without worrying that
     // a stray `{children}` from a wrapper will silently take precedence.
     const body = description ?? children
-    // Mirror Toast's two-regime alignment: title-only (or body-only) sits
-    // visually centered, title+body uses top alignment so the icon stays
-    // next to the heading.
-    const hasMultiLine = !!(title && body)
+    // Multi-line alignment (icon-top vs icon-center) is handled by the
+    // `:has(.st-callout__title):has(.st-callout__body)` selector in
+    // Callout.css — JSX carries no flex/items utility classes here.
+    // Do not re-introduce a `hasMultiLine` JSX conditional; the CSS
+    // contract relies on title / body sub-elements being direct children
+    // of `.st-callout` so `:has()` can detect them.
 
     return (
       <div ref={ref} className={cn(calloutVariants({ variant, appearance }), className)} {...props}>
-        <div className={cn('flex gap-3', hasMultiLine ? 'items-start' : 'items-center')}>
-          <Icon className={cn('size-5 shrink-0', hasMultiLine && 'mt-0.5')} aria-hidden="true" />
-          <div className="flex min-w-0 flex-1 flex-col gap-1">
-            {title && <div className="text-sm font-semibold leading-tight">{title}</div>}
-            {body && <div className="text-sm leading-snug opacity-90">{body}</div>}
-          </div>
-
-          {action && <div className="shrink-0">{action}</div>}
-
-          {onClose && (
-            <Button
-              variant={buttonVariant}
-              size="sm"
-              icon={X}
-              aria-label="Close"
-              className="shrink-0"
-              onClick={onClose}
-            />
-          )}
+        <Icon className="st-callout__icon" aria-hidden="true" />
+        <div className="st-callout__content">
+          {title && <div className="st-callout__title">{title}</div>}
+          {body && <div className="st-callout__body">{body}</div>}
         </div>
+
+        {action && <div className="st-callout__action">{action}</div>}
+
+        {onClose && (
+          <Button
+            variant={buttonVariant}
+            size="sm"
+            icon={X}
+            aria-label="Close"
+            className="st-callout__action"
+            onClick={onClose}
+          />
+        )}
       </div>
     )
   },

@@ -175,6 +175,30 @@ or `tailwind-merge` to peer deps, the same rules apply.
   in a way that changes the emitted class string) is covered separately by
   the "CVA output stability" section above and is a `major`.
 
+## Visual-contract-affecting dependencies
+
+A small set of production / peer / dev dependencies can break the visual
+contract **without any source-file change** — a bump alone is enough.
+They're listed here as the single source of truth; any tooling that
+needs to react to such bumps (notably the [`prepare-release`](../skills/prepare-release/SKILL.md)
+skill's Step 3) should consult this table rather than duplicate it.
+
+| Dependency | Why it affects the visual contract |
+|---|---|
+| `lucide-react` | The Icon parity story ([`Icon.parity.stories.tsx`](../../src/components/lv1/Icon/Icon.parity.stories.tsx)) hand-pins inline SVG (`<circle>` + `<path>`) against a specific Lucide render. A Lucide bump that adjusts any icon's path / attributes drifts the parity baseline. |
+| `@radix-ui/*` (primitives that emit DOM — `react-checkbox` / `react-radio-group` / `react-select` / `react-separator` / `react-switch` / `react-toast` / `react-tooltip` / `react-dialog`) | Radix sometimes adds, renames, or removes `data-*` / `aria-*` attributes on its rendered primitives. Parity-covered components (Checkbox / Radio / Separator / Switch — 区分 A/B per [vrt-spec-guideline §Parity stories](vrt-spec-guideline.md#parity-stories--when-to-write-one-when-to-skip)) catch the drift via parity VRT; non-parity components (Tooltip / Dialog / Toast / Select — 区分 C/D) require manual verification because no parity baseline exists. |
+| `@radix-ui/react-slot` | Slot doesn't emit DOM of its own, but it's the `asChild` plumbing — a bump can change prop-merging order or ref-forwarding behavior, affecting every consumer that exposes `asChild` (Button / Text / Tooltip Trigger / Dialog Trigger / Dialog Close / Select Trigger). |
+| `tailwindcss` | The Tailwind v4 compiler's `@layer theme { … }` emission rules can shift between minor versions. The manifest's `cssVariables` section is extracted from that block (see [Manifest as the authoritative API listing](#manifest-as-the-authoritative-api-listing) above), so a Tailwind bump can silently add or drop variables from the public surface. |
+
+When adding a new dependency that can shift the visual contract without a
+source-side change (e.g. a positioning library like `@floating-ui/react`
+that owns Tooltip / Popover geometry, or an animation library that's
+applied via CSS class), extend this table **and** update the tooling
+that pivots on dep bumps (today: `prepare-release` Step 3). The skill's
+[`grep.test.ts`](../skills/prepare-release/grep.test.ts) gate catches
+drift between the SKILL.md grep pattern and the on-disk parity stories;
+the dep-list ↔ SKILL.md table sync is currently maintainer-reviewed.
+
 ## CSS class naming — frozen by [css-api.md](css-api.md)
 
 The class-naming surface itself — prefix, BEM shape, attribute-driven state,

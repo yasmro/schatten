@@ -40,6 +40,27 @@ import {
   Textarea,
 } from '../../components/lv1'
 
+// Side-effect imports for the 区 C/D components (Tooltip / Select /
+// Dialog / Toast). The React `<ReactSamples />` column intentionally
+// omits these (they portal-mount, so there's no comparable React
+// render to put alongside the vanilla static markup) — which means
+// the bundler's named-import tree-shake doesn't walk their `.tsx`
+// files either, so their `import './Component.css'` side-effects
+// never fire. The vanilla column DOES render their `.st-*` static
+// shape, and without the CSS the SVGs (notably `.st-toast__icon`)
+// fall back to the 300×150 default and fill their container.
+//
+// Locally with `pnpm dev` (Vite dev) every story gets aggregated
+// into one entry so the four CSS files load incidentally; in the
+// Storybook **build** output (deployed preview, `pnpm build:storybook`)
+// per-story code-splitting drops them. The explicit imports below
+// pin the contract on both paths. Mirrors the precedent in
+// `src/docs/CSSApi.stories.tsx`. See PR #313 preview regression.
+import '../../components/lv1/Dialog/Dialog.css'
+import '../../components/lv1/Select/Select.css'
+import '../../components/lv1/Toast/Toast.css'
+import '../../components/lv1/Tooltip/Tooltip.css'
+
 // Re-export the string payloads so the story has one import site.
 export { fixtureChromeCss, vanillaHtml } from './cssApiSamples.html'
 

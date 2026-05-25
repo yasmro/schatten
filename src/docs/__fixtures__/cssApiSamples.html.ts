@@ -39,6 +39,17 @@ export const fixtureChromeCss = `
     flex-direction: column;
     gap: 1.5rem;
   }
+  /* Wrapper around the section list. Used on BOTH columns so the
+   * React side (Fragment expanding to many <section>s) and the
+   * vanilla side (dangerouslySetInnerHTML producing a single wrapper
+   * div whose children are the <section>s) get the same 1.5rem gap
+   * between samples. Without this, the vanilla side wrapper eats the
+   * column flex gap and the sections inside stack with margin: 0. */
+  .cssapi-fixture__samples {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
   .cssapi-fixture__column-label {
     font-size: 0.75rem;
     text-transform: uppercase;

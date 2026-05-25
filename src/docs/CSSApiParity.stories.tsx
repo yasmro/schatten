@@ -70,15 +70,26 @@ export const ParityComparison: Story = {
         <div className="cssapi-fixture__grid" style={{ marginTop: '1.5rem' }}>
           <div className="cssapi-fixture__column">
             <span className="cssapi-fixture__column-label">React</span>
-            <ReactSamples />
+            {/* Wrap in `.cssapi-fixture__samples` so the gap between
+             * sections matches the vanilla side, which renders one
+             * wrapper div from `dangerouslySetInnerHTML`. Without the
+             * wrapper here, React's Fragment would flatten all
+             * sections directly into the column, getting `gap: 1.5rem`
+             * from the column itself — but then the vanilla side's
+             * sections lose that gap because their wrapper eats it.
+             * Mirroring the structure on both sides keeps the gaps
+             * symmetric. */}
+            <div className="cssapi-fixture__samples">
+              <ReactSamples />
+            </div>
           </div>
           <div className="cssapi-fixture__column">
             <span className="cssapi-fixture__column-label">Vanilla HTML</span>
-            {/* biome-ignore lint/security/noDangerouslySetInnerHtml: The
-             * fixture string is authored in this repo and is the
-             * single source of truth shared with the dist VRT — see
-             * src/docs/__fixtures__/cssApiSamples.tsx file header. */}
-            <div dangerouslySetInnerHTML={{ __html: vanillaHtml }} />
+            <div
+              className="cssapi-fixture__samples"
+              // biome-ignore lint/security/noDangerouslySetInnerHtml: The fixture string is authored in this repo and is the single source of truth shared with the dist VRT — see src/docs/__fixtures__/cssApiSamples.tsx file header.
+              dangerouslySetInnerHTML={{ __html: vanillaHtml }}
+            />
           </div>
         </div>
       </div>

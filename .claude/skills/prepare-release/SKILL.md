@@ -200,13 +200,17 @@ If any of these fail, **stop and report**. Do NOT auto-fix. Specifically:
 
 ### Step 3 — Dependency-bump-aware sanity check (PR #282 の学び)
 
-This is the unique value-add of this skill. Three production dependencies
-can break the visual contract **without touching any source file**:
+This is the unique value-add of this skill. A small set of production
+dependencies can break the visual contract **without touching any source
+file** — see [`api-stability.md` §Visual-contract-affecting dependencies](../../rules/api-stability.md#visual-contract-affecting-dependencies)
+for the canonical list and rationale. This step pivots on those bumps:
 
 | Dependency | Failure mode | Targeted check |
 |---|---|---|
 | `lucide-react` | The hand-pinned inline `<circle>` + `<path>` in [`Icon.parity.stories.tsx`](../../../src/components/lv1/Icon/Icon.parity.stories.tsx) freezes a specific Lucide rendering. A `lucide-react` bump that adjusts the `<Search>` icon's SVG path (or any of its attributes) makes the parity VRT pixel-diff. | `pnpm test:vrt --grep "Icon parity"` |
-| `@radix-ui/*` | Radix sometimes adds or renames `data-*` attributes on the rendered primitives. A bump that adds a new `data-foo="bar"` to `Tooltip` / `Dialog` / `Toast` / `Select` / `Separator` / `Radio` / `Switch` / `Checkbox` content can shift the rendered DOM in a way that surfaces in parity VRT (the React side gains an attribute that the hand-written vanilla HTML doesn't). | `pnpm test:vrt --grep "(Tooltip\|Dialog\|Toast\|Select\|Separator\|Radio\|Switch\|Checkbox).+parity"` |
+| `@radix-ui/*` — **parity-covered** (`react-checkbox` / `react-radio-group` / `react-separator` / `react-switch`) | Radix sometimes adds or renames `data-*` attributes on the rendered primitives. For the 4 components with hand-written parity stories against the Radix output, a new `data-foo="bar"` makes the React side gain an attribute the vanilla HTML doesn't — the parity VRT fails. | `pnpm test:vrt --grep "(Checkbox\|Radio\|Separator\|Switch).+parity"` |
+| `@radix-ui/*` — **non-parity** (`react-tooltip` / `react-dialog` / `react-toast` / `react-select`) | Same Radix `data-*` bump risk, but these 4 components are 区分 C/D per [vrt-spec-guideline §Parity stories](../../rules/vrt-spec-guideline.md#parity-stories--when-to-write-one-when-to-skip) — no parity story exists, so no automated baseline can fail. The skill **falls back to manual verification**. | (manual) `pnpm test:vrt --grep "(Tooltip\|Dialog\|Toast\|Select)"` against the normal `*.vrt.spec.ts` + Storybook visual review |
+| `@radix-ui/react-slot` | Slot is the `asChild` plumbing primitive — it doesn't emit `data-*` itself, but a bump can change prop-merging behavior (ref forwarding, attribute merge order). Surface area: any component that exposes `asChild` (Button / Text / Tooltip Trigger / Dialog Trigger / Dialog Close / Select Trigger). | (manual) inspect the bump's CHANGELOG for prop-merging behavioral changes; if any are flagged, run the full `pnpm test:vrt` and `pnpm test --run` |
 | `tailwindcss` | The Tailwind v4 compiler's `@layer theme` emission rules can shift between minor versions. The manifest's `cssVariables` section is extracted from that block, so a Tailwind bump can silently add or drop variables from the public surface. | `pnpm build && pnpm check:manifest` |
 
 Detect bumps by diffing the **last released tag's** `package.json` against
@@ -258,8 +262,23 @@ For each detected family, run the targeted check:
 # If lucide-react bumped:
 pnpm test:vrt --grep "Icon parity"
 
-# If any @radix-ui/* bumped:
-pnpm test:vrt --grep "(Tooltip|Dialog|Toast|Select|Separator|Radio|Switch|Checkbox).+parity"
+# If a parity-covered Radix dep bumped (@radix-ui/react-checkbox /
+# -radio-group / -separator / -switch):
+pnpm test:vrt --grep "(Checkbox|Radio|Separator|Switch).+parity"
+
+# If a non-parity Radix dep bumped (@radix-ui/react-tooltip / -dialog /
+# -toast / -select):
+#   NOTE: No parity baseline exists for these (区分 C/D). The skill cannot
+#   fully verify automatically. Run the normal VRT spec and inspect the
+#   stories visually:
+pnpm test:vrt --grep "(Tooltip|Dialog|Toast|Select)"
+pnpm dev   # then open the rendered stories at /story/<Name>
+
+# If @radix-ui/react-slot bumped:
+#   NOTE: Slot doesn't emit visible DOM of its own. Read the bump's
+#   CHANGELOG for behavioral changes (prop merging, ref forwarding).
+#   If anything is flagged, run the full suite:
+pnpm test --run && pnpm test:vrt
 
 # If tailwindcss bumped:
 pnpm build && pnpm check:manifest
@@ -273,7 +292,9 @@ If a targeted check **fails**, abort with a specific recovery instruction:
 | Family | Recovery |
 |---|---|
 | `lucide-react` | The Icon parity story's inline SVG no longer matches Lucide's `<Search>` icon. Open [`Icon.parity.stories.tsx`](../../../src/components/lv1/Icon/Icon.parity.stories.tsx) and sync the hand-written `<circle>` + `<path>` to the current Lucide version. Update the inline comment that pins the Lucide version. Re-run the parity VRT — only when it passes, ship the bump. |
-| `@radix-ui/*` | A Radix runtime attribute (or DOM shape) changed. Inspect the failing parity story for that component. If a new `data-*` attribute is now emitted by Radix, decide: (a) mirror it on the hand-written vanilla HTML, or (b) declare the new attribute internal and exclude it from the parity surface in the spec. Both are valid; the choice depends on whether the attribute is part of the documented state-attribute table in [css-api.md](../../rules/css-api.md). |
+| `@radix-ui/*` (parity-covered) | A Radix runtime attribute (or DOM shape) changed. Inspect the failing parity story for that component. If a new `data-*` attribute is now emitted by Radix, decide: (a) mirror it on the hand-written vanilla HTML, or (b) declare the new attribute internal and exclude it from the parity surface in the spec. Both are valid; the choice depends on whether the attribute is part of the documented state-attribute table in [css-api.md](../../rules/css-api.md). |
+| `@radix-ui/*` (non-parity) | No parity baseline failed — the failure surfaces in the component's own normal VRT spec instead. That's a real visual regression in `Tooltip` / `Dialog` / `Toast` / `Select` itself. Treat it like any source-side VRT failure: open the `*-diff.png` under `test-results/`, confirm the change is unintended, fix the component (or, when justified, re-baseline per [vrt-spec-guideline.md §Re-baselining](../../rules/vrt-spec-guideline.md#re-baselining-updating-snapshots) — never blindly). |
+| `@radix-ui/react-slot` | The Slot bump changed prop-merging or ref-forwarding behavior. Re-run `pnpm test --run` and `pnpm test:vrt` against components that consume `asChild` (Button / Text / Tooltip Trigger / Dialog Trigger / Dialog Close / Select Trigger). Fix the broken consumer, then re-verify. |
 | `tailwindcss` | The manifest drifted. Run `pnpm build && pnpm check:manifest` and read the per-section diff. If the change is intentional (new variables justified by the bump), `pnpm update:manifest` + ship a `CSS API:` changeset. If unintentional (variables silently dropped), pin Tailwind to the prior minor or investigate the regression upstream before releasing. |
 
 **Never run `pnpm test:vrt:update` from this skill to make the parity check
@@ -295,7 +316,9 @@ Predicted next version: 0.9.0 (minor)
 Pending changesets:     12
 Quality gate:           ✅ lint / typecheck / test / build / manifest / size / publint / readme
 Dep-bump checks:        ✅ lucide-react bump (1.6.0 → 1.7.0): Icon parity VRT clean
-                        ✅ @radix-ui/react-tooltip bump (1.2.7 → 1.2.8): Tooltip parity VRT clean
+                        ✅ @radix-ui/react-switch bump (1.2.5 → 1.2.6): Switch parity VRT clean
+                        ⚠️  @radix-ui/react-tooltip bump (1.2.7 → 1.2.8): no parity baseline (区分 C);
+                              manually verified Tooltip stories in Storybook + normal VRT clean
 
 Next step:
   Run `/release` (no arguments — let changesets choose the bump from the
@@ -350,13 +373,17 @@ If `/release` itself fails after this skill greenlit, the recovery is in
   been run on this machine, the grep'd subset will fail at launch with a
   binary-not-found error. That's a setup gap, not a release blocker —
   re-run the install and try again.
-- **`@radix-ui/*` covers many packages.** The grep pattern in Step 3 lists
-  only the lv1 components that have parity stories today (sweep classes A
-  / B per [vrt-spec-guideline §Parity stories](../../rules/vrt-spec-guideline.md#parity-stories--when-to-write-one-when-to-skip)).
-  When a new parity-story component is added to the library, extend the
-  grep pattern in this skill. Compound / JS-driven components (Dialog /
-  Select / Toast / Tooltip — classes C / D) do NOT have parity stories
-  and are intentionally absent from the pattern.
+- **`@radix-ui/*` covers many packages — only 4 are parity-checkable today.**
+  The parity grep pattern (`Checkbox|Radio|Separator|Switch`) lists only the
+  lv1 components that **have a `*.parity.stories.tsx` on disk** (区分 A/B per
+  [vrt-spec-guideline §Parity stories](../../rules/vrt-spec-guideline.md#parity-stories--when-to-write-one-when-to-skip)).
+  The other Radix consumers (`Tooltip` / `Dialog` / `Toast` / `Select` —
+  区分 C/D) and `react-slot` are handled by the non-parity / Slot rows in
+  the Step 3 table with **manual verification** because no parity baseline
+  exists to fail on. When a new lv1 graduates from C/D to A/B and acquires
+  a parity story, extend the parity grep in this skill — the matching
+  Vitest in [`grep.test.ts`](./grep.test.ts) is the gate that catches the
+  drift.
 - **The dep-diff heuristic looks only at `package.json`.** A transitive
   dependency upgrade (e.g. `@radix-ui/react-tooltip` pulls a new
   `@radix-ui/react-primitive`) won't show up in this diff but can still

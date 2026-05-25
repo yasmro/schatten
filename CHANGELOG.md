@@ -1,5 +1,666 @@
 # @yasmro/schatten
 
+## 0.9.0
+
+### Minor Changes
+
+- [#275](https://github.com/yasmro/schatten/pull/275) [`c7eaf29`](https://github.com/yasmro/schatten/commit/c7eaf297d0fb8046e19673bed664dee5bf6f0ccf) Thanks [@yasmro](https://github.com/yasmro)! - CSS API: `dist/schatten.css` is now compiled by `@tailwindcss/cli` from a
+  dedicated entry (`src/styles/entry.css`), replacing the previous
+  `lightningcss --bundle src/schatten.css` pipeline. This lays the
+  infrastructure for the `.st-*` component classes that [#154](https://github.com/yasmro/schatten/issues/154) sweep PRs add
+  in v0.9.0 — those rules will live under `@layer components` inside the
+  same entry.
+
+  Highlights:
+
+  - New build entry `src/styles/entry.css`:
+    - `@import "tailwindcss" source(none);` (no auto source scanning — the
+      dist intentionally ships only static rules; the Storybook entry at
+      `src/styles/globals.css` keeps its source-scanning behaviour).
+    - Declares the canonical `@layer reset, tokens, components, utilities;`
+      order from `.claude/rules/css-api.md`, so sweep PRs that add
+      `@layer components { .st-* … }` rules land at the right cascade tier.
+    - Imports tokens (`base.css`), default + seasonal themes, and **all
+      four** existing component CSS files (Spinner, Toast, **Tooltip**,
+      **Dialog**) — Tooltip and Dialog were previously absent from
+      `dist/schatten.css` and only reached the page via React `.tsx`
+      side-effect imports, leaving vanilla-HTML consumers without their
+      enter/exit animations. That gap is closed here.
+  - `package.json#scripts.build:css`: `lightningcss src/schatten.css …` →
+    `tailwindcss -i src/styles/entry.css -o dist/schatten.css --minify`.
+  - `devDependencies`: `+ @tailwindcss/cli ^4.2.2`, `- lightningcss-cli`,
+    `- lightningcss`. `pnpm.onlyBuiltDependencies` (package.json) is
+    removed and `pnpm-workspace.yaml#onlyBuiltDependencies` drops
+    `lightningcss-cli` (no native postinstall is needed anymore).
+  - `src/schatten.css` is removed in favour of `src/styles/entry.css`.
+  - `.size-limit.json` CSS budget bumped from 5 KB → 50 KB to accommodate
+    the wider token surface this entry now bundles and to leave headroom
+    for the `.st-*` rules sweep-1..7 will add. Current dist size:
+    ~32 KB minified.
+
+  README has been synced with the current roadmap: stale `v0.14.0` /
+  `v0.7.0` references are now `v0.9.0` / `v0.8.0`, and the legacy
+  `<button class="btn" data-variant="solid">` example markup is updated to
+  the BEM shape (`<button class="st-btn st-btn--primary">`) defined in
+  `.claude/rules/css-api.md`.
+
+  Component / lv1 / public CSS class API: unchanged. This sub-issue
+  ([#264](https://github.com/yasmro/schatten/issues/264), part of [#154](https://github.com/yasmro/schatten/issues/154)) only swaps the build pipeline and closes the
+  Tooltip / Dialog import gap; the `.st-*` class API itself lands in the
+  sweep PRs that follow.
+
+  Follow-ups tracked separately:
+
+  - [#276](https://github.com/yasmro/schatten/issues/276) — sweep-3 着地時に CSS size budget を実測再評価
+  - [#277](https://github.com/yasmro/schatten/issues/277) — vanilla-HTML 実機検証 Storybook + VRT story (sweep-1 で骨組み)
+
+- [#282](https://github.com/yasmro/schatten/pull/282) [`f16b605`](https://github.com/yasmro/schatten/commit/f16b6057c7714d7c0f1b8286997bab26742a8bf2) Thanks [@yasmro](https://github.com/yasmro)! - BREAKING(pre-1.0): Separator / Text / Icon の class 出力を Tailwind utility（`shrink-0 bg-border h-px w-full` / `text-error text-center truncate` / `size-5 text-inherit`）から `.st-*` semantic class chain（`st-separator` / `st-text st-text--body st-text--md st-text--default` / `st-icon st-icon--md st-icon--inherit`）に変更。React 利用は `<Separator>` / `<Text>` / `<Icon>` の prop 経由のままで影響なし。
+
+  消費者影響:
+
+  - `cn(textVariants(...), 'truncate')` のような **CVA 出力との重複 utility 指定** をしているケースは、出力 class セットの内訳が変わる（動作は等価）。
+  - `<Text className="font-bold">` 等の `className` override は、`@layer components` → `@layer utilities` の順序で従来より**確実に勝つ方向**になる。意図せず CVA 出力に依存していたケースのみ要確認。
+  - VRT baseline を持つ消費者は再生成が必要。
+
+  CSS API: 3 コンポを `@layer components` 配下に追加（44 クラス、`data-orientation` 1 属性が新規）。vanilla HTML から以下が動く:
+
+  ```html
+  <div class="st-separator" data-orientation="horizontal" role="none"></div>
+  <p class="st-text st-text--body st-text--md st-text--default">Body text.</p>
+  <svg class="st-icon st-icon--md st-icon--inherit">...</svg>
+  ```
+
+  Note: Icon の root class `.st-icon` 自体は CSS rule を持たない（全 visual property は modifier 側）。Tailwind の minify が空ルールを除去するため、`dist/schatten.css` には `.st-icon` 規則が含まれない（modifier `st-icon--{sm/md/lg}` / `st-icon--{color}` は全て存在）。
+
+- [#283](https://github.com/yasmro/schatten/pull/283) [`f1ca54d`](https://github.com/yasmro/schatten/commit/f1ca54dc12b77c440c0ad6568e2326c5c3af6ae6) Thanks [@yasmro](https://github.com/yasmro)! - BREAKING(pre-1.0): Spinner / Badge / Callout の class 出力を Tailwind utility から `.st-*` semantic class chain に変更。React 利用は `<Spinner>` / `<Badge>` / `<Callout>` の prop 経由のままで影響なし。
+
+  消費者影響:
+
+  - **Spinner の内部 ripple SVG class が rename されました。** CSS 直接参照している消費者は以下に sed-migrate してください:
+    - `.schatten-spinner-dot` → `.st-spinner__dot`
+    - `.schatten-spinner-ripple-1` → `.st-spinner__ripple-1`
+    - `.schatten-spinner-ripple-2` → `.st-spinner__ripple-2`
+    - 共有 utility だった `.schatten-spinner-ripple` は削除（個別の `__ripple-1` / `__ripple-2` に統合済）
+  - **Spinner の public CSS 変数は維持されます** — `--schatten-spinner-duration` / `--schatten-spinner-ripple-delay` は変更なしで consumer override 可能。`@theme` 化（manifest 掲載）は別 issue で扱います。
+  - `cn(badgeVariants(...), 'aspect-square p-1')` のような **CVA 出力の icon-only utility 上書き** は `.st-badge--icon-only` modifier に置き換わります。Badge.tsx 側で `!children && !!icon` 判定により conditional emit されるので、消費者コードは無変更。CSS-only 利用者は `<div class="st-badge ... st-badge--icon-only" aria-label="...">` で表現してください。
+  - VRT baseline を持つ消費者は再生成が必要。
+
+  CSS API: 3 コンポを `@layer components` 配下に追加（+33 classes: Spinner 9 / Badge 13 / Callout 11）。vanilla HTML から以下が動く:
+
+  ```html
+  <!-- Spinner -->
+  <div class="st-spinner st-spinner--default st-spinner--md" role="status">
+    <svg viewBox="0 0 24 24" aria-hidden="true">…</svg>
+    <span class="sr-only">Loading</span>
+  </div>
+
+  <!-- Badge (Pattern B: variant × appearance double-class) -->
+  <span class="st-badge st-badge--success st-badge--subtle st-badge--md"
+    >Active</span
+  >
+  <span class="st-badge st-badge--error st-badge--solid st-badge--md"
+    >Failed</span
+  >
+
+  <!-- Callout -->
+  <div class="st-callout st-callout--info st-callout--subtle" role="status">
+    <div class="flex gap-3 items-start">
+      <svg class="st-callout__icon" aria-hidden="true">…</svg>
+      <div>
+        <div class="st-callout__title">Heads up</div>
+        <div class="st-callout__body">…</div>
+      </div>
+    </div>
+  </div>
+  ```
+
+  Note: Pattern B (Badge / Callout) は **double-class selector** (`.st-badge--success.st-badge--subtle` 等) で variant × appearance 組み合わせを解決します。default `subtle` も first-class — `solid` / `outline` と同じ specificity (0,2,0) で CSS rule を持ちます（sweep-1 Icon precedent と整合）。
+
+- [#290](https://github.com/yasmro/schatten/pull/290) [`7787fc1`](https://github.com/yasmro/schatten/commit/7787fc1b9f7cc1ce9caec1f2c50f2cb8ed75a0cc) Thanks [@yasmro](https://github.com/yasmro)! - CSS API: Button / Checkbox / Switch を `.st-btn` / `.st-checkbox` / `.st-switch`
+  クラス API に移行（[#268](https://github.com/yasmro/schatten/issues/268) / [#154](https://github.com/yasmro/schatten/issues/154) sweep-3）。3 コンポの視覚規則が
+  `@layer components` に集約され、vanilla HTML / WordPress でも同一見た目で利用可能に。
+
+  - **Button**: `.st-btn` + 6 variants × 3 sizes + `.st-btn--icon-only` + sub-elements
+    `.st-btn__spinner-overlay` / `.st-btn__content`。`link` variant は
+    `.st-btn--link.st-btn--{size}` で font-size のみ切替（height/padding はリセット、
+    base font-size は `inherit`）。Loading 状態は `[aria-busy="true"]` で CSS が
+    overlay の opacity と cursor: wait を切替。
+  - **Checkbox**: `.st-checkbox-wrapper` + `.st-checkbox` + `.st-checkbox__indicator`。
+    error は `[aria-invalid="true"]`、checked 状態は Radix の `[data-state]`。
+    wrapper 内 label の sizing は `:has()` で派生。
+  - **Switch**: `.st-switch-wrapper` + `.st-switch` + `.st-switch__thumb` + `.st-switch__check`。
+    thumb 位置 / check icon の opacity は `.st-switch[data-state="checked"]` で表現
+    （`group` Tailwind utility は不要に）。
+
+  manifest snapshot: classes +28（13 / 7 / 8）、dataAttributes +2（`aria-busy` / `aria-invalid`）。
+
+  BREAKING(pre-1.0): 3 コンポが出力する className 文字列が Tailwind utility 列から
+  semantic class（`st-btn st-btn--primary st-btn--md` 等）に変更。`className` prop
+  の追加マージは不変。`buttonVariants()` / `checkboxVariants()` / `switchVariants()` /
+  `switchThumbVariants()` の戻り値も同様。
+
+  - 消費者影響: `cn(buttonVariants(...), 'inline-flex')` 等で utility を重複指定して
+    いる場合のみ visible。通常の `<Button>` / `<Checkbox>` / `<Switch>` 利用は無影響。
+  - VRT baseline を持つ消費者は再生成が必要。
+  - Dialog / Callout の Button 内部利用は transitive に class chain が変わる
+    （visual contract は保持されているので React API 経由なら無影響）。
+
+- [#296](https://github.com/yasmro/schatten/pull/296) [`44ca718`](https://github.com/yasmro/schatten/commit/44ca7188748d1b28091926cc9831230433acbfff) Thanks [@yasmro](https://github.com/yasmro)! - CSS API: Input / Textarea / Radio を `.st-input-wrapper` / `.st-input` /
+  `.st-textarea` / `.st-radio-group` / `.st-radio-wrapper` / `.st-radio`
+  クラス API に移行（[#269](https://github.com/yasmro/schatten/issues/269) / [#154](https://github.com/yasmro/schatten/issues/154) sweep-4）。3 コンポの視覚規則が
+  `@layer components` に集約され、vanilla HTML / WordPress でも同一見た目で利用可能に。
+
+  - **Input**: `.st-input-wrapper` + 3 sizes（wrapper 側）+ `.st-input`
+    - sub-elements `.st-input__icon-left/right` / `.st-input__text-left/right`
+    - 派生 modifier `.st-input--date`。focus-visible ring は
+      `.st-input-wrapper:has(.st-input:focus-visible)` で wrapper 側に。
+      state precedence は CSS source order で `error < readOnly < disabled`
+      （pre-sweep の tailwind-merge dedupe と意味的に等価）。
+  - **Textarea**: `.st-textarea` + 3 sizes。error / readOnly / disabled の
+    precedence は単一要素の source order で表現。
+  - **Radio**: `.st-radio-group` + `.st-radio-wrapper` + `.st-radio` + 3 sizes
+    - `.st-radio__indicator` + `.st-radio__dot`。label sizing と dot sizing は
+      `:has()` 経由で size modifier から派生。Radix Radio が unchecked 時に
+      indicator を unmount するため CSS 側に hide 規則は不要。
+
+  manifest snapshot: classes +23（Input 10 / Textarea 4 / Radio 9）。
+  `dataAttributes` への新規追加なし（`aria-invalid` は sweep-3 で導入済）。
+
+  BREAKING(pre-1.0): 3 コンポが出力する className 文字列が Tailwind utility 列から
+  semantic class（`st-input-wrapper st-input-wrapper--md` 等）に変更。`className`
+  prop の追加マージは不変。`inputWrapperVariants()` / `inputVariants()` /
+  `textareaVariants()` / `radioVariants()` の戻り値も同様。
+
+  - 消費者影響: `cn(textareaVariants(...), 'border-error')` 等で utility を重複
+    指定している場合のみ visible。通常の `<Input>` / `<Textarea>` / `<Radio>` 利用は
+    無影響。
+  - VRT baseline を持つ消費者は再生成が必要。
+  - Input のラッパクリックで input にフォーカスする挙動は **React のみ** の
+    ergonomic 機能（Input.tsx の `onClick` 経由）。vanilla HTML 利用者は input
+    自身をクリックする必要がある（CSSApi reference に明記）。
+  - Field 経由の Input / Textarea / RadioGroup transitive 影響は visual contract
+    が保持されているため React API 経由なら無影響。
+
+- [#298](https://github.com/yasmro/schatten/pull/298) [`c9fff03`](https://github.com/yasmro/schatten/commit/c9fff0326aed73df20f83254706f8b0bfc97611b) Thanks [@yasmro](https://github.com/yasmro)! - CSS API: sweep-5 compound (heavy) — Select と Tooltip の公開クラス API を追加。`<button class="st-select__trigger st-select__trigger--md">` 形式の semantic class が `dist/schatten.css` に同梱され、React 利用と同じ trigger の見た目が `dist/schatten.manifest.json` 経由で確定的に消費可能になる（Tooltip も同様に `.st-tooltip__content` / `.st-tooltip__arrow`）。
+
+  BREAKING(pre-1.0): Select と Tooltip が出力するクラス文字列が Tailwind utility (`flex w-full ...` / `tooltip-content z-[var(--z-tooltip)] ...`) から semantic class (`st-select__trigger st-select__trigger--md` / `st-tooltip__content`) に変更。`className` prop のマージは不変。
+
+  - `selectTriggerVariants()` の戻り値も同様に変更
+  - 消費者影響: `cn(selectTriggerVariants(...), 'h-12')` のような Tailwind utility 重複指定をしているケースのみ。通常の `<SelectTrigger>` / `<Tooltip>` 利用は無影響
+  - VRT baseline を持つ消費者は再生成が必要
+
+  CSS API: `.tooltip-content` クラスを `.st-tooltip__content` に rename（pre-1.0 のクラス命名揃え）。`.st-tooltip__arrow` を新規追加（Tooltip Arrow に dedicated class を提供）。
+
+  Note: Select / Tooltip は [#297](https://github.com/yasmro/schatten/issues/297) の区分 D (JS 必須) / C (静的描画のみ) なので vanilla HTML での realistic な利用シナリオは無い (compound 動作 / 位置決めに JS 必須)。クラス API は manifest と unit test の `class API` describe block で defended、parity story は意図的に **作らない**。判定基準は [vrt-spec-guideline.md §Parity stories](.claude/rules/vrt-spec-guideline.md) に追記。
+
+  closes [#270](https://github.com/yasmro/schatten/issues/270)
+
+- [#299](https://github.com/yasmro/schatten/pull/299) [`f1cf795`](https://github.com/yasmro/schatten/commit/f1cf7950a63f9ae7cc307f7a6501cdfc1f7ed45d) Thanks [@yasmro](https://github.com/yasmro)! - CSS API: Toast / Dialog を `.st-toast` + `.st-toaster` / `.st-dialog__*`
+  クラス API に移行（[#271](https://github.com/yasmro/schatten/issues/271) / [#154](https://github.com/yasmro/schatten/issues/154) sweep-6）。2 コンポの視覚規則が
+  `@layer components` に集約され、portal compound 系コンポにもクラス API が
+  行き渡る。
+
+  - **Toast**: `.st-toast` (per-toast `<li>`) + Pattern B double-class
+    (`--neutral/--success/--error/--warning/--info` × `--subtle/--solid`)
+    - sub-elements `.st-toast__icon/__content/__title/__description`。
+      viewport は `.st-toaster` + 6 値の position modifier
+      (`--top-left/--top-center/--top-right/--bottom-left/--bottom-center/--bottom-right`)。
+      title-only vs title+description のアライメント分岐は
+      `:has(.st-toast__description)` で JSX 側 conditional 廃止
+      （Callout sweep-2 の `:has()` precedent 踏襲）。`[data-state]` /
+      `[data-swipe]` 駆動の dissolve enter/exit / swipe handoff /
+      `prefers-reduced-motion` は CSS に温存。
+  - **Dialog**: `.st-dialog__overlay` / `.st-dialog__content` /
+    `.st-dialog__header/__title/__description/__body/__footer/__close`
+    の 8 sub-element。**`.st-dialog` block ルートは出さない** — Radix の
+    `DialogPrimitive.Root` が DOM を吐かず、Overlay / Content が portal の
+    独立兄弟になるため。Footer 内 Button の `order-N` は Radix focus 都合
+    (DOM 順 ≠ 視覚順) で JSX 側 Tailwind utility に温存し、`.st-dialog__footer`
+    は flex container だけに責任を持つ（vanilla HTML 消費者は DOM 順 =
+    視覚順で書けば良いことを CSSApi で明文化）。`translate: -50% -50%` は
+    standalone プロパティ、keyframes は `transform: scale(...)` のみで
+    Tailwind v4 centering との合成を避ける既存仕様を継承。
+
+  manifest snapshot: classes +27（Toast 12 / Toaster 7 / Dialog 8）。
+  `dataAttributes` への新規追加なし（`data-state` / `data-swipe` は sweep
+  前から計上済）。
+
+  BREAKING(pre-1.0): 2 コンポが出力する className 文字列が Tailwind utility
+  列から semantic class（`st-toast st-toast--error st-toast--solid`、
+  `st-dialog__content` 等）に変更。`className` prop の追加マージは不変。
+  `toastVariants()` / `toastViewportVariants()` の戻り値も同様。
+
+  - 内部実装クラス rename: `.toast-item` → `.st-toast`、`.dialog-overlay` →
+    `.st-dialog__overlay`、`.dialog-content` → `.st-dialog__content`。
+    Toast.css / Dialog.css に直接アクセスしていた消費者のみ影響
+    （通常の `<Dialog>` / `<Toaster>` / `toast()` 利用は無影響）。
+  - React 公開 API (`<Dialog>` / `<Toaster>` / `toast()` / `DialogProps` /
+    `ToastInput` etc.) は完全に不変。
+  - VRT baseline を持つ消費者は再生成が必要（描画値は token 経由で不変、
+    sub-pixel diff のみ想定）。
+  - Toast / Dialog の portal-only な挙動（focus trap、dismissal、auto-dismiss、
+    swipe、enter/exit アニメ）は **React 経由のみ**で、vanilla HTML 消費者は
+    静的な視覚フレームしか得られない。これは PR [#298](https://github.com/yasmro/schatten/issues/298) (sweep-5) と同じ判断で、
+    portal compound には parity story を出さない方針を継承。CSSApi リファレンス
+    に Toast / Dialog 章を追加し、vanilla 利用時の必須 ARIA 属性
+    (`role="status"`/`role="dialog"`/`aria-modal`/`aria-labelledby` 等) を
+    明文化。
+
+- [#300](https://github.com/yasmro/schatten/pull/300) [`d1b0416`](https://github.com/yasmro/schatten/commit/d1b0416f194758956ccfa2b5ee9804cbcf0dbe9f) Thanks [@yasmro](https://github.com/yasmro)! - CSS API: Field / FieldSet を `.st-field` / `.st-fieldset` クラス API に
+  移行（[#272](https://github.com/yasmro/schatten/issues/272) / [#154](https://github.com/yasmro/schatten/issues/154) sweep-7）。**本 sub-issue 完了で全 18 lv1 コンポの
+  class API が出揃い、v0.9.0 の「消費者 Tailwind 不要化」が達成される**。
+
+  - **Field**: `.st-field` (root) + `.st-field__label-row/__label/__required-marker/__info/__description/__error` の 6 sub-element。
+    `flexGrow` / `flexShrink` から派生する `--grow/--grow-0/--shrink/--shrink-0`
+    4 modifier は CVA 外で `cn()` 経由付与（Badge `--icon-only` / Input
+    `--date` precedent）。`flexBasis` は任意 CSS 値を取るため inline
+    `style` のまま継続。**Field root に `[data-error]` 属性を新規 emit**
+    （FieldSet → Field の collapse 経路を消費者が外部から observability
+    できるよう、root 属性として開示）。Field 自身の error 視覚は引き続き
+    内部 form input 側で表現（`.st-input-wrapper:has([aria-invalid])`）。
+  - **FieldSet**: `.st-fieldset` (root `<fieldset>` reset chrome) +
+    `.st-fieldset__legend/__description/__children/__error` の 4
+    sub-element。`direction="row"` / `wrap` は `__children` 側の 2
+    modifier (`--row` / `--wrap`)。header (legend or description) 存在時
+    の `margin-top:1rem` 分岐は `.st-fieldset:has(> .st-fieldset__legend)`
+    / `:has(> .st-fieldset__description)` で CSS 側に閉じる（Callout
+    sweep-2 / Toast sweep-6 の `:has()` precedent 踏襲）。`<fieldset>` の
+    ブラウザ既定 border / padding / margin / min-width を root リセット。
+
+  ### 完了処理（[#154](https://github.com/yasmro/schatten/issues/154) / [#58](https://github.com/yasmro/schatten/issues/58) phase-2 同時クローズ）
+
+  - `src/docs/CSSApi.stories.tsx` を全 18 コンポ chrome ベースに書換。
+    Section / CodeBlock 等の page chrome は **page-local `<style>` ブロック**
+    で吸収（`.cssapi-doc__*` プレフィックス — 公開 `.st-*` 面は増やさない、
+    api-stability 配慮）。Field / FieldSet 章を追加し、必須 ARIA 属性
+    チェックリストと vanilla HTML markup 例を明文化。末尾「Coming in
+    subsequent sweeps」を削除し「Reference (all 18 lv1 components)」体に。
+  - README から「Tailwind v4 セットアップが必要」記述削除。Quick start /
+    Two-layer architecture を「v0.9.0 完了済」体に更新。
+  - AGENTS.md に「**消費者は Tailwind 不要**」のコールアウトを追加
+    （Schatten 内部は Tailwind v4 だが、`import '@yasmro/schatten/schatten.css'`
+    1 行で動く旨）。
+
+  manifest snapshot: classes +18（Field 11 + FieldSet 7）。
+  `dataAttributes` / `cssVariables` には新規追加なし（`data-error` /
+  `data-disabled` は既出のため snapshot 差分なし）。
+
+  BREAKING(pre-1.0): 2 コンポが出力する className 文字列が Tailwind
+  utility 列（`flex flex-col gap-1.5` / `flex flex-col` / `flex-row` /
+  `flex-wrap` / `mt-4` / `text-base font-bold text-foreground` /
+  `text-sm text-foreground-muted` / `text-sm text-error` 等）から
+  semantic class（`st-field`、`st-fieldset st-fieldset__*`）に変更。
+  **Field root に `data-error="true"` 属性が新規 emit される**（観察可能な
+  追加 — React Props / `FieldContext` / `FieldSetContext` の shape は不変）。
+  VRT baseline を持つ消費者は再生成が必要（描画値は token 経由で不変、
+  sub-pixel diff のみ想定）。
+
+  closes [#272](https://github.com/yasmro/schatten/issues/272)
+  closes [#154](https://github.com/yasmro/schatten/issues/154)
+
+- [#255](https://github.com/yasmro/schatten/pull/255) [`400be06`](https://github.com/yasmro/schatten/commit/400be064a71ca724f8ea4288ff2e914f7a87df35) Thanks [@yasmro](https://github.com/yasmro)! - Add `<Icon>` (lv1) — a thin wrapper around lucide-react icons that normalizes
+  sizing (`sm`/`md`/`lg`) and color (a `color` prop whose vocabulary mirrors
+  `Text` — foreground tiers, state, inverted, and brand tokens; defaults to
+  `inherit`), and applies a11y defaults: `aria-hidden="true"` for decorative
+  icons, and `role="img"` when a label (`aria-label` / `aria-labelledby`) is
+  given. Also exports `iconVariants` from `@yasmro/schatten/variants`.
+
+- [#279](https://github.com/yasmro/schatten/pull/279) [`205b3a5`](https://github.com/yasmro/schatten/commit/205b3a59023e4cf0c9607fcfc1aeec465cdb5dbe) Thanks [@yasmro](https://github.com/yasmro)! - Types: `dist/schatten.manifest.json` を新規 export。`@yasmro/schatten` の公開 CSS surface（`.st-*` クラス・`data-*` / `aria-invalid` / `aria-busy` の state hook 属性・`@theme` 登録済の CSS 変数）を機械可読 JSON として配布する。
+
+  - 新しい export エントリ: `@yasmro/schatten/schatten.manifest.json`
+  - スキーマ: `{ $schemaVersion: 1, package, version, generatedAt, classes, dataAttributes, cssVariables }`。すべての配列はアルファベット昇順ソート + 重複排除
+  - 内部の API gate として `src/__generated__/schatten.manifest.json` を commit、CI の `manifest` ジョブ (`pnpm check:manifest`) で diff 検知（差分時は集合差分を CI ログに整形出力 + `CSS API:` 付き changeset の要求メッセージ）
+  - 新スクリプト: `pnpm build:manifest` (build chain に組込)、`pnpm update:manifest` (commit 版を意図的に再生成)、`pnpm check:manifest` (CI gate / ローカル検証)
+  - `.claude/rules/api-stability.md` の「Manifest as the authoritative API listing (planned)」節を **"shipped"** に書き換え。以降は **manifest が public surface の authoritative listing**、本文書と食い違う場合は manifest を信じる運用に切り替わる
+
+  infra-3 着地時点では `classes: []`（sweep-1〜7 が実体を追加していく）。sweep PR が `.st-*` を増やすたび manifest diff が出て、reviewer に変化が見える仕組みが整う。
+
+- [#281](https://github.com/yasmro/schatten/pull/281) [`ab86095`](https://github.com/yasmro/schatten/commit/ab86095bcb8d04cc51dce42f73650a4752e9c448) Thanks [@yasmro](https://github.com/yasmro)! - CSS API: manifest の `cssVariables` 抽出を **Tailwind v4 `@theme` 登録分** に限定。`scripts/generate-manifest.mjs` を `:root` 直下の `--*` 全部から prefix で絞る方式 → `@layer theme { :root, :host { … } }` (Tailwind が `@theme` ディレクティブを compile した出力) 配下に限定する方式に書き換えた。
+
+  これにより `dist/schatten.manifest.json#cssVariables` から以下のような **`@theme` 未登録の内部トークン** が除外される:
+
+  - font weight 数値 (`--font-bold` / `--font-medium` / `--font-normal` / `--font-semibold`)
+  - font fallback stack (`--font-sans-fallback` / `--font-serif-fallback` / `--font-mono-fallback`)
+  - 生 typography スケール (`--text-xs` / `--text-sm` / `--text-2xl` 等 — Tailwind utility `text-xs` 経由で参照する内部値)
+  - spacing の sub-step 値 (`--spacing-0-5` / `--spacing-1-5` / `--spacing-2-5` / `--spacing-3-5` / `--spacing-7` / `--spacing-9` / `--spacing-14`)
+
+  代わりに、prefix list で見落としていた `@theme` 由来トークンが正しく capture されるように:
+
+  - `--default-font-family` / `--default-mono-font-family` (Tailwind v4 が `@theme { --font-sans }` から自動で emit するもの)
+  - `--leading-normal` / `--leading-snug` / `--leading-tight` (line-height utility)
+
+  Pre-1.0 の保守的縮小 — manifest を依存していた consumer はまだ存在しないと想定。**v1.0 凍結前に「公開 = `@theme` 登録分」原則を機械的に確立**し、内部 primitive を後から rename する自由を確保する。closes [#280](https://github.com/yasmro/schatten/issues/280)
+
+- [#301](https://github.com/yasmro/schatten/pull/301) [`b4b5eb9`](https://github.com/yasmro/schatten/commit/b4b5eb951d066dc6c67c4d3d4833fdba5fb0960a) Thanks [@yasmro](https://github.com/yasmro)! - CSS API: per-component CSS subpath `@yasmro/schatten/css/<component>` を
+  追加（[#291](https://github.com/yasmro/schatten/issues/291)）。**18 lv1 全コンポ**（`badge` / `button` / `callout` /
+  `checkbox` / `dialog` / `field` / `fieldset` / `icon` / `input` / `radio`
+  / `select` / `separator` / `spinner` / `switch` / `text` / `textarea` /
+  `toast` / `tooltip`）がそれぞれ独立した CSS subpath で配布されるように
+  なる。
+
+  - **新規 build step `build:component-css`** — `scripts/build-component-css.mjs`
+    が `src/components/lv1/<Name>/<Name>.css` をそれぞれ
+    `dist/css/<slug>.css` に minify 出力（Tailwind v4 CLI 経由 = 既存
+    `build:css` と同じ lightningcss パス）。`pnpm build` の chain に
+    `build:css` 直後で組み込み。
+  - **`package.json#exports` に `./css/*` wildcard を追加**。`./dist/css/*.css`
+    にマップ。consumer は `import '@yasmro/schatten/css/button'` 1 行で
+    Button だけのスタイルを読み込める（前提: `./tokens` も別 import）。
+  - **size-limit per-component budget** — `.size-limit.json` に 18 件 + 集約
+    1 件を追加。各コンポ 1.5 KB（brotli）、集約 20 KB。現状最大は
+    `css/select` の 815 B（45% 余裕）、最小は `css/separator` の 88 B。
+  - **`@yasmro/schatten/variants` の React-free 性を再確認** — 既存の
+    multi-entry tsup + `peerDependenciesMeta.react.optional`（v0.8.0 で
+    着地済）の上に乗る形。`dist/variants/index.js` / `dist/variants/index.cjs`
+    / `dist/tokens/index.js` / `dist/tokens/index.cjs` いずれも `react` /
+    `react-dom` への import なし（grep で 0 件確認、DoD [#3](https://github.com/yasmro/schatten/issues/3)）。
+  - **README に "Per-component CSS" セクション追加**。vanilla HTML / bundler
+    両系統のサンプル + 必要 import の説明 + 詳細な Lighthouse / critical
+    CSS recipe への参照（[#293](https://github.com/yasmro/schatten/issues/293) — 別 issue）。
+  - **lv2 / monorepo split は対象外** — `./components/lv2` subpath は
+    post-1.0 で別途、`@yasmro/schatten-core` / `-react` の物理分割は v1.x
+    で実需が立った時点で再検討。
+
+  DoD（全 6 項目完了）:
+
+  1. `package.json#exports` に subpath 宣言 → `./css/*` wildcard で 18 件
+     をまとめて宣言。
+  2. `dist/css/<component>.css` × 18 生成 → `pnpm build` で確認。
+  3. `dist/variants/index.{js,cjs}` に react 参照なし → grep 0 件。
+  4. `@yasmro/schatten/css/button` 単独 import で Button スタイル適用
+     （vanilla HTML）→ `var(--color-solid)` 等の参照が `dist/core/tokens/`
+     で resolve することを構造確認。
+  5. size-limit per-component budget → 18 件追加、`pnpm size` で all green。
+  6. CHANGELOG `CSS API:` prefix → 本エントリ。
+
+  closes [#291](https://github.com/yasmro/schatten/issues/291)
+
+- [#260](https://github.com/yasmro/schatten/pull/260) [`75d5348`](https://github.com/yasmro/schatten/commit/75d5348fe6f00fb99ab41d2df76dbd554249d072) Thanks [@yasmro](https://github.com/yasmro)! - Add `<ThemeProvider>` / `useTheme()` — a declarative API for managing the
+  Mode (light/dark) and Special (`data-theme`) axes from a React tree. Wraps
+  the previously-manual `document.documentElement.classList.toggle('dark')`
+
+  - `setAttribute('data-theme', …)` plumbing into a client-only Provider:
+
+  * `defaultMode` accepts `'light' | 'dark' | 'system'`; `'system'` subscribes
+    to `matchMedia('(prefers-color-scheme: dark)')`.
+  * `defaultSpecial` accepts an explicit `SpecialThemeId`, `'auto-seasonal'`
+    (resolves the current date via `getCurrentSeason()`), or `null`.
+  * State persists to `localStorage` under `storageKey` (default
+    `'schatten-theme'`); pass `null` to disable. Cross-tab updates sync via
+    the native `storage` event.
+  * `useTheme()` exposes both the resolved `mode` (`'light' | 'dark'`) and
+    the user-facing `modeSetting` (which can include `'system'`).
+  * Optional `disableTransitionOnChange` strips CSS transitions during a swap
+    for instant feedback.
+
+  The README now documents the Provider, the `useTheme()` hook, and a
+  synchronous FOUC-avoidance inline script (Next.js App Router / Vite /
+  Remix variants + strict-CSP fallback) that mirrors the Provider's
+  `localStorage` contract. The storage shape `{ mode, special }` under the
+  default `storageKey` `'schatten-theme'` is part of the public API surface.
+
+  New entry point: `@yasmro/schatten/providers`.
+
+  Component / lv1 / lv2 / CSS API: unchanged.
+
+### Patch Changes
+
+- [#305](https://github.com/yasmro/schatten/pull/305) [`b5c5b39`](https://github.com/yasmro/schatten/commit/b5c5b39f10aba6e5b33df7f6677af19a9e66ab61) Thanks [@yasmro](https://github.com/yasmro)! - chore(tooling): `/audit-coverage` slash command と `scripts/audit-coverage.mjs`
+  を新設。lv1 全体で test / VRT / class-API CSS (`.st-*` SSOT) /
+  `__snapshots__/` baseline / `index.ts` re-export の過不足を一括スキャンする。
+
+  `scripts/check-lv1-companions.mjs` (PostToolUse, single component) と
+  `scripts/check-lv1-export-integrity.mjs` (Stop, export integrity only) が
+  **編集 / セッション単位**で動くのに対し、本コマンドは**任意タイミングで全
+  lv1** の充足度を markdown 表として出す。区分 A/B のコンポーネントは
+  `*.parity.stories.tsx` / `*.parity.vrt.spec.ts` も判定対象に含み、区分 C/D
+  (`Dialog` / `Select` / `Toast` / `Tooltip`) は `vrt-spec-guideline.md`
+  §"Parity stories — when to write one, when to skip" に従って parity 列を
+  `—` 表示で除外する。
+
+  CLI:
+
+  - `pnpm audit:coverage` — markdown 表
+  - `pnpm audit:coverage --check` — 不足検出時 exit 1 (CI 向け)
+  - `pnpm audit:coverage --json` — `$schemaVersion: 1` の JSON 出力
+
+  公開 API (React props / CSS class / CSS variables / TypeScript types) に
+  変更なし — 内部 tooling のみ。
+
+- [#288](https://github.com/yasmro/schatten/pull/288) [`cfc56da`](https://github.com/yasmro/schatten/commit/cfc56da8eb1eae1955548712cf5e99a89a191580) Thanks [@yasmro](https://github.com/yasmro)! - Callout の内部 flex layout を `.st-callout` に昇格し、新しい sub-element class (`.st-callout__content` / `.st-callout__action`) を追加。CSS-only consumer の markup が冗長な inner `<div class="flex …">` を必要としなくなった。React 利用は無変更。
+
+  Before — vanilla HTML markup:
+
+  ```html
+  <div class="st-callout st-callout--info st-callout--subtle">
+    <div class="flex gap-3 items-start">
+      <!-- 消費者が手書きしていた wrapper -->
+      <svg class="st-callout__icon">…</svg>
+      <div class="flex min-w-0 flex-1 flex-col gap-1">
+        <!-- consumer が手書きしていた wrapper -->
+        <div class="st-callout__title">…</div>
+        <div class="st-callout__body">…</div>
+      </div>
+    </div>
+  </div>
+  ```
+
+  After:
+
+  ```html
+  <div class="st-callout st-callout--info st-callout--subtle">
+    <svg class="st-callout__icon">…</svg>
+    <div class="st-callout__content">
+      <div class="st-callout__title">…</div>
+      <div class="st-callout__body">…</div>
+    </div>
+  </div>
+  ```
+
+  CSS API: 2 sub-element classes が追加 (`.st-callout__content` / `.st-callout__action`)、Callout のレイアウト責務が `.st-callout { display: flex; … }` に集約。multi-line 時の `align-items: flex-start` は `:has(.st-callout__title):has(.st-callout__body)` で自動分岐 — JSX / Tailwind 条件不要。
+
+  VRT: 既存 14 baseline + parity 2 baseline すべて pixel-identical で pass (visual contract 完全保持)。
+
+  closes [#284](https://github.com/yasmro/schatten/issues/284)
+
+- [#313](https://github.com/yasmro/schatten/pull/313) [`2c10a32`](https://github.com/yasmro/schatten/commit/2c10a32581999e6898d0aa7cad582c1c7e4b888c) Thanks [@yasmro](https://github.com/yasmro)! - Add integration-level VRT for the `Foundation/CSS API` page and a separate
+  dist-artifact verification spec — **and fix a `dist/schatten.css` cascade
+  bug the new VRT immediately surfaced**.
+
+  **Fix**: `src/styles/entry.css` was declaring `@layer reset, tokens,
+components, utilities;` without naming Tailwind v4's own `theme` and
+  `base` layers. Tailwind's `@import "tailwindcss"` then registered
+  `theme` / `base` _after_ schatten's layers in cascade order, putting
+  the preflight reset `button { background-color: #0000 }` _higher_ in
+  priority than `@layer components { .st-btn--primary { … } }`. A
+  consumer importing `@yasmro/schatten/schatten.css` and writing
+  `<button class="st-btn st-btn--primary">` got an _un-styled_ button.
+  Declaring `@layer theme, base, reset, tokens, components, utilities;`
+  explicitly puts preflight at the lowest priority where it belongs.
+  The integrated `dist/schatten.css` now matches the per-component
+  `dist/css/<slug>.css` rendering for Button, Dialog footer, and every
+  other `<button>`-rooted primitive. Per-component subpath snapshots
+  were unaffected — they bypass Tailwind preflight entirely.
+
+  **New test infrastructure**:
+
+  - `src/docs/__fixtures__/cssApiSamples.html.ts` — string-only payload
+    (vanilla HTML + scaffolding CSS) consumed by both the parity story
+    and the dist VRT spec. Splitting the React tree out keeps the
+    Playwright Babel pipeline from mis-parsing `Component.css`
+    side-effect imports as TypeScript decorators.
+  - `src/docs/__fixtures__/cssApiSamples.tsx` — React-side companion
+    with `<ReactSamples />` covering the 14 区 A/B components. Re-exports
+    the string payloads so the story has one import site.
+  - `src/docs/CSSApiParity.stories.tsx` — side-by-side React ↔ vanilla
+    HTML comparison covering all 18 lv1 components. 区 C/D
+    Tooltip / Select / Dialog / Toast show vanilla-only because their
+    React equivalents portal-mount.
+  - `src/docs/CSSApi.vrt.spec.ts` — pins the `Reference` and
+    `ParityComparison` stories in light + dark.
+  - `src/docs/CSSApiDist.vrt.spec.ts` — loads the built
+    `dist/schatten.css` and each per-component `dist/css/<slug>.css`
+    subpath ([#291](https://github.com/yasmro/schatten/issues/291)) via `page.setContent()` and verifies they render
+    identically to source-mode. Closes the [#291](https://github.com/yasmro/schatten/issues/291) DoD [#4](https://github.com/yasmro/schatten/issues/4) promise
+    ("import the subpath and the styles apply") with a real visual
+    contract — and is what surfaced the entry.css cascade bug above.
+  - `src/docs/__snapshots__/` — 42 light/dark baselines.
+  - `scripts/ensure-dist.mjs` + `pnpm test:vrt:dist` — pre-run check
+    that `dist/` artifacts exist before the dist VRT runs locally.
+  - `.github/workflows/vrt.yml` — `pnpm build` is now prepended to the
+    VRT job so CI never runs the dist spec against a stale dist.
+
+- [#289](https://github.com/yasmro/schatten/pull/289) [`c7b7c49`](https://github.com/yasmro/schatten/commit/c7b7c49e55a28281c4f6c478da38be45fc1b990a) Thanks [@yasmro](https://github.com/yasmro)! - DefaultSpinner の Tailwind utility 依存 (`size-full animate-spin opacity-25/75`) を raw CSS + `.st-spinner__*` sub-element class に置き換え、Spinner が default 型でも CSS-only consumer から Tailwind 無しで動作するようになりました。`[#154](https://github.com/yasmro/schatten/issues/154)` の "Tailwind 不要" 公約に default 型 Spinner だけが空けていた穴を解消。
+
+  新しい sub-element class:
+
+  - `.st-spinner__rotor` — default 型の SVG (回転、`animation: schatten-spin 1s linear infinite`)
+  - `.st-spinner__track` — 背景 ring (`opacity: 0.25`)
+  - `.st-spinner__arc` — 移動 arc (`opacity: 0.75`)
+  - `.st-spinner > svg` — 子セレクタで SVG sizing を universal 化 (default / ripple 共通)
+
+  `@keyframes schatten-spin` を Spinner.css に追加 (既存の `schatten-dot-breathe` / `schatten-ripple-wave` と同じ private namespace)。
+
+  React 利用は無変更。CSS-only consumer 向けに `size-full` / `animate-spin` / `opacity-25` / `opacity-75` の Tailwind class を SVG に書く必要が無くなりました:
+
+  ```html
+  <!-- Before (sweep-2): Tailwind 依存 -->
+  <div class="st-spinner st-spinner--default st-spinner--md" role="status">
+    <svg
+      class="size-full animate-spin"
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden="true"
+    >
+      <circle
+        class="opacity-25"
+        cx="12"
+        cy="12"
+        r="10"
+        stroke="currentColor"
+        stroke-width="3"
+      />
+      <path
+        class="opacity-75"
+        d="M22 12a10 10 0 0 0-10-10"
+        stroke="currentColor"
+        stroke-width="3"
+      />
+    </svg>
+    <span class="sr-only">Loading</span>
+  </div>
+
+  <!-- After: .st-spinner__* chain で完結 -->
+  <div class="st-spinner st-spinner--default st-spinner--md" role="status">
+    <svg
+      class="st-spinner__rotor"
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden="true"
+    >
+      <circle
+        class="st-spinner__track"
+        cx="12"
+        cy="12"
+        r="10"
+        stroke="currentColor"
+        stroke-width="3"
+      />
+      <path
+        class="st-spinner__arc"
+        d="M22 12a10 10 0 0 0-10-10"
+        stroke="currentColor"
+        stroke-width="3"
+      />
+    </svg>
+    <span class="sr-only">Loading</span>
+  </div>
+  ```
+
+  CSS API: 3 sub-element classes 追加 (`.st-spinner__rotor` / `.st-spinner__track` / `.st-spinner__arc`)。manifest は 79 → 82 classes。
+
+  Notes:
+
+  - Default 型の rotation duration は `1s linear infinite` を hardcode (Tailwind `animate-spin` と一致)。ripple 型の `--schatten-spinner-duration` (2.8s, ease-in-out) とは意図的に別の cadence — 異なるアニメーション性格のため。
+  - `--schatten-spinner-default-duration` のような新規 public CSS variable は本 PR で追加せず、`--st-*` rename を扱う [#286](https://github.com/yasmro/schatten/issues/286) でまとめて整理。
+  - VRT: 既存 6 baseline + parity 2 baseline + 内部利用先の Button 14 baseline すべて pixel-identical で pass (visual contract 完全保持)。
+
+  closes [#285](https://github.com/yasmro/schatten/issues/285)
+
+- [#302](https://github.com/yasmro/schatten/pull/302) [`0c3327b`](https://github.com/yasmro/schatten/commit/0c3327b6718faa822554213417107863b0735c05) Thanks [@yasmro](https://github.com/yasmro)! - Fix: `<Button variant="link" icon={…}>` 内の icon が段落内で次行に孤立する不具合を
+  修正し、テキストとアイコンのあいだに 4px の隙間を追加(sweep-3 [#268](https://github.com/yasmro/schatten/issues/268) のリグレッション)。
+
+  原因は 2 つの相互作用:
+
+  1. Tailwind v4 preflight が `svg { display: block }` を強制。`.st-btn--link` は
+     `.st-btn__content` のような inline-flex ラッパーを持たず svg を直接の子として
+     レンダリングするため、`display: block` の svg が独立ブロックとなり強制改行
+     を発生させる(他 variant は inline-flex ラッパー内の flex item なので影響なし)。
+  2. `.st-btn--link { white-space: normal }` がテキストノードと隣接 svg のあいだの
+     行分割を許容していた。
+
+  加えて、icon とテキストのあいだに視覚的な間が無く貼り付いて見える問題もあり、
+  これら 3 つを 1 つの修正で解決するため `.st-btn--link` を
+  `display: inline-flex; align-items: baseline; gap: 0.25rem` に変更:
+
+  - svg が flex item となり `display: block` でも改行を起こさない。
+  - `gap: 0.25rem` で text↔icon 間に 4px の固定余白(iconPosition `start` /
+    `end` どちらでも対称に効く)。
+  - `align-items: baseline` でアイコンを段落テキストのベースラインに揃える。
+  - `white-space: nowrap` を併用し、長い link テキストの mid-text wrap を抑制
+    (link variant は短い inline affordance "Learn more →" 用途を想定)。
+
+  `Button.vrt.spec.ts` に `link-variant` story(light / dark の 2 baseline)を追加
+  してリグレッションを CI で検知できるようにした。manifest snapshot に差分なし
+  (195 classes / 8 attrs / 145 vars — 公開 API surface は不変)。
+
+- [#256](https://github.com/yasmro/schatten/pull/256) [`7377da1`](https://github.com/yasmro/schatten/commit/7377da1fb18bf91751ebf316ec086a01aadd1dc5) Thanks [@yasmro](https://github.com/yasmro)! - Fix `pnpm dev` failing to render any Storybook story with `ReferenceError: process is not defined`.
+
+  `.storybook/preview.tsx` read `process.env.STORYBOOK_CHANNEL` at module scope, but the file is bundled into the browser preview iframe where `process` is not a global. The bare reference threw on module evaluation and left `#storybook-root` empty. It now reads `import.meta.env.STORYBOOK_CHANNEL`, which Storybook's Vite builder populates for `STORYBOOK_`-prefixed vars in both the dev server and the production build. The published `@yasmro/schatten` package is unchanged — this is a tooling-only fix.
+
+- [#294](https://github.com/yasmro/schatten/pull/294) [`91b2b16`](https://github.com/yasmro/schatten/commit/91b2b1686256e6d578fe436bb3a04f7f42cd8af8) Thanks [@yasmro](https://github.com/yasmro)! - chore(lint): Biome `style/noRestrictedImports` で `src/core/**` /
+  `src/variants/**` / `src/themes/**` / `src/tokens.ts` からの
+  `react` / `react-dom` / `@radix-ui/*` import を error として禁止
+  (closes [#292](https://github.com/yasmro/schatten/issues/292))。v0.9.0 の framework-agnostic 境界 ([#291](https://github.com/yasmro/schatten/issues/291))
+  を `package.json` の `exports` map に頼らず source level でも CI ゲートで
+  担保する。`no-primitive-color` plugin と同じ「構造的不変条件は lint で
+  機械化する」哲学。
+
+  消費者影響なし — 公開 API / CSS classes / CVA 出力はすべて不変。詳細は
+  [`.claude/rules/lint-rules-guideline.md`](https://github.com/yasmro/schatten/blob/develop/.claude/rules/lint-rules-guideline.md)
+  の `style/noRestrictedImports` 節。回帰テストは
+  [`biome-plugins/boundary-no-react.test.ts`](https://github.com/yasmro/schatten/blob/develop/biome-plugins/boundary-no-react.test.ts)。
+
+- [#309](https://github.com/yasmro/schatten/pull/309) [`9900cef`](https://github.com/yasmro/schatten/commit/9900cef94fa589e67c3736fdc9eb6bdb62c29a46) Thanks [@yasmro](https://github.com/yasmro)! - chore(tooling): `.claude/skills/prepare-release/` を新設 (closes [#133](https://github.com/yasmro/schatten/issues/133))。
+  リリース直前に走らせる、非破壊な pre-flight skill とその執行装置一式。
+
+  - `.claude/skills/prepare-release/SKILL.md`: 5 step の対話 skill 本体。
+    - 未消費 changeset の inventory + 予測 version の提示
+    - 非破壊な quality gate (`lint` / `typecheck` / `test --run` / `build` /
+      `check:manifest` / `size` / `lint:pkg` / `check:readme`) を一括実行
+    - **dependency-bump-aware sanity check**: 直近 release tag との
+      `package.json` diff で `lucide-react` / `@radix-ui/*` / `tailwindcss`
+      の bump を検出し、該当ファミリの parity VRT (`Icon parity` /
+      Checkbox / Radio / Separator / Switch parity / manifest 再生成) を
+      強制実行。Radix の Tooltip / Dialog / Toast / Select (区分 C/D —
+      parity story 無し) と `react-slot` は manual 検証行で別立て扱い。
+      PR [#282](https://github.com/yasmro/schatten/issues/282) の Lucide path-inline pin 事故を構造的に防ぐ。
+    - 不可逆操作 (version bump / tag / npm publish / GitHub Release) は
+      既存 `/release` slash command に hand-off。skill 側は一切 mutate
+      しない (人間の承認境界を保つ設計)。
+  - `.claude/skills/prepare-release/grep.test.ts`: SKILL.md 内の parity
+    grep パターンと、ディスク上の `*.parity.stories.tsx` /
+    `*.parity.vrt.spec.ts` の整合を CI で pin する Vitest gate。grep に
+    実在しない component 名が紛れ込んで Playwright `--grep` が 0 マッチで
+    exit 0 を返す (= false greenlight) のを防ぐ。
+  - `.claude/rules/api-stability.md`: "Visual-contract-affecting dependencies"
+    セクションを新設。`lucide-react` / `@radix-ui/*` / `react-slot` /
+    `tailwindcss` の SSOT 化。今後同種の dep が増えたとき skill / 他 tooling
+    はこのテーブルを参照する。
+
+  公開 API (React props / CSS class / CSS variables / TypeScript types) に
+  変更なし — 内部 tooling のみ。
+
 ## 0.8.0
 
 ### Minor Changes

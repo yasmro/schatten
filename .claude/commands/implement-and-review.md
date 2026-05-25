@@ -286,9 +286,32 @@ closes #<番号>     # 任意
 
 ## Step 7. Commit & push
 
+Step 6 で承認された commit message と PR body は **必ずユニークな一時ファイル**
+に書き出す。`/tmp/commit-msg.txt` / `/tmp/pr-body.md` のような固定パスを
+heredoc で書くと、同じ worktree で並行に走っている別 session の
+`implement-and-review` が同じファイルを上書きし、**PR タイトルと本文が混ざる
+race condition** が起きる (#310 / PR #308 で実際に遭遇)。`mktemp` ベース、
+あるいは `$$` (PID) や PR-slug を含むパスにする:
+
+```bash
+# どちらの方式でも OK ─ 要件は「他 session と衝突しないこと」のみ
+MSG_FILE=$(mktemp)
+BODY_FILE=$(mktemp)
+
+# Step 6 で承認したテキストを書き込む (heredoc / Write どちらでも可)
+cat > "$MSG_FILE" <<'EOF'
+... 承認済み commit message ...
+EOF
+cat > "$BODY_FILE" <<'EOF'
+... 承認済み PR body ...
+EOF
+```
+
+書き出したら commit & push:
+
 ```bash
 git add -A
-git commit -F /tmp/commit-msg.txt
+git commit -F "$MSG_FILE"
 git log -1 --oneline                          # 検証
 
 git push -u origin "$BRANCH"
@@ -296,6 +319,7 @@ git rev-parse "origin/$BRANCH"                # 検証: 届いた
 ```
 
 `-u` を必ず付ける (後で `gh pr create` が tracking branch を要求するので)。
+`$BODY_FILE` は Step 8 でも使うので変数を生かしておく。
 
 ## Step 8. Create PR
 
@@ -304,9 +328,13 @@ gh pr create \
   --base develop \
   --head "$BRANCH" \
   --title "$PR_TITLE" \
-  --body-file /tmp/pr-body.md \
+  --body-file "$BODY_FILE" \
   --repo yasmro/schatten
 ```
+
+`$BODY_FILE` は Step 7 で `mktemp` 経由に確保したパス。固定パス
+(`/tmp/pr-body.md`) を直接指定すると並行 session に上書きされる
+race が再発する (#310)。
 
 返ってきた URL から PR 番号を抽出する:
 
@@ -380,5 +408,14 @@ gh pr view "$PR_NUMBER" --json title,baseRefName,headRefName,labels
   本文を要約 / 圧縮しない。
 - **同じ PR に対して `/review-pr` を 2 回走らせない**。Step 9 で 1 回呼んだら
   終わり。ユーザが追加でレビューを依頼したら別途 `/review-pr` を起動する。
+- **commit message / PR body の一時ファイルは固定パスを使わない** (closes
+  #310)。`/tmp/commit-msg.txt` / `/tmp/pr-body.md` のような共有パスに
+  heredoc で書くと、同じ worktree で並行に走っている別 session の
+  `implement-and-review` が同じファイルを上書きし、PR タイトルと本文が
+  混ざる race condition が起きる ── PR #308 では実際にタイトルが #132、
+  body が #133 用になり、検知が遅ければ wrong issue を close する事故に
+  なるところだった。Step 7 の `mktemp` (または `$$` / PR-slug を含むパス)
+  を使えば session ごとにユニークになるので衝突しない。**この race は
+  人間レビューで気付けない場合も多い**ため、固定パスへ戻さないこと。
 
 $ARGUMENTS

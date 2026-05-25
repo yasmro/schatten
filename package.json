@@ -99,6 +99,7 @@
     "test:ui": "vitest --ui",
     "test:vrt": "playwright test",
     "test:vrt:update": "playwright test --update-snapshots",
+    "test:vrt:dist": "node scripts/ensure-dist.mjs && playwright test src/docs/CSSApiDist.vrt.spec.ts",
     "lint": "biome ci .",
     "lint:fix": "biome check --write .",
     "lint:pkg": "publint",

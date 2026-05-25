@@ -120,8 +120,21 @@
 }
 
 @layer components {
-  /* ===== content ===== */
+  /* ===== content =====
+   * `width: fit-content` makes the tooltip box size to its content
+   * even when rendered statically (no portal / Floating UI). In
+   * production the React TooltipContent is portal-mounted via
+   * absolute positioning, which already gives content-sized box
+   * behaviour by default — so this rule is a no-op there. The
+   * win is in vanilla HTML usage (`<div class="st-tooltip__content">
+   * Tooltip body</div>` without Floating UI): without
+   * `fit-content` the div would inherit the parent's block flow
+   * and stretch to the full container width, which doesn't look
+   * like a tooltip. Mirrors how the Tooltip story uses
+   * `className="max-w-xs"` on the React side — the max-width
+   * constraint still composes cleanly on top of `fit-content`. */
   .st-tooltip__content {
+    width: fit-content;
     z-index: var(--z-tooltip);
     background-color: var(--color-foreground);
     color: var(--color-background);

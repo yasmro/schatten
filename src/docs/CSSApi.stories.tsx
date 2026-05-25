@@ -1,4 +1,12 @@
 // Component CSS for vanilla examples — loaded for the side-effect.
+// All 18 lv1 components are listed explicitly. Tooltip and Select
+// were missing from this list pre-#313 and rendered correctly by
+// accident (Field transitively imports Tooltip; Select.css happened
+// to be in adjacent story chunks at dev time). In the Storybook
+// build output, per-story code-splitting drops chunks the active
+// story doesn't reach, and the omissions surface as un-styled
+// vanilla markup — same regression class as the `.st-toast__icon`
+// 300×150 fallback caught on PR #313's preview deployment.
 import '../components/lv1/Badge/Badge.css'
 import '../components/lv1/Button/Button.css'
 import '../components/lv1/Callout/Callout.css'
@@ -9,12 +17,14 @@ import '../components/lv1/FieldSet/FieldSet.css'
 import '../components/lv1/Icon/Icon.css'
 import '../components/lv1/Input/Input.css'
 import '../components/lv1/Radio/Radio.css'
+import '../components/lv1/Select/Select.css'
 import '../components/lv1/Separator/Separator.css'
 import '../components/lv1/Spinner/Spinner.css'
 import '../components/lv1/Switch/Switch.css'
 import '../components/lv1/Text/Text.css'
 import '../components/lv1/Textarea/Textarea.css'
 import '../components/lv1/Toast/Toast.css'
+import '../components/lv1/Tooltip/Tooltip.css'
 
 import type { Meta, StoryObj } from '@storybook/react-vite'
 

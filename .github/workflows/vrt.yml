@@ -31,6 +31,15 @@ jobs:
 
       - run: pnpm exec playwright install chromium
 
+      # CSSApiDist.vrt.spec.ts reads `dist/schatten.css` and the
+      # per-component `dist/css/*.css` subpaths directly via
+      # `readFileSync`, so the dist must be built before VRT runs.
+      # All other specs target Storybook (the `pnpm dev` webServer
+      # in playwright.config.ts) and do not need this — but having it
+      # here means the dist is always current and we never ship a
+      # stale-dist false-positive. See #277.
+      - run: pnpm build
+
       - run: pnpm test:vrt
         id: vrt
 

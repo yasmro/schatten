@@ -1,7 +1,11 @@
 import { existsSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { expect, test } from '@playwright/test'
-import { fixtureChromeCss, vanillaHtml } from './__fixtures__/cssApiSamples'
+// Import from the string-only `.html.ts` module to keep this spec free
+// of the React component graph — Playwright's Babel pipeline mis-parses
+// `*.css` side-effect imports that the lv1 React layer brings in.
+// See `cssApiSamples.html.ts` header for the full rationale.
+import { fixtureChromeCss, vanillaHtml } from './__fixtures__/cssApiSamples.html'
 
 /*
  * Dist-artifact VRT for the framework-agnostic CSS surface.

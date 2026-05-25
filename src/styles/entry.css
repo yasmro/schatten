@@ -16,13 +16,21 @@
  * authored with `@apply` inside `@layer components`, which Tailwind
  * resolves without source scanning.
  *
- * Layer order (per .claude/rules/css-api.md): reset < tokens < components
- * < utilities. Tailwind v4's own `theme` / `base` layers slot in front of
- * `components`; we declare `reset, tokens` here so the eventual `@layer
- * components { .st-* … }` rules in sweep PRs land at the correct cascade
- * tier without re-declaring the order in every component file.
+ * Layer order (per .claude/rules/css-api.md): theme < base < reset < tokens <
+ * components < utilities.
+ *
+ * The `theme` and `base` slots are reserved for Tailwind v4 (which emits its
+ * preflight reset into `@layer base` from `@import "tailwindcss"` below).
+ * They MUST be declared explicitly here ahead of schatten's own layers —
+ * otherwise the late-injected `@layer base { … }` from Tailwind gets a
+ * cascade slot AFTER our `@layer components { .st-btn … }` rules and the
+ * preflight `button { background-color: #0000 }` reset silently overrides
+ * the component visuals, breaking the vanilla-HTML contract (caught by
+ * `CSSApiDist.vrt.spec.ts`, #277). Putting `theme, base` first puts
+ * preflight at the lowest priority where it belongs — `.st-*` component
+ * rules win again.
  */
-@layer reset, tokens, components, utilities;
+@layer theme, base, reset, tokens, components, utilities;
 
 @import "tailwindcss" source(none);
 

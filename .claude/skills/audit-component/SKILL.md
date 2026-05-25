@@ -373,26 +373,30 @@ Only applies to form components (`Input`, `Textarea`, `Select`,
 
 ### lint-rules-guideline.md
 
-Mostly enforced mechanically by `pnpm lint`. The audit needs to confirm:
+`pnpm lint` (Biome + GritQL plugins) catches the vast majority of this
+rule mechanically — `useExhaustiveDependencies`, `useImportType` /
+`useExportType`, `noNonNullAssertion`, `noConsole`, `noRestrictedImports`,
+and `no-primitive-color` against JSX. **Do not re-judge those in this
+audit** — CI will fail before the audit ever runs if any of them trips.
 
-- **`useExhaustiveDependencies`** — `useEffect` / `useMemo` /
-  `useCallback` deps arrays are complete (or a `biome-ignore` with
-  reason is in place).
-- **`useImportType` / `useExportType`** — `import { type X }` for
-  type-only imports.
-- **`noNonNullAssertion`** — `value!` is rare and commented when used.
-- **`noConsole`** — `console.log` is forbidden; `console.warn` /
-  `console.error` are allowed (and Button / Dialog use them for
-  developer-facing warnings).
-- **`noRestrictedImports`** boundaries — `src/core/`, `src/variants/`,
-  `src/themes/`, `src/tokens.ts` must not import React or Radix.
-- **`no-primitive-color`** — already covered under
-  state-token-guideline; do not double-flag.
+The audit's only added value here is the two **GritQL plugin blind
+spots** that `no-primitive-color` cannot reach:
 
-Do not rerun `pnpm lint` from this skill — assume CI has the
-mechanical surface covered. Audit for the lint plugin's blind spots:
-CVA variants in `src/variants/<name>.ts` and component CSS in
-`<Name>.css` where the GritQL plugin does not reach.
+- **`src/variants/<name-kebab>.ts`** — CVA variant files hold bare class
+  strings inside `cva(...)`, not JSX. The plugin's GritQL pattern matches
+  JSX attribute text only, so primitive colour utilities slipping into
+  the `variants: { variant: { primary: 'bg-red-500 ...' } }` block are
+  invisible to the linter. Read the file and grep for
+  `\b(bg|text|border|ring)-(red|gray|blue|green|amber|yellow|purple|sumi|vermillion)-\d{2,3}\b`
+  — any hit is a ❌.
+- **`src/components/lv1/<Name>/<Name>.css`** — component CSS is also
+  out of the GritQL plugin's reach. Read the file and grep for the
+  same pattern (note that `var(--color-*)` references are the correct
+  form, not `bg-*` utilities; see css-api.md "raw CSS over `@apply`").
+
+That is the entirety of this section's contribution. If the audit
+catches itself reasoning about `console.log` or `useEffect` deps, stop
+— that is `pnpm lint`'s job.
 
 ## Output format
 

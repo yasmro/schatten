@@ -1,5 +1,5 @@
-import { existsSync, readFileSync } from 'node:fs'
-import { resolve } from 'node:path'
+import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs'
+import { join, resolve } from 'node:path'
 import { expect, test } from '@playwright/test'
 // Import from the string-only `.html.ts` module to keep this spec free
 // of the React component graph — Playwright's Babel pipeline mis-parses
@@ -128,31 +128,42 @@ for (const theme of themes) {
 // ─────────────────────────────────────────────────────────────────────
 
 /**
- * Slug → which `data-component="..."` section of the fixture to
- * render. Order follows the fixture for visual consistency. Each
- * entry must match a `<section data-component="slug">` block in
- * `vanillaHtml`.
+ * Discover lv1 component slugs by reading `src/components/lv1/` at
+ * spec-load time. This mirrors `scripts/lv1-slugs.mjs` — the
+ * authoritative discovery rules live there (used by `pnpm build` /
+ * `pnpm test:vrt:dist`). The logic is inlined here rather than
+ * imported because Playwright compiles this spec through Babel,
+ * which doesn't handle `.mjs` imports from `.ts` cleanly.
+ *
+ * Discovery contract (kept in sync with `scripts/lv1-slugs.mjs`):
+ *
+ * - A `src/components/lv1/<Name>/` directory qualifies as an lv1
+ *   when it contains `<Name>.tsx`. Excludes `__snapshots__` etc.
+ * - The slug is the lowercased component name (matches the
+ *   `.st-<block>` class API convention).
+ * - Components without `<Name>.css` are skipped (they have no
+ *   per-component `dist/css/<slug>.css` to render). `pnpm build`
+ *   throws if any lv1 is missing its CSS — see
+ *   `discoverLv1WithCss()` in `scripts/lv1-slugs.mjs`.
+ *
+ * If you change the discovery rules here, update
+ * `scripts/lv1-slugs.mjs` in the same commit (and vice versa).
  */
-const PER_COMPONENT: ReadonlyArray<{ slug: string }> = [
-  { slug: 'text' },
-  { slug: 'icon' },
-  { slug: 'separator' },
-  { slug: 'spinner' },
-  { slug: 'button' },
-  { slug: 'badge' },
-  { slug: 'callout' },
-  { slug: 'input' },
-  { slug: 'textarea' },
-  { slug: 'checkbox' },
-  { slug: 'switch' },
-  { slug: 'radio' },
-  { slug: 'field' },
-  { slug: 'fieldset' },
-  { slug: 'tooltip' },
-  { slug: 'select' },
-  { slug: 'toast' },
-  { slug: 'dialog' },
-]
+const LV1_DIR = resolve('src/components/lv1')
+
+const PER_COMPONENT: ReadonlyArray<{ slug: string }> = readdirSync(LV1_DIR)
+  .filter((name) => {
+    const dir = join(LV1_DIR, name)
+    if (!statSync(dir).isDirectory()) return false
+    if (!existsSync(join(dir, `${name}.tsx`))) return false
+    // Skip components without a `.css` file. `pnpm build` will have
+    // thrown earlier in that case; this defensive filter keeps the
+    // spec self-consistent if a contributor runs VRT against a
+    // stale `dist/`.
+    if (!existsSync(join(dir, `${name}.css`))) return false
+    return true
+  })
+  .map((name) => ({ slug: name.toLowerCase() }))
 
 /**
  * Extract the `<section data-component="${slug}">…</section>` block

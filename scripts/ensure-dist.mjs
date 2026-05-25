@@ -9,8 +9,10 @@
 // exists for the local case (#277).
 
 import { existsSync } from 'node:fs'
+import { discoverLv1WithCss } from './lv1-slugs.mjs'
 
-const REQUIRED = [
+// Static set — these are not lv1-derived and are pinned by name.
+const REQUIRED_STATIC = [
   'dist/schatten.css',
   'dist/core/tokens/primitives.css',
   'dist/core/tokens/semantic.css',
@@ -18,30 +20,16 @@ const REQUIRED = [
   'dist/core/tokens/spacing.css',
   'dist/core/tokens/z-index.css',
   'dist/themes/default/index.css',
-  // Per-component subpaths from #291. If a new lv1 is added, the
-  // `build:component-css` step generates the file — this list is the
-  // CI contract that none of them go missing.
-  ...[
-    'badge',
-    'button',
-    'callout',
-    'checkbox',
-    'dialog',
-    'field',
-    'fieldset',
-    'icon',
-    'input',
-    'radio',
-    'select',
-    'separator',
-    'spinner',
-    'switch',
-    'text',
-    'textarea',
-    'toast',
-    'tooltip',
-  ].map((slug) => `dist/css/${slug}.css`),
 ]
+
+// Per-component subpaths from #291. Derived from the lv1 filesystem
+// via the shared `scripts/lv1-slugs.mjs` module so a new lv1 added
+// to disk is automatically required here too — no manual update
+// needed (which is exactly the kind of duplicate-list bookkeeping
+// the shared module exists to eliminate).
+const REQUIRED_LV1 = discoverLv1WithCss().map((entry) => `dist/css/${entry.slug}.css`)
+
+const REQUIRED = [...REQUIRED_STATIC, ...REQUIRED_LV1]
 
 const missing = REQUIRED.filter((path) => !existsSync(path))
 

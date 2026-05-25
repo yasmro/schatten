@@ -18,6 +18,39 @@ src/components/lv1/ComponentName/
     └── story-name-dark.png
 ```
 
+### Shared markup fixtures — `__fixtures__/`
+
+When the **same** vanilla HTML or React markup needs to be rendered by
+both a Storybook story *and* a Playwright `page.setContent()` spec
+(integration-level VRT — see
+[`src/docs/CSSApiDist.vrt.spec.ts`](../../src/docs/CSSApiDist.vrt.spec.ts),
+#277), keep the markup in a `__fixtures__/` directory next to the
+spec, NOT inlined in both places:
+
+```
+src/docs/
+├── CSSApiParity.stories.tsx        Storybook story (imports React fixture)
+├── CSSApi.vrt.spec.ts              Storybook-mode VRT
+├── CSSApiDist.vrt.spec.ts          Storybook-free dist VRT
+└── __fixtures__/
+    ├── cssApiSamples.html.ts       String payloads only (SSOT)
+    └── cssApiSamples.tsx           React components + re-exports the strings
+```
+
+**Why split into `.html.ts` (strings) and `.tsx` (React)**: Playwright
+compiles spec files through Babel, which mis-parses `Component.css`
+side-effect imports (which lv1 React components carry) as TypeScript
+decorators. Importing the `.tsx` from a Playwright spec breaks; the
+`.html.ts` companion strips React imports out so it imports cleanly.
+Stories that need both string and React versions import from the
+`.tsx`, which re-exports the strings.
+
+**Why a fixture instead of inlined markup**: drift between the story
+copy and the spec copy can only be caught by reviewer grep
+otherwise. With the fixture, a markup typo can only appear on both
+verification paths or neither — the SSOT makes drift structurally
+impossible.
+
 ## Template
 
 ```typescript
@@ -351,6 +384,45 @@ when you *suspect* a change but haven't verified one is needed. Doing so:
 test actually fails and you've confirmed via `*-diff.png` that the
 change is intended and unavoidable. This was learned the expensive way
 during #266 sweep-1 — see PR #282 for the receipts.
+
+### Bulk re-baseline — Tailwind / `lucide-react` / `@radix-ui/*` major
+
+A small set of dependencies can shift the visual contract **without
+any source-file change** — listed in
+[api-stability.md §"Visual-contract-affecting dependencies"](api-stability.md#visual-contract-affecting-dependencies).
+When one of them gets a major bump, dozens of snapshots may drift
+simultaneously. The discipline above (`pnpm test:vrt` first → eyeball
+each `*-diff.png` → only then `--update-snapshots`) **does NOT bend**
+for these — bulk re-baseline without per-PNG review is exactly how a
+cascade-order regression like #277's preflight bug slips into the
+new baselines silently.
+
+The procedure:
+
+1. **Bump the dep on a dedicated branch**, separate from any other
+   schatten change. Snapshot diffs are otherwise unattributable.
+2. **Run `pnpm test:vrt` and let the failures land.** Expect 30+
+   diffs for a Tailwind / Radix major. Don't update yet.
+3. **Triage the diffs by category**, not by file:
+   - *Font / antialiasing micro-shifts* — acceptable, low risk.
+   - *Layout shifts* (positions, sizes, gaps) — flag and check the
+     dep's CHANGELOG for the cause.
+   - *Color / contrast shifts on `.st-*` rules* — **stop**. If a
+     `<button>`-rooted primitive is becoming transparent, you're
+     looking at #277's preflight bug again. Investigate the
+     `@layer` declaration BEFORE re-baselining.
+   - *Animation frames* — should never drift; if they do, the
+     `addStyleTag` animation-pause snippet is broken or the
+     keyframes themselves moved.
+4. **Re-baseline category-by-category**, scoped with `--grep`. NOT a
+   single `pnpm test:vrt:update` on the whole suite.
+5. **Commit per category** (e.g. one commit per affected story file
+   group), so a future bisect can locate which category's
+   re-baseline introduced a hidden regression.
+
+The category-by-category triage is what saved #277 from shipping the
+preflight bug ─ the new baselines for `dist-schatten-css-*` would
+have looked "almost right" without that triage. Don't shortcut it.
 
 ## Snapshot Naming
 

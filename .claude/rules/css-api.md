@@ -419,12 +419,14 @@ state changed" than to "DOM shape says so," go back to §State.
 the compiled output:
 
 ```css
-@layer reset, tokens, components, utilities;
+@layer theme, base, reset, tokens, components, utilities;
 ```
 
 | Layer | Contents |
 |---|---|
-| `reset` | Box-sizing reset, body defaults. Minimal — Schatten is not a CSS reset framework. |
+| `theme` | **Reserved for Tailwind v4.** `@theme` registrations Tailwind emits from its own `@import "tailwindcss"`. Schatten does not author rules here. |
+| `base` | **Reserved for Tailwind v4 preflight** — the cross-browser reset (`button { background-color: #0000 }`, `*, ::before, ::after { box-sizing: border-box }`, etc.). Schatten does not author rules here. |
+| `reset` | Schatten-specific reset (body defaults: surface / foreground / font-family / font-smoothing). Minimal — Schatten is not a CSS reset framework, but it pins enough that the body looks right with tokens applied. |
 | `tokens` | `:root` / `.dark` / `[data-theme=…]` custom-property declarations from `src/core/tokens/` and `src/themes/`. |
 | `components` | Every `.st-{block}` rule. Source of truth — all visual rules live here. |
 | `utilities` | Empty by default. Reserved for consumers who layer their own Tailwind on top; their utilities then win because their layer comes last. |
@@ -433,11 +435,40 @@ the compiled output:
 
 CSS `@layer` precedence follows the **declaration order of the
 layers themselves**, not the source order of the rules inside each.
-Without an explicit `@layer reset, tokens, components, utilities;`
-line, a consumer's stylesheet that lands earlier in their bundle
-could re-order Schatten's layers and silently flip precedence. The
-explicit declaration pins our cascade regardless of import order in
-the consumer's stylesheet.
+Without an explicit `@layer theme, base, reset, tokens, components, utilities;`
+line, two things go wrong at once:
+
+1. A **consumer's stylesheet that lands earlier in their bundle**
+   could re-order Schatten's layers and silently flip precedence.
+   The explicit declaration pins our cascade regardless of import
+   order in the consumer's stylesheet.
+2. **Tailwind v4 emits `@layer theme { … }` and `@layer base { … }`
+   as side-effects of `@import "tailwindcss"`.** If those layer names
+   are not declared first, CSS Cascade Layers spec puts them
+   *after* the already-declared layers — meaning Tailwind preflight
+   (`button { background-color: #0000 }`) wins over
+   `@layer components { .st-btn--primary { background-color: var(--color-solid) } }`.
+   Consumers writing vanilla `<button class="st-btn st-btn--primary">`
+   then get an un-styled button. **This is exactly what
+   [`CSSApiDist.vrt.spec.ts`](../../src/docs/CSSApiDist.vrt.spec.ts)
+   (#277) caught** — it loads `dist/schatten.css` via
+   `page.setContent()` and visually verifies the contract holds.
+
+The two roles compose: declaring `theme, base` ahead of schatten's
+own layers parks Tailwind preflight at the *lowest* priority where
+it belongs, and the rest of the declaration pins schatten's cascade
+against consumer import-order surprises.
+
+### CI enforcement — `pnpm check:layer-order`
+
+The exact text of the `@layer` declaration in this document and the
+first `@layer …;` line in `dist/schatten.css` MUST match. A
+mismatch is caught by [`scripts/check-layer-order.mjs`](../../scripts/check-layer-order.mjs)
+(run as `pnpm check:layer-order` and from CI's `lint` job). When you
+intentionally add a layer (e.g. introducing a new schatten layer
+between `reset` and `tokens`), update **both this document and
+`src/styles/entry.css`** in the same commit — the CI check fails
+otherwise.
 
 ### Consumer-side import ordering
 

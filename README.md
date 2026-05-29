@@ -277,24 +277,28 @@ script in `<head>` that mirrors the same `localStorage` / `matchMedia`
 logic the Provider runs — but **before** first paint
 ([#129](https://github.com/yasmro/schatten/issues/129)).
 
-The snippet contract is fixed: it reads the same JSON shape the Provider
-writes (`{ mode, special }`) under the same `storageKey` (default
-`'schatten-theme'`). Drop it in as the very first `<head>` child:
+Schatten ships this snippet two ways so you never hand-maintain the string:
+
+- **React SSR** (Next.js, Remix, …) — render `<ThemeInitScript />` in `<head>`.
+- **Non-React / plain HTML** — inline the exported `THEME_INIT_SCRIPT` string,
+  or `buildThemeInitScript(key)` for a custom `storageKey`.
+
+Both read the same JSON shape the Provider writes (`{ mode, special }`) under
+the same `storageKey` (default `'schatten-theme'`). Drop it in as the very
+first `<head>` child:
 
 #### Next.js App Router
 
 ```tsx
 // app/layout.tsx
 import '@yasmro/schatten/schatten.css'
-import { ThemeProvider } from '@yasmro/schatten/providers'
-
-const themeInitScript = `(function(){try{var s=localStorage.getItem('schatten-theme');var t=s?JSON.parse(s):{};var m=t.mode||'system';var d=m==='dark'||(m==='system'&&window.matchMedia('(prefers-color-scheme: dark)').matches);if(d)document.documentElement.classList.add('dark');if(t.special)document.documentElement.setAttribute('data-theme',t.special)}catch(e){}})();`
+import { ThemeInitScript, ThemeProvider } from '@yasmro/schatten/providers'
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+        <ThemeInitScript />
       </head>
       <body>
         <ThemeProvider defaultMode="system">{children}</ThemeProvider>
@@ -309,24 +313,13 @@ mutates that element before React hydrates the tree.
 
 #### Vite / plain HTML
 
+No build step or import is available here, so paste the exact value of the
+exported `THEME_INIT_SCRIPT` string (it's the default-`storageKey` build):
+
 ```html
 <!-- index.html -->
 <head>
-  <script>
-    (function () {
-      try {
-        var s = localStorage.getItem('schatten-theme')
-        var t = s ? JSON.parse(s) : {}
-        var m = t.mode || 'system'
-        var d =
-          m === 'dark' ||
-          (m === 'system' &&
-            window.matchMedia('(prefers-color-scheme: dark)').matches)
-        if (d) document.documentElement.classList.add('dark')
-        if (t.special) document.documentElement.setAttribute('data-theme', t.special)
-      } catch (e) {}
-    })()
-  </script>
+  <script>(function(){try{var s=localStorage.getItem("schatten-theme");var t=s?JSON.parse(s):{};var m=t.mode||'system';var d=m==='dark'||(m==='system'&&window.matchMedia('(prefers-color-scheme: dark)').matches);if(d)document.documentElement.classList.add('dark');if(t.special)document.documentElement.setAttribute('data-theme',t.special)}catch(e){}})();</script>
   <link rel="stylesheet" href="/path/to/schatten.css" />
 </head>
 ```
@@ -338,14 +331,13 @@ Render the snippet in `root.tsx`'s `<head>`:
 ```tsx
 // app/root.tsx
 import { Links, Meta, Outlet, Scripts, ScrollRestoration } from '@remix-run/react'
-
-const themeInitScript = `(function(){try{var s=localStorage.getItem('schatten-theme');var t=s?JSON.parse(s):{};var m=t.mode||'system';var d=m==='dark'||(m==='system'&&window.matchMedia('(prefers-color-scheme: dark)').matches);if(d)document.documentElement.classList.add('dark');if(t.special)document.documentElement.setAttribute('data-theme',t.special)}catch(e){}})();`
+import { ThemeInitScript } from '@yasmro/schatten/providers'
 
 export default function App() {
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+        <ThemeInitScript />
         <Meta />
         <Links />
       </head>
@@ -361,10 +353,11 @@ export default function App() {
 
 #### Strict CSP environments
 
-If your CSP forbids inline scripts, either (a) attach a `nonce` to the
-`<script>` element matching your `script-src 'nonce-…'` directive, or
-(b) move the snippet into a standalone `.js` file served from your own
-origin and reference it with `<script src="/theme-init.js">`.
+If your CSP forbids inline scripts, either (a) pass `nonce` to
+`<ThemeInitScript nonce={cspNonce} />` (or set it on your own inline
+`<script>`) matching your `script-src 'nonce-…'` directive, or (b) move
+the snippet into a standalone `.js` file served from your own origin and
+reference it with `<script src="/theme-init.js">`.
 
 The snippet runs **synchronously** and **must not be deferred** — `defer`
 / `async` / loading from a delayed CDN re-introduces the flash this
@@ -379,9 +372,10 @@ exists to prevent.
 - Wraps everything in `try/catch` so a disabled-storage or private window
   silently falls back to the SSR default — never throws.
 
-If you customize `storageKey` on the Provider, update the `'schatten-theme'`
-literal in the snippet to match. The two values are a public contract: a
-mismatch silently breaks FOUC avoidance with no error.
+If you customize `storageKey` on the Provider, pass the same key to
+`<ThemeInitScript storageKey="my-key" />` (or call `buildThemeInitScript('my-key')`
+for the string form). The two values are a public contract: a mismatch
+silently breaks FOUC avoidance with no error.
 
 ### Remix
 

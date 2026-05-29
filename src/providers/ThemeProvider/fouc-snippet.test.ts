@@ -1,13 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { THEME_INIT_SCRIPT } from './init-script'
 
-// The exact snippet documented in README.md. Keeping it inline here
-// pins the README's behavior to the Provider's `localStorage` contract
-// — if these tests fail, the README snippet must be updated in lockstep.
-//
-// The string is intentionally identical character-for-character to the
-// minified form in README. If you adjust the snippet, copy the version
-// here to match.
-const THEME_INIT_SCRIPT = `(function(){try{var s=localStorage.getItem('schatten-theme');var t=s?JSON.parse(s):{};var m=t.mode||'system';var d=m==='dark'||(m==='system'&&window.matchMedia('(prefers-color-scheme: dark)').matches);if(d)document.documentElement.classList.add('dark');if(t.special)document.documentElement.setAttribute('data-theme',t.special)}catch(e){}})();`
+// `THEME_INIT_SCRIPT` (built in init-script.ts) is the single source of
+// truth for the FOUC snippet — the README and `<ThemeInitScript>` render
+// the same bytes. These tests pin its *behavior* against the Provider's
+// `localStorage` contract; init-script.test.ts pins the exact bytes, and
+// api-stability.md ("Provider runtime contract") freezes the shape.
 
 function runSnippet() {
   // Evaluate in the current jsdom context so localStorage, document,

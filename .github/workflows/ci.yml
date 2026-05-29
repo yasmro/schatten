@@ -163,3 +163,37 @@ jobs:
         # branch — otherwise a develop-targeted PR is diffed against main and
         # picks up unrelated already-merged changesets once the two diverge.
         run: pnpm exec changeset status --since=origin/${{ github.base_ref }}
+
+  audit:
+    runs-on: ubuntu-latest
+    # Phase 1: observe-only. continue-on-error keeps the check from blocking
+    # merges while we watch the real-world failure rate over ~1 week of PRs
+    # (see #307 staged rollout). Phase 2 removes this line and adds `audit`
+    # to develop's required checks.
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # `audit:coverage` reads the lv1 tree only — no build, no git history
+      # needed (unlike `manifest` / `changeset`), and no dependabot / base=main
+      # skip because the result is deterministic on source: a dep bump or the
+      # release PR leaves lv1 dirs untouched, so the gate just passes. The
+      # script writes the full markdown report to stdout *before* exiting 1 on
+      # a gap, so piping into $GITHUB_STEP_SUMMARY surfaces the "Missing files"
+      # + "Recommended actions" sections directly in the PR's checks summary.
+      # `set -o pipefail` is REQUIRED — without it the pipe's exit code is
+      # tee's (0) and a real gap is silently swallowed.
+      - name: lv1 companion coverage
+        shell: bash
+        run: |
+          set -o pipefail
+          pnpm audit:coverage --check | tee -a "$GITHUB_STEP_SUMMARY"

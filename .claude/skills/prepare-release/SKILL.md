@@ -4,9 +4,10 @@ description: >-
   Run pre-release sanity checks before bumping the package and publishing.
   Verifies the pending changesets, runs the full quality gate (lint / test /
   typecheck / build / manifest / size / publint), and — most importantly —
-  detects `lucide-react` / `@radix-ui/*` / `tailwindcss` peer/dep bumps since
-  the last released tag and runs the matching parity VRT, so a dependency
-  upgrade can never silently break the visual contract (PR #282 の学び).
+  detects `lucide-react` / `@radix-ui/*` / `tailwindcss` / `vite` (+ `vitest`,
+  which can drag `vite` up via peer) peer/dep bumps since the last released tag
+  and runs the matching parity / VRT check, so a dependency upgrade can never
+  silently break the visual contract (PR #282 の学び).
   Use whenever the user says "次のリリース準備", "release 前にチェック",
   "prepare-release", "リリース直前", or asks whether the current `develop`
   is safe to merge into `main` as the release PR. Hands off the irreversible
@@ -18,8 +19,9 @@ description: >-
 
 Pre-release sanity checks. Verifies that the **next** `/release` will be safe
 to run, and catches the failure mode where a dependency bump (`lucide-react`,
-`@radix-ui/*`, `tailwindcss`) silently breaks the visual contract — the
-class-API parity stories, the Icon inline-SVG pin, or the manifest extraction.
+`@radix-ui/*`, `tailwindcss`, `vite`/`vitest`) silently breaks the visual
+contract — the class-API parity stories, the Icon inline-SVG pin, the manifest
+extraction, or (for `vite`) the whole VRT baseline set at once.
 
 This skill is **complementary to**, not a replacement for, the
 [`/release` slash command](../../commands/release.md). The split:
@@ -212,6 +214,7 @@ for the canonical list and rationale. This step pivots on those bumps:
 | `@radix-ui/*` — **non-parity** (`react-tooltip` / `react-dialog` / `react-toast` / `react-select`) | Same Radix `data-*` bump risk, but these 4 components are 区分 C/D per [vrt-spec-guideline §Parity stories](../../rules/vrt-spec-guideline.md#parity-stories--when-to-write-one-when-to-skip) — no parity story exists, so no automated baseline can fail. The skill **falls back to manual verification**. | (manual) `pnpm test:vrt --grep "(Tooltip\|Dialog\|Toast\|Select)"` against the normal `*.vrt.spec.ts` + Storybook visual review |
 | `@radix-ui/react-slot` | Slot is the `asChild` plumbing primitive — it doesn't emit `data-*` itself, but a bump can change prop-merging behavior (ref forwarding, attribute merge order). Surface area: any component that exposes `asChild` (Button / Text / Tooltip Trigger / Dialog Trigger / Dialog Close / Select Trigger). | (manual) inspect the bump's CHANGELOG for prop-merging behavioral changes; if any are flagged, run the full `pnpm test:vrt` and `pnpm test --run` |
 | `tailwindcss` | The Tailwind v4 compiler's `@layer theme` emission rules can shift between minor versions. The manifest's `cssVariables` section is extracted from that block, so a Tailwind bump can silently add or drop variables from the public surface. | `pnpm build && pnpm check:manifest` |
+| `vite` | Vite builds the Storybook the VRT specs screenshot against **and** is the Vitest runtime. A major bump can shift font / antialiasing / sub-pixel rendering across the **whole** suite, drifting every `*.png` baseline at once (not one parity story — all of them). It is pinned exact in `package.json`. A Vitest major can also force a Vite major via peer (`vite >= 6` for Vitest 4 — see [#254](https://github.com/yasmro/schatten/issues/254)), so check `vite` whenever `vitest` bumps too. | `pnpm build:storybook` (builder health) + full `pnpm test:vrt`, then triage per [vrt-spec-guideline §Bulk re-baseline](../../rules/vrt-spec-guideline.md#re-baselining-updating-snapshots) |
 
 Detect bumps by diffing the **last released tag's** `package.json` against
 `HEAD`:
@@ -227,11 +230,13 @@ node -e "
     'lucide-react': ['dependencies', 'peerDependencies', 'devDependencies'],
     'radix':         ['dependencies', 'peerDependencies', 'devDependencies'],
     'tailwindcss':   ['dependencies', 'peerDependencies', 'devDependencies'],
+    'vite':          ['dependencies', 'peerDependencies', 'devDependencies'],
+    'vitest':        ['dependencies', 'peerDependencies', 'devDependencies'],
   };
   const findRadix = (deps) =>
     Object.entries(deps || {}).filter(([k]) => k.startsWith('@radix-ui/'));
 
-  for (const family of ['lucide-react', 'tailwindcss']) {
+  for (const family of ['lucide-react', 'tailwindcss', 'vite', 'vitest']) {
     for (const slot of families[family]) {
       const a = (last[slot] || {})[family];
       const b = (head[slot] || {})[family];
@@ -282,6 +287,14 @@ pnpm test --run && pnpm test:vrt
 
 # If tailwindcss bumped:
 pnpm build && pnpm check:manifest
+
+# If vite (or vitest, which can drag vite up via peer) bumped — especially a
+# major:
+#   Vite is the VRT render engine + Storybook builder, so a bump can drift
+#   EVERY *.png baseline at once. Verify the builder is healthy, then run the
+#   full VRT and triage diffs category-by-category (NEVER a blanket
+#   test:vrt:update) per vrt-spec-guideline §Bulk re-baseline.
+pnpm build:storybook && pnpm test:vrt
 ```
 
 If a targeted check **passes**, the bump is safe — report the bump and the
@@ -296,6 +309,7 @@ If a targeted check **fails**, abort with a specific recovery instruction:
 | `@radix-ui/*` (non-parity) | No parity baseline failed — the failure surfaces in the component's own normal VRT spec instead. That's a real visual regression in `Tooltip` / `Dialog` / `Toast` / `Select` itself. Treat it like any source-side VRT failure: open the `*-diff.png` under `test-results/`, confirm the change is unintended, fix the component (or, when justified, re-baseline per [vrt-spec-guideline.md §Re-baselining](../../rules/vrt-spec-guideline.md#re-baselining-updating-snapshots) — never blindly). |
 | `@radix-ui/react-slot` | The Slot bump changed prop-merging or ref-forwarding behavior. Re-run `pnpm test --run` and `pnpm test:vrt` against components that consume `asChild` (Button / Text / Tooltip Trigger / Dialog Trigger / Dialog Close / Select Trigger). Fix the broken consumer, then re-verify. |
 | `tailwindcss` | The manifest drifted. Run `pnpm build && pnpm check:manifest` and read the per-section diff. If the change is intentional (new variables justified by the bump), `pnpm update:manifest` + ship a `CSS API:` changeset. If unintentional (variables silently dropped), pin Tailwind to the prior minor or investigate the regression upstream before releasing. |
+| `vite` / `vitest` | The render engine changed and VRT baselines drifted. Open the `*-diff.png` under `test-results/` and triage **by category** (font/AA micro-shift vs layout vs color) per [vrt-spec-guideline §Bulk re-baseline](../../rules/vrt-spec-guideline.md#re-baselining-updating-snapshots). Re-baseline category-by-category with `--grep` scoping (never a blanket `test:vrt:update`), committing per category so a later bisect can locate a hidden regression. Also confirm `pnpm build:storybook` succeeds — a Vite major can break the builder before VRT even runs. Vite is exact-pinned, so the bump is intentional; if the drift includes anything beyond micro-shifts, investigate before releasing. |
 
 **Never run `pnpm test:vrt:update` from this skill to make the parity check
 green.** That violates [vrt-spec-guideline.md §Re-baselining](../../rules/vrt-spec-guideline.md#re-baselining-updating-snapshots).

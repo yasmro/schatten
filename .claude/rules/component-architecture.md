@@ -322,10 +322,44 @@ fallback — that policy only holds if the contract below holds.
    - An explicit `role="…"` written by Schatten — used only when
      neither of the above gives the right semantic. Current explicit
      uses: [Spinner](../../src/components/lv1/Spinner/Spinner.tsx)
-     (`role="status"`) and
+     (`role="status"`),
      [Separator](../../src/components/lv1/Separator/Separator.tsx)
      (`role="separator"` when `decorative={false}`, else
-     `role="none"`).
+     `role="none"`), and
+     [Badge](../../src/components/lv1/Badge/Badge.tsx) (`role="img"`
+     on an icon-only badge — a bare `<div>` is role `generic`, which
+     cannot hold an accessible name, so the `aria-label` would be
+     dropped without it; a consumer-supplied `role` always wins).
+
+   **Choosing the role for an icon-only / symbol-only static element.**
+   When a component renders meaning through an icon alone (no text
+   children) and needs that meaning exposed as an accessible name, pick
+   the role by *what the element is*, not by what looks convenient:
+
+   - **`role="img"`** — the default for a **static** decorative-but-
+     meaningful glyph that conveys a label (an icon-only Badge, a status
+     chip, a flag icon). `img` is the narrowest role that can carry an
+     `aria-label` without implying interactivity or live-region
+     semantics. It announces the label once, when focus/reading reaches
+     it, and nothing more — which is exactly right for a static marker.
+   - **`role="status"` / `role="alert"`** — only when the element's
+     content **changes at runtime** and the change must be announced
+     (a count that updates, a "saved"/"error" indicator that appears in
+     response to an action). These are live-region roles; using one on a
+     never-changing badge makes assistive tech re-announce it on
+     unrelated DOM mutations and is the wrong semantic. A Badge whose
+     *consumer* drives such updates should have the consumer pass the
+     live-region role (Badge's consumer-role-wins rule supports this);
+     Schatten does not bake it in because most badges are static.
+   - **A consumer-supplied `role` always wins.** Schatten's default is a
+     floor, not a ceiling — destructure `role` out of props and let the
+     consumer's value override, so a consumer who knows their badge is a
+     live status can upgrade `img` → `status` without fighting the
+     component. (Implemented in Badge: `role` is destructured ahead of
+     the `{...props}` spread so it is never re-overwritten.)
+
+   The rule of thumb: **static meaning → `img`; changing meaning →
+   live-region role, and prefer to let the consumer opt into it.**
 
    Wrapping a `<div>` with `onClick` / key handlers to fake
    interactivity is the failure mode this guarantee prevents.

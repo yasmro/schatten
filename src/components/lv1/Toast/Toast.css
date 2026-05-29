@@ -39,6 +39,18 @@
  * Uses raw CSS + `var(--color-*)` throughout, per css-api.md
  * "Component CSS authoring conventions — raw CSS over @apply".
  *
+ * Motion timing: the swipe-handoff durations (swipe-cancel snap-back,
+ * swipe-end dissolve) reference the shared `--st-duration-*` scale
+ * (animation.css) at `--st-duration-slow`. The `var(--st-*, <fallback>)`
+ * fallback keeps the per-component standalone build (`dist/css/toast.css`,
+ * #291 — ships no tokens) animating at the same cadence. The dissolve
+ * enter/exit (`toast-dissolve-in` 320ms / `toast-dissolve-out` 220ms) sit
+ * deliberately OFF the scale — a heavier cadence than the Tooltip/Dialog
+ * enter/exit, kept hardcoded so the scale's three perceptually-distinct
+ * steps (fast 100 / base 150 / slow 200) stay clean. Whether they should
+ * fold into the scale is an aesthetic call deferred to a future
+ * motion-retune spike (see animation.css), not this seam.
+ *
  * See: .claude/rules/css-api.md, #271 sweep-6.
  */
 @layer components {
@@ -213,11 +225,17 @@
     transition: none;
   }
   .st-toast[data-swipe="cancel"] {
-    transition: transform 200ms ease-out;
+    transition: transform var(--st-duration-slow, 200ms) ease-out;
     transform: translate(0, 0);
   }
 
-  /* ===== enter / exit animations ===== */
+  /* ===== enter / exit animations =====
+   * The dissolve enter/exit durations (320ms / 220ms) are deliberately OFF
+   * the shared `--st-duration-*` scale — a heavier cadence than the
+   * Tooltip/Dialog enter/exit. Kept hardcoded; folding them into the scale
+   * is an aesthetic call deferred to a future motion-retune spike (see the
+   * file header + animation.css). The swipe-end dissolve, by contrast, is a
+   * dismissal-gesture handoff and rides the scale at `--st-duration-slow`. */
   .st-toast[data-state="open"] {
     animation: toast-dissolve-in 320ms ease-out;
   }
@@ -225,7 +243,7 @@
     animation: toast-dissolve-out 220ms ease-in;
   }
   .st-toast[data-swipe="end"] {
-    animation: toast-dissolve-out 200ms ease-in;
+    animation: toast-dissolve-out var(--st-duration-slow, 200ms) ease-in;
   }
 
   @media (prefers-reduced-motion: reduce) {

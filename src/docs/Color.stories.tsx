@@ -517,8 +517,12 @@ export const Colors: Story = {
 
       <SubsectionTitle>Vermillion (朱)</SubsectionTitle>
       <p className="text-sm text-foreground-muted mb-3">
-        Traditional Japanese vermillion red — the primary Schatten brand color, surfaced at the
-        semantic layer as <code>--color-vermillion</code>.
+        Traditional Japanese 真朱 (hue 30) — the primary Schatten brand color, surfaced at the
+        semantic layer as <code>--color-vermillion</code>. The vivid brand anchor is{' '}
+        <code>-500</code> (≈ <code>#ed3726</code>); the displayed solid surface (
+        <code>--color-vermillion</code>) uses <code>-600</code> in light / <code>-400</code> in
+        dark, which are the AA-safe shades — <code>#E73121</code> itself sits in an AA dead zone, so
+        the brand reference color is not used directly as a solid surface.
       </p>
       <ScaleRow
         shades={[
@@ -560,9 +564,10 @@ export const Colors: Story = {
 
       <SubsectionTitle>Red</SubsectionTitle>
       <p className="text-sm text-foreground-muted mb-3">
-        Danger scale — backs the <code>error</code> and <code>destructive</code> semantics. A
-        value-identical copy of <code>vermillion</code> today; kept as a separate primitive so brand
-        朱 and danger red can be retuned independently (see issue #239).
+        Danger scale (hue 22) — backs the <code>error</code> and <code>destructive</code> semantics.
+        A separate primitive from brand <code>vermillion</code> so the two can be retuned
+        independently; #239 concluded danger red stays put while #322 retuned brand 朱 toward 真朱
+        (hue 30), so the scales now hold intentionally different values.
       </p>
       <ScaleRow
         shades={[

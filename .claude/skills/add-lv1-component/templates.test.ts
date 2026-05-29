@@ -4,13 +4,18 @@ import { fileURLToPath } from 'node:url'
 import ts from 'typescript'
 import { describe, expect, it } from 'vitest'
 
-// The 7 placeholder templates in `templates/` are expanded by the
+// The 9 placeholder templates in `templates/` are expanded by the
 // add-lv1-component skill, but carry a `.template` extension so neither
 // `tsc` nor Biome inspects them during normal CI. This test is the standing
 // guard: it expands every template with a probe name and asserts the result
 // is syntactically valid TypeScript (or CSS — see the TS-skip branch below)
 // so a template that drifts into broken syntax is caught here, not the
 // next time someone runs the skill.
+//
+// The 9 split into a core-7 set (always generated, every classification)
+// and a parity-2 set (`*.parity.*`, generated only for 区分 A / B
+// components — 区分 C / D are PARITY_EXEMPT). See
+// `.claude/rules/vrt-spec-guideline.md` §"Parity stories".
 
 const here = dirname(fileURLToPath(import.meta.url))
 const templatesDir = join(here, 'templates')
@@ -32,8 +37,33 @@ function expand(source: string): string {
 const templates = readdirSync(templatesDir).filter((file) => file.endsWith('.template'))
 
 describe('add-lv1-component templates', () => {
-  it('ships exactly the documented 7-file set', () => {
+  it('ships exactly the documented 9-file set', () => {
     expect([...templates].sort()).toEqual([
+      'Component.css.template',
+      'Component.parity.stories.tsx.template',
+      'Component.parity.vrt.spec.ts.template',
+      'Component.stories.tsx.template',
+      'Component.test.tsx.template',
+      'Component.tsx.template',
+      'Component.vrt.spec.ts.template',
+      'index.ts.template',
+      'variants.ts.template',
+    ])
+  })
+
+  // The 9 templates split by *when* the skill emits them: the core-7 are
+  // generated for every new lv1 regardless of classification; the parity-2
+  // are emitted only for 区分 A / B components (区分 C / D are PARITY_EXEMPT
+  // in scripts/audit-coverage.mjs and ship no parity files).
+  it('classifies templates into the core-7 and parity-2 sets', () => {
+    const parity = templates.filter((file) => file.includes('.parity.')).sort()
+    const core = templates.filter((file) => !file.includes('.parity.')).sort()
+
+    expect(parity).toEqual([
+      'Component.parity.stories.tsx.template',
+      'Component.parity.vrt.spec.ts.template',
+    ])
+    expect(core).toEqual([
       'Component.css.template',
       'Component.stories.tsx.template',
       'Component.test.tsx.template',

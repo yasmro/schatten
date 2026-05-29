@@ -49,6 +49,14 @@ export interface RenderJsonOptions {
   readonly generatedAt?: string
 }
 
+/**
+ * Components in parity classification C / D (per
+ * .claude/rules/vrt-spec-guideline.md) that intentionally ship no parity
+ * story+spec. Hand-maintained in alphabetical order; the contents are
+ * pinned by scripts/__tests__/audit-coverage.test.ts.
+ */
+export const PARITY_EXEMPT: ReadonlySet<string>
+
 export function discoverComponents(lv1Dir: string): string[]
 
 export function parseExportedNames(indexPath: string): Set<string>

@@ -1,0 +1,49 @@
+import type { Meta, StoryObj } from '@storybook/react-vite'
+import { __ComponentName__ } from './__ComponentName__'
+
+/**
+ * Parity stories — the React `<__ComponentName__>` and a hand-written vanilla
+ * element carrying the matching `.st-*` class chain must render
+ * pixel-identical. Backs the VRT in `__ComponentName__.parity.vrt.spec.ts`.
+ *
+ * Only author this story for 区分 A / B components (per
+ * `.claude/rules/vrt-spec-guideline.md` §"Parity stories — when to write one,
+ * when to skip"). 区分 C / D components are PARITY_EXEMPT and ship no parity
+ * story at all.
+ *
+ * Authoring contract:
+ * - Mirror every variant × size the React side exposes on the vanilla side.
+ * - Inline any icon SVG so the vanilla column has no React dependency, and
+ *   carry the same a11y attributes (`aria-hidden="true"` on decorative SVG,
+ *   `aria-busy` / `disabled` on loading/disabled states, etc.).
+ * - `asChild` and other React-only APIs are out of parity scope.
+ */
+const meta: Meta<typeof __ComponentName__> = {
+  title: 'Components/lv1/__ComponentName__',
+  component: __ComponentName__,
+  parameters: {
+    layout: 'padded',
+  },
+}
+
+export default meta
+type Story = StoryObj<typeof __ComponentName__>
+
+export const Parity: Story = {
+  name: 'React vs Vanilla HTML',
+  render: () => (
+    <div className="grid grid-cols-2 gap-12 max-w-5xl">
+      <div className="space-y-4">
+        <p className="text-xs mb-2 text-foreground-muted">React</p>
+        {/* TODO(__ComponentName__): render every variant×size of the React component here */}
+        <__ComponentName__ />
+      </div>
+
+      <div className="space-y-4">
+        <p className="text-xs mb-2 text-foreground-muted">Vanilla HTML</p>
+        {/* TODO(__ComponentName__): mirror every variant×size with the .st-* class chain */}
+        <div className="st-__component-name__" />
+      </div>
+    </div>
+  ),
+}

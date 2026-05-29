@@ -70,6 +70,14 @@
       },
       "import": "./dist/providers/index.js",
       "require": "./dist/providers/index.cjs"
+    },
+    "./theme-init": {
+      "types": {
+        "import": "./dist/theme-init/index.d.ts",
+        "require": "./dist/theme-init/index.d.cts"
+      },
+      "import": "./dist/theme-init/index.js",
+      "require": "./dist/theme-init/index.cjs"
     }
   },
   "files": [

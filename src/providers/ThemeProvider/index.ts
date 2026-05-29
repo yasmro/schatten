@@ -1,3 +1,4 @@
+export { ThemeInitScript, type ThemeInitScriptProps } from './ThemeInitScript'
 export { ThemeProvider, type ThemeProviderProps } from './ThemeProvider'
 export type {
   SpecialThemeId,

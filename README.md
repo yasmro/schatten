@@ -368,16 +368,11 @@ export default function App() {
 
 #### Strict CSP environments
 
-If your CSP forbids inline scripts, either (a) pass `nonce` to
-`<ThemeInitScript nonce={cspNonce} />` (or set it on your own inline
-`<script>`) matching your `script-src 'nonce-…'` directive, (b) move
-the snippet into a standalone `.js` file served from your own origin and
-reference it with `<script src="/theme-init.js">`, or (c) pin the
-default-key snippet by hash with
-`script-src 'sha256-YKmfjVUKTYOL4QdVTkV/AUzMrHhhfPw//OthidDmEEE='`
-(the digest of `THEME_INIT_SCRIPT`; pinned by `theme-init.test.ts` so a byte
-change fails CI — [#262](https://github.com/yasmro/schatten/issues/262) will
-publish it as a documented constant).
+If your Content-Security-Policy forbids inline scripts, the snippet needs an
+explicit allowance — by `nonce`, by `hash`, or by externalizing it. See the
+dedicated [CSP setup guide](#csp-setup-guide) below for copy-paste recipes
+(Next.js / Astro / Remix), the security must-fixes, and the anti-patterns to
+avoid.
 
 The snippet runs **synchronously** and **must not be deferred** — `defer`
 / `async` / loading from a delayed CDN re-introduces the flash this
@@ -397,6 +392,176 @@ If you customize `storageKey` on the Provider, pass the same key to
 `buildThemeInitScript('my-key')` from `@yasmro/schatten/theme-init` for the
 string form). The two values are a public contract: a mismatch silently
 breaks FOUC avoidance with no error.
+
+### CSP setup guide
+
+The FOUC snippet is an **inline `<script>`**. Under a strict
+Content-Security-Policy (one without `'unsafe-inline'` in `script-src`) the
+browser blocks it unless you explicitly allow it. There are three ways, in
+descending order of preference.
+
+> **Schatten never requires `'unsafe-inline'`.** If a guide tells you to add
+> `'unsafe-inline'` to `script-src` to make the snippet run, stop — that
+> disables the protection your CSP exists to provide and is never necessary
+> here. Use a nonce or a hash instead. (Schatten also does **not** require
+> `style-src 'unsafe-inline'`: the stylesheet is a static `<link>`, not an
+> inline `<style>`.)
+
+#### Option A — nonce (recommended for SSR)
+
+A nonce is a per-response random token. You generate it on the server, put it
+in both the CSP header and the `<script nonce>`, and the browser runs only
+scripts carrying the matching token. `<ThemeInitScript nonce={…} />` forwards
+the value onto the emitted `<script>`.
+
+**The nonce must be cryptographically random and regenerated on every
+response.** Use a CSPRNG (`crypto.randomBytes` in Node, `crypto.getRandomValues`
+in the Edge/Web runtime) — **never** `Math.random()`, a build-time constant, or
+a reused value. A predictable or static nonce is equivalent to no nonce at all.
+
+**Next.js App Router** — generate the nonce in `middleware.ts`, set the CSP
+header, and read it back in the layout:
+
+```ts
+// middleware.ts
+import { NextResponse } from 'next/server'
+
+export function middleware() {
+  const nonce = Buffer.from(crypto.randomUUID()).toString('base64')
+  const csp = [
+    `script-src 'self' 'nonce-${nonce}'`,
+    `style-src 'self'`,
+    `object-src 'none'`,
+    `base-uri 'self'`,
+  ].join('; ')
+
+  const requestHeaders = new Headers()
+  requestHeaders.set('x-nonce', nonce)
+  const res = NextResponse.next({ request: { headers: requestHeaders } })
+  res.headers.set('Content-Security-Policy', csp)
+  return res
+}
+```
+
+```tsx
+// app/layout.tsx
+import { headers } from 'next/headers'
+import { ThemeInitScript, ThemeProvider } from '@yasmro/schatten/providers'
+
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const nonce = (await headers()).get('x-nonce') ?? undefined
+  return (
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <ThemeInitScript nonce={nonce} />
+      </head>
+      <body>
+        <ThemeProvider defaultMode="system">{children}</ThemeProvider>
+      </body>
+    </html>
+  )
+}
+```
+
+> **Next.js nonce × static caching footgun.** Reading the nonce via
+> `headers()` opts the route into dynamic rendering. If you instead try to
+> nonce a *statically cached* page, every visitor is served the same cached
+> nonce — which defeats the nonce entirely. Either keep the page dynamic (as
+> above) or pin the snippet by hash (Option B) for static pages. Do **not**
+> reach for `'strict-dynamic'` to paper over this; it changes how the rest of
+> your `script-src` is interpreted and is unrelated to running this one inline
+> snippet.
+
+**Astro** — Astro exposes a per-request nonce when CSP is enabled; pass it to
+your own inline `<script>` (Astro islands don't render `<ThemeInitScript />`
+directly, so use the string form):
+
+```astro
+---
+// src/layouts/Base.astro
+import { THEME_INIT_SCRIPT } from '@yasmro/schatten/theme-init'
+const nonce = Astro.locals.cspNonce // however your middleware exposes it
+---
+<head>
+  <script nonce={nonce} is:inline set:html={THEME_INIT_SCRIPT} />
+</head>
+```
+
+**Remix** — generate the nonce in your `entry.server.tsx`, thread it through
+the loader context, and pass it to `<ThemeInitScript nonce={nonce} />` in
+`root.tsx` (same shape as the Next.js layout above).
+
+#### Option B — hash (recommended for static pages)
+
+A hash pin allow-lists the snippet by the SHA-256 of its exact bytes — no
+per-response work, so it survives static caching. Add the published digest of
+the default-key snippet to `script-src`:
+
+```
+Content-Security-Policy: script-src 'self' 'sha256-YKmfjVUKTYOL4QdVTkV/AUzMrHhhfPw//OthidDmEEE='; object-src 'none'; base-uri 'self'
+```
+
+This digest is the hash of `THEME_INIT_SCRIPT` (default `storageKey`
+`'schatten-theme'`). It is byte-pinned in CI, so a snippet change can't drift
+the published value silently — and any such change ships as a `major` (see the
+[API stability contract](.claude/rules/api-stability.md)).
+
+**Availability trap — a custom `storageKey` changes the hash.** If you pass a
+non-default `storageKey`, the snippet bytes differ and the digest above no
+longer matches; the browser will block the script. Recompute the hash for your
+key with a tiny Node one-liner (no repo checkout needed — it uses the published
+`buildThemeInitScript`):
+
+```js
+import { createHash } from 'node:crypto'
+import { buildThemeInitScript } from '@yasmro/schatten/theme-init'
+
+const script = buildThemeInitScript('my-app-theme') // your storageKey
+const hash = createHash('sha256').update(script, 'utf8').digest('base64')
+console.log(`sha256-${hash}`)
+```
+
+(Maintainers of this repo can instead run `pnpm schatten:csp-hash`, or
+`pnpm schatten:csp-hash --key=my-app-theme` for a custom key — it reads the
+built `dist/` so the hash is taken from exactly the shipped bytes.)
+
+#### Option C — externalize the snippet
+
+If you'd rather not manage a nonce or a hash, copy the snippet into a static
+`.js` file served from your own origin and reference it:
+
+```html
+<head>
+  <script src="/theme-init.js"></script>
+  <link rel="stylesheet" href="/path/to/schatten.css" />
+</head>
+```
+
+`script-src 'self'` then covers it with no extra directive. The cost is that
+you now own a copy of the bytes and must re-sync it when you upgrade Schatten
+across a `major` that changes the snippet. Generate the file contents from
+`THEME_INIT_SCRIPT` / `buildThemeInitScript(key)` rather than hand-copying, so
+the copy can't drift.
+
+#### Recommended baseline directives
+
+Whichever option you choose, harden the surrounding policy:
+
+- `object-src 'none'` — there's no legitimate `<object>`/`<embed>` use here,
+  and it closes a common injection vector.
+- `base-uri 'self'` — stops an injected `<base>` tag from rewriting every
+  relative URL on the page.
+
+#### Anti-patterns to avoid
+
+- ❌ Adding `'unsafe-inline'` to `script-src` "to make it work" — use a nonce
+  or hash; `'unsafe-inline'` re-opens the hole the CSP closes.
+- ❌ A static or `Math.random()` nonce — it must be a fresh CSPRNG value per
+  response.
+- ❌ Nonce-ing a statically cached page — the nonce is cached and reused; pin
+  by hash (Option B) instead.
+- ❌ `defer` / `async` on the snippet — it must run synchronously before first
+  paint, or the flash returns.
 
 ### Remix
 

@@ -55,24 +55,31 @@
   --paper-warm-inverted: #1e1e1c;
   --paper-cream-inverted: #44403a;
 
-  /* Brand: Vermillion (朱) — Japanese traditional vermillion, brand anchor: 600 ≈ #c53d43.
-   * The first brand color; backs the --color-vermillion semantic only. Danger colors
-   * (--color-error / --color-destructive) reference the separate `red` scale below. */
-  --vermillion-50: oklch(0.98 0.02 22);
-  --vermillion-100: oklch(0.96 0.04 22);
-  --vermillion-200: oklch(0.91 0.08 22);
-  --vermillion-300: oklch(0.83 0.13 22);
-  --vermillion-400: oklch(0.74 0.17 22);
-  --vermillion-500: oklch(0.64 0.18 22);
-  --vermillion-600: oklch(0.56 0.17 22);
-  --vermillion-700: oklch(0.46 0.14 22);
-  --vermillion-800: oklch(0.36 0.11 22);
-  --vermillion-900: oklch(0.27 0.07 22);
-  --vermillion-950: oklch(0.15 0.05 22);
+  /* Brand: Vermillion (朱) — Japanese traditional 真朱, retuned toward Figma vermilion
+   * #E73121 (hue 30, more orange / higher chroma than the former crimson-leaning hue 22).
+   * The vivid brand anchor lives at 500 (≈ #ed3726, ≈ #E73121); the displayed brand solid
+   * surface uses 600 (≈ #d02718) because #E73121 itself sits in an AA dead zone (white text
+   * 4.14:1 / dark text 4.03:1 — both fail). --color-vermillion-foreground = paper-white, so
+   * solid AA passes: light fafafa × 600 = 5.04:1, dark 1a1a1a × 400 = 6.53:1. All shades are
+   * inside the sRGB gamut at hue 30. Backs the --color-vermillion semantic only; danger colors
+   * (--color-error / --color-destructive) reference the separate `red` scale below, which is
+   * deliberately NOT retuned (see #239 / #322). */
+  --vermillion-50: oklch(0.975 0.012 30);
+  --vermillion-100: oklch(0.95 0.025 30);
+  --vermillion-200: oklch(0.9 0.05 30);
+  --vermillion-300: oklch(0.82 0.1 30);
+  --vermillion-400: oklch(0.72 0.172 30);
+  --vermillion-500: oklch(0.62 0.22 30);
+  --vermillion-600: oklch(0.555 0.205 30);
+  --vermillion-700: oklch(0.46 0.165 30);
+  --vermillion-800: oklch(0.36 0.125 30);
+  --vermillion-900: oklch(0.27 0.085 30);
+  --vermillion-950: oklch(0.155 0.05 30);
 
-  /* red — danger/error 専用スケール。現状 vermillion と同値だが、ブランド朱と
-     危険赤を独立に retune できるよう意図的に分離した継ぎ目。error/destructive のみが参照する。
-     色味を分岐させるかは #239 (design spike) で扱う。統合しないこと。 */
+  /* red — danger/error 専用スケール。ブランド朱と危険赤を独立に retune できるよう
+     意図的に分離した継ぎ目。error/destructive のみが参照する。#239 (design spike) の結論で
+     危険赤は hue 22 据え置きとし、色味の分岐は vermillion 側 (#322, 真朱 #E73121 系へ) で
+     発生させた。よって以下は #238 時点の旧 vermillion と同値のまま。統合しないこと。 */
   --red-50: oklch(0.98 0.02 22);
   --red-100: oklch(0.96 0.04 22);
   --red-200: oklch(0.91 0.08 22);

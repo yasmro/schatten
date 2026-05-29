@@ -69,6 +69,15 @@ When adding or modifying components, follow shadcn/ui conventions (Radix UI + CV
 
 Both hooks are **non-blocking** — they print to `hookSpecificOutput.additionalContext` and always exit 0. They complement (do not replace) the lefthook pre-commit step.
 
+### Hook (non-blocking) vs CI gate (blocking) — responsibility split
+
+The companion-coverage concern is defended at **two timings**, deliberately overlapping:
+
+- **Edit / session unit (the two hooks above) — non-blocking, immediate feedback.** `check-lv1-companions.mjs` (per edited component) and `check-lv1-export-integrity.mjs` (export integrity) warn only. They are **kept, not retired** — their value is catching a gap *while you are editing*, before a PR even exists.
+- **PR unit (the CI `audit` job) — blocking, whole-tree integrity gate.** The `audit` job in [.github/workflows/ci.yml](.github/workflows/ci.yml) runs **`pnpm audit:coverage --check`** ([scripts/audit-coverage.mjs](scripts/audit-coverage.mjs)) across every lv1 and fails the PR when a required companion (test / VRT spec / class-API CSS / `__snapshots__/` baseline / `index.ts` re-export, plus parity series for classification A/B) is missing or an export is orphaned. The full report (including "Recommended actions") is written to the PR's job summary. Currently `continue-on-error: true` (Phase 1 observation, see [#307](https://github.com/yasmro/schatten/issues/307)); Phase 2 removes that and adds `audit` to `develop`'s required checks.
+
+The two layers **intentionally report the same gap at different timings** — this is multi-layer defense, not redundancy. Reproduce the CI gate locally with `pnpm audit:coverage` (no `--check`); the output is identical.
+
 In addition to those hooks, the CI `lint` job runs **`pnpm check:readme`** ([scripts/sync-readme-components.mjs](scripts/sync-readme-components.mjs)) — verifies that the "Available components" list in [README.md](README.md) matches the lv1 directories on disk (filtered to those that ship a `.tsx` + `.css` pair). When a new lv1 is added but the README block is not regenerated, this gate fails the PR with a `current vs expected` diff. Run `pnpm sync:readme` locally to fix the drift.
 
 ## Claude Code commands

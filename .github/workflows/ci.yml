@@ -179,10 +179,14 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version: 22
-          cache: pnpm
 
-      - run: pnpm install --frozen-lockfile
-
+      # No `pnpm install` step: scripts/audit-coverage.mjs imports only
+      # `node:fs` / `node:path` (zero external deps, no compile step), so
+      # `pnpm audit:coverage` resolves to a bare `node` run that needs no
+      # node_modules. Skipping install (and the `cache: pnpm` it would feed)
+      # keeps this the cheapest job in CI. pnpm/action-setup is still needed
+      # to provide the `pnpm` binary that runs the package.json script.
+      #
       # `audit:coverage` reads the lv1 tree only — no build, no git history
       # needed (unlike `manifest` / `changeset`), and no dependabot / base=main
       # skip because the result is deterministic on source: a dep bump or the

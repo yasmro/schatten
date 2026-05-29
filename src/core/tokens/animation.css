@@ -19,13 +19,31 @@
  *
  * Components still author a `var(--st-*, <fallback>)` fallback so the
  * standalone per-component CSS (which ships no tokens) animates correctly on
- * its own — see Spinner.css.
+ * its own — see Spinner.css / Tooltip.css / Dialog.css / Toast.css.
  *
- * Future home for a generic `--duration-*` series (Toast / Dialog / Tooltip
- * enter/exit timings) — tracked separately, out of scope for #286.
+ * Two groups of token live here:
+ *
+ * 1. `--st-duration-*` — a shared transition-duration scale for enter/exit
+ *    motion (Tooltip / Dialog / Toast). Three perceptually-distinct steps:
+ *    fast (100ms) / base (150ms) / slow (200ms). Introduced as a
+ *    VALUE-PRESERVING centralization: every reference migrated onto a step
+ *    matches its pre-existing hardcoded duration exactly, so the seam lands
+ *    with zero visual change (no VRT re-baseline). Consumers can now retune
+ *    base motion globally via one override. Toast's deliberately heavier
+ *    dissolve timings (320ms in / 220ms out) sit OFF this scale and stay
+ *    hardcoded in Toast.css — whether they should fold into the scale is an
+ *    aesthetic call deferred to a future motion-retune spike, not this seam.
+ *
+ * 2. `--st-spinner-*` — Spinner ripple-type loop timing (a continuous-loop
+ *    cadence, semantically distinct from enter/exit transitions; #286).
  */
 
 :root {
+  /* Shared enter/exit transition durations (consumer-overridable). */
+  --st-duration-fast: 100ms;
+  --st-duration-base: 150ms;
+  --st-duration-slow: 200ms;
+
   /* Spinner ripple-type animation timing (consumer-overridable) */
   --st-spinner-duration: 2.8s;
   --st-spinner-ripple-delay: 1.1s;

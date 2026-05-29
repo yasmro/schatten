@@ -1421,6 +1421,11 @@ export const Reference: Story = {
 <!-- [data-state="open"|"closed"]   enter / exit dissolve animation -->
 <!-- [data-swipe="move"|"cancel"|"end"]  swipe-to-dismiss handoff -->
 
+<!-- Consumer-overridable timing (@theme-registered, shared scale) -->
+<!-- swipe-cancel snap-back + swipe-end dissolve use --st-duration-slow
+     (default 200ms). The dissolve enter/exit (320ms / 220ms) are
+     deliberately OFF the shared scale and stay hardcoded. -->
+
 <!-- The action / close button is rendered as a .st-btn chain directly
      inside .st-toast — no wrapper. Toast.tsx renders action OR close
      (exclusive); the content column's flex:1 pushes the button right. -->`}</CodeBlock>
@@ -1517,7 +1522,11 @@ export const Reference: Story = {
      consumers do NOT get the enter / exit animation) -->
 <!-- [data-state="open"|"closed"]  on overlay AND content — drives the
                                     fade-in / zoom-in / fade-out / zoom-out
-                                    keyframes -->`}</CodeBlock>
+                                    keyframes -->
+
+<!-- Consumer-overridable timing (@theme-registered, shared scale) -->
+<!-- open  uses --st-duration-slow   default 200ms -->
+<!-- close uses --st-duration-base   default 150ms -->`}</CodeBlock>
         </Section>
 
         <Section

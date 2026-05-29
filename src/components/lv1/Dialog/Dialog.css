@@ -41,6 +41,12 @@
  * Uses raw CSS + `var(--color-*)` throughout, per css-api.md
  * "Component CSS authoring conventions — raw CSS over @apply".
  *
+ * Enter/exit durations reference the shared `--st-duration-*` scale
+ * (animation.css): open uses `--st-duration-slow`, close the snappier
+ * `--st-duration-base`. The `var(--st-*, <fallback>)` fallback keeps the
+ * per-component standalone build (`dist/css/dialog.css`, #291 — ships no
+ * tokens) animating at the same cadence.
+ *
  * See: .claude/rules/css-api.md, #271 sweep-6.
  */
 @layer components {
@@ -52,10 +58,10 @@
     background-color: rgb(0 0 0 / 0.5);
   }
   .st-dialog__overlay[data-state="open"] {
-    animation: dialog-overlay-fade-in 200ms ease-out;
+    animation: dialog-overlay-fade-in var(--st-duration-slow, 200ms) ease-out;
   }
   .st-dialog__overlay[data-state="closed"] {
-    animation: dialog-overlay-fade-out 150ms ease-in;
+    animation: dialog-overlay-fade-out var(--st-duration-base, 150ms) ease-in;
   }
 
   /* ===== content ===== */
@@ -82,10 +88,10 @@
     padding: 1.5rem; /* p-6 */
   }
   .st-dialog__content[data-state="open"] {
-    animation: dialog-content-zoom-in 200ms ease-out;
+    animation: dialog-content-zoom-in var(--st-duration-slow, 200ms) ease-out;
   }
   .st-dialog__content[data-state="closed"] {
-    animation: dialog-content-zoom-out 150ms ease-in;
+    animation: dialog-content-zoom-out var(--st-duration-base, 150ms) ease-in;
   }
 
   /* ===== header ===== */

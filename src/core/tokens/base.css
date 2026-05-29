@@ -352,6 +352,10 @@
    * Tailwind v4 "this is a theme variable" — same self-referential idiom as
    * the color tokens above.
    */
+  --st-duration-fast: var(--st-duration-fast);
+  --st-duration-base: var(--st-duration-base);
+  --st-duration-slow: var(--st-duration-slow);
+
   --st-spinner-duration: var(--st-spinner-duration);
   --st-spinner-ripple-delay: var(--st-spinner-ripple-delay);
 }

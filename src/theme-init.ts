@@ -4,12 +4,22 @@
 // in the correct Mode × Special on the very first frame — no flash of the
 // light/default theme before React hydrates.
 //
+// This module is **framework-agnostic** — no React, no DOM globals at module
+// scope — and is published as `@yasmro/schatten/theme-init`. That entry is
+// built WITHOUT the `'use client'` banner (unlike `@yasmro/schatten/providers`),
+// so a React Server Component or a non-React server can `import` the raw
+// string directly and inline it; importing it from the `'use client'`
+// `providers` barrel would instead yield a client reference. The React
+// `<ThemeInitScript>` component (in `providers/ThemeProvider/`) consumes this
+// module — dependency flows providers → theme-init, never the reverse.
+//
 // The snippet's behavior is pinned, character-for-character, by
-// `fouc-snippet.test.ts`. Its `localStorage` key + JSON shape
-// (`{ mode, special }`) are the same public runtime contract `<ThemeProvider>`
-// reads/writes — see `.claude/rules/api-stability.md` ("Provider runtime
-// contract"). #262 will publish a SHA-256 hash of these bytes so consumers
-// can pin a CSP hash instead of using a nonce.
+// `fouc-snippet.test.ts`; its exact bytes are pinned by `theme-init.test.ts`.
+// Its `localStorage` key + JSON shape (`{ mode, special }`) are the same
+// public runtime contract `<ThemeProvider>` reads/writes — see
+// `.claude/rules/api-stability.md` ("Provider runtime contract"). #262 will
+// publish a SHA-256 hash of these bytes so consumers can pin a CSP hash
+// instead of using a nonce.
 
 /**
  * Build the inline FOUC-avoidance script for a given `localStorage` key.

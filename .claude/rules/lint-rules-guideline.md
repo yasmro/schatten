@@ -66,9 +66,10 @@ invariant that makes the assertion safe.
 
 ### `style/noRestrictedImports` — `error` (core / variants / themes scope)
 
-Inside `src/core/**` / `src/variants/**` / `src/themes/**` / `src/tokens.ts`,
-`react` / `react-dom` / `@radix-ui/*` imports are an `error` (applied via a
-scoped `overrides` entry in [biome.json](../../biome.json)).
+Inside `src/core/**` / `src/variants/**` / `src/themes/**` / `src/tokens.ts`
+/ `src/theme-init.ts`, `react` / `react-dom` / `@radix-ui/*` imports are an
+`error` (applied via a scoped `overrides` entry in
+[biome.json](../../biome.json)).
 
 **Why:** v0.9.0 ([#291](https://github.com/yasmro/schatten/issues/291)) ships
 multi-entry `exports` so consumers can reach `@yasmro/schatten/variants` /
@@ -103,9 +104,9 @@ belongs in `src/lib/` (lib-layer helpers like
 **Scope additions:** if a new top-level directory under `src/` is
 introduced that should stay framework-agnostic, update the `includes`
 list in [biome.json](../../biome.json) explicitly. The current entries
-are `src/core/**`, `src/variants/**`, `src/themes/**`, `src/tokens.ts`
-— no implicit catch-all, so new directories don't acquire the
-restriction by accident or lose it silently.
+are `src/core/**`, `src/variants/**`, `src/themes/**`, `src/tokens.ts`,
+`src/theme-init.ts` — no implicit catch-all, so new directories don't
+acquire the restriction by accident or lose it silently.
 
 The same `noRestrictedImports` + scoped `overrides` shape is the
 intended enforcement mechanism for any future framework-agnostic

@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { renderToString } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
-import { THEME_INIT_SCRIPT } from './init-script'
+import { THEME_INIT_SCRIPT } from '../../theme-init'
 import { ThemeInitScript } from './ThemeInitScript'
 
 // The component exists to be rendered in `<head>` during SSR, where

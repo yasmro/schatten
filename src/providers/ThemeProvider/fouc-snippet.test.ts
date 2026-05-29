@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { THEME_INIT_SCRIPT } from './init-script'
+import { THEME_INIT_SCRIPT } from '../../theme-init'
 
 // `THEME_INIT_SCRIPT` (built in init-script.ts) is the single source of
 // truth for the FOUC snippet — the README and `<ThemeInitScript>` render

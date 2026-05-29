@@ -1,4 +1,4 @@
-import { buildThemeInitScript, THEME_INIT_SCRIPT } from './init-script'
+import { buildThemeInitScript, THEME_INIT_SCRIPT } from '../../theme-init'
 
 export interface ThemeInitScriptProps {
   /**

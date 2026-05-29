@@ -1,5 +1,6 @@
+import { createHash } from 'node:crypto'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { buildThemeInitScript, THEME_INIT_SCRIPT } from './init-script'
+import { buildThemeInitScript, THEME_INIT_SCRIPT } from './theme-init'
 
 // The exact byte sequence of the default snippet. This is the public runtime
 // contract (#262 will publish a SHA-256 of these bytes), so pin it explicitly
@@ -67,5 +68,18 @@ describe('THEME_INIT_SCRIPT', () => {
   it('is the default-key build', () => {
     expect(THEME_INIT_SCRIPT).toBe(DEFAULT_SNIPPET)
     expect(THEME_INIT_SCRIPT).toBe(buildThemeInitScript('schatten-theme'))
+  })
+
+  // Pre-stages #262: the CSP-hash publication. A consumer who can't use a
+  // nonce pins the snippet with `script-src 'sha256-…'`; that directive is
+  // computed from these exact bytes. Pinning the digest here makes any byte
+  // drift fail loudly with the new hash a consumer would have to re-publish,
+  // rather than silently invalidating their CSP. When #262 publishes the
+  // hash for consumers, it MUST match these values.
+  it('hashes to the published SHA-256 (CSP pin)', () => {
+    const hex = createHash('sha256').update(THEME_INIT_SCRIPT, 'utf8').digest('hex')
+    const csp = `sha256-${createHash('sha256').update(THEME_INIT_SCRIPT, 'utf8').digest('base64')}`
+    expect(hex).toBe('60a99f8d550a4d838be107554e457f014cccac78617cfc3ffceb6189d0e61041')
+    expect(csp).toBe('sha256-YKmfjVUKTYOL4QdVTkV/AUzMrHhhfPw//OthidDmEEE=')
   })
 })

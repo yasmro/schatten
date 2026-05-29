@@ -80,7 +80,13 @@
       "plugins": ["./biome-plugins/no-primitive-color.grit"]
     },
     {
-      "includes": ["src/core/**", "src/variants/**", "src/themes/**", "src/tokens.ts"],
+      "includes": [
+        "src/core/**",
+        "src/variants/**",
+        "src/themes/**",
+        "src/tokens.ts",
+        "src/theme-init.ts"
+      ],
       "linter": {
         "rules": {
           "style": {

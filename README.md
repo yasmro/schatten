@@ -279,22 +279,28 @@ logic the Provider runs — but **before** first paint
 
 Schatten ships this snippet two ways so you never hand-maintain the string:
 
-- **React SSR** (Next.js, Remix, …) — render `<ThemeInitScript />` in `<head>`.
-- **Non-React / plain HTML** — inline the exported `THEME_INIT_SCRIPT` string,
-  or `buildThemeInitScript(key)` for a custom `storageKey`.
+- **React SSR** (Next.js, Remix, …) — render `<ThemeInitScript />` from
+  `@yasmro/schatten/providers` in `<head>`.
+- **Non-React / server / RSC** — import the `THEME_INIT_SCRIPT` string (or
+  `buildThemeInitScript(key)` for a custom `storageKey`) from
+  `@yasmro/schatten/theme-init`.
 
 Both read the same JSON shape the Provider writes (`{ mode, special }`) under
 the same `storageKey` (default `'schatten-theme'`). Drop it in as the very
 first `<head>` child:
 
-> **React Server Components:** the `@yasmro/schatten/providers` entry carries
-> `'use client'`, so in an RSC graph render the `<ThemeInitScript />`
-> *component* — a Server Component may render it, and Next.js serializes its
-> static `<script>` into the streamed HTML before hydration. Do **not**
-> `import { THEME_INIT_SCRIPT }` into a Server Component to inline the string:
-> across the `'use client'` boundary you receive a client reference, not the
-> literal bytes. The raw `THEME_INIT_SCRIPT` / `buildThemeInitScript` exports
-> are for non-RSC contexts (Vite `index.html`, plain server-rendered HTML).
+> **Two entry points, on purpose.** `@yasmro/schatten/providers` is a Client
+> Component bundle (`'use client'`) — it owns the `<ThemeInitScript />`
+> *component* and `<ThemeProvider>`. `@yasmro/schatten/theme-init` is a
+> **framework-agnostic** bundle (no `'use client'`) — it owns the raw
+> `THEME_INIT_SCRIPT` / `buildThemeInitScript` *string* exports.
+>
+> The split matters in a React Server Component graph: a Server Component can
+> render `<ThemeInitScript />` (Next.js serializes its static `<script>` into
+> the streamed HTML before hydration), but importing the **string** from a
+> `'use client'` module would hand you a client reference, not the literal
+> bytes. So import the string from `@yasmro/schatten/theme-init` — that entry
+> is server-/RSC-importable precisely because it carries no `'use client'`.
 
 #### Next.js App Router
 
@@ -364,9 +370,14 @@ export default function App() {
 
 If your CSP forbids inline scripts, either (a) pass `nonce` to
 `<ThemeInitScript nonce={cspNonce} />` (or set it on your own inline
-`<script>`) matching your `script-src 'nonce-…'` directive, or (b) move
+`<script>`) matching your `script-src 'nonce-…'` directive, (b) move
 the snippet into a standalone `.js` file served from your own origin and
-reference it with `<script src="/theme-init.js">`.
+reference it with `<script src="/theme-init.js">`, or (c) pin the
+default-key snippet by hash with
+`script-src 'sha256-YKmfjVUKTYOL4QdVTkV/AUzMrHhhfPw//OthidDmEEE='`
+(the digest of `THEME_INIT_SCRIPT`; pinned by `theme-init.test.ts` so a byte
+change fails CI — [#262](https://github.com/yasmro/schatten/issues/262) will
+publish it as a documented constant).
 
 The snippet runs **synchronously** and **must not be deferred** — `defer`
 / `async` / loading from a delayed CDN re-introduces the flash this
@@ -382,9 +393,10 @@ exists to prevent.
   silently falls back to the SSR default — never throws.
 
 If you customize `storageKey` on the Provider, pass the same key to
-`<ThemeInitScript storageKey="my-key" />` (or call `buildThemeInitScript('my-key')`
-for the string form). The two values are a public contract: a mismatch
-silently breaks FOUC avoidance with no error.
+`<ThemeInitScript storageKey="my-key" />` (or call
+`buildThemeInitScript('my-key')` from `@yasmro/schatten/theme-init` for the
+string form). The two values are a public contract: a mismatch silently
+breaks FOUC avoidance with no error.
 
 ### Remix
 

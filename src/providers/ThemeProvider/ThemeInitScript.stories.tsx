@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { Text } from '../../components/lv1/Text'
-import { buildThemeInitScript } from './init-script'
+import { buildThemeInitScript } from '../../theme-init'
 import { ThemeInitScript } from './ThemeInitScript'
 
 const meta: Meta<typeof ThemeInitScript> = {

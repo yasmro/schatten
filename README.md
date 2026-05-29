@@ -287,6 +287,15 @@ Both read the same JSON shape the Provider writes (`{ mode, special }`) under
 the same `storageKey` (default `'schatten-theme'`). Drop it in as the very
 first `<head>` child:
 
+> **React Server Components:** the `@yasmro/schatten/providers` entry carries
+> `'use client'`, so in an RSC graph render the `<ThemeInitScript />`
+> *component* — a Server Component may render it, and Next.js serializes its
+> static `<script>` into the streamed HTML before hydration. Do **not**
+> `import { THEME_INIT_SCRIPT }` into a Server Component to inline the string:
+> across the `'use client'` boundary you receive a client reference, not the
+> literal bytes. The raw `THEME_INIT_SCRIPT` / `buildThemeInitScript` exports
+> are for non-RSC contexts (Vite `index.html`, plain server-rendered HTML).
+
 #### Next.js App Router
 
 ```tsx

@@ -37,10 +37,22 @@ describe('buildThemeInitScript', () => {
     expect(script).toContain('\\u003c')
   })
 
+  it('escapes line/paragraph separators that JSON.stringify leaves raw', () => {
+    // U+2028 / U+2029 are line terminators in pre-ES2019 parsers; an
+    // un-escaped one can break the inline <script> in an older engine.
+    const key = 'a\u2028b\u2029c'
+    const script = buildThemeInitScript(key)
+    expect(script).not.toContain('\u2028')
+    expect(script).not.toContain('\u2029')
+    expect(script).toContain('\\u2028')
+    expect(script).toContain('\\u2029')
+  })
+
   it('preserves the key value at runtime despite the escape', () => {
-    // `<` decodes back to `<` when the JS runs, so the key the snippet
-    // actually reads is the original string — only its raw HTML bytes change.
-    const key = 'pre<post'
+    // `<` / U+2028 / U+2029 decode back to the original character when the
+    // JS runs, so the key the snippet actually reads is the original string
+    // — only its raw bytes change.
+    const key = 'pre<mid\u2028end\u2029tail'
     const seen: (string | null)[] = []
     vi.spyOn(Storage.prototype, 'getItem').mockImplementation((k) => {
       seen.push(k)

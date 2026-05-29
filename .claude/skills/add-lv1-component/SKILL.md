@@ -4,11 +4,12 @@ description: >-
   Scaffold a new lv1 primitive component for the Schatten design system.
   Use whenever the user wants to add, create, or generate a new lv1 / primitive
   component (e.g. "add a new lv1 component", "新しいコンポーネントを追加して",
-  "lv1 に Alert を作って", "Banner コンポーネントを新設"). Generates the full
+  "lv1 に Alert を作って", "Banner コンポーネントを新設"). Generates the core
   7-file set — variants CVA / tsx / css / stories / unit test / VRT spec /
-  index — in a form that complies with every .claude/rules/ guideline, and
-  registers the component in src/components/lv1/index.ts. Prevents test-less,
-  VRT-less, or css-less component additions structurally.
+  index — plus a parity story + VRT spec for 区分 A / B components, in a form
+  that complies with every .claude/rules/ guideline, and registers the
+  component in src/components/lv1/index.ts. Prevents test-less, VRT-less, or
+  css-less component additions structurally.
 ---
 
 # add-lv1-component
@@ -19,7 +20,8 @@ project's API conventions — no test-less or convention-drifting additions.
 
 ## What it generates
 
-For a component named `Foo`:
+For a component named `Foo`, the **core 7-file set** ships for every new lv1
+regardless of classification:
 
 | File | Purpose |
 |---|---|
@@ -30,6 +32,21 @@ For a component named `Foo`:
 | `src/components/lv1/Foo/Foo.test.tsx` | Vitest unit test |
 | `src/components/lv1/Foo/Foo.vrt.spec.ts` | Playwright VRT spec |
 | `src/components/lv1/Foo/index.ts` | Folder barrel re-export |
+
+The **parity 2-file set** ships *only for 区分 A / B* components (Step 2's
+classification step decides):
+
+| File | Purpose |
+|---|---|
+| `src/components/lv1/Foo/Foo.parity.stories.tsx` | Storybook — React vs vanilla-HTML side-by-side, proving the `.st-*` class chain reproduces the React render |
+| `src/components/lv1/Foo/Foo.parity.vrt.spec.ts` | Playwright VRT spec pinning that parity pixel-identically |
+
+For 区分 C / D components the parity pair is **not** generated; instead the
+component name is added to `PARITY_EXEMPT` in
+[`scripts/audit-coverage.mjs`](../../../scripts/audit-coverage.mjs) so the
+coverage audit does not flag the missing parity files. See
+`.claude/rules/vrt-spec-guideline.md` §"Parity stories — when to write one,
+when to skip" for the classification.
 
 Plus an edit to **`src/components/lv1/index.ts`** adding the public re-export,
 and to **`src/variants/index.ts`** adding the variants re-export, and an
@@ -63,7 +80,9 @@ Rules drift; never scaffold from memory. Read these before generating anything:
 - `.claude/rules/storybook-guideline.md` — `Playground` first, group by prop,
   TSDoc as source of truth
 - `.claude/rules/testing-guideline.md` — required test cases per component type
-- `.claude/rules/vrt-spec-guideline.md` — VRT spec template, story-id mapping
+- `.claude/rules/vrt-spec-guideline.md` — VRT spec template, story-id mapping,
+  and especially §"Parity stories — when to write one, when to skip" (the
+  区分 A/B/C/D classification that Step 2 asks for)
 - `.claude/rules/state-token-guideline.md` — semantic tokens only, never
   primitive color classes (`bg-red-500` is banned by a lint plugin)
 - `.claude/rules/component-testid-guideline.md` — `...props` pass-through
@@ -89,6 +108,35 @@ choices are closed.
 5. **Root element / role** — interactive components MUST render a native
    interactive element or a Radix primitive (a11y contract §8). A plain
    `<div>` is only for non-interactive display content.
+6. **Parity classification — 区分 A / B / C / D**
+   (`vrt-spec-guideline.md` §"Parity stories"). This decides whether the
+   parity story + VRT spec are generated (A / B) or the component is added
+   to `PARITY_EXEMPT` (C / D). Ask with `AskUserQuestion`, four options:
+   - **A — 完全 vanilla 可** — renders + behaves fully in vanilla HTML from
+     the `.st-*` chain + HTML/ARIA attributes (Button / Badge / Callout /
+     Text / Icon / Separator / Spinner). → parity generated.
+   - **B — ブラウザがハンドル** — vanilla-renderable; the browser supplies the
+     interactivity (form controls: Input / Textarea / Checkbox / Switch /
+     Radio). → parity generated.
+   - **C — 静的描画のみ / JS 位置決め要** — static markup is renderable but
+     positioning / trigger needs JS (Tooltip). → PARITY_EXEMPT, no parity.
+   - **D — JS 必須 / compound / imperative** — open/close/select/focus-trap
+     needs Radix-equivalent JS Schatten doesn't ship (Select / Dialog /
+     Toast). → PARITY_EXEMPT, no parity.
+
+   **Auto-suggest a default from the earlier answers, but let the user
+   confirm.** Heuristic for the pre-selected option:
+   - Form pattern (item 2) → suggest **B**.
+   - Compound (item 4) or imperative API → suggest **D**.
+   - Portal-positioned single surface (Tooltip-like) → suggest **C**.
+   - Otherwise (Role-based / Display, flat, fully static) → suggest **A**.
+
+   **⚠️ Do not conflate this 区分 with the prop-API Pattern from item 2.**
+   Both vocabularies use the letters A / B but they are orthogonal: Badge is
+   prop-Pattern **B** (Tone × Shape) yet parity-区分 **A**; Input is the
+   **Form** pattern yet parity-区分 **B**. Always state the 区分 in full
+   ("parity 区分 A") when confirming, so the answer can't be misread as the
+   prop pattern.
 
 Do not invent variant vocabulary — subset the canonical lists; extending them
 requires a discussion per `component-api-conventions.md`.
@@ -126,12 +174,31 @@ requires a discussion per `component-api-conventions.md`.
    `@import "../components/lv1/<Name>/<Name>.css";` in the
    "Component CSS" block so the new rules land in the integrated
    `dist/schatten.css` alongside the per-component subpath.
+7. **Branch on the parity 区分 from Step 2 item 6:**
+   - **区分 A / B** — also copy the two parity templates
+     (`Component.parity.stories.tsx.template` →
+     `src/components/lv1/<Name>/<Name>.parity.stories.tsx`,
+     `Component.parity.vrt.spec.ts.template` →
+     `src/components/lv1/<Name>/<Name>.parity.vrt.spec.ts`), substitute the
+     placeholder tokens, and fill in the `TODO(<Name>)` markers: mirror every
+     variant × size of the React component with the hand-written vanilla
+     `.st-*` chain, inlining any icon SVG and copying the same a11y
+     attributes (`aria-hidden` on decorative SVG, `aria-busy` / `disabled` on
+     state). `Button.parity.stories.tsx` is the reference.
+   - **区分 C / D** — do **not** copy the parity templates. Instead edit
+     [`scripts/audit-coverage.mjs`](../../../scripts/audit-coverage.mjs):
+     insert `<Name>` into the `PARITY_EXEMPT` set **in alphabetical order**
+     (the set is `new Set(['Dialog', 'Select', 'Toast', 'Tooltip'])` today —
+     e.g. adding `Popover` yields
+     `new Set(['Dialog', 'Popover', 'Select', 'Toast', 'Tooltip'])`). This is
+     the only edit to that file — the audit logic is unchanged.
 
 ### Step 4 — Strip the scaffold residue
 
 The templates carry placeholders that are **not** meant to survive into a
 finished component. After Step 3, grep the generated files and make sure none
-of these remain:
+of these remain. The `src/components/lv1/<Name>` glob already covers the
+parity files when they were generated (区分 A / B):
 
 ```sh
 grep -rn 'it\.todo(\|describe each option here\|TODO(\|__ComponentName__\|__componentName__\|__component-name__' \

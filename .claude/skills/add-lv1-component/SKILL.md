@@ -131,6 +131,19 @@ choices are closed.
    - Portal-positioned single surface (Tooltip-like) → suggest **C**.
    - Otherwise (Role-based / Display, flat, fully static) → suggest **A**.
 
+   **When genuinely borderline, default to A / B (generate parity), not
+   C / D.** This is the *opposite* of `vrt-spec-guideline.md`'s "default to
+   skip" — that doc advises a maintainer auditing an *existing* component,
+   where adding parity later is non-breaking churn. Here you are scaffolding
+   a *new* lv1, and the failure mode is the expensive one: mis-routing a
+   区分 A / B component to C / D means it ships with **no parity VRT**, so a
+   React-vs-vanilla pixel drift goes uncaught (the #302 class of silent
+   bug). A wrongly-generated parity story is a one-line delete; a missing one
+   is an invisible gap. Reach for C / D only when the component genuinely
+   cannot render + behave in vanilla HTML (compound / imperative / JS-driven
+   positioning); if you can picture a consumer writing the `.st-*` chain by
+   hand and expecting it to work, it is A / B.
+
    **⚠️ Do not conflate this 区分 with the prop-API Pattern from item 2.**
    Both vocabularies use the letters A / B but they are orthogonal: Badge is
    prop-Pattern **B** (Tone × Shape) yet parity-区分 **A**; Input is the

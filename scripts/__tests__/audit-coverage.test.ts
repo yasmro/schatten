@@ -1,11 +1,13 @@
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, mkdtempSync, rmSync, statSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
-import { join } from 'node:path'
+import { dirname, join } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import {
   auditComponent,
   discoverComponents,
   hasFailures,
+  PARITY_EXEMPT,
   parseExportedNames,
   renderJson,
   renderTable,
@@ -403,5 +405,29 @@ describe('runAudit', () => {
 
     writeBarrel(lv1Dir, ['Button', 'PhantomDir'])
     expect(hasFailures(runAudit(workDir))).toBe(true)
+  })
+})
+
+describe('PARITY_EXEMPT', () => {
+  // The set is hand-maintained (see the MAINTENANCE comment in
+  // audit-coverage.mjs) — the add-lv1-component skill inserts a C/D
+  // component alphabetically rather than generating a parity story+spec.
+  // These guards turn "inserted in the wrong order" / "named a directory
+  // that doesn't exist" from a silent audit mis-classification into a CI
+  // failure, since nothing else pins the contents of the set.
+  const repoRoot = join(dirname(fileURLToPath(import.meta.url)), '../..')
+  const lv1Dir = join(repoRoot, 'src/components/lv1')
+
+  it('is declared in alphabetical order', () => {
+    const entries = [...PARITY_EXEMPT]
+    expect(entries).toEqual([...entries].sort())
+  })
+
+  it('lists only real lv1 component directories', () => {
+    for (const name of PARITY_EXEMPT) {
+      const dir = join(lv1Dir, name)
+      expect(existsSync(dir), `${name} is in PARITY_EXEMPT but ${dir} does not exist`).toBe(true)
+      expect(statSync(dir).isDirectory(), `${dir} is not a directory`).toBe(true)
+    }
   })
 })

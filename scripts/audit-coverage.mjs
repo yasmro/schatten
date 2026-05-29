@@ -46,7 +46,7 @@ const INDEX_FILE_REL = 'src/components/lv1/index.ts'
 // next door. If lv1 count grows past ~30 and tracking gets noisy,
 // promote to a `// schatten-classification: B` header comment that
 // gets parsed.
-const PARITY_EXEMPT = new Set(['Dialog', 'Select', 'Toast', 'Tooltip'])
+export const PARITY_EXEMPT = new Set(['Dialog', 'Select', 'Toast', 'Tooltip'])
 
 // Match `from './<name>'` / `from "./<name>"`. Same shape as
 // scripts/check-lv1-export-integrity.mjs — kept in sync deliberately.

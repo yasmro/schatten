@@ -1,0 +1,32 @@
+/*
+ * Animation Tokens — component-overridable timing
+ *
+ * Raw `:root` declarations for animation timing CSS variables. This file is
+ * the single source of truth for the values; it is imported by BOTH:
+ *
+ * - `index.css` (the framework-agnostic `/core/tokens` raw entry — NO @theme)
+ * - `base.css`  (the Tailwind v4 entry, which additionally registers these
+ *                via `@theme { … }` so they land in `dist/schatten.manifest.json`)
+ *
+ * Why a dedicated raw-declaration file rather than declaring straight in
+ * `base.css`'s `@theme`: the Tailwind `@theme` block is only present in the
+ * integrated `dist/schatten.css` build path. The `/core/tokens` raw entry and
+ * the per-component standalone CSS (`dist/css/spinner.css`, #291) do NOT pass
+ * through `@theme`, so a var declared only inside `@theme` would be undefined
+ * for those consumers. Mirroring the color-token pattern (raw decl in
+ * `semantic.css` + self-referential `@theme` in `base.css`) keeps every
+ * delivery path consistent.
+ *
+ * Components still author a `var(--st-*, <fallback>)` fallback so the
+ * standalone per-component CSS (which ships no tokens) animates correctly on
+ * its own — see Spinner.css.
+ *
+ * Future home for a generic `--duration-*` series (Toast / Dialog / Tooltip
+ * enter/exit timings) — tracked separately, out of scope for #286.
+ */
+
+:root {
+  /* Spinner ripple-type animation timing (consumer-overridable) */
+  --st-spinner-duration: 2.8s;
+  --st-spinner-ripple-delay: 1.1s;
+}

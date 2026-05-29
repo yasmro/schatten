@@ -382,7 +382,7 @@ export const Reference: Story = {
         <Section
           id="spinner"
           title="Spinner — .st-spinner"
-          intro="Loading indicator. Two modifier axes (variant × size) plus six sub-element classes spanning the two animation types (default: rotor / track / arc; ripple: dot / ripple-1 / ripple-2). SVG sizing is handled automatically via the .st-spinner > svg child selector — no Tailwind utility needed. Ripple timing is exposed via two consumer-overridable CSS variables (--schatten-spinner-duration / --schatten-spinner-ripple-delay); default-type rotation is hardcoded to 1s linear infinite."
+          intro="Loading indicator. Two modifier axes (variant × size) plus six sub-element classes spanning the two animation types (default: rotor / track / arc; ripple: dot / ripple-1 / ripple-2). SVG sizing is handled automatically via the .st-spinner > svg child selector — no Tailwind utility needed. Ripple timing is exposed via two consumer-overridable CSS variables (--st-spinner-duration / --st-spinner-ripple-delay); default-type rotation is hardcoded to 1s linear infinite."
           attributes={[
             {
               name: 'role="status"',
@@ -496,11 +496,11 @@ export const Reference: Story = {
 <!-- Sub-elements (ripple type) -->
 <!-- __dot       : central pulsing dot -->
 <!-- __ripple-1  : outer ripple wave (no delay) -->
-<!-- __ripple-2  : outer ripple wave (delayed by --schatten-spinner-ripple-delay) -->
+<!-- __ripple-2  : outer ripple wave (delayed by --st-spinner-ripple-delay) -->
 
-<!-- Consumer-overridable timing (declared on :root, ripple type only) -->
-<!-- --schatten-spinner-duration        default 2.8s -->
-<!-- --schatten-spinner-ripple-delay    default 1.1s -->
+<!-- Consumer-overridable timing (@theme-registered, ripple type only) -->
+<!-- --st-spinner-duration        default 2.8s -->
+<!-- --st-spinner-ripple-delay    default 1.1s -->
 
 <!-- Default-type rotation is hardcoded 1s linear infinite. SVG sizing is
      handled by the .st-spinner > svg child selector — no Tailwind utility
@@ -512,6 +512,12 @@ export const Reference: Story = {
           title="Badge — .st-badge"
           intro="Status descriptor. Pattern B (tone × shape): five variants × three appearances, all written as double-class selectors so every combination shares the same specificity. Includes --icon-only modifier for square icon-only chips."
           attributes={[
+            {
+              name: 'role',
+              meaning:
+                'Set role="img" on icon-only badges so the aria-label is exposed (a bare div is role generic and drops the name)',
+              required: 'when --icon-only',
+            },
             {
               name: 'aria-label',
               meaning: 'Required for icon-only badges (no visible text)',
@@ -562,9 +568,9 @@ export const Reference: Story = {
 <span class="st-badge st-badge--error st-badge--solid st-badge--md">Failed</span>
 <span class="st-badge st-badge--info st-badge--outline st-badge--md">Beta</span>
 
-<!-- Icon-only — square, padded; requires aria-label -->
+<!-- Icon-only — square, padded; requires role="img" + aria-label -->
 <span class="st-badge st-badge--success st-badge--subtle st-badge--md st-badge--icon-only"
-      aria-label="Done">
+      role="img" aria-label="Done">
   <svg aria-hidden="true">…</svg>
 </span>
 

@@ -297,6 +297,8 @@
     "--spacing-6",
     "--spacing-8",
     "--spacing-px",
+    "--st-spinner-duration",
+    "--st-spinner-ripple-delay",
     "--text-2xl",
     "--text-3xl",
     "--text-4xl",

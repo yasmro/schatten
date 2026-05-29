@@ -322,10 +322,14 @@ fallback — that policy only holds if the contract below holds.
    - An explicit `role="…"` written by Schatten — used only when
      neither of the above gives the right semantic. Current explicit
      uses: [Spinner](../../src/components/lv1/Spinner/Spinner.tsx)
-     (`role="status"`) and
+     (`role="status"`),
      [Separator](../../src/components/lv1/Separator/Separator.tsx)
      (`role="separator"` when `decorative={false}`, else
-     `role="none"`).
+     `role="none"`), and
+     [Badge](../../src/components/lv1/Badge/Badge.tsx) (`role="img"`
+     on an icon-only badge — a bare `<div>` is role `generic`, which
+     cannot hold an accessible name, so the `aria-label` would be
+     dropped without it; a consumer-supplied `role` always wins).
 
    Wrapping a `<div>` with `onClick` / key handlers to fake
    interactivity is the failure mode this guarantee prevents.

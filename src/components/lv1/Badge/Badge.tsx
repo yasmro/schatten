@@ -47,7 +47,17 @@ export interface BadgeProps extends HTMLAttributes<HTMLDivElement>, BadgeVariant
 
 export const Badge = forwardRef<HTMLDivElement, BadgeProps>(
   (
-    { className, variant, appearance, size, icon, iconPosition = 'start', children, ...props },
+    {
+      className,
+      variant,
+      appearance,
+      size,
+      icon,
+      iconPosition = 'start',
+      role,
+      children,
+      ...props
+    },
     ref,
   ) => {
     const IconComponent = icon ?? null
@@ -64,6 +74,13 @@ export const Badge = forwardRef<HTMLDivElement, BadgeProps>(
           isIconOnly && 'st-badge--icon-only',
           className,
         )}
+        // An icon-only badge has no text node, so a bare <div> (default role
+        // `generic`, which cannot hold an accessible name) would drop the
+        // `aria-label` from the a11y tree — screen readers ignore it entirely.
+        // `role="img"` makes the label addressable. A consumer-supplied `role`
+        // (e.g. "status") always wins; `role` is destructured so the trailing
+        // `{...props}` spread can't clobber the value we resolve here.
+        role={role ?? (isIconOnly ? 'img' : undefined)}
         ref={ref}
         {...props}
       >

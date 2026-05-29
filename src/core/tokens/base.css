@@ -15,6 +15,7 @@
 @import "./typography.css";
 @import "./spacing.css";
 @import "./z-index.css";
+@import "./animation.css";
 
 /*
  * Tailwind CSS v4 Theme Registration
@@ -342,4 +343,15 @@
   --z-popover: var(--z-popover);
   --z-tooltip: var(--z-tooltip);
   --z-toast: var(--z-toast);
+
+  /*
+   * Component animation timing (raw declarations in animation.css).
+   * Registering them here makes them part of the public CSS-variable
+   * surface in dist/schatten.manifest.json. The right-hand var() reads the
+   * value declared on :root in animation.css; the left-hand declaration tells
+   * Tailwind v4 "this is a theme variable" — same self-referential idiom as
+   * the color tokens above.
+   */
+  --st-spinner-duration: var(--st-spinner-duration);
+  --st-spinner-ripple-delay: var(--st-spinner-ripple-delay);
 }

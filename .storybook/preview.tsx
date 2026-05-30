@@ -70,6 +70,26 @@ const preview: Preview = {
     },
     backgrounds: { disabled: true },
     layout: 'fullscreen',
+    a11y: {
+      // Pin the dev-time a11y panel (addon-a11y) to the SAME WCAG 2.1 A/AA
+      // surface the VRT axe assertions use (`.withTags([...])` in every
+      // *.vrt.spec.ts, #147). Without `runOnly`, axe also runs best-practice
+      // rules (`region` / `landmark-one-main` / `page-has-heading-one`) that
+      // flag the Storybook iframe itself (no landmarks, no <h1>) on every
+      // story — pure noise. Keeping the tag set identical means "green in the
+      // dev panel" maps to the same contract CI enforces.
+      options: {
+        runOnly: {
+          type: 'tag',
+          values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'],
+        },
+      },
+      // Phase 1 (observe-only): surface violations in the panel, block nothing.
+      // `test` only bites once the test addon (@storybook/addon-vitest) is
+      // wired up — unused today, so 'todo' is inert but documents the stance.
+      // Promotion to 'error' rides with the CI blocking work (#346).
+      test: 'todo',
+    },
     options: {
       storySort: {
         order: [

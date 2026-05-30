@@ -1,5 +1,123 @@
 # @yasmro/schatten
 
+## 0.10.0
+
+### Minor Changes
+
+- [#325](https://github.com/yasmro/schatten/pull/325) [`a9f8a03`](https://github.com/yasmro/schatten/commit/a9f8a036cf75d15705fcb8a850c0f426702fb089) Thanks [@yasmro](https://github.com/yasmro)! - BREAKING(pre-1.0): ripple 型 Spinner のアニメーション timing 変数を `--schatten-spinner-*` から `--st-*` prefix に rename（class API と prefix を揃え、v1.0 freeze 前に変数契約を確定）。
+
+  - `--schatten-spinner-duration` → `--st-spinner-duration`（default `2.8s`）
+  - `--schatten-spinner-ripple-delay` → `--st-spinner-ripple-delay`（default `1.1s`）
+
+  消費者で override していた場合は sed 一発で移行できます:
+
+  ```sh
+  sed -i '' 's/--schatten-spinner-/--st-spinner-/g' <your-css>
+  ```
+
+  CSS API: 上記 2 変数を `src/core/tokens/animation.css`（raw `:root` 宣言の SSOT）に集約し、`base.css` の `@theme { … }` で自己参照 idiom (`--st-spinner-duration: var(--st-spinner-duration);`) として登録。これにより両変数が初めて `@theme`-registered の public surface に乗り、`dist/schatten.manifest.json` の `cssVariables` に出現します（145 → 147 vars）。`animation.css` は color token の `semantic.css` + `base.css` 二層パターンと同形で、`index.css`（`/core/tokens` raw entry、`@theme` 無し）からも import されます。
+
+  Spinner.css の 3 箇所の参照（`__dot` / `__ripple-1` / `__ripple-2`）は `var(--st-spinner-duration, 2.8s)` / `var(--st-spinner-ripple-delay, 1.1s)` の形に変更。fallback は per-component standalone build (`dist/css/spinner.css`、[#291](https://github.com/yasmro/schatten/issues/291) — token を bundle しない) で timing が空に解決されるのを防ぐためで、統合 build + `/core/tokens` 経由では override 可能な変数が供給されます。
+
+  React 利用は無変更。
+
+  closes [#286](https://github.com/yasmro/schatten/issues/286)
+
+- [#325](https://github.com/yasmro/schatten/pull/325) [`a9f8a03`](https://github.com/yasmro/schatten/commit/a9f8a036cf75d15705fcb8a850c0f426702fb089) Thanks [@yasmro](https://github.com/yasmro)! - CSS API: enter/exit のトランジション timing を集約する共有スケール `--st-duration-*`（`fast` 100ms / `base` 150ms / `slow` 200ms）を新設。`[#286](https://github.com/yasmro/schatten/issues/286)` の Spinner timing で確立した二層パターン（raw `:root` 宣言を `src/core/tokens/animation.css` に置き、`base.css` の `@theme { … }` で自己参照 idiom 登録）をそのまま雛形にしています。これにより 3 変数が `@theme`-registered の public surface に乗り、`dist/schatten.manifest.json` の `cssVariables` に出現します（147 → 150 vars）。consumer は 1 つの override で base motion を一括調整できます。
+
+  これは **value-preserving な集約**です。移行した各参照は元のハードコード値と完全一致するため、見た目は一切変わりません（VRT 再ベースライン不要 — Tooltip / Dialog / Toast の既存スナップショット 32 件がそのまま緑）:
+
+  - **Tooltip.css** — enter `--st-duration-base`（150ms）/ exit `--st-duration-fast`（100ms）
+  - **Dialog.css** — open `--st-duration-slow`（200ms）/ close `--st-duration-base`（150ms）
+  - **Toast.css** — swipe-cancel snap-back + swipe-end dissolve が `--st-duration-slow`（200ms）
+
+  各参照は `var(--st-duration-*, <fallback>)` 形で、per-component standalone build（`dist/css/*.css`、[#291](https://github.com/yasmro/schatten/issues/291) — token を bundle しない）でも fallback により同じ cadence で動作します。
+
+  Toast の dissolve enter/exit（320ms / 220ms）は意図的にスケールの **外**に残しました — Tooltip/Dialog より重い独自 cadence で、スケールの 3 段（fast/base/slow）をきれいに保つためハードコードを維持。スケールに畳むべきかは将来の motion-retune spike に委ねる aesthetic な判断で、この seam の対象外です（`animation.css` / `Toast.css` のコメントに明記）。
+
+  また、icon-only / symbol-only な静的要素の role 選択基準を `component-architecture.md` §8 に追記（static meaning → `role="img"`、変化する meaning → live-region role、consumer 指定の role が常に優先）。doc のみの変更で public surface 影響なし。
+
+  React 利用は無変更。
+
+- [#321](https://github.com/yasmro/schatten/pull/321) [`2d26016`](https://github.com/yasmro/schatten/commit/2d2601624d319c74350ee311eac847603c377225) Thanks [@yasmro](https://github.com/yasmro)! - Add `<ThemeInitScript>` (from `@yasmro/schatten/providers`) and a new
+  framework-agnostic `@yasmro/schatten/theme-init` entry exporting the
+  FOUC-avoidance snippet as `THEME_INIT_SCRIPT` / `buildThemeInitScript(storageKey)`.
+  Previously the synchronous `<head>` script that applies the persisted Mode
+  (`.dark`) and Special (`data-theme`) before first paint lived only as a
+  copy-paste block in the README; consumers had to keep their hand-pasted copy
+  in sync with the Provider's `localStorage` contract by hand.
+
+  - `<ThemeInitScript nonce? storageKey? />` (from `@yasmro/schatten/providers`)
+    — a zero-dependency component that serializes the snippet into a `<script>`
+    for `<head>`. It renders to a static `<script>` string under SSR without
+    touching any DOM global (verified by `ThemeInitScript.ssr.test.tsx`), so
+    even though the `providers` entry is a Client Component (`'use client'`),
+    you can render it directly inside a React Server Component / SSR `<head>`
+    — Next.js serializes it before hydration. Forwards a CSP `nonce` and
+    accepts a custom `storageKey` (default `'schatten-theme'`).
+  - `THEME_INIT_SCRIPT` / `buildThemeInitScript(storageKey)` (from
+    **`@yasmro/schatten/theme-init`**) — the raw snippet bytes for the default
+    key, and a builder for a custom key. This entry is **framework-agnostic**
+    (no `'use client'` banner, unlike `providers`), so a React Server Component
+    or a non-React server can `import` the string directly and inline it. The
+    same string imported from a `'use client'` module would resolve to a client
+    reference, not the literal bytes — that's why the string lives on its own
+    entry, not on `providers`. `buildThemeInitScript` JSON-escapes the key and
+    escapes three byte sequences that are inert inside a JS string literal but
+    dangerous in a raw `<script>`: `<` (so the key can't close the `<script>`
+    element) and the `U+2028` / `U+2029` line/paragraph separators
+    (`JSON.stringify` leaves them raw, but they are line terminators in
+    pre-ES2019 parsers). Each escape decodes back at runtime, so the key value
+    is unchanged — only the raw bytes are made inert, making the snippet safe to
+    inject via `dangerouslySetInnerHTML` / server-rendered HTML.
+
+  The snippet is the single source of truth shared by the README, the
+  component, and the Provider's persistence contract (`{ mode, special }`
+  under `storageKey`) — see the "Provider runtime contract" row in
+  `.claude/rules/api-stability.md`. A SHA-256 hash of the snippet bytes
+  will be published separately ([#262](https://github.com/yasmro/schatten/issues/262)) to let CSP consumers pin it.
+
+  Component / lv1 / lv2 / CSS API: unchanged.
+
+### Patch Changes
+
+- [#325](https://github.com/yasmro/schatten/pull/325) [`a9f8a03`](https://github.com/yasmro/schatten/commit/a9f8a036cf75d15705fcb8a850c0f426702fb089) Thanks [@yasmro](https://github.com/yasmro)! - Badge の icon-only（`icon` あり・`children` なし）時に `role="img"` を自動付与し、`aria-label` が a11y tree に確実に露出するよう修正。
+
+  bare な `<div>` は default role が `generic` で、これは accessible name を持てないため、`<Badge icon={Check} aria-label="Done" />` の `aria-label` は screen reader から無視されていました。`role="img"` を付けることでラベルが addressable になり、`getByRole('img', { name: 'Done' })` で参照できます（component-architecture.md §8 の "queryable accessible name" 契約を満たす）。
+
+  - consumer が `role` を明示した場合は常にそちらが勝ちます（`role` を destructure し、末尾の `{...props}` spread に上書きされないようにしています）。
+  - `children` を持つ Badge には role を付与しません（text node が accessible name を担うため）。
+
+  CSS-only consumer 向けにも同じ契約を文書化: icon-only の `.st-badge--icon-only` には `role="img"` + `aria-label` の両方が必要（`CSSApi.stories.tsx` の attribute 表と code 例、`Badge.parity.stories.tsx` を更新）。`role` は manifest の data-attribute surface には含まれないため manifest 変化なし。
+
+  closes [#287](https://github.com/yasmro/schatten/issues/287)
+
+- [#328](https://github.com/yasmro/schatten/pull/328) [`08537b2`](https://github.com/yasmro/schatten/commit/08537b205ac1d7cf999f05a1ad48aaafb390e08c) Thanks [@yasmro](https://github.com/yasmro)! - Document how to run the FOUC-avoidance snippet under a strict Content-Security-Policy,
+  and pin its byte stability as a contract ([#262](https://github.com/yasmro/schatten/issues/262)).
+
+  - **README `### CSP setup guide`** — promotes the former inline "Strict CSP
+    environments" note into a full section: nonce recipes for Next.js / Astro /
+    Remix (with the CSPRNG-per-response requirement and the Next.js
+    nonce × static-cache footgun called out), the hash-pin recipe with the
+    published `sha256-…` and a standalone Node one-liner for custom `storageKey`,
+    the externalized-`.js` fallback, recommended baseline directives
+    (`object-src 'none'` / `base-uri 'self'`), and the anti-patterns to avoid
+    (never `'unsafe-inline'`, never a static/`Math.random()` nonce).
+  - **`pnpm schatten:csp-hash`** (`scripts/print-csp-hash.mjs`) — a maintainer
+    CLI that prints the `script-src` source expression for the snippet, reading
+    the shipped `dist/theme-init/index.js`. Pass `--key=<storageKey>` for a
+    custom key. Not consumer-facing.
+  - **API stability contract** — `.claude/rules/api-stability.md` now records the
+    FOUC snippet bytes (`THEME_INIT_SCRIPT` / `buildThemeInitScript()`) as public
+    surface: changing them is a `major`, and such a changeset must include the
+    regenerated `sha256-…` so CSP consumers can re-pin.
+
+  Docs + maintainer tooling only — no component / lv1 / lv2 / CSS API change.
+  The `<ThemeInitScript>` component and `@yasmro/schatten/theme-init` entry
+  themselves shipped in [#261](https://github.com/yasmro/schatten/issues/261).
+
+- [#327](https://github.com/yasmro/schatten/pull/327) [`02fc10e`](https://github.com/yasmro/schatten/commit/02fc10e3db186dde6f50b2c7978329766c934dec) Thanks [@yasmro](https://github.com/yasmro)! - ブランド朱 `vermillion-*` の hue/彩度を伝統的な真朱（Figma vermilion `#E73121` 系）へ retune。hue 22（crimson 寄り）→ hue 30（橙寄り・高彩度）に全 shade を引き直した。鮮やかなブランドアンカーは `-500`（≈ `#ed3726`）、実表示の brand solid 面は AA 安全な `-600`（≈ `#d02718`）。solid AA は light `#fafafa`×600 = 5.04:1 / dark `#1a1a1a`×400 = 6.53:1 で両方 PASS、全 shade sRGB gamut 内。semantic 名（`--color-vermillion` / `--color-vermillion-foreground`）は不変で値のみ変更（非破壊）。危険色 `red-*`（`--color-error` / `--color-destructive`）は [#239](https://github.com/yasmro/schatten/issues/239) の結論どおり hue 22 据え置きで無影響。VRT 再ベースラインを伴う。
+
 ## 0.9.0
 
 ### Minor Changes

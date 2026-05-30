@@ -45,6 +45,11 @@ Each example's `lighthouserc.json` carries the assertion list and is
 the contract — adjust if you genuinely need to add a new audit or relax
 a threshold (and then explain why in the example's README).
 
+The latest measured results (median of 3 runs, with the Chrome /
+Lighthouse versions they were taken under) live in each example's own
+`## Measured scores` section — see [`nextjs/`](nextjs/#measured-scores)
+and [`vanilla/`](vanilla/#measured-scores).
+
 ## Why the score targets matter
 
 The score itself is a proxy for the consumer-relevant question: *can a

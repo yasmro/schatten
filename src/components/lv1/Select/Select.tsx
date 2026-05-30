@@ -33,7 +33,7 @@ SelectValue.displayName = SelectPrimitive.Value.displayName
 /* ----- Trigger ----- */
 
 export interface SelectTriggerProps
-  extends Omit<ComponentPropsWithoutRef<typeof SelectPrimitive.Trigger>, 'size'>,
+  extends Omit<ComponentPropsWithoutRef<typeof SelectPrimitive.Trigger>, 'size' | 'asChild'>,
     SelectTriggerVariants {
   /**
    * Size of the select trigger.

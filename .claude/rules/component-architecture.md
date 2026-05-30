@@ -119,6 +119,19 @@ This pattern:
 - works equally well for framework Link components (Next, React Router,
   Remix), which already accept `className` directly
 
+**This is a preference, not a prohibition.** `*Variants()` and `asChild`
+hand the consumer different things, and the right tool depends on intent:
+`*Variants()` gives **only the class string** (use it when you want the
+*look* on your own element); `asChild` projects the component's **full
+rendered structure / behavior** onto the child (use it when you want the
+element to *behave as* the component — e.g. `<Button asChild><Link/></Button>`
+to get Button's icon / spinner support on a Link). The full decision table
+lives in
+[component-api-conventions.md §asChild vs `*Variants()`](component-api-conventions.md#aschild-vs-variants--which-to-reach-for).
+The "prefer variants" default here is about **not eagerly adding `asChild`
+to new lv1s**, not about banning it where it already earns its keep
+(`Button`).
+
 ### Hard exclusions, even if #192's 3 criteria seem to fit
 
 Two categories of component must **never** expose `asChild`, regardless
@@ -129,9 +142,12 @@ of how cleanly the 3 criteria appear to apply:
   platform level (`<input>` cannot become `<textarea>`).
 - **Portal-rendered content** (`Dialog` content, `Toast`) — positioning
   math is tied to a known DOM shape; swapping the element out breaks
-  layout in subtle ways. (`DialogTrigger` / `DialogClose` /
-  `TooltipTrigger` etc. are *not* portal content — they live in the
-  consumer's tree and may continue to expose `asChild` per #192.)
+  layout in subtle ways. (Trigger-style parts that live in the consumer's
+  tree — not portal content — *may* use `asChild` internally, but none
+  expose it publicly today: `TooltipTrigger` hides it behind `isTextOnly`,
+  and `Dialog` has no public `Trigger` / `Close` export at all. See the
+  public-vs-internal breakdown in
+  [component-api-conventions.md §asChild adoption criteria](component-api-conventions.md#aschild-adoption-criteria).)
 
 ### Radix-internal `asChild` is unaffected
 

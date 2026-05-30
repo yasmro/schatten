@@ -191,7 +191,7 @@ different semantics in any component.
 | `readOnly` | `boolean` | HTML standard. No `is` prefix. | Form components that can be displayed without editing. |
 | `required` | `boolean` | HTML standard. No `is` prefix. | Form components inside a `<Field>`. |
 | `id` | `string` | HTML standard. When inside `<Field>`, the field's `id` wins for label-association components (`Input` / `Textarea` / `Select`) — see [field-context-guideline](field-context-guideline.md). |
-| `asChild` | `boolean` | Delegates rendering to the child via Radix `Slot`. **Adoption criteria below.** | Only components that satisfy the criteria. |
+| `asChild` | `boolean` | Delegates rendering to the child via Radix `Slot`. **Adoption criteria below.** | Public on `Button` only. For "styling on my own element" prefer `*Variants()` — see [asChild vs `*Variants()`](#aschild-vs-variants--which-to-reach-for). |
 | `icon` | `LucideIcon` (from `lucide-react`) | A Lucide **icon component** rendered alongside content. Passed as a component, never a name string, so consumer bundles tree-shake icons. The icon vendor is fixed to Lucide; widening to a vendor-agnostic type later is non-breaking. | `Button` / `Badge` (`icon`); `Input` (`iconLeft` / `iconRight`); `Dialog` footer-button slots (`actionButton.icon` / `cancelButton.icon` / `subActionButton.icon`); the standalone `Icon` component (`icon`). |
 | `color` | union — the shared `Text` / `Icon` color vocabulary (`default` / `muted` / `subtle` · `error` / `success` / `warning` / `info` · `inverted` / `inverted-muted` / `inverted-subtle` · `vermillion` / `indigo` · `inherit`) | A foreground / state / inverted / brand color token. Distinct from `variant` (role/tone) and `appearance` (weight). | `Text` and `Icon` only — both share one vocabulary. Defaults differ by component: `Text` → `default`, `Icon` → `inherit` (composition-safe, takes the surrounding `currentColor`). |
 
@@ -232,16 +232,66 @@ Adopt `asChild` **only** when the component satisfies all three:
    the developer.
 3. **The component is a leaf-ish primitive.** `asChild` on structural /
    container components (a Field, a Dialog body) tends to break layout
-   assumptions. Keep it on small primitives (`Button`,
-   `Tooltip.Trigger`, `Dialog.Trigger`).
+   assumptions. Keep it on small primitives (`Button`).
 
-Components that currently expose `asChild`: `Button`, `Tooltip.Trigger`,
-`Dialog.Trigger`, `Dialog.Close`, `Select.Trigger`, `Text`.
+Components that expose `asChild` as **public, consumer-facing API**:
+`Button` only.
 
-**Do not** add `asChild` to: `Input`, `Textarea`, `Checkbox`, `Radio`,
-`Switch`, `Badge`, `Callout`, `Toast` — none of them need to render as
-a non-default element, and Radix Slot composition with form-control
-internals is a footgun.
+`Text` exposed `asChild` before v0.11.0 but no longer does — its
+polymorphism is covered by `as` (a closed enum of semantic tags) and
+`textVariants()` (an arbitrary element), so `asChild` was redundant. See
+[asChild vs `*Variants()` — which to reach for](#aschild-vs-variants--which-to-reach-for)
+below.
+
+Components that use `asChild` **internally but do not expose it** (the
+prop is not part of their public type, so a consumer cannot pass it):
+
+- `Tooltip.Trigger` — hides `asChild` via `Omit<…, 'asChild'>` and decides
+  internally from `isTextOnly` (string child → Radix renders its own
+  `<button>`; element child → `asChild` is set for you). The consumer never
+  passes `asChild`.
+- `Dialog` — has no public `Trigger` / `Close` export at all (it is a
+  curated-props component driven by controlled `isOpen` / `onOpenChange`).
+  The `DialogPrimitive.Close asChild` usage inside it is implementation
+  detail.
+- `Select.Trigger` — does **not** expose `asChild` (the prop is excluded
+  via `Omit<…, 'size' | 'asChild'>`). `Select` triggers are form controls
+  and fall under the hard exclusion below.
+
+**Do not** add `asChild` to: `Input`, `Textarea`, `Select` trigger,
+`Checkbox`, `Radio`, `Switch`, `Badge`, `Callout`, `Toast` — none of them
+need to render as a non-default element, and Radix Slot composition with
+form-control internals is a footgun.
+
+### asChild vs `*Variants()` — which to reach for
+
+Both `asChild` and the exported CVA functions (`buttonVariants()` /
+`textVariants()`) let a consumer apply Schatten styling to a non-default
+element. They are **not** interchangeable — they hand the consumer
+different things:
+
+| | `asChild` (Radix `Slot`) | `*Variants()` (class function) |
+|---|---|---|
+| What the consumer gets | The component's **full rendered structure / behavior** projected onto their element (for Button: the icon slots, spinner overlay, content wrapper) | **Only the class string** |
+| Context | React only (Slot is a React construct) | Any context — server-rendered HTML, email, framework `<Link>` |
+| Typing | Schatten merges props onto the child | The consumer's element keeps its **own native typing**, no prop-forwarding ambiguity |
+| Reach for it when | "Make this element **behave as** the Schatten component" | "Put the Schatten **look** on my own element" |
+
+The framework-`<Link>` case is the canonical fork, and **both answers are
+valid depending on intent**:
+
+```tsx
+// Want the Button's whole behavior (icon/spinner support) on a Link:
+<Button asChild><NextLink href="/docs">Docs</NextLink></Button>
+
+// Want only the visual skin (no Button internals, fully-typed Link):
+<NextLink href="/docs" className={buttonVariants({ variant: 'primary' })}>Docs</NextLink>
+```
+
+The one-line rule: **want the behavior too → `asChild`; want only the
+classes → `*Variants()`.** This is also why new lv1s default to *not*
+exposing `asChild` — see
+[component-architecture.md §3](component-architecture.md#3-aschild--no-new-lv1-additions).
 
 ## TSDoc on Props
 

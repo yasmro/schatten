@@ -55,29 +55,6 @@ describe('Text', () => {
     })
   })
 
-  describe('asChild', () => {
-    it('delegates rendering to child via Slot when asChild is true', () => {
-      render(
-        <Text asChild>
-          <a href="/foo">Link</a>
-        </Text>,
-      )
-      const link = screen.getByRole('link', { name: 'Link' })
-      expect(link.tagName.toLowerCase()).toBe('a')
-      expect(link).toHaveAttribute('href', '/foo')
-    })
-
-    it('merges Text classes onto the child element', () => {
-      render(
-        <Text asChild color="error">
-          <a href="/foo">Link</a>
-        </Text>,
-      )
-      const link = screen.getByRole('link')
-      expect(link).toHaveClass('st-text--error')
-    })
-  })
-
   describe('color', () => {
     it('applies semantic color modifier classes', () => {
       const { container, rerender } = render(<Text color="error">x</Text>)

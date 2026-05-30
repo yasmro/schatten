@@ -199,15 +199,19 @@ CI splits them across runners: the macos `vrt` job runs `pnpm test:vrt`
 contrast / role checks derive from CSS, not from macos font / sub-pixel
 rendering, so the scarce macos runner stays pixel-only.
 
-> **Phase 1 (observe-only).** The `a11y` CI job is `continue-on-error:
-> true` while a backlog of pre-existing violations (systemic borderline
-> color-contrast on state tokens — #344; bare-control story artifacts —
-> #345) is worked off — mirroring the `audit` job's staged rollout
-> (#307). The job tees the axe output into `$GITHUB_STEP_SUMMARY` so the
-> violation list is readable from the PR checks without blocking. Phase 2
-> (#346) removes `continue-on-error` and adds `a11y` to develop's required
-> checks. Until then, **a red a11y test is signal, not a merge blocker** —
-> but new components should still land with zero new violations.
+> **Phase 1 (observe-only).** A backlog of pre-existing violations
+> (systemic borderline color-contrast on state tokens — #344;
+> bare-control story artifacts — #345) is worked off before the gate
+> blocks — mirroring the `audit` job's staged rollout (#307). Because
+> those ~115 violations would fail Playwright on **every** run, the
+> `a11y` job's step keeps the **check green as long as axe actually ran**
+> (it tees the full violation list into `$GITHUB_STEP_SUMMARY` for
+> anyone who looks) and only fails when axe *couldn't* run (a crash, or a
+> grep / `--` mistake that yields "No tests found"). The job is also
+> `continue-on-error: true` as a backstop. Phase 2 (#346) deletes that
+> exit-0 shim and `continue-on-error` so the gate blocks. Until then,
+> **read the summary, not the check color** — and new components should
+> still land with zero new violations.
 
 ## Components rendered into a Portal
 

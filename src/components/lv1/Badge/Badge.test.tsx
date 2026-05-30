@@ -138,6 +138,23 @@ describe('Badge', () => {
       const root = container.firstChild as HTMLElement
       expect(root).not.toHaveClass('st-badge--icon-only')
     })
+
+    it('exposes role="img" so an icon-only badge has a queryable accessible name', () => {
+      render(<Badge icon={Check} aria-label="Done" />)
+      expect(screen.getByRole('img', { name: 'Done' })).toBeInTheDocument()
+    })
+
+    it('respects a consumer-supplied role over the auto role="img"', () => {
+      render(<Badge icon={Check} role="status" aria-label="Saved" />)
+      expect(screen.getByRole('status', { name: 'Saved' })).toBeInTheDocument()
+      expect(screen.queryByRole('img')).not.toBeInTheDocument()
+    })
+
+    it('does not set a role when the badge has children', () => {
+      const { container } = render(<Badge icon={Check}>Done</Badge>)
+      const root = container.firstChild as HTMLElement
+      expect(root).not.toHaveAttribute('role')
+    })
   })
 
   it('forwards ref to the root div', () => {

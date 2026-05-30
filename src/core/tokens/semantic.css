@@ -55,8 +55,8 @@
    *
    * Both brand colors share one shade rule: `-600` in light, `-400`
    * in dark. This is the only pair where every `*-foreground`-on-base
-   * solid pairing clears WCAG AA for both hues (vermillion light 4.86 /
-   * dark 6.84, indigo light 7.03 / dark 5.73). A 1-step shift (`-600`/
+   * solid pairing clears WCAG AA for both hues (vermillion light 5.04 /
+   * dark 6.53, indigo light 7.03 / dark 5.73). A 1-step shift (`-600`/
    * `-500`) would fail indigo dark; `-500`/`-400` would fail vermillion
    * light — the hue ramps differ, so the AA-safe shade is mode-driven,
    * not 1-step-driven.

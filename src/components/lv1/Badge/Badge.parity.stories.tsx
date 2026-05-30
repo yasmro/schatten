@@ -101,9 +101,12 @@ export const Parity: Story = {
             <CheckVanilla />
             Done
           </div>
-          {/* biome-ignore lint/a11y/useAriaPropsSupportedByRole: parity story — mirrors the React `<Badge>` icon-only pattern which also has no explicit role; the a11y gap is shared between both surfaces and out of sweep-2 scope to address */}
+          {/* role="img" mirrors the React `<Badge>` icon-only auto-role: a bare
+              <div> (role generic) can't hold an accessible name, so aria-label
+              would be dropped from the a11y tree without it. */}
           <div
             className="st-badge st-badge--success st-badge--subtle st-badge--md st-badge--icon-only"
+            role="img"
             aria-label="Done"
           >
             <CheckVanilla />

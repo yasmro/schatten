@@ -63,6 +63,12 @@ in [scripts/audit-coverage.d.mts](../../scripts/audit-coverage.d.mts)
 (`AuditRow` / `AuditFiles` / `CellState`) and is pinned by
 [scripts/__tests__/audit-coverage.test.ts](../../scripts/__tests__/audit-coverage.test.ts).
 
+`--check` also runs in CI as the `audit` job
+([.github/workflows/ci.yml](../../.github/workflows/ci.yml)), which pipes the
+report into the PR's job summary. This command is the *on-demand display*
+counterpart; CI is the *blocking PR gate* — see the hook-vs-CI-gate
+responsibility split in [CLAUDE.md](../../CLAUDE.md).
+
 ## Reading the report
 
 | Glyph | Meaning |

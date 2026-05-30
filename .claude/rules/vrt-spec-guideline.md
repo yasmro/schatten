@@ -306,6 +306,18 @@ pnpm test:vrt:update
 pnpm test:vrt -- --grep "Button"
 ```
 
+> **Before trusting a local VRT pass, confirm no *other* worktree is
+> serving Storybook on port 6006.** `playwright.config.ts` sets
+> `reuseExistingServer: !CI`, and that reuse is **not** scoped to the
+> current worktree — if a sibling git worktree already has `pnpm dev`
+> running on 6006, Playwright screenshots *that* worktree's branch, so
+> your local run can pass (or fail) against code you are not editing.
+> This silently masked a real baseline drift in PR #325. Guard with
+> `lsof -ti:6006` (kill the stale server, or run with the port free) so
+> the fresh `webServer` boots against the worktree under test. CI is
+> immune (`reuseExistingServer` is false there) — which is exactly why a
+> green local run can still fail CI.
+
 ## Re-baselining (updating snapshots)
 
 **Never run `pnpm test:vrt:update` as the first command on a change you

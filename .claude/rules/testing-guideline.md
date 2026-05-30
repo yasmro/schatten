@@ -35,6 +35,29 @@ carries semantic meaning the user can't see directly (e.g. `border-error` on
 `scrollIntoView` — these are all Radix dependencies that jsdom doesn't ship.
 You shouldn't need to add more polyfills in individual specs.
 
+### Version pinning — `vite` exact, `vitest` caret (deliberate asymmetry)
+
+`vite` is pinned **exact** in `package.json` (no caret); `vitest` and
+`@vitest/ui` use a caret range. The asymmetry is intentional:
+
+- **`vite` drives the visual contract.** It is the engine that builds the
+  Storybook every VRT screenshot is taken against *and* the Vitest runtime.
+  A Vite bump can shift font / antialiasing / sub-pixel rendering and drift
+  **every** `*.png` baseline at once, so it gets the same exact-pin treatment
+  as `@biomejs/biome` / `storybook` — the project's rule is "toolchain whose
+  *output* feeds a deterministic check is pinned exact." It is also listed in
+  [api-stability.md §Visual-contract-affecting dependencies](api-stability.md#visual-contract-affecting-dependencies).
+- **`vitest` does not drive a deterministic artifact.** There are no
+  `toMatchSnapshot` file snapshots in the unit suite, so a Vitest patch/minor
+  can't silently rewrite a committed baseline; failures surface as red tests,
+  not as a drifted PNG. Dependabot manages it as a reviewable PR (the `vitest`
+  group), which is the controlled flow we want. Caret is therefore fine.
+- **Caveat:** Vitest 4 requires `vite >= 6` via peer, so a Vitest *major* can
+  force a Vite major. When bumping Vitest, re-check the resolved `vite` and
+  re-pin it exact (this is what [#254](https://github.com/yasmro/schatten/issues/254)
+  did — landing on `vite 7.3.3`). `@vitest/ui` must match `vitest` exactly
+  (peer), so keep their ranges aligned.
+
 ## File layout
 
 ```

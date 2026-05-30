@@ -37,12 +37,16 @@ const INDEX_FILE_REL = 'src/components/lv1/index.ts'
 // the parity story would be performative.
 //
 // MAINTENANCE: when a new lv1 lands that is classification C or D,
-// add it here. The hard-code is acceptable today because the set is
+// add it here (alphabetically). The add-lv1-component skill keeps this
+// set in sync automatically — its Step 2 区分 question routes a C/D
+// component to an alphabetical insert here instead of generating the
+// parity story+spec (see .claude/skills/add-lv1-component/SKILL.md
+// Step 3 item 7). The hard-code is acceptable today because the set is
 // small (4 components) and the source of truth lives in the rule doc
 // next door. If lv1 count grows past ~30 and tracking gets noisy,
 // promote to a `// schatten-classification: B` header comment that
 // gets parsed.
-const PARITY_EXEMPT = new Set(['Dialog', 'Select', 'Toast', 'Tooltip'])
+export const PARITY_EXEMPT = new Set(['Dialog', 'Select', 'Toast', 'Tooltip'])
 
 // Match `from './<name>'` / `from "./<name>"`. Same shape as
 // scripts/check-lv1-export-integrity.mjs — kept in sync deliberately.

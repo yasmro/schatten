@@ -35,7 +35,8 @@ CHANGELOG:
 | CVA output strings | The class string returned by `buttonVariants({ variant: 'primary' })` |
 | Multi-entry exports | `@yasmro/schatten/components/lv1`, `/tokens`, `/variants`, `/themes/default`, `/themes/seasonal`, `/providers` |
 | Theme contract | Which CSS variables a custom theme must define to be valid |
-| Provider runtime contract | The `localStorage` key (`'schatten-theme'`) and JSON shape (`{ mode, special }`) that `<ThemeProvider>` reads/writes. This is the contract the FOUC inline snippet ([#129](https://github.com/yasmro/schatten/issues/129)) and any consumer-side persistence code depends on. Renaming the key, adding/removing a field, or changing field semantics is a breaking change. See [#262](https://github.com/yasmro/schatten/issues/262) for the upcoming SHA-256 hash publication that further pins the inline snippet body. |
+| Provider runtime contract | The `localStorage` key (`'schatten-theme'`) and JSON shape (`{ mode, special }`) that `<ThemeProvider>` reads/writes. This is the contract the FOUC inline snippet ([#129](https://github.com/yasmro/schatten/issues/129)) and any consumer-side persistence code depends on. Renaming the key, adding/removing a field, or changing field semantics is a breaking change. |
+| FOUC snippet bytes | The exact byte sequence of `THEME_INIT_SCRIPT` (and the output of `buildThemeInitScript()`). Consumers paste its SHA-256 into a `script-src 'sha256-…'` CSP directive, so the bytes themselves are public surface. See [FOUC snippet byte stability](#fouc-snippet-byte-stability-theme_init_script) below. |
 
 ## What is **not** public API
 
@@ -117,6 +118,12 @@ notes in the changeset body so they end up in the rendered CHANGELOG; for
 large migrations, also publish a standalone guide under `docs/migrations/`
 and link to it from the changeset.
 
+When the FOUC snippet bytes change (a `major` — see
+[FOUC snippet byte stability](#fouc-snippet-byte-stability-theme_init_script)),
+the changeset description **must** include the new `sha256-…` so CSP consumers
+can re-pin without rebuilding the package themselves. Regenerate it with
+`pnpm schatten:csp-hash`.
+
 Example (illustrative — uses a hypothetical rename):
 
 ```md
@@ -159,6 +166,42 @@ The implications:
 - Adding a new variant option to an existing prop (e.g. `<Button variant="ghost">`
   when only `primary | secondary` existed) is `minor` — additive.
 
+## FOUC snippet byte stability (`THEME_INIT_SCRIPT`)
+
+The FOUC-avoidance snippet shipped from `@yasmro/schatten/theme-init`
+(`THEME_INIT_SCRIPT`, and the output of `buildThemeInitScript(storageKey)`)
+is an **inline `<script>` body** consumers drop into their document `<head>`
+to set the theme before first paint. In a strict Content-Security-Policy
+environment, an inline script only runs if its SHA-256 is allow-listed via a
+`script-src 'sha256-…'` source expression. That makes the *exact bytes* of
+the snippet public API — analogous to [CVA output stability](#cva-output-stability):
+the value a consumer pins is derived from the string we emit, so we can't
+change the string without breaking their pin.
+
+The contract:
+
+- **The byte sequence of `THEME_INIT_SCRIPT` is frozen across non-major
+  releases.** Any change — even a semantically-neutral whitespace or
+  identifier tweak — shifts the SHA-256 and silently breaks every
+  hash-pinning consumer's CSP (the snippet stops executing, FOUC returns).
+  Changing it is a `major`.
+- **`buildThemeInitScript()`'s output shape is equally frozen.** Consumers on
+  a custom `storageKey` recompute their own hash from it, so the template
+  around the key is contract; only the interpolated key differs.
+- **The published default-key hash is
+  `sha256-YKmfjVUKTYOL4QdVTkV/AUzMrHhhfPw//OthidDmEEE=`.** It is byte-pinned
+  in CI by [`src/theme-init.test.ts`](../../src/theme-init.test.ts) (the
+  snippet → hash direction) and
+  [`scripts/__tests__/print-csp-hash.test.ts`](../../scripts/__tests__/print-csp-hash.test.ts)
+  (the maintainer CLI emits the same string a consumer pastes). A snippet
+  edit fails both tests, so the breaking change cannot land silently — the
+  red test is the forcing function that routes it through the `major` +
+  changeset process below.
+- **Regenerate the hash with `pnpm schatten:csp-hash`** (reads the built
+  `dist/theme-init/index.js`; pass `--key=<storageKey>` for a custom key).
+  This is a maintainer command, not consumer-facing — see the script header
+  in [`scripts/print-csp-hash.mjs`](../../scripts/print-csp-hash.mjs).
+
 ## Peer dependency ranges
 
 The `peerDependencies` ranges in `package.json` (currently `react` and
@@ -189,6 +232,7 @@ skill's Step 3) should consult this table rather than duplicate it.
 | `@radix-ui/*` (primitives that emit DOM — `react-checkbox` / `react-radio-group` / `react-select` / `react-separator` / `react-switch` / `react-toast` / `react-tooltip` / `react-dialog`) | Radix sometimes adds, renames, or removes `data-*` / `aria-*` attributes on its rendered primitives. Parity-covered components (Checkbox / Radio / Separator / Switch — 区分 A/B per [vrt-spec-guideline §Parity stories](vrt-spec-guideline.md#parity-stories--when-to-write-one-when-to-skip)) catch the drift via parity VRT; non-parity components (Tooltip / Dialog / Toast / Select — 区分 C/D) require manual verification because no parity baseline exists. |
 | `@radix-ui/react-slot` | Slot doesn't emit DOM of its own, but it's the `asChild` plumbing — a bump can change prop-merging order or ref-forwarding behavior, affecting every consumer that exposes `asChild` (Button / Text / Tooltip Trigger / Dialog Trigger / Dialog Close / Select Trigger). |
 | `tailwindcss` | The Tailwind v4 compiler's `@layer theme { … }` emission rules can shift between minor versions. The manifest's `cssVariables` section is extracted from that block (see [Manifest as the authoritative API listing](#manifest-as-the-authoritative-api-listing) above), so a Tailwind bump can silently add or drop variables from the public surface. |
+| `vite` | Vite is the **engine that renders every VRT screenshot** — it builds the Storybook the Playwright specs screenshot against (`@storybook/react-vite` builder) and is the runtime under which Vitest executes. A Vite major bump can shift font / antialiasing / sub-pixel rendering across the whole suite, drifting **every** `*.png` baseline at once — exactly the bulk-re-baseline case in [vrt-spec-guideline §"Bulk re-baseline"](vrt-spec-guideline.md#re-baselining-updating-snapshots). It is pinned exact in `package.json` (not caret) for this reason. Note Vite also rides in transitively as a Vitest peer (`vite >= 6` for Vitest 4), so a Vitest major can force a Vite major — see [#254](https://github.com/yasmro/schatten/issues/254). |
 
 When adding a new dependency that can shift the visual contract without a
 source-side change (e.g. a positioning library like `@floating-ui/react`

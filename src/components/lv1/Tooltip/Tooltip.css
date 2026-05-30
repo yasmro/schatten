@@ -24,6 +24,12 @@
  * live OUTSIDE `@layer components` (keyframes don't participate in
  * layered cascade, but the convention is layer-out per css-api.md).
  *
+ * Transition durations reference the shared `--st-duration-*` scale
+ * (animation.css): enter uses `--st-duration-base`, exit uses the snappier
+ * `--st-duration-fast`. The `var(--st-*, <fallback>)` fallback keeps the
+ * per-component standalone build (`dist/css/tooltip.css`, #291 — ships no
+ * tokens) animating at the same cadence.
+ *
  * See: .claude/rules/css-api.md, #270 sweep-5.
  */
 
@@ -155,65 +161,66 @@
    * or `defaultOpen`) share the same enter chain. */
   .st-tooltip__content[data-state="delayed-open"],
   .st-tooltip__content[data-state="instant-open"] {
-    animation: tooltip-fade-in 150ms ease-in-out;
+    animation: tooltip-fade-in var(--st-duration-base, 150ms) ease-in-out;
   }
 
   .st-tooltip__content[data-state="delayed-open"][data-side="top"],
   .st-tooltip__content[data-state="instant-open"][data-side="top"] {
     animation:
-      tooltip-fade-in 150ms ease-in-out,
-      tooltip-slide-in-from-top 150ms ease-in-out;
+      tooltip-fade-in var(--st-duration-base, 150ms) ease-in-out,
+      tooltip-slide-in-from-top var(--st-duration-base, 150ms) ease-in-out;
   }
 
   .st-tooltip__content[data-state="delayed-open"][data-side="right"],
   .st-tooltip__content[data-state="instant-open"][data-side="right"] {
     animation:
-      tooltip-fade-in 150ms ease-in-out,
-      tooltip-slide-in-from-right 150ms ease-in-out;
+      tooltip-fade-in var(--st-duration-base, 150ms) ease-in-out,
+      tooltip-slide-in-from-right var(--st-duration-base, 150ms) ease-in-out;
   }
 
   .st-tooltip__content[data-state="delayed-open"][data-side="bottom"],
   .st-tooltip__content[data-state="instant-open"][data-side="bottom"] {
     animation:
-      tooltip-fade-in 150ms ease-in-out,
-      tooltip-slide-in-from-bottom 150ms ease-in-out;
+      tooltip-fade-in var(--st-duration-base, 150ms) ease-in-out,
+      tooltip-slide-in-from-bottom var(--st-duration-base, 150ms) ease-in-out;
   }
 
   .st-tooltip__content[data-state="delayed-open"][data-side="left"],
   .st-tooltip__content[data-state="instant-open"][data-side="left"] {
     animation:
-      tooltip-fade-in 150ms ease-in-out,
-      tooltip-slide-in-from-left 150ms ease-in-out;
+      tooltip-fade-in var(--st-duration-base, 150ms) ease-in-out,
+      tooltip-slide-in-from-left var(--st-duration-base, 150ms) ease-in-out;
   }
 
   /* ===== exit animations =====
-   * Exit is 100ms (vs enter 150ms) — matches the pre-sweep behaviour. */
+   * Exit is `--st-duration-fast` (vs enter `--st-duration-base`) — the
+   * snappier exit matches the pre-sweep behaviour. */
   .st-tooltip__content[data-state="closed"] {
-    animation: tooltip-fade-out 100ms ease-in-out;
+    animation: tooltip-fade-out var(--st-duration-fast, 100ms) ease-in-out;
   }
 
   .st-tooltip__content[data-state="closed"][data-side="top"] {
     animation:
-      tooltip-fade-out 100ms ease-in-out,
-      tooltip-slide-out-to-top 100ms ease-in-out;
+      tooltip-fade-out var(--st-duration-fast, 100ms) ease-in-out,
+      tooltip-slide-out-to-top var(--st-duration-fast, 100ms) ease-in-out;
   }
 
   .st-tooltip__content[data-state="closed"][data-side="right"] {
     animation:
-      tooltip-fade-out 100ms ease-in-out,
-      tooltip-slide-out-to-right 100ms ease-in-out;
+      tooltip-fade-out var(--st-duration-fast, 100ms) ease-in-out,
+      tooltip-slide-out-to-right var(--st-duration-fast, 100ms) ease-in-out;
   }
 
   .st-tooltip__content[data-state="closed"][data-side="bottom"] {
     animation:
-      tooltip-fade-out 100ms ease-in-out,
-      tooltip-slide-out-to-bottom 100ms ease-in-out;
+      tooltip-fade-out var(--st-duration-fast, 100ms) ease-in-out,
+      tooltip-slide-out-to-bottom var(--st-duration-fast, 100ms) ease-in-out;
   }
 
   .st-tooltip__content[data-state="closed"][data-side="left"] {
     animation:
-      tooltip-fade-out 100ms ease-in-out,
-      tooltip-slide-out-to-left 100ms ease-in-out;
+      tooltip-fade-out var(--st-duration-fast, 100ms) ease-in-out,
+      tooltip-slide-out-to-left var(--st-duration-fast, 100ms) ease-in-out;
   }
 
   /* ===== reduced motion ===== */

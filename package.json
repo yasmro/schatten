@@ -70,6 +70,14 @@
       },
       "import": "./dist/providers/index.js",
       "require": "./dist/providers/index.cjs"
+    },
+    "./theme-init": {
+      "types": {
+        "import": "./dist/theme-init/index.d.ts",
+        "require": "./dist/theme-init/index.d.cts"
+      },
+      "import": "./dist/theme-init/index.js",
+      "require": "./dist/theme-init/index.cjs"
     }
   },
   "files": [
@@ -94,6 +102,7 @@
     "check:readme": "node scripts/sync-readme-components.mjs --check",
     "check:use-client": "node scripts/check-use-client-banner.mjs",
     "audit:coverage": "node scripts/audit-coverage.mjs",
+    "schatten:csp-hash": "node scripts/print-csp-hash.mjs",
     "check:layer-order": "node scripts/check-layer-order.mjs",
     "build:storybook": "storybook build",
     "test": "vitest",
@@ -137,8 +146,8 @@
     "@playwright/test": "^1.58.2",
     "@radix-ui/react-dialog": "^1.1.4",
     "@size-limit/preset-small-lib": "^12.1.0",
-    "@storybook/addon-docs": "10.3.6",
-    "@storybook/react-vite": "10.3.6",
+    "@storybook/addon-docs": "10.4.1",
+    "@storybook/react-vite": "10.4.1",
     "@tailwindcss/cli": "^4.2.2",
     "@tailwindcss/vite": "^4.2.2",
     "@testing-library/jest-dom": "^6.9.1",
@@ -147,6 +156,7 @@
     "@types/node": "^25.5.0",
     "@types/react": "^19.0.2",
     "@types/react-dom": "^19.0.2",
+    "@vitest/ui": "^4.1.6",
     "jsdom": "29",
     "lefthook": "^2.1.4",
     "lucide-react": "^1.7.0",
@@ -155,11 +165,12 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "size-limit": "^12.1.0",
-    "storybook": "10.3.6",
+    "storybook": "10.4.1",
     "tailwindcss": "^4.2.2",
     "tsup": "^8.3.5",
     "typescript": "^5.8.3",
-    "vitest": "^3.2.4"
+    "vite": "7.3.3",
+    "vitest": "^4.1.6"
   },
   "dependencies": {
     "@radix-ui/react-checkbox": "^1.3.3",

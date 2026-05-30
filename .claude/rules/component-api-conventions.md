@@ -272,25 +272,38 @@ different things:
 
 | | `asChild` (Radix `Slot`) | `*Variants()` (class function) |
 |---|---|---|
-| What the consumer gets | The component's **full rendered structure / behavior** projected onto their element (for Button: the icon slots, spinner overlay, content wrapper) | **Only the class string** |
+| What the consumer gets | Button's resolved `className` **plus its forwarded props** (`onClick`, `type`, `data-*`, `ref`, …) merged onto a **single child** element via Slot — the child *becomes* the button | **Only the class string** |
 | Context | React only (Slot is a React construct) | Any context — server-rendered HTML, email, framework `<Link>` |
-| Typing | Schatten merges props onto the child | The consumer's element keeps its **own native typing**, no prop-forwarding ambiguity |
-| Reach for it when | "Make this element **behave as** the Schatten component" | "Put the Schatten **look** on my own element" |
+| Typing | Schatten merges props onto the child (the child's own props are partly shadowed) | The consumer's element keeps its **own native typing**, no prop-forwarding ambiguity |
+| Reach for it when | "Make this element **behave as** the Button — forward its events / ref / class onto my element" (the shadcn idiom) | "Put the Button **look** on my own element, nothing else" |
+
+**Important — `asChild` does not project Button's inner content.** In
+`asChild` mode Button renders **only `children`**; its `icon` and
+`isLoading` are *not* rendered (see the `asChild` branch in
+[`Button.tsx`](../../src/components/lv1/Button/Button.tsx) — it returns
+`<Comp …>{children}</Comp>` with no icon slot or spinner overlay). So
+`asChild` is "make my element a button-styled, button-behaving element,"
+**not** "render Button's internals onto my element." If you want an icon,
+author it inside your child yourself.
 
 The framework-`<Link>` case is the canonical fork, and **both answers are
 valid depending on intent**:
 
 ```tsx
-// Want the Button's whole behavior (icon/spinner support) on a Link:
+// Want events / ref / class forwarded onto the Link (shadcn idiom):
 <Button asChild><NextLink href="/docs">Docs</NextLink></Button>
 
-// Want only the visual skin (no Button internals, fully-typed Link):
+// Want only the visual skin — fully-typed Link, no prop-forwarding:
 <NextLink href="/docs" className={buttonVariants({ variant: 'primary' })}>Docs</NextLink>
 ```
 
-The one-line rule: **want the behavior too → `asChild`; want only the
-classes → `*Variants()`.** This is also why new lv1s default to *not*
-exposing `asChild` — see
+The two outputs are nearly identical DOM (`<a class="st-btn st-btn--primary …">`);
+the difference is that `asChild` *also* forwards Button's props / ref onto
+the child, whereas `*Variants()` hands back only the string and leaves the
+element entirely to the consumer. The one-line rule: **want prop / event /
+ref forwarding onto your element → `asChild`; want only the classes →
+`*Variants()`.** This is also why new lv1s default to *not* exposing
+`asChild` — see
 [component-architecture.md §3](component-architecture.md#3-aschild--no-new-lv1-additions).
 
 ## TSDoc on Props

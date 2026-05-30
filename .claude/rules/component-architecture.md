@@ -122,11 +122,13 @@ This pattern:
 **This is a preference, not a prohibition.** `*Variants()` and `asChild`
 hand the consumer different things, and the right tool depends on intent:
 `*Variants()` gives **only the class string** (use it when you want the
-*look* on your own element); `asChild` projects the component's **full
-rendered structure / behavior** onto the child (use it when you want the
-element to *behave as* the component — e.g. `<Button asChild><Link/></Button>`
-to get Button's icon / spinner support on a Link). The full decision table
-lives in
+*look* on your own element); `asChild` merges Button's resolved `className`
+**and forwards its props / ref** onto a single child via Slot (use it when
+you want the element to *behave as* the button — e.g.
+`<Button asChild><Link/></Button>` so the Link carries Button's events /
+ref / class). Note `asChild` renders only `children` — Button's `icon` /
+`isLoading` are not projected — so it is not a way to get Button's internals
+onto your element. The full decision table lives in
 [component-api-conventions.md §asChild vs `*Variants()`](component-api-conventions.md#aschild-vs-variants--which-to-reach-for).
 The "prefer variants" default here is about **not eagerly adding `asChild`
 to new lv1s**, not about banning it where it already earns its keep

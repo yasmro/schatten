@@ -120,6 +120,66 @@ When you change a prop's description, **update TSDoc first**, then sync
 - Always include `tags: ['autodocs']` to enable auto-generated documentation.
 - Set `parameters: { layout: 'centered' }` unless the component requires full-width layout.
 
+## a11y (addon-a11y)
+
+`@storybook/addon-a11y` runs an [axe-core](https://github.com/dequelabs/axe-core)
+scan against the rendered story and surfaces violations / passes / incomplete
+in the **Accessibility** panel. It is the **dev-time companion** to the
+`@axe-core/playwright` VRT assertions ([#147](https://github.com/yasmro/schatten/issues/147)):
+the panel lets you catch an a11y regression *while editing*, the VRT specs gate
+it in CI. The two are deliberately the same axe surface — see below.
+
+### Configuration is global, in `.storybook/preview.tsx`
+
+The addon is registered in [`.storybook/main.ts`](../../.storybook/main.ts)
+(`addons: ['@storybook/addon-docs', '@storybook/addon-a11y']`) and configured
+once via `parameters.a11y` in [`.storybook/preview.tsx`](../../.storybook/preview.tsx):
+
+```tsx
+a11y: {
+  options: {
+    runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'] },
+  },
+  test: 'todo',
+}
+```
+
+- **`options.runOnly` MUST pin the same WCAG tag set the VRT specs use**
+  (`.withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])` — see
+  [vrt-spec-guideline §a11y assertions](vrt-spec-guideline.md#a11y-assertions-axe--paired-with-every-vrt-test)).
+  Without it, axe also runs *best-practice* rules (`region` /
+  `landmark-one-main` / `page-has-heading-one`) that flag the Storybook iframe
+  itself on every story — pure noise. Keeping the tag set identical means
+  "green in the dev panel" maps to the same contract CI enforces.
+- **`test: 'todo'`** keeps the addon observe-only. The `test` flag only bites
+  through the test addon (`@storybook/addon-vitest`), which is not wired up
+  today, so it is inert — but it documents the Phase-1 stance. Promotion to
+  `'error'` rides with the CI blocking-gate work
+  ([#346](https://github.com/yasmro/schatten/issues/346)).
+- **Dark mode / seasonal violations come for free.** The addon scans the
+  rendered DOM *after* the global theme decorator applies `.dark` /
+  `data-theme` to `<html>`, so toggling the Theme toolbar surfaces dark-mode
+  contrast issues in the panel with no extra config.
+
+### Per-story rule disable — last resort, with a reason
+
+A known false positive or an intentionally-bare control story can disable a
+rule locally:
+
+```tsx
+export const SomeStory: Story = {
+  parameters: { a11y: { config: { rules: [{ id: 'color-contrast', enabled: false }] } } },
+}
+```
+
+Treat this like a `// biome-ignore` — **never silent**. The panel's whole
+value during the Phase-1 backlog cleanup (state-token contrast
+[#344](https://github.com/yasmro/schatten/issues/344), bare-control stories
+[#345](https://github.com/yasmro/schatten/issues/345)) is making pre-existing
+violations visible, so do not blanket-disable a rule globally. When a per-story
+disable is genuinely warranted, leave a one-line comment naming the reason and,
+if it tracks a backlog item, the issue.
+
 ## Story title taxonomy (IA)
 
 The Storybook sidebar's **top level is a fixed set of 7 groups** (depth ≤ 2),

@@ -116,6 +116,7 @@ export const tokens = {
   },
 
   radius: {
+    // Primitive scale
     none: 'var(--radius-none)',
     sm: 'var(--radius-sm)',
     md: 'var(--radius-md)',
@@ -123,15 +124,38 @@ export const tokens = {
     xl: 'var(--radius-xl)',
     '2xl': 'var(--radius-2xl)',
     full: 'var(--radius-full)',
+    // Semantic (用途別) — control / surface are defined for forward use but
+    // not yet applied to components; pill is applied (Badge / Radio / Switch).
+    control: 'var(--radius-control)',
+    surface: 'var(--radius-surface)',
+    pill: 'var(--radius-pill)',
   },
 
   shadow: {
+    // Primitive scale
     sm: 'var(--shadow-sm)',
     md: 'var(--shadow-md)',
     lg: 'var(--shadow-lg)',
     xl: 'var(--shadow-xl)',
+    // Semantic (用途別 elevation)
+    card: 'var(--shadow-card)',
+    popover: 'var(--shadow-popover)',
+    modal: 'var(--shadow-modal)',
+    toast: 'var(--shadow-toast)',
   },
 
+  /** Semantic (用途別) motion — aliases over the `--st-duration-*` scale. */
+  motion: {
+    quick: 'var(--motion-quick)',
+    base: 'var(--motion-base)',
+    expressive: 'var(--motion-expressive)',
+  },
+
+  /**
+   * @deprecated Unreferenced by any component and superseded by `motion`
+   * (the `--st-duration-*`-backed semantic scale). Kept only to avoid
+   * breaking a stray consumer reference; do not add new usages.
+   */
   transition: {
     fast: 'var(--transition-fast)',
     normal: 'var(--transition-normal)',
@@ -196,6 +220,7 @@ export type ColorToken = keyof typeof tokens.color
 export type SpacingToken = keyof typeof tokens.spacing
 export type RadiusToken = keyof typeof tokens.radius
 export type ShadowToken = keyof typeof tokens.shadow
+export type MotionToken = keyof typeof tokens.motion
 export type TransitionToken = keyof typeof tokens.transition
 export type ZIndexToken = keyof typeof tokens.zIndex
 export type FontToken = keyof typeof tokens.font

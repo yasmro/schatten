@@ -146,9 +146,11 @@
     color: var(--color-background);
     padding: 0.375rem 0.75rem;
     font-size: 0.875rem;
-    box-shadow:
+    box-shadow: var(
+      --shadow-popover,
       0 4px 6px -1px rgb(0 0 0 / 0.1),
-      0 2px 4px -2px rgb(0 0 0 / 0.1);
+      0 2px 4px -2px rgb(0 0 0 / 0.1)
+    );
   }
 
   /* ===== arrow ===== */

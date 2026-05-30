@@ -30,6 +30,8 @@ import { describe, expect, it } from 'vitest'
 const TOKENS_DIR = resolve(process.cwd(), 'src/core/tokens')
 const primitivesCss = stripComments(readFileSync(resolve(TOKENS_DIR, 'primitives.css'), 'utf8'))
 const semanticCss = stripComments(readFileSync(resolve(TOKENS_DIR, 'semantic.css'), 'utf8'))
+const spacingCss = stripComments(readFileSync(resolve(TOKENS_DIR, 'spacing.css'), 'utf8'))
+const animationCss = stripComments(readFileSync(resolve(TOKENS_DIR, 'animation.css'), 'utf8'))
 
 /* ------------------------------------------------------------------ */
 /* CSS parsing                                                         */
@@ -74,6 +76,16 @@ const semanticMediaDark = parseDeclarations(extractBlockBody(semanticCss, ':root
  */
 const lightScope = new Map([...primitives, ...semanticLight])
 const darkScope = new Map([...primitives, ...semanticLight, ...semanticDark])
+
+/**
+ * Non-color semantic scopes (#145): shadow / radius live in spacing.css,
+ * motion aliases in animation.css. Both bottom out at a literal (a box-shadow
+ * string, a length, a duration), so the same leaf-resolver applies — it
+ * returns the var name whose value is the literal (e.g. `--shadow-modal` →
+ * `--shadow-lg`).
+ */
+const spacingScope = parseDeclarations(extractBlockBody(spacingCss, ':root {'))
+const animationScope = parseDeclarations(extractBlockBody(animationCss, ':root {'))
 
 /**
  * Follow `var(...)` references to the leaf primitive (the variable whose
@@ -368,4 +380,43 @@ describe('semantic.css token resolution', () => {
       expect(() => resolveToPrimitive('--color-foo', scope)).toThrow(/unexpected var\(\) form/)
     })
   })
+})
+
+/**
+ * Semantic shadow / radius / motion → primitive resolution (#145).
+ *
+ * These value-preserving aliases must keep pointing at the primitive they
+ * shipped with — a typo (`--shadow-modal: var(--shadow-xl)`) would be a
+ * silent visual change that only VRT would catch. Pinning the leaf here
+ * makes the mapping a hard contract, mirroring the color-resolution test.
+ */
+describe('semantic shadow / radius / motion resolution', () => {
+  const SHADOW = {
+    'shadow-card': 'shadow-sm',
+    'shadow-popover': 'shadow-md',
+    'shadow-modal': 'shadow-lg',
+    'shadow-toast': 'shadow-md',
+  } as const
+  const RADIUS = {
+    'radius-control': 'radius-md',
+    'radius-surface': 'radius-lg',
+    'radius-pill': 'radius-full',
+  } as const
+  const MOTION = {
+    'motion-quick': 'st-duration-fast',
+    'motion-base': 'st-duration-base',
+    'motion-expressive': 'st-duration-slow',
+  } as const
+
+  for (const [token, primitive] of Object.entries({ ...SHADOW, ...RADIUS })) {
+    it(`--${token} resolves to --${primitive}`, () => {
+      expect(resolveToPrimitive(`--${token}`, spacingScope)).toBe(primitive)
+    })
+  }
+
+  for (const [token, primitive] of Object.entries(MOTION)) {
+    it(`--${token} resolves to --${primitive}`, () => {
+      expect(resolveToPrimitive(`--${token}`, animationScope)).toBe(primitive)
+    })
+  }
 })

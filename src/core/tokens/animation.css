@@ -21,7 +21,7 @@
  * standalone per-component CSS (which ships no tokens) animates correctly on
  * its own — see Spinner.css / Tooltip.css / Dialog.css / Toast.css.
  *
- * Two groups of token live here:
+ * Three groups of token live here:
  *
  * 1. `--st-duration-*` — a shared transition-duration scale for enter/exit
  *    motion (Tooltip / Dialog / Toast). Three perceptually-distinct steps:
@@ -34,7 +34,12 @@
  *    hardcoded in Toast.css — whether they should fold into the scale is an
  *    aesthetic call deferred to a future motion-retune spike, not this seam.
  *
- * 2. `--st-spinner-*` — Spinner ripple-type loop timing (a continuous-loop
+ * 2. `--motion-*` — semantic (用途別) aliases over group 1, giving the
+ *    duration steps intent names (quick / base / expressive). Layered on the
+ *    live `--st-duration-*` scale rather than the deprecated `--transition-*`
+ *    (spacing.css) so timing stays one vocabulary, not three (#145).
+ *
+ * 3. `--st-spinner-*` — Spinner ripple-type loop timing (a continuous-loop
  *    cadence, semantically distinct from enter/exit transitions; #286).
  */
 
@@ -43,6 +48,16 @@
   --st-duration-fast: 100ms;
   --st-duration-base: 150ms;
   --st-duration-slow: 200ms;
+
+  /* Motion — semantic (用途別) aliases over the `--st-duration-*` scale.
+     Intentionally layered on the LIVE scale, not the deprecated
+     `--transition-*` (spacing.css), so motion stays a single vocabulary
+     (#145). Value-preserving — each alias points at an existing step.
+     `--motion-instant` (50ms press feedback) was considered but dropped:
+     no primitive step and no current consumer (YAGNI). */
+  --motion-quick: var(--st-duration-fast); /* 100ms — hover */
+  --motion-base: var(--st-duration-base); /* 150ms — default */
+  --motion-expressive: var(--st-duration-slow); /* 200ms — dialog / drawer enter */
 
   /* Spinner ripple-type animation timing (consumer-overridable) */
   --st-spinner-duration: 2.8s;

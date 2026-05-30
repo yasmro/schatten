@@ -2,6 +2,8 @@
   "extends": "./tsconfig.json",
   "include": [
     "src/**/*",
+    ".storybook/**/*.ts",
+    ".storybook/**/*.tsx",
     "biome-plugins/**/*.ts",
     "scripts/**/*.test.ts",
     "scripts/**/*.d.mts",

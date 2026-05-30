@@ -135,6 +135,78 @@ await page.addStyleTag({
 })
 ```
 
+## a11y assertions (axe) — paired with every VRT test
+
+Since v0.11.0 each lv1 `*.vrt.spec.ts` ships an `@axe-core/playwright`
+a11y assertion **alongside** the screenshot test — one paired `… / a11y`
+`test()` per story × theme. Visual regression and a11y regression are
+verified from the same spec, but as **separate tests** so a screenshot
+failure never masks an a11y failure (and vice versa). The a11y test
+re-`goto`s independently rather than sharing the screenshot test's page.
+
+```typescript
+import AxeBuilder from '@axe-core/playwright'
+import { expect, test } from '@playwright/test'
+
+// … the VRT test for `${story} / ${theme}` …
+
+test(`Button / ${story} / ${theme} / a11y`, async ({ page }) => {
+  await page.goto(storyUrl(story, theme))
+  await page.waitForLoadState('networkidle')
+
+  const root = page.locator('#storybook-root')
+  await root.waitFor({ state: 'visible', timeout: 10_000 })
+
+  const results = await new AxeBuilder({ page })
+    .include('#storybook-root')
+    .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
+    .analyze()
+
+  expect(results.violations).toEqual([])
+})
+```
+
+### Rules
+
+- **Always pin `.withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])`.**
+  Without it axe also runs *best-practice* rules (`region`,
+  `landmark-one-main`, `page-has-heading-one`) that flag the Storybook
+  iframe itself (no landmarks, no `<h1>`) — every story would fail on
+  noise. The tag list pins the contract to the WCAG 2.1 A/AA surface the
+  a11y contract ([component-architecture §8](component-architecture.md#8-accessibility-contract))
+  actually promises.
+- **Standard components scope to `.include('#storybook-root')`.** The
+  visible surface lives in the root; scoping avoids the iframe chrome.
+- **Portal components analyze the whole page** (drop `.include(...)`).
+  `Dialog` / `Tooltip` / `Toast` / `Select`-open render their content
+  into `document.body`, outside `#storybook-root` — the same reason their
+  screenshots use `fullPage: true`. Wait for the portal to mount
+  (`waitForSelector('[role="dialog"]')` etc.) before `analyze()`, exactly
+  as the screenshot test does. The a11y test does **not** need animations
+  paused (axe inspects the DOM/CSS, not a still frame).
+
+### Running
+
+```bash
+pnpm test:a11y        # playwright test --grep a11y
+pnpm test:vrt -- --grep-invert "a11y"   # screenshots only (what the macos VRT job runs)
+```
+
+CI splits the two: the macos `vrt` job runs screenshots (`--grep-invert
+"a11y"`), and a dedicated **ubuntu** `a11y` job runs `pnpm test:a11y`. axe's
+contrast / role checks derive from CSS, not from macos font / sub-pixel
+rendering, so the scarce macos runner stays pixel-only.
+
+> **Phase 1 (observe-only).** The `a11y` CI job is `continue-on-error:
+> true` while a backlog of pre-existing violations (systemic borderline
+> color-contrast on state tokens; bare-control story artifacts) is worked
+> off in follow-up issues — mirroring the `audit` job's staged rollout
+> (#307). It surfaces the violation list in the job summary without
+> blocking. Phase 2 removes `continue-on-error` and adds `a11y` to
+> develop's required checks. Until then, **a red a11y test is signal, not
+> a merge blocker** — but new components should still land with zero new
+> violations.
+
 ## Components rendered into a Portal
 
 Components like `Tooltip`, `Dialog`, and `Toast` use Radix Portals — their

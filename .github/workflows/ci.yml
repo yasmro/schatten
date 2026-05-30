@@ -201,3 +201,37 @@ jobs:
         run: |
           set -o pipefail
           pnpm audit:coverage --check | tee -a "$GITHUB_STEP_SUMMARY"
+
+  a11y:
+    runs-on: ubuntu-latest
+    # Phase 1: observe-only. The a11y assertions in *.vrt.spec.ts run axe
+    # (WCAG 2.1 A/AA) against every lv1 story × theme, but ~115 pre-existing
+    # violations (systemic borderline color-contrast on state tokens, plus
+    # bare-control story artifacts) cannot be fixed inside this infra PR
+    # without a designer-owned token retune or a story-relabel + VRT
+    # re-baseline. So this gate observes — it surfaces the violation list in
+    # the job summary without blocking merges — mirroring the staged rollout
+    # of the `audit` job (#307). Fixes land as follow-up issues; Phase 2
+    # removes continue-on-error and adds `a11y` to develop's required checks.
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm exec playwright install chromium
+
+      # No `pnpm build` step: the a11y tests target Storybook (the `pnpm dev`
+      # webServer in playwright.config.ts), not dist/ — only CSSApiDist (a VRT
+      # spec, excluded by the `a11y` grep) reads dist directly. axe is run on
+      # ubuntu rather than the scarce macos VRT runner because contrast/role
+      # checks derive from CSS, not from macos font / sub-pixel rendering.
+      - name: a11y (axe) checks
+        run: pnpm test:a11y

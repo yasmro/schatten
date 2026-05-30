@@ -40,7 +40,10 @@ jobs:
       # stale-dist false-positive. See #277.
       - run: pnpm build
 
-      - run: pnpm test:vrt
+      # Exclude the `… / a11y` tests that share these spec files — they run
+      # in the dedicated `a11y` job on ubuntu (see ci.yml). The scarce
+      # macos runner stays pixel-only.
+      - run: pnpm test:vrt -- --grep-invert "a11y"
         id: vrt
 
       - uses: actions/upload-artifact@v7

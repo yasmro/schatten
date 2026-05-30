@@ -494,10 +494,14 @@ fallback — that policy only holds if the contract below holds.
    `getByRole(role, { name })` against a representative render. See
    [testing-guideline](testing-guideline.md) § Required test cases.
    "Query by role first" applies (testing-guideline §5).
-2. **Storybook** — `addon-a11y` panel shows 0 violations on every
-   story. Manual today; CI enforcement is planned through
-   [#147](https://github.com/yasmro/schatten/issues/147)
-   (`@axe-core/playwright`).
+2. **VRT a11y assertion** — since v0.11.0 (#147) every lv1
+   `*.vrt.spec.ts` pairs each screenshot with an `@axe-core/playwright`
+   scan (WCAG 2.1 A/AA) that asserts zero violations. Run locally with
+   `pnpm test:a11y`; in CI the ubuntu `a11y` job runs it. **Phase 1 is
+   observe-only** (`continue-on-error: true`) while a backlog of
+   pre-existing violations is worked off in follow-up issues — see
+   [vrt-spec-guideline §a11y assertions](vrt-spec-guideline.md). The
+   Storybook `addon-a11y` panel remains the manual dev-time companion.
 3. **Code review** — when reviewing an lv1 PR, walk the four
    guarantees and Hard rules above. If the component opts out of a
    default (e.g. Callout's no-role posture), the TSDoc must say so
@@ -519,8 +523,9 @@ fallback — that policy only holds if the contract below holds.
   table and update the resource maps in [CLAUDE.md](../../CLAUDE.md) /
   [AGENTS.md](../../AGENTS.md).
 - **§8 (a11y contract):**
-  - When [#147](https://github.com/yasmro/schatten/issues/147) lands
-    (`@axe-core/playwright`), promote the "Storybook addon-a11y" check
-    in "Verifying compliance" from manual to CI-enforced.
+  - [#147](https://github.com/yasmro/schatten/issues/147) landed the
+    `@axe-core/playwright` VRT-paired check (v0.11.0). When the Phase 1
+    backlog is cleared and the `a11y` CI job drops `continue-on-error`
+    (Phase 2), update "Verifying compliance" to call it a blocking gate.
   - When `Field.required` gains `aria-required` propagation, remove
     the gap note in guarantee #4.

@@ -1,3 +1,4 @@
+import AxeBuilder from '@axe-core/playwright'
 import { expect, test } from '@playwright/test'
 
 const STORY_ID_PREFIX = 'components-lv1-tooltip'
@@ -38,6 +39,20 @@ for (const story of stories) {
 
       // Tooltip renders in a portal at fixed coordinates, so capture the full page.
       await expect(page).toHaveScreenshot(`${story}-${theme}.png`, { fullPage: true })
+    })
+
+    test(`Tooltip / ${story} / ${theme} / a11y`, async ({ page }) => {
+      await page.goto(storyUrl(story, theme))
+      await page.waitForLoadState('networkidle')
+
+      // Tooltip content portals into document.body, so analyze the whole page.
+      await page.waitForSelector('[role="tooltip"]', { timeout: 10_000 })
+
+      const results = await new AxeBuilder({ page })
+        .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
+        .analyze()
+
+      expect(results.violations).toEqual([])
     })
   }
 }

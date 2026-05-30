@@ -318,7 +318,7 @@
   --spacing-20: var(--spacing-20);
   --spacing-24: var(--spacing-24);
 
-  /* Border Radius */
+  /* Border Radius — primitive scale */
   --radius-none: var(--radius-none);
   --radius-sm: var(--radius-sm);
   --radius-md: var(--radius-md);
@@ -327,11 +327,22 @@
   --radius-2xl: var(--radius-2xl);
   --radius-full: var(--radius-full);
 
-  /* Shadows */
+  /* Border Radius — semantic (用途別) */
+  --radius-control: var(--radius-control);
+  --radius-surface: var(--radius-surface);
+  --radius-pill: var(--radius-pill);
+
+  /* Shadows — primitive scale */
   --shadow-sm: var(--shadow-sm);
   --shadow-md: var(--shadow-md);
   --shadow-lg: var(--shadow-lg);
   --shadow-xl: var(--shadow-xl);
+
+  /* Shadows — semantic (用途別 elevation) */
+  --shadow-card: var(--shadow-card);
+  --shadow-popover: var(--shadow-popover);
+  --shadow-modal: var(--shadow-modal);
+  --shadow-toast: var(--shadow-toast);
 
   /* Z-Index */
   --z-base: var(--z-base);
@@ -355,6 +366,11 @@
   --st-duration-fast: var(--st-duration-fast);
   --st-duration-base: var(--st-duration-base);
   --st-duration-slow: var(--st-duration-slow);
+
+  /* Motion — semantic (用途別) aliases over the --st-duration-* scale. */
+  --motion-quick: var(--motion-quick);
+  --motion-base: var(--motion-base);
+  --motion-expressive: var(--motion-expressive);
 
   --st-spinner-duration: var(--st-spinner-duration);
   --st-spinner-ripple-delay: var(--st-spinner-ripple-delay);

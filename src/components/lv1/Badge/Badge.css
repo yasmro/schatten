@@ -28,7 +28,7 @@
     align-items: center;
     border-width: 1px;
     border-style: solid;
-    border-radius: var(--radius-full);
+    border-radius: var(--radius-pill, 9999px);
     font-weight: 600;
     /* line-height is set per size below — Tailwind v4's text-xs / text-sm
      * utilities ship their own auto line-height (1rem / 1.25rem), which

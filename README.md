@@ -878,7 +878,9 @@ Each example ships a `lighthouserc.json` that asserts a 100% score
 across Performance / Accessibility / Best Practices / SEO via
 [`@lhci/cli`](https://github.com/GoogleChrome/lighthouse-ci). Run
 `pnpm install && pnpm lhci` inside an example to reproduce the
-measurement.
+measurement. The latest measured scores (with the Chrome / Lighthouse
+versions they were taken under) are recorded in each example's
+`## Measured scores` section.
 
 ## Components
 

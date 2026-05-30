@@ -8,6 +8,12 @@
       name="description"
       content="A static HTML page using the Schatten .st-* class API with per-component CSS subpaths, targeting a 100/100/100/100 Lighthouse score."
     />
+    <!-- Inline favicon so the browser's automatic /favicon.ico request never
+         fires — otherwise it would 404 (or fall through to index.html). -->
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='3' fill='%23262321'/%3E%3C/svg%3E"
+    />
 
     <!--
       Critical CSS: token + theme layer inlined as <style>.
@@ -41,7 +47,13 @@
       <link rel="stylesheet" href="/css/badge.css" />
     </noscript>
   </head>
-  <body>
+  <body
+    style="
+      margin: 0;
+      background-color: var(--color-background);
+      color: var(--color-foreground);
+    "
+  >
     <main
       style="
         max-width: 640px;

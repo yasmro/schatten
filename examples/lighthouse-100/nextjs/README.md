@@ -76,3 +76,39 @@ nextjs/
 ├── lighthouserc.json     # asserts all categories at 100
 └── README.md
 ```
+
+## Measured scores
+
+Measured on 2026-05-30 with `@lhci/cli@0.14.0` (Lighthouse 12.1.0) /
+Chrome 148 / `desktop` preset on macOS, median of 3 runs against the
+local production server (`http://localhost:3000`).
+
+| Category | Score |
+|---|---|
+| Performance | 100 |
+| Accessibility | 100 |
+| Best Practices | 100 |
+| SEO | 100 |
+
+Reproduce with:
+
+```sh
+pnpm install
+pnpm build
+pnpm start    # in a second terminal
+pnpm lhci
+```
+
+If your local result differs by more than ~2 points on Performance,
+suspect Chrome version drift or background CPU load on the host machine
+— the Lighthouse desktop preset is sensitive to both. Accessibility /
+Best Practices / SEO are essentially deterministic on this fixed-DOM
+page.
+
+> **Note on `prefers-color-scheme`.** Lighthouse measures under the
+> host's active color scheme. `layout.tsx` sets the surface from
+> Schatten tokens (`background-color: var(--color-background)` /
+> `color: var(--color-foreground)` on `<body>`), so the color-contrast
+> audit passes in both light and dark mode — if the body surface were
+> omitted, a dark-mode host would render light text on a white body and
+> fail Accessibility.

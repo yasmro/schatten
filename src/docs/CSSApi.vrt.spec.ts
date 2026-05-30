@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test'
 
 /*
- * Integration-level VRT for the `Foundation/CSS API` page.
+ * Integration-level VRT for the `CSS API/Overview` page.
  *
  * Covers:
  * - `reference`         — the long-form vanilla HTML reference
@@ -26,7 +26,7 @@ import { expect, test } from '@playwright/test'
  * Tracked by #277.
  */
 
-const STORY_ID_PREFIX = 'foundation-css-api'
+const STORY_ID_PREFIX = 'css-api-overview'
 
 const stories = ['reference', 'parity-comparison'] as const
 

@@ -50,7 +50,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite'
  * + sweep-6 (Toast, Dialog) + sweep-7 (Field, FieldSet) of #154.
  */
 const meta: Meta = {
-  title: 'Foundation/CSS API',
+  title: 'CSS API/Overview',
   parameters: {
     layout: 'fullscreen',
   },

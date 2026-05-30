@@ -75,7 +75,7 @@ function ThemeCell({ mode, special }: { mode: Mode; special: SpecialName | null 
 }
 
 const meta: Meta = {
-  title: 'Foundation/ThemeAudit',
+  title: 'Theming/Theme Audit',
   parameters: {
     layout: 'fullscreen',
   },

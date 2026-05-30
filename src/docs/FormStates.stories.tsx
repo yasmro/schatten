@@ -14,7 +14,7 @@ import { Switch } from '../components/lv1/Switch/Switch'
 import { Textarea } from '../components/lv1/Textarea/Textarea'
 
 const meta: Meta = {
-  title: 'Foundation/Form States',
+  title: 'Patterns/Form States',
   parameters: {
     layout: 'fullscreen',
   },

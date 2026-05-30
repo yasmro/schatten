@@ -119,3 +119,52 @@ When you change a prop's description, **update TSDoc first**, then sync
 
 - Always include `tags: ['autodocs']` to enable auto-generated documentation.
 - Set `parameters: { layout: 'centered' }` unless the component requires full-width layout.
+
+## Story title taxonomy (IA)
+
+The Storybook sidebar's **top level is a fixed set of 7 groups** (depth ≤ 2),
+confirmed in the docs IA spike [#320](https://github.com/yasmro/schatten/issues/320).
+This is the **single source of truth** for docs information architecture —
+README and CLAUDE.md only point here, they do not restate it.
+
+| Top-level group | What belongs there | Examples |
+|---|---|---|
+| `Welcome` | Landing / overview | `Welcome` |
+| `Getting Started` | Integration on-ramp | `Quick Start`, `Installation` |
+| `Tokens` | Design-token vocabulary (the *values*) | `Color`, `Typography`, `Spacing`, `Elevation`, `Motion`, `Iconography` |
+| `Theming` | The Mode × Special theme machinery | `Overview`, `Theme Audit`, `Customization` |
+| `CSS API` | The framework-agnostic `.st-*` class contract | `Overview`, `Class Reference` |
+| `Patterns` | Recipes spanning multiple lv1s + cross-cutting principles | `Form States`, `Accessibility`, `Form Composition`, `asChild`, `Layout`, `Testing` |
+| `Components` | The `lv1/<Name>` catalog | `lv1/Button`, `lv1/Input`, … |
+
+### Where does a new page go?
+
+- **A vocabulary of values** (a token scale) → `Tokens`.
+- **Anything about Mode × Special** → `Theming`.
+- **The `.st-*` class contract** → `CSS API`.
+- **A "how to use" recipe that spans more than one component, or a
+  cross-cutting principle** → `Patterns`.
+- **Do not invent an 8th top-level group.** The 7-group cap exists so the
+  sidebar stays at-a-glance coherent for an evaluator skimming it (#320
+  persona #2). A page that fits none of the seven is a signal to discuss,
+  not to add a category.
+
+### Renaming a story title is a story-ID change
+
+A story's `title` determines its story ID (URL slug — Storybook kebab-cases
+it: `Tokens/Color` → `tokens-color`). Renaming a title therefore breaks every
+place that hard-codes the old slug. When you change a `title`, fix all of
+these **in the same PR**:
+
+- the VRT spec's `STORY_ID_PREFIX` (e.g. `src/docs/CSSApi.vrt.spec.ts`)
+- any deep link in `Welcome.stories.tsx` (`navigateToStory(...)` + `href`)
+- `options.storySort.order` in `.storybook/preview.tsx` if a top-level group
+  name changed
+
+Story IDs are **internal** per [api-stability.md](api-stability.md) (Storybook
+is not part of the published package), so an IA rename needs **no changeset and
+no major bump** — but the in-repo references above are not optional. `__snapshots__/`
+PNGs are named explicitly by each spec, so a prefix change does not rename them;
+when the render is unchanged the VRT must pass with **zero diff** (run
+`pnpm test:vrt` first, never blind-update — see
+[vrt-spec-guideline.md](vrt-spec-guideline.md)).

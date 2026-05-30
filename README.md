@@ -901,7 +901,7 @@ src/
 ├── themes/           # Default and seasonal themes
 ├── variants/         # CVA variant definitions
 ├── lib/              # Shared utilities (cn, etc.)
-└── docs/             # Storybook docs (Color, Typography, …)
+└── docs/             # Storybook docs (Tokens, Theming, CSS API, Patterns)
 ```
 
 ## Development

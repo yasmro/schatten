@@ -72,7 +72,15 @@ const preview: Preview = {
     layout: 'fullscreen',
     options: {
       storySort: {
-        order: ['Welcome', 'Foundation', 'Components'],
+        order: [
+          'Welcome',
+          'Getting Started',
+          'Tokens',
+          'Theming',
+          'CSS API',
+          'Patterns',
+          'Components',
+        ],
       },
     },
   },

@@ -39,7 +39,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite'
 import { fixtureChromeCss, ReactSamples, vanillaHtml } from './__fixtures__/cssApiSamples'
 
 const meta: Meta = {
-  title: 'Foundation/CSS API',
+  title: 'CSS API/Overview',
   parameters: {
     layout: 'fullscreen',
   },

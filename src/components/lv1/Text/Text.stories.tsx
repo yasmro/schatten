@@ -29,8 +29,9 @@ import { Text } from './Text'
  * ## Element selection
  *
  * `as` controls the rendered tag. By default `body` and `heading`
- * render `<p>`, and `label` renders `<label>`. Pass `asChild` (Radix
- * Slot) to merge Text's classes onto an existing child element.
+ * render `<p>`, and `label` renders `<label>`. To apply Text's classes
+ * to an arbitrary element (e.g. a framework `<Link>`), use
+ * `textVariants(...)` on that element directly.
  */
 
 const meta: Meta<typeof Text> = {
@@ -110,14 +111,6 @@ const meta: Meta<typeof Text> = {
       table: {
         type: { summary: '"p" | "span" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6"' },
         defaultValue: { summary: '"p" (body/heading) or "label" (label)' },
-      },
-    },
-    asChild: {
-      description: 'Delegates props to the child element via Radix Slot.',
-      control: 'boolean',
-      table: {
-        type: { summary: 'boolean' },
-        defaultValue: { summary: 'false' },
       },
     },
     children: {

@@ -1,4 +1,3 @@
-import { Slot } from '@radix-ui/react-slot'
 import { forwardRef, type HTMLAttributes } from 'react'
 import { cn } from '../../../lib/utils'
 import { type TextVariants, textVariants } from '../../../variants/text'
@@ -40,19 +39,18 @@ export interface TextProps extends Omit<HTMLAttributes<HTMLElement>, 'color'>, T
   /**
    * HTML element to render.
    * Defaults to `<p>` for `body` and `heading`, and `<label>` for `label`.
+   *
+   * To render Text styling on an arbitrary element (e.g. a framework
+   * `<Link>`), apply `textVariants(...)` to that element directly — Text
+   * does not expose `asChild`.
    */
   as?: TextElement
-  /**
-   * Delegates props to the child element via Radix Slot.
-   * @default false
-   */
-  asChild?: boolean
 }
 
 export const Text = forwardRef<HTMLElement, TextProps>(
-  ({ className, variant, size, color, align, truncate, as, asChild = false, ...props }, ref) => {
+  ({ className, variant, size, color, align, truncate, as, ...props }, ref) => {
     const defaultTag = variant === 'label' ? 'label' : 'p'
-    const Comp = asChild ? Slot : (as ?? defaultTag)
+    const Comp = as ?? defaultTag
 
     return (
       <Comp

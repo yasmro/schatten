@@ -188,24 +188,26 @@ test(`Button / ${story} / ${theme} / a11y`, async ({ page }) => {
 ### Running
 
 ```bash
-pnpm test:a11y        # playwright test --grep a11y
-pnpm test:vrt -- --grep-invert "a11y"   # screenshots only (what the macos VRT job runs)
+pnpm test:a11y    # playwright test --grep a11y          → a11y only
+pnpm test:vrt     # playwright test --grep-invert a11y    → screenshots only
 ```
 
-CI splits the two: the macos `vrt` job runs screenshots (`--grep-invert
-"a11y"`), and a dedicated **ubuntu** `a11y` job runs `pnpm test:a11y`. axe's
+The two scripts are mutually exclusive by `--grep` / `--grep-invert a11y`,
+so a local `pnpm test:vrt` never drags in the a11y suite (and vice versa).
+CI splits them across runners: the macos `vrt` job runs `pnpm test:vrt`
+(pixels), and a dedicated **ubuntu** `a11y` job runs `pnpm test:a11y`. axe's
 contrast / role checks derive from CSS, not from macos font / sub-pixel
 rendering, so the scarce macos runner stays pixel-only.
 
 > **Phase 1 (observe-only).** The `a11y` CI job is `continue-on-error:
 > true` while a backlog of pre-existing violations (systemic borderline
-> color-contrast on state tokens; bare-control story artifacts) is worked
-> off in follow-up issues — mirroring the `audit` job's staged rollout
-> (#307). It surfaces the violation list in the job summary without
-> blocking. Phase 2 removes `continue-on-error` and adds `a11y` to
-> develop's required checks. Until then, **a red a11y test is signal, not
-> a merge blocker** — but new components should still land with zero new
-> violations.
+> color-contrast on state tokens — #344; bare-control story artifacts —
+> #345) is worked off — mirroring the `audit` job's staged rollout
+> (#307). The job tees the axe output into `$GITHUB_STEP_SUMMARY` so the
+> violation list is readable from the PR checks without blocking. Phase 2
+> (#346) removes `continue-on-error` and adds `a11y` to develop's required
+> checks. Until then, **a red a11y test is signal, not a merge blocker** —
+> but new components should still land with zero new violations.
 
 ## Components rendered into a Portal
 

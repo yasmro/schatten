@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 
 const meta: Meta = {
-  title: 'Foundation/Typography',
+  title: 'Tokens/Typography',
   parameters: {
     layout: 'fullscreen',
   },

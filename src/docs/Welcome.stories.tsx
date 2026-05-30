@@ -312,8 +312,8 @@ export const Overview: Story = {
         <h2 className="text-xl font-bold text-foreground mb-4">Foundation</h2>
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
           <a
-            href="/docs/foundation-color--colors"
-            onClick={(e) => navigateToStory(e, 'foundation-color', 'colors')}
+            href="/docs/tokens-color--colors"
+            onClick={(e) => navigateToStory(e, 'tokens-color', 'colors')}
             className="group block border border-border rounded-xl overflow-hidden no-underline transition-shadow duration-200 hover:shadow-md"
           >
             <div className="flex items-center justify-center h-40 bg-surface">
@@ -330,8 +330,8 @@ export const Overview: Story = {
           </a>
 
           <a
-            href="/docs/foundation-typography--typography"
-            onClick={(e) => navigateToStory(e, 'foundation-typography', 'typography')}
+            href="/docs/tokens-typography--typography"
+            onClick={(e) => navigateToStory(e, 'tokens-typography', 'typography')}
             className="group block border border-border rounded-xl overflow-hidden no-underline transition-shadow duration-200 hover:shadow-md"
           >
             <div className="flex items-center justify-center h-40 bg-surface">

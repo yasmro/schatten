@@ -90,12 +90,15 @@ node -e "require.resolve('@axe-core/playwright')" 2>/dev/null \
   && echo INSTALLED || echo MISSING
 ```
 
-- **If INSTALLED**: in step 5, generate the template **as-is** (the full
-  version including the axe import and the a11y tests).
-- **If MISSING** (`@axe-core/playwright` is planned for v0.11.0 — before
-  then, this is the normal case): generate a **VRT-only** spec with the axe
-  import line and the `… / a11y` test blocks removed. See step 5,
-  "VRT-only generation".
+- **If INSTALLED** (the normal case since v0.11.0 — `@axe-core/playwright`
+  ships as a devDependency): in step 5, generate the template **as-is** (the
+  full version including the axe import and the a11y tests). The a11y test
+  MUST pin `.withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])` —
+  without it axe also runs best-practice rules that flag the Storybook
+  iframe (no landmarks / no `<h1>`) and every story fails on noise.
+- **If MISSING** (only if a future branch removes the dep): generate a
+  **VRT-only** spec with the axe import line and the `… / a11y` test blocks
+  removed. See step 5, "VRT-only generation".
 
 > **Why a11y tests must not be included when MISSING.**
 > `import AxeBuilder from '@axe-core/playwright'` is a top-level import at
@@ -195,6 +198,7 @@ for (const story of stories) {
 
       const results = await new AxeBuilder({ page })
         .include('#storybook-root')
+        .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
         .analyze()
 
       expect(results.violations).toEqual([])
@@ -274,7 +278,9 @@ for (const story of stories) {
       await page.waitForSelector('[role="{portal-role}"]', { timeout: 10_000 })
 
       // Portal content lives directly under body, so analyze the whole page.
-      const results = await new AxeBuilder({ page }).analyze()
+      const results = await new AxeBuilder({ page })
+        .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
+        .analyze()
       expect(results.violations).toEqual([])
     })
   }

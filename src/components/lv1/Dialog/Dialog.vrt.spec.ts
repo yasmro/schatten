@@ -1,3 +1,4 @@
+import AxeBuilder from '@axe-core/playwright'
 import { expect, test } from '@playwright/test'
 
 const STORY_ID_PREFIX = 'components-lv1-dialog'
@@ -49,6 +50,25 @@ for (const story of stories) {
 
       // Dialog renders in a portal at fixed position, so capture the full page.
       await expect(page).toHaveScreenshot(`${story}-${theme}.png`, { fullPage: true })
+    })
+
+    test(`Dialog / ${story} / ${theme} / a11y`, async ({ page }) => {
+      await page.goto(storyUrl(story, theme))
+      await page.waitForLoadState('networkidle')
+
+      const root = page.locator('#storybook-root')
+      await root.waitFor({ state: 'visible', timeout: 10_000 })
+
+      // Stories default to closed; click the trigger to open the dialog, which
+      // mounts into a portal on body — so analyze the whole page.
+      await root.locator('button').first().click()
+      await page.waitForSelector('[role="dialog"]', { timeout: 10_000 })
+
+      const results = await new AxeBuilder({ page })
+        .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
+        .analyze()
+
+      expect(results.violations).toEqual([])
     })
   }
 }

@@ -53,7 +53,7 @@
   /* Shadows — semantic (用途別 elevation). Value-preserving aliases mapping
      each surface to its current primitive: modal keeps Dialog's lg, toast
      keeps Toast's md (the initial #145 proposal of xl/lg was a visual change
-     and was dropped). Re-tuning elevation depth is a designer spike (#136). */
+     and was dropped). Re-tuning elevation depth is a future designer spike. */
   --shadow-card: var(--shadow-sm);
   --shadow-popover: var(--shadow-md); /* tooltip / select content */
   --shadow-modal: var(--shadow-lg); /* dialog */

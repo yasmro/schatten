@@ -1,0 +1,236 @@
+import type { Meta, StoryObj } from '@storybook/react-vite'
+
+const meta: Meta = {
+  title: 'Tokens/Elevation',
+  parameters: {
+    layout: 'fullscreen',
+  },
+}
+
+export default meta
+type Story = StoryObj
+
+const PageTitle = ({ children }: { children: React.ReactNode }) => (
+  <h1 className="text-4xl font-bold text-foreground mb-4">{children}</h1>
+)
+
+const SectionTitle = ({ children }: { children: React.ReactNode }) => (
+  <h2 className="text-2xl font-bold text-foreground mt-8 mb-2">{children}</h2>
+)
+
+const Lead = ({ children }: { children: React.ReactNode }) => (
+  <p className="text-base text-foreground-muted leading-relaxed mb-8">{children}</p>
+)
+
+const Note = ({ children }: { children: React.ReactNode }) => (
+  <p className="text-sm text-foreground-muted mb-3">{children}</p>
+)
+
+/**
+ * The primitive shadow scale, sourced verbatim from `src/core/tokens/spacing.css`.
+ *
+ * All four steps are registered in the `@theme` block of `base.css` (so the
+ * `shadow-sm` … `shadow-xl` Tailwind utilities exist) and are listed in the
+ * public manifest. `xl` is part of the shipped scale but is currently mapped to
+ * no semantic alias and used by no component — it is reserved, not retired.
+ */
+const PRIMITIVE_SHADOWS = [
+  { token: 'sm', value: '0 1px 2px 0 rgb(0 0 0 / 0.05)' },
+  { token: 'md', value: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)' },
+  { token: 'lg', value: '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)' },
+  { token: 'xl', value: '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)' },
+] as const
+
+/**
+ * The semantic (用途別) elevation tokens, sourced verbatim from
+ * `src/core/tokens/spacing.css`. Each is a value-preserving alias over a
+ * primitive step — no visual change, just an intent-named handle.
+ *
+ * `status` records whether the token is actually consumed by a component today
+ * (`applied`) or defined for forward use but not yet wired to any surface
+ * (`defined-only`).
+ */
+const SEMANTIC_SHADOWS = [
+  {
+    name: 'popover',
+    alias: 'md',
+    status: 'applied',
+    usedBy: 'Tooltip / Select content',
+  },
+  { name: 'modal', alias: 'lg', status: 'applied', usedBy: 'Dialog' },
+  { name: 'toast', alias: 'md', status: 'applied', usedBy: 'Toast' },
+  {
+    name: 'card',
+    alias: 'sm',
+    status: 'defined-only',
+    usedBy: '— (candidate: Switch knob, see #349)',
+  },
+] as const
+
+const StatusBadge = ({ status }: { status: 'applied' | 'defined-only' }) =>
+  status === 'applied' ? (
+    <span className="rounded-full bg-success-subtle px-2 py-0.5 text-xs font-medium text-success">
+      applied
+    </span>
+  ) : (
+    <span className="rounded-full bg-warning-subtle px-2 py-0.5 text-xs font-medium text-warning">
+      defined only
+    </span>
+  )
+
+/** A surface tile that renders the supplied box-shadow over the page background. */
+const ShadowTile = ({ shadow, label }: { shadow: string; label: string }) => (
+  <div className="flex flex-col items-center gap-3">
+    <div
+      className="h-24 w-40 rounded-xl bg-surface"
+      style={{ boxShadow: shadow }}
+      aria-hidden="true"
+    />
+    <span className="text-xs font-mono text-foreground">{label}</span>
+  </div>
+)
+
+export const ShadowScale: Story = {
+  name: 'Shadow Scale',
+  render: () => (
+    <div className="max-w-3xl mx-auto px-8 py-12">
+      <PageTitle>Elevation</PageTitle>
+      <Lead>
+        Schatten expresses elevation with a four-step shadow scale, defined in{' '}
+        <code>src/core/tokens/spacing.css</code> and registered as Tailwind utilities via the{' '}
+        <code>@theme</code> block in <code>base.css</code>. Every shadow is a translucent black (
+        <code>rgb(0 0 0 / α)</code>); it is mode-agnostic, so the same value reads as a softer
+        shadow against a dark surface (see <strong>Usage guide</strong>).
+      </Lead>
+
+      <SectionTitle>Primitive scale</SectionTitle>
+      <Note>
+        The raw <code>--shadow-*</code> steps. Reach for a <em>semantic</em> token (see{' '}
+        <strong>Semantic tokens</strong>) in components; the primitives are the underlying values
+        those aliases point at. <code>--shadow-xl</code> ships in the scale but is currently mapped
+        to no semantic alias and used by no component — reserved, not retired.
+      </Note>
+
+      <div className="flex flex-wrap gap-8 py-6 bg-background">
+        {PRIMITIVE_SHADOWS.map((s) => (
+          <ShadowTile key={s.token} shadow={s.value} label={`--shadow-${s.token}`} />
+        ))}
+      </div>
+
+      <div className="mt-6 border border-border rounded-xl px-5">
+        {PRIMITIVE_SHADOWS.map((s) => (
+          <div
+            key={s.token}
+            className="flex items-baseline gap-4 py-3 border-b border-border last:border-b-0"
+          >
+            <p className="w-28 shrink-0 text-sm font-medium text-foreground font-mono">
+              --shadow-{s.token}
+            </p>
+            <code className="flex-1 text-xs text-foreground-muted break-all">{s.value}</code>
+          </div>
+        ))}
+      </div>
+    </div>
+  ),
+}
+
+export const SemanticTokens: Story = {
+  name: 'Semantic Tokens',
+  render: () => (
+    <div className="max-w-3xl mx-auto px-8 py-12">
+      <PageTitle>Semantic tokens</PageTitle>
+      <Lead>
+        Components reference these intent-named tokens, not the raw scale. Each is a
+        value-preserving alias over a primitive step — the table reads as{' '}
+        <strong>purpose → which primitive → which component uses it</strong>. Tokens marked{' '}
+        <em>defined only</em> exist for forward use but are not wired to any surface yet.
+      </Lead>
+
+      <div className="border border-border rounded-xl px-5">
+        {SEMANTIC_SHADOWS.map((s) => (
+          <div
+            key={s.name}
+            className="flex items-center gap-4 py-4 border-b border-border last:border-b-0"
+          >
+            <div className="w-40 shrink-0 flex items-center justify-center py-2 bg-background">
+              <div
+                className="h-12 w-28 rounded-lg bg-surface"
+                style={{ boxShadow: `var(--shadow-${s.name})` }}
+                aria-hidden="true"
+              />
+            </div>
+            <div className="flex-1">
+              <p className="text-sm font-medium text-foreground font-mono">--shadow-{s.name}</p>
+              <p className="text-xs text-foreground-muted font-mono">= --shadow-{s.alias}</p>
+              <p className="text-xs text-foreground-muted mt-1">{s.usedBy}</p>
+            </div>
+            <div className="w-28 shrink-0">
+              <StatusBadge status={s.status} />
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  ),
+}
+
+const GuideRow = ({ surface, token, note }: { surface: string; token: string; note: string }) => (
+  <div className="flex items-start gap-4 py-3 border-b border-border last:border-b-0">
+    <p className="w-28 shrink-0 text-sm font-medium text-foreground">{surface}</p>
+    <code className="w-40 shrink-0 text-xs text-foreground-muted">{token}</code>
+    <p className="flex-1 text-sm text-foreground-muted">{note}</p>
+  </div>
+)
+
+export const UsageGuide: Story = {
+  name: 'Usage Guide',
+  render: () => (
+    <div className="max-w-3xl mx-auto px-8 py-12">
+      <PageTitle>Usage guide</PageTitle>
+      <Lead>
+        Pick a shadow by what the surface <em>is</em>, not by how deep you want it to look. The
+        semantic token for each surface type already encodes the right depth.
+      </Lead>
+
+      <SectionTitle>By surface type</SectionTitle>
+      <div className="border border-border rounded-xl px-5 mb-8">
+        <GuideRow
+          surface="Card"
+          token="--shadow-card"
+          note="Resting content cards. Lowest elevation. (Alias of --shadow-sm; not yet applied.)"
+        />
+        <GuideRow
+          surface="Tooltip / Popover"
+          token="--shadow-popover"
+          note="Transient floating content layered just above the page."
+        />
+        <GuideRow
+          surface="Toast"
+          token="--shadow-toast"
+          note="Notifications that overlay content but are not modal."
+        />
+        <GuideRow
+          surface="Dialog / Modal"
+          token="--shadow-modal"
+          note="Focus-trapping surfaces. Highest elevation in the system today."
+        />
+      </div>
+
+      <SectionTitle>Don't over-elevate</SectionTitle>
+      <Note>
+        Shadow is a signal, not decoration. A flat surface (no shadow) is the right answer for most
+        in-flow content — reserve elevation for things that genuinely float above the page. Stacking
+        many shadowed surfaces flattens the hierarchy the shadow was meant to create.
+      </Note>
+
+      <SectionTitle>Dark mode</SectionTitle>
+      <Note>
+        Shadows are <strong>mode-agnostic</strong>: there is no dark-specific shadow token, and the{' '}
+        <code>.dark</code> cascade does not override <code>--shadow-*</code>. The same translucent
+        black is applied in both modes, so a shadow reads as softer against a dark surface than
+        against a light one. Toggle the Storybook theme to compare — the muted dark appearance is
+        intended, not a missing token. (Re-tuning depth per mode is a possible future refinement.)
+      </Note>
+    </div>
+  ),
+}

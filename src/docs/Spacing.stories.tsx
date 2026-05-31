@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite'
 import { Button } from '../components/lv1/Button/Button'
 import { Field } from '../components/lv1/Field/Field'
 import { Input } from '../components/lv1/Input/Input'
+import { Lead, Note, PageTitle, SectionTitle, SubsectionTitle } from './docs-ui'
 
 const meta: Meta = {
   title: 'Tokens/Spacing',
@@ -12,26 +13,6 @@ const meta: Meta = {
 
 export default meta
 type Story = StoryObj
-
-const PageTitle = ({ children }: { children: React.ReactNode }) => (
-  <h1 className="text-4xl font-bold text-foreground mb-4">{children}</h1>
-)
-
-const SectionTitle = ({ children }: { children: React.ReactNode }) => (
-  <h2 className="text-2xl font-bold text-foreground mt-8 mb-2">{children}</h2>
-)
-
-const SubsectionTitle = ({ children }: { children: React.ReactNode }) => (
-  <h3 className="text-base font-semibold text-foreground mt-6 mb-3">{children}</h3>
-)
-
-const Lead = ({ children }: { children: React.ReactNode }) => (
-  <p className="text-base text-foreground-muted leading-relaxed mb-8">{children}</p>
-)
-
-const Note = ({ children }: { children: React.ReactNode }) => (
-  <p className="text-sm text-foreground-muted mb-3">{children}</p>
-)
 
 /**
  * The 4px-base spacing scale, sourced verbatim from `src/core/tokens/spacing.css`.

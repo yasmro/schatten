@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
+import { Lead, Note, PageTitle, SectionTitle } from './docs-ui'
 
 const meta: Meta = {
   title: 'Tokens/Elevation',
@@ -9,22 +10,6 @@ const meta: Meta = {
 
 export default meta
 type Story = StoryObj
-
-const PageTitle = ({ children }: { children: React.ReactNode }) => (
-  <h1 className="text-4xl font-bold text-foreground mb-4">{children}</h1>
-)
-
-const SectionTitle = ({ children }: { children: React.ReactNode }) => (
-  <h2 className="text-2xl font-bold text-foreground mt-8 mb-2">{children}</h2>
-)
-
-const Lead = ({ children }: { children: React.ReactNode }) => (
-  <p className="text-base text-foreground-muted leading-relaxed mb-8">{children}</p>
-)
-
-const Note = ({ children }: { children: React.ReactNode }) => (
-  <p className="text-sm text-foreground-muted mb-3">{children}</p>
-)
 
 /**
  * The primitive shadow scale, sourced verbatim from `src/core/tokens/spacing.css`.

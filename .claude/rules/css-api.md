@@ -749,6 +749,41 @@ Two consequences:
    "does this need to render with no modifiers?" — not by manifest
    bookkeeping.
 
+### Multi-property bundles bind on the class, not on a token
+
+A semantic "role" that bundles **more than one CSS property** —
+typography's `size + line-height + weight` is the canonical case —
+**must be expressed by a `.st-*` modifier rule, never by a composite
+CSS variable**. The reason is mechanical: a CSS custom property holds a
+single value, so a 3-property bundle can only be modelled as three
+parallel variables (`--text-body-md-size` / `-leading` / `-weight`).
+That is not a shorthand — the consumer still applies three things — and
+it duplicates the binding that the class rule already owns.
+
+The contract:
+
+- The `.st-text--{variant}.st-text--{size}` double-class rule is the
+  **single source of truth** for the typography bundle. It reads the
+  base scale (`--text-*` / `--leading-*` / `--font-*`) directly.
+- There is **no** `--text-{body,label,heading}-*-{size,leading,weight}`
+  composite variable layer. The 39 such variables were removed in
+  [#144](https://github.com/yasmro/schatten/issues/144); only the base
+  scale is part of the public typography variable surface.
+- **Do not reintroduce them as a `@utility`** either. A
+  `@utility text-body-md { … }` is purged from `dist/schatten.css`
+  whenever it is unreferenced (the dist entry compiles with
+  `@import "tailwindcss" source(none)`, so Tailwind scans no JSX), and
+  it never appears in the manifest (the generator's `CLASS_RE` matches
+  `st-`-prefixed classes only). Both make it an untracked, fragile
+  public surface — the exact failure mode [#144](https://github.com/yasmro/schatten/issues/144)
+  rejected.
+
+Contrast with single-value semantic tokens (`--radius-control`,
+`--shadow-modal`, `--motion-base`): those *do* live as CSS variables
+because a 1-value → 1-value alias is something a component can consume
+in one `var()`. The line is **"can this role be a single `var()`?"** —
+yes → semantic token; no → `.st-*` class rule.
+
 ## Quick reference
 
 - **Prefix**: `st-` (frozen for v1.0).
@@ -779,6 +814,11 @@ Two consequences:
   rendered (`.st-callout:has(.st-callout__title):has(.st-callout__body)`).
   Three-axis rule: **state → attribute, structure → `:has()`, author
   config → modifier.** Never use `:has()` for runtime state.
+- **Multi-property bundles**: a role bundling >1 property (typography's
+  size + line-height + weight) binds on the `.st-*` class rule, **not**
+  on a composite CSS variable or a `@utility`. Single-value semantic
+  tokens (`--radius-control`, `--shadow-modal`) stay variables. Rule:
+  "can it be one `var()`?" — no → class.
 - **Layer order**: `reset, tokens, components, utilities`.
 - **Dark / seasonal**: token-driven by default; `:where(.dark)
   .st-*` when a rule (not just a value) differs.

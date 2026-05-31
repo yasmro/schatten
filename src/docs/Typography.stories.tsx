@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
+import { Text } from '../components/lv1/Text/Text'
 
 const meta: Meta = {
   title: 'Tokens/Typography',
@@ -41,37 +42,27 @@ const TokenRow = ({
 const TypographyRow = ({
   name,
   description,
-  tokens,
+  variant,
+  size,
   sampleText,
   sampleTextJa,
 }: {
   name: string
   description: string
-  tokens: { size: string; leading: string; weight: string }
+  variant: 'body' | 'label' | 'heading'
+  size: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl'
   sampleText: string
   sampleTextJa: string
 }) => (
   <div className="py-4 border-b border-border last:border-b-0">
-    <p
-      className="text-text mb-1"
-      style={{
-        fontSize: `var(${tokens.size})`,
-        lineHeight: `var(${tokens.leading})`,
-        fontWeight: `var(${tokens.weight})`,
-      }}
-    >
+    {/* Rendered via the `.st-text--{variant}.st-text--{size}` class API
+        (`<Text>`) — this IS the typography shorthand since #144. */}
+    <Text variant={variant} size={size} className="mb-1">
       {sampleText}
-    </p>
-    <p
-      className="text-text-muted mb-2"
-      style={{
-        fontSize: `var(${tokens.size})`,
-        lineHeight: `var(${tokens.leading})`,
-        fontWeight: `var(${tokens.weight})`,
-      }}
-    >
+    </Text>
+    <Text variant={variant} size={size} color="muted" className="mb-2">
       {sampleTextJa}
-    </p>
+    </Text>
     <div className="flex items-center gap-3">
       <span className="text-xs font-medium text-text font-mono">{name}</span>
       <span className="text-xs text-text-muted">{description}</span>
@@ -85,9 +76,10 @@ export const Typography: Story = {
     <div className="max-w-3xl mx-auto px-8 py-12">
       <h1 className="text-4xl font-bold text-text mb-4">Typography</h1>
       <p className="text-base text-text-muted leading-relaxed mb-8">
-        Schatten's typography system provides consistent text styling across the design system.
-        Semantic tokens bundle font size, line height, and weight into named roles — Heading, Body,
-        and Label — so text styles are applied consistently without manual configuration.
+        Schatten's typography system provides consistent text styling across the design system. Each
+        named role — Heading, Body, and Label — bundles font size, line height, and weight into a
+        single <code>.st-text</code> class (used here via the <code>&lt;Text&gt;</code>
+        component), so text styles are applied consistently without manual configuration.
       </p>
 
       <SectionTitle>Font families</SectionTitle>
@@ -135,55 +127,40 @@ export const Typography: Story = {
         <TypographyRow
           name="heading-2xl"
           description="Display titles"
-          tokens={{
-            size: '--text-heading-2xl-size',
-            leading: '--text-heading-2xl-leading',
-            weight: '--text-heading-2xl-weight',
-          }}
+          variant="heading"
+          size="2xl"
           sampleText="Display Title"
           sampleTextJa="表示タイトル"
         />
         <TypographyRow
           name="heading-xl"
           description="Page titles"
-          tokens={{
-            size: '--text-heading-xl-size',
-            leading: '--text-heading-xl-leading',
-            weight: '--text-heading-xl-weight',
-          }}
+          variant="heading"
+          size="xl"
           sampleText="Page Title"
           sampleTextJa="ページタイトル"
         />
         <TypographyRow
           name="heading-lg"
           description="Section titles"
-          tokens={{
-            size: '--text-heading-lg-size',
-            leading: '--text-heading-lg-leading',
-            weight: '--text-heading-lg-weight',
-          }}
+          variant="heading"
+          size="lg"
           sampleText="Section Title"
           sampleTextJa="セクションタイトル"
         />
         <TypographyRow
           name="heading-md"
           description="Subsection titles"
-          tokens={{
-            size: '--text-heading-md-size',
-            leading: '--text-heading-md-leading',
-            weight: '--text-heading-md-weight',
-          }}
+          variant="heading"
+          size="md"
           sampleText="Subsection Title"
           sampleTextJa="サブセクションタイトル"
         />
         <TypographyRow
           name="heading-sm"
           description="Card titles"
-          tokens={{
-            size: '--text-heading-sm-size',
-            leading: '--text-heading-sm-leading',
-            weight: '--text-heading-sm-weight',
-          }}
+          variant="heading"
+          size="sm"
           sampleText="Card Title"
           sampleTextJa="カードタイトル"
         />
@@ -198,44 +175,32 @@ export const Typography: Story = {
         <TypographyRow
           name="body-lg"
           description="Lead paragraphs and introductions"
-          tokens={{
-            size: '--text-body-lg-size',
-            leading: '--text-body-lg-leading',
-            weight: '--text-body-lg-weight',
-          }}
+          variant="body"
+          size="lg"
           sampleText="Lead paragraphs and introductions for emphasis."
           sampleTextJa="リード文や導入部分に使用する強調テキストです。"
         />
         <TypographyRow
           name="body-md"
           description="Default body text"
-          tokens={{
-            size: '--text-body-md-size',
-            leading: '--text-body-md-leading',
-            weight: '--text-body-md-weight',
-          }}
+          variant="body"
+          size="md"
           sampleText="The quick brown fox jumps over the lazy dog. This is the default body text used for most content throughout the application."
           sampleTextJa="素早い茶色の狐が怠惰な犬を飛び越える。これはアプリケーション全体で使用される標準の本文テキストです。"
         />
         <TypographyRow
           name="body-sm"
           description="Secondary text and descriptions"
-          tokens={{
-            size: '--text-body-sm-size',
-            leading: '--text-body-sm-leading',
-            weight: '--text-body-sm-weight',
-          }}
+          variant="body"
+          size="sm"
           sampleText="Secondary text for descriptions, helper text, and supporting content."
           sampleTextJa="説明文、ヘルパーテキスト、補足コンテンツ用のセカンダリテキスト。"
         />
         <TypographyRow
           name="body-xs"
           description="Captions and footnotes"
-          tokens={{
-            size: '--text-body-xs-size',
-            leading: '--text-body-xs-leading',
-            weight: '--text-body-xs-weight',
-          }}
+          variant="body"
+          size="xs"
           sampleText="Captions, footnotes, and fine print."
           sampleTextJa="キャプション、脚注、注意書き。"
         />
@@ -250,44 +215,32 @@ export const Typography: Story = {
         <TypographyRow
           name="label-lg"
           description="Navigation items"
-          tokens={{
-            size: '--text-label-lg-size',
-            leading: '--text-label-lg-leading',
-            weight: '--text-label-lg-weight',
-          }}
+          variant="label"
+          size="lg"
           sampleText="Navigation Item"
           sampleTextJa="ナビゲーション項目"
         />
         <TypographyRow
           name="label-md"
           description="Form labels and buttons"
-          tokens={{
-            size: '--text-label-md-size',
-            leading: '--text-label-md-leading',
-            weight: '--text-label-md-weight',
-          }}
+          variant="label"
+          size="md"
           sampleText="Form Label"
           sampleTextJa="フォームラベル"
         />
         <TypographyRow
           name="label-sm"
           description="Tags and badges"
-          tokens={{
-            size: '--text-label-sm-size',
-            leading: '--text-label-sm-leading',
-            weight: '--text-label-sm-weight',
-          }}
+          variant="label"
+          size="sm"
           sampleText="Badge Text"
           sampleTextJa="バッジテキスト"
         />
         <TypographyRow
           name="label-xs"
           description="Overlines and micro labels"
-          tokens={{
-            size: '--text-label-xs-size',
-            leading: '--text-label-xs-leading',
-            weight: '--text-label-xs-weight',
-          }}
+          variant="label"
+          size="xs"
           sampleText="OVERLINE TEXT"
           sampleTextJa="オーバーライン"
         />

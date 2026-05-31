@@ -9,9 +9,12 @@
  * - truncate: presence-only
  *
  * The (variant × size) typography combinations are written as
- * double-class selectors (`.st-text--body.st-text--md`) — they share the
- * `--text-{variant}-{size}-*` token chain that lives in
- * `core/tokens/typography.css`.
+ * double-class selectors (`.st-text--body.st-text--md`) — each bundles
+ * size + line-height + weight directly from the base scale
+ * (`--text-*` / `--leading-*` / `--font-*`) in `core/tokens/typography.css`.
+ * The prior `--text-{variant}-{size}-*` composite tokens were removed in
+ * #144 (a 3-property bundle can't be one CSS var, so the binding is the
+ * class, not a redundant token layer).
  *
  * Uses raw CSS + `var(--color-*)` throughout rather than `@apply
  * text-foreground` etc., to avoid Tailwind v4 / Vite / Storybook
@@ -28,76 +31,83 @@
     -moz-osx-font-smoothing: grayscale;
   }
 
-  /* ===== variant × size: typography ===== */
+  /* ===== variant × size: typography =====
+   * Each (variant × size) double-class rule bundles size + line-height +
+   * weight directly from the base scale (`--text-*` / `--leading-*` /
+   * `--font-*`). This class IS the typography "shorthand" — the prior
+   * `--text-{role}-{size}-{size,leading,weight}` composite variables were
+   * removed in #144 because a 3-property bundle can't be a single CSS var,
+   * so the binding lives here (the SSOT) rather than in a redundant token
+   * layer. See css-api.md and #144. */
   /* body — xs / sm / md / lg */
   .st-text--body.st-text--xs {
-    font-size: var(--text-body-xs-size);
-    line-height: var(--text-body-xs-leading);
-    font-weight: var(--text-body-xs-weight);
+    font-size: var(--text-xs);
+    line-height: var(--leading-normal);
+    font-weight: var(--font-normal);
   }
   .st-text--body.st-text--sm {
-    font-size: var(--text-body-sm-size);
-    line-height: var(--text-body-sm-leading);
-    font-weight: var(--text-body-sm-weight);
+    font-size: var(--text-sm);
+    line-height: var(--leading-normal);
+    font-weight: var(--font-normal);
   }
   .st-text--body.st-text--md {
-    font-size: var(--text-body-md-size);
-    line-height: var(--text-body-md-leading);
-    font-weight: var(--text-body-md-weight);
+    font-size: var(--text-base);
+    line-height: var(--leading-normal);
+    font-weight: var(--font-normal);
   }
   .st-text--body.st-text--lg {
-    font-size: var(--text-body-lg-size);
-    line-height: var(--text-body-lg-leading);
-    font-weight: var(--text-body-lg-weight);
+    font-size: var(--text-lg);
+    line-height: var(--leading-normal);
+    font-weight: var(--font-normal);
   }
 
   /* label — xs / sm / md / lg */
   .st-text--label.st-text--xs {
-    font-size: var(--text-label-xs-size);
-    line-height: var(--text-label-xs-leading);
-    font-weight: var(--text-label-xs-weight);
+    font-size: var(--text-xs);
+    line-height: var(--leading-tight);
+    font-weight: var(--font-medium);
   }
   .st-text--label.st-text--sm {
-    font-size: var(--text-label-sm-size);
-    line-height: var(--text-label-sm-leading);
-    font-weight: var(--text-label-sm-weight);
+    font-size: var(--text-sm);
+    line-height: var(--leading-tight);
+    font-weight: var(--font-medium);
   }
   .st-text--label.st-text--md {
-    font-size: var(--text-label-md-size);
-    line-height: var(--text-label-md-leading);
-    font-weight: var(--text-label-md-weight);
+    font-size: var(--text-base);
+    line-height: var(--leading-tight);
+    font-weight: var(--font-medium);
   }
   .st-text--label.st-text--lg {
-    font-size: var(--text-label-lg-size);
-    line-height: var(--text-label-lg-leading);
-    font-weight: var(--text-label-lg-weight);
+    font-size: var(--text-lg);
+    line-height: var(--leading-tight);
+    font-weight: var(--font-medium);
   }
 
   /* heading — sm / md / lg / xl / 2xl */
   .st-text--heading.st-text--sm {
-    font-size: var(--text-heading-sm-size);
-    line-height: var(--text-heading-sm-leading);
-    font-weight: var(--text-heading-sm-weight);
+    font-size: var(--text-lg);
+    line-height: var(--leading-snug);
+    font-weight: var(--font-semibold);
   }
   .st-text--heading.st-text--md {
-    font-size: var(--text-heading-md-size);
-    line-height: var(--text-heading-md-leading);
-    font-weight: var(--text-heading-md-weight);
+    font-size: var(--text-xl);
+    line-height: var(--leading-snug);
+    font-weight: var(--font-semibold);
   }
   .st-text--heading.st-text--lg {
-    font-size: var(--text-heading-lg-size);
-    line-height: var(--text-heading-lg-leading);
-    font-weight: var(--text-heading-lg-weight);
+    font-size: var(--text-2xl);
+    line-height: var(--leading-snug);
+    font-weight: var(--font-semibold);
   }
   .st-text--heading.st-text--xl {
-    font-size: var(--text-heading-xl-size);
-    line-height: var(--text-heading-xl-leading);
-    font-weight: var(--text-heading-xl-weight);
+    font-size: var(--text-3xl);
+    line-height: var(--leading-tight);
+    font-weight: var(--font-bold);
   }
   .st-text--heading.st-text--2xl {
-    font-size: var(--text-heading-2xl-size);
-    line-height: var(--text-heading-2xl-leading);
-    font-weight: var(--text-heading-2xl-weight);
+    font-size: var(--text-4xl);
+    line-height: var(--leading-tight);
+    font-weight: var(--font-bold);
   }
 
   /* ===== color (13) ===== */

@@ -744,6 +744,25 @@ function Banner({ tone }: { tone: ColorToken }) {
 </div>
 ```
 
+### Reserved z-index range
+
+Schatten reserves the `0–100` z-index band for its portal / overlay
+layers. Components reference these via the `--z-*` semantic tokens (also
+exposed as Tailwind `z-*` utilities and `tokens.zIndex.*`):
+
+| Token / utility      | Value | Layer                    |
+|----------------------|-------|--------------------------|
+| `--z-modal-backdrop` | 40    | Dialog overlay           |
+| `--z-modal`          | 50    | Dialog content           |
+| `--z-popover`        | 60    | Select / popover content |
+| `--z-tooltip`        | 70    | Tooltip                  |
+| `--z-toast`          | 80    | Toast (front-most)       |
+
+`--z-base` (0) / `--z-dropdown` (10) / `--z-sticky` (20) / `--z-fixed`
+(30) are reserved for consumer use. Keep your own stacking values
+**outside the 0–100 band** (or slot them between the tokens above) to
+avoid colliding with Schatten's overlays.
+
 ## Performance
 
 Schatten ships as a single installable package, which trades shadcn's

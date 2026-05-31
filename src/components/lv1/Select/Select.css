@@ -179,7 +179,14 @@
   /* ===== content (portal) ===== */
   .st-select__content {
     position: relative;
-    z-index: 50;
+    /*
+     * Portaled floating menu sits in the `popover` stacking tier — above
+     * --z-modal (50) so a Select opened inside a Dialog renders in front of
+     * the modal, below --z-tooltip. Literal fallback for standalone CSS
+     * without the token layer. (Was a hard-coded `50`; the 51–60 band is
+     * otherwise empty, so this is a visual no-op.)
+     */
+    z-index: var(--z-popover, 60);
     max-height: 24rem;
     max-width: 20rem;
     min-width: 8rem;

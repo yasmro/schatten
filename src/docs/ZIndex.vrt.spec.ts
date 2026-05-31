@@ -1,8 +1,8 @@
 import { expect, test } from '@playwright/test'
 
-const STORY_ID_PREFIX = 'tokens-elevation'
+const STORY_ID_PREFIX = 'tokens-z-index'
 
-const stories = ['semantic-shadows', 'stacking-order'] as const
+const stories = ['stacking-order'] as const
 
 const themes = ['light', 'dark'] as const
 
@@ -12,7 +12,7 @@ function storyUrl(storyId: string, theme: string) {
 
 for (const story of stories) {
   for (const theme of themes) {
-    test(`Elevation / ${story} / ${theme}`, async ({ page }) => {
+    test(`Z-Index / ${story} / ${theme}`, async ({ page }) => {
       await page.goto(storyUrl(story, theme))
       await page.waitForLoadState('networkidle')
 

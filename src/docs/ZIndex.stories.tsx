@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 
 const meta: Meta = {
-  title: 'Tokens/Elevation',
+  title: 'Tokens/Z-Index',
   parameters: {
     layout: 'fullscreen',
   },
@@ -26,68 +26,6 @@ const Note = ({ children }: { children: React.ReactNode }) => (
   <p className="text-sm text-foreground-muted mb-4">{children}</p>
 )
 
-/* ------------------------------------------------------------------ */
-/* Shadow (depth)                                                      */
-/* ------------------------------------------------------------------ */
-
-const SHADOW_TOKENS = [
-  { token: '--shadow-card', alias: '--shadow-sm', use: 'Card / raised surface' },
-  { token: '--shadow-popover', alias: '--shadow-md', use: 'Tooltip / Select content' },
-  { token: '--shadow-modal', alias: '--shadow-lg', use: 'Dialog content' },
-  { token: '--shadow-toast', alias: '--shadow-md', use: 'Toast' },
-] as const
-
-/**
- * Semantic elevation has two orthogonal axes:
- *
- * - **Depth** — `--shadow-*` semantic tokens, aliased over the primitive
- *   `--shadow-{sm,md,lg,xl}` scale (see `src/core/tokens/spacing.css`).
- * - **Stacking** — `--z-*` tokens, the order in which overlapping layers
- *   paint (see `src/core/tokens/z-index.css`).
- *
- * The `SemanticShadows` story documents the first axis; `StackingOrder`
- * documents the second.
- */
-export const SemanticShadows: Story = {
-  name: 'Semantic Shadows',
-  render: () => (
-    <div className="max-w-3xl mx-auto px-8 py-12">
-      <PageTitle>Elevation — Depth</PageTitle>
-      <Lead>
-        The four semantic shadow tokens map a usage role to a primitive shadow level. Components
-        reference the semantic name (<code>shadow-modal</code>) rather than the primitive (
-        <code>shadow-lg</code>), so the depth of every Dialog can be retuned at one place.
-      </Lead>
-
-      <SectionTitle>Semantic shadow tokens</SectionTitle>
-      <Note>
-        Each token is a Tailwind utility (<code>shadow-card</code>, …) registered in the{' '}
-        <code>@theme</code> block of <code>base.css</code>, and resolves to the primitive level
-        shown.
-      </Note>
-      <div className="grid grid-cols-2 gap-8 mt-6">
-        {SHADOW_TOKENS.map((s) => (
-          <div key={s.token} className="flex flex-col items-center gap-3">
-            <div
-              className="h-24 w-full rounded-xl bg-surface"
-              style={{ boxShadow: `var(${s.token})` }}
-            />
-            <div className="text-center">
-              <div className="text-sm font-mono text-foreground">{s.token}</div>
-              <div className="text-xs font-mono text-foreground-muted">→ {s.alias}</div>
-              <div className="text-xs text-foreground-muted mt-1">{s.use}</div>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  ),
-}
-
-/* ------------------------------------------------------------------ */
-/* Z-index (stacking)                                                  */
-/* ------------------------------------------------------------------ */
-
 const Z_LAYERS = [
   { token: '--z-base', value: 0, layer: 'Default flow', reserved: true },
   { token: '--z-dropdown', value: 10, layer: 'Consumer-reserved', reserved: true },
@@ -109,11 +47,18 @@ const STACK_DEMO = [
   { label: 'toast (80)', z: 'var(--z-toast)', bg: 'bg-theme-700', offset: 144 },
 ] as const
 
+/**
+ * Z-index is the *stacking* token scale — the order overlapping portal /
+ * overlay layers paint in. It is distinct from elevation/depth
+ * (`--shadow-*`); a layer's shadow says how raised it looks, its z-index
+ * says what it paints in front of. Source of truth:
+ * `src/core/tokens/z-index.css`.
+ */
 export const StackingOrder: Story = {
   name: 'Stacking Order',
   render: () => (
     <div className="max-w-3xl mx-auto px-8 py-12">
-      <PageTitle>Elevation — Stacking (z-index)</PageTitle>
+      <PageTitle>Z-Index</PageTitle>
       <Lead>
         Schatten reserves the <code>0–100</code> z-index band for its portal / overlay layers.
         Components reference the <code>--z-*</code> semantic tokens (also exposed as Tailwind{' '}

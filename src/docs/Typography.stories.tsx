@@ -12,11 +12,11 @@ export default meta
 type Story = StoryObj
 
 const SectionTitle = ({ children }: { children: React.ReactNode }) => (
-  <h2 className="text-2xl font-bold text-text mt-8 mb-2">{children}</h2>
+  <h2 className="text-2xl font-bold text-foreground mt-8 mb-2">{children}</h2>
 )
 
 const SubsectionTitle = ({ children }: { children: React.ReactNode }) => (
-  <h3 className="text-base font-semibold text-text mt-6 mb-3">{children}</h3>
+  <h3 className="text-base font-semibold text-foreground mt-6 mb-3">{children}</h3>
 )
 
 const TokenRow = ({
@@ -31,11 +31,11 @@ const TokenRow = ({
   style?: React.CSSProperties
 }) => (
   <div className="flex items-baseline gap-4 py-2 border-b border-border last:border-b-0">
-    <span className="shrink-0 w-32 text-sm text-text" style={style}>
+    <span className="shrink-0 w-32 text-sm text-foreground" style={style}>
       {label}
     </span>
-    <span className="shrink-0 text-xs text-text-muted font-mono">{token}</span>
-    <span className="text-xs text-text-muted ml-auto">{value}</span>
+    <span className="shrink-0 text-xs text-foreground-muted font-mono">{token}</span>
+    <span className="text-xs text-foreground-muted ml-auto">{value}</span>
   </div>
 )
 
@@ -60,12 +60,12 @@ const TypographyRow = ({
     <Text variant={variant} size={size} className="mb-1">
       {sampleText}
     </Text>
-    <Text variant={variant} size={size} color="muted" className="mb-2">
+    <Text variant={variant} size={size} className="mb-2">
       {sampleTextJa}
     </Text>
     <div className="flex items-center gap-3">
-      <span className="text-xs font-medium text-text font-mono">{name}</span>
-      <span className="text-xs text-text-muted">{description}</span>
+      <span className="text-xs font-medium text-foreground font-mono">{name}</span>
+      <span className="text-xs text-foreground-muted">{description}</span>
     </div>
   </div>
 )
@@ -74,8 +74,8 @@ export const Typography: Story = {
   name: 'Typography',
   render: () => (
     <div className="max-w-3xl mx-auto px-8 py-12">
-      <h1 className="text-4xl font-bold text-text mb-4">Typography</h1>
-      <p className="text-base text-text-muted leading-relaxed mb-8">
+      <h1 className="text-4xl font-bold text-foreground mb-4">Typography</h1>
+      <p className="text-base text-foreground-muted leading-relaxed mb-8">
         Schatten's typography system provides consistent text styling across the design system. Each
         named role — Heading, Body, and Label — bundles font size, line height, and weight into a
         single <code>.st-text</code> class (used here via the <code>&lt;Text&gt;</code>
@@ -85,41 +85,47 @@ export const Typography: Story = {
       <SectionTitle>Font families</SectionTitle>
       <div className="border border-border rounded-xl px-5">
         <div className="py-4 border-b border-border">
-          <p className="font-sans text-xl text-text mb-1">
+          <p className="font-sans text-xl text-foreground mb-1">
             Hanken Grotesk — The quick brown fox jumps over the lazy dog.
           </p>
-          <p className="font-sans text-xl text-text-muted mb-1">
+          <p className="font-sans text-xl text-foreground-muted mb-1">
             LINE Seed JP — 素早い茶色の狐が怠惰な犬を飛び越える。
           </p>
-          <p className="text-xs text-text-muted font-mono">
+          <p className="text-xs text-foreground-muted font-mono">
             --font-sans: "Hanken Grotesk", "LINE Seed JP", ui-sans-serif, system-ui, sans-serif
           </p>
-          <p className="text-xs text-text-muted mt-1">Default typeface for UI and body text.</p>
+          <p className="text-xs text-foreground-muted mt-1">
+            Default typeface for UI and body text.
+          </p>
         </div>
         <div className="py-4 border-b border-border">
-          <p className="font-serif text-xl text-text mb-1">
+          <p className="font-serif text-xl text-foreground mb-1">
             The quick brown fox jumps over the lazy dog.
           </p>
-          <p className="text-xs text-text-muted font-mono">
+          <p className="text-xs text-foreground-muted font-mono">
             --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", serif
           </p>
-          <p className="text-xs text-text-muted mt-1">Serif fallback for editorial content.</p>
+          <p className="text-xs text-foreground-muted mt-1">
+            Serif fallback for editorial content.
+          </p>
         </div>
         <div className="py-4">
-          <p className="font-mono text-xl text-text mb-1">
+          <p className="font-mono text-xl text-foreground mb-1">
             The quick brown fox jumps over the lazy dog.
           </p>
-          <p className="text-xs text-text-muted font-mono">
+          <p className="text-xs text-foreground-muted font-mono">
             --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace
           </p>
-          <p className="text-xs text-text-muted mt-1">Monospace for code and technical content.</p>
+          <p className="text-xs text-foreground-muted mt-1">
+            Monospace for code and technical content.
+          </p>
         </div>
       </div>
 
       <SectionTitle>Type scale</SectionTitle>
 
       <SubsectionTitle>Heading</SubsectionTitle>
-      <p className="text-sm text-text-muted mb-3">
+      <p className="text-sm text-foreground-muted mb-3">
         Used for page titles, section headers, and card headings. Uses semibold/bold weight with
         snug/tight line height.
       </p>
@@ -167,7 +173,7 @@ export const Typography: Story = {
       </div>
 
       <SubsectionTitle>Body</SubsectionTitle>
-      <p className="text-sm text-text-muted mb-3">
+      <p className="text-sm text-foreground-muted mb-3">
         For paragraphs, descriptions, and general content. Uses normal weight with relaxed line
         height for readability.
       </p>
@@ -207,7 +213,7 @@ export const Typography: Story = {
       </div>
 
       <SubsectionTitle>Label</SubsectionTitle>
-      <p className="text-sm text-text-muted mb-3">
+      <p className="text-sm text-foreground-muted mb-3">
         For interactive elements — form labels, buttons, navigation, and badges. Uses medium weight
         with tight line height.
       </p>

@@ -325,10 +325,10 @@ export const WhyNoLayoutPrimitives: Story = {
 }
 
 const HALF_STEPS = [
-  { token: '0-5', utility: '0.5', px: '2px' },
-  { token: '1-5', utility: '1.5', px: '6px' },
-  { token: '2-5', utility: '2.5', px: '10px' },
-  { token: '3-5', utility: '3.5', px: '14px' },
+  { token: '0-5', utility: '0.5', value: '0.125rem', px: '2px' },
+  { token: '1-5', utility: '1.5', value: '0.375rem', px: '6px' },
+  { token: '2-5', utility: '2.5', value: '0.625rem', px: '10px' },
+  { token: '3-5', utility: '3.5', value: '0.875rem', px: '14px' },
 ] as const
 
 export const HalfSteps: Story = {
@@ -349,7 +349,7 @@ export const HalfSteps: Story = {
             key={h.token}
             token={h.token}
             utility={h.utility}
-            value={`${h.px}`}
+            value={h.value}
             px={h.px}
             tier="raw"
           />

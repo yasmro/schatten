@@ -96,7 +96,7 @@ export const ShadowScale: Story = {
         to no semantic alias and used by no component — reserved, not retired.
       </Note>
 
-      <div className="flex flex-wrap gap-8 py-6 bg-background">
+      <div className="flex flex-wrap gap-8 p-8 bg-background">
         {PRIMITIVE_SHADOWS.map((s) => (
           <ShadowTile key={s.token} shadow={s.value} label={`--shadow-${s.token}`} />
         ))}

@@ -436,7 +436,11 @@ describe('semantic shadow / radius / motion resolution', () => {
  * this test catches it at the token layer.
  */
 const zIndexCss = stripComments(readFileSync(resolve(TOKENS_DIR, 'z-index.css'), 'utf8'))
-const zLayers = [...zIndexCss.matchAll(/--z-([\w-]+):\s*(\d+)/g)].map(
+// Matches integer-literal declarations only (the current shape of z-index.css).
+// If a future token is authored as a reference / expression
+// (`--z-foo: var(--z-bar)` or `calc(...)`), this parser silently skips that
+// line and it escapes the ordering checks below — extend the matcher then.
+const zLayers = [...zIndexCss.matchAll(/--z-([\w-]+):\s*(\d+)\s*;/g)].map(
   ([, name, value]) => [name, Number(value)] as const,
 )
 const zByName = new Map(zLayers)

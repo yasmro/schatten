@@ -106,7 +106,7 @@ const SpacingRow = ({
       <TierBadge tier={tier} />
     </div>
     <div className="flex-1">
-      <div className="h-4 rounded bg-theme-500" style={{ width: px }} />
+      <div className="h-4 bg-theme-500" style={{ width: px }} />
     </div>
   </div>
 )
@@ -156,7 +156,7 @@ const RecommendBlock = ({
     <div className="flex flex-wrap items-end gap-4">
       {values.map((v) => (
         <div key={v.utility} className="flex flex-col items-center gap-1">
-          <div className="h-6 rounded bg-theme-500" style={{ width: v.px }} />
+          <div className="h-6 bg-theme-500" style={{ width: v.px }} />
           <span className="text-xs font-mono text-foreground">{v.utility}</span>
           <span className="text-[10px] font-mono text-foreground-muted">{v.px}</span>
         </div>
@@ -201,7 +201,7 @@ export const RecommendedScale: Story = {
         ]}
       />
 
-      <SubsectionTitle>Avoid — curated-外</SubsectionTitle>
+      <SubsectionTitle>Avoid — off-scale</SubsectionTitle>
       <Note>
         <code>gap-7</code> / <code>gap-9</code> / <code>gap-11</code> / <code>gap-13</code> render
         fine (Tailwind generates them via the dynamic multiplier) but sit outside the curated set.
@@ -233,7 +233,7 @@ export const Examples: Story = {
       <PageTitle>Do &amp; Don't</PageTitle>
       <Lead>
         Both rows render — the difference is consistency. The left column uses curated values; the
-        right column uses curated-外 values that drift off the shared rhythm.
+        right column uses off-scale values that drift off the shared rhythm.
       </Lead>
 
       <div className="grid grid-cols-2 gap-6">
@@ -249,7 +249,7 @@ export const Examples: Story = {
         </div>
 
         <div>
-          <SubsectionTitle>❌ Curated-外</SubsectionTitle>
+          <SubsectionTitle>❌ Off-scale</SubsectionTitle>
           <Note>
             <code>gap-7 p-9</code>
           </Note>
@@ -309,15 +309,15 @@ export const WhyNoLayoutPrimitives: Story = {
 
       <SectionTitle>The discipline this depends on</SectionTitle>
       <Note>
-        The trade-off is that nothing structurally stops a developer from writing curated-外 values
-        (<code>gap-7</code>, <code>gap-9</code>). The discipline is to stay within the curated scale
+        The trade-off is that nothing structurally stops a developer from writing off-scale values (
+        <code>gap-7</code>, <code>gap-9</code>). The discipline is to stay within the curated scale
         shown in <em>Recommended Scale</em>, and <strong>this doc is the source of truth</strong>{' '}
         for that rule.
       </Note>
 
       <SectionTitle>Future revisit</SectionTitle>
       <Note>
-        Re-evaluated in Phase 5. If drift toward curated-外 values is observed in real AI-generated
+        Re-evaluated in Phase 5. If drift toward off-scale values is observed in real AI-generated
         code, layout primitives can be reconsidered then.
       </Note>
     </div>

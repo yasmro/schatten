@@ -420,3 +420,64 @@ describe('semantic shadow / radius / motion resolution', () => {
     })
   }
 })
+
+/* ------------------------------------------------------------------ */
+/* Z-index stacking order                                              */
+/* ------------------------------------------------------------------ */
+
+/*
+ * Z-index tokens are literal integers (not var() chains to a primitive),
+ * so they don't fit the resolve-to-primitive shape above. What matters
+ * instead is the *ordering* invariant: the scale must be strictly
+ * increasing in declaration order, with no duplicate values (a tie would
+ * make stacking order depend on DOM order — exactly the ambiguity these
+ * tokens exist to remove). A reordering or an accidental dup compiles and
+ * lints fine and only surfaces as a "popup behind the modal" visual bug;
+ * this test catches it at the token layer.
+ */
+const zIndexCss = stripComments(readFileSync(resolve(TOKENS_DIR, 'z-index.css'), 'utf8'))
+// Matches integer-literal declarations only (the current shape of z-index.css).
+// If a future token is authored as a reference / expression
+// (`--z-foo: var(--z-bar)` or `calc(...)`), this parser silently skips that
+// line and it escapes the ordering checks below — extend the matcher then.
+const zLayers = [...zIndexCss.matchAll(/--z-([\w-]+):\s*(\d+)\s*;/g)].map(
+  ([, name, value]) => [name, Number(value)] as const,
+)
+const zByName = new Map(zLayers)
+
+/** Layer value by name; throws on a missing token so callers stay assertion-free. */
+function zValue(name: string): number {
+  const value = zByName.get(name)
+  if (value === undefined) throw new Error(`z-index token --z-${name} not declared`)
+  return value
+}
+
+describe('z-index scale ordering', () => {
+  it('declares at least the documented overlay layers', () => {
+    for (const name of ['modal-backdrop', 'modal', 'popover', 'tooltip', 'toast']) {
+      expect(zByName.has(name)).toBe(true)
+    }
+  })
+
+  it('is strictly increasing in declaration order', () => {
+    const values = zLayers.map(([, value]) => value)
+    expect(values).toEqual([...values].sort((a, b) => a - b))
+  })
+
+  it('has no duplicate values (no ambiguous stacking ties)', () => {
+    const values = zLayers.map(([, value]) => value)
+    expect(new Set(values).size).toBe(values.length)
+  })
+
+  it('keeps overlay layers above the consumer-reserved layers', () => {
+    // Dialog/Tooltip/Toast/Select overlays must beat sticky/fixed page chrome.
+    expect(zValue('modal-backdrop')).toBeGreaterThan(zValue('fixed'))
+  })
+
+  it('floats tooltip and popover above the modal', () => {
+    // A Tooltip or Select dropdown opened inside a Dialog must render in
+    // front of the modal, not behind it.
+    expect(zValue('tooltip')).toBeGreaterThan(zValue('modal'))
+    expect(zValue('popover')).toBeGreaterThan(zValue('modal'))
+  })
+})

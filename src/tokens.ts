@@ -162,6 +162,14 @@ export const tokens = {
     slow: 'var(--transition-slow)',
   },
 
+  /**
+   * Stacking-order tokens. Schatten reserves the `0–100` band for its
+   * portal / overlay layers (`modal-backdrop` 40 → `toast` 80). The lower
+   * slots (`base` 0 / `dropdown` 10 / `sticky` 20 / `fixed` 30) carry no
+   * internal consumer and are reserved for your own page chrome — keep
+   * application stacking values **outside 0–100** to avoid colliding with
+   * Schatten overlays. See the "Reserved z-index range" table in the README.
+   */
   zIndex: {
     base: 'var(--z-base)',
     dropdown: 'var(--z-dropdown)',

@@ -254,6 +254,46 @@ Only include stories that represent distinct visual states:
 - Include: `AllVariants`, `Sizes`, `States`, `Disabled`, `ErrorState`
 - Exclude: `Playground` (interactive, not for VRT)
 
+### docs / token stories — VRT only when there's a genuine visual contract
+
+The "add a story → add it to the VRT roster" rule below is mandatory for
+**lv1 / lv2 component** stories. **`src/docs/` stories are different** — they
+document the system rather than ship a component, and the lv1 companion-
+coverage gates (`check-lv1-companions`, `audit:coverage`) are scoped to
+`src/components/lv1/`, so a docs story can ship with **no** `*.vrt.spec.ts`
+at all. `Welcome.stories.tsx` and `FormStates.stories.tsx` already do.
+
+Pair a docs story with VRT **only when the page itself carries a visual
+contract a screenshot is the right tool to pin** — i.e. the rendering *is*
+the thing under test:
+
+- **Add VRT** — `Tokens/Color` (palette swatches), `Tokens/Typography`
+  (font-metric rendering — exactly what #356 re-baselined), `Tokens/Spacing`
+  (scale rendering), `CSS API` parity pages. Here a pixel shift *is* a
+  regression in the documented value.
+- **Skip VRT** — a page whose real contract is **values / ordering / wiring**,
+  not pixels. `Tokens/Z-Index` is the canonical skip: the z-index contract
+  (the numbers and their strictly-increasing stacking order) is pinned far
+  more robustly by the ordering invariant in
+  [`resolution.test.ts`](../../src/core/tokens/__tests__/resolution.test.ts)
+  than by a screenshot of a table + a few coloured boxes. A VRT there only
+  adds two PNGs to the perpetual bulk-re-baseline set (every Tailwind / Vite
+  / font bump re-captures them) for no contract the unit test isn't already
+  guarding.
+
+The test: **"if this page rendered 1px differently, would that mean a
+documented value broke?"** Yes → VRT. No (the value lives in a token file a
+unit test already pins) → skip the spec, keep the story. Adding VRT later is
+non-breaking; removing a low-value baseline is churn — so when unsure for a
+docs page, **default to skip**.
+
+> Either way, **CI never generates baselines** — the `vrt` job runs
+> `pnpm test:vrt` (compare only, no `--update-snapshots`). A new spec with no
+> committed baseline fails CI on the first run (`A snapshot doesn't exist …`).
+> The author generates and commits the PNGs locally; see
+> ["Brand-new snapshots"](#brand-new-snapshots) and verify local↔CI rendering
+> parity first by passing an existing spec against its committed baseline.
+
 ### Adding a new story → add it to the VRT roster (or document the skip)
 
 When you add a new story to `{Component}.stories.tsx`, the **same PR** must do

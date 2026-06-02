@@ -50,9 +50,9 @@ define-only である `--radius-control` / `--radius-surface`（Button / Input /
   （`--shadow-card` は #145 時点で既に `@theme` 登録・manifest 掲載済み）。
 - (−) `--shadow-card` は lv2 Card 着手まで define-only が継続する。
 - **持ち越し（DoD carry-forward）**: lv2 Card 実装時に `--shadow-card` を
-  **初の consumer** として配線すること。lv2 Card の issue はまだ存在しないため、
-  この持ち越しは本 decision log と、Elevation story の `usedBy` memo
-  （`'— (future: lv2 Card surface)'`）が導線として担保する。
+  **初の consumer** として配線すること。追跡は
+  [#361](https://github.com/yasmro/schatten/issues/361)（milestone `v1+`）が担い、
+  Elevation story の `usedBy` memo と本 decision log がその導線を補強する。
 
 ## Review
 

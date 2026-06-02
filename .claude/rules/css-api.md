@@ -784,6 +784,22 @@ because a 1-value → 1-value alias is something a component can consume
 in one `var()`. The line is **"can this role be a single `var()`?"** —
 yes → semantic token; no → `.st-*` class rule.
 
+**Define-only single-value semantic tokens are allowed (pre-1.0).** A
+single-value semantic token MAY be declared ahead of its consumer and
+sit *define-only* — `@theme`-registered and on the public manifest, but
+not yet referenced by any component (today: `--shadow-card`,
+`--radius-control`, `--radius-surface`). This is an accepted state, not
+debt: the policy is to **wait for the token's natural consumer** rather
+than manufacture one to "use it up", and to never apply a token whose
+*name* mismatches the consumer's *role* (e.g. `--shadow-card` on a Switch
+knob — see [docs/decisions/2026-06-shadow-card-define-only.md](../../docs/decisions/2026-06-shadow-card-define-only.md)).
+Two obligations keep this honest: (1) every define-only token is
+**visualized** with a `defined only` badge in its Tokens story
+(`Tokens/Elevation`, `Tokens/Radius`) so the gap is never hidden; (2) the
+`Status: Accepted` decision log records which future consumer will
+retire it. "Zero define-only tokens before 1.0" is explicitly **not** a
+goal.
+
 ## Quick reference
 
 - **Prefix**: `st-` (frozen for v1.0).

@@ -48,7 +48,7 @@ const SEMANTIC_SHADOWS = [
     name: 'card',
     alias: 'sm',
     status: 'defined-only',
-    usedBy: '— (candidate: Switch knob, see #349)',
+    usedBy: '— (future: lv2 Card surface, #361)',
   },
 ] as const
 

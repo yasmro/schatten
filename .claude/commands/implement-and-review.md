@@ -173,11 +173,25 @@ pnpm typecheck      # tsc --noEmit -p tsconfig.test.json
 - `pnpm typecheck` の型エラー → 型を直す。`any` / `@ts-ignore` で塞ぐのは
   最終手段で、塞ぐなら必ず 1 行コメントで理由を残す。
 
-VRT (`pnpm test:vrt`) は **このコマンドからは走らせない**。新規 component を
-追加した場合は `*.vrt.spec.ts` を置くだけで OK で、baseline 生成は CI 側で行う
-方針 (手元で `test:vrt:update` を blindly 走らせるのは [vrt-spec-guideline](../rules/vrt-spec-guideline.md)
-で禁止されている)。VRT spec をローカル検証したい場合はユーザが明示的に依頼した
-ときだけ。
+VRT の既存 baseline を **blindly update しない** ([vrt-spec-guideline](../rules/vrt-spec-guideline.md)
+の禁止事項)。ただし **CI の `vrt` job は `pnpm test:vrt`(比較のみ、`--update-snapshots`
+なし)で走る** ので、**新規 `*.vrt.spec.ts` を spec だけ置いて baseline を commit
+しないと CI は初回必ず落ちる**(`A snapshot doesn't exist … writing actual` →
+exit 1)。「baseline は CI が生成してくれる」は **誤り** — author が生成して
+commit するのが原則。手順:
+
+1. **そもそも VRT が要るか判断する。** lv1 component は必須。docs story は
+   *視覚契約があるか* で判断 — token の値/順序が本質のページ(例: z-index)は
+   unit test の方が堅牢で VRT は不要(`vrt-spec-guideline` の "docs story の VRT"
+   節)。不要なら spec を置かない。
+2. **要るなら baseline をローカル生成して commit する。** このリポの VRT は
+   macOS runner。生成前に **既存 spec を 1 本 `pnpm test:vrt -- --grep <既存>`
+   で committed baseline に対して pass させ、local↔CI のレンダリング一致を実証**
+   してから、対象 spec のみ `npx playwright test <path> --update-snapshots` で
+   生成 → **生成 PNG を目視確認** → commit。`lsof -ti:6006` で他 worktree の
+   Storybook 混入を防ぐ。
+3. **既存 baseline の意図的更新**は `vrt-spec-guideline` の "Re-baselining"
+   手順(まず `test:vrt` で fail させ `*-diff.png` を確認 → scope 限定 update)。
 
 ## Step 5. Changeset
 
@@ -381,8 +395,9 @@ gh pr view "$PR_NUMBER" --json title,baseRefName,headRefName,labels
 - 追加した changeset (該当時)
 - `/review-pr` の出力サマリ (1-2 行 — 「✅ Ship」「🟡 Ship with notes」「🔴 Block」
   のどれだったか + 次にやることの top-1)
-- 後続でユーザが取るべきアクション (例: 「VRT baseline を CI で生成する」「VRT
-  失敗した場合の対処」など)
+- 後続でユーザが取るべきアクション (例: 「新規 VRT spec の baseline をローカル
+  生成して commit する (CI は比較のみ — 自動生成しない)」「VRT 失敗した場合の
+  対処」など)
 
 ## Gotchas
 
@@ -391,10 +406,13 @@ gh pr view "$PR_NUMBER" --json title,baseRefName,headRefName,labels
   壊すのでガードしている (Step 8 の確認)。
 - **既存の Claude worktree ブランチで走らせると、過去の差分を巻き込む**。
   Step 2 で `git log origin/develop..HEAD` をチェックしているのはこのため。
-- **VRT を勝手に update しない**。`*.vrt.spec.ts` を新規追加するだけに留め、
-  baseline 生成は CI に任せる。`pnpm test:vrt:update` を agent から無断で
-  走らせると [vrt-spec-guideline](../rules/vrt-spec-guideline.md) の "blind
-  update 禁止" 違反になる。
+- **既存 baseline を勝手に update しない**。`pnpm test:vrt:update` を agent
+  から無断でスイープ実行すると [vrt-spec-guideline](../rules/vrt-spec-guideline.md)
+  の "blind update 禁止" 違反になる。一方で **新規 spec の baseline は CI が
+  生成しない**(CI は `pnpm test:vrt` = 比較のみ)ので、author が Step 3 の手順
+  (local↔CI parity を実証 → 対象 spec のみ生成 → 目視 → commit)で作って
+  commit する。「spec を置けば CI が baseline を作る」は誤り — 置くだけだと CI が
+  初回必ず落ちる。
 - **Storybook surface は英語**。タスク文が日本語でも、Story の `argTypes
   description` / Storybook ラベル / Button label は英語で書く。Commit message と
   PR body は日本語 OK (既存の develop の PR タイトルも日本語混在)。

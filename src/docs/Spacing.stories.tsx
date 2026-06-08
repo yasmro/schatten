@@ -87,7 +87,12 @@ const SpacingRow = ({
       <TierBadge tier={tier} />
     </div>
     <div className="flex-1">
-      <div className="h-4 bg-theme-500" style={{ width: px }} />
+      {/* Bar width is driven by the real `--spacing-*` token (not the `px`
+          label) so this VRT actually guards spacing-token drift: a value
+          change in spacing.css moves the bar. Do NOT revert to `width: px`
+          — that turns the screenshot back into a hardcoded table that can't
+          catch a regression. */}
+      <div className="h-4 bg-theme-500" style={{ width: `var(--spacing-${token})` }} />
     </div>
   </div>
 )
@@ -129,7 +134,7 @@ const RecommendBlock = ({
 }: {
   heading: string
   note: string
-  values: { utility: string; px: string }[]
+  values: { token: string; utility: string; px: string }[]
 }) => (
   <div className="mb-6">
     <SubsectionTitle>{heading}</SubsectionTitle>
@@ -137,7 +142,9 @@ const RecommendBlock = ({
     <div className="flex flex-wrap items-end gap-4">
       {values.map((v) => (
         <div key={v.utility} className="flex flex-col items-center gap-1">
-          <div className="h-6 bg-theme-500" style={{ width: v.px }} />
+          {/* Token-driven width — see SpacingRow comment. Guards `--spacing-*`
+              drift instead of pinning a hardcoded px. */}
+          <div className="h-6 bg-theme-500" style={{ width: `var(--spacing-${v.token})` }} />
           <span className="text-xs font-mono text-foreground">{v.utility}</span>
           <span className="text-[10px] font-mono text-foreground-muted">{v.px}</span>
         </div>
@@ -161,12 +168,12 @@ export const RecommendedScale: Story = {
         heading="Inner spacing — gap, padding"
         note="Spacing between elements inside a component or a tight group."
         values={[
-          { utility: '1 (4px)', px: '4px' },
-          { utility: '2 (8px)', px: '8px' },
-          { utility: '3 (12px)', px: '12px' },
-          { utility: '4 (16px)', px: '16px' },
-          { utility: '6 (24px)', px: '24px' },
-          { utility: '8 (32px)', px: '32px' },
+          { token: '1', utility: '1 (4px)', px: '4px' },
+          { token: '2', utility: '2 (8px)', px: '8px' },
+          { token: '3', utility: '3 (12px)', px: '12px' },
+          { token: '4', utility: '4 (16px)', px: '16px' },
+          { token: '6', utility: '6 (24px)', px: '24px' },
+          { token: '8', utility: '8 (32px)', px: '32px' },
         ]}
       />
 
@@ -174,11 +181,11 @@ export const RecommendedScale: Story = {
         heading="Outer spacing — margin, section gaps"
         note="Spacing between components and between page sections."
         values={[
-          { utility: '4 (16px)', px: '16px' },
-          { utility: '6 (24px)', px: '24px' },
-          { utility: '8 (32px)', px: '32px' },
-          { utility: '12 (48px)', px: '48px' },
-          { utility: '16 (64px)', px: '64px' },
+          { token: '4', utility: '4 (16px)', px: '16px' },
+          { token: '6', utility: '6 (24px)', px: '24px' },
+          { token: '8', utility: '8 (32px)', px: '32px' },
+          { token: '12', utility: '12 (48px)', px: '48px' },
+          { token: '16', utility: '16 (64px)', px: '64px' },
         ]}
       />
 

@@ -50,8 +50,8 @@ export const BasicField: Story = {
         <code className="text-xs">required</code> renders the visual{' '}
         <code className="text-xs">*</code> but does <strong>not</strong> set{' '}
         <code className="text-xs">aria-required</code> on the input — add{' '}
-        <code className="text-xs">required</code> to the input element yourself (known gap,
-        component-architecture §8).
+        <code className="text-xs">required</code> to the input element yourself (a known
+        limitation).
       </Note>
       <Field label="Email" description="Used when you sign in" required>
         <Input type="email" placeholder="you@example.com" />

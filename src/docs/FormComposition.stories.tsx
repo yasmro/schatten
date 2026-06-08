@@ -197,7 +197,7 @@ export const CompleteSignUpForm: Story = {
             <Input type="password" name="passwordConfirm" disabled={submitting} />
           </Field>
           <Checkbox label="I agree to the terms" name="agree" disabled={submitting} />
-          <Button type="submit" isLoading={submitting}>
+          <Button type="submit" isLoading={submitting} className="self-start">
             Sign up
           </Button>
         </form>

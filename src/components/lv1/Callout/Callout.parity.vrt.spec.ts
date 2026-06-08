@@ -4,7 +4,13 @@ const STORY_ID_PREFIX = 'components-lv1-callout'
 
 const stories = ['parity'] as const
 
-const themes = ['light', 'dark'] as const
+// Parity proves React markup ≡ the vanilla `.st-*` markup — both halves
+// consume the *same* classes, so the equivalence is theme-invariant: a
+// `.dark` token swap applies to both equally, so light parity already
+// implies dark parity. Dark *rendering* is covered by the component's own
+// {Name}.vrt.spec.ts. Parity therefore runs light-only (dropped dark to
+// avoid a redundant baseline — see VRT精査 2026-06).
+const themes = ['light'] as const
 
 function storyUrl(storyId: string, theme: string) {
   return `/iframe.html?id=${STORY_ID_PREFIX}--${storyId}&globals=theme:${theme}&viewMode=story`

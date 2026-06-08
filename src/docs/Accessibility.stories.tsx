@@ -611,8 +611,8 @@ expect(results.violations).toEqual([])`}</CodeBlock>
       </Note>
 
       <SectionTitle>Run it</SectionTitle>
-      <CodeBlock>{`pnpm test:a11y    # playwright --grep a11y          → a11y only
-pnpm test:vrt     # playwright --grep-invert a11y    → screenshots only`}</CodeBlock>
+      <CodeBlock>{`pnpm test:a11y    # playwright test --grep a11y          → a11y only
+pnpm test:vrt     # playwright test --grep-invert a11y    → screenshots only`}</CodeBlock>
 
       <SectionTitle>Status: observe-only (Phase 1)</SectionTitle>
       <Note>

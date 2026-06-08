@@ -11,6 +11,12 @@ Goal: a consuming product can write a stable selector against any rendered
 Schatten element, including ones that escape into a Portal, without Schatten
 ever choosing a testid on the consumer's behalf.
 
+> **Live examples.** The [`Patterns/Testing`](../../src/docs/Testing.stories.tsx)
+> Storybook page demonstrates every policy below as runnable demos — root
+> pass-through, the compound path (Select), the `asChild` caveat (Tooltip),
+> Portal-rendered content, the curated-props exceptions (Dialog / Toast), the
+> flat-Field form case, naming, and the no-auto-testid rule.
+
 ## Core policy: direct `...props` pass-through
 
 Schatten components forward `data-testid` (and every other unknown DOM attribute)

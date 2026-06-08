@@ -33,7 +33,7 @@ import {
   X,
 } from 'lucide-react'
 import { Icon } from '../components/lv1/Icon/Icon'
-import { Lead, Note, PageTitle, SectionTitle, SubsectionTitle } from './docs-ui'
+import { CodeBlock, Lead, Note, PageTitle, SectionTitle, SubsectionTitle } from './docs-ui'
 
 /*
  * Tokens/Iconography — narrative + conventions doc for the icon system.
@@ -54,13 +54,6 @@ const meta: Meta = {
 
 export default meta
 type Story = StoryObj
-
-/** Monospace code sample box, framework-agnostic (no syntax highlighting needed for short snippets). */
-const CodeBlock = ({ children }: { children: React.ReactNode }) => (
-  <pre className="my-3 overflow-x-auto whitespace-pre rounded-lg border border-border bg-surface p-4 font-mono text-sm text-foreground">
-    {children}
-  </pre>
-)
 
 const Bullets = ({ items }: { items: React.ReactNode[] }) => (
   <ul className="mb-3 ml-5 list-disc space-y-1 text-sm text-foreground-muted">

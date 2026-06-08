@@ -1,10 +1,10 @@
 import type { ReactNode } from 'react'
 
 /*
- * Shared prose primitives for the `Tokens/*` docs stories (Spacing, Elevation,
- * and future Radius / Motion pages). These carry no public API surface — they
- * exist only to keep the docs pages typographically consistent without each
- * page re-declaring the same five helpers.
+ * Shared prose primitives for the docs stories under `Tokens/*` and
+ * `Patterns/*` (Spacing, Elevation, Iconography, Accessibility, …). These carry
+ * no public API surface — they exist only to keep the docs pages typographically
+ * consistent without each page re-declaring the same helpers.
  *
  * This file is NOT a `*.stories.tsx`, so Storybook does not load it as stories
  * (`.storybook/main.ts` globs `*.stories.@(ts|tsx)` only). It is plain JSX
@@ -29,4 +29,11 @@ export const Lead = ({ children }: { children: ReactNode }) => (
 
 export const Note = ({ children }: { children: ReactNode }) => (
   <p className="text-sm text-foreground-muted mb-3">{children}</p>
+)
+
+/** Monospace code sample box, framework-agnostic (no syntax highlighting needed for short snippets). */
+export const CodeBlock = ({ children }: { children: ReactNode }) => (
+  <pre className="my-3 overflow-x-auto whitespace-pre rounded-lg border border-border bg-surface p-4 font-mono text-sm text-foreground">
+    {children}
+  </pre>
 )

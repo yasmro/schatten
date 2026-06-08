@@ -17,7 +17,7 @@ import {
 } from '../components/lv1/Select/Select'
 import { Switch } from '../components/lv1/Switch/Switch'
 import { Text } from '../components/lv1/Text/Text'
-import { Lead, Note, PageTitle, SectionTitle, SubsectionTitle } from './docs-ui'
+import { CodeBlock, Lead, Note, PageTitle, SectionTitle, SubsectionTitle } from './docs-ui'
 
 /*
  * Patterns/Accessibility — narrative + conventions doc for Schatten's a11y
@@ -36,6 +36,13 @@ import { Lead, Note, PageTitle, SectionTitle, SubsectionTitle } from './docs-ui'
  * dev time through the Storybook addon-a11y panel (the same axe surface). See
  * `.claude/rules/vrt-spec-guideline.md` ("docs / token stories — VRT only when
  * there's a genuine visual contract").
+ *
+ * Why not even an a11y-only axe spec (no screenshots): this page deliberately
+ * renders muted-foreground prose and state-token Callouts to demonstrate the
+ * contract — and those are exactly the surfaces in the #344 borderline
+ * color-contrast backlog. A green `expect(violations).toEqual([])` is therefore
+ * not achievable here until #344 lands. Revisit folding this page into the CI
+ * a11y gate when #344 is resolved (or when #346 flips the gate to blocking).
  */
 const meta: Meta = {
   title: 'Patterns/Accessibility',
@@ -55,12 +62,6 @@ const Code = ({ children }: { children: ReactNode }) => (
   <code className="rounded bg-surface px-1 py-0.5 font-mono text-[0.85em] text-foreground">
     {children}
   </code>
-)
-
-const CodeBlock = ({ children }: { children: ReactNode }) => (
-  <pre className="my-3 overflow-x-auto whitespace-pre-wrap rounded-lg border border-border bg-surface p-4 font-mono text-xs text-foreground">
-    {children}
-  </pre>
 )
 
 const Demo = ({ label, children }: { label: string; children: ReactNode }) => (
@@ -196,7 +197,7 @@ export const FocusVisibility: Story = {
         <Button>Primary</Button>
         <Button variant="secondary">Secondary</Button>
         <Button variant="link">Link</Button>
-        <Input placeholder="Input" className="w-40" />
+        <Input aria-label="Sample input" placeholder="Input" className="w-40" />
         <Checkbox label="Checkbox" />
         <Switch label="Switch" />
         <Select>
@@ -248,6 +249,12 @@ export const AriaConventions: Story = {
       </Lead>
 
       <SectionTitle>Required attributes by component</SectionTitle>
+      {/*
+       * Hand-maintained mirror of the a11y contract in
+       * `.claude/rules/component-architecture.md §8`. The implementation is the
+       * source of truth — re-verify this table whenever a component's aria-*
+       * wiring changes (this page's own issue body went stale exactly this way).
+       */}
       <RefTable
         headers={['Component', 'Attribute', 'Source']}
         rows={[
@@ -386,17 +393,21 @@ export const Contrast: Story = {
         ReadOnly Treatments (a11y audit)&quot;.
       </Note>
 
-      <SubsectionTitle>Worked example — body text (≥ 4.5 : 1)</SubsectionTitle>
+      <SubsectionTitle>Worked example — foreground tiers on a surface</SubsectionTitle>
       <Note>
-        A safe foreground pairing on a neutral surface. Toggle the Theme toolbar to confirm both
-        Modes hold.
+        <Code>text-foreground</Code> clears the 4.5 : 1 body-text line comfortably in both Modes.{' '}
+        <Code>text-foreground-muted</Code> is intentionally lower-contrast for secondary text — at
+        small sizes it lands in the borderline band (&lt; 4.5 : 1) that #344 is tightening, so reach
+        for it on larger or non-essential text and confirm exact ratios against the{' '}
+        <Code>Tokens/Color</Code> audit.
       </Note>
       <div className="rounded-lg border border-border bg-surface p-6 flex flex-col gap-1">
         <p className="text-foreground">
-          <Code>text-foreground</Code> on <Code>bg-surface</Code> — primary body text.
+          <Code>text-foreground</Code> on <Code>bg-surface</Code> — primary body text, meets AA.
         </p>
         <p className="text-foreground-muted">
-          <Code>text-foreground-muted</Code> on <Code>bg-surface</Code> — secondary text, still AA.
+          <Code>text-foreground-muted</Code> on <Code>bg-surface</Code> — secondary text, borderline
+          at small sizes (#344).
         </p>
       </div>
     </Page>

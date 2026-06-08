@@ -120,6 +120,40 @@ When you change a prop's description, **update TSDoc first**, then sync
 - Always include `tags: ['autodocs']` to enable auto-generated documentation.
 - Set `parameters: { layout: 'centered' }` unless the component requires full-width layout.
 
+## Hand-built docs pages (Patterns / Tokens) — render prose inline
+
+Component stories carry `tags: ['autodocs']`, so Storybook generates an
+autodocs **Docs page** for them — and that Docs page is the only surface on
+which `parameters.docs.description.component` / `.story` render.
+
+The hand-built pages under `Patterns/*` and `Tokens/*` (e.g.
+[`FormStates.stories.tsx`](../../src/docs/FormStates.stories.tsx),
+[`FormComposition.stories.tsx`](../../src/docs/FormComposition.stories.tsx))
+are **different**: they are authored as full-bleed Canvas pages
+(`parameters: { layout: 'fullscreen' }`) and **must NOT** carry
+`tags: ['autodocs']`. Consequently **no Docs page is generated for them**, so
+anything placed in `parameters.docs.description.*` renders **nowhere** — it is
+silently dormant.
+
+The rule for these pages:
+
+- **Render every piece of prose inline as JSX** inside the story `render` —
+  page intro, per-recipe captions, a11y notes, and code snippets. Use the
+  shared [`docs-ui.tsx`](../../src/docs/docs-ui.tsx) helpers (`PageTitle` /
+  `SectionTitle` / `SubsectionTitle` / `Lead` / `Note`) so the typography
+  matches the other docs pages.
+- **Do NOT** put narrative in `parameters.docs.description.component` /
+  `.story` on a `fullscreen` / no-`autodocs` page and assume it shows. It does
+  not. A note that reads "see the code in the Docs panel above" on such a page
+  is a dangling reference — there is no Docs panel.
+- Show code samples with an inline `<pre><code>{`…`}</code></pre>` block, not a
+  `description.story` markdown fence.
+
+If a page genuinely needs the autodocs Docs surface, add `tags: ['autodocs']`
+deliberately and drop `layout: 'fullscreen'` — but for narrative recipe pages
+the inline-prose Canvas pattern is preferred (the args table autodocs injects
+adds noise a recipe page doesn't want).
+
 ## a11y (addon-a11y)
 
 `@storybook/addon-a11y` runs an [axe-core](https://github.com/dequelabs/axe-core)

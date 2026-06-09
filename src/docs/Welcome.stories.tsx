@@ -74,10 +74,51 @@ const ComponentCard = ({
   </a>
 )
 
+/**
+ * Card for the "Engineering discipline" section. Unlike `ComponentCard` it has
+ * no interactive preview, so it is a plain text link — internal links route
+ * through `navigateToStory`, the external `.claude/rules/` link opens GitHub in
+ * a new tab.
+ */
+const DisciplineCard = ({
+  title,
+  description,
+  href,
+  onClick,
+  external = false,
+}: {
+  title: string
+  description: string
+  href: string
+  onClick?: (e: React.MouseEvent) => void
+  external?: boolean
+}) => (
+  <a
+    href={href}
+    onClick={onClick}
+    {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+    className="group block h-full border border-border rounded-xl p-5 no-underline transition-shadow duration-200 hover:shadow-md"
+  >
+    <p className="text-sm font-semibold text-vermillion group-hover:underline">
+      {title}
+      {external && (
+        <>
+          <span aria-hidden className="ml-1 text-foreground-muted">
+            ↗
+          </span>
+          <span className="sr-only"> (opens in a new tab)</span>
+        </>
+      )}
+    </p>
+    <p className="text-xs text-foreground-muted mt-1.5 leading-relaxed">{description}</p>
+  </a>
+)
+
 export const Overview: Story = {
   name: 'Overview',
   render: () => (
     <div className="max-w-4xl mx-auto px-8 py-16">
+      {/* 1. Hero */}
       <div className="mb-16">
         <h1 className="text-5xl font-bold text-foreground mb-3 tracking-tight">Schatten</h1>
         <p className="text-lg text-foreground-muted leading-relaxed">
@@ -87,6 +128,32 @@ export const Overview: Story = {
         </p>
       </div>
 
+      {/* 2. What & Why — the evaluator's "what is this / why does it exist" */}
+      <div className="mb-16">
+        <h2 className="text-xl font-bold text-foreground mb-4">What is Schatten?</h2>
+        <p className="text-sm text-foreground-muted leading-relaxed">
+          Schatten is a React component library built on the conventions of{' '}
+          <a
+            href="https://ui.shadcn.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-info underline"
+          >
+            shadcn/ui
+          </a>{' '}
+          (Radix UI primitives + class-variance-authority + a <code>cn</code> utility), restyled
+          around a Japanese visual language — <em>sumi</em> ink, <em>washi</em> paper, and a
+          vermillion seal — with a runtime seasonal theme system based on the twenty-four solar
+          terms (<span className="font-serif">二十四節気</span>).
+        </p>
+        <p className="text-sm text-foreground-muted leading-relaxed mt-3">
+          It is a portfolio and learning project. As much as a set of components, it is an exhibit
+          of <em>how</em> a design system is operated — the rules, the contracts, and the tests that
+          keep it honest.
+        </p>
+      </div>
+
+      {/* 3. Concept — the aesthetic "why", condensed */}
       <div className="mb-16">
         <h2 className="text-xl font-bold text-foreground mb-6">Concept</h2>
         <div className="flex flex-col gap-8">
@@ -96,11 +163,9 @@ export const Overview: Story = {
             </h3>
             <p className="text-sm text-foreground-muted leading-relaxed">
               "Schatten" is the German word for "shadow." Inspired by Jun'ichiro Tanizaki's{' '}
-              <em>In Praise of Shadows</em> (<span className="font-serif">陰翳礼讃</span>), this
-              design system finds beauty not in light, but in the subtle interplay of shadow and
-              restraint. Rather than commanding attention with bold decoration and animation, we let
-              the content itself stand forward — through whitespace, muted tones, and quiet
-              refinement.
+              <em>In Praise of Shadows</em> (<span className="font-serif">陰翳礼讃</span>), the
+              system finds beauty in restraint rather than bold decoration — letting content stand
+              forward through whitespace and muted tones.
             </p>
           </div>
           <div>
@@ -109,9 +174,9 @@ export const Overview: Story = {
             </h3>
             <p className="text-sm text-foreground-muted leading-relaxed">
               The color system is built on the metaphor of <em>sumi</em> (ink) on <em>washi</em>{' '}
-              (paper). The warmth of handmade paper, the depth of layered ink, and the vermillion
-              seal of a calligrapher's signature — these are not decorations but the DNA of every
-              token and component. Light and dark modes are simply two sides of the same sheet.
+              (paper): the warmth of handmade paper, the depth of layered ink, and the vermillion
+              seal of a calligrapher's signature. Light and dark modes are two sides of the same
+              sheet.
             </p>
           </div>
           <div>
@@ -119,14 +184,49 @@ export const Overview: Story = {
               Restraint as expression
             </h3>
             <p className="text-sm text-foreground-muted leading-relaxed">
-              A restrained UI is not a lack of design — it is a deliberate choice to let the work
-              speak. Minimal color, subtle transitions, and typographic precision create a quiet
-              confidence. The design recedes so the content can resonate.
+              A restrained UI is a deliberate choice to let the work speak. Minimal color, subtle
+              transitions, and typographic precision create a quiet confidence.
             </p>
           </div>
         </div>
       </div>
 
+      {/* 4. Engineering discipline — the differentiators an evaluator can inspect */}
+      <div className="mb-16">
+        <h2 className="text-xl font-bold text-foreground mb-2">Engineering discipline</h2>
+        <p className="text-sm text-foreground-muted leading-relaxed mb-6">
+          The parts worth inspecting are less the components themselves than how they are governed.
+          Four places to look:
+        </p>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <DisciplineCard
+            title="Rule-driven operation"
+            description="Every architectural decision lives in a versioned contract under .claude/rules/ that both human and AI contributors follow — component API shapes, the token hierarchy, the a11y contract."
+            href="https://github.com/yasmro/schatten/tree/main/.claude/rules"
+            external
+          />
+          <DisciplineCard
+            title="Framework-agnostic CSS API"
+            description="Components ship a .st-* BEM class API and a prebuilt stylesheet, so they render with plain HTML — no React, no Tailwind, no build step required on the consumer side."
+            href="/docs/css-api-overview--reference"
+            onClick={(e) => navigateToStory(e, 'css-api-overview', 'reference')}
+          />
+          <DisciplineCard
+            title="Mode × Special theming"
+            description="Two independent theme axes — light/dark Mode × an exclusive seasonal Special — compose at runtime through CSS variables. See all 16 combinations verified side by side."
+            href="/docs/theming-theme-audit--overview"
+            onClick={(e) => navigateToStory(e, 'theming-theme-audit', 'overview')}
+          />
+          <DisciplineCard
+            title="Accessibility contract"
+            description="Every primitive guarantees a role, an accessible name, keyboard support, and aria-* wiring — asserted with axe-core in CI alongside the visual regression suite."
+            href="/docs/patterns-accessibility--overview"
+            onClick={(e) => navigateToStory(e, 'patterns-accessibility', 'overview')}
+          />
+        </div>
+      </div>
+
+      {/* 5. Component catalog */}
       <div className="mb-12">
         <h2 className="text-xl font-bold text-foreground mb-4">UI Components</h2>
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
@@ -308,8 +408,9 @@ export const Overview: Story = {
         </div>
       </div>
 
+      {/* 6. Tokens (was "Foundation" — renamed to the new IA vocabulary, #336 deferred) */}
       <div>
-        <h2 className="text-xl font-bold text-foreground mb-4">Foundation</h2>
+        <h2 className="text-xl font-bold text-foreground mb-4">Tokens</h2>
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
           <a
             href="/docs/tokens-color--colors"

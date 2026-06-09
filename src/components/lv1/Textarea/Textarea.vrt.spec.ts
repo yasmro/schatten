@@ -5,7 +5,9 @@ const STORY_ID_PREFIX = 'components-lv1-textarea'
 
 const stories = [
   'sizes',
-  'error',
+  // 'error-state' is the canonical id (the `ErrorState` story); 'error'
+  // only resolved via Storybook's prefix-redirect — see Input.vrt.spec.ts.
+  'error-state',
   'disabled',
   'disabled-with-error',
   'read-only',

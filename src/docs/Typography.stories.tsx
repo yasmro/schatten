@@ -23,15 +23,32 @@ const TokenRow = ({
   label,
   token,
   value,
-  style,
+  demo,
 }: {
   label: string
   token: string
   value: string
-  style?: React.CSSProperties
+  /**
+   * Render the label with the token applied live as `var(${token})` so the
+   * VRT guards token drift instead of pinning a hardcoded literal. Omit for
+   * value-only reference rows (line height / letter spacing, whose exact
+   * values are pinned by `resolution.test.ts`). Do NOT swap this back to a
+   * hardcoded `style` — that turns the row into a table that can't catch a
+   * regression.
+   */
+  demo?: 'size' | 'weight'
 }) => (
   <div className="flex items-baseline gap-4 py-2 border-b border-border last:border-b-0">
-    <span className="shrink-0 w-32 text-sm text-foreground" style={style}>
+    <span
+      className="shrink-0 w-32 text-sm text-foreground"
+      style={
+        demo === 'size'
+          ? { fontSize: `var(${token})` }
+          : demo === 'weight'
+            ? { fontWeight: `var(${token})` }
+            : undefined
+      }
+    >
       {label}
     </span>
     <span className="shrink-0 text-xs text-foreground-muted font-mono">{token}</span>
@@ -256,67 +273,22 @@ export const Typography: Story = {
 
       <SubsectionTitle>Font sizes</SubsectionTitle>
       <div className="border border-border rounded-xl px-5">
-        <TokenRow
-          label="Extra Small"
-          token="--text-xs"
-          value="0.75rem (12px)"
-          style={{ fontSize: '0.75rem' }}
-        />
-        <TokenRow
-          label="Small"
-          token="--text-sm"
-          value="0.875rem (14px)"
-          style={{ fontSize: '0.875rem' }}
-        />
-        <TokenRow
-          label="Base"
-          token="--text-base"
-          value="1rem (16px)"
-          style={{ fontSize: '1rem' }}
-        />
-        <TokenRow
-          label="Large"
-          token="--text-lg"
-          value="1.125rem (18px)"
-          style={{ fontSize: '1.125rem' }}
-        />
-        <TokenRow
-          label="XL"
-          token="--text-xl"
-          value="1.25rem (20px)"
-          style={{ fontSize: '1.25rem' }}
-        />
-        <TokenRow
-          label="2XL"
-          token="--text-2xl"
-          value="1.5rem (24px)"
-          style={{ fontSize: '1.5rem' }}
-        />
-        <TokenRow
-          label="3XL"
-          token="--text-3xl"
-          value="1.875rem (30px)"
-          style={{ fontSize: '1.875rem' }}
-        />
-        <TokenRow
-          label="4XL"
-          token="--text-4xl"
-          value="2.25rem (36px)"
-          style={{ fontSize: '2.25rem' }}
-        />
+        <TokenRow label="Extra Small" token="--text-xs" value="0.75rem (12px)" demo="size" />
+        <TokenRow label="Small" token="--text-sm" value="0.875rem (14px)" demo="size" />
+        <TokenRow label="Base" token="--text-base" value="1rem (16px)" demo="size" />
+        <TokenRow label="Large" token="--text-lg" value="1.125rem (18px)" demo="size" />
+        <TokenRow label="XL" token="--text-xl" value="1.25rem (20px)" demo="size" />
+        <TokenRow label="2XL" token="--text-2xl" value="1.5rem (24px)" demo="size" />
+        <TokenRow label="3XL" token="--text-3xl" value="1.875rem (30px)" demo="size" />
+        <TokenRow label="4XL" token="--text-4xl" value="2.25rem (36px)" demo="size" />
       </div>
 
       <SubsectionTitle>Font weights</SubsectionTitle>
       <div className="border border-border rounded-xl px-5">
-        <TokenRow label="Normal" token="--font-normal" value="400" style={{ fontWeight: 400 }} />
-        <TokenRow label="Medium" token="--font-medium" value="500" style={{ fontWeight: 500 }} />
-        <TokenRow
-          label="Semibold"
-          token="--font-semibold"
-          value="600"
-          style={{ fontWeight: 600 }}
-        />
-        <TokenRow label="Bold" token="--font-bold" value="700" style={{ fontWeight: 700 }} />
+        <TokenRow label="Normal" token="--font-normal" value="400" demo="weight" />
+        <TokenRow label="Medium" token="--font-medium" value="500" demo="weight" />
+        <TokenRow label="Semibold" token="--font-semibold" value="600" demo="weight" />
+        <TokenRow label="Bold" token="--font-bold" value="700" demo="weight" />
       </div>
 
       <SubsectionTitle>Line heights</SubsectionTitle>

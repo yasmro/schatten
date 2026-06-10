@@ -8,7 +8,12 @@ const stories = [
   'types',
   'with-text',
   'with-icons',
-  'error',
+  // 'error-state' is the canonical id (the `ErrorState` story — the id
+  // derives from the export name, not the `name: 'Error'` label). Do NOT
+  // shorten to 'error': that id doesn't exist and only ever resolved via
+  // Storybook's prefix-redirect, which silently breaks the moment an
+  // `error-*` sibling story is added.
+  'error-state',
   'disabled',
   'disabled-with-error',
   'read-only',

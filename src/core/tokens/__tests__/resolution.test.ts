@@ -30,6 +30,9 @@ import { describe, expect, it } from 'vitest'
 const TOKENS_DIR = resolve(process.cwd(), 'src/core/tokens')
 const primitivesCss = stripComments(readFileSync(resolve(TOKENS_DIR, 'primitives.css'), 'utf8'))
 const semanticCss = stripComments(readFileSync(resolve(TOKENS_DIR, 'semantic.css'), 'utf8'))
+const defaultThemeCss = stripComments(
+  readFileSync(resolve(process.cwd(), 'src/themes/default/colors.css'), 'utf8'),
+)
 const spacingCss = stripComments(readFileSync(resolve(TOKENS_DIR, 'spacing.css'), 'utf8'))
 const animationCss = stripComments(readFileSync(resolve(TOKENS_DIR, 'animation.css'), 'utf8'))
 
@@ -272,18 +275,72 @@ const THEME_SCALE_SHADES = [
 
 describe('semantic.css token resolution', () => {
   describe('theme scale', () => {
+    // The default ramp is the neutral alabaster scale (#150): with no
+    // Special active the expressive layer rests at the neutral ink look.
     for (const shade of THEME_SCALE_SHADES) {
-      it(`--color-theme-${shade} resolves to blue-${shade} in light mode`, () => {
-        expect(inLight(`theme-${shade}`)).toBe(`blue-${shade}`)
+      it(`--color-theme-${shade} resolves to alabaster-${shade} in light mode`, () => {
+        expect(inLight(`theme-${shade}`)).toBe(`alabaster-${shade}`)
       })
     }
 
     // The `.dark` block does not redeclare the theme scale — it is
     // Special-owned (theme-architecture.md), so dark mode falls back to the
-    // `:root` (blue-*) value. This asserts that fallback holds.
+    // `:root` (alabaster-*) value. This asserts that fallback holds.
     for (const shade of THEME_SCALE_SHADES) {
-      it(`--color-theme-${shade} falls back to blue-${shade} in dark mode`, () => {
-        expect(inDark(`theme-${shade}`)).toBe(`blue-${shade}`)
+      it(`--color-theme-${shade} falls back to alabaster-${shade} in dark mode`, () => {
+        expect(inDark(`theme-${shade}`)).toBe(`alabaster-${shade}`)
+      })
+    }
+  })
+
+  // `themes/default/colors.css` (the `./themes/default` export subpath,
+  // cascade tier 4 in theme-architecture.md) re-declares the same default
+  // ramp. It MUST stay value-identical to the semantic.css fallback, or the
+  // resolved ramp would depend on which subpath a consumer imported.
+  describe('default theme mirror (themes/default/colors.css)', () => {
+    const mirror = parseDeclarations(extractBlockBody(defaultThemeCss, ':root {'))
+
+    for (const shade of THEME_SCALE_SHADES) {
+      it(`--color-theme-${shade} mirrors the semantic.css declaration`, () => {
+        expect(mirror.get(`--color-theme-${shade}`)).toBe(
+          semanticLight.get(`--color-theme-${shade}`),
+        )
+      })
+    }
+
+    it('declares the theme scale and nothing else', () => {
+      expect([...mirror.keys()].filter((k) => !k.startsWith('--color-theme-'))).toEqual([])
+    })
+  })
+
+  // Solid rides the theme ramp (#150): Mode picks the rung, the active
+  // Special supplies the ramp. The MODE_LAYER fixture below already pins the
+  // default leaf (alabaster-*); these pin the *route* itself so the rung
+  // selection cannot silently decouple from the theme scale.
+  describe('solid rides the theme ramp (rung selection)', () => {
+    const LIGHT_RUNGS = {
+      solid: '700',
+      'solid-hover': '900',
+      'solid-foreground': '100',
+      'solid-foreground-hover': '300',
+    } as const
+    const DARK_RUNGS = {
+      solid: '300',
+      'solid-hover': '100',
+      'solid-foreground': '800',
+      'solid-foreground-hover': '700',
+    } as const
+
+    for (const [token, rung] of Object.entries(LIGHT_RUNGS)) {
+      it(`--color-${token} references --color-theme-${rung} in light mode`, () => {
+        expect(semanticLight.get(`--color-${token}`)).toBe(`var(--color-theme-${rung})`)
+      })
+    }
+    // The @media dark block is pinned byte-identical to `.dark` by the
+    // integrity suite below, so asserting `.dark` covers both.
+    for (const [token, rung] of Object.entries(DARK_RUNGS)) {
+      it(`--color-${token} references --color-theme-${rung} in dark mode`, () => {
+        expect(semanticDark.get(`--color-${token}`)).toBe(`var(--color-theme-${rung})`)
       })
     }
   })

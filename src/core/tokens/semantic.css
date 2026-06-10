@@ -7,18 +7,28 @@
  */
 
 :root {
-  /* Theme scale — overridden by Special themes via [data-theme] */
-  --color-theme-50: var(--blue-50);
-  --color-theme-100: var(--blue-100);
-  --color-theme-200: var(--blue-200);
-  --color-theme-300: var(--blue-300);
-  --color-theme-400: var(--blue-400);
-  --color-theme-500: var(--blue-500);
-  --color-theme-600: var(--blue-600);
-  --color-theme-700: var(--blue-700);
-  --color-theme-800: var(--blue-800);
-  --color-theme-900: var(--blue-900);
-  --color-theme-950: var(--blue-950);
+  /*
+   * Theme scale — overridden by Special themes via [data-theme].
+   * The default ramp is the neutral alabaster scale: with no Special
+   * active the expressive layer rests at Schatten's neutral ink look,
+   * and a Special breathes color into the same rungs. The solid family
+   * below consumes rungs of this ramp, so a Special recolors every
+   * solid surface (Button primary, Badge/Callout/Toast neutral × solid)
+   * without touching any Mode-owned token.
+   * `themes/default/colors.css` mirrors this ramp 1:1 — the sync is
+   * pinned by resolution.test.ts ("default theme mirror").
+   */
+  --color-theme-50: var(--alabaster-50);
+  --color-theme-100: var(--alabaster-100);
+  --color-theme-200: var(--alabaster-200);
+  --color-theme-300: var(--alabaster-300);
+  --color-theme-400: var(--alabaster-400);
+  --color-theme-500: var(--alabaster-500);
+  --color-theme-600: var(--alabaster-600);
+  --color-theme-700: var(--alabaster-700);
+  --color-theme-800: var(--alabaster-800);
+  --color-theme-900: var(--alabaster-900);
+  --color-theme-950: var(--alabaster-950);
 
   /* Surfaces */
   --color-background: var(--paper-warm);
@@ -35,11 +45,18 @@
   --color-foreground-muted: var(--ink-light);
   --color-foreground-subtle: var(--ink-subtle);
 
-  /* Solid (filled component backgrounds) */
-  --color-solid: var(--alabaster-700);
-  --color-solid-hover: var(--alabaster-900);
-  --color-solid-foreground: var(--alabaster-100);
-  --color-solid-foreground-hover: var(--alabaster-300);
+  /*
+   * Solid (filled component backgrounds) — rides the theme ramp.
+   * Mode picks the rung (light: 700-on-100; dark: 300-on-800); the
+   * active Special supplies the ramp. With no Special the default
+   * (alabaster) ramp resolves to the exact pre-rewiring values, so the
+   * default look is unchanged. See theme-architecture.md
+   * "Solid rides the theme ramp".
+   */
+  --color-solid: var(--color-theme-700);
+  --color-solid-hover: var(--color-theme-900);
+  --color-solid-foreground: var(--color-theme-100);
+  --color-solid-foreground-hover: var(--color-theme-300);
 
   /* Destructive — destructive actions (delete, remove). Shares the `red` primitive with `error`. */
   --color-destructive: var(--red-600);
@@ -152,10 +169,10 @@
     --color-foreground-muted: var(--ink-light-inverted);
     --color-foreground-subtle: var(--ink-subtle-inverted);
 
-    --color-solid: var(--alabaster-300);
-    --color-solid-hover: var(--alabaster-100);
-    --color-solid-foreground: var(--alabaster-800);
-    --color-solid-foreground-hover: var(--alabaster-700);
+    --color-solid: var(--color-theme-300);
+    --color-solid-hover: var(--color-theme-100);
+    --color-solid-foreground: var(--color-theme-800);
+    --color-solid-foreground-hover: var(--color-theme-700);
 
     --color-destructive: var(--red-500);
     --color-destructive-hover: var(--red-400);
@@ -219,10 +236,10 @@
   --color-foreground-muted: var(--ink-light-inverted);
   --color-foreground-subtle: var(--ink-subtle-inverted);
 
-  --color-solid: var(--alabaster-300);
-  --color-solid-hover: var(--alabaster-100);
-  --color-solid-foreground: var(--alabaster-800);
-  --color-solid-foreground-hover: var(--alabaster-700);
+  --color-solid: var(--color-theme-300);
+  --color-solid-hover: var(--color-theme-100);
+  --color-solid-foreground: var(--color-theme-800);
+  --color-solid-foreground-hover: var(--color-theme-700);
 
   --color-destructive: var(--red-500);
   --color-destructive-hover: var(--red-400);

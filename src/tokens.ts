@@ -152,17 +152,6 @@ export const tokens = {
   },
 
   /**
-   * @deprecated Unreferenced by any component and superseded by `motion`
-   * (the `--st-duration-*`-backed semantic scale). Kept only to avoid
-   * breaking a stray consumer reference; do not add new usages.
-   */
-  transition: {
-    fast: 'var(--transition-fast)',
-    normal: 'var(--transition-normal)',
-    slow: 'var(--transition-slow)',
-  },
-
-  /**
    * Stacking-order tokens. Schatten reserves the `0–100` band for its
    * portal / overlay layers (`modal-backdrop` 40 → `toast` 80). The lower
    * slots (`base` 0 / `dropdown` 10 / `sticky` 20 / `fixed` 30) carry no
@@ -229,7 +218,6 @@ export type SpacingToken = keyof typeof tokens.spacing
 export type RadiusToken = keyof typeof tokens.radius
 export type ShadowToken = keyof typeof tokens.shadow
 export type MotionToken = keyof typeof tokens.motion
-export type TransitionToken = keyof typeof tokens.transition
 export type ZIndexToken = keyof typeof tokens.zIndex
 export type FontToken = keyof typeof tokens.font
 export type FontSizeToken = keyof typeof tokens.fontSize

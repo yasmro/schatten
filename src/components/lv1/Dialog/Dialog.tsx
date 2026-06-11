@@ -137,6 +137,12 @@ function Body({ children }: { children: ReactNode }) {
   // axe `scrollable-region-focusable`), so it becomes a tab stop — but
   // only while actually overflowing, to avoid a dead stop in the common
   // non-scrolling case.
+  //
+  // Known limit: ResizeObserver watches the body's own box, so content
+  // that grows after mount *without* changing that box (async load while
+  // already pinned at max-height) won't re-run the check until the next
+  // resize. Acceptable today — dialog content is static at mount in all
+  // current usages; revisit if a consumer streams content into the body.
   useEffect(() => {
     const el = ref.current
     if (!el) return

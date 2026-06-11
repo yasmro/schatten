@@ -364,7 +364,7 @@ so future authors can replicate it.
 | `season--autumn-early` | 230 | 8/7 – 9/22  | `--color-theme-*` |
 | `season--autumn-late`  | 70  | 9/23 – 11/6 | `--color-theme-*` |
 | `season--winter-early` | 250 | 11/7 – 12/21 | `--color-theme-*` |
-| `season--winter-deep`  | 0/240 | 12/22 – 2/3 | `--color-theme-*` |
+| `season--winter-deep`  | 255 | 12/22 – 2/3 | `--color-theme-*` |
 
 No existing seasonal theme touches surfaces, foregrounds, borders,
 brand-named tokens, state colors, or info. **That is the contract** —

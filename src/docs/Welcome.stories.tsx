@@ -229,6 +229,14 @@ export const Overview: Story = {
             onClick={(e) => navigateToStory(e, 'theming-theme-audit', 'overview', 'story')}
           />
           <TextLinkCard
+            title="Seasonal showcase"
+            description="Eight palettes based on the 24 solar terms re-tint every solid surface at runtime — see all eight seasons worn by buttons, badges, and a full dashboard mockup."
+            href="/story/theming-seasonal-showcase--eight-seasons"
+            onClick={(e) =>
+              navigateToStory(e, 'theming-seasonal-showcase', 'eight-seasons', 'story')
+            }
+          />
+          <TextLinkCard
             title="Accessibility contract"
             description="Every primitive guarantees a role, an accessible name, keyboard support, and aria-* wiring — asserted with axe-core in CI alongside the visual regression suite."
             href="/story/patterns-accessibility--overview"

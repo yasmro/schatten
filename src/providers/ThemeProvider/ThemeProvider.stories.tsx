@@ -221,7 +221,7 @@ export const PaintWithoutReactReRender: Story = {
             Inner component mounted with random id <strong>{counter}</strong>. Switch theme above —
             this number does NOT change, proving the JSX subtree did not re-render.
           </Text>
-          <div className="flex gap-2">
+          <div className="flex items-center gap-2">
             <Button variant="primary">Primary</Button>
             <Button variant="secondary">Secondary</Button>
             <Badge variant="success">Success</Badge>

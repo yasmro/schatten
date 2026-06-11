@@ -17,8 +17,10 @@ import { describe, expect, it } from 'vitest'
  * Patterns deliberately target *functional* references (declaration,
  * `var()` use, quoted property name, TS access) — historical prose
  * mentions in comments and docs (e.g. the Motion page's "Removed"
- * tombstone, animation.css's vocabulary note) stay legal without an
- * ever-growing allowlist. The two tombstone exceptions are in ALLOW.
+ * tombstone, animation.css's vocabulary note) stay legal. Docs prose
+ * that must name the removed API verbatim is exempted per line via
+ * `<code>` markup detection (see isProseMention) — no per-file
+ * allowlist to keep in sync.
  *
  * Same regex-over-source approach as Motion.drift.test.ts /
  * Elevation.drift.test.ts.
@@ -31,7 +33,11 @@ const SCANNED_FILE = /\.(?:ts|tsx|css)$/
 const SKIPPED_DIRS = new Set(['__snapshots__'])
 
 const PATTERNS = [
-  { name: 'CSS declaration', re: /--transition-(?:fast|normal|slow)\s*:/ },
+  // The whole `--transition-` namespace is retired, not just the three
+  // removed names — component-scoped variables use the `--st-*` /
+  // `--schatten-*` prefixes, so any new `--transition-*` declaration is
+  // vocabulary re-pluralisation by definition.
+  { name: 'CSS declaration', re: /--transition-[\w-]+\s*:/ },
   { name: 'var() reference', re: /var\(\s*--transition-/ },
   { name: 'quoted property name', re: /['"`]--transition-(?:fast|normal|slow)/ },
   { name: 'tokens.transition access', re: /\btokens\.transition\b/ },
@@ -41,14 +47,16 @@ const PATTERNS = [
 type PatternName = (typeof PATTERNS)[number]['name']
 
 /**
- * Historical mentions allowed per file × pattern. The Motion docs page
- * keeps a "Removed: --transition-*" tombstone that names the old API for
- * migrating readers — prose, not a functional reference.
+ * Docs prose may name the removed API verbatim (the Motion page's
+ * "Removed" tombstone). A mention only counts as prose when the line
+ * wraps it in `<code>` markup — functional code never does, so the
+ * exemption cannot hide a real reference. Deliberately line-scoped
+ * rather than per-file: functional lines in docs files stay guarded,
+ * and future docs pages need no allowlist edit.
  */
-const ALLOW: ReadonlyArray<{ file: string; pattern: PatternName }> = [
-  { file: 'src/docs/Motion.stories.tsx', pattern: 'tokens.transition access' },
-  { file: 'src/docs/Motion.stories.tsx', pattern: 'TransitionToken type' },
-]
+function isProseMention(line: string): boolean {
+  return line.includes('<code>')
+}
 
 function* walk(dir: string): Generator<string> {
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
@@ -68,9 +76,10 @@ function findViolations(): string[] {
     const rel = relative(process.cwd(), file)
     const lines = readFileSync(file, 'utf8').split('\n')
     for (const { name, re } of PATTERNS) {
-      if (ALLOW.some((entry) => entry.file === rel && entry.pattern === name)) continue
       lines.forEach((line, index) => {
-        if (re.test(line)) violations.push(`${rel}:${index + 1} — ${name}`)
+        if (re.test(line) && !isProseMention(line)) {
+          violations.push(`${rel}:${index + 1} — ${name}`)
+        }
       })
     }
   }
@@ -89,6 +98,9 @@ describe('guard self-check — each pattern detects a synthetic violation', () =
   // as boundary-no-react.test.ts pinning that the lint rule fires).
   const SAMPLES: ReadonlyArray<{ pattern: PatternName; sample: string }> = [
     { pattern: 'CSS declaration', sample: '  --transition-fast: 150ms ease;' },
+    // A *new* name in the retired namespace must be caught too — the
+    // declaration ban covers the whole `--transition-` prefix.
+    { pattern: 'CSS declaration', sample: '  --transition-medium: 250ms;' },
     { pattern: 'var() reference', sample: 'transition: opacity var(--transition-fast);' },
     { pattern: 'quoted property name', sample: "el.style.setProperty('--transition-slow', v)" },
     { pattern: 'tokens.transition access', sample: 'const duration = tokens.transition.normal' },
@@ -96,14 +108,28 @@ describe('guard self-check — each pattern detects a synthetic violation', () =
   ]
 
   for (const { pattern, sample } of SAMPLES) {
-    it(`detects: ${pattern}`, () => {
+    it(`detects: ${pattern} — ${sample.trim()}`, () => {
       const found = PATTERNS.find((p) => p.name === pattern)
       if (!found) throw new Error(`pattern not registered: ${pattern}`)
       expect(found.re.test(sample)).toBe(true)
     })
   }
 
-  it('covers every registered pattern with a sample', () => {
-    expect(SAMPLES.map((s) => s.pattern).sort()).toEqual(PATTERNS.map((p) => p.name).sort())
+  it('covers every registered pattern with at least one sample', () => {
+    expect([...new Set(SAMPLES.map((s) => s.pattern))].sort()).toEqual(
+      PATTERNS.map((p) => p.name).sort(),
+    )
+  })
+})
+
+describe('prose exemption — <code>-wrapped mentions stay legal', () => {
+  it('exempts a docs line that wraps the mention in <code>', () => {
+    expect(isProseMention('<code>tokens.transition.*</code> / <code>TransitionToken</code>')).toBe(
+      true,
+    )
+  })
+
+  it('does not exempt a functional line', () => {
+    expect(isProseMention('const duration = tokens.transition.normal')).toBe(false)
   })
 })

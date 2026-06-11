@@ -439,13 +439,28 @@ export const AutoSeason: Story = {
       control: 'date',
       table: { type: { summary: 'Date' } },
     },
+    mode: {
+      description: 'Mode for the preview cell (independent of the toolbar).',
+      control: 'select',
+      options: ['light', 'dark'],
+      table: {
+        type: { summary: '"light" | "dark"' },
+        defaultValue: { summary: 'light' },
+      },
+    },
   },
   args: {
     date: AUTO_SEASON_DEFAULT_DATE,
+    mode: 'light',
   },
   render: (args) => {
-    const raw = (args as { date: number | string }).date
-    const date = new Date(typeof raw === 'string' ? Number(raw) : raw)
+    const { date: raw, mode } = args as { date: number | string; mode: Mode }
+    // The date control round-trips as a ms timestamp, but a URL-driven arg
+    // can arrive as a string — numeric strings are timestamps, anything
+    // else (e.g. an ISO date) goes to the Date constructor as-is.
+    const date = new Date(
+      typeof raw === 'string' ? (Number.isNaN(Number(raw)) ? raw : Number(raw)) : raw,
+    )
     const season = getCurrentSeason(date)
     const id: SeasonalThemeId = `season--${season}`
     const display = SEASONAL_DISPLAY.find((s) => s.id === id)
@@ -467,7 +482,7 @@ export const AutoSeason: Story = {
             </span>
             <span className="ml-auto font-mono text-foreground-subtle text-xs">{id}</span>
           </div>
-          <SeasonCell mode="light" season={id} className="p-4">
+          <SeasonCell mode={mode} season={id} className="p-4">
             <SolidSample />
           </SeasonCell>
           <SectionTitle>Wiring it up</SectionTitle>
@@ -478,6 +493,7 @@ export const AutoSeason: Story = {
             instead.
           </Note>
           <CodeBlock>{`import { applySeasonTheme, getSeasonAttribute } from '@yasmro/schatten/themes/seasonal'
+import { ThemeProvider } from '@yasmro/schatten/providers'
 
 // Browser — sets data-theme="season--…" on <html>
 applySeasonTheme()

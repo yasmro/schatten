@@ -88,7 +88,10 @@ export const ErrorState: Story = {
   render: () => (
     <div className="flex flex-col gap-4 w-80">
       <Textarea isError placeholder="Error state" rows={3} />
-      <Textarea isError defaultValue="Invalid input" rows={3} />
+      {/* Value-only textareas have no accessible name — these stories carry
+       * aria-label so the axe `label` rule passes without changing a pixel
+       * (#345). */}
+      <Textarea isError defaultValue="Invalid input" rows={3} aria-label="Invalid input" />
     </div>
   ),
 }
@@ -98,7 +101,12 @@ export const Disabled: Story = {
   render: () => (
     <div className="flex flex-col gap-4 w-80">
       <Textarea disabled placeholder="Disabled" rows={3} />
-      <Textarea disabled defaultValue="Disabled with value" rows={3} />
+      <Textarea
+        disabled
+        defaultValue="Disabled with value"
+        rows={3}
+        aria-label="Disabled with value"
+      />
     </div>
   ),
 }
@@ -108,7 +116,13 @@ export const DisabledWithError: Story = {
   render: () => (
     <div className="flex flex-col gap-4 w-80">
       <Textarea disabled isError placeholder="Disabled + error" rows={3} />
-      <Textarea disabled isError defaultValue="Disabled + error" rows={3} />
+      <Textarea
+        disabled
+        isError
+        defaultValue="Disabled + error"
+        rows={3}
+        aria-label="Disabled with error"
+      />
     </div>
   ),
 }
@@ -117,11 +131,12 @@ export const ReadOnly: Story = {
   name: 'ReadOnly',
   render: () => (
     <div className="flex flex-col gap-4 w-80">
-      <Textarea readOnly defaultValue="Read-only value." rows={3} />
+      <Textarea readOnly defaultValue="Read-only value." rows={3} aria-label="Read-only value" />
       <Textarea
         readOnly
         defaultValue={'Multi-line read-only content.\nSelectable, but not editable.'}
         rows={4}
+        aria-label="Multi-line read-only content"
       />
     </div>
   ),
@@ -132,11 +147,16 @@ export const DisabledVsReadOnly: Story = {
   render: () => (
     <div className="flex flex-col gap-3 w-80">
       <div className="text-xs text-foreground-muted">Default</div>
-      <Textarea defaultValue="Editable content." rows={2} />
+      <Textarea defaultValue="Editable content." rows={2} aria-label="Editable content" />
       <div className="text-xs text-foreground-muted mt-2">ReadOnly (informational)</div>
-      <Textarea readOnly defaultValue="Read-only content." rows={2} />
+      <Textarea
+        readOnly
+        defaultValue="Read-only content."
+        rows={2}
+        aria-label="Read-only content"
+      />
       <div className="text-xs text-foreground-muted mt-2">Disabled (cannot interact)</div>
-      <Textarea disabled defaultValue="Disabled content." rows={2} />
+      <Textarea disabled defaultValue="Disabled content." rows={2} aria-label="Disabled content" />
     </div>
   ),
 }
@@ -145,7 +165,13 @@ export const ReadOnlyWithError: Story = {
   name: 'ReadOnly with error',
   render: () => (
     <div className="flex flex-col gap-4 w-80">
-      <Textarea readOnly isError defaultValue="ReadOnly + error" rows={3} />
+      <Textarea
+        readOnly
+        isError
+        defaultValue="ReadOnly + error"
+        rows={3}
+        aria-label="ReadOnly with error"
+      />
     </div>
   ),
 }

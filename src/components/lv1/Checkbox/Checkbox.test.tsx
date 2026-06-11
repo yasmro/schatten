@@ -176,6 +176,34 @@ describe('Checkbox', () => {
       expect(internalLabel).toHaveAttribute('for', checkbox.id)
     })
 
+    it('takes its accessible name from the Field label when it has no own label', () => {
+      render(
+        <Field label="Terms">
+          <Checkbox />
+        </Field>,
+      )
+      expect(screen.getByRole('checkbox', { name: 'Terms' })).toBeInTheDocument()
+    })
+
+    it('prefers its own label over the Field label for naming', () => {
+      render(
+        <Field label="Terms">
+          <Checkbox label="Accept" />
+        </Field>,
+      )
+      const checkbox = screen.getByRole('checkbox', { name: 'Accept' })
+      expect(checkbox).not.toHaveAttribute('aria-labelledby')
+    })
+
+    it('prefers an explicit aria-label over the Field label', () => {
+      render(
+        <Field label="Terms">
+          <Checkbox aria-label="Custom name" />
+        </Field>,
+      )
+      expect(screen.getByRole('checkbox', { name: 'Custom name' })).toBeInTheDocument()
+    })
+
     it('prop isError overrides false Field context when used standalone', () => {
       render(<Checkbox aria-label="cb" isError />)
       expect(screen.getByRole('checkbox')).toHaveAttribute('aria-invalid', 'true')

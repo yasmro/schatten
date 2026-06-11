@@ -32,6 +32,15 @@ SelectValue.displayName = SelectPrimitive.Value.displayName
 
 /* ----- Trigger ----- */
 
+/**
+ * Props for the select trigger button.
+ *
+ * Accessible name: the trigger renders as `role="combobox"`, which does NOT
+ * derive its name from content — the visible placeholder / selected value
+ * never becomes the accessible name. Always render the trigger inside a
+ * `<Field label="…">` (named via the Field label's `htmlFor`) or pass an
+ * explicit `aria-label`.
+ */
 export interface SelectTriggerProps
   extends Omit<ComponentPropsWithoutRef<typeof SelectPrimitive.Trigger>, 'size' | 'asChild'>,
     SelectTriggerVariants {

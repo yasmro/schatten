@@ -40,6 +40,40 @@ describe('Dialog', () => {
     expect(screen.getByText('Body content')).toBeInTheDocument()
   })
 
+  describe('body scroll focusability', () => {
+    it('does not make the body a tab stop when content fits', () => {
+      // jsdom reports scrollHeight = clientHeight = 0 → not scrollable.
+      render(
+        <Controlled>
+          <p>Short content</p>
+        </Controlled>,
+      )
+      expect(document.querySelector('.st-dialog__body')).not.toHaveAttribute('tabindex')
+    })
+
+    it('makes the body focusable when content overflows', () => {
+      // Simulate overflow — jsdom has no layout, so pin the two metrics the
+      // Body effect compares.
+      const scrollHeight = vi
+        .spyOn(HTMLElement.prototype, 'scrollHeight', 'get')
+        .mockReturnValue(400)
+      const clientHeight = vi
+        .spyOn(HTMLElement.prototype, 'clientHeight', 'get')
+        .mockReturnValue(200)
+      try {
+        render(
+          <Controlled>
+            <p>Long content</p>
+          </Controlled>,
+        )
+        expect(document.querySelector('.st-dialog__body')).toHaveAttribute('tabindex', '0')
+      } finally {
+        scrollHeight.mockRestore()
+        clientHeight.mockRestore()
+      }
+    })
+  })
+
   it('does not render when isOpen is false', () => {
     render(<Controlled initialOpen={false} />)
     expect(screen.queryByText('Test dialog')).not.toBeInTheDocument()

@@ -62,6 +62,7 @@ export function Field({
 }: FieldProps) {
   const fieldSet = useFieldSetContext()
   const id = useId()
+  const labelId = `${id}-label`
   const descriptionId = `${id}-description`
   const errorId = `${id}-error`
 
@@ -75,9 +76,16 @@ export function Field({
     return ids.length > 0 ? ids.join(' ') : undefined
   }, [description, error, descriptionId, errorId])
 
+  const hasLabel = !!label
   const contextValue = useMemo<FieldContextValue>(
-    () => ({ id, isError, disabled: effectiveDisabled, describedBy }),
-    [id, isError, effectiveDisabled, describedBy],
+    () => ({
+      id,
+      labelId: hasLabel ? labelId : undefined,
+      isError,
+      disabled: effectiveDisabled,
+      describedBy,
+    }),
+    [id, labelId, hasLabel, isError, effectiveDisabled, describedBy],
   )
 
   return (
@@ -95,7 +103,10 @@ export function Field({
       >
         {label && (
           <div className="st-field__label-row">
-            <label htmlFor={id} className="st-field__label">
+            {/* `id` makes this label referenceable via aria-labelledby for
+             * self-labelled / group children that htmlFor cannot reach
+             * (Checkbox / Switch / RadioGroup) — see field-context-guideline. */}
+            <label id={labelId} htmlFor={id} className="st-field__label">
               {label}
               {required && <span className="st-field__required-marker">*</span>}
             </label>

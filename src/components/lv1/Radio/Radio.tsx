@@ -51,6 +51,7 @@ export const RadioGroup = forwardRef<ElementRef<typeof RadioGroupPrimitive.Root>
       children,
       disabled: disabledProp,
       'aria-describedby': ariaDescribedByProp,
+      'aria-labelledby': ariaLabelledByProp,
       ...props
     },
     ref,
@@ -60,6 +61,10 @@ export const RadioGroup = forwardRef<ElementRef<typeof RadioGroupPrimitive.Root>
     const isError = field?.isError ?? isErrorProp
     const disabled = field?.disabled ?? disabledProp ?? false
     const ariaDescribedBy = field?.describedBy ?? ariaDescribedByProp
+    // role="radiogroup" cannot be named through htmlFor, so the Field-rendered
+    // label names the group via aria-labelledby (unless the consumer names it
+    // explicitly). Individual Radio items keep their own labels.
+    const ariaLabelledBy = ariaLabelledByProp ?? (props['aria-label'] ? undefined : field?.labelId)
 
     return (
       <RadioGroupContext.Provider value={{ isError, disabled, size }}>
@@ -69,6 +74,7 @@ export const RadioGroup = forwardRef<ElementRef<typeof RadioGroupPrimitive.Root>
           className={cn('st-radio-group', className)}
           aria-invalid={isError || undefined}
           aria-describedby={ariaDescribedBy}
+          aria-labelledby={ariaLabelledBy}
           {...props}
         >
           {children}

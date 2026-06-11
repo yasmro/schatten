@@ -4,7 +4,7 @@ import { buildThemeInitScript } from '../../theme-init'
 import { ThemeInitScript } from './ThemeInitScript'
 
 const meta: Meta<typeof ThemeInitScript> = {
-  title: 'Providers/ThemeInitScript',
+  title: 'Theming/ThemeInitScript',
   component: ThemeInitScript,
   parameters: {
     layout: 'centered',

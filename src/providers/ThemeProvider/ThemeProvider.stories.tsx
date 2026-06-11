@@ -8,7 +8,7 @@ import type { SpecialThemeId, ThemeModeSetting } from './theme-context'
 import { useTheme } from './useTheme'
 
 const meta: Meta<typeof ThemeProvider> = {
-  title: 'Providers/ThemeProvider',
+  title: 'Theming/ThemeProvider',
   component: ThemeProvider,
   parameters: {
     layout: 'centered',

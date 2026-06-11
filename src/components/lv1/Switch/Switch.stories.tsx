@@ -95,8 +95,11 @@ export const States: Story = {
   name: 'States',
   render: () => (
     <div className="flex items-center gap-4">
-      <Switch />
-      <Switch defaultChecked />
+      {/* Bare state-matrix switches have no visible label by design —
+       * aria-label keeps the axe `button-name` rule green without changing
+       * a pixel (#345). */}
+      <Switch aria-label="Off" />
+      <Switch defaultChecked aria-label="On" />
     </div>
   ),
 }

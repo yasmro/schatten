@@ -170,6 +170,34 @@ describe('Switch', () => {
       const internalLabel = screen.getByText('Toggle')
       expect(internalLabel).toHaveAttribute('for', sw.id)
     })
+
+    it('takes its accessible name from the Field label when it has no own label', () => {
+      render(
+        <Field label="Notifications">
+          <Switch />
+        </Field>,
+      )
+      expect(screen.getByRole('switch', { name: 'Notifications' })).toBeInTheDocument()
+    })
+
+    it('prefers its own label over the Field label for naming', () => {
+      render(
+        <Field label="Notifications">
+          <Switch label="Toggle" />
+        </Field>,
+      )
+      const sw = screen.getByRole('switch', { name: 'Toggle' })
+      expect(sw).not.toHaveAttribute('aria-labelledby')
+    })
+
+    it('prefers an explicit aria-label over the Field label', () => {
+      render(
+        <Field label="Notifications">
+          <Switch aria-label="Custom name" />
+        </Field>,
+      )
+      expect(screen.getByRole('switch', { name: 'Custom name' })).toBeInTheDocument()
+    })
   })
 
   it('forwards className to the wrapper', () => {

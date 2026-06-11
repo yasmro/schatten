@@ -224,6 +224,26 @@ internal label:
 Components with internal labels generate their own per-instance id (each
 checkbox is its own field).
 
+### `labelId` (naming fallback for self-labelled / group components)
+
+`FieldContext.labelId` is the id of the `<label>` element Field renders
+(undefined when Field has no `label` prop). It exists because the `htmlFor`
+hookup above cannot name two classes of children:
+
+- **Self-labelled components without an own `label`** —
+  `<Field label="Notifications"><Switch /></Field>` would otherwise leave the
+  Switch unnamed (the Field label's `htmlFor` points at the unconsumed
+  `field.id`). `Checkbox` / `Switch` apply
+  `aria-labelledby={field?.labelId}` only when they have no own `label` and
+  the consumer passed no explicit naming prop.
+- **`RadioGroup`** — a `role="radiogroup"` div cannot be reached by
+  `htmlFor` at all; the group root always applies `aria-labelledby` unless
+  the consumer names it explicitly.
+
+Precedence: explicit `aria-label` / `aria-labelledby` prop > own `label`
+prop > `field?.labelId`. Full consumption table and known limitations in
+[field-context-guideline](field-context-guideline.md#naming-via-labelid-self-labelled--group-components).
+
 ### Group components
 
 `RadioGroup` consumes state at the group level and re-provides a group-scoped
@@ -394,6 +414,11 @@ fallback — that policy only holds if the contract below holds.
      [field-context-guideline](field-context-guideline.md).
    - **Internal `<label>` rendered by the component** — self-labelled
      form inputs (Checkbox, Switch, Radio).
+   - **`aria-labelledby` auto-wired from the Field label via
+     `FieldContext.labelId`** — self-labelled form inputs placed inside a
+     `<Field label>` without their own `label` (Checkbox, Switch), and
+     `RadioGroup` at the group root. See
+     [field-context-guideline](field-context-guideline.md#naming-via-labelid-self-labelled--group-components).
    - **`aria-label`** — icon-only or symbol-only triggers. Required
      where a button has no readable text content: Dialog close ✕
      ([Dialog.tsx:217](../../src/components/lv1/Dialog/Dialog.tsx:217)),

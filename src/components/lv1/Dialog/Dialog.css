@@ -141,6 +141,16 @@
     color: var(--color-foreground);
   }
 
+  /* The body receives tabIndex=0 from the React layer only while its
+   * content overflows (keyboard-scroll affordance — see Body in
+   * Dialog.tsx). Focus ring matches the Button treatment. */
+  .st-dialog__body:focus-visible {
+    outline: none;
+    box-shadow:
+      0 0 0 2px var(--color-ring-offset),
+      0 0 0 4px var(--color-ring);
+  }
+
   /* ===== footer =====
    * `.st-dialog__footer` is a flex container only. Per-button order is
    * a JSX-side concern (Tailwind utility on each Button — see comment

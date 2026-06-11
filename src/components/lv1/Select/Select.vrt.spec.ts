@@ -99,6 +99,12 @@ for (const story of portalStories) {
 
       const results = await new AxeBuilder({ page })
         .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
+        // Known Radix behavior, not fixable from Schatten: while open, Radix
+        // (hideOthers) sets aria-hidden on #storybook-root but leaves the
+        // trigger focusable. Focus is trapped in the portaled listbox, so no
+        // real keyboard escape exists — disable just this rule, just here.
+        // Mirrored in the story's `parameters.a11y` for the addon panel.
+        .disableRules(['aria-hidden-focus'])
         .analyze()
 
       expect(results.violations).toEqual([])

@@ -296,12 +296,15 @@ export const UsageGuide: Story = {
         / Toast) already consume <code>--st-duration-*</code>.
       </Note>
 
-      <SectionTitle>Deprecated: --transition-*</SectionTitle>
+      <SectionTitle>Removed: --transition-*</SectionTitle>
       <Note>
-        The older <code>--transition-fast</code> / <code>-normal</code> / <code>-slow</code> (in{' '}
-        <code>spacing.css</code>) and <code>tokens.transition.*</code> are{' '}
-        <strong>deprecated</strong> and unreferenced. Use <code>--motion-*</code> (or{' '}
-        <code>tokens.motion.*</code>) for new work.
+        The older <code>--transition-fast</code> / <code>-normal</code> / <code>-slow</code> and{' '}
+        <code>tokens.transition.*</code> / <code>TransitionToken</code> were deprecated in v0.10.0
+        and <strong>removed</strong> in v0.11.0. Use <code>--motion-*</code> (or{' '}
+        <code>tokens.motion.*</code>) instead. Note the old values bundled an easing (e.g.{' '}
+        <code>150ms ease</code>) while the motion tokens are duration-only — specify your own
+        easing: <code>fast</code> → <code>--motion-base</code>, <code>normal</code> →{' '}
+        <code>--motion-expressive</code>, <code>slow</code> (300ms) has no direct step.
       </Note>
     </div>
   ),

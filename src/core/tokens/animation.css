@@ -36,8 +36,9 @@
  *
  * 2. `--motion-*` — semantic (用途別) aliases over group 1, giving the
  *    duration steps intent names (quick / base / expressive). Layered on the
- *    live `--st-duration-*` scale rather than the deprecated `--transition-*`
- *    (spacing.css) so timing stays one vocabulary, not three (#145).
+ *    live `--st-duration-*` scale rather than the old `--transition-*`
+ *    (deprecated in #145, removed in #350) so timing stays one vocabulary,
+ *    not three.
  *
  * 3. `--st-spinner-*` — Spinner ripple-type loop timing (a continuous-loop
  *    cadence, semantically distinct from enter/exit transitions; #286).
@@ -50,11 +51,13 @@
   --st-duration-slow: 200ms;
 
   /* Motion — semantic (用途別) aliases over the `--st-duration-*` scale.
-     Intentionally layered on the LIVE scale, not the deprecated
-     `--transition-*` (spacing.css), so motion stays a single vocabulary
-     (#145). Value-preserving — each alias points at an existing step.
-     `--motion-instant` (50ms press feedback) was considered but dropped:
-     no primitive step and no current consumer (YAGNI). */
+     Intentionally layered on the LIVE scale, not the old `--transition-*`
+     vocabulary (deprecated in #145, removed in #350 — a vitest guard at
+     core/tokens/__tests__/no-transition-tokens.test.ts bans re-introduction),
+     so motion stays a single vocabulary. Value-preserving — each alias
+     points at an existing step. `--motion-instant` (50ms press feedback)
+     was considered but dropped: no primitive step and no current consumer
+     (YAGNI). */
   --motion-quick: var(--st-duration-fast); /* 100ms — hover */
   --motion-base: var(--st-duration-base); /* 150ms — default */
   --motion-expressive: var(--st-duration-slow); /* 200ms — dialog / drawer enter */

@@ -58,12 +58,4 @@
   --shadow-popover: var(--shadow-md); /* tooltip / select content */
   --shadow-modal: var(--shadow-lg); /* dialog */
   --shadow-toast: var(--shadow-md); /* toast */
-
-  /* Transitions — DEPRECATED. Superseded by the live `--st-duration-*` scale
-     (animation.css) and its `--motion-*` semantic aliases. Unreferenced by
-     any component and not @theme-registered; kept only to avoid breaking a
-     stray consumer reference. Do not add new references. */
-  --transition-fast: 150ms ease;
-  --transition-normal: 200ms ease;
-  --transition-slow: 300ms ease;
 }

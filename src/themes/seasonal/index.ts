@@ -97,7 +97,10 @@ export const FORBIDDEN_SPECIAL_TOKENS = [
   '--color-ring',
   '--color-ring-offset',
 
-  // "neutral solid" surface — Mode-owned, shared with Pattern A Button primary
+  // "neutral solid" surface — Mode-owned, shared with Pattern A Button
+  // primary. Declared as rungs of the theme ramp (#150:
+  // `var(--color-theme-700)` etc.), so a Special influences solid ONLY
+  // through `--color-theme-*` — writing these directly stays forbidden.
   '--color-solid',
   '--color-solid-hover',
   '--color-solid-foreground',

@@ -1,16 +1,27 @@
 /*
  * Default Theme
- * Uses blue as the theme color scale (no [data-theme] active)
+ * The neutral alabaster ramp (no [data-theme] active) — Schatten's resting
+ * "ink" look. A Special recolors the same rungs, and because the solid
+ * family (--color-solid*) consumes rungs of this ramp, the default stays
+ * neutral while a Special tints every solid surface.
+ *
+ * This file MUST mirror the theme-scale fallback in
+ * src/core/tokens/semantic.css 1:1 — this file is the `./themes/default`
+ * export subpath (cascade tier 4), semantic.css is the fallback for
+ * consumers importing `./core/tokens` alone. The sync is pinned by
+ * src/core/tokens/__tests__/resolution.test.ts ("default theme mirror").
  */
 
 :root {
-  --color-theme-100: var(--blue-100);
-  --color-theme-200: var(--blue-200);
-  --color-theme-300: var(--blue-300);
-  --color-theme-400: var(--blue-400);
-  --color-theme-500: var(--blue-500);
-  --color-theme-600: var(--blue-600);
-  --color-theme-700: var(--blue-700);
-  --color-theme-800: var(--blue-800);
-  --color-theme-900: var(--blue-900);
+  --color-theme-50: var(--alabaster-50);
+  --color-theme-100: var(--alabaster-100);
+  --color-theme-200: var(--alabaster-200);
+  --color-theme-300: var(--alabaster-300);
+  --color-theme-400: var(--alabaster-400);
+  --color-theme-500: var(--alabaster-500);
+  --color-theme-600: var(--alabaster-600);
+  --color-theme-700: var(--alabaster-700);
+  --color-theme-800: var(--alabaster-800);
+  --color-theme-900: var(--alabaster-900);
+  --color-theme-950: var(--alabaster-950);
 }

@@ -58,6 +58,7 @@ once, that's a sign you want the [external Special API](#external-special-themes
 | Inverted foreground tiers | `--color-inverted-foreground*` |
 | Borders | `--color-border`, `--color-border-strong` |
 | Focus ring | `--color-ring`, `--color-ring-offset` |
+| Solid fill — rung selection | `--color-solid`, `--color-solid-hover`, `--color-solid-foreground`, `--color-solid-foreground-hover` — declared as rungs of the theme ramp (see [Solid rides the theme ramp](#solid-rides-the-theme-ramp)); Mode owns *which rung*, the Special supplies the ramp |
 | State remapping for dark | `--color-error*`, `--color-success*`, `--color-warning*`, `--color-info*`, `--color-destructive*` (shade shift between light and dark) |
 | Non-interactive state | `--color-surface-disabled`, `--color-foreground-disabled`, `--color-border-disabled`, `--color-surface-readonly`, `--color-border-readonly` |
 
@@ -73,6 +74,52 @@ belongs to Mode.
 
 Rule of thumb: anything that expresses *brand character* — seasonality, an
 event identity, a customer's palette — belongs to Special.
+
+### Solid rides the theme ramp
+
+Since [#150](https://github.com/yasmro/schatten/issues/150), the solid
+family is declared as **rungs of the theme ramp** rather than as fixed
+primitives:
+
+```css
+:root {                      /* Mode: light picks rungs 700 / 900 / 100 / 300 */
+  --color-solid: var(--color-theme-700);
+  --color-solid-hover: var(--color-theme-900);
+  --color-solid-foreground: var(--color-theme-100);
+  --color-solid-foreground-hover: var(--color-theme-300);
+}
+.dark {                      /* Mode: dark picks rungs 300 / 100 / 800 / 700 */
+  --color-solid: var(--color-theme-300);
+  --color-solid-hover: var(--color-theme-100);
+  --color-solid-foreground: var(--color-theme-800);
+  --color-solid-foreground-hover: var(--color-theme-700);
+}
+```
+
+The division of labour: **Mode picks the rung, the active Special supplies
+the ramp.** The two axes write *different tokens* (Mode writes `--color-solid*`,
+a Special writes `--color-theme-*`), so they compose without any
+specificity contest. Consequences:
+
+- **The default theme ramp is the neutral alabaster scale** (not blue).
+  With no Special active, solid resolves to the exact alabaster values it
+  had before the rewiring — the rewiring was value-preserving. A Special
+  breathes color into the ramp, and with it into every solid surface
+  (Button `primary`, Badge / Callout / Toast `neutral × solid`).
+- **Solid stays Mode-owned.** A Special must still never write
+  `--color-solid*` directly (they remain in `FORBIDDEN_SPECIAL_TOKENS`);
+  its influence flows only through `--color-theme-*`. The allowlist is
+  unchanged: `['--color-theme-*']`.
+- **Specials must declare all 11 rungs (50–950).** Solid consumes rungs
+  100 / 300 / 700 / 800 / 900; a partially-declared ramp would mix
+  seasonal and default-alabaster values on solid surfaces.
+- **All seasonal ramps share one lightness ladder** (e.g. 700 = L 0.46,
+  100 = L 0.96), so the fg-on-solid contrast structure is stable across
+  seasons by construction. Verify per-hue AA in the Theme Audit story's
+  fg-on-solid sample whenever a ramp value changes.
+- The rung selection is pinned by
+  [`resolution.test.ts`](../../src/core/tokens/__tests__/resolution.test.ts)
+  ("solid rides the theme ramp"), alongside the default-leaf fixtures.
 
 ### Tokens neither axis touches
 
@@ -137,7 +184,9 @@ The intended source order, from earliest (lowest priority) to latest
 1.  primitives.css                       — raw OKLCH scales
 2.  semantic.css :root                   — base semantic tokens (light)
 3.  semantic.css .dark / @media dark     — Mode override
-4.  themes/default/colors.css            — default theme scale (no data-theme)
+4.  themes/default/colors.css            — default theme scale (alabaster; 1:1 mirror
+                                           of the semantic.css fallback, sync pinned
+                                           by resolution.test.ts)
 5.  themes/seasonal/themes.css           — Special palettes (data-theme)
 ```
 
@@ -262,7 +311,7 @@ Three layers work together:
 │   { --color-theme-500: oklch(0.64 0.10 12); }       ◀── 2. seasonal override
 │                                                          (Specificity (0,2,0)
 │                                                           beats :root default)
-│   :root { --color-theme-500: var(--blue-500); }     ◀── 3. default, overridden by
+│   :root { --color-theme-500: var(--alabaster-500); } ◀── 3. default, overridden by
 │                                                          the higher-specificity
 │                                                          rule above
 │
@@ -281,7 +330,7 @@ Three layers work together:
 ### Concretely, in this repo
 
 - [`src/core/tokens/primitives.css`](../../src/core/tokens/primitives.css) — `:root { --blue-500: oklch(...); }` (frozen primitives)
-- [`src/core/tokens/semantic.css`](../../src/core/tokens/semantic.css) — `:root { --color-theme-500: var(--blue-500); }` (default chain)
+- [`src/core/tokens/semantic.css`](../../src/core/tokens/semantic.css) — `:root { --color-theme-500: var(--alabaster-500); }` (default chain — the neutral resting ramp)
 - [`src/themes/seasonal/themes.css`](../../src/themes/seasonal/themes.css) — `:root[data-theme="season--spring-early"] { --color-theme-500: oklch(...); }` (override)
 - [`src/core/tokens/base.css`](../../src/core/tokens/base.css) — `@theme { --color-theme-500: var(--color-theme-500); }`. The self-referential look is intentional: the right-hand `var(--color-theme-500)` reads the value defined in `semantic.css`; the left-hand declaration tells Tailwind v4 "this variable is a theme token — generate utilities for it." Without `@theme`, the variable exists but `bg-theme-500` won't be a usable class.
 - Component — `<Button className="bg-theme-500" />` → Tailwind emits `.bg-theme-500 { background-color: var(--color-theme-500); }` → browser resolves the `var()` against the cascade at paint time.
@@ -297,6 +346,7 @@ Three layers work together:
 
 - Anything baked into a primitive class name (`bg-red-500` directly written into JSX) — the primitive is frozen and ignores `data-theme`. This is exactly why the [state-token-guideline](state-token-guideline.md) bans primitive class names in components.
 - Anything resolved at build time (e.g. inline style strings computed from a JS theme object). The CSS variable approach is what makes runtime switching free; routing the value through JS would re-introduce hydration and re-render costs.
+- **Custom-property-to-custom-property chains, when `data-theme` sits below the declaring element.** A `var()` inside a custom property's value substitutes at the element where that property is *declared* (computed-value time), and the substituted result is what inherits. `--color-solid: var(--color-theme-700)` is declared on `:root`, so it freezes against `<html>`'s ramp — a `data-theme` attribute on a subtree wrapper cannot re-tint solid further down. This is a non-issue in production (`data-theme` belongs on `<html>`, and the shipped selectors are `:root[data-theme=…]` anyway), but any per-cell theme sandbox (e.g. the Theme Audit story) must re-declare the solid family inside the scoped wrapper to force re-substitution there.
 
 ## Seasonal palettes — `data-theme` mapping
 
@@ -340,7 +390,11 @@ the Storybook theme global on the relevant Color / Foundation stories.
 2. **List the tokens you intend to override** as a comment at the top of
    the CSS file. Today's seasonals override the theme scale only
    (`--color-theme-50..950`) — match that scope unless you have a
-   documented reason to expand.
+   documented reason to expand. **Declare all 11 rungs**: the solid family
+   consumes rungs 100 / 300 / 700 / 800 / 900 (see
+   [Solid rides the theme ramp](#solid-rides-the-theme-ramp)), so a
+   partially-declared ramp mixes your hue with default alabaster on solid
+   surfaces.
 3. **Never override Mode-owned tokens** — surfaces, foregrounds, borders,
    inverted foregrounds, focus ring, state colors. A Special that needs to
    change foreground or surface is mis-categorised: it's a Mode, not a
@@ -389,5 +443,6 @@ prescribes:
 - **Mode**  → `:root` (light) / `.dark` (dark) / `@media (prefers-color-scheme: dark)` (system) — owns surfaces, foregrounds, borders, state shade-shifts.
 - **Special** → `[data-theme="<name>"]` — owns the theme scale (`--color-theme-*`), optionally the brand-named tokens (`--color-vermillion` / `--color-indigo`). Exclusive (one Special active at a time, or none).
 - **Cascade** → `Special > Mode > base semantic`. Specials win on specificity, not load order.
+- **Solid** → `--color-solid*` is declared as rungs of the theme ramp (light 700-on-100, dark 300-on-800). Mode picks the rung, the Special supplies the ramp — an active Special recolors every solid surface without writing a single solid token. Default ramp = neutral alabaster (value-preserving).
 - **Never** touch Mode-owned tokens or `info-*` from a Special.
 - **Components** keep referencing semantic tokens (`bg-theme-500`, `text-foreground`, …) — they don't need to know which axes are active.

@@ -3,11 +3,12 @@ import { useId } from 'react'
 import { Badge } from '../../components/lv1/Badge'
 import { Button } from '../../components/lv1/Button'
 import { Callout } from '../../components/lv1/Callout'
-// Load production seasonal CSS as a raw string. Rewriting `:root[data-theme=...]`
+// Load production CSS as raw strings. Rewriting `:root[data-theme=...]`
 // → `.theme-audit-cell[data-theme=...]` is the single line that lets us scope a
 // Special palette to a per-cell wrapper instead of `<html>`. The transform reuses
 // the production source, so seasonal palette changes propagate to the audit story
 // automatically — no parallel CSS to keep in sync.
+import semanticCssRaw from '../../core/tokens/semantic.css?raw'
 import seasonalCssRaw from '../../themes/seasonal/themes.css?raw'
 
 const SPECIALS = [
@@ -27,8 +28,34 @@ type SpecialName = (typeof SPECIALS)[number]['name']
 
 const SCOPED_SEASONAL_CSS = seasonalCssRaw.replace(/:root\[/g, '.theme-audit-cell[')
 
+/*
+ * The solid family (--color-solid*) is declared on `:root` referencing rungs
+ * of the theme ramp (`var(--color-theme-700)` etc., #150). CSS custom
+ * properties substitute `var()` at the element where they are DECLARED, so
+ * the per-cell `data-theme` override above cannot re-resolve a solid value
+ * that was already substituted on `<html>` against the default ramp.
+ * Re-declaring the solid family on the cell makes the substitution happen
+ * where the scoped seasonal ramp is visible:
+ *   - `.theme-audit-cell[data-theme]`       (0,2,0) — light rungs
+ *   - `.theme-audit-cell.dark[data-theme]`  (0,3,0) — dark rungs (must beat
+ *     both the light injection and the global `.dark` block at (0,1,0))
+ * The declarations are EXTRACTED from the production semantic.css, so the
+ * rung mapping cannot drift from the shipped one.
+ */
+function extractSolidDeclarations(blockSelector: string): string {
+  const stripped = semanticCssRaw.replace(/\/\*[\s\S]*?\*\//g, '')
+  const start = stripped.indexOf(blockSelector)
+  const body = stripped.slice(start, stripped.indexOf('}', start))
+  return (body.match(/--color-solid[\w-]*:\s*[^;]+;/g) ?? []).join('\n  ')
+}
+
+const SCOPED_SOLID_CSS = [
+  `.theme-audit-cell[data-theme] {\n  ${extractSolidDeclarations(':root {')}\n}`,
+  `.theme-audit-cell.dark[data-theme] {\n  ${extractSolidDeclarations('.dark {')}\n}`,
+].join('\n')
+
 function ScopedSeasonalStyles() {
-  return <style>{SCOPED_SEASONAL_CSS}</style>
+  return <style>{`${SCOPED_SEASONAL_CSS}\n${SCOPED_SOLID_CSS}`}</style>
 }
 
 function ShowcaseRow() {
@@ -36,6 +63,13 @@ function ShowcaseRow() {
     <div className="flex flex-wrap items-center gap-2">
       <Button variant="primary" size="sm">
         Primary
+      </Button>
+      {/* Adjacency audit (#150): the seasonal ramp tints `primary` while
+          `destructive` stays pinned to red. Red-family Specials (winter-deep
+          hue 0 / spring-early hue 12 / summer-peak hue 45) sit closest to
+          destructive — this pair makes the remaining separation reviewable. */}
+      <Button variant="destructive" size="sm">
+        Delete
       </Button>
       <Button variant="secondary" size="sm">
         Secondary
@@ -46,6 +80,12 @@ function ShowcaseRow() {
       <Badge variant="success" appearance="subtle">
         Success
       </Badge>
+      {/* fg-on-solid contrast sample: text-solid-foreground on bg-solid is
+          the exact pair every solid surface renders, at the rungs the active
+          Special supplies. Verify AA here per Special × Mode. */}
+      <span className="rounded bg-solid px-2 py-0.5 font-medium text-solid-foreground text-xs">
+        Aa
+      </span>
       <span className="size-4 rounded bg-theme-500" aria-hidden="true" />
       <span className="size-4 rounded bg-theme-200" aria-hidden="true" />
       <span className="size-4 rounded bg-theme-700" aria-hidden="true" />
@@ -91,6 +131,11 @@ type Story = StoryObj
  * border) must shift between rows; Special-owned tokens (`--color-theme-*`)
  * must shift between columns. Any allowlist violation (e.g. a Special
  * overriding `--color-foreground`) shows up immediately here.
+ *
+ * Since #150 the solid family rides the theme ramp: Button `primary`, the
+ * neutral × solid Badge, and the `Aa` fg-on-solid chip must tint per
+ * Special, while `destructive` stays pinned to red (adjacency audit) and
+ * the Callout `info` stays pinned to blue.
  */
 export const Overview: Story = {
   name: 'Overview (16 patterns)',

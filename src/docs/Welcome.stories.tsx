@@ -31,9 +31,20 @@ const meta: Meta = {
 export default meta
 type Story = StoryObj
 
-const navigateToStory = (e: React.MouseEvent, storyPath: string, suffix = 'docs') => {
+/**
+ * `viewMode` must match the target entry's type in the Storybook index:
+ * `'docs'` for autodocs pages (the lv1 component catalog), `'story'` for
+ * Canvas-only stories (Tokens / Theming / CSS API / Patterns). Sending a
+ * story entry through `/docs/` renders "No Preview".
+ */
+const navigateToStory = (
+  e: React.MouseEvent,
+  storyPath: string,
+  suffix = 'docs',
+  viewMode: 'docs' | 'story' = 'docs',
+) => {
   e.preventDefault()
-  const targetPath = `/docs/${storyPath}--${suffix}`
+  const targetPath = `/${viewMode}/${storyPath}--${suffix}`
   const top = window.parent !== window ? window.parent : window
   const url = new URL(top.location.href)
   url.searchParams.set('path', targetPath)
@@ -208,20 +219,20 @@ export const Overview: Story = {
           <DisciplineCard
             title="Framework-agnostic CSS API"
             description="Components ship a .st-* BEM class API and a prebuilt stylesheet, so they render with plain HTML — no React, no Tailwind, no build step required on the consumer side."
-            href="/docs/css-api-overview--reference"
-            onClick={(e) => navigateToStory(e, 'css-api-overview', 'reference')}
+            href="/story/css-api-overview--reference"
+            onClick={(e) => navigateToStory(e, 'css-api-overview', 'reference', 'story')}
           />
           <DisciplineCard
             title="Mode × Special theming"
             description="Two independent theme axes — light/dark Mode × an exclusive seasonal Special — compose at runtime through CSS variables. See all 16 combinations verified side by side."
-            href="/docs/theming-theme-audit--overview"
-            onClick={(e) => navigateToStory(e, 'theming-theme-audit', 'overview')}
+            href="/story/theming-theme-audit--overview"
+            onClick={(e) => navigateToStory(e, 'theming-theme-audit', 'overview', 'story')}
           />
           <DisciplineCard
             title="Accessibility contract"
             description="Every primitive guarantees a role, an accessible name, keyboard support, and aria-* wiring — asserted with axe-core in CI alongside the visual regression suite."
-            href="/docs/patterns-accessibility--overview"
-            onClick={(e) => navigateToStory(e, 'patterns-accessibility', 'overview')}
+            href="/story/patterns-accessibility--overview"
+            onClick={(e) => navigateToStory(e, 'patterns-accessibility', 'overview', 'story')}
           />
         </div>
       </div>
@@ -409,12 +420,12 @@ export const Overview: Story = {
       </div>
 
       {/* 6. Tokens (was "Foundation" — renamed to the new IA vocabulary, #336 deferred) */}
-      <div>
+      <div className="mb-12">
         <h2 className="text-xl font-bold text-foreground mb-4">Tokens</h2>
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
           <a
-            href="/docs/tokens-color--colors"
-            onClick={(e) => navigateToStory(e, 'tokens-color', 'colors')}
+            href="/story/tokens-color--colors"
+            onClick={(e) => navigateToStory(e, 'tokens-color', 'colors', 'story')}
             className="group block border border-border rounded-xl overflow-hidden no-underline transition-shadow duration-200 hover:shadow-md"
           >
             <div className="flex items-center justify-center h-40 bg-surface">
@@ -431,8 +442,8 @@ export const Overview: Story = {
           </a>
 
           <a
-            href="/docs/tokens-typography--typography"
-            onClick={(e) => navigateToStory(e, 'tokens-typography', 'typography')}
+            href="/story/tokens-typography--typography"
+            onClick={(e) => navigateToStory(e, 'tokens-typography', 'typography', 'story')}
             className="group block border border-border rounded-xl overflow-hidden no-underline transition-shadow duration-200 hover:shadow-md"
           >
             <div className="flex items-center justify-center h-40 bg-surface">
@@ -448,6 +459,54 @@ export const Overview: Story = {
               <p className="text-xs text-foreground-muted mt-0.5">Font scales and text styles.</p>
             </div>
           </a>
+        </div>
+      </div>
+
+      {/* 7. Patterns */}
+      <div>
+        <h2 className="text-xl font-bold text-foreground mb-2">Patterns</h2>
+        <p className="text-sm text-foreground-muted leading-relaxed mb-6">
+          Cross-component recipes and principles — how the primitives compose in practice.
+        </p>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <DisciplineCard
+            title="Accessibility"
+            description="Focus visibility, ARIA conventions, contrast, and keyboard support — the contract every primitive satisfies."
+            href="/story/patterns-accessibility--overview"
+            onClick={(e) => navigateToStory(e, 'patterns-accessibility', 'overview', 'story')}
+          />
+          <DisciplineCard
+            title="Composition with asChild"
+            description="Rendering Button as a link, buttonVariants() on your own element, and Text polymorphism."
+            href="/story/patterns-composition-with-aschild--button-as-link"
+            onClick={(e) =>
+              navigateToStory(e, 'patterns-composition-with-aschild', 'button-as-link', 'story')
+            }
+          />
+          <DisciplineCard
+            title="Form Composition"
+            description="Wiring Field and FieldSet: labels, descriptions, and error messages."
+            href="/story/patterns-form-composition--basic-field"
+            onClick={(e) => navigateToStory(e, 'patterns-form-composition', 'basic-field', 'story')}
+          />
+          <DisciplineCard
+            title="Form States"
+            description="disabled / readOnly / error across every form control, audited side by side."
+            href="/story/patterns-form-states--audit"
+            onClick={(e) => navigateToStory(e, 'patterns-form-states', 'audit', 'story')}
+          />
+          <DisciplineCard
+            title="Layout"
+            description="Flex and grid recipes for arranging primitives on the page."
+            href="/story/patterns-layout--flex-recipes"
+            onClick={(e) => navigateToStory(e, 'patterns-layout', 'flex-recipes', 'story')}
+          />
+          <DisciplineCard
+            title="Testing"
+            description="data-testid pass-through and role-first queries for consumer test suites."
+            href="/story/patterns-testing--overview"
+            onClick={(e) => navigateToStory(e, 'patterns-testing', 'overview', 'story')}
+          />
         </div>
       </div>
     </div>

@@ -120,6 +120,12 @@ export const Overview: Story = {
         </tbody>
       </table>
 
+      <Note>
+        This table is the consumer-facing companion to the contributor contract in{' '}
+        <code className="text-xs">component-api-conventions.md §"asChild vs *Variants()"</code> —
+        keep that doc as the source of truth if the two ever drift.
+      </Note>
+
       <SectionTitle>Decision tree</SectionTitle>
       <ol className="list-decimal flex flex-col gap-2 pl-6 text-sm text-foreground-muted">
         <li>

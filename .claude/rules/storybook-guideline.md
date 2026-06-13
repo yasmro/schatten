@@ -243,15 +243,32 @@ README and CLAUDE.md only point here, they do not restate it.
   persona #2). A page that fits none of the seven is a signal to discuss,
   not to add a category.
 
-### Renaming a story title is a story-ID change
+### Renaming a story title (or export) is a story-ID change
 
-A story's `title` determines its story ID (URL slug — Storybook kebab-cases
-it: `Tokens/Color` → `tokens-color`). Renaming a title therefore breaks every
-place that hard-codes the old slug. When you change a `title`, fix all of
-these **in the same PR**:
+A story ID has two halves and **both** are derived from source, so a rename of
+either silently breaks any hard-coded link:
+
+- the **slug** (left of `--`) comes from `meta.title` — Storybook kebab-cases
+  it: `Tokens/Color` → `tokens-color`.
+- the **suffix** (right of `--`) comes from the **story export name**, not the
+  story's `name:` field. `export const ButtonAsLink` → `…--button-as-link`
+  regardless of any `name: '…'`. Renaming the export changes the URL; changing
+  only `name:` does **not** (e.g. CSSApi's `export const Reference` keeps
+  `…--reference` despite `name: 'Reference (all 18 lv1 components)'`).
+
+When you change a `title` **or rename a story export that something links to**,
+fix all of these **in the same PR**:
 
 - the VRT spec's `STORY_ID_PREFIX` (e.g. `src/docs/CSSApi.vrt.spec.ts`)
-- any deep link in `Welcome.stories.tsx` (`navigateToStory(...)` + `href`)
+- any deep link in `Welcome.stories.tsx` — these live in the exported
+  `WELCOME_DEEP_LINKS` manifest, mechanically guarded by
+  [`Welcome.drift.test.ts`](../../src/docs/Welcome.drift.test.ts) (#375): it
+  reconstructs each target's real id with Storybook's own `sanitize` /
+  `storyNameFromExport` and fails on a slug **or** suffix mismatch, plus on a
+  `viewMode` ↔ entry-type drift (`'docs'` needs autodocs, `'story'` needs a
+  Canvas export) and on a `Patterns/*` page that isn't linked. A title/export
+  rename that misses the manifest turns this test red rather than shipping a
+  dead link.
 - `options.storySort.order` in `.storybook/preview.tsx` if a top-level group
   name changed
 

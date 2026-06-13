@@ -51,6 +51,164 @@ const navigateToStory = (
   top.location.href = url.toString()
 }
 
+/**
+ * One internal deep link rendered on the Welcome page. This is the SSOT the
+ * card render and `Welcome.drift.test.ts` both consume — the test reconciles
+ * each entry's `slug` / `suffix` / `viewMode` against the target story module
+ * so a title or export rename can no longer silently break the link.
+ *
+ * - `slug`     target module's `sanitize(meta.title)`
+ * - `suffix`   target export-derived id suffix (`sanitize(storyNameFromExport(export))`)
+ * - `viewMode` Storybook entry kind: `'docs'` for autodocs, `'story'` for Canvas
+ *   (a mismatch renders "No Preview" — #377)
+ * - `section`  which Welcome section renders this card (drift test ignores it)
+ */
+export interface WelcomeDeepLink {
+  slug: string
+  suffix: string
+  viewMode: 'docs' | 'story'
+  section: 'engineering' | 'tokens' | 'patterns'
+  title: string
+  description: string
+}
+
+export const WELCOME_DEEP_LINKS: readonly WelcomeDeepLink[] = [
+  {
+    slug: 'css-api-overview',
+    suffix: 'reference',
+    viewMode: 'story',
+    section: 'engineering',
+    title: 'Framework-agnostic CSS API',
+    description:
+      'Components ship a .st-* BEM class API and a prebuilt stylesheet, so they render with plain HTML — no React, no Tailwind, no build step required on the consumer side.',
+  },
+  {
+    slug: 'theming-theme-audit',
+    suffix: 'overview',
+    viewMode: 'story',
+    section: 'engineering',
+    title: 'Mode × Special theming',
+    description:
+      'Two independent theme axes — light/dark Mode × an exclusive seasonal Special — compose at runtime through CSS variables. See all 16 combinations verified side by side.',
+  },
+  {
+    slug: 'theming-seasonal-showcase',
+    suffix: 'eight-seasons',
+    viewMode: 'story',
+    section: 'engineering',
+    title: 'Seasonal showcase',
+    description:
+      'Eight palettes based on the 24 solar terms re-tint every solid surface at runtime — see all eight seasons worn by buttons, badges, and a full dashboard mockup.',
+  },
+  {
+    slug: 'patterns-accessibility',
+    suffix: 'overview',
+    viewMode: 'story',
+    section: 'engineering',
+    title: 'Accessibility contract',
+    description:
+      'Every primitive guarantees a role, an accessible name, keyboard support, and aria-* wiring — asserted with axe-core in CI alongside the visual regression suite.',
+  },
+  {
+    slug: 'tokens-color',
+    suffix: 'colors',
+    viewMode: 'story',
+    section: 'tokens',
+    title: 'Color',
+    description: 'Color tokens and scales.',
+  },
+  {
+    slug: 'tokens-typography',
+    suffix: 'typography',
+    viewMode: 'story',
+    section: 'tokens',
+    title: 'Typography',
+    description: 'Font scales and text styles.',
+  },
+  {
+    slug: 'patterns-accessibility',
+    suffix: 'overview',
+    viewMode: 'story',
+    section: 'patterns',
+    title: 'Accessibility',
+    description:
+      'Focus visibility, ARIA conventions, contrast, and keyboard support — the contract every primitive satisfies.',
+  },
+  {
+    slug: 'patterns-composition-with-aschild',
+    suffix: 'button-as-link',
+    viewMode: 'story',
+    section: 'patterns',
+    title: 'Composition with asChild',
+    description:
+      'Rendering Button as a link, buttonVariants() on your own element, and Text polymorphism.',
+  },
+  {
+    slug: 'patterns-form-composition',
+    suffix: 'basic-field',
+    viewMode: 'story',
+    section: 'patterns',
+    title: 'Form Composition',
+    description: 'Wiring Field and FieldSet: labels, descriptions, and error messages.',
+  },
+  {
+    slug: 'patterns-form-states',
+    suffix: 'audit',
+    viewMode: 'story',
+    section: 'patterns',
+    title: 'Form States',
+    description: 'disabled / readOnly / error across every form control, audited side by side.',
+  },
+  {
+    slug: 'patterns-layout',
+    suffix: 'flex-recipes',
+    viewMode: 'story',
+    section: 'patterns',
+    title: 'Layout',
+    description: 'Flex and grid recipes for arranging primitives on the page.',
+  },
+  {
+    slug: 'patterns-testing',
+    suffix: 'overview',
+    viewMode: 'story',
+    section: 'patterns',
+    title: 'Testing',
+    description: 'data-testid pass-through and role-first queries for consumer test suites.',
+  },
+]
+
+/**
+ * The `storyPath` slugs the `ComponentCard`s link to (viewMode `'docs'`,
+ * suffix `'docs'`). Kept here as the SSOT so `Welcome.drift.test.ts` can
+ * assert each resolves to an lv1 module that actually carries autodocs — the
+ * `--docs` entry only exists when the component is autodocs-tagged. The card
+ * JSX (live previews) stays inline; the test pins the const against the
+ * storyPaths actually wired into the cards.
+ */
+export const WELCOME_COMPONENT_SLUGS = [
+  'components-lv1-button',
+  'components-lv1-badge',
+  'components-lv1-spinner',
+  'components-lv1-text',
+  'components-lv1-tooltip',
+  'components-lv1-toast',
+  'components-lv1-callout',
+  'components-lv1-field',
+  'components-lv1-fieldset',
+  'components-lv1-input',
+  'components-lv1-textarea',
+  'components-lv1-select',
+  'components-lv1-checkbox',
+  'components-lv1-radio',
+  'components-lv1-switch',
+] as const
+
+/** Build the `href` + `onClick` pair for a deep-link card from a manifest entry. */
+const deepLinkProps = (link: WelcomeDeepLink) => ({
+  href: `/${link.viewMode}/${link.slug}--${link.suffix}`,
+  onClick: (e: React.MouseEvent) => navigateToStory(e, link.slug, link.suffix, link.viewMode),
+})
+
 const ComponentCard = ({
   name,
   description,
@@ -124,6 +282,47 @@ const TextLinkCard = ({
     <p className="text-xs text-foreground-muted mt-1.5 leading-relaxed">{description}</p>
   </a>
 )
+
+/** Preview glyphs for the Tokens cards, keyed by deep-link slug. */
+const TOKEN_PREVIEWS: Record<string, React.ReactNode> = {
+  'tokens-color': (
+    <div className="flex gap-1">
+      {['bg-solid', 'bg-foreground-muted', 'bg-vermillion', 'bg-destructive'].map((c) => (
+        <div key={c} className={`w-8 h-8 rounded-lg ${c}`} />
+      ))}
+    </div>
+  ),
+  'tokens-typography': (
+    <div className="flex flex-col items-center gap-1">
+      <span className="text-2xl font-bold text-foreground">Aa</span>
+      <span className="text-xs text-foreground-muted">Hanken Grotesk</span>
+    </div>
+  ),
+}
+
+/**
+ * Tokens-section card — same chrome as `ComponentCard` but its preview is a
+ * static glyph (no interactive click-trap) and its link routes through the
+ * `WELCOME_DEEP_LINKS` manifest.
+ */
+const TokenCard = ({ link }: { link: WelcomeDeepLink }) => (
+  <a
+    {...deepLinkProps(link)}
+    className="group block border border-border rounded-xl overflow-hidden no-underline transition-shadow duration-200 hover:shadow-md"
+  >
+    <div className="flex items-center justify-center h-40 bg-surface">
+      {TOKEN_PREVIEWS[link.slug]}
+    </div>
+    <div className="px-4 py-3 border-t border-border">
+      <p className="text-sm font-semibold text-vermillion group-hover:underline">{link.title}</p>
+      <p className="text-xs text-foreground-muted mt-0.5">{link.description}</p>
+    </div>
+  </a>
+)
+
+const engineeringLinks = WELCOME_DEEP_LINKS.filter((l) => l.section === 'engineering')
+const tokenLinks = WELCOME_DEEP_LINKS.filter((l) => l.section === 'tokens')
+const patternsLinks = WELCOME_DEEP_LINKS.filter((l) => l.section === 'patterns')
 
 export const Overview: Story = {
   name: 'Overview',
@@ -216,32 +415,14 @@ export const Overview: Story = {
             href="https://github.com/yasmro/schatten/tree/main/.claude/rules"
             external
           />
-          <TextLinkCard
-            title="Framework-agnostic CSS API"
-            description="Components ship a .st-* BEM class API and a prebuilt stylesheet, so they render with plain HTML — no React, no Tailwind, no build step required on the consumer side."
-            href="/story/css-api-overview--reference"
-            onClick={(e) => navigateToStory(e, 'css-api-overview', 'reference', 'story')}
-          />
-          <TextLinkCard
-            title="Mode × Special theming"
-            description="Two independent theme axes — light/dark Mode × an exclusive seasonal Special — compose at runtime through CSS variables. See all 16 combinations verified side by side."
-            href="/story/theming-theme-audit--overview"
-            onClick={(e) => navigateToStory(e, 'theming-theme-audit', 'overview', 'story')}
-          />
-          <TextLinkCard
-            title="Seasonal showcase"
-            description="Eight palettes based on the 24 solar terms re-tint every solid surface at runtime — see all eight seasons worn by buttons, badges, and a full dashboard mockup."
-            href="/story/theming-seasonal-showcase--eight-seasons"
-            onClick={(e) =>
-              navigateToStory(e, 'theming-seasonal-showcase', 'eight-seasons', 'story')
-            }
-          />
-          <TextLinkCard
-            title="Accessibility contract"
-            description="Every primitive guarantees a role, an accessible name, keyboard support, and aria-* wiring — asserted with axe-core in CI alongside the visual regression suite."
-            href="/story/patterns-accessibility--overview"
-            onClick={(e) => navigateToStory(e, 'patterns-accessibility', 'overview', 'story')}
-          />
+          {engineeringLinks.map((link) => (
+            <TextLinkCard
+              key={link.title}
+              title={link.title}
+              description={link.description}
+              {...deepLinkProps(link)}
+            />
+          ))}
         </div>
       </div>
 
@@ -431,42 +612,9 @@ export const Overview: Story = {
       <div className="mb-12">
         <h2 className="text-xl font-bold text-foreground mb-4">Tokens</h2>
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-          <a
-            href="/story/tokens-color--colors"
-            onClick={(e) => navigateToStory(e, 'tokens-color', 'colors', 'story')}
-            className="group block border border-border rounded-xl overflow-hidden no-underline transition-shadow duration-200 hover:shadow-md"
-          >
-            <div className="flex items-center justify-center h-40 bg-surface">
-              <div className="flex gap-1">
-                {['bg-solid', 'bg-foreground-muted', 'bg-vermillion', 'bg-destructive'].map((c) => (
-                  <div key={c} className={`w-8 h-8 rounded-lg ${c}`} />
-                ))}
-              </div>
-            </div>
-            <div className="px-4 py-3 border-t border-border">
-              <p className="text-sm font-semibold text-vermillion group-hover:underline">Color</p>
-              <p className="text-xs text-foreground-muted mt-0.5">Color tokens and scales.</p>
-            </div>
-          </a>
-
-          <a
-            href="/story/tokens-typography--typography"
-            onClick={(e) => navigateToStory(e, 'tokens-typography', 'typography', 'story')}
-            className="group block border border-border rounded-xl overflow-hidden no-underline transition-shadow duration-200 hover:shadow-md"
-          >
-            <div className="flex items-center justify-center h-40 bg-surface">
-              <div className="flex flex-col items-center gap-1">
-                <span className="text-2xl font-bold text-foreground">Aa</span>
-                <span className="text-xs text-foreground-muted">Hanken Grotesk</span>
-              </div>
-            </div>
-            <div className="px-4 py-3 border-t border-border">
-              <p className="text-sm font-semibold text-vermillion group-hover:underline">
-                Typography
-              </p>
-              <p className="text-xs text-foreground-muted mt-0.5">Font scales and text styles.</p>
-            </div>
-          </a>
+          {tokenLinks.map((link) => (
+            <TokenCard key={link.slug} link={link} />
+          ))}
         </div>
       </div>
 
@@ -477,44 +625,14 @@ export const Overview: Story = {
           Cross-component recipes and principles — how the primitives compose in practice.
         </p>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <TextLinkCard
-            title="Accessibility"
-            description="Focus visibility, ARIA conventions, contrast, and keyboard support — the contract every primitive satisfies."
-            href="/story/patterns-accessibility--overview"
-            onClick={(e) => navigateToStory(e, 'patterns-accessibility', 'overview', 'story')}
-          />
-          <TextLinkCard
-            title="Composition with asChild"
-            description="Rendering Button as a link, buttonVariants() on your own element, and Text polymorphism."
-            href="/story/patterns-composition-with-aschild--button-as-link"
-            onClick={(e) =>
-              navigateToStory(e, 'patterns-composition-with-aschild', 'button-as-link', 'story')
-            }
-          />
-          <TextLinkCard
-            title="Form Composition"
-            description="Wiring Field and FieldSet: labels, descriptions, and error messages."
-            href="/story/patterns-form-composition--basic-field"
-            onClick={(e) => navigateToStory(e, 'patterns-form-composition', 'basic-field', 'story')}
-          />
-          <TextLinkCard
-            title="Form States"
-            description="disabled / readOnly / error across every form control, audited side by side."
-            href="/story/patterns-form-states--audit"
-            onClick={(e) => navigateToStory(e, 'patterns-form-states', 'audit', 'story')}
-          />
-          <TextLinkCard
-            title="Layout"
-            description="Flex and grid recipes for arranging primitives on the page."
-            href="/story/patterns-layout--flex-recipes"
-            onClick={(e) => navigateToStory(e, 'patterns-layout', 'flex-recipes', 'story')}
-          />
-          <TextLinkCard
-            title="Testing"
-            description="data-testid pass-through and role-first queries for consumer test suites."
-            href="/story/patterns-testing--overview"
-            onClick={(e) => navigateToStory(e, 'patterns-testing', 'overview', 'story')}
-          />
+          {patternsLinks.map((link) => (
+            <TextLinkCard
+              key={link.title}
+              title={link.title}
+              description={link.description}
+              {...deepLinkProps(link)}
+            />
+          ))}
         </div>
       </div>
     </div>

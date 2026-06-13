@@ -20,7 +20,15 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '../components/lv1/Tooltip/Tooltip'
-import { CodeBlock, Lead, Note, PageTitle, SectionTitle, SubsectionTitle } from './docs-ui'
+import {
+  CodeBlock,
+  DocsTable,
+  Lead,
+  Note,
+  PageTitle,
+  SectionTitle,
+  SubsectionTitle,
+} from './docs-ui'
 
 /*
  * Patterns/Testing — canonical reference for wiring `data-testid` into Schatten
@@ -69,35 +77,6 @@ const Demo = ({ label, children }: { label: string; children: ReactNode }) => (
       {label}
     </h3>
     <div className="flex flex-wrap items-center gap-4">{children}</div>
-  </div>
-)
-
-type TableRow = { key: string; cells: ReactNode[] }
-
-const RefTable = ({ headers, rows }: { headers: string[]; rows: TableRow[] }) => (
-  <div className="overflow-x-auto mb-4">
-    <table className="w-full text-sm border-collapse">
-      <thead>
-        <tr className="border-b border-border">
-          {headers.map((h) => (
-            <th key={h} className="text-left font-semibold text-foreground py-2 pr-4 align-top">
-              {h}
-            </th>
-          ))}
-        </tr>
-      </thead>
-      <tbody>
-        {rows.map((row) => (
-          <tr key={row.key} className="border-b border-border last:border-b-0 align-top">
-            {row.cells.map((cell, idx) => (
-              <td key={headers[idx]} className="py-2 pr-4 text-foreground-muted">
-                {cell}
-              </td>
-            ))}
-          </tr>
-        ))}
-      </tbody>
-    </table>
   </div>
 )
 
@@ -530,7 +509,7 @@ export const FrameworkSelectors: Story = {
         first; fall back to the testid row when role + name cannot disambiguate.
       </Lead>
 
-      <RefTable
+      <DocsTable
         headers={['Intent', 'Playwright', 'Cypress', 'React Testing Library']}
         rows={[
           {

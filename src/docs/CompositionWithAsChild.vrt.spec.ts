@@ -2,10 +2,10 @@ import { expect, test } from '@playwright/test'
 
 const STORY_ID_PREFIX = 'patterns-composition-with-aschild'
 
-// All three stories are visual (live-rendered examples). The narrative
-// sections (escape-hatch table / decision tree / anti-patterns) live in
-// `meta.parameters.docs.description.component`, not as separate stories,
-// so there is no text-only story to skip here.
+// These three are visual (live-rendered examples). The narrative is rendered
+// inline in the `Overview` story (escape-hatch table / decision tree /
+// anti-patterns), which is intentionally NOT in the roster:
+// 'overview' — prose only; no visual contract (vrt-spec-guideline: docs prose → skip)
 const stories = ['button-as-link', 'link-with-button-variants', 'text-polymorphism'] as const
 
 const themes = ['light', 'dark'] as const

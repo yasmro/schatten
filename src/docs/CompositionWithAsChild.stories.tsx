@@ -1,10 +1,11 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { ArrowRight } from 'lucide-react'
+import { Fragment } from 'react'
 import { Button } from '../components/lv1/Button/Button'
 import { Text } from '../components/lv1/Text/Text'
 import { buttonVariants } from '../variants/button'
 import { textVariants } from '../variants/text'
-import { CodeBlock, Lead, Note, PageTitle, SectionTitle } from './docs-ui'
+import { CodeBlock, DocsTable, Lead, Note, PageTitle, SectionTitle } from './docs-ui'
 
 /*
  * Patterns: asChild / *Variants() / as の使い分け。narrative（escape-hatch
@@ -50,75 +51,67 @@ export const Overview: Story = {
         <code className="text-xs">component-architecture.md</code>.)
       </Lead>
 
-      <table className="w-full text-sm border-collapse">
-        <thead>
-          <tr className="border-b border-border">
-            <th scope="col" className="text-left font-semibold text-foreground py-2 pr-4 align-top">
-              Escape hatch
-            </th>
-            <th scope="col" className="text-left font-semibold text-foreground py-2 pr-4 align-top">
-              What you get
-            </th>
-            <th scope="col" className="text-left font-semibold text-foreground py-2 pr-4 align-top">
-              Where it works
-            </th>
-            <th scope="col" className="text-left font-semibold text-foreground py-2 align-top">
-              Available on
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr className="border-b border-border align-top">
-            <td className="py-2 pr-4 text-foreground-muted">
-              <code className="text-xs">asChild</code> (Radix <code className="text-xs">Slot</code>)
-            </td>
-            <td className="py-2 pr-4 text-foreground-muted">
-              The component's resolved <code className="text-xs">className</code>{' '}
-              <strong>plus its forwarded props / ref</strong> merged onto a single child — the child{' '}
-              <em>becomes</em> the component
-            </td>
-            <td className="py-2 pr-4 text-foreground-muted">React only</td>
-            <td className="py-2 text-foreground-muted">
-              <strong>
+      <DocsTable
+        caption="Escape-hatch comparison: asChild / *Variants() / as"
+        headers={['Escape hatch', 'What you get', 'Where it works', 'Available on']}
+        rows={[
+          {
+            key: 'aschild',
+            cells: [
+              <Fragment key="hatch">
+                <code className="text-xs">asChild</code> (Radix{' '}
+                <code className="text-xs">Slot</code>)
+              </Fragment>,
+              <Fragment key="get">
+                The component's resolved <code className="text-xs">className</code>{' '}
+                <strong>plus its forwarded props / ref</strong> merged onto a single child — the
+                child <em>becomes</em> the component
+              </Fragment>,
+              'React only',
+              <strong key="on">
                 <code className="text-xs">Button</code> only
-              </strong>
-            </td>
-          </tr>
-          <tr className="border-b border-border align-top">
-            <td className="py-2 pr-4 text-foreground-muted">
-              <code className="text-xs">*Variants()</code> (
-              <code className="text-xs">buttonVariants()</code> /{' '}
-              <code className="text-xs">textVariants()</code>)
-            </td>
-            <td className="py-2 pr-4 text-foreground-muted">
-              <strong>Only the class string</strong> — your element keeps its full native typing
-            </td>
-            <td className="py-2 pr-4 text-foreground-muted">
-              Any context: React, SSR HTML, email, framework{' '}
-              <code className="text-xs">&lt;Link&gt;</code>
-            </td>
-            <td className="py-2 text-foreground-muted">
-              <code className="text-xs">Button</code>, <code className="text-xs">Text</code>
-            </td>
-          </tr>
-          <tr className="border-b border-border last:border-b-0 align-top">
-            <td className="py-2 pr-4 text-foreground-muted">
-              <code className="text-xs">as</code> (closed tag enum)
-            </td>
-            <td className="py-2 pr-4 text-foreground-muted">
-              Swaps the rendered semantic tag (<code className="text-xs">p</code> /{' '}
-              <code className="text-xs">span</code> / <code className="text-xs">h1</code>–
-              <code className="text-xs">h6</code>)
-            </td>
-            <td className="py-2 pr-4 text-foreground-muted">React only</td>
-            <td className="py-2 text-foreground-muted">
-              <strong>
+              </strong>,
+            ],
+          },
+          {
+            key: 'variants',
+            cells: [
+              <Fragment key="hatch">
+                <code className="text-xs">*Variants()</code> (
+                <code className="text-xs">buttonVariants()</code> /{' '}
+                <code className="text-xs">textVariants()</code>)
+              </Fragment>,
+              <Fragment key="get">
+                <strong>Only the class string</strong> — your element keeps its full native typing
+              </Fragment>,
+              <Fragment key="where">
+                Any context: React, SSR HTML, email, framework{' '}
+                <code className="text-xs">&lt;Link&gt;</code>
+              </Fragment>,
+              <Fragment key="on">
+                <code className="text-xs">Button</code>, <code className="text-xs">Text</code>
+              </Fragment>,
+            ],
+          },
+          {
+            key: 'as',
+            cells: [
+              <Fragment key="hatch">
+                <code className="text-xs">as</code> (closed tag enum)
+              </Fragment>,
+              <Fragment key="get">
+                Swaps the rendered semantic tag (<code className="text-xs">p</code> /{' '}
+                <code className="text-xs">span</code> / <code className="text-xs">h1</code>–
+                <code className="text-xs">h6</code>)
+              </Fragment>,
+              'React only',
+              <strong key="on">
                 <code className="text-xs">Text</code> only
-              </strong>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+              </strong>,
+            ],
+          },
+        ]}
+      />
 
       <Note>
         This table is the consumer-facing companion to the contributor contract in{' '}

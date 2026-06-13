@@ -37,3 +37,54 @@ export const CodeBlock = ({ children }: { children: ReactNode }) => (
     {children}
   </pre>
 )
+
+export type DocsTableRow = { key: string; cells: ReactNode[] }
+
+/*
+ * Shared docs-prose table. Bakes in `<th scope="col">` + thead/tbody so the
+ * column-header association can't drift: axe's WCAG 2.1 A/AA tags do NOT flag a
+ * missing `scope`, so this STRUCTURE — not a per-page a11y spec — is the
+ * enforcement (the policy decision in #384). A contributor cannot add a docs
+ * table without `scope` because they go through this component, not raw
+ * `<table>`. See `.claude/rules/vrt-spec-guideline.md` "docs page tables and a11y".
+ */
+export const DocsTable = ({
+  headers,
+  rows,
+  caption,
+}: {
+  headers: string[]
+  rows: DocsTableRow[]
+  /** Optional accessible table name, rendered as a visually-hidden <caption>. */
+  caption?: string
+}) => (
+  <div className="overflow-x-auto mb-4">
+    <table className="w-full text-sm border-collapse">
+      {caption ? <caption className="sr-only">{caption}</caption> : null}
+      <thead>
+        <tr className="border-b border-border">
+          {headers.map((h) => (
+            <th
+              key={h}
+              scope="col"
+              className="text-left font-semibold text-foreground py-2 pr-4 align-top"
+            >
+              {h}
+            </th>
+          ))}
+        </tr>
+      </thead>
+      <tbody>
+        {rows.map((row) => (
+          <tr key={row.key} className="border-b border-border last:border-b-0 align-top">
+            {row.cells.map((cell, idx) => (
+              <td key={headers[idx]} className="py-2 pr-4 text-foreground-muted">
+                {cell}
+              </td>
+            ))}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+)

@@ -175,9 +175,9 @@ const Section = ({
         <table className="cssapi-doc__attr-table">
           <thead>
             <tr>
-              <th>Attribute</th>
-              <th>Meaning</th>
-              <th>When</th>
+              <th scope="col">Attribute</th>
+              <th scope="col">Meaning</th>
+              <th scope="col">When</th>
             </tr>
           </thead>
           <tbody>

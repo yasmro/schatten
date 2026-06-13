@@ -294,6 +294,44 @@ docs page, **default to skip**.
 > ["Brand-new snapshots"](#brand-new-snapshots) and verify local↔CI rendering
 > parity first by passing an existing spec against its committed baseline.
 
+### docs page tables and a11y — structural, not a per-page axe spec
+
+Hand-built docs pages (`Patterns/*`, `Tokens/*`, `CSS API/*`) increasingly
+carry `<table>` prose. The a11y of those tables is enforced **structurally
+through a shared component**, NOT through a per-page `@axe-core/playwright`
+spec. The policy (decided in
+[#384](https://github.com/yasmro/schatten/issues/384)):
+
+- **Render docs-prose tables with `DocsTable`**
+  ([`src/docs/docs-ui.tsx`](../../src/docs/docs-ui.tsx)), never a raw
+  `<table>` hand-written per page. `DocsTable` bakes in `<th scope="col">`
+  + `<thead>` / `<tbody>`, so the column-header association cannot drift.
+  Its `scope="col"` invariant is pinned by
+  [`docs-ui.test.tsx`](../../src/docs/docs-ui.test.tsx).
+- **Do not add a per-page axe spec to assert table semantics.** This is the
+  load-bearing reason for the structural approach: a missing `scope` is
+  **not** an axe violation under the WCAG 2.1 A/AA tag set
+  (`wcag2a` / `wcag2aa` / `wcag21a` / `wcag21aa`) the a11y suite pins —
+  `scope-attr-valid` only fires on an *invalid* value, never on an absent
+  one. So an axe sweep would give a false sense of coverage for exactly the
+  drift (missing `scope`, `<th>`/`<td>` mismatch) the concern was about. The
+  component, plus its unit test, is what actually guards it.
+- **A docs page that already styles its table bespoke** (e.g.
+  `CSSApi.stories.tsx`'s `cssapi-doc__attr-table`, scoped to a page-chrome
+  stylesheet) keeps its own `<table>` but **must still set
+  `scope="col"`** on every header cell by hand. Migrating it onto
+  `DocsTable` is optional and non-breaking.
+- **Non-table docs-prose a11y** (color-contrast, heading order, link names)
+  is checked at **dev time** via the Storybook `addon-a11y` panel
+  (`.storybook/preview.tsx`, same WCAG tag set), not in CI. If a future need
+  arises to gate *all* docs prose with axe in CI, that is a separate
+  "docs-only a11y sweep" decision — open an issue and update this section;
+  do not bolt a one-off axe spec onto a single docs page.
+
+The three-axis rule for docs pages, then: **visual contract → VRT (above);
+table semantics → `DocsTable` (structural); broader prose a11y → dev-time
+`addon-a11y` panel.**
+
 ### Adding a new story → add it to the VRT roster (or document the skip)
 
 When you add a new story to `{Component}.stories.tsx`, the **same PR** must do

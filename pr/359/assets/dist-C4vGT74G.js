@@ -1,1 +1,0 @@
-import{i as e,s as t}from"./preload-helper-ChaSUgV0.js";import{C as n,t as r}from"./iframe-DK9TY03R.js";function i(e){let t=a.useContext(o);return e||t||`ltr`}var a,o,s=e((()=>{a=t(n(),1),r(),o=a.createContext(void 0)}));export{i as n,s as t};

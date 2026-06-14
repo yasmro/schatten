@@ -45,6 +45,7 @@ export const Switch = forwardRef<ElementRef<typeof SwitchPrimitive.Root>, Switch
       id: idProp,
       disabled: disabledProp,
       'aria-describedby': ariaDescribedByProp,
+      'aria-labelledby': ariaLabelledByProp,
       ...props
     },
     ref,
@@ -57,6 +58,11 @@ export const Switch = forwardRef<ElementRef<typeof SwitchPrimitive.Root>, Switch
     const isError = field?.isError ?? isErrorProp
     const disabled = field?.disabled ?? disabledProp
     const ariaDescribedBy = field?.describedBy ?? ariaDescribedByProp
+    // With no own `label` (and no explicit naming), the Field-rendered label
+    // names this control via aria-labelledby — htmlFor can't reach it because
+    // Switch keeps its own per-instance id. See field-context-guideline.
+    const ariaLabelledBy =
+      ariaLabelledByProp ?? (label || props['aria-label'] ? undefined : field?.labelId)
 
     return (
       <div className={cn('st-switch-wrapper', className)}>
@@ -66,6 +72,7 @@ export const Switch = forwardRef<ElementRef<typeof SwitchPrimitive.Root>, Switch
           className={cn(switchVariants({ size }))}
           aria-invalid={isError || undefined}
           aria-describedby={ariaDescribedBy}
+          aria-labelledby={ariaLabelledBy}
           disabled={disabled}
           {...props}
         >

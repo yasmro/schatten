@@ -1,3 +1,4 @@
+import AxeBuilder from '@axe-core/playwright'
 import { expect, test } from '@playwright/test'
 
 const STORY_ID_PREFIX = 'components-lv1-input'
@@ -7,7 +8,12 @@ const stories = [
   'types',
   'with-text',
   'with-icons',
-  'error',
+  // 'error-state' is the canonical id (the `ErrorState` story — the id
+  // derives from the export name, not the `name: 'Error'` label). Do NOT
+  // shorten to 'error': that id doesn't exist and only ever resolved via
+  // Storybook's prefix-redirect, which silently breaks the moment an
+  // `error-*` sibling story is added.
+  'error-state',
   'disabled',
   'disabled-with-error',
   'read-only',
@@ -38,6 +44,21 @@ for (const story of stories) {
       )
 
       await expect(root).toHaveScreenshot(`${story}-${theme}.png`)
+    })
+
+    test(`Input / ${story} / ${theme} / a11y`, async ({ page }) => {
+      await page.goto(storyUrl(story, theme))
+      await page.waitForLoadState('networkidle')
+
+      const root = page.locator('#storybook-root')
+      await root.waitFor({ state: 'visible', timeout: 10_000 })
+
+      const results = await new AxeBuilder({ page })
+        .include('#storybook-root')
+        .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
+        .analyze()
+
+      expect(results.violations).toEqual([])
     })
   }
 }

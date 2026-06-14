@@ -47,62 +47,12 @@
   --tracking-wider: 0.05em;
 
   /*
-   * Semantic Typography Tokens
-   * Composite tokens that define size + line-height + weight for each role.
+   * Semantic typography composite tokens (`--text-{body,label,heading}-*-
+   * {size,leading,weight}`) were removed in #144. A 3-property bundle
+   * (size + line-height + weight) can't be expressed as a single CSS var,
+   * so the role × size binding lives in the `.st-text--{variant}.st-text--
+   * {size}` class API (`components/lv1/Text/Text.css`), which reads the
+   * base scale above directly. The base scale is the only public
+   * typography variable surface.
    */
-
-  /* Body */
-  --text-body-xs-size: var(--text-xs);
-  --text-body-xs-leading: var(--leading-normal);
-  --text-body-xs-weight: var(--font-normal);
-
-  --text-body-sm-size: var(--text-sm);
-  --text-body-sm-leading: var(--leading-normal);
-  --text-body-sm-weight: var(--font-normal);
-
-  --text-body-md-size: var(--text-base);
-  --text-body-md-leading: var(--leading-normal);
-  --text-body-md-weight: var(--font-normal);
-
-  --text-body-lg-size: var(--text-lg);
-  --text-body-lg-leading: var(--leading-normal);
-  --text-body-lg-weight: var(--font-normal);
-
-  /* Label */
-  --text-label-xs-size: var(--text-xs);
-  --text-label-xs-leading: var(--leading-tight);
-  --text-label-xs-weight: var(--font-medium);
-
-  --text-label-sm-size: var(--text-sm);
-  --text-label-sm-leading: var(--leading-tight);
-  --text-label-sm-weight: var(--font-medium);
-
-  --text-label-md-size: var(--text-base);
-  --text-label-md-leading: var(--leading-tight);
-  --text-label-md-weight: var(--font-medium);
-
-  --text-label-lg-size: var(--text-lg);
-  --text-label-lg-leading: var(--leading-tight);
-  --text-label-lg-weight: var(--font-medium);
-
-  /* Heading */
-  --text-heading-sm-size: var(--text-lg);
-  --text-heading-sm-leading: var(--leading-snug);
-  --text-heading-sm-weight: var(--font-semibold);
-
-  --text-heading-md-size: var(--text-xl);
-  --text-heading-md-leading: var(--leading-snug);
-  --text-heading-md-weight: var(--font-semibold);
-
-  --text-heading-lg-size: var(--text-2xl);
-  --text-heading-lg-leading: var(--leading-snug);
-  --text-heading-lg-weight: var(--font-semibold);
-
-  --text-heading-xl-size: var(--text-3xl);
-  --text-heading-xl-leading: var(--leading-tight);
-  --text-heading-xl-weight: var(--font-bold);
-
-  --text-heading-2xl-size: var(--text-4xl);
-  --text-heading-2xl-leading: var(--leading-tight);
-  --text-heading-2xl-weight: var(--font-bold);
 }

@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 
 const meta: Meta = {
-  title: 'Foundation/Color',
+  title: 'Tokens/Color',
   parameters: {
     layout: 'fullscreen',
   },
@@ -436,8 +436,11 @@ export const Colors: Story = {
 
       <SubsectionTitle>Theme</SubsectionTitle>
       <p className="text-sm text-foreground-muted mb-3">
-        Theme color scale mapped from semantic tokens. The default theme uses blue; seasonal themes
-        override this entire scale via the <code>data-theme</code> attribute.
+        Theme color scale mapped from semantic tokens. The default ramp is the neutral alabaster
+        scale — with no Special active the expressive layer rests at the neutral ink look; seasonal
+        themes override this entire scale via the <code>data-theme</code> attribute. The solid
+        family (<code>--color-solid*</code>) consumes rungs of this ramp, so an active Special
+        recolors every solid surface (Button primary, Badge/Callout/Toast neutral × solid).
       </p>
       <ScaleRow
         shades={[
@@ -497,7 +500,8 @@ export const Colors: Story = {
 
       <SubsectionTitle>Blue</SubsectionTitle>
       <p className="text-sm text-foreground-muted mb-3">
-        Default theme color. Used as the base for the Theme scale when no seasonal theme is active.
+        Pinned primitive behind the <code>info</code> state tokens — independent of the Theme scale,
+        so Specials can never drift its meaning.
       </p>
       <ScaleRow
         shades={[

@@ -1,4 +1,4 @@
 node_modules
+pnpm-lock.yaml
 .lighthouseci
-public/index.html
-public/css
+public/

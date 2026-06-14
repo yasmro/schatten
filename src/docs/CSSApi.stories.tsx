@@ -50,7 +50,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite'
  * + sweep-6 (Toast, Dialog) + sweep-7 (Field, FieldSet) of #154.
  */
 const meta: Meta = {
-  title: 'Foundation/CSS API',
+  title: 'CSS API/Overview',
   parameters: {
     layout: 'fullscreen',
   },
@@ -175,9 +175,9 @@ const Section = ({
         <table className="cssapi-doc__attr-table">
           <thead>
             <tr>
-              <th>Attribute</th>
-              <th>Meaning</th>
-              <th>When</th>
+              <th scope="col">Attribute</th>
+              <th scope="col">Meaning</th>
+              <th scope="col">When</th>
             </tr>
           </thead>
           <tbody>

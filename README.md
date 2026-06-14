@@ -744,6 +744,25 @@ function Banner({ tone }: { tone: ColorToken }) {
 </div>
 ```
 
+### Reserved z-index range
+
+Schatten reserves the `0–100` z-index band for its portal / overlay
+layers. Components reference these via the `--z-*` semantic tokens (also
+exposed as Tailwind `z-*` utilities and `tokens.zIndex.*`):
+
+| Token / utility      | Value | Layer                    |
+|----------------------|-------|--------------------------|
+| `--z-modal-backdrop` | 40    | Dialog overlay           |
+| `--z-modal`          | 50    | Dialog content           |
+| `--z-popover`        | 60    | Select / popover content |
+| `--z-tooltip`        | 70    | Tooltip                  |
+| `--z-toast`          | 80    | Toast (front-most)       |
+
+`--z-base` (0) / `--z-dropdown` (10) / `--z-sticky` (20) / `--z-fixed`
+(30) are reserved for consumer use. Keep your own stacking values
+**outside the 0–100 band** (or slot them between the tokens above) to
+avoid colliding with Schatten's overlays.
+
 ## Performance
 
 Schatten ships as a single installable package, which trades shadcn's
@@ -878,7 +897,9 @@ Each example ships a `lighthouserc.json` that asserts a 100% score
 across Performance / Accessibility / Best Practices / SEO via
 [`@lhci/cli`](https://github.com/GoogleChrome/lighthouse-ci). Run
 `pnpm install && pnpm lhci` inside an example to reproduce the
-measurement.
+measurement. The latest measured scores (with the Chrome / Lighthouse
+versions they were taken under) are recorded in each example's
+`## Measured scores` section.
 
 ## Components
 
@@ -899,7 +920,7 @@ src/
 ├── themes/           # Default and seasonal themes
 ├── variants/         # CVA variant definitions
 ├── lib/              # Shared utilities (cn, etc.)
-└── docs/             # Storybook docs (Color, Typography, …)
+└── docs/             # Storybook docs (Tokens, Theming, CSS API, Patterns)
 ```
 
 ## Development

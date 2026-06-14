@@ -1,6 +1,6 @@
 import * as DialogPrimitive from '@radix-ui/react-dialog'
 import { type LucideIcon, X } from 'lucide-react'
-import { type ReactNode, useCallback, useEffect } from 'react'
+import { type ReactNode, useCallback, useEffect, useRef, useState } from 'react'
 import { Button } from '../Button'
 import { Separator } from '../Separator'
 import './Dialog.css'
@@ -128,7 +128,36 @@ function Header({ title, description }: { title: string; description?: string })
 }
 
 function Body({ children }: { children: ReactNode }) {
-  return <div className="st-dialog__body">{children}</div>
+  const ref = useRef<HTMLDivElement>(null)
+  const [isScrollable, setIsScrollable] = useState(false)
+
+  // The body is the dialog's only scroll region (`min-height: 0;
+  // overflow-y: auto` — Dialog.css). When it overflows and contains no
+  // focusable descendant, keyboard users can't scroll it (WCAG 2.1.1 /
+  // axe `scrollable-region-focusable`), so it becomes a tab stop — but
+  // only while actually overflowing, to avoid a dead stop in the common
+  // non-scrolling case.
+  //
+  // Known limit: ResizeObserver watches the body's own box, so content
+  // that grows after mount *without* changing that box (async load while
+  // already pinned at max-height) won't re-run the check until the next
+  // resize. Acceptable today — dialog content is static at mount in all
+  // current usages; revisit if a consumer streams content into the body.
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const check = () => setIsScrollable(el.scrollHeight > el.clientHeight)
+    check()
+    const observer = new ResizeObserver(check)
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [])
+
+  return (
+    <div ref={ref} className="st-dialog__body" tabIndex={isScrollable ? 0 : undefined}>
+      {children}
+    </div>
+  )
 }
 
 function Footer({

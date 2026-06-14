@@ -119,3 +119,163 @@ When you change a prop's description, **update TSDoc first**, then sync
 
 - Always include `tags: ['autodocs']` to enable auto-generated documentation.
 - Set `parameters: { layout: 'centered' }` unless the component requires full-width layout.
+
+## Hand-built docs pages (Patterns / Tokens) — render prose inline
+
+Component stories carry `tags: ['autodocs']`, so Storybook generates an
+autodocs **Docs page** for them — and that Docs page is the only surface on
+which `parameters.docs.description.component` / `.story` render.
+
+The hand-built pages under `Patterns/*` and `Tokens/*` (e.g.
+[`FormStates.stories.tsx`](../../src/docs/FormStates.stories.tsx),
+[`FormComposition.stories.tsx`](../../src/docs/FormComposition.stories.tsx))
+are **different**: they are authored as full-bleed Canvas pages
+(`parameters: { layout: 'fullscreen' }`) and **must NOT** carry
+`tags: ['autodocs']`. Consequently **no Docs page is generated for them**, so
+anything placed in `parameters.docs.description.*` renders **nowhere** — it is
+silently dormant.
+
+The rule for these pages:
+
+- **Render every piece of prose inline as JSX** inside the story `render` —
+  page intro, per-recipe captions, a11y notes, and code snippets. Use the
+  shared [`docs-ui.tsx`](../../src/docs/docs-ui.tsx) helpers (`PageTitle` /
+  `SectionTitle` / `SubsectionTitle` / `Lead` / `Note`) so the typography
+  matches the other docs pages.
+- **Do NOT** put narrative in `parameters.docs.description.component` /
+  `.story` on a `fullscreen` / no-`autodocs` page and assume it shows. It does
+  not. A note that reads "see the code in the Docs panel above" on such a page
+  is a dangling reference — there is no Docs panel.
+- Show code samples with an inline `<pre><code>{`…`}</code></pre>` block, not a
+  `description.story` markdown fence.
+
+If a page genuinely needs the autodocs Docs surface, add `tags: ['autodocs']`
+deliberately and drop `layout: 'fullscreen'` — but for narrative recipe pages
+the inline-prose Canvas pattern is preferred (the args table autodocs injects
+adds noise a recipe page doesn't want).
+
+## a11y (addon-a11y)
+
+`@storybook/addon-a11y` runs an [axe-core](https://github.com/dequelabs/axe-core)
+scan against the rendered story and surfaces violations / passes / incomplete
+in the **Accessibility** panel. It is the **dev-time companion** to the
+`@axe-core/playwright` VRT assertions ([#147](https://github.com/yasmro/schatten/issues/147)):
+the panel lets you catch an a11y regression *while editing*, the VRT specs gate
+it in CI. The two are deliberately the same axe surface — see below.
+
+### Configuration is global, in `.storybook/preview.tsx`
+
+The addon is registered in [`.storybook/main.ts`](../../.storybook/main.ts)
+(`addons: ['@storybook/addon-docs', '@storybook/addon-a11y']`) and configured
+once via `parameters.a11y` in [`.storybook/preview.tsx`](../../.storybook/preview.tsx):
+
+```tsx
+a11y: {
+  options: {
+    runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'] },
+  },
+  test: 'todo',
+}
+```
+
+- **`options.runOnly` MUST pin the same WCAG tag set the VRT specs use**
+  (`.withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])` — see
+  [vrt-spec-guideline §a11y assertions](vrt-spec-guideline.md#a11y-assertions-axe--paired-with-every-vrt-test)).
+  Without it, axe also runs *best-practice* rules (`region` /
+  `landmark-one-main` / `page-has-heading-one`) that flag the Storybook iframe
+  itself on every story — pure noise. Keeping the tag set identical means
+  "green in the dev panel" maps to the same contract CI enforces.
+- **`test: 'todo'`** keeps the addon observe-only. The `test` flag only bites
+  through the test addon (`@storybook/addon-vitest`), which is not wired up
+  today, so it is inert — but it documents the Phase-1 stance. Promotion to
+  `'error'` rides with the CI blocking-gate work
+  ([#346](https://github.com/yasmro/schatten/issues/346)).
+- **Dark mode / seasonal violations come for free.** The addon scans the
+  rendered DOM *after* the global theme decorator applies `.dark` /
+  `data-theme` to `<html>`, so toggling the Theme toolbar surfaces dark-mode
+  contrast issues in the panel with no extra config.
+
+### Per-story rule disable — last resort, with a reason
+
+A known false positive or an intentionally-bare control story can disable a
+rule locally:
+
+```tsx
+export const SomeStory: Story = {
+  parameters: { a11y: { config: { rules: [{ id: 'color-contrast', enabled: false }] } } },
+}
+```
+
+Treat this like a `// biome-ignore` — **never silent**. The panel's whole
+value during the Phase-1 backlog cleanup (state-token contrast
+[#344](https://github.com/yasmro/schatten/issues/344), bare-control stories
+[#345](https://github.com/yasmro/schatten/issues/345)) is making pre-existing
+violations visible, so do not blanket-disable a rule globally. When a per-story
+disable is genuinely warranted, leave a one-line comment naming the reason and,
+if it tracks a backlog item, the issue.
+
+## Story title taxonomy (IA)
+
+The Storybook sidebar's **top level is a fixed set of 7 groups** (depth ≤ 2),
+confirmed in the docs IA spike [#320](https://github.com/yasmro/schatten/issues/320).
+This is the **single source of truth** for docs information architecture —
+README and CLAUDE.md only point here, they do not restate it.
+
+| Top-level group | What belongs there | Examples |
+|---|---|---|
+| `Welcome` | Landing / overview | `Welcome` |
+| `Getting Started` | Integration on-ramp | `Quick Start`, `Installation` |
+| `Tokens` | Design-token vocabulary (the *values*) | `Color`, `Typography`, `Spacing`, `Elevation`, `Motion`, `Iconography` |
+| `Theming` | The Mode × Special theme machinery | `Overview`, `Theme Audit`, `Customization` |
+| `CSS API` | The framework-agnostic `.st-*` class contract | `Overview`, `Class Reference` |
+| `Patterns` | Recipes spanning multiple lv1s + cross-cutting principles | `Form States`, `Accessibility`, `Form Composition`, `asChild`, `Layout`, `Testing` |
+| `Components` | The `lv1/<Name>` catalog | `lv1/Button`, `lv1/Input`, … |
+
+### Where does a new page go?
+
+- **A vocabulary of values** (a token scale) → `Tokens`.
+- **Anything about Mode × Special** → `Theming`.
+- **The `.st-*` class contract** → `CSS API`.
+- **A "how to use" recipe that spans more than one component, or a
+  cross-cutting principle** → `Patterns`.
+- **Do not invent an 8th top-level group.** The 7-group cap exists so the
+  sidebar stays at-a-glance coherent for an evaluator skimming it (#320
+  persona #2). A page that fits none of the seven is a signal to discuss,
+  not to add a category.
+
+### Renaming a story title (or export) is a story-ID change
+
+A story ID has two halves and **both** are derived from source, so a rename of
+either silently breaks any hard-coded link:
+
+- the **slug** (left of `--`) comes from `meta.title` — Storybook kebab-cases
+  it: `Tokens/Color` → `tokens-color`.
+- the **suffix** (right of `--`) comes from the **story export name**, not the
+  story's `name:` field. `export const ButtonAsLink` → `…--button-as-link`
+  regardless of any `name: '…'`. Renaming the export changes the URL; changing
+  only `name:` does **not** (e.g. CSSApi's `export const Reference` keeps
+  `…--reference` despite `name: 'Reference (all 18 lv1 components)'`).
+
+When you change a `title` **or rename a story export that something links to**,
+fix all of these **in the same PR**:
+
+- the VRT spec's `STORY_ID_PREFIX` (e.g. `src/docs/CSSApi.vrt.spec.ts`)
+- any deep link in `Welcome.stories.tsx` — these live in the exported
+  `WELCOME_DEEP_LINKS` manifest, mechanically guarded by
+  [`Welcome.drift.test.ts`](../../src/docs/Welcome.drift.test.ts) (#375): it
+  reconstructs each target's real id with Storybook's own `sanitize` /
+  `storyNameFromExport` and fails on a slug **or** suffix mismatch, plus on a
+  `viewMode` ↔ entry-type drift (`'docs'` needs autodocs, `'story'` needs a
+  Canvas export) and on a `Patterns/*` page that isn't linked. A title/export
+  rename that misses the manifest turns this test red rather than shipping a
+  dead link.
+- `options.storySort.order` in `.storybook/preview.tsx` if a top-level group
+  name changed
+
+Story IDs are **internal** per [api-stability.md](api-stability.md) (Storybook
+is not part of the published package), so an IA rename needs **no changeset and
+no major bump** — but the in-repo references above are not optional. `__snapshots__/`
+PNGs are named explicitly by each spec, so a prefix change does not rename them;
+when the render is unchanged the VRT must pass with **zero diff** (run
+`pnpm test:vrt` first, never blind-update — see
+[vrt-spec-guideline.md](vrt-spec-guideline.md)).

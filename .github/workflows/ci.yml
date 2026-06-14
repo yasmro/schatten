@@ -201,3 +201,70 @@ jobs:
         run: |
           set -o pipefail
           pnpm audit:coverage --check | tee -a "$GITHUB_STEP_SUMMARY"
+
+  a11y:
+    runs-on: ubuntu-latest
+    # Phase 1: observe-only. The a11y assertions in *.vrt.spec.ts run axe
+    # (WCAG 2.1 A/AA) against every lv1 story × theme, but ~115 pre-existing
+    # violations (systemic borderline color-contrast on state tokens, plus
+    # bare-control story artifacts) cannot be fixed inside this infra PR
+    # without a designer-owned token retune or a story-relabel + VRT
+    # re-baseline. So this gate observes — the step tees the axe output into
+    # the job summary so the violation list is readable from the PR checks
+    # without blocking merges — mirroring the staged rollout of the `audit`
+    # job (#307). Fixes land as follow-up issues (#344 / #345); Phase 2 (#346)
+    # removes continue-on-error and adds `a11y` to develop's required checks.
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm exec playwright install chromium
+
+      # No `pnpm build` step: the a11y tests target Storybook (the `pnpm dev`
+      # webServer in playwright.config.ts), not dist/ — only CSSApiDist (a VRT
+      # spec, excluded by the `a11y` grep) reads dist directly. axe is run on
+      # ubuntu rather than the scarce macos VRT runner because contrast/role
+      # checks derive from CSS, not from macos font / sub-pixel rendering.
+      # Tee axe output into the job summary so the violation list is readable
+      # straight from the PR checks (the `audit` job does the same for coverage
+      # gaps). GitHub's default bash shell runs with `-e`, so capture the
+      # Playwright exit code under `set +e` before doing anything else.
+      #
+      # Phase 1 observe-only contract: ~115 known violations make Playwright
+      # exit non-zero on EVERY run, so propagating that status would paint the
+      # `a11y` check permanently red and train people to ignore it (unlike the
+      # `audit` job, which is green until a real new gap appears). Instead we
+      # keep the check GREEN as long as axe actually ran — a Playwright result
+      # summary line (`N passed` / `N failed`) proves the suite executed — and
+      # only fail the step when axe could NOT run (crash, or the `--`/grep
+      # mistake that yields "No tests found"). #346 (Phase 2) deletes this
+      # exit-0 shim together with `continue-on-error` to make the gate block.
+      - name: a11y (axe) checks
+        shell: bash
+        run: |
+          {
+            echo '## a11y (axe) — WCAG 2.1 A/AA (Phase 1 observe-only)'
+            echo
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+          set +e
+          pnpm test:a11y 2>&1 | tee axe-out.txt
+          status=${PIPESTATUS[0]}
+          set -e
+          cat axe-out.txt >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          if grep -qE '[0-9]+ (passed|failed)' axe-out.txt; then
+            echo 'a11y ran (Phase 1 observe-only): violations are listed in the job summary, not blocking.'
+            exit 0
+          fi
+          echo '::error::axe did not run (no Playwright result summary) — failing the step.'
+          exit "$status"

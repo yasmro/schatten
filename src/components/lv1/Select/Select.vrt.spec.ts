@@ -1,3 +1,4 @@
+import AxeBuilder from '@axe-core/playwright'
 import { expect, test } from '@playwright/test'
 
 const STORY_ID_PREFIX = 'components-lv1-select'
@@ -41,6 +42,23 @@ for (const story of triggerStories) {
 
       await expect(root).toHaveScreenshot(`${story}-${theme}.png`)
     })
+
+    test(`Select / ${story} / ${theme} / a11y`, async ({ page }) => {
+      await page.goto(storyUrl(story, theme))
+      await page.waitForLoadState('networkidle')
+
+      const root = page.locator('#storybook-root')
+      await root.waitFor({ state: 'visible', timeout: 10_000 })
+
+      // Trigger-only: the listbox is closed, so the visible surface lives in
+      // #storybook-root.
+      const results = await new AxeBuilder({ page })
+        .include('#storybook-root')
+        .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
+        .analyze()
+
+      expect(results.violations).toEqual([])
+    })
   }
 }
 
@@ -69,6 +87,27 @@ for (const story of portalStories) {
       })
 
       await expect(page).toHaveScreenshot(`${story}-${theme}.png`, { fullPage: true })
+    })
+
+    test(`Select / ${story} / ${theme} / a11y`, async ({ page }) => {
+      await page.goto(storyUrl(story, theme))
+      await page.waitForLoadState('networkidle')
+
+      // open-content mounts the listbox into a portal on body, so analyze the
+      // whole page.
+      await page.waitForSelector('[role="listbox"]', { timeout: 10_000 })
+
+      const results = await new AxeBuilder({ page })
+        .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
+        // Known Radix behavior, not fixable from Schatten: while open, Radix
+        // (hideOthers) sets aria-hidden on #storybook-root but leaves the
+        // trigger focusable. Focus is trapped in the portaled listbox, so no
+        // real keyboard escape exists — disable just this rule, just here.
+        // Mirrored in the story's `parameters.a11y` for the addon panel.
+        .disableRules(['aria-hidden-focus'])
+        .analyze()
+
+      expect(results.violations).toEqual([])
     })
   }
 }

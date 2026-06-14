@@ -1,5 +1,204 @@
 # @yasmro/schatten
 
+## 0.11.0
+
+### Minor Changes
+
+- [#379](https://github.com/yasmro/schatten/pull/379) [`29a272c`](https://github.com/yasmro/schatten/commit/29a272c6eb173733b04c8d894c9be56ebad11b11) Thanks [@yasmro](https://github.com/yasmro)! - feat(lv1): FieldContext に `labelId` を追加 — Field label が self-labelled / group コンポーネントの accessible name になるように ([#345](https://github.com/yasmro/schatten/issues/345))
+
+  - `FieldContextValue` に `labelId?: string` を追加 (additive)。`<Field label>` が描画する `<label>` 要素に id が付き、context 経由で参照できます。
+  - `Checkbox` / `Switch` は自前の `label` prop が無く、`aria-label` / `aria-labelledby` の明示指定も無い場合に限り、Field の label を `aria-labelledby` で参照します。`<Field label="Notifications"><Switch /></Field>` がスクリーンリーダーで「Notifications」と読み上げられるようになります (従来は無名 — axe `button-name` 違反)。
+  - `RadioGroup` は group root (`role="radiogroup"`) で Field label を `aria-labelledby` 参照します (radiogroup は `htmlFor` では命名できないため)。
+  - 優先順位: 明示の `aria-label` / `aria-labelledby` > 自前 `label` > Field の `labelId`。既存の利用形 (自前 label あり / Field 外) の出力 DOM は不変です。
+  - 既知の限界: Field label クリックでの focus / toggle 連動は self-labelled コンポーネントでは効きません (SR 名の配線のみ)。
+
+- [#378](https://github.com/yasmro/schatten/pull/378) [`9c8dcd1`](https://github.com/yasmro/schatten/commit/9c8dcd187e4a763e532303bd71f19506f5612b4d) Thanks [@yasmro](https://github.com/yasmro)! - BREAKING: 死蔵されていた `--transition-fast` / `--transition-normal` / `--transition-slow`（CSS 変数）、`tokens.transition.*`、`TransitionToken` 型を削除。[#145](https://github.com/yasmro/schatten/issues/145) で deprecated 化済み・参照ゼロのため、pre-1.0 のうちに削除（[#350](https://github.com/yasmro/schatten/issues/350)）。
+
+  移行表:
+
+  | 旧                                        | 新                                                   |
+  | ----------------------------------------- | ---------------------------------------------------- |
+  | `var(--transition-fast)`（150ms ease）    | `var(--motion-base)`（150ms）+ easing は自分で指定   |
+  | `var(--transition-normal)`（200ms ease）  | `var(--motion-expressive)`（200ms）+ 同上            |
+  | `var(--transition-slow)`（300ms ease）    | 対応 step なし — 300ms 直書き、または 200ms へ寄せる |
+  | `tokens.transition.*` / `TransitionToken` | `tokens.motion.*` / `MotionToken`                    |
+
+  旧トークンは duration + easing を束ねた値（例 `150ms ease`）、新 `--motion-*` は duration 単体である点に注意（名前の対応も `fast` → `--motion-quick` ではなく `--motion-base`）。
+
+  CSS API: `dist/schatten.css` の tokens layer から上記 3 変数が消える（`@theme` 未登録のため manifest 差分はなし）。再導入は `src/core/tokens/__tests__/no-transition-tokens.test.ts` のソース走査ガードが防ぐ。
+
+- [#348](https://github.com/yasmro/schatten/pull/348) [`1f2538b`](https://github.com/yasmro/schatten/commit/1f2538b2f459c73f2b2a2c95d4881d19c015cf2d) Thanks [@yasmro](https://github.com/yasmro)! - CSS API: 用途別 semantic token を追加（shadow: `--shadow-card/popover/modal/toast`、radius: `--radius-control/surface/pill`、motion: `--motion-quick/base/expressive`）。`@theme` 登録済みで `tokens.ts` からも参照可能（`shadow.card` 等、新規 `motion` セクション + `MotionToken` 型）。
+
+  既存コンポーネントは value-preserving に置換（視覚変更なし・VRT zero diff）: Dialog/Toast/Tooltip/Select の elevation を `--shadow-modal`(=lg)/`--shadow-toast`(=md)/`--shadow-popover`(=md) 経由に、Badge/Radio/Switch の pill を `--radius-pill`(=full) 経由に。standalone CSS 向けに literal fallback 付き。
+
+  motion semantic は死蔵していた `--transition-*` ではなく生きている `--st-duration-*` のエイリアスとして定義。`tokens.ts` の `transition` セクションは `@deprecated` 注記。`--radius-control/surface` は定義のみ（Button/Input 等への角丸適用は別 spike）。
+
+- [#354](https://github.com/yasmro/schatten/pull/354) [`84de0d0`](https://github.com/yasmro/schatten/commit/84de0d00847c0fc40622e12835cb3b117db94afb) Thanks [@yasmro](https://github.com/yasmro)! - feat(tokens): route Select content z-index through the `--z-popover` semantic
+  token (was a hard-coded `50`). Visual no-op (50→60, the 51–60 band is otherwise
+  empty) but fixes a latent Select-in-Dialog stacking case and removes the last
+  hard-coded z-index in a component. Documents the reserved `0–100` z-index band
+  in the README.
+
+- [#374](https://github.com/yasmro/schatten/pull/374) [`4a5df43`](https://github.com/yasmro/schatten/commit/4a5df43e50741821cf652dabdb7740afc5730515) Thanks [@yasmro](https://github.com/yasmro)! - feat(theme): seasonal payoff 強化 — `--color-solid` ファミリーを theme ramp の段参照に再配線 ([#150](https://github.com/yasmro/schatten/issues/150))
+
+  - `--color-solid` / `--color-solid-hover` / `--color-solid-foreground` / `--color-solid-foreground-hover` が theme ramp の段 (light: 700/900/100/300、dark: 300/100/800/700) を参照するようになりました。「Mode が段を選び、Special が ramp を供給する」モデルです。seasonal テーマ (`data-theme="season--*"`) を有効にすると、Button primary / Badge・Callout・Toast の neutral × solid が季節色で再着色されます。
+  - default の theme scale (`--color-theme-50..950`) の解決先が blue → alabaster (中立 ramp) に変わりました。**Special 非適用時の solid 面の見た目は再配線前と完全に同一** (value-preserving) ですが、`bg-theme-*` ユーティリティや `tokens.theme*` (JS) を直接使っている場合は default 値が blue から warm neutral に変わります。
+  - CSS 変数名・`.st-*` クラスの増減はありません (manifest 不変)。seasonal の allowlist (`['--color-theme-*']`) も不変で、Special が solid を直接書くことは引き続き禁止です。
+  - 注意: custom property 連鎖の置換は宣言要素 (`:root`) で確定するため、`data-theme` は `<html>` に設定してください (サブツリーの wrapper では solid が再着色されません)。
+
+- [#338](https://github.com/yasmro/schatten/pull/338) [`825a1e5`](https://github.com/yasmro/schatten/commit/825a1e59fd5556dcf3aa1945072910ac2ec6d619) Thanks [@yasmro](https://github.com/yasmro)! - BREAKING: `<Text>` no longer exposes the `asChild` prop. Text's
+  polymorphism is already covered by two non-overlapping escape hatches —
+  `as` (a closed enum of semantic tags `p` / `span` / `h1`–`h6`) for swapping
+  the element, and `textVariants()` for applying Text's classes to an
+  arbitrary element — so `asChild` was redundant (it merged nothing beyond
+  `className` + spread DOM props, which `textVariants()` does with full
+  typing).
+
+  Migration: replace `<Text asChild><a href="…">…</a></Text>` with
+  `<a href="…" className={textVariants({ /* variant, size, color, … */ })}>…</a>`.
+  `textVariants` is exported from `@yasmro/schatten/variants`.
+
+  Public `asChild` is now `Button` only. See `component-api-conventions.md`
+  §"asChild vs `*Variants()` — which to reach for" for the boundary.
+
+- [#351](https://github.com/yasmro/schatten/pull/351) [`0724e64`](https://github.com/yasmro/schatten/commit/0724e64f88949dd71a24c189f22ec344f17969e4) Thanks [@yasmro](https://github.com/yasmro)! - BREAKING: `--text-{body,label,heading}-{xs..2xl}-{size,leading,weight}` の 39 個の
+  composite typography 変数を公開サーフェスから撤去。タイポグラフィの shorthand は
+  `.st-text--{variant}.st-text--{size}` クラス API（および React `<Text>`）に一本化。
+
+  CSS API: 上記 39 変数を manifest から削除。基底スケール（`--text-*` / `--leading-*`
+  / `--font-*`）は存続。独自 CSS で composite 変数を参照していた利用者は、`.st-text`
+  クラスへ移行するか基底スケール変数を直接束ねること。視覚は不変（値保存リファクタ）。
+
+### Patch Changes
+
+- [#340](https://github.com/yasmro/schatten/pull/340) [`b2b3658`](https://github.com/yasmro/schatten/commit/b2b365825284c5c16bf7115ce43258676d1ae120) Thanks [@yasmro](https://github.com/yasmro)! - Fix: `<Button asChild variant="link">` no longer throws `React.Children.only
+expected to receive a single React element child`. The `link` branch wraps
+  `children` with two icon-conditional siblings, so combining it with
+  `asChild` handed Radix `Slot` more than one child. The `asChild` path is now
+  resolved before the `link` branch, so a single child always reaches `Slot`.
+  As with the other `asChild` paths, `icon` / `isLoading` are not projected
+  onto the child — author the inner content yourself.
+
+- [#379](https://github.com/yasmro/schatten/pull/379) [`29a272c`](https://github.com/yasmro/schatten/commit/29a272c6eb173733b04c8d894c9be56ebad11b11) Thanks [@yasmro](https://github.com/yasmro)! - fix(lv1): Dialog の本文スクロール領域をキーボードフォーカス可能に ([#345](https://github.com/yasmro/schatten/issues/345))
+
+  `.st-dialog__body` は内容がオーバーフローした時のみ `tabIndex={0}` を持つようになり、focusable な子要素を含まない長文ダイアログでもキーボードでスクロールできます (WCAG 2.1.1 / axe `scrollable-region-focusable`)。オーバーフローしていない通常のダイアログには tab stop を追加しません。focus ring は Button と同じ ring トークンの 2 段 box-shadow です。CSS クラス・属性セレクタの増減はありません (manifest 不変)。
+
+- [#386](https://github.com/yasmro/schatten/pull/386) [`45f2fe4`](https://github.com/yasmro/schatten/commit/45f2fe4d6835746b899b9befb74ce600396ed8e1) Thanks [@yasmro](https://github.com/yasmro)! - docs(a11y): ハンドビルド docs ページの table を共有 `DocsTable` に集約し、`<th scope="col">` を構造的に強制 (closes [#384](https://github.com/yasmro/schatten/issues/384))
+
+  `Accessibility` / `Testing` が二重定義していた `RefTable` を `docs-ui.tsx` の `DocsTable` に統合し、`scope` 欠落・`<th>`/`<td>` 不整合を構造で防ぐ。`CompositionWithAsChild` の比較表も `DocsTable` 化、`CSSApi` の bespoke table には `scope="col"` を直書き。`scope` 欠落は axe の WCAG 2.1 A/AA タグでは検出されないため、per-page axe spec ではなくコンポーネント + `docs-ui.test.tsx` で担保する方針を `vrt-spec-guideline.md` に明文化。docs / internal のみで公開 API は不変。
+
+- [#334](https://github.com/yasmro/schatten/pull/334) [`f3b68f6`](https://github.com/yasmro/schatten/commit/f3b68f68bd15ab9a379878191307bbb8bb6f0328) Thanks [@yasmro](https://github.com/yasmro)! - docs(perf): record measured Lighthouse scores for
+  `examples/lighthouse-100/` (nextjs + vanilla) and fix three issues the
+  real measurement surfaced so both examples genuinely score
+  100/100/100/100. Closes [#304](https://github.com/yasmro/schatten/issues/304).
+
+  - Both examples now establish the page surface from Schatten tokens
+    (`background-color: var(--color-background)` /
+    `color: var(--color-foreground)` on `<body>`). Without it, a
+    dark-mode host flipped `--color-foreground` to a light value while
+    the body stayed white, failing the color-contrast a11y audit.
+  - vanilla `prepare-css.mjs` now flattens the token `@import` graph
+    before inlining it. The entry files are only `@import` directives;
+    pasting them verbatim into an inline `<style>` left the tokens
+    unresolved, so they never loaded. It also emits a valid `robots.txt`
+    (previously `serve -s` fell through to `index.html`, a −9 on SEO).
+  - Both examples ship an inline SVG favicon so the browser's automatic
+    `/favicon.ico` request never 404s (a Best Practices console error).
+
+  No public API surface change — examples / docs only.
+
+- [#365](https://github.com/yasmro/schatten/pull/365) [`fc05c57`](https://github.com/yasmro/schatten/commit/fc05c57148aaabbfe83389f34824399e57f8d924) Thanks [@yasmro](https://github.com/yasmro)! - docs(storybook): `Patterns/Accessibility` ストーリーを追加 (closes [#139](https://github.com/yasmro/schatten/issues/139))
+
+  WCAG 2.1 AA を目標水準に、フォーカス可視性 / ARIA 規約 / コントラスト /
+  キーボード操作 / スクリーンリーダ対応 / 自動テスト (axe・addon-a11y) を
+  live demo 付きで 7 section にまとめた docs story。最も近い兄弟
+  `Patterns/Form States` に倣い VRT spec は持たない (dev-time の addon-a11y で
+  検証)。公開 API (props / CSS class / CSS variable) の変更なし。
+
+- [#369](https://github.com/yasmro/schatten/pull/369) [`a89167b`](https://github.com/yasmro/schatten/commit/a89167bacf2d356e43c36f5178af5715df2c1c01) Thanks [@yasmro](https://github.com/yasmro)! - docs(storybook): `Patterns/Layout` ストーリーを追加 (closes [#142](https://github.com/yasmro/schatten/issues/142))
+
+  Stack / HStack / VStack を採用せず Tailwind utility で直接組むためのレシピ集
+  (Flex 横+縦 / Grid / Container max-width / Responsive)。不採用の根拠は
+  `Tokens/Spacing › Why No Layout Primitives` に委ね prose で相互リンク。Container は
+  Tailwind v4 で廃止された `max-w-screen-*` を避け、content 幅スケールと breakpoint
+  変数参照 (`max-w-(--breakpoint-*)`) の両系統を提示。兄弟 `Patterns/*` docs 同様
+  VRT spec は持たない。公開 API (React props / CSS class / CSS variable / types) は不変。
+
+- [#371](https://github.com/yasmro/schatten/pull/371) [`38ee0cd`](https://github.com/yasmro/schatten/commit/38ee0cdf30f3adc23992bc831a312c872b2f7aef) Thanks [@yasmro](https://github.com/yasmro)! - docs(storybook): `Patterns/Testing` ストーリーを追加 (closes [#143](https://github.com/yasmro/schatten/issues/143))。consumer の
+  E2E (Playwright / Cypress / RTL) 向けに `data-testid` の受け渡し契約を live demo で
+  実演する — root pass-through / compound (Select) / asChild caveat (Tooltip) /
+  Portal content / curated-props 例外 (Dialog・Toast) / flat Field の form ケース /
+  命名は利用者責任 / no-auto-testid。`component-testid-guideline.md` ([#106](https://github.com/yasmro/schatten/issues/106)) から本
+  ストーリーへの pointer を追加。最も近い兄弟 `Patterns/Form States` に倣い VRT spec
+  は持たない。公開 API (React props / CSS class / CSS variable / types) の変更なし。
+
+- [#380](https://github.com/yasmro/schatten/pull/380) [`7bf2444`](https://github.com/yasmro/schatten/commit/7bf2444491f3e46dc5c7d1773da1a8d07723d730) Thanks [@yasmro](https://github.com/yasmro)! - docs(storybook): `Providers/*` ストーリーを docs IA 7 グループ内の `Theming/*` へ移設
+
+  `Providers/ThemeProvider` / `Providers/ThemeInitScript` は [#320](https://github.com/yasmro/schatten/issues/320) で確定した
+  7 グループ IA (storybook-guideline §Story title taxonomy) の外側に 8 番目の
+  トップレベルを作っていた。両者は Mode × Special のランタイム機構なので
+  決定表「Anything about Mode × Special → Theming」に従い
+  `Theming/ThemeProvider` / `Theming/ThemeInitScript` へ retitle。
+  旧 story ID (`providers-*`) への参照は VRT spec / Welcome deep link /
+  storySort のいずれにも存在しないことを確認済み。公開 API の変更なし。
+
+- [#381](https://github.com/yasmro/schatten/pull/381) [`30e1694`](https://github.com/yasmro/schatten/commit/30e1694a4f4d63ba287b5d2b602cd201a2f8ebb2) Thanks [@yasmro](https://github.com/yasmro)! - docs(storybook): `Theming/Seasonal Showcase` ストーリーを追加 (closes [#151](https://github.com/yasmro/schatten/issues/151))
+
+  8 季節 × solid 面 ([#150](https://github.com/yasmro/schatten/issues/150) の rung model payoff) を魅せる showcase。
+  Eight Seasons (8 季節カード × light/dark) / Side by Side (任意 2 季節対比) /
+  Dashboard Mockup (lv1 のみで組んだ実画面) / Auto Season (`getCurrentSeason()`
+  の date デモ) の 4 stories。per-cell スコープの substitution freeze 対策は
+  ThemeAudit から共有 helper (`scoped-theme-css.ts`) に昇格し、季節表示メタを
+  `SEASONAL_THEME_METADATA` 由来の SSOT に統合 (ThemeAudit の winter-deep
+  表示「深紅・墨」→ 実 ramp hue 255 に一致する「藍色・濃紺」へ修正)。
+  公開 API (props / CSS class / CSS variable) の変更なし。
+
+- [#338](https://github.com/yasmro/schatten/pull/338) [`825a1e5`](https://github.com/yasmro/schatten/commit/825a1e59fd5556dcf3aa1945072910ac2ec6d619) Thanks [@yasmro](https://github.com/yasmro)! - Types: `SelectTrigger` no longer accepts `asChild`. The prop was leaking
+  through Radix's `SelectPrimitive.Trigger` type inheritance (the interface
+  only omitted `size`), even though Select triggers are form controls that
+  fall under the `asChild` hard exclusion in `component-architecture.md §3`.
+  The interface now omits `'size' | 'asChild'`, closing the unintended
+  surface. No runtime behavior change — `asChild` was never a documented or
+  supported prop on `SelectTrigger`.
+
+- [#347](https://github.com/yasmro/schatten/pull/347) [`bc26bde`](https://github.com/yasmro/schatten/commit/bc26bdeb0e7ed2062e86a6b038040e15b2d342d3) Thanks [@yasmro](https://github.com/yasmro)! - Storybook に `@storybook/addon-a11y` を導入し、dev 時に各 story の a11y 違反を
+  パネル表示する。axe の scan 面は VRT (`@axe-core/playwright`, [#147](https://github.com/yasmro/schatten/issues/147)) と同じ
+  WCAG 2.1 A/AA タグに pin し、Phase 1 は observe-only (`test: 'todo'`)。
+
+- [#355](https://github.com/yasmro/schatten/pull/355) [`385551f`](https://github.com/yasmro/schatten/commit/385551f635c2a96505368ec96341518793d4324b) Thanks [@yasmro](https://github.com/yasmro)! - docs(storybook): `Tokens/Elevation` ストーリーを追加。shadow primitive scale
+  (sm/md/lg/xl) と semantic elevation token (popover/modal/toast/card) を、用途名 →
+  primitive→ 消費 component の対応・適用済み/定義のみの区別付きで視覚化し、使い分け
+  ガイドと dark mode での挙動を整理した。公開 API は不変。
+
+- [#363](https://github.com/yasmro/schatten/pull/363) [`f431588`](https://github.com/yasmro/schatten/commit/f4315882845ef0c046e21d5e108b830b59dd878d) Thanks [@yasmro](https://github.com/yasmro)! - docs(storybook): `Tokens/Iconography` ストーリーを追加。lucide-react の採用理由、
+  `Icon` の `icon`（コンポーネント渡し）/ `size` / `color` API、コンポーネント渡しに
+  よる tree-shake と typo の build error 化、代表アイコンギャラリー、a11y（装飾 vs
+  意味あり）、NG パターンを整理した。公開 API（React props / CSS class /
+  CSS variables / types）は不変。
+
+- [#362](https://github.com/yasmro/schatten/pull/362) [`ae6a586`](https://github.com/yasmro/schatten/commit/ae6a5862c091aeb07c266e2bc4ef83862441d447) Thanks [@yasmro](https://github.com/yasmro)! - docs(storybook): `Tokens/Motion` ストーリーを追加。共有 duration scale
+  (`--st-duration-fast/base/slow` = 100/150/200ms) を用途名・semantic alias
+  (`--motion-*`)・消費 component 付きで可視化し、各値を体感できるインタラクティブ
+  demo (prefers-reduced-motion 自己対応) を載せた。`--motion-*` は applied 0 の
+  define-only として明示し、用途別ガイドと設計原則 (reduced-motion 必須 / loop は
+  component CSS / 不要 animation 禁止) を整理。時間 token は静止 PNG に写らないため
+  VRT は付けず、値は `Motion.drift.test.ts` + `resolution.test.ts` で pin。可視化
+  対象 token は [#145](https://github.com/yasmro/schatten/issues/145) で追加済のため公開 API は不変。
+
+- [#352](https://github.com/yasmro/schatten/pull/352) [`709394c`](https://github.com/yasmro/schatten/commit/709394cf74d3b7ee3a5bd195024c8db2946235d3) Thanks [@yasmro](https://github.com/yasmro)! - docs(storybook): `Tokens/Spacing` ストーリーを追加。4px base scale の全 token
+  を curated (@theme 登録) / raw-only の区分付きで視覚化し、推奨スケール・
+  Do&Don't・Layout primitives 不採用の根拠・half step の内部 CVA 用途を整理した。
+  公開 API（React props / CSS class / CSS variables / types）は不変。
+
+- [#377](https://github.com/yasmro/schatten/pull/377) [`5bf6b5a`](https://github.com/yasmro/schatten/commit/5bf6b5a0d347b079353f2e82c7fbd6fa5612cdce) Thanks [@yasmro](https://github.com/yasmro)! - docs(storybook): Welcome に Patterns 節を新設し、全 6 Patterns ページ
+  (Accessibility / Composition with asChild / Form Composition / Form States /
+  Layout / Testing) へのリンクカードを追加 (closes [#364](https://github.com/yasmro/schatten/issues/364))。7 グループ IA ([#320](https://github.com/yasmro/schatten/issues/320) /
+  [#332](https://github.com/yasmro/schatten/issues/332)) の入口が Welcome から完結する。あわせて `navigateToStory` に `viewMode`
+  引数を追加し、autodocs を持たない Canvas ストーリーへの既存 deep link 5 本
+  (CSS API / Theme Audit / Patterns Accessibility / Tokens Color / Typography)
+  が「No Preview」になる不具合を修正。公開 API (React props / CSS class /
+  CSS variable / types) の変更なし。
+
 ## 0.10.0
 
 ### Minor Changes

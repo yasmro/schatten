@@ -73,26 +73,14 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     // Matches the Badge precedent (#267 sweep-2).
     const isIconOnly = !children && !!icon
 
-    // Link variant — different DOM shape (inline, no spinner overlay, no
-    // content wrapper). Early-return here so .st-btn--link's CSS overrides
-    // (display: inline, height: auto, padding: 0) apply cleanly to a flat
-    // element tree. isLoading is not supported on link (mirrors the
-    // pre-sweep behaviour — link is a text affordance, not an async CTA).
-    if (variant === 'link') {
-      return (
-        <Comp
-          className={cn(buttonVariants({ variant, size }), className)}
-          ref={ref}
-          disabled={disabled}
-          {...props}
-        >
-          {IconComponent && iconPosition === 'start' && <IconComponent aria-hidden="true" />}
-          {children}
-          {IconComponent && iconPosition === 'end' && <IconComponent aria-hidden="true" />}
-        </Comp>
-      )
-    }
-
+    // asChild — delegate rendering to the single child via Radix Slot.
+    // Checked BEFORE the `link` branch on purpose: the link branch wraps
+    // children with icon-conditional siblings, which would hand Slot more
+    // than one child and trip `React.Children.only`. Routing every asChild
+    // case (including `variant="link"`) through here keeps Slot's
+    // single-child contract intact. Like the spinner path, `icon` /
+    // `isLoading` are not projected onto the child — author the inner
+    // content (including any icon) yourself.
     if (asChild) {
       if (process.env.NODE_ENV !== 'production' && isLoading) {
         console.warn('Button: `isLoading` prop is ignored when `asChild` is true.')
@@ -108,6 +96,27 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           {...props}
         >
           {children}
+        </Comp>
+      )
+    }
+
+    // Link variant — different DOM shape (inline, no spinner overlay, no
+    // content wrapper). Early-return here so .st-btn--link's CSS overrides
+    // (display: inline, height: auto, padding: 0) apply cleanly to a flat
+    // element tree. isLoading is not supported on link (mirrors the
+    // pre-sweep behaviour — link is a text affordance, not an async CTA).
+    // `asChild` is handled above, so `Comp` is always `'button'` here.
+    if (variant === 'link') {
+      return (
+        <Comp
+          className={cn(buttonVariants({ variant, size }), className)}
+          ref={ref}
+          disabled={disabled}
+          {...props}
+        >
+          {IconComponent && iconPosition === 'start' && <IconComponent aria-hidden="true" />}
+          {children}
+          {IconComponent && iconPosition === 'end' && <IconComponent aria-hidden="true" />}
         </Comp>
       )
     }

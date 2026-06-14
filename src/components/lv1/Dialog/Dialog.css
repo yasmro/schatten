@@ -81,7 +81,11 @@
     overflow: hidden;
     background-color: var(--color-background);
     border: 1px solid var(--color-border-strong);
-    box-shadow: var(--shadow-lg);
+    box-shadow: var(
+      --shadow-modal,
+      0 10px 15px -3px rgb(0 0 0 / 0.1),
+      0 4px 6px -4px rgb(0 0 0 / 0.1)
+    );
     display: flex;
     flex-direction: column;
     gap: 1.5rem; /* gap-6 */
@@ -135,6 +139,16 @@
      * would shift every line below the first by ~3px. */
     line-height: 1.25rem;
     color: var(--color-foreground);
+  }
+
+  /* The body receives tabIndex=0 from the React layer only while its
+   * content overflows (keyboard-scroll affordance — see Body in
+   * Dialog.tsx). Focus ring matches the Button treatment. */
+  .st-dialog__body:focus-visible {
+    outline: none;
+    box-shadow:
+      0 0 0 2px var(--color-ring-offset),
+      0 0 0 4px var(--color-ring);
   }
 
   /* ===== footer =====

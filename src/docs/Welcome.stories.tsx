@@ -31,14 +31,183 @@ const meta: Meta = {
 export default meta
 type Story = StoryObj
 
-const navigateToStory = (e: React.MouseEvent, storyPath: string, suffix = 'docs') => {
+/**
+ * `viewMode` must match the target entry's type in the Storybook index:
+ * `'docs'` for autodocs pages (the lv1 component catalog), `'story'` for
+ * Canvas-only stories (Tokens / Theming / CSS API / Patterns). Sending a
+ * story entry through `/docs/` renders "No Preview".
+ */
+const navigateToStory = (
+  e: React.MouseEvent,
+  storyPath: string,
+  suffix = 'docs',
+  viewMode: 'docs' | 'story' = 'docs',
+) => {
   e.preventDefault()
-  const targetPath = `/docs/${storyPath}--${suffix}`
+  const targetPath = `/${viewMode}/${storyPath}--${suffix}`
   const top = window.parent !== window ? window.parent : window
   const url = new URL(top.location.href)
   url.searchParams.set('path', targetPath)
   top.location.href = url.toString()
 }
+
+/**
+ * One internal deep link rendered on the Welcome page. This is the SSOT the
+ * card render and `Welcome.drift.test.ts` both consume — the test reconciles
+ * each entry's `slug` / `suffix` / `viewMode` against the target story module
+ * so a title or export rename can no longer silently break the link.
+ *
+ * - `slug`     target module's `sanitize(meta.title)`
+ * - `suffix`   target export-derived id suffix (`sanitize(storyNameFromExport(export))`)
+ * - `viewMode` Storybook entry kind: `'docs'` for autodocs, `'story'` for Canvas
+ *   (a mismatch renders "No Preview" — #377)
+ * - `section`  which Welcome section renders this card (drift test ignores it)
+ */
+export interface WelcomeDeepLink {
+  slug: string
+  suffix: string
+  viewMode: 'docs' | 'story'
+  section: 'engineering' | 'tokens' | 'patterns'
+  title: string
+  description: string
+}
+
+export const WELCOME_DEEP_LINKS: readonly WelcomeDeepLink[] = [
+  {
+    slug: 'css-api-overview',
+    suffix: 'reference',
+    viewMode: 'story',
+    section: 'engineering',
+    title: 'Framework-agnostic CSS API',
+    description:
+      'Components ship a .st-* BEM class API and a prebuilt stylesheet, so they render with plain HTML — no React, no Tailwind, no build step required on the consumer side.',
+  },
+  {
+    slug: 'theming-theme-audit',
+    suffix: 'overview',
+    viewMode: 'story',
+    section: 'engineering',
+    title: 'Mode × Special theming',
+    description:
+      'Two independent theme axes — light/dark Mode × an exclusive seasonal Special — compose at runtime through CSS variables. See all 16 combinations verified side by side.',
+  },
+  {
+    slug: 'theming-seasonal-showcase',
+    suffix: 'eight-seasons',
+    viewMode: 'story',
+    section: 'engineering',
+    title: 'Seasonal showcase',
+    description:
+      'Eight palettes based on the 24 solar terms re-tint every solid surface at runtime — see all eight seasons worn by buttons, badges, and a full dashboard mockup.',
+  },
+  {
+    slug: 'patterns-accessibility',
+    suffix: 'overview',
+    viewMode: 'story',
+    section: 'engineering',
+    title: 'Accessibility contract',
+    description:
+      'Every primitive guarantees a role, an accessible name, keyboard support, and aria-* wiring — asserted with axe-core in CI alongside the visual regression suite.',
+  },
+  {
+    slug: 'tokens-color',
+    suffix: 'colors',
+    viewMode: 'story',
+    section: 'tokens',
+    title: 'Color',
+    description: 'Color tokens and scales.',
+  },
+  {
+    slug: 'tokens-typography',
+    suffix: 'typography',
+    viewMode: 'story',
+    section: 'tokens',
+    title: 'Typography',
+    description: 'Font scales and text styles.',
+  },
+  {
+    slug: 'patterns-accessibility',
+    suffix: 'overview',
+    viewMode: 'story',
+    section: 'patterns',
+    title: 'Accessibility',
+    description:
+      'Focus visibility, ARIA conventions, contrast, and keyboard support — the contract every primitive satisfies.',
+  },
+  {
+    slug: 'patterns-composition-with-aschild',
+    suffix: 'button-as-link',
+    viewMode: 'story',
+    section: 'patterns',
+    title: 'Composition with asChild',
+    description:
+      'Rendering Button as a link, buttonVariants() on your own element, and Text polymorphism.',
+  },
+  {
+    slug: 'patterns-form-composition',
+    suffix: 'basic-field',
+    viewMode: 'story',
+    section: 'patterns',
+    title: 'Form Composition',
+    description: 'Wiring Field and FieldSet: labels, descriptions, and error messages.',
+  },
+  {
+    slug: 'patterns-form-states',
+    suffix: 'audit',
+    viewMode: 'story',
+    section: 'patterns',
+    title: 'Form States',
+    description: 'disabled / readOnly / error across every form control, audited side by side.',
+  },
+  {
+    slug: 'patterns-layout',
+    suffix: 'flex-recipes',
+    viewMode: 'story',
+    section: 'patterns',
+    title: 'Layout',
+    description: 'Flex and grid recipes for arranging primitives on the page.',
+  },
+  {
+    slug: 'patterns-testing',
+    suffix: 'overview',
+    viewMode: 'story',
+    section: 'patterns',
+    title: 'Testing',
+    description: 'data-testid pass-through and role-first queries for consumer test suites.',
+  },
+]
+
+/**
+ * The `storyPath` slugs the `ComponentCard`s link to (viewMode `'docs'`,
+ * suffix `'docs'`). Kept here as the SSOT so `Welcome.drift.test.ts` can
+ * assert each resolves to an lv1 module that actually carries autodocs — the
+ * `--docs` entry only exists when the component is autodocs-tagged. The card
+ * JSX (live previews) stays inline; the test pins the const against the
+ * storyPaths actually wired into the cards.
+ */
+export const WELCOME_COMPONENT_SLUGS = [
+  'components-lv1-button',
+  'components-lv1-badge',
+  'components-lv1-spinner',
+  'components-lv1-text',
+  'components-lv1-tooltip',
+  'components-lv1-toast',
+  'components-lv1-callout',
+  'components-lv1-field',
+  'components-lv1-fieldset',
+  'components-lv1-input',
+  'components-lv1-textarea',
+  'components-lv1-select',
+  'components-lv1-checkbox',
+  'components-lv1-radio',
+  'components-lv1-switch',
+] as const
+
+/** Build the `href` + `onClick` pair for a deep-link card from a manifest entry. */
+const deepLinkProps = (link: WelcomeDeepLink) => ({
+  href: `/${link.viewMode}/${link.slug}--${link.suffix}`,
+  onClick: (e: React.MouseEvent) => navigateToStory(e, link.slug, link.suffix, link.viewMode),
+})
 
 const ComponentCard = ({
   name,
@@ -74,10 +243,92 @@ const ComponentCard = ({
   </a>
 )
 
+/**
+ * Text-only link card — unlike `ComponentCard` it has no interactive preview.
+ * Used by the "Engineering discipline" and "Patterns" sections — internal
+ * links route through `navigateToStory`, the external `.claude/rules/` link
+ * opens GitHub in a new tab.
+ */
+const TextLinkCard = ({
+  title,
+  description,
+  href,
+  onClick,
+  external = false,
+}: {
+  title: string
+  description: string
+  href: string
+  onClick?: (e: React.MouseEvent) => void
+  external?: boolean
+}) => (
+  <a
+    href={href}
+    onClick={onClick}
+    {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+    className="group block h-full border border-border rounded-xl p-5 no-underline transition-shadow duration-200 hover:shadow-md"
+  >
+    <p className="text-sm font-semibold text-vermillion group-hover:underline">
+      {title}
+      {external && (
+        <>
+          <span aria-hidden className="ml-1 text-foreground-muted">
+            ↗
+          </span>
+          <span className="sr-only"> (opens in a new tab)</span>
+        </>
+      )}
+    </p>
+    <p className="text-xs text-foreground-muted mt-1.5 leading-relaxed">{description}</p>
+  </a>
+)
+
+/** Preview glyphs for the Tokens cards, keyed by deep-link slug. */
+const TOKEN_PREVIEWS: Record<string, React.ReactNode> = {
+  'tokens-color': (
+    <div className="flex gap-1">
+      {['bg-solid', 'bg-foreground-muted', 'bg-vermillion', 'bg-destructive'].map((c) => (
+        <div key={c} className={`w-8 h-8 rounded-lg ${c}`} />
+      ))}
+    </div>
+  ),
+  'tokens-typography': (
+    <div className="flex flex-col items-center gap-1">
+      <span className="text-2xl font-bold text-foreground">Aa</span>
+      <span className="text-xs text-foreground-muted">Hanken Grotesk</span>
+    </div>
+  ),
+}
+
+/**
+ * Tokens-section card — same chrome as `ComponentCard` but its preview is a
+ * static glyph (no interactive click-trap) and its link routes through the
+ * `WELCOME_DEEP_LINKS` manifest.
+ */
+const TokenCard = ({ link }: { link: WelcomeDeepLink }) => (
+  <a
+    {...deepLinkProps(link)}
+    className="group block border border-border rounded-xl overflow-hidden no-underline transition-shadow duration-200 hover:shadow-md"
+  >
+    <div className="flex items-center justify-center h-40 bg-surface">
+      {TOKEN_PREVIEWS[link.slug]}
+    </div>
+    <div className="px-4 py-3 border-t border-border">
+      <p className="text-sm font-semibold text-vermillion group-hover:underline">{link.title}</p>
+      <p className="text-xs text-foreground-muted mt-0.5">{link.description}</p>
+    </div>
+  </a>
+)
+
+const engineeringLinks = WELCOME_DEEP_LINKS.filter((l) => l.section === 'engineering')
+const tokenLinks = WELCOME_DEEP_LINKS.filter((l) => l.section === 'tokens')
+const patternsLinks = WELCOME_DEEP_LINKS.filter((l) => l.section === 'patterns')
+
 export const Overview: Story = {
   name: 'Overview',
   render: () => (
     <div className="max-w-4xl mx-auto px-8 py-16">
+      {/* 1. Hero */}
       <div className="mb-16">
         <h1 className="text-5xl font-bold text-foreground mb-3 tracking-tight">Schatten</h1>
         <p className="text-lg text-foreground-muted leading-relaxed">
@@ -87,6 +338,32 @@ export const Overview: Story = {
         </p>
       </div>
 
+      {/* 2. What & Why — the evaluator's "what is this / why does it exist" */}
+      <div className="mb-16">
+        <h2 className="text-xl font-bold text-foreground mb-4">What is Schatten?</h2>
+        <p className="text-sm text-foreground-muted leading-relaxed">
+          Schatten is a React component library built on the conventions of{' '}
+          <a
+            href="https://ui.shadcn.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-info underline"
+          >
+            shadcn/ui
+          </a>{' '}
+          (Radix UI primitives + class-variance-authority + a <code>cn</code> utility), restyled
+          around a Japanese visual language — <em>sumi</em> ink, <em>washi</em> paper, and a
+          vermillion seal — with a runtime seasonal theme system based on the twenty-four solar
+          terms (<span className="font-serif">二十四節気</span>).
+        </p>
+        <p className="text-sm text-foreground-muted leading-relaxed mt-3">
+          It is a portfolio and learning project. As much as a set of components, it is an exhibit
+          of <em>how</em> a design system is operated — the rules, the contracts, and the tests that
+          keep it honest.
+        </p>
+      </div>
+
+      {/* 3. Concept — the aesthetic "why", condensed */}
       <div className="mb-16">
         <h2 className="text-xl font-bold text-foreground mb-6">Concept</h2>
         <div className="flex flex-col gap-8">
@@ -96,11 +373,9 @@ export const Overview: Story = {
             </h3>
             <p className="text-sm text-foreground-muted leading-relaxed">
               "Schatten" is the German word for "shadow." Inspired by Jun'ichiro Tanizaki's{' '}
-              <em>In Praise of Shadows</em> (<span className="font-serif">陰翳礼讃</span>), this
-              design system finds beauty not in light, but in the subtle interplay of shadow and
-              restraint. Rather than commanding attention with bold decoration and animation, we let
-              the content itself stand forward — through whitespace, muted tones, and quiet
-              refinement.
+              <em>In Praise of Shadows</em> (<span className="font-serif">陰翳礼讃</span>), the
+              system finds beauty in restraint rather than bold decoration — letting content stand
+              forward through whitespace and muted tones.
             </p>
           </div>
           <div>
@@ -109,9 +384,9 @@ export const Overview: Story = {
             </h3>
             <p className="text-sm text-foreground-muted leading-relaxed">
               The color system is built on the metaphor of <em>sumi</em> (ink) on <em>washi</em>{' '}
-              (paper). The warmth of handmade paper, the depth of layered ink, and the vermillion
-              seal of a calligrapher's signature — these are not decorations but the DNA of every
-              token and component. Light and dark modes are simply two sides of the same sheet.
+              (paper): the warmth of handmade paper, the depth of layered ink, and the vermillion
+              seal of a calligrapher's signature. Light and dark modes are two sides of the same
+              sheet.
             </p>
           </div>
           <div>
@@ -119,14 +394,39 @@ export const Overview: Story = {
               Restraint as expression
             </h3>
             <p className="text-sm text-foreground-muted leading-relaxed">
-              A restrained UI is not a lack of design — it is a deliberate choice to let the work
-              speak. Minimal color, subtle transitions, and typographic precision create a quiet
-              confidence. The design recedes so the content can resonate.
+              A restrained UI is a deliberate choice to let the work speak. Minimal color, subtle
+              transitions, and typographic precision create a quiet confidence.
             </p>
           </div>
         </div>
       </div>
 
+      {/* 4. Engineering discipline — the differentiators an evaluator can inspect */}
+      <div className="mb-16">
+        <h2 className="text-xl font-bold text-foreground mb-2">Engineering discipline</h2>
+        <p className="text-sm text-foreground-muted leading-relaxed mb-6">
+          The parts worth inspecting are less the components themselves than how they are governed.
+          Four places to look:
+        </p>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <TextLinkCard
+            title="Rule-driven operation"
+            description="Every architectural decision lives in a versioned contract under .claude/rules/ that both human and AI contributors follow — component API shapes, the token hierarchy, the a11y contract."
+            href="https://github.com/yasmro/schatten/tree/main/.claude/rules"
+            external
+          />
+          {engineeringLinks.map((link) => (
+            <TextLinkCard
+              key={link.title}
+              title={link.title}
+              description={link.description}
+              {...deepLinkProps(link)}
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* 5. Component catalog */}
       <div className="mb-12">
         <h2 className="text-xl font-bold text-foreground mb-4">UI Components</h2>
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
@@ -308,45 +608,31 @@ export const Overview: Story = {
         </div>
       </div>
 
-      <div>
-        <h2 className="text-xl font-bold text-foreground mb-4">Foundation</h2>
+      {/* 6. Tokens (was "Foundation" — renamed to the new IA vocabulary, #336 deferred) */}
+      <div className="mb-12">
+        <h2 className="text-xl font-bold text-foreground mb-4">Tokens</h2>
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-          <a
-            href="/docs/foundation-color--colors"
-            onClick={(e) => navigateToStory(e, 'foundation-color', 'colors')}
-            className="group block border border-border rounded-xl overflow-hidden no-underline transition-shadow duration-200 hover:shadow-md"
-          >
-            <div className="flex items-center justify-center h-40 bg-surface">
-              <div className="flex gap-1">
-                {['bg-solid', 'bg-foreground-muted', 'bg-vermillion', 'bg-destructive'].map((c) => (
-                  <div key={c} className={`w-8 h-8 rounded-lg ${c}`} />
-                ))}
-              </div>
-            </div>
-            <div className="px-4 py-3 border-t border-border">
-              <p className="text-sm font-semibold text-vermillion group-hover:underline">Color</p>
-              <p className="text-xs text-foreground-muted mt-0.5">Color tokens and scales.</p>
-            </div>
-          </a>
+          {tokenLinks.map((link) => (
+            <TokenCard key={link.slug} link={link} />
+          ))}
+        </div>
+      </div>
 
-          <a
-            href="/docs/foundation-typography--typography"
-            onClick={(e) => navigateToStory(e, 'foundation-typography', 'typography')}
-            className="group block border border-border rounded-xl overflow-hidden no-underline transition-shadow duration-200 hover:shadow-md"
-          >
-            <div className="flex items-center justify-center h-40 bg-surface">
-              <div className="flex flex-col items-center gap-1">
-                <span className="text-2xl font-bold text-foreground">Aa</span>
-                <span className="text-xs text-foreground-muted">Hanken Grotesk</span>
-              </div>
-            </div>
-            <div className="px-4 py-3 border-t border-border">
-              <p className="text-sm font-semibold text-vermillion group-hover:underline">
-                Typography
-              </p>
-              <p className="text-xs text-foreground-muted mt-0.5">Font scales and text styles.</p>
-            </div>
-          </a>
+      {/* 7. Patterns */}
+      <div>
+        <h2 className="text-xl font-bold text-foreground mb-2">Patterns</h2>
+        <p className="text-sm text-foreground-muted leading-relaxed mb-6">
+          Cross-component recipes and principles — how the primitives compose in practice.
+        </p>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          {patternsLinks.map((link) => (
+            <TextLinkCard
+              key={link.title}
+              title={link.title}
+              description={link.description}
+              {...deepLinkProps(link)}
+            />
+          ))}
         </div>
       </div>
     </div>

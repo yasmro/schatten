@@ -1,3 +1,4 @@
+import AxeBuilder from '@axe-core/playwright'
 import { expect, test } from '@playwright/test'
 
 const STORY_ID_PREFIX = 'components-lv1-toast'
@@ -43,6 +44,23 @@ for (const story of stories) {
 
       // Toasts render in a fixed-positioned viewport, so capture the full page.
       await expect(page).toHaveScreenshot(`${story}-${theme}.png`, { fullPage: true })
+    })
+
+    test(`Toast / ${story} / ${theme} / a11y`, async ({ page }) => {
+      await page.goto(storyUrl(story, theme))
+      await page.waitForLoadState('networkidle')
+
+      // Toasts fire in useEffect and render into a fixed viewport on body, so
+      // wait for them to mount, then analyze the whole page.
+      await page.waitForFunction(() => document.querySelectorAll('[role="status"]').length > 0, {
+        timeout: 10_000,
+      })
+
+      const results = await new AxeBuilder({ page })
+        .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
+        .analyze()
+
+      expect(results.violations).toEqual([])
     })
   }
 }

@@ -83,8 +83,11 @@ export const Sizes: Story = {
   name: 'Sizes',
   render: () => (
     <div className="flex flex-col gap-4">
+      {/* role="combobox" gets no accessible name from its content, so every
+       * standalone trigger carries aria-label (the real-usage alternative is
+       * a wrapping <Field label> — see SelectTriggerProps TSDoc) (#345). */}
       <Select>
-        <SelectTrigger size="sm">
+        <SelectTrigger size="sm" aria-label="Small select">
           <SelectValue placeholder="Small" />
         </SelectTrigger>
         <SelectContent>
@@ -93,7 +96,7 @@ export const Sizes: Story = {
         </SelectContent>
       </Select>
       <Select>
-        <SelectTrigger size="md">
+        <SelectTrigger size="md" aria-label="Medium select">
           <SelectValue placeholder="Medium" />
         </SelectTrigger>
         <SelectContent>
@@ -102,7 +105,7 @@ export const Sizes: Story = {
         </SelectContent>
       </Select>
       <Select>
-        <SelectTrigger size="lg">
+        <SelectTrigger size="lg" aria-label="Large select">
           <SelectValue placeholder="Large" />
         </SelectTrigger>
         <SelectContent>
@@ -118,7 +121,7 @@ export const WithGroups: Story = {
   name: 'With Groups',
   render: () => (
     <Select>
-      <SelectTrigger>
+      <SelectTrigger aria-label="Food">
         <SelectValue placeholder="Select a food" />
       </SelectTrigger>
       <SelectContent>
@@ -145,7 +148,7 @@ export const ErrorState: Story = {
   render: () => (
     <div className="flex flex-col gap-4">
       <Select>
-        <SelectTrigger isError>
+        <SelectTrigger isError aria-label="Error state">
           <SelectValue placeholder="Error state" />
         </SelectTrigger>
         <SelectContent>
@@ -154,7 +157,7 @@ export const ErrorState: Story = {
         </SelectContent>
       </Select>
       <Select defaultValue="apple">
-        <SelectTrigger isError>
+        <SelectTrigger isError aria-label="Error state with value">
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
@@ -171,7 +174,7 @@ export const Disabled: Story = {
   render: () => (
     <div className="flex flex-col gap-4">
       <Select disabled>
-        <SelectTrigger>
+        <SelectTrigger aria-label="Disabled">
           <SelectValue placeholder="Disabled" />
         </SelectTrigger>
         <SelectContent>
@@ -179,7 +182,7 @@ export const Disabled: Story = {
         </SelectContent>
       </Select>
       <Select disabled defaultValue="apple">
-        <SelectTrigger>
+        <SelectTrigger aria-label="Disabled with value">
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
@@ -195,7 +198,7 @@ export const DisabledWithError: Story = {
   render: () => (
     <div className="flex flex-col gap-4">
       <Select disabled>
-        <SelectTrigger isError>
+        <SelectTrigger isError aria-label="Disabled with error">
           <SelectValue placeholder="Disabled + error" />
         </SelectTrigger>
         <SelectContent>
@@ -203,7 +206,7 @@ export const DisabledWithError: Story = {
         </SelectContent>
       </Select>
       <Select disabled defaultValue="apple">
-        <SelectTrigger isError>
+        <SelectTrigger isError aria-label="Disabled error with value">
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
@@ -220,7 +223,7 @@ export const ManyItems: Story = {
     const items = Array.from({ length: 50 }, (_, i) => `Item ${i + 1}`)
     return (
       <Select>
-        <SelectTrigger>
+        <SelectTrigger aria-label="Items">
           <SelectValue placeholder="50 items" />
         </SelectTrigger>
         <SelectContent>
@@ -239,7 +242,7 @@ export const LongText: Story = {
   name: 'Long Text',
   render: () => (
     <Select>
-      <SelectTrigger>
+      <SelectTrigger aria-label="Option">
         <SelectValue placeholder="Select an option" />
       </SelectTrigger>
       <SelectContent>
@@ -261,7 +264,7 @@ export const DisabledItems: Story = {
   name: 'Disabled Items',
   render: () => (
     <Select>
-      <SelectTrigger>
+      <SelectTrigger aria-label="Availability">
         <SelectValue placeholder="Some items disabled" />
       </SelectTrigger>
       <SelectContent>
@@ -296,10 +299,18 @@ export const DisabledItems: Story = {
  */
 export const OpenContent: Story = {
   name: 'Open Content (VRT)',
-  parameters: { layout: 'padded', docs: { disable: true } },
+  parameters: {
+    layout: 'padded',
+    docs: { disable: true },
+    // Known Radix behavior, not fixable from Schatten: while open, Radix
+    // hides the rest of the page via aria-hidden but leaves the trigger
+    // focusable (focus is trapped in the listbox, so there is no real
+    // keyboard escape). Mirrors the same disable in Select.vrt.spec.ts.
+    a11y: { config: { rules: [{ id: 'aria-hidden-focus', enabled: false }] } },
+  },
   render: () => (
     <Select defaultOpen>
-      <SelectTrigger>
+      <SelectTrigger aria-label="Choose">
         <SelectValue placeholder="Choose" />
       </SelectTrigger>
       <SelectContent>

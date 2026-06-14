@@ -3,32 +3,26 @@ import { useId } from 'react'
 import { Badge } from '../../components/lv1/Badge'
 import { Button } from '../../components/lv1/Button'
 import { Callout } from '../../components/lv1/Callout'
-// Load production seasonal CSS as a raw string. Rewriting `:root[data-theme=...]`
-// → `.theme-audit-cell[data-theme=...]` is the single line that lets us scope a
-// Special palette to a per-cell wrapper instead of `<html>`. The transform reuses
-// the production source, so seasonal palette changes propagate to the audit story
-// automatically — no parallel CSS to keep in sync.
+import semanticCssRaw from '../../core/tokens/semantic.css?raw'
+import type { SeasonalThemeId } from '../../themes/seasonal'
 import seasonalCssRaw from '../../themes/seasonal/themes.css?raw'
-
-const SPECIALS = [
-  { name: 'season--spring-early', label: 'Spring Early', jpn: '桜色・薄紅' },
-  { name: 'season--spring-late', label: 'Spring Late', jpn: '若草色・萌黄' },
-  { name: 'season--summer-early', label: 'Summer Early', jpn: '萌葱色・常磐色' },
-  { name: 'season--summer-peak', label: 'Summer Peak', jpn: '朱色・柿色' },
-  { name: 'season--autumn-early', label: 'Autumn Early', jpn: '浅葱色・薄藍' },
-  { name: 'season--autumn-late', label: 'Autumn Late', jpn: '山吹色・飴色' },
-  { name: 'season--winter-early', label: 'Winter Early', jpn: '銀鼠・薄墨' },
-  { name: 'season--winter-deep', label: 'Winter Deep', jpn: '深紅・墨' },
-] as const
+// Per-cell theme scoping (seasonal palette rewrite + solid-family
+// re-declaration against the substitution freeze) is shared with the
+// Seasonal Showcase story — see scoped-theme-css.ts for the mechanism.
+// The `?raw` sources are injected here because Vitest resolves `?raw` CSS
+// imports to an empty string (the drift test feeds readFileSync instead).
+import { buildScopedThemeCss, SEASONAL_DISPLAY } from './scoped-theme-css'
 
 const MODES = ['light', 'dark'] as const
 type Mode = (typeof MODES)[number]
-type SpecialName = (typeof SPECIALS)[number]['name']
 
-const SCOPED_SEASONAL_CSS = seasonalCssRaw.replace(/:root\[/g, '.theme-audit-cell[')
+const SCOPED_THEME_CSS = buildScopedThemeCss('.theme-audit-cell', {
+  semanticCss: semanticCssRaw,
+  seasonalCss: seasonalCssRaw,
+})
 
 function ScopedSeasonalStyles() {
-  return <style>{SCOPED_SEASONAL_CSS}</style>
+  return <style>{SCOPED_THEME_CSS}</style>
 }
 
 function ShowcaseRow() {
@@ -36,6 +30,13 @@ function ShowcaseRow() {
     <div className="flex flex-wrap items-center gap-2">
       <Button variant="primary" size="sm">
         Primary
+      </Button>
+      {/* Adjacency audit (#150): the seasonal ramp tints `primary` while
+          `destructive` stays pinned to red. Red-family Specials (winter-deep
+          hue 0 / spring-early hue 12 / summer-peak hue 45) sit closest to
+          destructive — this pair makes the remaining separation reviewable. */}
+      <Button variant="destructive" size="sm">
+        Delete
       </Button>
       <Button variant="secondary" size="sm">
         Secondary
@@ -46,6 +47,12 @@ function ShowcaseRow() {
       <Badge variant="success" appearance="subtle">
         Success
       </Badge>
+      {/* fg-on-solid contrast sample: text-solid-foreground on bg-solid is
+          the exact pair every solid surface renders, at the rungs the active
+          Special supplies. Verify AA here per Special × Mode. */}
+      <span className="rounded bg-solid px-2 py-0.5 font-medium text-solid-foreground text-xs">
+        Aa
+      </span>
       <span className="size-4 rounded bg-theme-500" aria-hidden="true" />
       <span className="size-4 rounded bg-theme-200" aria-hidden="true" />
       <span className="size-4 rounded bg-theme-700" aria-hidden="true" />
@@ -53,7 +60,7 @@ function ShowcaseRow() {
   )
 }
 
-function ThemeCell({ mode, special }: { mode: Mode; special: SpecialName | null }) {
+function ThemeCell({ mode, special }: { mode: Mode; special: SeasonalThemeId | null }) {
   const isDark = mode === 'dark'
   return (
     <div
@@ -75,7 +82,7 @@ function ThemeCell({ mode, special }: { mode: Mode; special: SpecialName | null 
 }
 
 const meta: Meta = {
-  title: 'Foundation/ThemeAudit',
+  title: 'Theming/Theme Audit',
   parameters: {
     layout: 'fullscreen',
   },
@@ -91,6 +98,11 @@ type Story = StoryObj
  * border) must shift between rows; Special-owned tokens (`--color-theme-*`)
  * must shift between columns. Any allowlist violation (e.g. a Special
  * overriding `--color-foreground`) shows up immediately here.
+ *
+ * Since #150 the solid family rides the theme ramp: Button `primary`, the
+ * neutral × solid Badge, and the `Aa` fg-on-solid chip must tint per
+ * Special, while `destructive` stays pinned to red (adjacency audit) and
+ * the Callout `info` stays pinned to blue.
  */
 export const Overview: Story = {
   name: 'Overview (16 patterns)',
@@ -113,15 +125,15 @@ export const Overview: Story = {
         </p>
       </header>
       <div className="mx-auto grid max-w-6xl grid-cols-2 gap-3 md:grid-cols-2">
-        {SPECIALS.map((s) => (
-          <div key={s.name} className="contents">
+        {SEASONAL_DISPLAY.map((s) => (
+          <div key={s.id} className="contents">
             <div className="col-span-2 mt-4 flex items-baseline gap-2 first:mt-0">
               <h2 className="font-semibold text-base text-foreground">{s.label}</h2>
-              <span className="text-foreground-muted text-xs">{s.jpn}</span>
-              <span className="ml-auto font-mono text-foreground-subtle text-xs">{s.name}</span>
+              <span className="text-foreground-muted text-xs">{s.colors}</span>
+              <span className="ml-auto font-mono text-foreground-subtle text-xs">{s.id}</span>
             </div>
             {MODES.map((m) => (
-              <ThemeCell key={`${s.name}-${m}`} mode={m} special={s.name} />
+              <ThemeCell key={`${s.id}-${m}`} mode={m} special={s.id} />
             ))}
           </div>
         ))}
@@ -143,9 +155,9 @@ export const PerSpecial: Story = {
     special: {
       description: 'Which Special palette to apply on this story.',
       control: 'select',
-      options: ['none', ...SPECIALS.map((s) => s.name)],
+      options: ['none', ...SEASONAL_DISPLAY.map((s) => s.id)],
       table: {
-        type: { summary: `${SPECIALS.map((s) => `"${s.name}"`).join(' | ')} | "none"` },
+        type: { summary: `${SEASONAL_DISPLAY.map((s) => `"${s.id}"`).join(' | ')} | "none"` },
         defaultValue: { summary: 'none' },
       },
     },
@@ -169,7 +181,10 @@ export const PerSpecial: Story = {
       <div className="p-6">
         <ScopedSeasonalStyles />
         <div className="mx-auto max-w-3xl">
-          <ThemeCell mode={mode} special={special === 'none' ? null : (special as SpecialName)} />
+          <ThemeCell
+            mode={mode}
+            special={special === 'none' ? null : (special as SeasonalThemeId)}
+          />
         </div>
       </div>
     )
@@ -221,10 +236,14 @@ function CascadeTable() {
         <table aria-labelledby={labelId} className="w-full border-collapse text-sm">
           <thead>
             <tr className="bg-surface-hover text-left">
-              <th className="px-3 py-2 font-mono font-semibold text-foreground">token</th>
-              <th className="px-3 py-2 font-semibold text-foreground">owner</th>
+              <th scope="col" className="px-3 py-2 font-mono font-semibold text-foreground">
+                token
+              </th>
+              <th scope="col" className="px-3 py-2 font-semibold text-foreground">
+                owner
+              </th>
               {CASCADE_SCENARIOS.map((s) => (
-                <th key={s.id} className="px-3 py-2 font-mono text-foreground text-xs">
+                <th key={s.id} scope="col" className="px-3 py-2 font-mono text-foreground text-xs">
                   {s.label}
                 </th>
               ))}

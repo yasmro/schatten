@@ -30,6 +30,11 @@ import { describe, expect, it } from 'vitest'
 const TOKENS_DIR = resolve(process.cwd(), 'src/core/tokens')
 const primitivesCss = stripComments(readFileSync(resolve(TOKENS_DIR, 'primitives.css'), 'utf8'))
 const semanticCss = stripComments(readFileSync(resolve(TOKENS_DIR, 'semantic.css'), 'utf8'))
+const defaultThemeCss = stripComments(
+  readFileSync(resolve(process.cwd(), 'src/themes/default/colors.css'), 'utf8'),
+)
+const spacingCss = stripComments(readFileSync(resolve(TOKENS_DIR, 'spacing.css'), 'utf8'))
+const animationCss = stripComments(readFileSync(resolve(TOKENS_DIR, 'animation.css'), 'utf8'))
 
 /* ------------------------------------------------------------------ */
 /* CSS parsing                                                         */
@@ -74,6 +79,16 @@ const semanticMediaDark = parseDeclarations(extractBlockBody(semanticCss, ':root
  */
 const lightScope = new Map([...primitives, ...semanticLight])
 const darkScope = new Map([...primitives, ...semanticLight, ...semanticDark])
+
+/**
+ * Non-color semantic scopes (#145): shadow / radius live in spacing.css,
+ * motion aliases in animation.css. Both bottom out at a literal (a box-shadow
+ * string, a length, a duration), so the same leaf-resolver applies — it
+ * returns the var name whose value is the literal (e.g. `--shadow-modal` →
+ * `--shadow-lg`).
+ */
+const spacingScope = parseDeclarations(extractBlockBody(spacingCss, ':root {'))
+const animationScope = parseDeclarations(extractBlockBody(animationCss, ':root {'))
 
 /**
  * Follow `var(...)` references to the leaf primitive (the variable whose
@@ -260,18 +275,72 @@ const THEME_SCALE_SHADES = [
 
 describe('semantic.css token resolution', () => {
   describe('theme scale', () => {
+    // The default ramp is the neutral alabaster scale (#150): with no
+    // Special active the expressive layer rests at the neutral ink look.
     for (const shade of THEME_SCALE_SHADES) {
-      it(`--color-theme-${shade} resolves to blue-${shade} in light mode`, () => {
-        expect(inLight(`theme-${shade}`)).toBe(`blue-${shade}`)
+      it(`--color-theme-${shade} resolves to alabaster-${shade} in light mode`, () => {
+        expect(inLight(`theme-${shade}`)).toBe(`alabaster-${shade}`)
       })
     }
 
     // The `.dark` block does not redeclare the theme scale — it is
     // Special-owned (theme-architecture.md), so dark mode falls back to the
-    // `:root` (blue-*) value. This asserts that fallback holds.
+    // `:root` (alabaster-*) value. This asserts that fallback holds.
     for (const shade of THEME_SCALE_SHADES) {
-      it(`--color-theme-${shade} falls back to blue-${shade} in dark mode`, () => {
-        expect(inDark(`theme-${shade}`)).toBe(`blue-${shade}`)
+      it(`--color-theme-${shade} falls back to alabaster-${shade} in dark mode`, () => {
+        expect(inDark(`theme-${shade}`)).toBe(`alabaster-${shade}`)
+      })
+    }
+  })
+
+  // `themes/default/colors.css` (the `./themes/default` export subpath,
+  // cascade tier 4 in theme-architecture.md) re-declares the same default
+  // ramp. It MUST stay value-identical to the semantic.css fallback, or the
+  // resolved ramp would depend on which subpath a consumer imported.
+  describe('default theme mirror (themes/default/colors.css)', () => {
+    const mirror = parseDeclarations(extractBlockBody(defaultThemeCss, ':root {'))
+
+    for (const shade of THEME_SCALE_SHADES) {
+      it(`--color-theme-${shade} mirrors the semantic.css declaration`, () => {
+        expect(mirror.get(`--color-theme-${shade}`)).toBe(
+          semanticLight.get(`--color-theme-${shade}`),
+        )
+      })
+    }
+
+    it('declares the theme scale and nothing else', () => {
+      expect([...mirror.keys()].filter((k) => !k.startsWith('--color-theme-'))).toEqual([])
+    })
+  })
+
+  // Solid rides the theme ramp (#150): Mode picks the rung, the active
+  // Special supplies the ramp. The MODE_LAYER fixture below already pins the
+  // default leaf (alabaster-*); these pin the *route* itself so the rung
+  // selection cannot silently decouple from the theme scale.
+  describe('solid rides the theme ramp (rung selection)', () => {
+    const LIGHT_RUNGS = {
+      solid: '700',
+      'solid-hover': '900',
+      'solid-foreground': '100',
+      'solid-foreground-hover': '300',
+    } as const
+    const DARK_RUNGS = {
+      solid: '300',
+      'solid-hover': '100',
+      'solid-foreground': '800',
+      'solid-foreground-hover': '700',
+    } as const
+
+    for (const [token, rung] of Object.entries(LIGHT_RUNGS)) {
+      it(`--color-${token} references --color-theme-${rung} in light mode`, () => {
+        expect(semanticLight.get(`--color-${token}`)).toBe(`var(--color-theme-${rung})`)
+      })
+    }
+    // The @media dark block is pinned byte-identical to `.dark` by the
+    // integrity suite below, so asserting `.dark` covers both.
+    for (const [token, rung] of Object.entries(DARK_RUNGS)) {
+      it(`--color-${token} references --color-theme-${rung} in dark mode`, () => {
+        expect(semanticDark.get(`--color-${token}`)).toBe(`var(--color-theme-${rung})`)
       })
     }
   })
@@ -367,5 +436,105 @@ describe('semantic.css token resolution', () => {
       const scope = new Map([['--color-foo', 'var(--bar, #fff)']])
       expect(() => resolveToPrimitive('--color-foo', scope)).toThrow(/unexpected var\(\) form/)
     })
+  })
+})
+
+/**
+ * Semantic shadow / radius / motion → primitive resolution (#145).
+ *
+ * These value-preserving aliases must keep pointing at the primitive they
+ * shipped with — a typo (`--shadow-modal: var(--shadow-xl)`) would be a
+ * silent visual change that only VRT would catch. Pinning the leaf here
+ * makes the mapping a hard contract, mirroring the color-resolution test.
+ */
+describe('semantic shadow / radius / motion resolution', () => {
+  const SHADOW = {
+    'shadow-card': 'shadow-sm',
+    'shadow-popover': 'shadow-md',
+    'shadow-modal': 'shadow-lg',
+    'shadow-toast': 'shadow-md',
+  } as const
+  const RADIUS = {
+    'radius-control': 'radius-md',
+    'radius-surface': 'radius-lg',
+    'radius-pill': 'radius-full',
+  } as const
+  const MOTION = {
+    'motion-quick': 'st-duration-fast',
+    'motion-base': 'st-duration-base',
+    'motion-expressive': 'st-duration-slow',
+  } as const
+
+  for (const [token, primitive] of Object.entries({ ...SHADOW, ...RADIUS })) {
+    it(`--${token} resolves to --${primitive}`, () => {
+      expect(resolveToPrimitive(`--${token}`, spacingScope)).toBe(primitive)
+    })
+  }
+
+  for (const [token, primitive] of Object.entries(MOTION)) {
+    it(`--${token} resolves to --${primitive}`, () => {
+      expect(resolveToPrimitive(`--${token}`, animationScope)).toBe(primitive)
+    })
+  }
+})
+
+/* ------------------------------------------------------------------ */
+/* Z-index stacking order                                              */
+/* ------------------------------------------------------------------ */
+
+/*
+ * Z-index tokens are literal integers (not var() chains to a primitive),
+ * so they don't fit the resolve-to-primitive shape above. What matters
+ * instead is the *ordering* invariant: the scale must be strictly
+ * increasing in declaration order, with no duplicate values (a tie would
+ * make stacking order depend on DOM order — exactly the ambiguity these
+ * tokens exist to remove). A reordering or an accidental dup compiles and
+ * lints fine and only surfaces as a "popup behind the modal" visual bug;
+ * this test catches it at the token layer.
+ */
+const zIndexCss = stripComments(readFileSync(resolve(TOKENS_DIR, 'z-index.css'), 'utf8'))
+// Matches integer-literal declarations only (the current shape of z-index.css).
+// If a future token is authored as a reference / expression
+// (`--z-foo: var(--z-bar)` or `calc(...)`), this parser silently skips that
+// line and it escapes the ordering checks below — extend the matcher then.
+const zLayers = [...zIndexCss.matchAll(/--z-([\w-]+):\s*(\d+)\s*;/g)].map(
+  ([, name, value]) => [name, Number(value)] as const,
+)
+const zByName = new Map(zLayers)
+
+/** Layer value by name; throws on a missing token so callers stay assertion-free. */
+function zValue(name: string): number {
+  const value = zByName.get(name)
+  if (value === undefined) throw new Error(`z-index token --z-${name} not declared`)
+  return value
+}
+
+describe('z-index scale ordering', () => {
+  it('declares at least the documented overlay layers', () => {
+    for (const name of ['modal-backdrop', 'modal', 'popover', 'tooltip', 'toast']) {
+      expect(zByName.has(name)).toBe(true)
+    }
+  })
+
+  it('is strictly increasing in declaration order', () => {
+    const values = zLayers.map(([, value]) => value)
+    expect(values).toEqual([...values].sort((a, b) => a - b))
+  })
+
+  it('has no duplicate values (no ambiguous stacking ties)', () => {
+    const values = zLayers.map(([, value]) => value)
+    expect(new Set(values).size).toBe(values.length)
+  })
+
+  it('keeps overlay layers above the consumer-reserved layers', () => {
+    // Dialog/Tooltip/Toast/Select overlays must beat sticky/fixed page chrome.
+    expect(zValue('modal-backdrop')).toBeGreaterThan(zValue('fixed'))
+  })
+
+  it('floats tooltip and popover above the modal', () => {
+    // A Tooltip or Select dropdown opened inside a Dialog must render in
+    // front of the modal, not behind it.
+    expect(zValue('tooltip')).toBeGreaterThan(zValue('modal'))
+    expect(zValue('popover')).toBeGreaterThan(zValue('modal'))
   })
 })

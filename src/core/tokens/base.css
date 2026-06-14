@@ -257,50 +257,13 @@
   --font-size-3xl: var(--text-3xl);
   --font-size-4xl: var(--text-4xl);
 
-  /* Semantic Typography - Body */
-  --text-body-xs-size: var(--text-body-xs-size);
-  --text-body-xs-leading: var(--text-body-xs-leading);
-  --text-body-xs-weight: var(--text-body-xs-weight);
-  --text-body-sm-size: var(--text-body-sm-size);
-  --text-body-sm-leading: var(--text-body-sm-leading);
-  --text-body-sm-weight: var(--text-body-sm-weight);
-  --text-body-md-size: var(--text-body-md-size);
-  --text-body-md-leading: var(--text-body-md-leading);
-  --text-body-md-weight: var(--text-body-md-weight);
-  --text-body-lg-size: var(--text-body-lg-size);
-  --text-body-lg-leading: var(--text-body-lg-leading);
-  --text-body-lg-weight: var(--text-body-lg-weight);
-
-  /* Semantic Typography - Label */
-  --text-label-xs-size: var(--text-label-xs-size);
-  --text-label-xs-leading: var(--text-label-xs-leading);
-  --text-label-xs-weight: var(--text-label-xs-weight);
-  --text-label-sm-size: var(--text-label-sm-size);
-  --text-label-sm-leading: var(--text-label-sm-leading);
-  --text-label-sm-weight: var(--text-label-sm-weight);
-  --text-label-md-size: var(--text-label-md-size);
-  --text-label-md-leading: var(--text-label-md-leading);
-  --text-label-md-weight: var(--text-label-md-weight);
-  --text-label-lg-size: var(--text-label-lg-size);
-  --text-label-lg-leading: var(--text-label-lg-leading);
-  --text-label-lg-weight: var(--text-label-lg-weight);
-
-  /* Semantic Typography - Heading */
-  --text-heading-sm-size: var(--text-heading-sm-size);
-  --text-heading-sm-leading: var(--text-heading-sm-leading);
-  --text-heading-sm-weight: var(--text-heading-sm-weight);
-  --text-heading-md-size: var(--text-heading-md-size);
-  --text-heading-md-leading: var(--text-heading-md-leading);
-  --text-heading-md-weight: var(--text-heading-md-weight);
-  --text-heading-lg-size: var(--text-heading-lg-size);
-  --text-heading-lg-leading: var(--text-heading-lg-leading);
-  --text-heading-lg-weight: var(--text-heading-lg-weight);
-  --text-heading-xl-size: var(--text-heading-xl-size);
-  --text-heading-xl-leading: var(--text-heading-xl-leading);
-  --text-heading-xl-weight: var(--text-heading-xl-weight);
-  --text-heading-2xl-size: var(--text-heading-2xl-size);
-  --text-heading-2xl-leading: var(--text-heading-2xl-leading);
-  --text-heading-2xl-weight: var(--text-heading-2xl-weight);
+  /*
+   * Composite typography tokens (`--text-{body,label,heading}-*-
+   * {size,leading,weight}`) were removed from the public surface in #144.
+   * The role × size binding now lives in the `.st-text` class API
+   * (Text.css), so there is nothing to register here — only the base
+   * `--font-size-*` scale above is part of the typography variable surface.
+   */
 
   /* Spacing (from spacing.css) */
   --spacing-px: var(--spacing-px);
@@ -318,7 +281,7 @@
   --spacing-20: var(--spacing-20);
   --spacing-24: var(--spacing-24);
 
-  /* Border Radius */
+  /* Border Radius — primitive scale */
   --radius-none: var(--radius-none);
   --radius-sm: var(--radius-sm);
   --radius-md: var(--radius-md);
@@ -327,11 +290,22 @@
   --radius-2xl: var(--radius-2xl);
   --radius-full: var(--radius-full);
 
-  /* Shadows */
+  /* Border Radius — semantic (用途別) */
+  --radius-control: var(--radius-control);
+  --radius-surface: var(--radius-surface);
+  --radius-pill: var(--radius-pill);
+
+  /* Shadows — primitive scale */
   --shadow-sm: var(--shadow-sm);
   --shadow-md: var(--shadow-md);
   --shadow-lg: var(--shadow-lg);
   --shadow-xl: var(--shadow-xl);
+
+  /* Shadows — semantic (用途別 elevation) */
+  --shadow-card: var(--shadow-card);
+  --shadow-popover: var(--shadow-popover);
+  --shadow-modal: var(--shadow-modal);
+  --shadow-toast: var(--shadow-toast);
 
   /* Z-Index */
   --z-base: var(--z-base);
@@ -355,6 +329,11 @@
   --st-duration-fast: var(--st-duration-fast);
   --st-duration-base: var(--st-duration-base);
   --st-duration-slow: var(--st-duration-slow);
+
+  /* Motion — semantic (用途別) aliases over the --st-duration-* scale. */
+  --motion-quick: var(--motion-quick);
+  --motion-base: var(--motion-base);
+  --motion-expressive: var(--motion-expressive);
 
   --st-spinner-duration: var(--st-spinner-duration);
   --st-spinner-ripple-delay: var(--st-spinner-ripple-delay);

@@ -10,6 +10,7 @@ function ContextConsumer() {
   return (
     <div data-testid="context-consumer">
       <span data-testid="context-id">{context?.id}</span>
+      <span data-testid="context-labelId">{context?.labelId ?? 'undefined'}</span>
       <span data-testid="context-isError">{String(context?.isError)}</span>
       <span data-testid="context-disabled">{String(context?.disabled)}</span>
       <span data-testid="context-describedBy">{context?.describedBy ?? 'undefined'}</span>
@@ -75,6 +76,26 @@ describe('Field', () => {
       const id = screen.getByTestId('context-id').textContent
       expect(id).toBeTruthy()
       expect(id?.length).toBeGreaterThan(0)
+    })
+
+    it('provides labelId pointing at the rendered label element', () => {
+      render(
+        <Field label="Email">
+          <ContextConsumer />
+        </Field>,
+      )
+      const labelId = screen.getByTestId('context-labelId').textContent
+      expect(labelId).toContain('-label')
+      expect(screen.getByText('Email')).toHaveAttribute('id', labelId)
+    })
+
+    it('provides labelId as undefined when no label is set', () => {
+      render(
+        <Field>
+          <ContextConsumer />
+        </Field>,
+      )
+      expect(screen.getByTestId('context-labelId').textContent).toBe('undefined')
     })
 
     it('provides isError=true when error prop is set', () => {

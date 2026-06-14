@@ -119,6 +119,21 @@ This pattern:
 - works equally well for framework Link components (Next, React Router,
   Remix), which already accept `className` directly
 
+**This is a preference, not a prohibition.** `*Variants()` and `asChild`
+hand the consumer different things, and the right tool depends on intent:
+`*Variants()` gives **only the class string** (use it when you want the
+*look* on your own element); `asChild` merges Button's resolved `className`
+**and forwards its props / ref** onto a single child via Slot (use it when
+you want the element to *behave as* the button — e.g.
+`<Button asChild><Link/></Button>` so the Link carries Button's events /
+ref / class). Note `asChild` renders only `children` — Button's `icon` /
+`isLoading` are not projected — so it is not a way to get Button's internals
+onto your element. The full decision table lives in
+[component-api-conventions.md §asChild vs `*Variants()`](component-api-conventions.md#aschild-vs-variants--which-to-reach-for).
+The "prefer variants" default here is about **not eagerly adding `asChild`
+to new lv1s**, not about banning it where it already earns its keep
+(`Button`).
+
 ### Hard exclusions, even if #192's 3 criteria seem to fit
 
 Two categories of component must **never** expose `asChild`, regardless
@@ -129,9 +144,12 @@ of how cleanly the 3 criteria appear to apply:
   platform level (`<input>` cannot become `<textarea>`).
 - **Portal-rendered content** (`Dialog` content, `Toast`) — positioning
   math is tied to a known DOM shape; swapping the element out breaks
-  layout in subtle ways. (`DialogTrigger` / `DialogClose` /
-  `TooltipTrigger` etc. are *not* portal content — they live in the
-  consumer's tree and may continue to expose `asChild` per #192.)
+  layout in subtle ways. (Trigger-style parts that live in the consumer's
+  tree — not portal content — *may* use `asChild` internally, but none
+  expose it publicly today: `TooltipTrigger` hides it behind `isTextOnly`,
+  and `Dialog` has no public `Trigger` / `Close` export at all. See the
+  public-vs-internal breakdown in
+  [component-api-conventions.md §asChild adoption criteria](component-api-conventions.md#aschild-adoption-criteria).)
 
 ### Radix-internal `asChild` is unaffected
 
@@ -205,6 +223,26 @@ internal label:
 
 Components with internal labels generate their own per-instance id (each
 checkbox is its own field).
+
+### `labelId` (naming fallback for self-labelled / group components)
+
+`FieldContext.labelId` is the id of the `<label>` element Field renders
+(undefined when Field has no `label` prop). It exists because the `htmlFor`
+hookup above cannot name two classes of children:
+
+- **Self-labelled components without an own `label`** —
+  `<Field label="Notifications"><Switch /></Field>` would otherwise leave the
+  Switch unnamed (the Field label's `htmlFor` points at the unconsumed
+  `field.id`). `Checkbox` / `Switch` apply
+  `aria-labelledby={field?.labelId}` only when they have no own `label` and
+  the consumer passed no explicit naming prop.
+- **`RadioGroup`** — a `role="radiogroup"` div cannot be reached by
+  `htmlFor` at all; the group root always applies `aria-labelledby` unless
+  the consumer names it explicitly.
+
+Precedence: explicit `aria-label` / `aria-labelledby` prop > own `label`
+prop > `field?.labelId`. Full consumption table and known limitations in
+[field-context-guideline](field-context-guideline.md#naming-via-labelid-self-labelled--group-components).
 
 ### Group components
 
@@ -376,6 +414,11 @@ fallback — that policy only holds if the contract below holds.
      [field-context-guideline](field-context-guideline.md).
    - **Internal `<label>` rendered by the component** — self-labelled
      form inputs (Checkbox, Switch, Radio).
+   - **`aria-labelledby` auto-wired from the Field label via
+     `FieldContext.labelId`** — self-labelled form inputs placed inside a
+     `<Field label>` without their own `label` (Checkbox, Switch), and
+     `RadioGroup` at the group root. See
+     [field-context-guideline](field-context-guideline.md#naming-via-labelid-self-labelled--group-components).
    - **`aria-label`** — icon-only or symbol-only triggers. Required
      where a button has no readable text content: Dialog close ✕
      ([Dialog.tsx:217](../../src/components/lv1/Dialog/Dialog.tsx:217)),
@@ -476,10 +519,14 @@ fallback — that policy only holds if the contract below holds.
    `getByRole(role, { name })` against a representative render. See
    [testing-guideline](testing-guideline.md) § Required test cases.
    "Query by role first" applies (testing-guideline §5).
-2. **Storybook** — `addon-a11y` panel shows 0 violations on every
-   story. Manual today; CI enforcement is planned through
-   [#147](https://github.com/yasmro/schatten/issues/147)
-   (`@axe-core/playwright`).
+2. **VRT a11y assertion** — since v0.11.0 (#147) every lv1
+   `*.vrt.spec.ts` pairs each screenshot with an `@axe-core/playwright`
+   scan (WCAG 2.1 A/AA) that asserts zero violations. Run locally with
+   `pnpm test:a11y`; in CI the ubuntu `a11y` job runs it. **Phase 1 is
+   observe-only** (`continue-on-error: true`) while a backlog of
+   pre-existing violations is worked off in follow-up issues — see
+   [vrt-spec-guideline §a11y assertions](vrt-spec-guideline.md). The
+   Storybook `addon-a11y` panel remains the manual dev-time companion.
 3. **Code review** — when reviewing an lv1 PR, walk the four
    guarantees and Hard rules above. If the component opts out of a
    default (e.g. Callout's no-role posture), the TSDoc must say so
@@ -501,8 +548,9 @@ fallback — that policy only holds if the contract below holds.
   table and update the resource maps in [CLAUDE.md](../../CLAUDE.md) /
   [AGENTS.md](../../AGENTS.md).
 - **§8 (a11y contract):**
-  - When [#147](https://github.com/yasmro/schatten/issues/147) lands
-    (`@axe-core/playwright`), promote the "Storybook addon-a11y" check
-    in "Verifying compliance" from manual to CI-enforced.
+  - [#147](https://github.com/yasmro/schatten/issues/147) landed the
+    `@axe-core/playwright` VRT-paired check (v0.11.0). When the Phase 1
+    backlog is cleared and the `a11y` CI job drops `continue-on-error`
+    (Phase 2), update "Verifying compliance" to call it a blocking gate.
   - When `Field.required` gains `aria-required` propagation, remove
     the gap note in guarantee #4.

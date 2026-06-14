@@ -135,6 +135,84 @@ await page.addStyleTag({
 })
 ```
 
+## a11y assertions (axe) — paired with every VRT test
+
+Since v0.11.0 each lv1 `*.vrt.spec.ts` ships an `@axe-core/playwright`
+a11y assertion **alongside** the screenshot test — one paired `… / a11y`
+`test()` per story × theme. Visual regression and a11y regression are
+verified from the same spec, but as **separate tests** so a screenshot
+failure never masks an a11y failure (and vice versa). The a11y test
+re-`goto`s independently rather than sharing the screenshot test's page.
+
+```typescript
+import AxeBuilder from '@axe-core/playwright'
+import { expect, test } from '@playwright/test'
+
+// … the VRT test for `${story} / ${theme}` …
+
+test(`Button / ${story} / ${theme} / a11y`, async ({ page }) => {
+  await page.goto(storyUrl(story, theme))
+  await page.waitForLoadState('networkidle')
+
+  const root = page.locator('#storybook-root')
+  await root.waitFor({ state: 'visible', timeout: 10_000 })
+
+  const results = await new AxeBuilder({ page })
+    .include('#storybook-root')
+    .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
+    .analyze()
+
+  expect(results.violations).toEqual([])
+})
+```
+
+### Rules
+
+- **Always pin `.withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])`.**
+  Without it axe also runs *best-practice* rules (`region`,
+  `landmark-one-main`, `page-has-heading-one`) that flag the Storybook
+  iframe itself (no landmarks, no `<h1>`) — every story would fail on
+  noise. The tag list pins the contract to the WCAG 2.1 A/AA surface the
+  a11y contract ([component-architecture §8](component-architecture.md#8-accessibility-contract))
+  actually promises.
+- **Standard components scope to `.include('#storybook-root')`.** The
+  visible surface lives in the root; scoping avoids the iframe chrome.
+- **Portal components analyze the whole page** (drop `.include(...)`).
+  `Dialog` / `Tooltip` / `Toast` / `Select`-open render their content
+  into `document.body`, outside `#storybook-root` — the same reason their
+  screenshots use `fullPage: true`. Wait for the portal to mount
+  (`waitForSelector('[role="dialog"]')` etc.) before `analyze()`, exactly
+  as the screenshot test does. The a11y test does **not** need animations
+  paused (axe inspects the DOM/CSS, not a still frame).
+
+### Running
+
+```bash
+pnpm test:a11y    # playwright test --grep a11y          → a11y only
+pnpm test:vrt     # playwright test --grep-invert a11y    → screenshots only
+```
+
+The two scripts are mutually exclusive by `--grep` / `--grep-invert a11y`,
+so a local `pnpm test:vrt` never drags in the a11y suite (and vice versa).
+CI splits them across runners: the macos `vrt` job runs `pnpm test:vrt`
+(pixels), and a dedicated **ubuntu** `a11y` job runs `pnpm test:a11y`. axe's
+contrast / role checks derive from CSS, not from macos font / sub-pixel
+rendering, so the scarce macos runner stays pixel-only.
+
+> **Phase 1 (observe-only).** A backlog of pre-existing violations
+> (systemic borderline color-contrast on state tokens — #344;
+> bare-control story artifacts — #345) is worked off before the gate
+> blocks — mirroring the `audit` job's staged rollout (#307). Because
+> those ~115 violations would fail Playwright on **every** run, the
+> `a11y` job's step keeps the **check green as long as axe actually ran**
+> (it tees the full violation list into `$GITHUB_STEP_SUMMARY` for
+> anyone who looks) and only fails when axe *couldn't* run (a crash, or a
+> grep / `--` mistake that yields "No tests found"). The job is also
+> `continue-on-error: true` as a backstop. Phase 2 (#346) deletes that
+> exit-0 shim and `continue-on-error` so the gate blocks. Until then,
+> **read the summary, not the check color** — and new components should
+> still land with zero new violations.
+
 ## Components rendered into a Portal
 
 Components like `Tooltip`, `Dialog`, and `Toast` use Radix Portals — their
@@ -175,6 +253,84 @@ Dialog, and Toast all animate on enter/exit.
 Only include stories that represent distinct visual states:
 - Include: `AllVariants`, `Sizes`, `States`, `Disabled`, `ErrorState`
 - Exclude: `Playground` (interactive, not for VRT)
+
+### docs / token stories — VRT only when there's a genuine visual contract
+
+The "add a story → add it to the VRT roster" rule below is mandatory for
+**lv1 / lv2 component** stories. **`src/docs/` stories are different** — they
+document the system rather than ship a component, and the lv1 companion-
+coverage gates (`check-lv1-companions`, `audit:coverage`) are scoped to
+`src/components/lv1/`, so a docs story can ship with **no** `*.vrt.spec.ts`
+at all. `Welcome.stories.tsx` and `FormStates.stories.tsx` already do.
+
+Pair a docs story with VRT **only when the page itself carries a visual
+contract a screenshot is the right tool to pin** — i.e. the rendering *is*
+the thing under test:
+
+- **Add VRT** — `Tokens/Color` (palette swatches), `Tokens/Typography`
+  (font-metric rendering — exactly what #356 re-baselined), `Tokens/Spacing`
+  (scale rendering), `CSS API` parity pages. Here a pixel shift *is* a
+  regression in the documented value.
+- **Skip VRT** — a page whose real contract is **values / ordering / wiring**,
+  not pixels. `Tokens/Z-Index` is the canonical skip: the z-index contract
+  (the numbers and their strictly-increasing stacking order) is pinned far
+  more robustly by the ordering invariant in
+  [`resolution.test.ts`](../../src/core/tokens/__tests__/resolution.test.ts)
+  than by a screenshot of a table + a few coloured boxes. A VRT there only
+  adds two PNGs to the perpetual bulk-re-baseline set (every Tailwind / Vite
+  / font bump re-captures them) for no contract the unit test isn't already
+  guarding.
+
+The test: **"if this page rendered 1px differently, would that mean a
+documented value broke?"** Yes → VRT. No (the value lives in a token file a
+unit test already pins) → skip the spec, keep the story. Adding VRT later is
+non-breaking; removing a low-value baseline is churn — so when unsure for a
+docs page, **default to skip**.
+
+> Either way, **CI never generates baselines** — the `vrt` job runs
+> `pnpm test:vrt` (compare only, no `--update-snapshots`). A new spec with no
+> committed baseline fails CI on the first run (`A snapshot doesn't exist …`).
+> The author generates and commits the PNGs locally; see
+> ["Brand-new snapshots"](#brand-new-snapshots) and verify local↔CI rendering
+> parity first by passing an existing spec against its committed baseline.
+
+### docs page tables and a11y — structural, not a per-page axe spec
+
+Hand-built docs pages (`Patterns/*`, `Tokens/*`, `CSS API/*`) increasingly
+carry `<table>` prose. The a11y of those tables is enforced **structurally
+through a shared component**, NOT through a per-page `@axe-core/playwright`
+spec. The policy (decided in
+[#384](https://github.com/yasmro/schatten/issues/384)):
+
+- **Render docs-prose tables with `DocsTable`**
+  ([`src/docs/docs-ui.tsx`](../../src/docs/docs-ui.tsx)), never a raw
+  `<table>` hand-written per page. `DocsTable` bakes in `<th scope="col">`
+  + `<thead>` / `<tbody>`, so the column-header association cannot drift.
+  Its `scope="col"` invariant is pinned by
+  [`docs-ui.test.tsx`](../../src/docs/docs-ui.test.tsx).
+- **Do not add a per-page axe spec to assert table semantics.** This is the
+  load-bearing reason for the structural approach: a missing `scope` is
+  **not** an axe violation under the WCAG 2.1 A/AA tag set
+  (`wcag2a` / `wcag2aa` / `wcag21a` / `wcag21aa`) the a11y suite pins —
+  `scope-attr-valid` only fires on an *invalid* value, never on an absent
+  one. So an axe sweep would give a false sense of coverage for exactly the
+  drift (missing `scope`, `<th>`/`<td>` mismatch) the concern was about. The
+  component, plus its unit test, is what actually guards it.
+- **A docs page that already styles its table bespoke** (e.g.
+  `CSSApi.stories.tsx`'s `cssapi-doc__attr-table`, scoped to a page-chrome
+  stylesheet) keeps its own `<table>` but **must still set
+  `scope="col"`** on every header cell by hand. Migrating it onto
+  `DocsTable` is optional and non-breaking.
+- **Non-table docs-prose a11y** (color-contrast, heading order, link names)
+  is checked at **dev time** via the Storybook `addon-a11y` panel
+  (`.storybook/preview.tsx`, same WCAG tag set), not in CI. If a future need
+  arises to gate *all* docs prose with axe in CI, that is a separate
+  "docs-only a11y sweep" decision — open an issue and update this section;
+  do not bolt a one-off axe spec onto a single docs page.
+
+The three-axis rule for docs pages, then: **visual contract → VRT (above);
+table semantics → `DocsTable` (structural); broader prose a11y → dev-time
+`addon-a11y` panel.**
 
 ### Adding a new story → add it to the VRT roster (or document the skip)
 

@@ -125,6 +125,20 @@ describe('Button', () => {
       const svg = button.querySelector(':scope > svg')
       expect(svg).toBeInTheDocument()
     })
+
+    it('renders a single-child anchor when asChild is combined with link', () => {
+      // Regression: the link branch wrapped children with icon-conditional
+      // siblings, so `<Button asChild variant="link">` handed Slot >1 child
+      // and threw `React.Children.only`. asChild is now resolved before the
+      // link branch, so a single child reaches Slot.
+      render(
+        <Button asChild variant="link">
+          <a href="/docs">Docs</a>
+        </Button>,
+      )
+      const link = screen.getByRole('link', { name: 'Docs' })
+      expect(link).toHaveClass('st-btn', 'st-btn--link')
+    })
   })
 
   describe('isLoading', () => {

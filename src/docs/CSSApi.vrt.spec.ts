@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test'
 
 /*
- * Integration-level VRT for the `Foundation/CSS API` page.
+ * Integration-level VRT for the `CSS API/Overview` page.
  *
  * Covers:
  * - `reference`         — the long-form vanilla HTML reference
@@ -26,17 +26,25 @@ import { expect, test } from '@playwright/test'
  * Tracked by #277.
  */
 
-const STORY_ID_PREFIX = 'foundation-css-api'
+const STORY_ID_PREFIX = 'css-api-overview'
 
-const stories = ['reference', 'parity-comparison'] as const
-
-const themes = ['light', 'dark'] as const
+// `reference` runs both modes — it's the vanilla dark-mode rendering of
+// every `.st-*` chain plus a cross-component CSS-leakage check, both of
+// which are theme-sensitive. `parity-comparison` proves React ≡ vanilla,
+// which is theme-invariant (both halves consume the *same* classes, so a
+// `.dark` token swap applies equally), so it runs light-only — matching
+// the lv1 `*.parity.vrt.spec.ts` policy. Net effect: no parity screenshot
+// runs in dark anywhere in the suite.
+const matrix = [
+  { story: 'reference', themes: ['light', 'dark'] },
+  { story: 'parity-comparison', themes: ['light'] },
+] as const
 
 function storyUrl(storyId: string, theme: string) {
   return `/iframe.html?id=${STORY_ID_PREFIX}--${storyId}&globals=theme:${theme}&viewMode=story`
 }
 
-for (const story of stories) {
+for (const { story, themes } of matrix) {
   for (const theme of themes) {
     test(`CSS API / ${story} / ${theme}`, async ({ page }) => {
       await page.goto(storyUrl(story, theme))

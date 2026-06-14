@@ -250,8 +250,11 @@ export const Types: Story = {
       <Input type="password" placeholder="Password" />
       <Input type="number" placeholder="Number" />
       <Input type="search" placeholder="Search" />
-      <Input type="date" />
-      <Input type="datetime-local" />
+      {/* date/datetime-local don't support placeholder, and value-only inputs
+       * have no accessible name — these stories carry aria-label so the axe
+       * `label` rule passes without changing a pixel (#345). */}
+      <Input type="date" aria-label="Date" />
+      <Input type="datetime-local" aria-label="Date and time" />
     </div>
   ),
 }
@@ -293,7 +296,7 @@ export const ErrorState: Story = {
   render: () => (
     <div className="flex flex-col gap-4 w-72">
       <Input isError placeholder="Error state" />
-      <Input isError defaultValue="Invalid input" />
+      <Input isError defaultValue="Invalid input" aria-label="Invalid input" />
       <Input isError iconLeft={CircleAlert} placeholder="With icon" />
     </div>
   ),
@@ -304,7 +307,7 @@ export const Disabled: Story = {
   render: () => (
     <div className="flex flex-col gap-4 w-72">
       <Input disabled placeholder="Disabled" />
-      <Input disabled defaultValue="Disabled with value" />
+      <Input disabled defaultValue="Disabled with value" aria-label="Disabled with value" />
     </div>
   ),
 }
@@ -314,7 +317,7 @@ export const DisabledWithError: Story = {
   render: () => (
     <div className="flex flex-col gap-4 w-72">
       <Input disabled isError placeholder="Disabled + error" />
-      <Input disabled isError defaultValue="Disabled + error" />
+      <Input disabled isError defaultValue="Disabled + error" aria-label="Disabled with error" />
     </div>
   ),
 }
@@ -323,9 +326,9 @@ export const ReadOnly: Story = {
   name: 'ReadOnly',
   render: () => (
     <div className="flex flex-col gap-4 w-72">
-      <Input readOnly defaultValue="Read-only value" />
-      <Input readOnly iconLeft={Lock} defaultValue="With icon" />
-      <Input readOnly textLeft="ID" defaultValue="usr_123456" />
+      <Input readOnly defaultValue="Read-only value" aria-label="Read-only value" />
+      <Input readOnly iconLeft={Lock} defaultValue="With icon" aria-label="With icon" />
+      <Input readOnly textLeft="ID" defaultValue="usr_123456" aria-label="User ID" />
     </div>
   ),
 }
@@ -335,11 +338,11 @@ export const DisabledVsReadOnly: Story = {
   render: () => (
     <div className="flex flex-col gap-3 w-72">
       <div className="text-xs text-foreground-muted">Default</div>
-      <Input defaultValue="Editable value" />
+      <Input defaultValue="Editable value" aria-label="Editable value" />
       <div className="text-xs text-foreground-muted mt-2">ReadOnly (informational)</div>
-      <Input readOnly defaultValue="Read-only value" />
+      <Input readOnly defaultValue="Read-only value" aria-label="Read-only value" />
       <div className="text-xs text-foreground-muted mt-2">Disabled (cannot interact)</div>
-      <Input disabled defaultValue="Disabled value" />
+      <Input disabled defaultValue="Disabled value" aria-label="Disabled value" />
     </div>
   ),
 }
@@ -348,7 +351,7 @@ export const ReadOnlyWithError: Story = {
   name: 'ReadOnly with error',
   render: () => (
     <div className="flex flex-col gap-4 w-72">
-      <Input readOnly isError defaultValue="ReadOnly + error" />
+      <Input readOnly isError defaultValue="ReadOnly + error" aria-label="ReadOnly with error" />
     </div>
   ),
 }

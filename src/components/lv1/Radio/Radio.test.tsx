@@ -228,6 +228,28 @@ describe('Radio', () => {
       const group = container.querySelector('[role="radiogroup"]')
       expect(group?.getAttribute('aria-describedby')).toContain('-description')
     })
+
+    it('RadioGroup takes its accessible name from the Field label', () => {
+      render(
+        <Field label="Pick one">
+          <RadioGroup>
+            <Radio value="a" label="A" />
+          </RadioGroup>
+        </Field>,
+      )
+      expect(screen.getByRole('radiogroup', { name: 'Pick one' })).toBeInTheDocument()
+    })
+
+    it('prefers an explicit aria-label on RadioGroup over the Field label', () => {
+      render(
+        <Field label="Pick one">
+          <RadioGroup aria-label="Custom name">
+            <Radio value="a" label="A" />
+          </RadioGroup>
+        </Field>,
+      )
+      expect(screen.getByRole('radiogroup', { name: 'Custom name' })).toBeInTheDocument()
+    })
   })
 
   it('forwards className on the radio wrapper', () => {

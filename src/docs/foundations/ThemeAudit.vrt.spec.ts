@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test'
 
-const STORY_ID_PREFIX = 'foundation-themeaudit'
+const STORY_ID_PREFIX = 'theming-theme-audit'
 
 const SPECIALS = [
   'spring-early',

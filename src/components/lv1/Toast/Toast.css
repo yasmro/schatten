@@ -52,7 +52,6 @@
     width: 100%;
     border-width: 1px;
     border-style: solid;
-    border-radius: var(--radius-surface, 0.5rem);
     padding: 1rem;
     box-shadow: var(
       --shadow-toast,

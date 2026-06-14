@@ -163,7 +163,10 @@
    * light mode and lightens the near-black label in dark mode, mirroring how
    * solid's foreground-hover shifts along the ramp. No `*-foreground-hover`
    * token exists for state colours (4-token shape — see state-token-guideline),
-   * so the shift is expressed here in CSS rather than as a token. */
+   * so the shift is expressed here in CSS rather than as a token. The 82% mix
+   * keeps WCAG AA on the hover surface in both Modes (light 5.64:1 on red-700,
+   * dark 5.57:1 on red-400 — both above 4.5:1); the hover regression is pinned
+   * by Button.vrt.spec.ts ("filled variants darken their label on hover"). */
   .st-btn--destructive:not(:disabled):hover {
     background-color: var(--color-destructive-hover);
     color: color-mix(in srgb, var(--color-destructive-foreground) 82%, var(--color-destructive));

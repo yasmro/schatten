@@ -51,6 +51,26 @@ const meta: Meta<typeof Text> = {
         defaultValue: { summary: 'body' },
       },
     },
+    family: {
+      description:
+        'Font family. `sans` is the UI default; `serif` swaps to the editorial serif stack (EB Garamond / Noto Serif JP). The JP/EN visual-size compensation is applied library-wide on the body reset (not per-family), so both families read at a matched JP/EN height.',
+      control: 'inline-radio',
+      options: ['sans', 'serif'],
+      table: {
+        type: { summary: '"sans" | "serif"' },
+        defaultValue: { summary: 'sans' },
+      },
+    },
+    leading: {
+      description:
+        'Line-height override. When unset, the line-height baked into the variant × size pairing applies. Values mirror the `--leading-*` token scale.',
+      control: 'select',
+      options: ['none', 'tight', 'snug', 'normal', 'relaxed', 'loose'],
+      table: {
+        type: { summary: '"none" | "tight" | "snug" | "normal" | "relaxed" | "loose"' },
+        defaultValue: { summary: '-' },
+      },
+    },
     size: {
       description: 'Size of the text. Available sizes depend on the variant.',
       control: 'select',
@@ -194,6 +214,71 @@ export const HeadingSizes: Story = {
       <Text variant="heading" size="2xl">
         Heading 2XL
       </Text>
+    </div>
+  ),
+}
+
+export const FontFamilies: Story = {
+  name: 'Font Families',
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'The `serif` family swaps to the EB Garamond / Noto Serif JP stack. Latin faces sit at a lower cap-height than the CJK faces, so Schatten applies `font-size-adjust: cap-height` on the body reset (library-wide, all components) to lift the Latin glyphs to the CJK height — compare the Latin against the Japanese in each row.',
+      },
+    },
+  },
+  render: () => (
+    <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-2">
+        <Text variant="label" size="sm">
+          Sans (default)
+        </Text>
+        <Text family="sans" variant="heading" size="lg" as="h3">
+          Schatten の Typography — Hamburg 1234
+        </Text>
+        <Text family="sans">
+          落ち着いた UI の本文。The quick brown fox jumps over the lazy dog. 1234567890
+        </Text>
+      </div>
+      <div className="flex flex-col gap-2">
+        <Text variant="label" size="sm">
+          Serif (EB Garamond / Noto Serif JP)
+        </Text>
+        <Text family="serif" variant="heading" size="lg" as="h3">
+          Schatten の Typography — Hamburg 1234
+        </Text>
+        <Text family="serif">
+          序文にふさわしい editorial な本文。The quick brown fox jumps over the lazy dog. 1234567890
+        </Text>
+      </div>
+    </div>
+  ),
+}
+
+export const Leading: Story = {
+  name: 'Leading',
+  parameters: {
+    docs: {
+      description: {
+        story:
+          '`leading` overrides the line-height baked into the variant × size pairing. `relaxed` (1.625) suits serif long-form copy; `none` (1.0) tightens display headings.',
+      },
+    },
+  },
+  render: () => (
+    <div className="flex max-w-md flex-col gap-6">
+      {(['none', 'normal', 'relaxed', 'loose'] as const).map((leading) => (
+        <div key={leading} className="flex flex-col gap-1">
+          <Text variant="label" size="sm">
+            leading=&quot;{leading}&quot;
+          </Text>
+          <Text family="serif" leading={leading}>
+            行間の違いを確認するための本文サンプル。The quick brown fox jumps over the lazy dog,
+            then comes back around again.
+          </Text>
+        </div>
+      ))}
     </div>
   ),
 }

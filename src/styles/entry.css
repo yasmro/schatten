@@ -117,6 +117,15 @@
     background-color: var(--color-background);
     color: var(--color-foreground);
     font-family: var(--font-sans);
+    /* JP/EN visual-size compensation, library-wide. `cap-height <n>`
+     * normalizes the used font's cap-height to n × em, lifting the Latin
+     * faces (EB Garamond / Hanken Grotesk) to the CJK height so they read at
+     * a matched size in mixed runs. Applied here on body so it inherits to
+     * every component (Button / Input / Badge / Text / …), not just Text.
+     * Font-agnostic, so one value covers all families and consumer fonts;
+     * tune or disable via `--st-font-size-adjust`. Unsupported browsers
+     * (Chrome < 127) ignore it = no compensation, never broken. See #184. */
+    font-size-adjust: var(--st-font-size-adjust, cap-height 0.7);
     line-height: var(--leading-normal);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;

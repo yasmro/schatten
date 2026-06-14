@@ -15,6 +15,22 @@ export interface TextProps extends Omit<HTMLAttributes<HTMLElement>, 'color'>, T
    */
   variant?: TextVariants['variant']
   /**
+   * Font family.
+   * - `sans` — UI default (Hanken Grotesk / LINE Seed JP stack)
+   * - `serif` — editorial serif (EB Garamond / Noto Serif JP stack), for
+   *   long-form or display copy. Consumers must load the serif webfonts
+   *   themselves; otherwise it falls back to the system serif stack.
+   * @default 'sans'
+   */
+  family?: TextVariants['family']
+  /**
+   * Line-height override. When unset, the line-height baked into the
+   * `variant × size` pairing applies. Values mirror the `--leading-*`
+   * token scale (`none` 1.0 … `loose` 2.0); `relaxed` (1.625) suits
+   * serif long-form copy.
+   */
+  leading?: TextVariants['leading']
+  /**
    * Size of the text. Available sizes depend on the variant.
    * @default 'md'
    */
@@ -48,13 +64,15 @@ export interface TextProps extends Omit<HTMLAttributes<HTMLElement>, 'color'>, T
 }
 
 export const Text = forwardRef<HTMLElement, TextProps>(
-  ({ className, variant, size, color, align, truncate, as, ...props }, ref) => {
+  ({ className, variant, family, leading, size, color, align, truncate, as, ...props }, ref) => {
     const defaultTag = variant === 'label' ? 'label' : 'p'
     const Comp = as ?? defaultTag
 
     return (
       <Comp
-        className={cn(textVariants({ variant, size, color, align, truncate, className }))}
+        className={cn(
+          textVariants({ variant, family, leading, size, color, align, truncate, className }),
+        )}
         ref={ref as React.Ref<never>}
         {...props}
       />

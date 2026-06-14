@@ -50,7 +50,7 @@
     gap: 0.5rem;
     white-space: nowrap;
     line-height: 1;
-    font-weight: 500;
+    font-weight: 700;
     text-decoration: none;
     cursor: pointer;
     -webkit-font-smoothing: antialiased;
@@ -156,8 +156,17 @@
     background-color: var(--color-destructive);
     color: var(--color-destructive-foreground);
   }
+  /* Hover shifts the label toward the destructive base so the text reads
+   * "darker" alongside the darkening background — the colour-mix counterpart
+   * of primary's `--color-solid-foreground-hover`. Both `-foreground` and
+   * `-destructive` flip per Mode, so this one rule darkens the white label in
+   * light mode and lightens the near-black label in dark mode, mirroring how
+   * solid's foreground-hover shifts along the ramp. No `*-foreground-hover`
+   * token exists for state colours (4-token shape — see state-token-guideline),
+   * so the shift is expressed here in CSS rather than as a token. */
   .st-btn--destructive:not(:disabled):hover {
     background-color: var(--color-destructive-hover);
+    color: color-mix(in srgb, var(--color-destructive-foreground) 82%, var(--color-destructive));
   }
   .st-btn--destructive:disabled {
     background-color: var(--color-surface-disabled);
@@ -192,7 +201,7 @@
    *
    * Other `.st-btn` base properties still need explicit undo:
    *   - `font-size: inherit`  — follow the surrounding paragraph
-   *   - `font-weight: inherit` — pre-sweep link was 400, base sets 500
+   *   - `font-weight: inherit` — pre-sweep link was 400, base sets 700
    *   - `line-height: inherit` — base's `1` collides with paragraph 1.5
    *                              and breaks the inline line-box
    *   - `white-space: nowrap`  — already the base value; kept here as

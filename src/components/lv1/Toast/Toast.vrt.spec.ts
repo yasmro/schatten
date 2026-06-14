@@ -72,3 +72,31 @@ for (const story of stories) {
     })
   }
 }
+
+// Interaction: a real pointer click must dismiss. jsdom can't reproduce this —
+// the close Button is icon-only, so the click target is the inner <svg>, and
+// Sonner's swipe handler captures the pointer unless the icon is pointer-events:none
+// (#318). Pairs with the id-clobber regression covered in the unit test.
+test('Toast / close button dismisses on real click', async ({ page }) => {
+  await page.goto(storyUrl('subtle-treatments', 'light'))
+  await page.waitForLoadState('networkidle')
+  await page.waitForFunction(() => document.querySelectorAll('[data-sonner-toast]').length > 0, {
+    timeout: 10_000,
+  })
+  const toasts = page.locator('li[data-sonner-toast]')
+  const before = await toasts.count()
+  await page.locator('button.st-toast__action').first().click()
+  await expect(toasts).toHaveCount(before - 1)
+})
+
+test('Toast / action button dismisses on real click', async ({ page }) => {
+  await page.goto(storyUrl('with-action', 'light'))
+  await page.waitForLoadState('networkidle')
+  await page.waitForFunction(() => document.querySelectorAll('[data-sonner-toast]').length > 0, {
+    timeout: 10_000,
+  })
+  const toasts = page.locator('li[data-sonner-toast]')
+  const before = await toasts.count()
+  await page.getByRole('button', { name: 'Undo' }).click()
+  await expect(toasts).toHaveCount(before - 1)
+})

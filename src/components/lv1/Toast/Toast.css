@@ -163,4 +163,13 @@
   .st-toast__action {
     flex-shrink: 0;
   }
+  /* Sonner's swipe handler starts a drag on pointerdown unless
+   * `event.target.tagName === 'BUTTON'`. An icon-only close `<Button>`'s inner
+   * `<svg>` would be the target (tagName "svg"), so Sonner captures the pointer
+   * and the click never fires. Making the icon transparent to pointer events
+   * keeps the `<button>` itself as the event target, so close / action clicks
+   * work. (jsdom ignores this, which is why unit tests didn't catch it — #318.) */
+  .st-toast__action svg {
+    pointer-events: none;
+  }
 }

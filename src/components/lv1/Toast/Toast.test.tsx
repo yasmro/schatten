@@ -95,6 +95,26 @@ describe('action', () => {
     expect(screen.queryByRole('button', { name: /close/i })).not.toBeInTheDocument()
   })
 
+  it('dismisses the toast when the close button is clicked', async () => {
+    // Regression: the id passed to ToastBody must match the toast's stored id,
+    // otherwise dismiss(id) silently no-ops (the id-clobber bug, #318).
+    const user = userEvent.setup()
+    render(<Toaster />)
+    toast({ title: 'close-dismiss' })
+    await screen.findByText('close-dismiss')
+    await user.click(screen.getByRole('button', { name: /close/i }))
+    await waitFor(() => expect(screen.queryByText('close-dismiss')).not.toBeInTheDocument())
+  })
+
+  it('dismisses the toast when the action button is clicked', async () => {
+    const user = userEvent.setup()
+    render(<Toaster />)
+    toast({ title: 'action-dismiss', action: { label: 'Undo', onClick: () => {} } })
+    await screen.findByText('action-dismiss')
+    await user.click(screen.getByRole('button', { name: 'Undo' }))
+    await waitFor(() => expect(screen.queryByText('action-dismiss')).not.toBeInTheDocument())
+  })
+
   it('applies altText as aria-label when the label is not a string', async () => {
     render(<Toaster />)
     toast({

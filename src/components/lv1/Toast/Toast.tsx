@@ -184,7 +184,11 @@ function ToastBody({
 function render(input: ToastInput, opts: { id?: string | number; loading?: boolean } = {}) {
   const { id, loading } = opts
   return sonnerToast.custom((sid) => <ToastBody id={sid} loading={loading} {...input} />, {
-    id,
+    // Only include `id` when re-rendering. Sonner computes `data?.id || counter++`
+    // then spreads `...data` over it — so passing `id: undefined` for a NEW toast
+    // would clobber the computed id back to undefined, and dismiss(id) would never
+    // match. Omitting it lets Sonner keep its generated id.
+    ...(id !== undefined ? { id } : {}),
     duration: loading
       ? (input.duration ?? Number.POSITIVE_INFINITY)
       : (input.duration ?? DEFAULT_DURATION),

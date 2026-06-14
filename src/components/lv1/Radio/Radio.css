@@ -110,12 +110,10 @@
       0 0 0 2px var(--color-ring-offset),
       0 0 0 4px var(--color-ring);
   }
-  .st-radio:disabled {
-    cursor: not-allowed;
-    background-color: var(--color-surface-disabled);
-    border-color: var(--color-border-disabled);
-    color: var(--color-foreground-disabled);
-  }
+  /* state precedence — source order (matches Input / Textarea):
+   * default < [aria-invalid="true"] < :disabled
+   * A disabled control recedes (it cannot be submitted, so its error
+   * state is moot) — the disabled tokens win over the error treatment. */
   .st-radio[aria-invalid="true"] {
     border-color: var(--color-error);
     background-color: var(--color-error-subtle);
@@ -124,6 +122,12 @@
     box-shadow:
       0 0 0 2px var(--color-ring-offset),
       0 0 0 4px var(--color-error);
+  }
+  .st-radio:disabled {
+    cursor: not-allowed;
+    background-color: var(--color-surface-disabled);
+    border-color: var(--color-border-disabled);
+    color: var(--color-foreground-disabled);
   }
 
   /* ===== size ===== */

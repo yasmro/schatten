@@ -32,7 +32,8 @@ const INDEX_FILE_REL = 'src/components/lv1/index.ts'
 // canonical reasoning is in .claude/rules/vrt-spec-guideline.md
 // §"Parity stories — when to write one, when to skip": classification
 // C (Tooltip — static rendering but JS-driven positioning) and D
-// (Dialog / Select / Toast — JS-required compound behaviour) have no
+// (Dialog / DropdownMenu / Select / Toast — JS-required compound
+// behaviour) have no
 // realistic vanilla-HTML use case for the .st-* class chain alone, so
 // the parity story would be performative.
 //
@@ -46,7 +47,7 @@ const INDEX_FILE_REL = 'src/components/lv1/index.ts'
 // next door. If lv1 count grows past ~30 and tracking gets noisy,
 // promote to a `// schatten-classification: B` header comment that
 // gets parsed.
-export const PARITY_EXEMPT = new Set(['Dialog', 'Select', 'Toast', 'Tooltip'])
+export const PARITY_EXEMPT = new Set(['Dialog', 'DropdownMenu', 'Select', 'Toast', 'Tooltip'])
 
 // Match `from './<name>'` / `from "./<name>"`. Same shape as
 // scripts/check-lv1-export-integrity.mjs — kept in sync deliberately.

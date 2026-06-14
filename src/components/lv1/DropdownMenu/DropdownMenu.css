@@ -49,27 +49,31 @@
  * See: .claude/rules/css-api.md, #41.
  */
 
-/* ===== keyframes (layer-out) ===== */
+/* ===== keyframes (layer-out) =====
+ *
+ * Opacity-only — deliberately NO `transform: scale()`. Radix renders
+ * `SubContent` as a `position: fixed` DOM descendant of this content element;
+ * a `transform` (or `translate`) here establishes a containing block for that
+ * fixed descendant, so during the parent's close animation the open submenu
+ * would snap *inside* the parent panel (and inflate its scroll). Same
+ * containing-block trap as the per-side `translate` removed earlier — keep this
+ * panel transform-free. (#403) */
 
 @keyframes dropdown-menu-content-open {
   from {
     opacity: 0;
-    transform: scale(0.95);
   }
   to {
     opacity: 1;
-    transform: scale(1);
   }
 }
 
 @keyframes dropdown-menu-content-close {
   from {
     opacity: 1;
-    transform: scale(1);
   }
   to {
     opacity: 0;
-    transform: scale(0.95);
   }
 }
 
@@ -99,11 +103,6 @@
   }
   .st-dropdown-menu__content[data-state="closed"] {
     animation: dropdown-menu-content-close 100ms ease-in;
-    /* While closing, a nested SubContent (a position:fixed DOM descendant of
-     * this panel) briefly re-enters normal flow, inflating scrollHeight past
-     * the max-height clamp and flashing a scrollbar via `overflow-y: auto`.
-     * The panel is disappearing, so suppress overflow during close. (#403) */
-    overflow: hidden;
   }
 
   /* NOTE: the directional gap comes from Radix `sideOffset` (set in

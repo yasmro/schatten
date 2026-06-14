@@ -129,7 +129,9 @@
     cursor: pointer;
     user-select: none;
     padding: 0.5rem;
-    border-radius: 0.375rem;
+    /* rounding: none — square full-width highlight, aligned with the square
+     * menu panel and Select's item treatment (.st-select__item). */
+    border-radius: 0;
     font-size: 0.875rem;
     color: var(--color-foreground);
     outline: none;
@@ -147,13 +149,11 @@
     color: var(--color-foreground-disabled);
   }
 
-  /* destructive action role */
+  /* destructive action role — red text carries the role; the highlight
+   * background intentionally matches the default item (surface-hover, from the
+   * base rule above) to stay consistent with Select's calm pulldown. */
   .st-dropdown-menu__item--destructive {
     color: var(--color-destructive);
-  }
-  .st-dropdown-menu__item--destructive[data-highlighted],
-  .st-dropdown-menu__item--destructive:focus {
-    background-color: var(--color-destructive-subtle);
   }
 
   /* indent to align with indicator-bearing items */

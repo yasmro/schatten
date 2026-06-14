@@ -99,6 +99,11 @@
   }
   .st-dropdown-menu__content[data-state="closed"] {
     animation: dropdown-menu-content-close 100ms ease-in;
+    /* While closing, a nested SubContent (a position:fixed DOM descendant of
+     * this panel) briefly re-enters normal flow, inflating scrollHeight past
+     * the max-height clamp and flashing a scrollbar via `overflow-y: auto`.
+     * The panel is disappearing, so suppress overflow during close. (#403) */
+    overflow: hidden;
   }
 
   /* NOTE: the directional gap comes from Radix `sideOffset` (set in

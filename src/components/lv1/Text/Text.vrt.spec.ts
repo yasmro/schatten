@@ -7,6 +7,8 @@ const stories = [
   'body-sizes',
   'label-sizes',
   'heading-sizes',
+  'font-families',
+  'leading',
   'colors',
   'brand-colors',
   'state-colors',
@@ -35,6 +37,9 @@ for (const story of stories) {
         },
         { timeout: 10_000 },
       )
+      // Webfonts (incl. the serif stack) must be applied before the
+      // screenshot, or font-families / leading stories flake. See #184.
+      await page.evaluate(() => document.fonts.ready)
 
       await expect(root).toHaveScreenshot(`${story}-${theme}.png`)
     })

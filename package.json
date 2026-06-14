@@ -104,6 +104,7 @@
     "audit:coverage": "node scripts/audit-coverage.mjs",
     "schatten:csp-hash": "node scripts/print-csp-hash.mjs",
     "check:layer-order": "node scripts/check-layer-order.mjs",
+    "check:body-reset": "node scripts/check-body-reset-sync.mjs",
     "build:storybook": "storybook build",
     "test": "vitest",
     "test:ui": "vitest --ui",

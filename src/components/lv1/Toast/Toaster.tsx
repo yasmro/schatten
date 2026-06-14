@@ -17,8 +17,12 @@ export interface ToasterProps {
   /** Optional class applied to the viewport container. */
   className?: string
   /**
-   * Render stacked toasts expanded (all spread out) instead of collapsed.
-   * @default false
+   * Render stacked toasts expanded (all spread out, gap-separated) instead of
+   * Sonner's collapsed card stack. Schatten defaults this to `true`: the
+   * collapsed stack mis-positions toasts of very different heights (a short
+   * toast in front of a tall one), and an expanded list is more predictable
+   * for a design system. Pass `expand={false}` for the card-stack look.
+   * @default true
    */
   expand?: boolean
   /**
@@ -50,7 +54,7 @@ export function Toaster({
   position = 'bottom-center',
   duration,
   className,
-  expand,
+  expand = true,
   visibleToasts,
 }: ToasterProps) {
   return (

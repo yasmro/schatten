@@ -44,17 +44,19 @@ export { Switch, type SwitchProps } from './Switch'
 export { Text, type TextProps } from './Text'
 export { Textarea, type TextareaProps } from './Textarea'
 export {
+  dismiss,
   dismissAll,
   type ToastAction,
   type ToastAppearance,
-  type ToastData,
   Toaster,
   type ToasterProps,
+  type ToastFn,
   type ToastHandle,
   type ToastInput,
+  type ToastPromiseHandle,
+  type ToastPromiseOptions,
   type ToastVariant,
   toast,
-  useToast,
 } from './Toast'
 export {
   Tooltip,

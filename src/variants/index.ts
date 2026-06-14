@@ -16,10 +16,4 @@ export { type SpinnerVariants, spinnerVariants } from './spinner'
 export { type SwitchVariants, switchThumbVariants, switchVariants } from './switch'
 export { type TextVariants, textVariants } from './text'
 export { type TextareaVariants, textareaVariants } from './textarea'
-export {
-  type ToastPosition,
-  type ToastVariants,
-  type ToastViewportVariants,
-  toastVariants,
-  toastViewportVariants,
-} from './toast'
+export { type ToastPosition, type ToastVariants, toastVariants } from './toast'

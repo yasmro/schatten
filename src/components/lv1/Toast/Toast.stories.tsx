@@ -1,8 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { Fragment, useEffect } from 'react'
 import { Button } from '../Button'
+import { dismissAll, toast } from './Toast'
 import { Toaster } from './Toaster'
-import { __resetToastStoreForTesting, toast } from './use-toast'
 
 /**
  * Toast displays transient, non-blocking notifications.
@@ -31,14 +31,23 @@ import { __resetToastStoreForTesting, toast } from './use-toast'
  * })
  * ```
  *
- * The `useToast()` hook returns the same `toast` function plus `dismiss(id)`
- * and `dismissAll()` for programmatic control.
+ * Use `dismiss(id)` and `dismissAll()` for programmatic control.
+ *
+ * ## Loading & promise
+ * `toast.loading()` shows a spinner toast that does not auto-dismiss; resolve
+ * it via the returned handle. `toast.promise()` drives a toast from a promise
+ * (loading → success / error) and returns Sonner's handle whose `.unwrap()`
+ * yields the original promise for side effects (e.g. navigation) after success.
  *
  * ## Action button
  * The `action` prop accepts a simple `{ label, onClick }` shape. The button
  * is rendered as `<Button variant="tertiary" size="sm">` automatically — you
  * do not need to wrap it yourself. If you need a fundamentally different
  * action UI, extend this story and open a discussion.
+ *
+ * Internally the Toast is rendered by [Sonner](https://sonner.emilkowal.ski/)
+ * with `unstyled` + the `.st-toast*` class API; Sonner owns stacking, swipe,
+ * enter/exit animation, and the promise/loading lifecycle.
  */
 
 const ONE_HOUR = 60 * 60 * 1000
@@ -225,17 +234,19 @@ const AutoFireDemo = ({
   position?: Parameters<typeof Toaster>[0]['position']
 }) => {
   useEffect(() => {
-    __resetToastStoreForTesting()
+    dismissAll()
     for (const input of inputs) {
       toast({ duration: ONE_HOUR, ...input })
     }
     return () => {
-      __resetToastStoreForTesting()
+      dismissAll()
     }
   }, [inputs])
   return (
     <div className="min-h-screen">
-      <Toaster position={position ?? 'bottom-center'} />
+      {/* expand + visibleToasts so every fired toast is shown (Sonner collapses
+          to 3 by default) — these stories are static visual catalogs. */}
+      <Toaster position={position ?? 'bottom-center'} expand visibleToasts={10} />
     </div>
   )
 }
@@ -398,5 +409,85 @@ export const LongActionLabel: Story = {
         },
       ]}
     />
+  ),
+}
+
+/**
+ * Loading toasts (`toast.loading()`) show a spinner instead of the variant
+ * icon, have no close button, and do not auto-dismiss — resolve them via the
+ * returned handle. A `title` is required for screen-reader announcement.
+ */
+const LoadingDemo = () => {
+  useEffect(() => {
+    dismissAll()
+    toast.loading({ title: 'Saving…', description: 'Uploading your changes.' })
+    toast.loading({ title: 'Connecting…', appearance: 'solid' })
+    return () => {
+      dismissAll()
+    }
+  }, [])
+  return (
+    <div className="min-h-screen">
+      <Toaster position="bottom-center" expand visibleToasts={10} />
+    </div>
+  )
+}
+
+export const Loading: Story = {
+  name: 'Loading',
+  render: () => <LoadingDemo />,
+}
+
+/**
+ * `toast.promise()` drives a toast from a promise. The button below fires a
+ * promise that resolves after ~1.5s, transitioning loading → success.
+ * Interactive — not captured by VRT.
+ */
+export const PromiseDemo: Story = {
+  name: 'Promise',
+  render: () => (
+    <div className="min-h-screen p-8 flex flex-col gap-4 items-start">
+      <p className="text-sm text-foreground-muted">
+        Click to fire a promise toast (loading → success). Reject variant transitions to error.
+      </p>
+      <div className="flex gap-2">
+        <Button
+          variant="secondary"
+          size="sm"
+          onClick={() =>
+            toast.promise(new globalThis.Promise((resolve) => setTimeout(resolve, 1500)), {
+              loading: 'Saving…',
+              success: { title: 'Saved', variant: 'success' },
+              error: { title: 'Save failed', variant: 'error' },
+            })
+          }
+        >
+          Resolve
+        </Button>
+        <Button
+          variant="secondary"
+          size="sm"
+          onClick={() =>
+            toast.promise(
+              new globalThis.Promise((_, reject) =>
+                setTimeout(() => reject(new Error('nope')), 1500),
+              ),
+              {
+                loading: 'Saving…',
+                success: 'Saved',
+                error: (err) => ({
+                  title: 'Save failed',
+                  description: String(err),
+                  variant: 'error',
+                }),
+              },
+            )
+          }
+        >
+          Reject
+        </Button>
+      </div>
+      <Toaster position="bottom-center" expand visibleToasts={10} />
+    </div>
   ),
 }

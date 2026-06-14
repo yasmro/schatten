@@ -433,6 +433,40 @@ When you skip the parity story, the contract is still defended by:
   on the React side is still captured; the Tailwind utility → semantic class
   translation is verified via diff against existing baselines.
 
+### 区分 C/D (JS 必須) — a Playwright interaction test is REQUIRED
+
+区分 C/D components are interactive (dismiss / open / close / select / swipe),
+and **their primary user action runs through JS + real browser semantics that
+jsdom does not reproduce** — `pointer-events`, pointer capture, drag/swipe
+handlers, focus order, portal hit-testing. A green unit suite (jsdom) + green
+VRT (static pixels) can therefore **both pass while the component is broken in
+the browser**. This is not hypothetical: in [#318](https://github.com/yasmro/schatten/issues/318)
+the Toast's close / action buttons shipped non-functional with all gates green
+(an icon-only button's `<svg>` became the click target and Sonner's swipe
+handler captured the pointer; jsdom ignored it).
+
+So, for every 区分 C/D component, the `{Component}.vrt.spec.ts` MUST include at
+least one **non-screenshot Playwright interaction test** that drives the
+primary operation with a real pointer and asserts the result — e.g.:
+
+```ts
+test('Toast / close button dismisses on real click', async ({ page }) => {
+  await page.goto(storyUrl('subtle-treatments', 'light'))
+  await page.waitForFunction(() => document.querySelectorAll('[data-sonner-toast]').length > 0)
+  const toasts = page.locator('li[data-sonner-toast]')
+  const before = await toasts.count()
+  await page.locator('button.st-toast__action').first().click()
+  await expect(toasts).toHaveCount(before - 1)
+})
+```
+
+It runs under `pnpm test:vrt` (it has no `a11y` in the name, so the
+`--grep-invert a11y` split keeps it), so no new CI wiring is needed. Cover the
+operation a consumer would file a bug about if it broke: Toast → dismiss
+(close + action); Dialog → open / close / action; Select → open + pick an
+option; Tooltip → trigger shows content. Screenshots and the class-API unit
+test do **not** substitute for this.
+
 ### Decision flow
 
 When adding a new lv1 component or sweeping an existing one, ask:

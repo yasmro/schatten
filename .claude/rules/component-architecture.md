@@ -355,8 +355,18 @@ fallback — that policy only holds if the contract below holds.
      possible — Button / Input / Textarea / FieldSet do this today.
    - A Radix primitive that assigns the role for us — Dialog (`dialog`),
      Tooltip (`tooltip`), Checkbox (`checkbox`), Switch (`switch`),
-     Select trigger (`combobox`) + content (`listbox`), Toast
-     (`status`), Radio (`radio` inside `radiogroup`).
+     Select trigger (`combobox`) + content (`listbox`), Radio (`radio`
+     inside `radiogroup`).
+   - A library's accessibility layer — **Toast** is rendered by Sonner
+     (since [#318](https://github.com/yasmro/schatten/issues/318)), which
+     announces toast content through a dedicated visually-hidden ARIA live
+     region rather than putting `role="status"` on the visible toast
+     element. The visible `.st-toast` itself therefore carries no role;
+     the announcement contract is satisfied by Sonner's live region
+     (polite for all variants — Toast does not switch `aria-live` by
+     variant). Vanilla-HTML consumers of the `.st-toast` CSS get the
+     visual shell only and must add `role="status"` / `aria-live`
+     themselves.
    - An explicit `role="…"` written by Schatten — used only when
      neither of the above gives the right semantic. Current explicit
      uses: [Spinner](../../src/components/lv1/Spinner/Spinner.tsx)

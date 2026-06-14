@@ -13,10 +13,14 @@ import { cva, type VariantProps } from 'class-variance-authority'
  * form as `solid`, matching the Callout sweep-2 precedent.
  *
  * Sub-element classes (`.st-toast__icon` / `__content` / `__title` /
- * `__description`) are written by Toast.tsx directly; they are not
- * CVA-managed.
+ * `__description` / `__close`) are mapped onto Sonner's slots via the
+ * `<Toaster>` `classNames` prop; they are not CVA-managed.
  *
- * See: .claude/rules/css-api.md, #271 sweep-6.
+ * Since #318 the per-toast tone × shape chain (plus the derived
+ * `.st-toast--loading` modifier) is injected per call by the `toast()`
+ * facade in `Toast.tsx`.
+ *
+ * See: .claude/rules/css-api.md, #271 sweep-6, #318.
  */
 export const toastVariants = cva('st-toast', {
   variants: {
@@ -41,28 +45,15 @@ export const toastVariants = cva('st-toast', {
 export type ToastVariants = VariantProps<typeof toastVariants>
 
 /**
- * Viewport variants for the `Toaster` component — class-name concatenation
- * only. Maps a single `position` value to a `.st-toaster--{position}`
- * modifier on the `<ol>` Radix `Toast.Viewport` emits.
- *
- * Visual rules live in `src/components/lv1/Toast/Toast.css`.
+ * Where the toast viewport sits on screen. Maps 1:1 to Sonner's `position`
+ * prop (see `Toaster.tsx`). Since #318 the viewport is positioned by Sonner,
+ * not by a `.st-toaster--*` CSS class — this is a plain union, no longer
+ * derived from a CVA.
  */
-export const toastViewportVariants = cva('st-toaster', {
-  variants: {
-    position: {
-      'top-left': 'st-toaster--top-left',
-      'top-center': 'st-toaster--top-center',
-      'top-right': 'st-toaster--top-right',
-      'bottom-left': 'st-toaster--bottom-left',
-      'bottom-center': 'st-toaster--bottom-center',
-      'bottom-right': 'st-toaster--bottom-right',
-    },
-  },
-  defaultVariants: {
-    position: 'bottom-center',
-  },
-})
-
-export type ToastViewportVariants = VariantProps<typeof toastViewportVariants>
-
-export type ToastPosition = NonNullable<ToastViewportVariants['position']>
+export type ToastPosition =
+  | 'top-left'
+  | 'top-center'
+  | 'top-right'
+  | 'bottom-left'
+  | 'bottom-center'
+  | 'bottom-right'

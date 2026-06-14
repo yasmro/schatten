@@ -12,8 +12,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '../components/lv1/Select/Select'
+import { toast } from '../components/lv1/Toast/Toast'
 import { Toaster } from '../components/lv1/Toast/Toaster'
-import { toast } from '../components/lv1/Toast/use-toast'
 import {
   Tooltip,
   TooltipContent,

@@ -183,17 +183,11 @@
     "st-toast--subtle",
     "st-toast--success",
     "st-toast--warning",
+    "st-toast__action",
     "st-toast__content",
     "st-toast__description",
     "st-toast__icon",
     "st-toast__title",
-    "st-toaster",
-    "st-toaster--bottom-center",
-    "st-toaster--bottom-left",
-    "st-toaster--bottom-right",
-    "st-toaster--top-center",
-    "st-toaster--top-left",
-    "st-toaster--top-right",
     "st-tooltip__arrow",
     "st-tooltip__content"
   ],
@@ -204,7 +198,6 @@
     "data-highlighted",
     "data-side",
     "data-state",
-    "data-swipe",
     "data-theme"
   ],
   "cssVariables": [

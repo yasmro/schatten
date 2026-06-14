@@ -9,6 +9,8 @@ const stories = [
   'with-action',
   'title-only',
   'long-content',
+  'loading',
+  // 'promise' — interactive (button-triggered, async timing); not a deterministic visual state
 ] as const
 
 const themes = ['light', 'dark'] as const
@@ -27,9 +29,12 @@ for (const story of stories) {
       await root.waitFor({ state: 'visible', timeout: 10_000 })
 
       // Wait for the toast viewport to populate (toasts are fired in useEffect)
-      await page.waitForFunction(() => document.querySelectorAll('[role="status"]').length > 0, {
-        timeout: 10_000,
-      })
+      await page.waitForFunction(
+        () => document.querySelectorAll('[data-sonner-toast]').length > 0,
+        {
+          timeout: 10_000,
+        },
+      )
 
       // Pause animations for stable snapshots — Toasts have slide/fade in/out
       await page.addStyleTag({
@@ -52,9 +57,12 @@ for (const story of stories) {
 
       // Toasts fire in useEffect and render into a fixed viewport on body, so
       // wait for them to mount, then analyze the whole page.
-      await page.waitForFunction(() => document.querySelectorAll('[role="status"]').length > 0, {
-        timeout: 10_000,
-      })
+      await page.waitForFunction(
+        () => document.querySelectorAll('[data-sonner-toast]').length > 0,
+        {
+          timeout: 10_000,
+        },
+      )
 
       const results = await new AxeBuilder({ page })
         .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])

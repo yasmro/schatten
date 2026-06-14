@@ -39,7 +39,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite'
  * - The class names follow the convention in [css-api.md](.claude/rules/css-api.md):
  *   `.st-{block}` / `.st-{block}--{modifier}` / `.st-{block}__{element}`,
  *   one axis per modifier, attribute-driven state (`[aria-invalid]`,
- *   `[data-state]`, `[data-swipe]`, …).
+ *   `[aria-busy]`, `[data-state]`, …).
  * - Pixel parity between the React side and the vanilla HTML side is
  *   verified per-component in each `{Component}.parity.stories.tsx` and
  *   pinned by `{Component}.parity.vrt.spec.ts`.
@@ -1359,22 +1359,18 @@ export const Reference: Story = {
 
         <Section
           id="toast"
-          title="Toast — .st-toast + .st-toaster"
-          intro="Transient notification mounted into a portal viewport. The per-toast <li> uses Pattern B (tone × shape) via double-class selectors; the viewport <ol> takes a 6-value --{position} modifier. The CSS surface covers ONLY the static visual frame — enter/exit dissolve animation, swipe-to-dismiss handoff, auto-dismiss timing, and stacking order are all React + Radix concerns set via the toast() store and the [data-state] / [data-swipe] attributes Radix emits. Vanilla HTML consumers get the visual shell; they need their own JS for any dynamic behavior (or simply render static toasts as inline status messages)."
+          title="Toast — .st-toast"
+          intro="Transient notification rendered by Sonner via toast.custom(), so the body markup is Schatten's — same .st-toast structure as Callout, with a real lv1 Button for the action / close. The .st-toast block uses Pattern B (tone × shape) double-class selectors. Sonner owns the wrapper, viewport positioning, stacking, swipe, enter/exit animation, and auto-dismiss (no .st-toaster class, no [data-state] / [data-swipe] hooks since #318). Vanilla HTML consumers get the visual shell only; the toast() / <Toaster> JS is required for any behavior (區分 D — JS 必須)."
           attributes={[
             {
-              name: 'role',
-              meaning: '"status" for polite announcements, "alert" for assertive',
-              required: 'required for vanilla — Radix sets this automatically for React',
-            },
-            {
               name: 'aria-live',
-              meaning: '"polite" (most toasts) or "assertive" (urgent — errors)',
-              required: 'required for vanilla — pair with role',
+              meaning:
+                'Announcement politeness — in the React path Sonner provides a dedicated live region; a vanilla consumer pairs role="status"/"alert" + aria-live on the toast',
+              required: 'vanilla only',
             },
             {
               name: 'aria-label',
-              meaning: 'On the close button',
+              meaning: 'On the close / action Button (Schatten sets "Close" on the close Button)',
               required: 'always',
             },
           ]}
@@ -1384,51 +1380,39 @@ export const Reference: Story = {
             here would visually overlap the rest of the reference page. See Components/lv1/Toast for
             the rendered behaviour; the snippet below is the markup contract.
           </p>
-          <CodeBlock>{`<ol class="st-toaster st-toaster--bottom-center">
-  <li class="st-toast st-toast--success st-toast--subtle"
-      role="status" aria-live="polite">
-    <svg class="st-toast__icon" aria-hidden="true">…</svg>
-    <div class="st-toast__content">
-      <div class="st-toast__title">Saved</div>
-      <div class="st-toast__description">…</div>
-    </div>
-    <button type="button"
-            class="st-btn st-btn--tertiary st-btn--sm st-btn--icon-only"
-            aria-label="Close">
-      <svg aria-hidden="true">…</svg>
-    </button>
-  </li>
-</ol>
+          <CodeBlock>{`<!-- Schatten renders this via toast.custom() — same shape as Callout -->
+<div class="st-toast st-toast--success st-toast--subtle">
+  <svg class="st-toast__icon" aria-hidden="true">…</svg>
+  <div class="st-toast__content">
+    <div class="st-toast__title">Saved</div>
+    <div class="st-toast__description">…</div>
+  </div>
+  <!-- action when present; otherwise a close Button — action XOR close -->
+  <button class="st-btn st-btn--tertiary st-btn--sm st-toast__action">Undo</button>
+</div>
 
 <!-- Modifier vocabulary -->
 <!-- .st-toast variant (tone, Pattern B axis 1):
        --neutral | --success | --error | --warning | --info -->
 <!-- .st-toast appearance (shape, Pattern B axis 2):
        --subtle | --solid -->
-<!-- .st-toaster position (one of six):
-       --top-left   --top-center   --top-right
-       --bottom-left --bottom-center --bottom-right -->
 
-<!-- Sub-elements (direct children of .st-toast) -->
-<!-- .st-toast__icon         variant icon (20px, shrink-0) -->
+<!-- Position is a <Toaster position> prop (→ Sonner), NOT a CSS class.
+     There is no .st-toaster--* viewport class since #318. -->
+
+<!-- Sub-elements (mirror Callout) -->
+<!-- .st-toast__icon         variant icon / loading spinner (20px) -->
 <!-- .st-toast__content      title + description column (min-w-0, flex-col) -->
+<!-- .st-toast__action       trailing action / close <Button> (shrink-0) -->
 <!-- .st-toast__title        bold heading -->
 <!-- .st-toast__description  optional body; triggers icon-top alignment
                              via :has() when present -->
 
-<!-- State attributes (set by Radix in the React path — vanilla
-     HTML consumers do not get animation / swipe / auto-dismiss) -->
-<!-- [data-state="open"|"closed"]   enter / exit dissolve animation -->
-<!-- [data-swipe="move"|"cancel"|"end"]  swipe-to-dismiss handoff -->
+<!-- Loading: Toast.tsx renders a <Spinner class="st-toast__icon"> in place
+     of the variant icon; there is no .st-toast--loading class. -->
 
-<!-- Consumer-overridable timing (@theme-registered, shared scale) -->
-<!-- swipe-cancel snap-back + swipe-end dissolve use --st-duration-slow
-     (default 200ms). The dissolve enter/exit (320ms / 220ms) are
-     deliberately OFF the shared scale and stay hardcoded. -->
-
-<!-- The action / close button is rendered as a .st-btn chain directly
-     inside .st-toast — no wrapper. Toast.tsx renders action OR close
-     (exclusive); the content column's flex:1 pushes the button right. -->`}</CodeBlock>
+<!-- Sonner owns positioning / stacking / swipe / enter-exit / auto-dismiss.
+     Vanilla HTML gets the visual shell only. -->`}</CodeBlock>
         </Section>
 
         <Section

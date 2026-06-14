@@ -19,20 +19,22 @@
  *
  * Components still author a `var(--st-*, <fallback>)` fallback so the
  * standalone per-component CSS (which ships no tokens) animates correctly on
- * its own — see Spinner.css / Tooltip.css / Dialog.css / Toast.css.
+ * its own — see Spinner.css / Tooltip.css / Dialog.css. (Toast's enter/exit
+ * animation is owned by Sonner since #318, so Toast.css no longer declares
+ * any keyframes or duration references.)
  *
  * Three groups of token live here:
  *
  * 1. `--st-duration-*` — a shared transition-duration scale for enter/exit
- *    motion (Tooltip / Dialog / Toast). Three perceptually-distinct steps:
+ *    motion (Tooltip / Dialog). Three perceptually-distinct steps:
  *    fast (100ms) / base (150ms) / slow (200ms). Introduced as a
  *    VALUE-PRESERVING centralization: every reference migrated onto a step
  *    matches its pre-existing hardcoded duration exactly, so the seam lands
  *    with zero visual change (no VRT re-baseline). Consumers can now retune
- *    base motion globally via one override. Toast's deliberately heavier
- *    dissolve timings (320ms in / 220ms out) sit OFF this scale and stay
- *    hardcoded in Toast.css — whether they should fold into the scale is an
- *    aesthetic call deferred to a future motion-retune spike, not this seam.
+ *    base motion globally via one override. (Toast previously had bespoke
+ *    320/220ms dissolve timings off this scale; since #318 its animation is
+ *    owned by Sonner, so that question is moot — Toast no longer references
+ *    the scale.)
  *
  * 2. `--motion-*` — semantic (用途別) aliases over group 1, giving the
  *    duration steps intent names (quick / base / expressive). Layered on the

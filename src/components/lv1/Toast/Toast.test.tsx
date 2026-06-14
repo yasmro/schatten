@@ -1,246 +1,171 @@
-import { act, render, renderHook, screen } from '@testing-library/react'
+import { cleanup, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
+import { dismissAll, toast } from './Toast'
 import { Toaster } from './Toaster'
-import { __resetToastStoreForTesting, dismissAll, toast, useToast } from './use-toast'
 
-describe('toast store', () => {
-  afterEach(() => {
-    __resetToastStoreForTesting()
-  })
+// Sonner keeps a module-global store; clear it between tests so toasts from one
+// test don't leak into the next. Each test also queries by a unique title and
+// scopes structural assertions to the toast containing it, so any not-yet-
+// removed leftover can't cross-contaminate.
+afterEach(() => {
+  dismissAll()
+  cleanup()
+})
 
-  it('adds a toast and returns a handle', () => {
-    const handle = toast({ title: 'Hello' })
-    expect(handle.id).toBeTruthy()
-    const { result } = renderHook(() => useToast())
-    expect(result.current.toasts).toHaveLength(1)
-    expect(result.current.toasts[0]).toMatchObject({ title: 'Hello', open: true })
-  })
+/** Find the `.st-toast` element that contains the given (unique) title text. */
+async function toastByTitle(title: string) {
+  const node = await screen.findByText(title)
+  const el = node.closest('.st-toast')
+  expect(el).not.toBeNull()
+  return el as HTMLElement
+}
 
-  it('applies the default 5000ms duration when none is provided', () => {
-    toast({ title: 'Hello' })
-    const { result } = renderHook(() => useToast())
-    expect(result.current.toasts[0].duration).toBe(5000)
-  })
-
-  it('respects per-toast duration', () => {
-    toast({ title: 'Hello', duration: 1000 })
-    const { result } = renderHook(() => useToast())
-    expect(result.current.toasts[0].duration).toBe(1000)
-  })
-
-  it('dismiss() closes the toast (sets open=false) without removing it', () => {
-    const handle = toast({ title: 'Hello' })
-    act(() => handle.dismiss())
-    const { result } = renderHook(() => useToast())
-    expect(result.current.toasts).toHaveLength(1)
-    expect(result.current.toasts[0].open).toBe(false)
-  })
-
-  it('update() merges new fields into the toast', () => {
-    const handle = toast({ title: 'Original', description: 'first' })
-    act(() => handle.update({ title: 'Updated' }))
-    const { result } = renderHook(() => useToast())
-    expect(result.current.toasts[0].title).toBe('Updated')
-    expect(result.current.toasts[0].description).toBe('first')
-  })
-
-  it('dismissAll() closes every toast', () => {
-    toast({ title: 'A' })
-    toast({ title: 'B' })
-    toast({ title: 'C' })
-    act(() => dismissAll())
-    const { result } = renderHook(() => useToast())
-    expect(result.current.toasts.every((t) => t.open === false)).toBe(true)
-  })
-
-  it('useToast() subscribes to store changes', () => {
-    const { result } = renderHook(() => useToast())
-    expect(result.current.toasts).toHaveLength(0)
-    act(() => {
-      toast({ title: 'New' })
-    })
-    expect(result.current.toasts).toHaveLength(1)
-    expect(result.current.toasts[0].title).toBe('New')
-  })
-
-  it('useToast().dismiss(id) closes the matching toast', () => {
-    const { result } = renderHook(() => useToast())
-    let id = ''
-    act(() => {
-      id = toast({ title: 'Hello' }).id
-    })
-    act(() => result.current.dismiss(id))
-    expect(result.current.toasts[0].open).toBe(false)
+describe('toast()', () => {
+  it('returns a handle with an id', () => {
+    render(<Toaster />)
+    const handle = toast({ title: 'handle-id' })
+    expect(handle.id).toBeDefined()
   })
 
   it('issues unique ids for each call', () => {
-    const a = toast({ title: 'A' })
-    const b = toast({ title: 'B' })
+    render(<Toaster />)
+    const a = toast({ title: 'uniq-a' })
+    const b = toast({ title: 'uniq-b' })
     expect(a.id).not.toBe(b.id)
+  })
+
+  it('renders title and description for an open toast', async () => {
+    render(<Toaster />)
+    toast({ title: 'render-title', description: 'render-desc', variant: 'success' })
+    expect(await screen.findByText('render-title')).toBeInTheDocument()
+    expect(screen.getByText('render-desc')).toBeInTheDocument()
+  })
+
+  it('renders an accessible close button labeled "Close toast" by default', async () => {
+    render(<Toaster />)
+    toast({ title: 'has-close' })
+    await screen.findByText('has-close')
+    expect(screen.getByRole('button', { name: /close/i })).toBeInTheDocument()
   })
 })
 
-describe('Toaster integration', () => {
-  beforeEach(() => {
-    __resetToastStoreForTesting()
-  })
-  afterEach(() => {
-    __resetToastStoreForTesting()
-  })
-
-  it('renders title and description for an open toast', () => {
+describe('class API', () => {
+  it('emits the canonical st-toast modifier chain on the toast li', async () => {
     render(<Toaster />)
-    act(() => {
-      toast({ title: 'Saved', description: 'Your changes are saved.', variant: 'success' })
-    })
-    expect(screen.getByText('Saved')).toBeInTheDocument()
-    expect(screen.getByText('Your changes are saved.')).toBeInTheDocument()
+    toast({ title: 'chain-toast', variant: 'error', appearance: 'solid' })
+    const li = await toastByTitle('chain-toast')
+    expect(li).toHaveClass('st-toast', 'st-toast--error', 'st-toast--solid')
   })
 
+  it('uses the subtle appearance by default', async () => {
+    render(<Toaster />)
+    toast({ title: 'default-shape', variant: 'success' })
+    const li = await toastByTitle('default-shape')
+    expect(li).toHaveClass('st-toast--success', 'st-toast--subtle')
+    expect(li).not.toHaveClass('st-toast--solid')
+  })
+
+  it('names the sub-element slots with st-toast__* classes', async () => {
+    render(<Toaster />)
+    toast({ title: 'slots-title', description: 'slots-desc' })
+    const li = await toastByTitle('slots-title')
+    expect(li.querySelector('.st-toast__title')).not.toBeNull()
+    expect(li.querySelector('.st-toast__description')).not.toBeNull()
+    expect(li.querySelector('.st-toast__icon')).not.toBeNull()
+  })
+})
+
+describe('action', () => {
   it('renders an action button that fires the provided callback', async () => {
     const onAction = vi.fn()
     const user = userEvent.setup()
     render(<Toaster />)
-    act(() => {
-      toast({
-        title: 'Saved',
-        action: { label: 'Undo', onClick: onAction },
-      })
-    })
+    toast({ title: 'act-fire', action: { label: 'Undo', onClick: onAction } })
+    await screen.findByText('act-fire')
     await user.click(screen.getByRole('button', { name: 'Undo' }))
     expect(onAction).toHaveBeenCalledOnce()
   })
 
-  it('clicking the action button also dismisses the toast', async () => {
-    const user = userEvent.setup()
+  it('hides the close button when an action is provided', async () => {
     render(<Toaster />)
-    act(() => {
-      toast({ title: 'Saved', action: { label: 'Undo', onClick: () => {} } })
-    })
-    await user.click(screen.getByRole('button', { name: 'Undo' }))
-    // Action click triggers a dismiss → store entry flips to open=false synchronously,
-    // and is removed after the exit animation buffer.
-    const { result } = renderHook(() => useToast())
-    expect(result.current.toasts[0].open).toBe(false)
-  })
-
-  it('hides the close button when an action is provided', () => {
-    render(<Toaster />)
-    act(() => {
-      toast({ title: 'Saved', action: { label: 'Undo', onClick: () => {} } })
-    })
+    toast({ title: 'act-no-close', action: { label: 'Undo', onClick: () => {} } })
+    await screen.findByText('act-no-close')
     expect(screen.getByRole('button', { name: 'Undo' })).toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: 'Close' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /close/i })).not.toBeInTheDocument()
   })
 
-  it('handle.update() can change the appearance mid-life and the toast re-renders', () => {
+  it('applies altText as aria-label when the label is not a string', async () => {
     render(<Toaster />)
-    let handle: ReturnType<typeof toast>
-    act(() => {
-      handle = toast({ title: 'Saved', variant: 'success', appearance: 'subtle' })
+    toast({
+      title: 'act-alt',
+      action: {
+        label: <span data-testid="icon-label">★</span>,
+        altText: 'Open',
+        onClick: () => {},
+      },
     })
-    // After #271 sweep-6 the appearance is expressed via the `.st-toast--{shape}`
-    // modifier; the actual visual rule lives inside the
-    // `.st-toast--success.st-toast--subtle` double-class selector in Toast.css.
-    // We assert on the JSX-visible modifier class chain, not on Tailwind utility
-    // substrings (those no longer exist on the className).
-    const initialClass = document.querySelector('li.st-toast')?.className ?? ''
-    expect(initialClass).toContain('st-toast--success')
-    expect(initialClass).toContain('st-toast--subtle')
-    expect(initialClass).not.toContain('st-toast--solid')
-
-    act(() => handle.update({ appearance: 'solid' }))
-    const updatedClass = document.querySelector('li.st-toast')?.className ?? ''
-    expect(updatedClass).toContain('st-toast--success')
-    expect(updatedClass).toContain('st-toast--solid')
-    expect(updatedClass).not.toContain('st-toast--subtle')
+    await screen.findByText('act-alt')
+    expect(screen.getByRole('button', { name: 'Open' })).toBeInTheDocument()
   })
+})
 
-  it('renders an accessible close button labeled "Close"', () => {
+describe('handle.update()', () => {
+  it('changes the appearance mid-life and the toast re-renders', async () => {
     render(<Toaster />)
-    act(() => {
-      toast({ title: 'Saved' })
-    })
-    expect(screen.getByRole('button', { name: 'Close' })).toBeInTheDocument()
-  })
+    const handle = toast({ title: 'upd-shape', variant: 'success', appearance: 'subtle' })
+    let li = await toastByTitle('upd-shape')
+    expect(li).toHaveClass('st-toast--subtle')
 
-  it('keeps the toast in the store during the exit animation, then removes it', () => {
-    vi.useFakeTimers()
+    handle.update({ appearance: 'solid' })
+    await waitFor(() => {
+      li = document.querySelector('.st-toast') as HTMLElement
+      expect(li).toHaveClass('st-toast--solid')
+    })
+    expect(li).not.toHaveClass('st-toast--subtle')
+  })
+})
+
+describe('toast.loading()', () => {
+  it('renders a spinner and no close button (loading state)', async () => {
     render(<Toaster />)
-    let handle: ReturnType<typeof toast>
-    act(() => {
-      handle = toast({ title: 'Saved' })
-    })
-    act(() => handle.dismiss())
-
-    const { result } = renderHook(() => useToast())
-    // Mid-animation: still in the store but flagged closed so Radix can fade it out.
-    expect(result.current.toasts).toHaveLength(1)
-    expect(result.current.toasts[0].open).toBe(false)
-
-    // Advance past the exit animation buffer.
-    act(() => {
-      vi.advanceTimersByTime(500)
-    })
-    expect(result.current.toasts).toHaveLength(0)
-    vi.useRealTimers()
+    toast.loading({ title: 'loading-toast' })
+    const li = await toastByTitle('loading-toast')
+    // Loading is conveyed by the rendered <Spinner> in the icon slot.
+    expect(li.querySelector('.st-spinner')).not.toBeNull()
+    expect(li.querySelector('.st-toast__icon')).not.toBeNull()
+    expect(screen.queryByRole('button', { name: /close/i })).not.toBeInTheDocument()
   })
+})
 
-  it('auto-dismisses after the configured duration', () => {
-    vi.useFakeTimers()
+describe('toast.promise()', () => {
+  it('transitions a resolving promise from loading to success', async () => {
     render(<Toaster />)
-    act(() => {
-      toast({ title: 'Hello', duration: 1000 })
+    toast.promise(Promise.resolve({ name: 'Ada' }), {
+      loading: 'promise-loading',
+      success: (data) => ({ title: `welcome ${data.name}`, variant: 'success' }),
+      error: 'promise-error',
     })
-    expect(screen.getByText('Hello')).toBeInTheDocument()
-    // duration (1000ms) + exit animation buffer (280ms) — advance well past both
-    act(() => {
-      vi.advanceTimersByTime(2000)
-    })
-    const { result } = renderHook(() => useToast())
-    expect(result.current.toasts).toHaveLength(0)
-    vi.useRealTimers()
+    expect(await screen.findByText('promise-loading')).toBeInTheDocument()
+    expect(await screen.findByText('welcome Ada')).toBeInTheDocument()
   })
 
-  it('emits the canonical st-toast class chain on the li', () => {
+  it('transitions a rejecting promise to the error toast', async () => {
     render(<Toaster />)
-    act(() => {
-      toast({ title: 'Hello', variant: 'error', appearance: 'solid' })
+    toast.promise(Promise.reject(new Error('boom')), {
+      loading: 'promise-loading-2',
+      success: 'promise-success-2',
+      error: 'promise-failed',
     })
-    const li = document.querySelector('li.st-toast')
-    expect(li).not.toBeNull()
-    expect(li?.className).toContain('st-toast')
-    expect(li?.className).toContain('st-toast--error')
-    expect(li?.className).toContain('st-toast--solid')
+    expect(await screen.findByText('promise-failed')).toBeInTheDocument()
   })
+})
 
-  it('emits st-toaster + position modifier on the viewport ol', () => {
+describe('Toaster', () => {
+  it('renders the Sonner viewport region once a toast is fired', async () => {
     render(<Toaster position="top-right" />)
-    const ol = document.querySelector('ol.st-toaster')
-    expect(ol).not.toBeNull()
-    expect(ol?.className).toContain('st-toaster--top-right')
-  })
-
-  it('places icon / content / button as direct children of .st-toast', () => {
-    // The `:has(.st-toast__description)` selector in Toast.css flips alignment
-    // when a description is present; that depends on `__description` being a
-    // descendant of `.st-toast`, and on `__icon` / `__content` / the trailing
-    // button being direct children so the JSX-side flex layout matches the
-    // CSS-side selector graph. A future wrapper inserted between would break
-    // the structural assumption silently.
-    render(<Toaster />)
-    act(() => {
-      toast({ title: 'Hello', description: 'World' })
-    })
-    const li = document.querySelector('li.st-toast')
-    expect(li).not.toBeNull()
-
-    const directChildren = Array.from(li?.children ?? [])
-    // Expect exactly 3 direct children: the icon SVG, the content div, the close button.
-    expect(directChildren).toHaveLength(3)
-    expect(directChildren[0]?.classList.contains('st-toast__icon')).toBe(true)
-    expect(directChildren[1]?.classList.contains('st-toast__content')).toBe(true)
-    expect(directChildren[2]?.tagName).toBe('BUTTON')
+    toast({ title: 'viewport-probe' })
+    await screen.findByText('viewport-probe')
+    expect(document.querySelector('[data-sonner-toaster]')).not.toBeNull()
   })
 })

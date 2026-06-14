@@ -412,4 +412,50 @@ export const vanillaHtml = `
     </div>
   </div>
 </section>
+
+<section class="cssapi-fixture__sample" data-component="dropdownmenu">
+  <span class="cssapi-fixture__sample-label">DropdownMenu — .st-dropdown-menu__* (static, no portal)</span>
+  <div class="st-dropdown-menu__content" role="menu" data-state="open" style="position: static;">
+    <div class="st-dropdown-menu__label">Actions</div>
+    <div class="st-dropdown-menu__separator"></div>
+    <div class="st-dropdown-menu__item" role="menuitem" data-highlighted>
+      <svg class="st-dropdown-menu__item-icon" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2" stroke-linecap="round"
+           stroke-linejoin="round" aria-hidden="true">
+        <path d="M12 20h9" /><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" />
+      </svg>
+      Edit
+      <span class="st-dropdown-menu__shortcut">⌘E</span>
+    </div>
+    <div class="st-dropdown-menu__item st-dropdown-menu__checkbox-item" role="menuitemcheckbox" aria-checked="true">
+      <span class="st-dropdown-menu__item-indicator">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M20 6 9 17l-5-5" />
+        </svg>
+      </span>
+      Status Bar
+    </div>
+    <div class="st-dropdown-menu__item st-dropdown-menu__radio-item" role="menuitemradio" aria-checked="true">
+      <span class="st-dropdown-menu__item-indicator">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <circle cx="12" cy="12" r="12" />
+        </svg>
+      </span>
+      Bottom
+    </div>
+    <div class="st-dropdown-menu__item st-dropdown-menu__sub-trigger" role="menuitem" data-state="closed">
+      Share
+      <svg class="st-dropdown-menu__sub-trigger-chevron" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2" stroke-linecap="round"
+           stroke-linejoin="round" aria-hidden="true">
+        <path d="m9 18 6-6-6-6" />
+      </svg>
+    </div>
+    <div class="st-dropdown-menu__separator"></div>
+    <div class="st-dropdown-menu__item st-dropdown-menu__item--destructive" role="menuitem">
+      Delete
+    </div>
+  </div>
+</section>
 `

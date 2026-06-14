@@ -14,6 +14,26 @@ export {
   type DialogProps,
   type DialogSubActionButton,
 } from './Dialog'
+export {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  type DropdownMenuContentProps,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  type DropdownMenuItemProps,
+  DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuSeparator,
+  DropdownMenuShortcut,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  type DropdownMenuSubTriggerProps,
+  DropdownMenuTrigger,
+  type DropdownMenuTriggerProps,
+} from './DropdownMenu'
 export { Field, type FieldContextValue, type FieldProps, useFieldContext } from './Field'
 export {
   FieldSet,

@@ -77,6 +77,10 @@
 /* #272 sweep-7 — Field / FieldSet class API + #154 完了 */
 @import "../components/lv1/Field/Field.css";
 @import "../components/lv1/FieldSet/FieldSet.css";
+/* #41 — DropdownMenu (keyframes + `.st-dropdown-menu__*` class API). Portal
+ * /popover surface like Select; authors only its own block rules (no
+ * `.st-btn` rules), so layer placement is not order-sensitive. */
+@import "../components/lv1/DropdownMenu/DropdownMenu.css";
 
 /* Class-based dark mode variant — matches `src/styles/globals.css` so
  * `.dark` toggling behaves identically in Storybook and in the dist. */

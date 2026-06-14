@@ -30,6 +30,7 @@
   { "name": "css/callout", "path": "dist/css/callout.css", "limit": "1.5 KB" },
   { "name": "css/checkbox", "path": "dist/css/checkbox.css", "limit": "1.5 KB" },
   { "name": "css/dialog", "path": "dist/css/dialog.css", "limit": "1.5 KB" },
+  { "name": "css/dropdownmenu", "path": "dist/css/dropdownmenu.css", "limit": "1.5 KB" },
   { "name": "css/field", "path": "dist/css/field.css", "limit": "1.5 KB" },
   { "name": "css/fieldset", "path": "dist/css/fieldset.css", "limit": "1.5 KB" },
   { "name": "css/icon", "path": "dist/css/icon.css", "limit": "1.5 KB" },

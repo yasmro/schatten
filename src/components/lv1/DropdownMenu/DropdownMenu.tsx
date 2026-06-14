@@ -257,11 +257,13 @@ const DropdownMenuSubContent = forwardRef<
   ComponentRef<typeof DropdownMenuPrimitive.SubContent>,
   ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.SubContent>
 >(({ className, sideOffset = 9, ...props }, ref) => (
-  // sideOffset is measured from the sub-trigger edge, which sits ~5px inside
-  // the parent panel's outer edge (right padding + border), so 9 yields a ~4px
-  // visible gap between the parent panel and the submenu. It also keeps the
-  // submenu vertically aligned to the sub-trigger (sideOffset is the cross-axis
-  // distance, not the alignment).
+  // sideOffset is measured from the sub-trigger edge, which sits inside the
+  // parent panel's outer edge by [panel right padding (0.25rem ≈ 4px) + border
+  // (1px)] = 5px (see `.st-dropdown-menu__content` in DropdownMenu.css). So the
+  // default 9 = 5 (clear the panel edge) + 4 (visible gap) ⇒ ~4px gap. If that
+  // padding/border ever changes, re-derive this so the gap stays 4px. It also
+  // keeps the submenu vertically aligned to the sub-trigger (sideOffset is the
+  // cross-axis distance, not the alignment).
   <DropdownMenuPrimitive.SubContent
     ref={ref}
     sideOffset={sideOffset}

@@ -722,6 +722,51 @@ animation-specific CSS where it genuinely helps (the existing
 Spinner.css / Tooltip.css / Dialog.css / Toast.css don't trip this
 because they have no `@apply` for tokens — only `@keyframes`).
 
+### Portal content with nested `position: fixed` children must stay transform-free
+
+A component whose content panel **portals to `<body>` and renders a nested
+`position: fixed` child inside its own DOM subtree** (the canonical case is a
+Radix menu/popover with a *submenu*: `DropdownMenu.SubContent` is a fixed
+popper rendered inside `DropdownMenu.Content`'s tree) must keep that panel
+**free of any `transform` or `translate`** — including transient ones from
+enter/exit animations.
+
+Why: per the CSS spec, an element with a `transform` (or the `translate`
+property, or `perspective`, `filter`, `will-change: transform`, …) becomes the
+**containing block for its `position: fixed` descendants**. So the moment the
+panel gets a transform, the nested fixed child stops resolving against the
+viewport and snaps to the *panel's* box instead — the submenu visibly jumps
+**inside** the parent panel, and (because it briefly re-enters the panel's
+scroll box) flashes a scrollbar. This bites hardest during the panel's **close
+animation**, where the jump is most visible. Found three times over in #403
+(steady-state `translate` offset → scrollbar flash → close-time `scale()`
+jump), all the same trap.
+
+The rules for such a panel:
+
+- **Gaps/offsets come from the positioner, not CSS.** Use the library's
+  positioning prop (Radix `sideOffset` / `alignOffset`) for the directional
+  gap — it moves the *popper wrapper*, which is allowed to have a transform.
+  Do **not** add a `[data-side]` `translate:` on the content itself.
+- **Animations are opacity-only** (or animate a property that is not
+  `transform`). No `scale` / `translate` keyframes on the content. See
+  [`DropdownMenu.css`](../../src/components/lv1/DropdownMenu/DropdownMenu.css)
+  for the opacity-only enter/exit.
+- **This is specific to panels with nested fixed children.** `Select` /
+  `Tooltip` / `Dialog` / `Toast` keep their `scale` enter/exit because their
+  content is portaled with **no** nested fixed descendant inside it, so a
+  transform there is harmless. The constraint kicks in only when a fixed child
+  lives in the panel's subtree.
+- **Guard it.** Because the failure is *animation-transient*, neither static
+  VRT (still frames) nor jsdom unit tests catch it. Pair the component with a
+  real-browser behavioral spec that samples the child's position through the
+  close — see
+  [`DropdownMenu.interaction.vrt.spec.ts`](../../src/components/lv1/DropdownMenu/DropdownMenu.interaction.vrt.spec.ts).
+
+When you build the next nested-menu primitive (ContextMenu, Menubar,
+NavigationMenu, a Popover that hosts a submenu), apply this from the start
+rather than rediscovering it through the same three bugs.
+
 ### Empty base rules are dropped by `--minify`
 
 Tailwind v4's `--minify` flag strips CSS rules with no declarations.

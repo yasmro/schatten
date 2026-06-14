@@ -100,6 +100,50 @@ If any of these fail, abort and explain. Specifically:
 - No prior release tag exists → this is a first-release situation; skip
   Step 3 (no diff base) and tell the user so explicitly.
 
+### Step 0.5 — develop の version-desync 検出 (v0.11.0 の学び)
+
+このプロジェクトの **`changeset version` は develop に back-merge されない
+運用が長く続き**、`develop` の `package.json` version と公開済み (npm /
+`origin/main`) が乖離する failure mode がある (v0.11.0 リリースで発覚 —
+PR [#387](https://github.com/yasmro/schatten/pull/387) / [#392](https://github.com/yasmro/schatten/pull/392)、恒久対処 [#388](https://github.com/yasmro/schatten/issues/388))。
+**desync したまま Step 1 に進むと予測 version が壊れる**: 実際 develop が
+`0.8.0` に固着し、`0.10.0` 公開済みなのに `changeset status` が
+`0.8.0 → 0.9.0` を予測した (本来 `0.11.0`)。Step 1 の前に必ず検出する。
+
+```bash
+LOCAL_VERSION=$(node -p "require('./package.json').version")
+NPM_VERSION=$(npm view @yasmro/schatten version --registry=https://registry.npmjs.org/)
+MAIN_VERSION=$(git show origin/main:package.json | node -p "JSON.parse(require('fs').readFileSync(0)).version")
+```
+
+**判定**: `LOCAL_VERSION` が `NPM_VERSION` / `MAIN_VERSION` より **小さい**、
+または develop に**既に公開済みの changeset が残留**していたら desync。
+公開済み changeset は 2 方法が一致すれば確実 (両方で確認する):
+
+```bash
+# (1) origin/main の到達履歴にファイルがある = 過去リリースで消費=公開済み
+git log --oneline origin/main -- ".changeset/<name>.md"   # 非空なら公開済み
+# (2) 追加日時が直近 tag より前
+git log --diff-filter=A --follow --format=%ct -1 -- ".changeset/<name>.md"
+```
+
+desync を検出したら **abort し、リコンサイルをユーザに提示**する (changeset
+削除は editorial 判断なので**承認後**・**PR 経由**で。`develop` への直接
+push はブランチ保護でも auto-mode でも弾かれる):
+
+1. `package.json` version を `NPM_VERSION` (公開実態) に合わせる。
+2. **公開済み changeset を削除** (上記 (1)(2) で確認したもの)。残すのは
+   直近リリース後に追加された分のみ。
+3. **CHANGELOG.md の履歴乖離も確認**: develop の `## ` 見出し列が公開
+   バージョン (例 `0.9.0` / `0.10.0`) を**欠落**していることがある。その
+   場合は `origin/main` を develop に **back-merge** して superset に復元
+   する (main の CHANGELOG 本体 + develop の新セクションを結合)。
+4. これらを `base=develop` の PR にし、`no-changeset` ラベルを付ける
+   (release plumbing は changeset 不要 = changeset CI を skip させる)。
+
+リコンサイル後に再度 `changeset status` を取り、予測が正しい
+(`NPM_VERSION → 次バージョン`) ことを確認してから Step 1 へ進む。
+
 ### Step 1 — Inventory pending changesets
 
 ```bash
@@ -406,6 +450,39 @@ If `/release` itself fails after this skill greenlit, the recovery is in
   This is acceptable — `pnpm-lock.yaml` diffs are noisy and the parity
   story coverage is intentionally per-component, so a transitive issue
   surfaces on the next direct bump of the same family.
+- **Release-plumbing PR は `no-changeset` ラベルを付ける。** version bump
+  / desync リコンサイル / main→develop back-merge の PR は changeset を
+  持たない (むしろ消費する) ので、`changeset` CI job が「no changeset」で
+  落ちる。`gh pr edit <n> --add-label no-changeset` で job を skip させる
+  (CI は `base_ref != main` かつ `no-changeset` ラベル無しのときだけ走る)。
+  ラベル追加は `labeled` イベントで CI を再トリガーするので、既存の赤い
+  run は新 run で skip に置き換わる。
+- **リリース後は `main → develop` を back-merge する (#388)。** develop→main
+  リリース PR をマージすると main 側に merge commit ができ develop に
+  未反映になる。これを放置すると次回リリースで CHANGELOG / version が
+  再 desync する (v0.11.0 の根本原因)。リリース完了後、`origin/main` を
+  develop に取り込む PR (`base=develop`, `no-changeset` ラベル) を出して
+  `main ⊂ develop` を維持する。`origin/develop` が `origin/main` の祖先
+  なら単なる fast-forward で済む。
+
+## 全体フロー (develop→main→publish→back-merge)
+
+`/release` は **main 上の publish 工程だけ**を担う。実際のリリースは
+複数 PR にまたがる — このスキルはその前段と整合性検査を担当する:
+
+1. **(prepare)** Step 0.5 で develop の version-desync を検出・リコンサイル
+   (PR `base=develop` + `no-changeset`)。Step 1–3 で changeset 予測と品質
+   ゲートと dep-bump 検査。
+2. **(bump)** develop で `pnpm changeset version` → `package.json` /
+   CHANGELOG 更新 + changeset 消費。`base=develop` の PR にして merge。
+3. **(promote)** `develop → main` の**リリース PR** を **merge commit** で
+   マージ (squash / rebase 禁止 — #319)。CHANGELOG 履歴が乖離していれば
+   先に Step 0.5 の back-merge で解消しておくと衝突しない。
+4. **(publish)** `main` 上で `/release` → `publish-only` モード (version は
+   bump 済・npm は旧版・changeset 0) で tag / npm publish / GitHub Release。
+   main は別 worktree で checkout 済みのことが多いので、その worktree で
+   実行する (サブ worktree からは main を出せない)。
+5. **(back-merge)** リリース後 `main → develop` を同期 (上記 Gotcha)。
 
 ## Related
 

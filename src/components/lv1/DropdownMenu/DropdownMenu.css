@@ -18,13 +18,12 @@
  *                                       `[data-disabled]`.
  * - `.st-dropdown-menu__item--destructive`  destructive action role
  *                                       (`--color-destructive`).
- * - `.st-dropdown-menu__item--inset`    indent to align with indicator items.
  * - `.st-dropdown-menu__item-icon`      leading icon (Item / SubTrigger).
  * - `.st-dropdown-menu__checkbox-item`  Item + left indicator slot.
  * - `.st-dropdown-menu__radio-item`     Item + left indicator slot.
  * - `.st-dropdown-menu__item-indicator` absolute-positioned span wrapping the
  *                                       Check (checkbox) / Circle (radio) SVG.
- * - `.st-dropdown-menu__label`          group label (`--inset` variant).
+ * - `.st-dropdown-menu__label`          group label.
  * - `.st-dropdown-menu__separator`      horizontal divider (Radix Separator).
  * - `.st-dropdown-menu__group`          structural wrapper (no surface).
  * - `.st-dropdown-menu__shortcut`       trailing keyboard-hint text.
@@ -156,11 +155,6 @@
     color: var(--color-destructive);
   }
 
-  /* indent to align with indicator-bearing items */
-  .st-dropdown-menu__item--inset {
-    padding-left: 2rem;
-  }
-
   /* ===== leading icon ===== */
   .st-dropdown-menu__item-icon {
     flex-shrink: 0;
@@ -200,9 +194,6 @@
     font-size: 0.75rem;
     font-weight: 600;
     color: var(--color-foreground-muted);
-  }
-  .st-dropdown-menu__label--inset {
-    padding-left: 2rem;
   }
 
   /* ===== separator ===== */

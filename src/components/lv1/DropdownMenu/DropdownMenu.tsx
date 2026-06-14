@@ -106,12 +106,6 @@ export interface DropdownMenuItemProps
    */
   variant?: DropdownMenuItemVariants['variant']
   /**
-   * Indent the item to align with sibling items that have a leading
-   * indicator (checkbox / radio). Use inside mixed menus.
-   * @default false
-   */
-  inset?: boolean
-  /**
    * Leading Lucide icon component, rendered `aria-hidden` before the label.
    * Import from `lucide-react` and pass the component directly — e.g.
    * `import { Edit } from 'lucide-react'` then `<DropdownMenuItem icon={Edit} />`.
@@ -122,12 +116,12 @@ export interface DropdownMenuItemProps
 const DropdownMenuItem = forwardRef<
   ComponentRef<typeof DropdownMenuPrimitive.Item>,
   DropdownMenuItemProps
->(({ className, variant, inset, icon, children, ...props }, ref) => {
+>(({ className, variant, icon, children, ...props }, ref) => {
   const IconComponent = icon ?? null
   return (
     <DropdownMenuPrimitive.Item
       ref={ref}
-      className={cn(dropdownMenuItemVariants({ variant, inset }), className)}
+      className={cn(dropdownMenuItemVariants({ variant }), className)}
       {...props}
     >
       {IconComponent && (
@@ -184,22 +178,13 @@ DropdownMenuRadioItem.displayName = DropdownMenuPrimitive.RadioItem.displayName
 
 /* ----- Label ----- */
 
-export interface DropdownMenuLabelProps
-  extends ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.Label> {
-  /**
-   * Indent the label to align with items that have a leading indicator.
-   * @default false
-   */
-  inset?: boolean
-}
-
 const DropdownMenuLabel = forwardRef<
   ComponentRef<typeof DropdownMenuPrimitive.Label>,
-  DropdownMenuLabelProps
->(({ className, inset, ...props }, ref) => (
+  ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.Label>
+>(({ className, ...props }, ref) => (
   <DropdownMenuPrimitive.Label
     ref={ref}
-    className={cn('st-dropdown-menu__label', inset && 'st-dropdown-menu__label--inset', className)}
+    className={cn('st-dropdown-menu__label', className)}
     {...props}
   />
 ))
@@ -237,11 +222,6 @@ DropdownMenuShortcut.displayName = 'DropdownMenuShortcut'
 export interface DropdownMenuSubTriggerProps
   extends ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.SubTrigger> {
   /**
-   * Indent the sub-trigger to align with items that have a leading indicator.
-   * @default false
-   */
-  inset?: boolean
-  /**
    * Leading Lucide icon component, rendered `aria-hidden` before the label.
    */
   icon?: LucideIcon
@@ -250,17 +230,12 @@ export interface DropdownMenuSubTriggerProps
 const DropdownMenuSubTrigger = forwardRef<
   ComponentRef<typeof DropdownMenuPrimitive.SubTrigger>,
   DropdownMenuSubTriggerProps
->(({ className, inset, icon, children, ...props }, ref) => {
+>(({ className, icon, children, ...props }, ref) => {
   const IconComponent = icon ?? null
   return (
     <DropdownMenuPrimitive.SubTrigger
       ref={ref}
-      className={cn(
-        'st-dropdown-menu__item',
-        'st-dropdown-menu__sub-trigger',
-        inset && 'st-dropdown-menu__item--inset',
-        className,
-      )}
+      className={cn('st-dropdown-menu__item', 'st-dropdown-menu__sub-trigger', className)}
       {...props}
     >
       {IconComponent && (

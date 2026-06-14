@@ -9,9 +9,6 @@ import { cva, type VariantProps } from 'class-variance-authority'
  * not a state surface — `destructive` mirrors `Button`'s `destructive`
  * intent, routing to `--color-destructive`). `default` carries no extra
  * modifier — the base `.st-dropdown-menu__item` rule is the resting style.
- *
- * `inset` indents an item to align with sibling items that own a leading
- * indicator (checkbox / radio), so mixed menus stay visually aligned.
  */
 export const dropdownMenuItemVariants = cva('st-dropdown-menu__item', {
   variants: {
@@ -19,14 +16,9 @@ export const dropdownMenuItemVariants = cva('st-dropdown-menu__item', {
       default: '',
       destructive: 'st-dropdown-menu__item--destructive',
     },
-    inset: {
-      true: 'st-dropdown-menu__item--inset',
-      false: '',
-    },
   },
   defaultVariants: {
     variant: 'default',
-    inset: false,
   },
 })
 

@@ -36,14 +36,6 @@ const meta: Meta<typeof DropdownMenuItem> = {
         defaultValue: { summary: 'default' },
       },
     },
-    inset: {
-      description: 'Indent the item to align with indicator-bearing items.',
-      control: 'boolean',
-      table: {
-        type: { summary: 'boolean' },
-        defaultValue: { summary: 'false' },
-      },
-    },
     disabled: {
       description: 'Disables the item.',
       control: 'boolean',
@@ -62,7 +54,6 @@ export const Playground: Story = {
   name: 'Playground',
   args: {
     variant: 'default',
-    inset: false,
     disabled: false,
   },
   render: (args) => (

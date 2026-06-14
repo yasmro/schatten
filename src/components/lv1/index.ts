@@ -23,7 +23,6 @@ export {
   DropdownMenuItem,
   type DropdownMenuItemProps,
   DropdownMenuLabel,
-  type DropdownMenuLabelProps,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
   DropdownMenuSeparator,

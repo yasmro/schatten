@@ -101,22 +101,13 @@
     animation: dropdown-menu-content-close 100ms ease-in;
   }
 
-  /* popper offset per side — uses the modern `translate:` property so the
-   * offset composes additively with Radix Popper's `transform: translate3d()`
-   * AND the open keyframe's `transform: scale()` (three independent props).
-   * Mirrors the Select.css precedent. */
-  .st-dropdown-menu__content[data-side="bottom"] {
-    translate: 0 0.25rem;
-  }
-  .st-dropdown-menu__content[data-side="top"] {
-    translate: 0 -0.25rem;
-  }
-  .st-dropdown-menu__content[data-side="left"] {
-    translate: -0.25rem 0;
-  }
-  .st-dropdown-menu__content[data-side="right"] {
-    translate: 0.25rem 0;
-  }
+  /* NOTE: the directional gap comes from Radix `sideOffset` (set in
+   * DropdownMenu.tsx for Content and SubContent), NOT from a CSS `translate:`
+   * offset. Unlike Select (whose content is portaled to <body>), Radix renders
+   * `SubContent` INSIDE this content's DOM subtree, so a `translate:`/`transform`
+   * here would establish a containing block for the submenu's `position: fixed`
+   * popper and break its placement (it would snap to this panel's top instead of
+   * the sub-trigger). See #41 review. */
 
   /* ===== item (shared base for checkbox / radio / sub-trigger) ===== */
   .st-dropdown-menu__item {

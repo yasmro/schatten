@@ -81,7 +81,10 @@ export interface DropdownMenuContentProps
 const DropdownMenuContent = forwardRef<
   ComponentRef<typeof DropdownMenuPrimitive.Content>,
   DropdownMenuContentProps
->(({ className, sideOffset = 4, container, ...props }, ref) => (
+>(({ className, sideOffset = 8, container, ...props }, ref) => (
+  // 8px gap via Radix sideOffset (not a CSS `translate:`) — a transform on the
+  // content would establish a containing block for the nested SubContent popper
+  // and misplace the submenu. See DropdownMenu.css.
   <DropdownMenuPrimitive.Portal container={container}>
     <DropdownMenuPrimitive.Content
       ref={ref}
@@ -253,9 +256,10 @@ DropdownMenuSubTrigger.displayName = DropdownMenuPrimitive.SubTrigger.displayNam
 const DropdownMenuSubContent = forwardRef<
   ComponentRef<typeof DropdownMenuPrimitive.SubContent>,
   ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.SubContent>
->(({ className, sideOffset = 4, ...props }, ref) => (
-  // sideOffset matches Content's so the submenu clears the parent's padding
-  // edge instead of sitting flush against it.
+>(({ className, sideOffset = 8, ...props }, ref) => (
+  // 8px sideOffset clears the parent panel's right padding edge so the submenu
+  // sits beside it with a small gap (and stays vertically aligned to the
+  // sub-trigger — sideOffset is the cross-axis distance, not the alignment).
   <DropdownMenuPrimitive.SubContent
     ref={ref}
     sideOffset={sideOffset}

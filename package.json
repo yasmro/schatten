@@ -104,6 +104,7 @@
     "audit:coverage": "node scripts/audit-coverage.mjs",
     "schatten:csp-hash": "node scripts/print-csp-hash.mjs",
     "check:layer-order": "node scripts/check-layer-order.mjs",
+    "check:body-reset": "node scripts/check-body-reset-sync.mjs",
     "build:storybook": "storybook build",
     "test": "vitest",
     "test:ui": "vitest --ui",
@@ -183,10 +184,10 @@
     "@radix-ui/react-separator": "^1.1.8",
     "@radix-ui/react-slot": "^1.1.1",
     "@radix-ui/react-switch": "^1.2.6",
-    "@radix-ui/react-toast": "^1.2.15",
     "@radix-ui/react-tooltip": "^1.2.8",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "sonner": "2.0.7",
     "tailwind-merge": "^3.5.0"
   },
   "pnpm": {

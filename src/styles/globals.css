@@ -10,6 +10,9 @@
 body {
   background-color: var(--color-background);
   color: var(--color-foreground);
+  /* JP/EN cap-height compensation — mirrors styles/entry.css so Storybook
+   * (and its VRT) render identically to the dist. See #184. */
+  font-size-adjust: var(--st-font-size-adjust, cap-height 0.7);
   transition:
     background-color 0.2s ease,
     color 0.2s ease;

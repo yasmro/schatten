@@ -90,15 +90,11 @@
     background-color: var(--color-foreground);
     border-color: var(--color-foreground);
   }
-  .st-switch:disabled {
-    cursor: not-allowed;
-    background-color: var(--color-surface-disabled);
-    border-color: var(--color-border-disabled);
-  }
-  .st-switch:disabled[data-state="checked"] {
-    background-color: var(--color-surface-disabled);
-    border-color: var(--color-border-disabled);
-  }
+  /* state precedence — source order (matches Input / Textarea):
+   * default < [aria-invalid="true"] < :disabled
+   * A disabled control recedes (it cannot be submitted, so its error
+   * state is moot) — the disabled tokens win over the error treatment,
+   * for both the unchecked and checked positions. */
   .st-switch[aria-invalid="true"] {
     border-color: var(--color-error);
     background-color: var(--color-error-subtle);
@@ -111,6 +107,15 @@
     box-shadow:
       0 0 0 2px var(--color-ring-offset),
       0 0 0 4px var(--color-error);
+  }
+  .st-switch:disabled {
+    cursor: not-allowed;
+    background-color: var(--color-surface-disabled);
+    border-color: var(--color-border-disabled);
+  }
+  .st-switch:disabled[data-state="checked"] {
+    background-color: var(--color-surface-disabled);
+    border-color: var(--color-border-disabled);
   }
 
   /* ===== size ===== */

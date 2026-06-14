@@ -13,6 +13,7 @@ describe('Text', () => {
     expect(screen.getByTestId('t')).toHaveClass(
       'st-text',
       'st-text--body',
+      'st-text--sans',
       'st-text--md',
       'st-text--default',
     )
@@ -78,6 +79,50 @@ describe('Text', () => {
 
       rerender(<Text color="indigo">x</Text>)
       expect(getEl()).toHaveClass('st-text--indigo')
+    })
+  })
+
+  describe('family', () => {
+    it('defaults to the sans modifier', () => {
+      const { container } = render(<Text>x</Text>)
+      expect(container.firstElementChild).toHaveClass('st-text--sans')
+    })
+
+    it('applies the serif modifier when family="serif"', () => {
+      const { container } = render(<Text family="serif">x</Text>)
+      const el = container.firstElementChild as HTMLElement
+      expect(el).toHaveClass('st-text--serif')
+      expect(el).not.toHaveClass('st-text--sans')
+    })
+  })
+
+  describe('leading', () => {
+    it('applies a leading override modifier', () => {
+      const { container, rerender } = render(<Text leading="relaxed">x</Text>)
+      const getEl = () => container.firstElementChild as HTMLElement
+      expect(getEl()).toHaveClass('st-text--leading-relaxed')
+
+      rerender(<Text leading="none">x</Text>)
+      expect(getEl()).toHaveClass('st-text--leading-none')
+    })
+
+    it('emits no leading modifier by default', () => {
+      const { container } = render(<Text>x</Text>)
+      expect(container.firstElementChild?.className).not.toMatch(/st-text--leading-/)
+    })
+
+    it('composes orthogonally with variant, size, and family', () => {
+      const { container } = render(
+        <Text variant="heading" family="serif" size="lg" leading="relaxed" as="h2">
+          x
+        </Text>,
+      )
+      expect(container.firstElementChild).toHaveClass(
+        'st-text--heading',
+        'st-text--serif',
+        'st-text--lg',
+        'st-text--leading-relaxed',
+      )
     })
   })
 

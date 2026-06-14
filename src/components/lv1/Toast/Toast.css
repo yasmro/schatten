@@ -42,6 +42,11 @@
 @layer components {
   /* ===== toast root (Sonner <li>, unstyled) ===== */
   .st-toast {
+    /* Sonner's `[data-sonner-toaster]` hardcodes its own font-family (unlayered),
+     * which our toast would otherwise inherit instead of the design-system font.
+     * Re-assert `--font-sans` so the toast matches the rest of the DS — and so a
+     * consumer's brand-font override of `--font-sans` actually reaches it. */
+    font-family: var(--font-sans);
     position: relative;
     box-sizing: border-box;
     width: 100%;

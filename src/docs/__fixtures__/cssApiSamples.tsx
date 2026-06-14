@@ -230,6 +230,16 @@ export function ReactSamples() {
           static overlay + content.
         </Text>
       </section>
+
+      <section className="cssapi-fixture__sample" data-component="dropdownmenu">
+        <span className="cssapi-fixture__sample-label">
+          DropdownMenu — portal-mounted (omitted)
+        </span>
+        <Text variant="body" size="sm" color="muted">
+          No comparable React render — DropdownMenu portals to body and is JS-driven. The vanilla
+          column shows the static .st-dropdown-menu__content shape.
+        </Text>
+      </section>
     </>
   )
 }

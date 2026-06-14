@@ -31,6 +31,8 @@ for (const story of stories) {
         },
         { timeout: 10_000 },
       )
+      // Serif parity rows need the webfont applied before the screenshot. #184
+      await page.evaluate(() => document.fonts.ready)
 
       await expect(root).toHaveScreenshot(`parity-${story}-${theme}.png`)
     })

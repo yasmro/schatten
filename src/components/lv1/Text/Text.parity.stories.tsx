@@ -39,21 +39,41 @@ export const Parity: Story = {
         <Text truncate>
           A very long line that should be truncated when it overflows the container width.
         </Text>
+        <Text family="serif">Serif 明朝 Hamburg</Text>
+        <Text family="serif" leading="relaxed">
+          Serif relaxed 行間。Hamburg.
+        </Text>
       </div>
       <div className="space-y-3 w-64">
         <p className="text-xs mb-2 text-foreground-muted">Vanilla HTML</p>
-        <h2 className="st-text st-text--heading st-text--lg st-text--default">Heading lg</h2>
-        <p className="st-text st-text--body st-text--md st-text--default">Default body md.</p>
-        <p className="st-text st-text--body st-text--md st-text--muted">Muted body md.</p>
-        <p className="st-text st-text--body st-text--sm st-text--error">Error sm</p>
+        <h2 className="st-text st-text--heading st-text--sans st-text--lg st-text--default">
+          Heading lg
+        </h2>
+        <p className="st-text st-text--body st-text--sans st-text--md st-text--default">
+          Default body md.
+        </p>
+        <p className="st-text st-text--body st-text--sans st-text--md st-text--muted">
+          Muted body md.
+        </p>
+        <p className="st-text st-text--body st-text--sans st-text--sm st-text--error">Error sm</p>
         {/* biome-ignore lint/a11y/noLabelWithoutControl: parity story — visually demonstrates `.st-text--label` typography against the React side, not a real form label */}
-        <label className="st-text st-text--label st-text--sm st-text--default">Label sm</label>
-        <p className="st-text st-text--body st-text--md st-text--vermillion">Vermillion brand</p>
-        <p className="st-text st-text--body st-text--md st-text--default st-text--align-right">
+        <label className="st-text st-text--label st-text--sans st-text--sm st-text--default">
+          Label sm
+        </label>
+        <p className="st-text st-text--body st-text--sans st-text--md st-text--vermillion">
+          Vermillion brand
+        </p>
+        <p className="st-text st-text--body st-text--sans st-text--md st-text--default st-text--align-right">
           Right-aligned
         </p>
-        <p className="st-text st-text--body st-text--md st-text--default st-text--truncate">
+        <p className="st-text st-text--body st-text--sans st-text--md st-text--default st-text--truncate">
           A very long line that should be truncated when it overflows the container width.
+        </p>
+        <p className="st-text st-text--body st-text--serif st-text--md st-text--default">
+          Serif 明朝 Hamburg
+        </p>
+        <p className="st-text st-text--body st-text--serif st-text--leading-relaxed st-text--md st-text--default">
+          Serif relaxed 行間。Hamburg.
         </p>
       </div>
     </div>

@@ -5,4 +5,5 @@
 
 @theme {
   --font-sans: "Hanken Grotesk", "LINE Seed JP", var(--font-sans-fallback);
+  --font-serif: "EB Garamond", "Noto Serif JP", var(--font-serif-fallback);
 }

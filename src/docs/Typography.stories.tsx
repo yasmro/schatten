@@ -119,11 +119,16 @@ export const Typography: Story = {
           <p className="font-serif text-xl text-foreground mb-1">
             The quick brown fox jumps over the lazy dog.
           </p>
+          <p className="font-serif text-xl text-foreground-muted mb-1">
+            素早い茶色の狐が怠惰な犬を飛び越える。
+          </p>
           <p className="text-xs text-foreground-muted font-mono">
-            --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", serif
+            --font-serif: "EB Garamond", "Noto Serif JP", ui-serif, Georgia, serif
           </p>
           <p className="text-xs text-foreground-muted mt-1">
-            Serif fallback for editorial content.
+            Editorial serif (use via <code>&lt;Text family="serif"&gt;</code>). Consumers must load
+            EB Garamond + Noto Serif JP themselves (e.g. Google Fonts); otherwise it falls back to
+            the system serif stack.
           </p>
         </div>
         <div className="py-4">
@@ -138,6 +143,34 @@ export const Typography: Story = {
           </p>
         </div>
       </div>
+
+      <SubsectionTitle>JP/EN size compensation</SubsectionTitle>
+      <p className="text-sm text-foreground-muted leading-relaxed mb-3">
+        Latin faces (EB Garamond / Hanken Grotesk) sit at a lower cap-height than the CJK faces
+        (Noto Serif JP / LINE Seed JP), which fill their em box, so at the same px the Latin reads
+        smaller in mixed JP/EN runs. Schatten applies <code>font-size-adjust: cap-height</code> on
+        the <code>body</code> reset <strong>library-wide</strong> (all components, not just{' '}
+        <code>&lt;Text&gt;</code>) to lift the Latin glyphs to the CJK height.{' '}
+        <code>cap-height</code> is a font-agnostic target, so a single value covers every family —
+        and any font a consumer swaps in via <code>--font-sans</code>.
+      </p>
+      <p className="text-sm text-foreground-muted leading-relaxed mb-3">
+        Tune or disable it with the <code>--st-font-size-adjust</code> custom property (browsers
+        without two-value <code>font-size-adjust</code> support, e.g. Chrome &lt; 127, simply ignore
+        it — no compensation, never broken):
+      </p>
+      <pre className="text-xs text-foreground bg-surface border border-border rounded-lg p-4 overflow-x-auto mb-8 font-mono">
+        {`:root {
+  /* default — Latin matched to CJK height */
+  --st-font-size-adjust: cap-height 0.7;
+
+  /* tune for a different font pairing */
+  --st-font-size-adjust: cap-height 0.72;
+
+  /* opt out entirely (use raw font metrics) */
+  --st-font-size-adjust: none;
+}`}
+      </pre>
 
       <SectionTitle>Type scale</SectionTitle>
 

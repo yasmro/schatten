@@ -1,1 +1,0 @@
-import{i as e,s as t}from"./preload-helper-BwGARNBo.js";import{w as n}from"./iframe-DRAyPivV.js";function r(e){let t=i.useRef({value:e,previous:e});return i.useMemo(()=>(t.current.value!==e&&(t.current.previous=t.current.value,t.current.value=e),t.current.previous),[e])}var i,a=e((()=>{i=t(n(),1)}));export{r as n,a as t};

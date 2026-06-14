@@ -253,9 +253,12 @@ DropdownMenuSubTrigger.displayName = DropdownMenuPrimitive.SubTrigger.displayNam
 const DropdownMenuSubContent = forwardRef<
   ComponentRef<typeof DropdownMenuPrimitive.SubContent>,
   ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.SubContent>
->(({ className, ...props }, ref) => (
+>(({ className, sideOffset = 4, ...props }, ref) => (
+  // sideOffset matches Content's so the submenu clears the parent's padding
+  // edge instead of sitting flush against it.
   <DropdownMenuPrimitive.SubContent
     ref={ref}
+    sideOffset={sideOffset}
     className={cn('st-dropdown-menu__content', 'st-dropdown-menu__sub-content', className)}
     {...props}
   />

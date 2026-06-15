@@ -81,6 +81,9 @@
  * /popover surface like Select; authors only its own block rules (no
  * `.st-btn` rules), so layer placement is not order-sensitive. */
 @import "../components/lv1/DropdownMenu/DropdownMenu.css";
+/* #44 — Tabs (`.st-tabs__*` class API). Inline (non-portal) compound; authors
+ * only its own block rules, so layer placement is not order-sensitive. */
+@import "../components/lv1/Tabs/Tabs.css";
 
 /* Class-based dark mode variant — matches `src/styles/globals.css` so
  * `.dark` toggling behaves identically in Storybook and in the dist. */

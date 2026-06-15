@@ -458,4 +458,32 @@ export const vanillaHtml = `
     </div>
   </div>
 </section>
+
+<section class="cssapi-fixture__sample" data-component="tabs">
+  <span class="cssapi-fixture__sample-label">Tabs — .st-tabs__* (static, no JS)</span>
+  <div class="st-tabs" data-orientation="horizontal">
+    <div class="st-tabs__list" role="tablist" data-orientation="horizontal">
+      <button class="st-tabs__trigger" role="tab" type="button" data-state="active" aria-selected="true">
+        <svg class="st-tabs__trigger-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" />
+        </svg>
+        Account
+      </button>
+      <button class="st-tabs__trigger" role="tab" type="button" data-state="inactive" aria-selected="false">
+        Password
+      </button>
+      <button class="st-tabs__trigger" role="tab" type="button" data-state="inactive" aria-selected="false" disabled>
+        Team
+      </button>
+      <!-- The indicator is JS-positioned in the React layer; this static sample
+           pins it under the active tab by hand (transform/width inline). The
+           translateX matches the list's 4px focus-ring padding so it aligns
+           under the first tab. -->
+      <span class="st-tabs__indicator" aria-hidden="true"
+            style="transform: translateX(4px); width: 102px; opacity: 1;"></span>
+    </div>
+    <div class="st-tabs__content" role="tabpanel">Manage your account details and email.</div>
+  </div>
+</section>
 `

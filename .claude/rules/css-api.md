@@ -248,6 +248,23 @@ the React side (it carries through for a11y wiring of
 Vanilla HTML consumers writing the modifier class get a working
 separator with no required attribute.
 
+**Exception — compound parts that cannot receive the config as a prop.**
+When the author-config value lives on a compound *root* and its nested
+parts receive it only through the library's context (never as a prop the
+Schatten part can read), the parts cannot attach a modifier class without
+re-plumbing the value through every part. In that case the part's CSS
+**may** target the `[data-*]` attribute the library already emits, even
+though the value is author config. `Tabs` is the case today: `orientation`
+is set on `Tabs` (the Radix Root), and `TabsList` / `TabsTrigger` receive
+it via Radix context, so the `.st-tabs__list` / `.st-tabs__trigger` rules
+read `[data-orientation]` rather than carrying an `--vertical` modifier
+([Tabs.css](../../src/components/lv1/Tabs/Tabs.css), #44). A vanilla
+consumer writing `data-orientation="vertical"` on the list still gets the
+same layout — the attribute Radix mirrors is the framework-agnostic hook.
+This exception is narrow: it applies only when the config genuinely cannot
+reach the part as a prop. A part that *can* take the prop (like Separator)
+keeps the modifier class.
+
 ### Variant: visual-less observability hook
 
 The default contract above is that **a state attribute drives a visual

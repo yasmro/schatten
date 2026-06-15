@@ -61,6 +61,14 @@ export {
 export { Separator, type SeparatorProps } from './Separator'
 export { Spinner, type SpinnerProps } from './Spinner'
 export { Switch, type SwitchProps } from './Switch'
+export {
+  Tabs,
+  TabsContent,
+  TabsList,
+  type TabsProps,
+  TabsTrigger,
+  type TabsTriggerProps,
+} from './Tabs'
 export { Text, type TextProps } from './Text'
 export { Textarea, type TextareaProps } from './Textarea'
 export {

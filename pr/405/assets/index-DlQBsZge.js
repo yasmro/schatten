@@ -1,0 +1,1 @@
+import{r,d as a}from"./iframe-CVN4lXnz.js";import{u as o}from"./index-DzL9Q6bz.js";function d(e){const t=r.useRef(e);return r.useEffect(()=>{t.current=e}),r.useMemo(()=>((...u)=>t.current?.(...u)),[])}var c=a[" useId ".trim().toString()]||(()=>{}),n=0;function m(e){const[t,u]=r.useState(c());return o(()=>{u(s=>s??String(n++))},[e]),t?`radix-${t}`:""}export{d as a,m as u};

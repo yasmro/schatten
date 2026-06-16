@@ -486,4 +486,16 @@ export const vanillaHtml = `
     <div class="st-tabs__content" role="tabpanel">Manage your account details and email.</div>
   </div>
 </section>
+
+<section class="cssapi-fixture__sample" data-component="popover">
+  <span class="cssapi-fixture__sample-label">Popover — .st-popover__content (static, no portal)</span>
+  <!-- data-state is deliberately omitted: the enter animation on
+       [data-state="open"] uses a slide transform, which the static dist smoke
+       test (animations paused) could freeze mid-motion. The base rule already
+       carries the full panel surface (border / padding / shadow), so the
+       resolved "open" visual is identical without triggering the keyframe. -->
+  <div class="st-popover__content" role="dialog" data-side="bottom" style="position: static;">
+    <p>Place any content inside the popover panel.</p>
+  </div>
+</section>
 `

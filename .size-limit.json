@@ -2,7 +2,7 @@
   {
     "name": "components/lv1 (all)",
     "path": "dist/components/lv1/index.js",
-    "limit": "60 KB"
+    "limit": "64 KB"
   },
   {
     "name": "components/lv1 (Button only, tree-shaken)",
@@ -35,6 +35,7 @@
   { "name": "css/fieldset", "path": "dist/css/fieldset.css", "limit": "1.5 KB" },
   { "name": "css/icon", "path": "dist/css/icon.css", "limit": "1.5 KB" },
   { "name": "css/input", "path": "dist/css/input.css", "limit": "1.5 KB" },
+  { "name": "css/popover", "path": "dist/css/popover.css", "limit": "1.5 KB" },
   { "name": "css/radio", "path": "dist/css/radio.css", "limit": "1.5 KB" },
   { "name": "css/select", "path": "dist/css/select.css", "limit": "1.5 KB" },
   { "name": "css/separator", "path": "dist/css/separator.css", "limit": "1.5 KB" },

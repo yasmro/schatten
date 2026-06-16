@@ -32,8 +32,8 @@ const INDEX_FILE_REL = 'src/components/lv1/index.ts'
 // canonical reasoning is in .claude/rules/vrt-spec-guideline.md
 // §"Parity stories — when to write one, when to skip": classification
 // C (Tooltip — static rendering but JS-driven positioning) and D
-// (Dialog / DropdownMenu / Select / Tabs / Toast — JS-required compound
-// behaviour) have no
+// (Dialog / DropdownMenu / Popover / Select / Tabs / Toast — JS-required
+// compound behaviour) have no
 // realistic vanilla-HTML use case for the .st-* class chain alone, so
 // the parity story would be performative. (Tabs renders inline rather
 // than in a portal, so its static shape IS pinned — but via the shared
@@ -45,13 +45,14 @@ const INDEX_FILE_REL = 'src/components/lv1/index.ts'
 // component to an alphabetical insert here instead of generating the
 // parity story+spec (see .claude/skills/add-lv1-component/SKILL.md
 // Step 3 item 7). The hard-code is acceptable today because the set is
-// small (4 components) and the source of truth lives in the rule doc
+// small (7 components) and the source of truth lives in the rule doc
 // next door. If lv1 count grows past ~30 and tracking gets noisy,
 // promote to a `// schatten-classification: B` header comment that
 // gets parsed.
 export const PARITY_EXEMPT = new Set([
   'Dialog',
   'DropdownMenu',
+  'Popover',
   'Select',
   'Tabs',
   'Toast',

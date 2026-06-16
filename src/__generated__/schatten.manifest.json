@@ -111,6 +111,7 @@
     "st-input__icon-right",
     "st-input__text-left",
     "st-input__text-right",
+    "st-popover__content",
     "st-radio",
     "st-radio--lg",
     "st-radio--md",

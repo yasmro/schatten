@@ -12,16 +12,18 @@
  * - `ReactSamples` (this file) imports the lv1 React components and
  *   pairs each `data-component` section with a real React render.
  *
- * Coverage policy: 14 区 A/B components appear in `<ReactSamples />`
- * for visible parity comparison. Tooltip / Select / Dialog / Toast
- * (区 C/D per .claude/rules/vrt-spec-guideline.md) are intentionally
- * omitted from the React column — they require JS or portal mounting
- * that can't be shown side-by-side. Their vanilla markup still
- * appears on the vanilla side as static frames, which is what
- * `dist/css/*` subpath verification needs anyway.
+ * Coverage policy: the 14 区 A/B components — plus Tabs (区 D but
+ * inline-renderable, so it pairs against its vanilla markup) — appear
+ * in `<ReactSamples />` for visible parity comparison. Tooltip /
+ * Select / Dialog / Toast (区 C/D per
+ * .claude/rules/vrt-spec-guideline.md) are intentionally omitted from
+ * the React column — they require portal mounting or an imperative API
+ * that can't be shown side-by-side. Their vanilla markup still appears
+ * on the vanilla side as static frames, which is what `dist/css/*`
+ * subpath verification needs anyway.
  */
 
-import { AlertCircle, Info } from 'lucide-react'
+import { AlertCircle, Info, User } from 'lucide-react'
 import {
   Badge,
   Button,
@@ -36,6 +38,10 @@ import {
   Separator,
   Spinner,
   Switch,
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
   Text,
   Textarea,
 } from '../../components/lv1'
@@ -65,10 +71,10 @@ import '../../components/lv1/Tooltip/Tooltip.css'
 export { fixtureChromeCss, vanillaHtml } from './cssApiSamples.html'
 
 /**
- * React equivalents for the 14 区 A/B components — paired by
- * `data-component` with the matching `vanillaHtml` section so the
- * parity story can render them side-by-side and the snapshot tells
- * you immediately which component drifted.
+ * React equivalents for the 14 区 A/B components (plus inline-renderable
+ * Tabs) — paired by `data-component` with the matching `vanillaHtml`
+ * section so the parity story can render them side-by-side and the
+ * snapshot tells you immediately which component drifted.
  */
 export function ReactSamples() {
   return (
@@ -239,6 +245,27 @@ export function ReactSamples() {
           No comparable React render — DropdownMenu portals to body and is JS-driven. The vanilla
           column shows the static .st-dropdown-menu__content shape.
         </Text>
+      </section>
+
+      {/* Tabs is 区 D (JS-driven) but renders inline — unlike the portal /
+          imperative 区 C/D components above, it has a real React render to pair
+          against the vanilla static markup. */}
+      <section className="cssapi-fixture__sample" data-component="tabs">
+        <span className="cssapi-fixture__sample-label">Tabs — .st-tabs__* (inline, JS-driven)</span>
+        <Tabs defaultValue="account">
+          <TabsList>
+            <TabsTrigger value="account" icon={User}>
+              Account
+            </TabsTrigger>
+            <TabsTrigger value="password">Password</TabsTrigger>
+            <TabsTrigger value="team" disabled>
+              Team
+            </TabsTrigger>
+          </TabsList>
+          <TabsContent value="account">Manage your account details and email.</TabsContent>
+          <TabsContent value="password">Change your password here.</TabsContent>
+          <TabsContent value="team">Invite and manage team members.</TabsContent>
+        </Tabs>
       </section>
     </>
   )

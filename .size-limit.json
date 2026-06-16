@@ -40,6 +40,7 @@
   { "name": "css/separator", "path": "dist/css/separator.css", "limit": "1.5 KB" },
   { "name": "css/spinner", "path": "dist/css/spinner.css", "limit": "1.5 KB" },
   { "name": "css/switch", "path": "dist/css/switch.css", "limit": "1.5 KB" },
+  { "name": "css/tabs", "path": "dist/css/tabs.css", "limit": "1.5 KB" },
   { "name": "css/text", "path": "dist/css/text.css", "limit": "1.5 KB" },
   { "name": "css/textarea", "path": "dist/css/textarea.css", "limit": "1.5 KB" },
   { "name": "css/toast", "path": "dist/css/toast.css", "limit": "1.5 KB" },

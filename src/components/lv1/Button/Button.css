@@ -349,6 +349,20 @@
     width: 1em;
     height: 1em;
   }
+  /* The spinner overlay stays in the DOM at `opacity: 0` while idle (so the
+   * loading transition can cross-fade without layout shift). But an
+   * `opacity: 0` element is still composited, so the Spinner's
+   * `animation: schatten-spin … infinite` keeps ticking on EVERY idle button
+   * — wasted compositor work that scales with button count, not with the
+   * number actually loading. Pause it while idle and only run it under
+   * `[aria-busy="true"]`. `animation-play-state` gated on a state attribute is
+   * the lv1-local-CSS pattern allowed by component-architecture.md §7. */
+  .st-btn__spinner-overlay .st-spinner__rotor {
+    animation-play-state: paused;
+  }
+  .st-btn[aria-busy="true"] .st-btn__spinner-overlay .st-spinner__rotor {
+    animation-play-state: running;
+  }
 
   /* Content row — fades out when loading so the spinner overlay reads as
    * "the only thing in the button". */

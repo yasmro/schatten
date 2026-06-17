@@ -19,7 +19,11 @@ const meta: Meta<typeof ThemeProvider> = {
     // its <html> mutation when true.
     disableGlobalThemeDecorator: true,
   },
-  tags: ['autodocs'],
+  // Hidden from the sidebar while the Theming docs IA is being reworked.
+  // `!dev` drops the stories; `!autodocs` drops the generated Docs page
+  // (autodocs survives `!dev` alone). File / story index / VRT stay live.
+  // To restore: tags: ['autodocs'].
+  tags: ['!dev', '!autodocs'],
   argTypes: {
     defaultMode: {
       description: 'Initial color-mode setting.',

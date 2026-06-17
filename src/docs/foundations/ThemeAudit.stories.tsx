@@ -83,6 +83,10 @@ function ThemeCell({ mode, special }: { mode: Mode; special: SeasonalThemeId | n
 
 const meta: Meta = {
   title: 'Theming/Theme Audit',
+  // Hidden from the sidebar while the Theming docs IA is being reworked.
+  // File / story index / VRT (id-driven iframe URLs) stay live — `!dev`
+  // only drops it from the dev sidebar. Remove the tag to restore.
+  tags: ['!dev'],
   parameters: {
     layout: 'fullscreen',
   },

@@ -269,8 +269,10 @@ fix all of these **in the same PR**:
   Canvas export) and on a `Patterns/*` page that isn't linked. A title/export
   rename that misses the manifest turns this test red rather than shipping a
   dead link.
-- `options.storySort.order` in `.storybook/preview.tsx` if a top-level group
-  name changed
+- the top-level group order in `options.storySort` in `.storybook/preview.tsx`
+  if a top-level group name changed (it's a comparator function — update the
+  `order` array inside it; the comparator also forces each component's parity
+  story, story id `…--parity`, to sort last)
 
 Story IDs are **internal** per [api-stability.md](api-stability.md) (Storybook
 is not part of the published package), so an IA rename needs **no changeset and

@@ -91,8 +91,23 @@ const preview: Preview = {
       test: 'todo',
     },
     options: {
-      storySort: {
-        order: [
+      // Comparator form (was a `storySort.order` array). The top-level group
+      // order is unchanged; the function exists so the per-component parity
+      // story ("React vs Vanilla HTML", export `Parity`, story id ending
+      // `--parity`) can be forced LAST within its component. That story lives
+      // in `<Name>.parity.stories.tsx`, which loads before `<Name>.stories.tsx`
+      // by filename, so without this it sorts first. Every other pair returns
+      // 0 → the stable sort preserves the previous load order (the default
+      // `configure` method), so only the parity story moves.
+      // NOTE: Storybook statically generates + `eval`s this arrow at index
+      // build (getStorySortParameter). It MUST be an inline arrow of plain JS:
+      // an external reference is `unsupported`, and any TS type annotation on a
+      // param survives babel codegen into the eval'd string → "Unexpected token
+      // ':'". So `a` / `b` cannot be annotated, and `options.storySort` is too
+      // loosely typed to type them contextually — hence the targeted suppress.
+      // @ts-expect-error -- a/b are Storybook IndexEntry (id, title); see note
+      storySort: (a, b) => {
+        const order = [
           'Welcome',
           'Getting Started',
           'Tokens',
@@ -100,7 +115,18 @@ const preview: Preview = {
           'CSS API',
           'Patterns',
           'Components',
-        ],
+        ]
+        const ga = order.indexOf(a.title.split('/')[0])
+        const gb = order.indexOf(b.title.split('/')[0])
+        const ta = ga === -1 ? order.length : ga
+        const tb = gb === -1 ? order.length : gb
+        if (ta !== tb) return ta - tb
+        if (a.title === b.title) {
+          const ap = a.id.endsWith('--parity')
+          const bp = b.id.endsWith('--parity')
+          if (ap !== bp) return ap ? 1 : -1
+        }
+        return 0
       },
     },
   },

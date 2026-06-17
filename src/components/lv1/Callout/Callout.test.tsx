@@ -100,10 +100,14 @@ describe('Callout', () => {
     expect(actionSlot?.querySelector('button')).toHaveTextContent('Save')
   })
 
-  it('applies __action to the close button so it inherits the trailing-slot layout', () => {
+  it('renders the close button as a dedicated bare button (st-callout__close), not a Button', () => {
     const { container } = render(<Callout title="X" onClose={() => {}} />)
     const closeBtn = container.querySelector('button[aria-label="Close"]')
-    expect(closeBtn).toHaveClass('st-callout__action')
+    expect(closeBtn).toHaveClass('st-callout__close')
+    // The dedicated close intentionally does NOT reuse `<Button>` — it carries
+    // none of the `.st-btn` text-button padding / sizing.
+    expect(closeBtn).not.toHaveClass('st-btn')
+    expect(closeBtn).toHaveAttribute('type', 'button')
   })
 
   it('applies the subtle modifier for the chosen variant', () => {
@@ -147,24 +151,21 @@ describe('Callout', () => {
     expect(ref.current).toBeInstanceOf(HTMLDivElement)
   })
 
-  it('uses the inverted Button variant for the close button on solid appearance', () => {
-    const { container } = render(
+  it('keeps the dedicated close tone-agnostic across appearances (no per-appearance Button variant)', () => {
+    // The old close reused `<Button variant={solid ? 'inverted' : 'tertiary'}>`.
+    // The dedicated close tints via `currentColor`, so it carries the same
+    // `.st-callout__close` class regardless of appearance.
+    const solid = render(
       <Callout variant="error" appearance="solid" onClose={() => {}} title="Failed" />,
     )
-    const closeBtn = container.querySelector('button[aria-label="Close"]')
-    // After #268 sweep-3 the Button visual rules moved into Button.css —
-    // the discriminating signal is the `.st-btn--inverted` modifier class,
-    // not the underlying `text-inverted-foreground` token utility.
-    expect(closeBtn?.className).toContain('st-btn--inverted')
-  })
-
-  it('uses the tertiary Button variant for the close button on subtle appearance', () => {
-    const { container } = render(
+    const subtle = render(
       <Callout variant="info" appearance="subtle" onClose={() => {}} title="Heads up" />,
     )
-    const closeBtn = container.querySelector('button[aria-label="Close"]')
-    expect(closeBtn?.className).toContain('st-btn--tertiary')
-    expect(closeBtn?.className).not.toContain('st-btn--inverted')
+    for (const { container } of [solid, subtle]) {
+      const closeBtn = container.querySelector('button[aria-label="Close"]')
+      expect(closeBtn).toHaveClass('st-callout__close')
+      expect(closeBtn?.className).not.toContain('st-btn')
+    }
   })
 
   it('passes through arbitrary HTML attributes (role, data-*)', () => {

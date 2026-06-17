@@ -352,9 +352,13 @@ The contract is `:has()` on the block's documented sub-element classes:
     align-items: flex-start;
   }
 
-  /* The same selector cascades to descendants that need the multi-line nudge */
+  /* The same selector cascades to descendants that need the multi-line nudge.
+   * The icon (1.25rem) is taller than the title line-box (0.875rem × 1.25),
+   * so it is lifted by (title line-box − icon) / 2 to center on the title's
+   * first line — the no-DOM-restructure equivalent of wrapping icon + title
+   * in an `align-items: center` row. */
   .st-callout:has(.st-callout__title):has(.st-callout__body) .st-callout__icon {
-    margin-top: 0.125rem;
+    margin-top: calc((0.875rem * 1.25 - 1.25rem) / 2);
   }
 }
 ```
@@ -423,8 +427,10 @@ adopting `:has()` does not introduce a new browser-support floor.
   — `.st-callout:has(.st-callout__title):has(.st-callout__body)` toggles
   `align-items` from `center` to `flex-start` so the icon anchors to
   the heading when both heading and body are present. The same selector
-  also nudges `.st-callout__icon { margin-top: 0.125rem }` for optical
-  centering against the title's cap-height.
+  also lifts `.st-callout__icon` by `calc((0.875rem * 1.25 - 1.25rem) / 2)`
+  (= (title line-box − icon) / 2) so the icon's optical center sits on the
+  title's first line. `Toast` mirrors this exactly via
+  `:has(.st-toast__title):has(.st-toast__description)`.
 
 When you reach for `:has()` in a future component, walk the four rules
 above before authoring. If the layout decision feels closer to "runtime

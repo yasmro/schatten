@@ -8,10 +8,12 @@
  *
  * Sub-elements:
  * - `.st-callout__icon`    — variant icon (sized 20px, shrink-0)
- * - `.st-callout__content` — title + body column (flex-col, min-w-0)
+ * - `.st-callout__content` — title + body + action column (flex-col, min-w-0)
  * - `.st-callout__title`   — bold heading
  * - `.st-callout__body`    — description content
- * - `.st-callout__action`  — trailing slot for action / close (shrink-0)
+ * - `.st-callout__action`  — action slot, below the body (self-start)
+ * - `.st-callout__close`   — dedicated bare close (X) button, top-right.
+ *                             NOT `<Button>` — see the rule comment below.
  *
  * Layout is encoded on `.st-callout` itself (`display: flex`) so a
  * CSS-only consumer writes the block + sub-elements directly with no
@@ -117,10 +119,16 @@
     width: 1.25rem;
     height: 1.25rem;
   }
-  /* Multi-line regime: nudge icon down a touch so its optical center
-   * sits next to the heading's cap height rather than its baseline. */
+  /* Multi-line regime: center the icon on the title's FIRST line (not the
+   * title+body block). The icon (1.25rem) is taller than the title line-box
+   * (0.875rem × 1.25 = 1.09375rem), so `flex-start` alone drops the icon's
+   * optical center ~3px below the title's center line. Offset = (title
+   * line-box − icon) / 2 lifts it onto the title's center line — the same
+   * result as wrapping icon + title in an `align-items: center` row, without
+   * the DOM restructure (which would collide with the trailing action/close
+   * slot and the body-only regime). */
   .st-callout:has(.st-callout__title):has(.st-callout__body) .st-callout__icon {
-    margin-top: 0.125rem;
+    margin-top: calc((0.875rem * 1.25 - 1.25rem) / 2);
   }
 
   .st-callout__content {
@@ -142,7 +150,58 @@
     opacity: 0.9;
   }
 
+  /* Action sits below the body, aligned with the text column (not the
+   * trailing edge). `align-self: flex-start` keeps the action node at its
+   * natural width inside the stretch column. */
   .st-callout__action {
+    align-self: flex-start;
+    margin-top: 0.5rem;
+  }
+
+  /* Dedicated close affordance — a bare icon button, NOT `<Button>`, so it
+   * carries none of Button's text-button padding / sizing (an icon-only
+   * `<Button size="sm">` is a 2rem box, which reads as oversized in the
+   * corner). Tight 1.5rem hit area, tone-agnostic via `currentColor`, with
+   * the design-system focus ring (mirrors `.st-btn:focus-visible`). */
+  .st-callout__close {
     flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-sm);
+    background-color: transparent;
+    color: inherit;
+    cursor: pointer;
+    opacity: 0.7;
+    transition:
+      opacity 200ms,
+      background-color 200ms;
+  }
+  .st-callout__close:not(:disabled):hover {
+    opacity: 1;
+    background-color: color-mix(in srgb, currentColor 10%, transparent);
+  }
+  .st-callout__close:focus-visible {
+    outline: none;
+    opacity: 1;
+    box-shadow:
+      0 0 0 2px var(--color-ring-offset),
+      0 0 0 4px var(--color-ring);
+  }
+  .st-callout__close svg {
+    width: 1rem;
+    height: 1rem;
+    pointer-events: none;
+  }
+  /* Multi-line regime: lift the close ~4px so it sits on the title's line /
+   * tighter to the corner (the close box is taller than the title line, so
+   * `flex-start` alone leaves it a touch low). Single-line callouts keep the
+   * close vertically centered via the row's `align-items: center`. */
+  .st-callout:has(.st-callout__title):has(.st-callout__body) .st-callout__close {
+    margin-top: -0.25rem;
   }
 }

@@ -655,15 +655,15 @@ export const Reference: Story = {
   </div>
 </div>
 
-<!-- With action / close button (both use the __action trailing slot) -->
+<!-- Action sits below the body (in __content); close is a dedicated corner button -->
 <div class="st-callout st-callout--warning st-callout--subtle">
   <svg class="st-callout__icon" aria-hidden="true">…</svg>
   <div class="st-callout__content">
     <div class="st-callout__title">Unsaved changes</div>
     <div class="st-callout__body">…</div>
+    <div class="st-callout__action"><button>Save now</button></div>
   </div>
-  <div class="st-callout__action"><button>Save now</button></div>
-  <button class="st-callout__action" aria-label="Close">…</button>
+  <button type="button" class="st-callout__close" aria-label="Close">…</button>
 </div>
 
 <!-- Modifier vocabulary -->
@@ -673,10 +673,11 @@ export const Reference: Story = {
 
 <!-- Sub-elements -->
 <!-- __icon    : variant icon wrapper (sizes itself to 20px square) -->
-<!-- __content : title + body column (flex-col, fills remaining space) -->
+<!-- __content : title + body + action column (flex-col, fills remaining space) -->
 <!-- __title   : bold heading -->
 <!-- __body    : description content -->
-<!-- __action  : trailing slot for action / close button (shrink-0) -->
+<!-- __action  : action slot, below the body (align-self: flex-start) -->
+<!-- __close   : dedicated bare close (X) button, top-right (NOT .st-btn) -->
 
 <!-- Layout alignment is automatic:
        - title-only or body-only → align-items: center
@@ -1386,9 +1387,11 @@ export const Reference: Story = {
   <div class="st-toast__content">
     <div class="st-toast__title">Saved</div>
     <div class="st-toast__description">…</div>
+    <!-- action (when present) sits below the description -->
+    <button class="st-btn st-btn--tertiary st-btn--sm st-toast__action">Undo</button>
   </div>
-  <!-- action when present; otherwise a close Button — action XOR close -->
-  <button class="st-btn st-btn--tertiary st-btn--sm st-toast__action">Undo</button>
+  <!-- otherwise a dedicated corner close button — action XOR close -->
+  <button type="button" class="st-toast__close" aria-label="Close">…</button>
 </div>
 
 <!-- Modifier vocabulary -->
@@ -1402,11 +1405,12 @@ export const Reference: Story = {
 
 <!-- Sub-elements (mirror Callout) -->
 <!-- .st-toast__icon         variant icon / loading spinner (20px) -->
-<!-- .st-toast__content      title + description column (min-w-0, flex-col) -->
-<!-- .st-toast__action       trailing action / close <Button> (shrink-0) -->
+<!-- .st-toast__content      title + description + action column (min-w-0, flex-col) -->
+<!-- .st-toast__action       action <Button>, below the description (align-self: flex-start) -->
+<!-- .st-toast__close        dedicated bare close (X) button, top-right (NOT .st-btn) -->
 <!-- .st-toast__title        bold heading -->
-<!-- .st-toast__description  optional body; triggers icon-top alignment
-                             via :has() when present -->
+<!-- .st-toast__description  optional body; with a title, triggers icon-top
+                             alignment via :has(title):has(description) -->
 
 <!-- Loading: Toast.tsx renders a <Spinner class="st-toast__icon"> in place
      of the variant icon; there is no .st-toast--loading class. -->

@@ -22,6 +22,11 @@
   --ink-black: var(--sumi-900);
   --ink-dark: var(--sumi-700);
   --ink-medium: var(--sumi-600);
+  /* ink-faint (sumi-500) sits between medium and light — the AA-tuned tone for
+     the foreground-subtle tier (#344). It clears WCAG large-text 3:1 on both
+     paper-white and the warm surface, where the lighter ink-light/ink-subtle
+     do not. */
+  --ink-faint: var(--sumi-500);
   --ink-light: var(--sumi-400);
   --ink-subtle: var(--sumi-300);
 

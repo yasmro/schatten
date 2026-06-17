@@ -176,12 +176,12 @@ import { Icon } from '@yasmro/schatten'
         <div className="flex flex-col items-center gap-1">
           <Icon icon={Star} size="lg" color="default" />
           <span className="font-mono text-xs text-foreground-muted">decorative</span>
-          <span className="text-xs text-foreground-subtle">aria-hidden="true"</span>
+          <span className="text-xs text-foreground-muted">aria-hidden="true"</span>
         </div>
         <div className="flex flex-col items-center gap-1">
           <Icon icon={Trash2} size="lg" color="default" aria-label="Delete" />
           <span className="font-mono text-xs text-foreground-muted">aria-label="Delete"</span>
-          <span className="text-xs text-foreground-subtle">role="img"</span>
+          <span className="text-xs text-foreground-muted">role="img"</span>
         </div>
       </div>
       <CodeBlock>{`<Icon icon={Star} />                      // decorative -> aria-hidden="true"

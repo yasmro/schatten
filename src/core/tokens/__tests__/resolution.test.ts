@@ -204,8 +204,10 @@ const MODE_LAYER = {
     surface: 'paper-white',
     'surface-hover': 'alabaster-200',
     foreground: 'sumi-900',
-    'foreground-muted': 'sumi-400',
-    'foreground-subtle': 'sumi-300',
+    // AA-tuned (#344): muted/subtle shifted one ink rung darker so small text
+    // clears 4.5:1 (muted) and large text clears 3:1 (subtle) on the warm surface.
+    'foreground-muted': 'sumi-600',
+    'foreground-subtle': 'sumi-500',
     solid: 'alabaster-700',
     'solid-hover': 'alabaster-900',
     'solid-foreground': 'alabaster-100',
@@ -223,8 +225,9 @@ const MODE_LAYER = {
     surface: 'paper-white-inverted',
     'surface-hover': 'paper-cream-inverted',
     foreground: 'alabaster-200',
-    'foreground-muted': 'alabaster-500',
-    'foreground-subtle': 'alabaster-600',
+    // AA-tuned (#344): one rung lighter (toward the foreground) in dark mode.
+    'foreground-muted': 'alabaster-400',
+    'foreground-subtle': 'alabaster-500',
     solid: 'alabaster-300',
     'solid-hover': 'alabaster-100',
     'solid-foreground': 'alabaster-800',

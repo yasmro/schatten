@@ -69,7 +69,7 @@ function ThemeCell({ mode, special }: { mode: Mode; special: SeasonalThemeId | n
     >
       <div className="flex items-center justify-between text-xs">
         <span className="font-mono text-foreground-muted">{special ?? '(no theme)'}</span>
-        <span className="rounded bg-surface px-1.5 py-0.5 font-mono text-foreground-subtle uppercase">
+        <span className="rounded bg-surface px-1.5 py-0.5 font-mono text-foreground-muted uppercase">
           {mode}
         </span>
       </div>
@@ -134,7 +134,7 @@ export const Overview: Story = {
             <div className="col-span-2 mt-4 flex items-baseline gap-2 first:mt-0">
               <h2 className="font-semibold text-base text-foreground">{s.label}</h2>
               <span className="text-foreground-muted text-xs">{s.colors}</span>
-              <span className="ml-auto font-mono text-foreground-subtle text-xs">{s.id}</span>
+              <span className="ml-auto font-mono text-foreground-muted text-xs">{s.id}</span>
             </div>
             {MODES.map((m) => (
               <ThemeCell key={`${s.id}-${m}`} mode={m} special={s.id} />

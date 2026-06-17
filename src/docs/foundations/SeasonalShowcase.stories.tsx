@@ -152,7 +152,7 @@ export const EightSeasons: Story = {
                 <span className="text-foreground-muted text-xs">
                   {s.term} · {s.colors}
                 </span>
-                <span className="ml-auto font-mono text-foreground-subtle text-xs">{s.id}</span>
+                <span className="ml-auto font-mono text-foreground-muted text-xs">{s.id}</span>
               </header>
               {MODES.map((m) => (
                 <SeasonCell key={m} mode={m} season={s.id} className="p-4">
@@ -237,7 +237,7 @@ export const SideBySide: Story = {
                   <header className="flex flex-wrap items-baseline gap-2">
                     <h2 className="font-semibold text-base text-foreground">{display?.label}</h2>
                     <span className="text-foreground-muted text-xs">{display?.colors}</span>
-                    <span className="ml-auto font-mono text-foreground-subtle text-xs">{id}</span>
+                    <span className="ml-auto font-mono text-foreground-muted text-xs">{id}</span>
                   </header>
                   <SeasonCell mode={mode} season={id} className="p-4">
                     <SolidSample />
@@ -484,7 +484,7 @@ export const AutoSeason: Story = {
             <span className="text-foreground-muted text-sm">
               {display?.term} · {display?.colors}
             </span>
-            <span className="ml-auto font-mono text-foreground-subtle text-xs">{id}</span>
+            <span className="ml-auto font-mono text-foreground-muted text-xs">{id}</span>
           </div>
           <SeasonCell mode={mode} season={id} className="p-4">
             <SolidSample />

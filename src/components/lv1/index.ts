@@ -43,6 +43,15 @@ export {
 } from './FieldSet'
 export { Icon, type IconProps } from './Icon'
 export { Input, type InputProps } from './Input'
+export {
+  Popover,
+  PopoverAnchor,
+  PopoverClose,
+  PopoverContent,
+  type PopoverContentProps,
+  PopoverTrigger,
+  type PopoverTriggerProps,
+} from './Popover'
 export { Radio, RadioGroup, type RadioGroupProps, type RadioProps } from './Radio'
 export {
   Select,

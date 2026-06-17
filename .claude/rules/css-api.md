@@ -352,9 +352,20 @@ The contract is `:has()` on the block's documented sub-element classes:
     align-items: flex-start;
   }
 
-  /* The same selector cascades to descendants that need the multi-line nudge */
+  /* The same selector cascades to descendants that need the multi-line nudge.
+   * The icon is taller than the title line-box, so it is lifted by
+   * (title line-box − icon) / 2 to center on the title's first line — the
+   * no-DOM-restructure equivalent of wrapping icon + title in an
+   * `align-items: center` row. The icon size and title metrics are scoped
+   * vars on the block root (`--schatten-callout-icon-size` /
+   * `--schatten-callout-title-size` / `--schatten-callout-title-leading`),
+   * read by the icon rule, the title rule, AND this offset, so the offset
+   * can never drift from the values it derives from. */
   .st-callout:has(.st-callout__title):has(.st-callout__body) .st-callout__icon {
-    margin-top: 0.125rem;
+    margin-top: calc(
+      (var(--schatten-callout-title-size) * var(--schatten-callout-title-leading) -
+        var(--schatten-callout-icon-size)) / 2
+    );
   }
 }
 ```
@@ -423,8 +434,13 @@ adopting `:has()` does not introduce a new browser-support floor.
   — `.st-callout:has(.st-callout__title):has(.st-callout__body)` toggles
   `align-items` from `center` to `flex-start` so the icon anchors to
   the heading when both heading and body are present. The same selector
-  also nudges `.st-callout__icon { margin-top: 0.125rem }` for optical
-  centering against the title's cap-height.
+  also lifts `.st-callout__icon` by `(title line-box − icon) / 2` so the
+  icon's optical center sits on the title's first line. The two inputs are
+  scoped vars (`--schatten-callout-icon-size` / `-title-size` /
+  `-title-leading`) shared by the icon, title, and offset rules, so the
+  derivation has a single source. `Toast` mirrors this exactly via
+  `:has(.st-toast__title):has(.st-toast__description)` and its own
+  `--schatten-toast-*` vars.
 
 When you reach for `:has()` in a future component, walk the four rules
 above before authoring. If the layout decision feels closer to "runtime

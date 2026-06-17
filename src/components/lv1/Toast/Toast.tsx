@@ -149,32 +149,31 @@ function ToastBody({
       <div className="st-toast__content">
         {title && <div className="st-toast__title">{title}</div>}
         {description && <div className="st-toast__description">{description}</div>}
-      </div>
-
-      {action ? (
-        <Button
-          variant={buttonVariant}
-          size="sm"
-          className="st-toast__action"
-          aria-label={typeof action.label === 'string' ? undefined : action.altText}
-          onClick={() => {
-            action.onClick()
-            sonnerToast.dismiss(id)
-          }}
-        >
-          {action.label}
-        </Button>
-      ) : (
-        !loading && (
+        {action && (
           <Button
             variant={buttonVariant}
             size="sm"
-            icon={X}
-            aria-label="Close"
             className="st-toast__action"
-            onClick={() => sonnerToast.dismiss(id)}
-          />
-        )
+            aria-label={typeof action.label === 'string' ? undefined : action.altText}
+            onClick={() => {
+              action.onClick()
+              sonnerToast.dismiss(id)
+            }}
+          >
+            {action.label}
+          </Button>
+        )}
+      </div>
+
+      {!action && !loading && (
+        <button
+          type="button"
+          className="st-toast__close"
+          aria-label="Close"
+          onClick={() => sonnerToast.dismiss(id)}
+        >
+          <X aria-hidden="true" />
+        </button>
       )}
     </div>
   )

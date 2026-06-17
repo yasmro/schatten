@@ -2,7 +2,6 @@ import { CircleAlert, CircleCheck, Info, type LucideIcon, TriangleAlert, X } fro
 import { forwardRef, type HTMLAttributes, type ReactNode } from 'react'
 import { cn } from '../../../lib/utils'
 import { type CalloutVariants, calloutVariants } from '../../../variants/callout'
-import { Button } from '../Button'
 import './Callout.css'
 
 export type CalloutVariant = 'neutral' | 'success' | 'error' | 'warning' | 'info'
@@ -45,8 +44,8 @@ export interface CalloutProps
    */
   description?: ReactNode
   /**
-   * Free-form action area shown at the right of the callout (e.g. a Button
-   * or link). Use a ReactNode rather than a `{label, onClick}` object so
+   * Free-form action area shown below the body content (e.g. a Button or
+   * link). Use a ReactNode rather than a `{label, onClick}` object so
    * complex action UIs are possible — Callouts often persist on screen and
    * may need richer affordances than Toast actions.
    *
@@ -93,7 +92,6 @@ export const Callout = forwardRef<HTMLDivElement, CalloutProps>(
     ref,
   ) => {
     const Icon = iconByVariant[variant ?? 'neutral']
-    const buttonVariant = appearance === 'solid' ? 'inverted' : 'tertiary'
     // `description` prop wins over `children` when both are supplied so
     // that callsites can normalise on the prop form without worrying that
     // a stray `{children}` from a wrapper will silently take precedence.
@@ -111,19 +109,13 @@ export const Callout = forwardRef<HTMLDivElement, CalloutProps>(
         <div className="st-callout__content">
           {title && <div className="st-callout__title">{title}</div>}
           {body && <div className="st-callout__body">{body}</div>}
+          {action && <div className="st-callout__action">{action}</div>}
         </div>
 
-        {action && <div className="st-callout__action">{action}</div>}
-
         {onClose && (
-          <Button
-            variant={buttonVariant}
-            size="sm"
-            icon={X}
-            aria-label="Close"
-            className="st-callout__action"
-            onClick={onClose}
-          />
+          <button type="button" className="st-callout__close" aria-label="Close" onClick={onClose}>
+            <X aria-hidden="true" />
+          </button>
         )}
       </div>
     )

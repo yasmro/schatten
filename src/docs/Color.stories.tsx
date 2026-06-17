@@ -89,12 +89,12 @@ export const Colors: Story = {
         <ColorRow name="foreground" description="Primary text color" className="bg-foreground" />
         <ColorRow
           name="foreground-muted"
-          description="Secondary / helper text — less prominent than default"
+          description="Secondary / helper text — AA small-text safe (≥ 4.5:1)"
           className="bg-foreground-muted"
         />
         <ColorRow
           name="foreground-subtle"
-          description="Tertiary text — faintest of the three"
+          description="Tertiary text — faint; large / incidental text only (AA large-text 3:1, below 4.5:1 for small text by design)"
           className="bg-foreground-subtle"
         />
       </div>
@@ -402,17 +402,22 @@ export const Colors: Story = {
         />
         <ColorRow
           name="--ink-medium"
-          description="#4a4a4a — Medium ink tone"
+          description="Medium ink tone — backs foreground-muted (secondary text)"
           style={{ backgroundColor: 'var(--ink-medium)' }}
         />
         <ColorRow
+          name="--ink-faint"
+          description="Faint ink (sumi-500) — backs foreground-subtle (tertiary text)"
+          style={{ backgroundColor: 'var(--ink-faint)' }}
+        />
+        <ColorRow
           name="--ink-light"
-          description="#6b6b6b — Light ink"
+          description="Light ink tone"
           style={{ backgroundColor: 'var(--ink-light)' }}
         />
         <ColorRow
           name="--ink-subtle"
-          description="Faintest ink — used by foreground-subtle (tertiary text)"
+          description="Faintest ink — palette inventory (not a foreground tier; too light for AA text)"
           style={{ backgroundColor: 'var(--ink-subtle)' }}
         />
         <ColorRow

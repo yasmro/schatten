@@ -38,12 +38,19 @@
   /*
    * Foreground tiers (most → least prominent)
    *   foreground         primary text
-   *   foreground-muted   secondary / helper text
-   *   foreground-subtle  tertiary text (genuinely faint, lighter than muted)
+   *   foreground-muted   secondary / helper text  — WCAG AA small-text ≥ 4.5:1
+   *   foreground-subtle  tertiary text (faint, lighter than muted) — large /
+   *                      incidental text only (AA large-text 3:1; below 4.5:1
+   *                      for small text by design — do NOT use for body copy)
+   *
+   * Tuned for AA in #344: muted/subtle were one ink rung too light, failing
+   * small-text contrast on white and the warm surface. Both shifted darker
+   * (muted ink-light→ink-medium, subtle ink-subtle→ink-faint) while keeping a
+   * one-rung gap so the tier hierarchy stays legible.
    */
   --color-foreground: var(--ink-black);
-  --color-foreground-muted: var(--ink-light);
-  --color-foreground-subtle: var(--ink-subtle);
+  --color-foreground-muted: var(--ink-medium);
+  --color-foreground-subtle: var(--ink-faint);
 
   /*
    * Solid (filled component backgrounds) — rides the theme ramp.
@@ -166,8 +173,11 @@
     --color-surface-hover: var(--paper-cream-inverted);
 
     --color-foreground: var(--ink-black-inverted);
-    --color-foreground-muted: var(--ink-light-inverted);
-    --color-foreground-subtle: var(--ink-subtle-inverted);
+    /* AA-tuned (#344): muted → alabaster-400, subtle → alabaster-500. The
+       inverted ink ladder is contiguous, so the one-rung-darker shift lands on
+       existing aliases (ink-medium-inverted / ink-light-inverted). */
+    --color-foreground-muted: var(--ink-medium-inverted);
+    --color-foreground-subtle: var(--ink-light-inverted);
 
     --color-solid: var(--color-theme-300);
     --color-solid-hover: var(--color-theme-100);
@@ -233,8 +243,11 @@
   --color-surface-hover: var(--paper-cream-inverted);
 
   --color-foreground: var(--ink-black-inverted);
-  --color-foreground-muted: var(--ink-light-inverted);
-  --color-foreground-subtle: var(--ink-subtle-inverted);
+  /* AA-tuned (#344): muted → alabaster-400, subtle → alabaster-500. The
+     inverted ink ladder is contiguous, so the one-rung-darker shift lands on
+     existing aliases (ink-medium-inverted / ink-light-inverted). */
+  --color-foreground-muted: var(--ink-medium-inverted);
+  --color-foreground-subtle: var(--ink-light-inverted);
 
   --color-solid: var(--color-theme-300);
   --color-solid-hover: var(--color-theme-100);

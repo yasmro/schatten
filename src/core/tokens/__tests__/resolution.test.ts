@@ -204,8 +204,10 @@ const MODE_LAYER = {
     surface: 'paper-white',
     'surface-hover': 'alabaster-200',
     foreground: 'sumi-900',
-    'foreground-muted': 'sumi-400',
-    'foreground-subtle': 'sumi-300',
+    // AA-tuned (#344): muted/subtle shifted one ink rung darker so small text
+    // clears 4.5:1 (muted) and large text clears 3:1 (subtle) on the warm surface.
+    'foreground-muted': 'sumi-600',
+    'foreground-subtle': 'sumi-500',
     solid: 'alabaster-700',
     'solid-hover': 'alabaster-900',
     'solid-foreground': 'alabaster-100',
@@ -223,8 +225,9 @@ const MODE_LAYER = {
     surface: 'paper-white-inverted',
     'surface-hover': 'paper-cream-inverted',
     foreground: 'alabaster-200',
-    'foreground-muted': 'alabaster-500',
-    'foreground-subtle': 'alabaster-600',
+    // AA-tuned (#344): one rung lighter (toward the foreground) in dark mode.
+    'foreground-muted': 'alabaster-400',
+    'foreground-subtle': 'alabaster-500',
     solid: 'alabaster-300',
     'solid-hover': 'alabaster-100',
     'solid-foreground': 'alabaster-800',
@@ -437,6 +440,123 @@ describe('semantic.css token resolution', () => {
       expect(() => resolveToPrimitive('--color-foo', scope)).toThrow(/unexpected var\(\) form/)
     })
   })
+})
+
+/* ------------------------------------------------------------------ */
+/* Foreground-tier WCAG contrast (AA) — #344                            */
+/* ------------------------------------------------------------------ */
+
+/*
+ * The leaf-resolution fixtures above pin WHICH primitive each foreground tier
+ * bottoms out at, but nothing asserts the resulting CONTRAST. So a future
+ * re-tune of a primitive's OKLCH value (or a re-point of the tier) could
+ * silently drop muted/subtle back below AA and still pass the leaf pins.
+ *
+ * This block closes that gap: it resolves each tier AND its background to a
+ * leaf primitive, reads the literal value, converts to WCAG relative
+ * luminance, and asserts the ratio against the surfaces text actually sits on
+ * (the white surface and the warm background — the lower-contrast of the two).
+ * It is the permanent guard for the AA claim this PR makes; axe (VRT a11y)
+ * only re-checks it when those suites run, this checks it on every unit run.
+ */
+function oklchRelLuminance(L: number, C: number, h: number): number {
+  const hr = (h * Math.PI) / 180
+  const a = C * Math.cos(hr)
+  const b = C * Math.sin(hr)
+  const l_ = L + 0.3963377774 * a + 0.2158037573 * b
+  const m_ = L - 0.1055613458 * a - 0.0638541728 * b
+  const s_ = L - 0.0894841775 * a - 1.291485548 * b
+  const l = l_ ** 3
+  const m = m_ ** 3
+  const s = s_ ** 3
+  const r = 4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s
+  const g = -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s
+  const bl = -0.0041960863 * l - 0.7034186147 * m + 1.707614701 * s
+  // OKLab's linear-sRGB output already matches WCAG's linearized channels.
+  return 0.2126 * r + 0.7152 * g + 0.0722 * bl
+}
+
+function hexRelLuminance(hex: string): number {
+  const n = Number.parseInt(hex.slice(1), 16)
+  const toLinear = (v: number) => (v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4)
+  const r = toLinear(((n >> 16) & 0xff) / 255)
+  const g = toLinear(((n >> 8) & 0xff) / 255)
+  const b = toLinear((n & 0xff) / 255)
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b
+}
+
+/** Relative luminance of an `oklch(...)` or `#rrggbb` literal. */
+function relLuminance(value: string): number {
+  const ok = value.match(/oklch\(\s*([\d.]+)\s+([\d.]+)\s+([\d.]+)\s*\)/)
+  if (ok) return oklchRelLuminance(Number(ok[1]), Number(ok[2]), Number(ok[3]))
+  const hex = value.match(/^#([0-9a-f]{6})$/i)
+  if (hex) return hexRelLuminance(value)
+  throw new Error(`unsupported color literal: "${value}"`)
+}
+
+function contrastRatio(a: number, b: number): number {
+  const hi = Math.max(a, b) + 0.05
+  const lo = Math.min(a, b) + 0.05
+  return hi / lo
+}
+
+/** Resolve a `--color-*` token to its leaf primitive's literal value. */
+function leafValue(token: string, scope: Map<string, string>): string {
+  const leaf = resolveToPrimitive(token, scope)
+  const value = primitives.get(`--${leaf}`)
+  if (value === undefined) throw new Error(`primitive --${leaf} not found`)
+  return value.trim()
+}
+
+describe('foreground tier WCAG contrast (AA) (#344)', () => {
+  // Text can sit on the white surface OR the warm background; the warm one is
+  // the lower-contrast case, so asserting both covers the worst surface.
+  const SURFACES = ['surface', 'background'] as const
+
+  const ratioVs = (token: string, surface: string, scope: Map<string, string>) =>
+    contrastRatio(
+      relLuminance(leafValue(`--color-${token}`, scope)),
+      relLuminance(leafValue(`--color-${surface}`, scope)),
+    )
+
+  for (const [mode, scope] of [
+    ['light', lightScope],
+    ['dark', darkScope],
+  ] as const) {
+    it(`foreground-muted clears AA small-text 4.5:1 in ${mode} mode`, () => {
+      for (const surface of SURFACES) {
+        expect(
+          ratioVs('foreground-muted', surface, scope),
+          `muted on ${surface} (${mode})`,
+        ).toBeGreaterThanOrEqual(4.5)
+      }
+    })
+
+    // subtle is tertiary text: AA large-text 3:1 only, intentionally below 4.5
+    // for small text (state-token-guideline / semantic.css comment). Asserting
+    // ≥ 3 (not ≥ 4.5) is the contract, not a relaxation.
+    it(`foreground-subtle clears AA large-text 3:1 in ${mode} mode`, () => {
+      for (const surface of SURFACES) {
+        expect(
+          ratioVs('foreground-subtle', surface, scope),
+          `subtle on ${surface} (${mode})`,
+        ).toBeGreaterThanOrEqual(3)
+      }
+    })
+  }
+
+  // Guard the hierarchy: subtle must stay strictly lighter (lower contrast)
+  // than muted in both modes, so the three-tier scale doesn't collapse.
+  for (const [mode, scope] of [
+    ['light', lightScope],
+    ['dark', darkScope],
+  ] as const) {
+    it(`keeps subtle below muted contrast in ${mode} mode`, () => {
+      expect(ratioVs('foreground-subtle', 'surface', scope)).toBeLessThan(
+        ratioVs('foreground-muted', 'surface', scope),
+      )
+    })
+  }
 })
 
 /**

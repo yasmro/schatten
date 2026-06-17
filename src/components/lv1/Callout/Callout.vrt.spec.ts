@@ -10,6 +10,7 @@ const stories = [
   'body-only',
   'with-action',
   'solid-with-action',
+  'solid-dismissible',
   'long-content',
 ] as const
 

@@ -219,6 +219,28 @@ export const SolidWithAction: Story = {
   ),
 }
 
+export const SolidDismissible: Story = {
+  name: 'Solid Dismissible',
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'The dedicated close button is tone-agnostic (`currentColor` + `color-mix` hover), so it stays legible on a saturated `solid` surface without a per-appearance variant. Covers the close on `solid` in VRT (the subtle case is covered by "Long Content").',
+      },
+    },
+  },
+  render: () => (
+    <div className="flex flex-col gap-3 max-w-xl">
+      <Callout variant="error" appearance="solid" title="Failed" onClose={() => {}}>
+        Could not connect to the upstream.
+      </Callout>
+      <Callout variant="success" appearance="solid" title="Saved" onClose={() => {}}>
+        Your changes have been persisted.
+      </Callout>
+    </div>
+  ),
+}
+
 export const Dismissible: Story = {
   name: 'Dismissible',
   render: () => {

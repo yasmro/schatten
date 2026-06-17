@@ -49,6 +49,12 @@
      * Re-assert `--font-sans` so the toast matches the rest of the DS — and so a
      * consumer's brand-font override of `--font-sans` actually reaches it. */
     font-family: var(--font-sans);
+    /* Optical-centering inputs, mirrors Callout.css: icon size + title line-box
+     * are read by the icon rule, title rule, AND the multi-line icon offset, so
+     * the offset is a single source of truth that can't drift from them. */
+    --schatten-toast-icon-size: 1.25rem;
+    --schatten-toast-title-size: 0.875rem;
+    --schatten-toast-title-leading: 1.25;
     position: relative;
     box-sizing: border-box;
     width: 100%;
@@ -137,17 +143,23 @@
   /* ===== sub-elements (mirror Callout) ===== */
   .st-toast__icon {
     flex-shrink: 0;
-    width: 1.25rem;
-    height: 1.25rem;
+    width: var(--schatten-toast-icon-size);
+    height: var(--schatten-toast-icon-size);
   }
   /* Multi-line regime: center the icon on the title's FIRST line (not the
-   * title+description block). The icon (1.25rem) is taller than the title
-   * line-box (0.875rem × 1.25 = 1.09375rem), so `flex-start` alone drops the
-   * icon's optical center ~3px below the title's center line. Offset = (title
-   * line-box − icon) / 2 lifts it onto the title's center line. Mirrors
-   * Callout.css. */
+   * title+description block). The icon is taller than the title line-box, so
+   * `flex-start` alone drops the icon's optical center ~3px below the title's
+   * center line. Offset = (title line-box − icon) / 2 lifts it onto the title's
+   * center line. Derived from the scoped vars (mirrors Callout.css). */
   .st-toast:has(.st-toast__title):has(.st-toast__description) .st-toast__icon {
-    margin-top: calc((0.875rem * 1.25 - 1.25rem) / 2);
+    margin-top: calc(
+      (
+        var(--schatten-toast-title-size) *
+        var(--schatten-toast-title-leading) -
+        var(--schatten-toast-icon-size)
+      ) /
+      2
+    );
   }
 
   .st-toast__content {
@@ -159,9 +171,9 @@
   }
 
   .st-toast__title {
-    font-size: 0.875rem;
+    font-size: var(--schatten-toast-title-size);
     font-weight: 600;
-    line-height: 1.25;
+    line-height: var(--schatten-toast-title-leading);
   }
   .st-toast__description {
     font-size: 0.875rem;

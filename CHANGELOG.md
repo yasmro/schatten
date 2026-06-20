@@ -1,5 +1,142 @@
 # @yasmro/schatten
 
+## 0.12.0
+
+### Minor Changes
+
+- [#411](https://github.com/yasmro/schatten/pull/411) [`7666aba`](https://github.com/yasmro/schatten/commit/7666aba58cb615ef89fb57ea01a1d8dc7d4f6c97) Thanks [@yasmro](https://github.com/yasmro)! - CSS API: Callout / Toast のアイコン整列とアクション/クローズのレイアウトを調整。
+
+  - **アイコンの垂直中心を title の 1 行目に合わせた。** title+body（Toast は
+    title+description）の multi-line regime で、アイコン（1.25rem）が title の
+    line-box（0.875rem×1.25 = 1.09375rem）より背が高いため、従来の `flex-start`
+    - `margin-top: 0.125rem` ではアイコン中心が title 中心より約 3px 下にずれて
+      いた。`margin-top: calc((0.875rem * 1.25 - 1.25rem) / 2)` で title の 1 行目に
+      乗せる（icon + title を `align-items: center` の行で囲ったのと数学的に等価、
+      DOM 再構成なし）。Toast は regime トリガを `:has(.st-toast__description)` →
+      `:has(.st-toast__title):has(.st-toast__description)` に変更して Callout と
+      ミラー（description 単独の Toast はアイコンが 1 行にセンタリングされる）。
+  - **action を body の下へ移動。** `.st-callout__action` / `.st-toast__action`
+    は trailing slot（右）ではなく `__content` 列内の body 下
+    （`align-self: flex-start`）に描画。
+  - **close (X) を専用ボタン化。** 従来は `<Button size="sm" icon={X}>`
+    （= `.st-btn--sm.st-btn--icon-only`、2rem 角）を流用していたが text-button の
+    padding でコーナーでは過大に見えたため、専用の `.st-callout__close` /
+    `.st-toast__close`（1.5rem 角・`currentColor` で tone 非依存・DS の focus
+    ring）に置換。`.st-btn` は付与しない。multi-line regime では close を
+    `margin-top: -0.25rem` 上げて title 行／コーナーに寄せる（single-line は
+    `align-items: center` でセンタリング維持）。
+
+  クラス追加: `.st-callout__close` / `.st-toast__close`（additive）。
+  `.st-callout__action` / `.st-toast__action` は配置が trailing → below-body に
+  変わる（既存クラスの意味変更）。React の `action` / `onClose` props は不変。
+  Sonner swipe 対策（`.st-toast__close svg { pointer-events: none }`、[#318](https://github.com/yasmro/schatten/issues/318)）は
+  専用ボタンへ引き継ぎ済み。Callout / Toast の VRT baseline 再生成が必要。
+
+- [#403](https://github.com/yasmro/schatten/pull/403) [`6ba8074`](https://github.com/yasmro/schatten/commit/6ba8074b12907b67759186b336e8dca4578b669c) Thanks [@yasmro](https://github.com/yasmro)! - feat(lv1): add DropdownMenu component (Radix-based compound, closes [#41](https://github.com/yasmro/schatten/issues/41))
+
+  トリガーからメニューを表示する複合コンポーネント。`@radix-ui/react-dropdown-menu`
+  ラッパー。`DropdownMenuItem`(`variant` `default`/`destructive`、`inset`、`icon`)、
+  `CheckboxItem`、`RadioGroup`/`RadioItem`、`Sub*`(サブメニュー)、`Label` /
+  `Separator` / `Group` / `Shortcut` をフルセットで同梱。`区分 D`(JS 必須)のため
+  parity は持たず、manifest + class API unit test + React VRT で契約を担保。
+
+  CSS API: adds `.st-dropdown-menu__content` / `__sub-content` / `__item` /
+  `__item--destructive` / `__item-icon` / `__checkbox-item` / `__radio-item` /
+  `__item-indicator` / `__label` / `__separator` / `__group` / `__shortcut` /
+  `__sub-trigger` / `__sub-trigger-chevron`, served at
+  `@yasmro/schatten/css/dropdownmenu`.
+
+- [#412](https://github.com/yasmro/schatten/pull/412) [`816ea9c`](https://github.com/yasmro/schatten/commit/816ea9cb8101cf6c380353da74553d7bbe893af7) Thanks [@yasmro](https://github.com/yasmro)! - a11y: foreground-muted / foreground-subtle のコントラストを WCAG 2.1 AA に合わせて引き上げ ([#344](https://github.com/yasmro/schatten/issues/344) / [#147](https://github.com/yasmro/schatten/issues/147) Phase 2)。
+
+  - `--color-foreground-muted` を 1 ink rung 暗く（light `ink-light`/sumi-400 → `ink-medium`/sumi-600、dark alabaster-500 → alabaster-400）。小テキストで ≥ 4.5:1 を満たす。
+  - `--color-foreground-subtle` を 1 ink rung 暗く（light `ink-subtle`/sumi-300 → 新設 `ink-faint`/sumi-500、dark alabaster-600 → alabaster-500）。三次テキスト段は維持しつつ大テキスト 3:1 を満たす。subtle は小/本文テキスト不可（大・付随テキスト専用）として明文化。
+  - 変数名は不変のため CSS API surface（manifest）に変更なし。トークン値の更新のみ。
+
+- [#409](https://github.com/yasmro/schatten/pull/409) [`cc68f5c`](https://github.com/yasmro/schatten/commit/cc68f5c8711a43e8c9da45e02d70fb0bb5357137) Thanks [@yasmro](https://github.com/yasmro)! - feat(lv1): Popover コンポーネントを追加
+
+  クリックでトリガーするポップオーバーパネル（日付/カラーピッカー・フィルター設定などの土台）。`@radix-ui/react-popover` ベースの compound primitive で、`Popover` / `PopoverAnchor` / `PopoverTrigger` / `PopoverContent` / `PopoverClose` を公開。既定は非モーダル（`modal={false}` 透過）。
+
+  CSS API: `.st-popover__content`（portal パネル）を追加。状態は `[data-state]` / `[data-side]` で表現し、`@yasmro/schatten/css/popover` サブパスで配信。`components/lv1 (all)` の size budget を 60 KB → 64 KB に引き上げ（新規コンポーネント + Radix 依存追加に伴う additive な増分）。
+
+- [#413](https://github.com/yasmro/schatten/pull/413) [`05ee2c7`](https://github.com/yasmro/schatten/commit/05ee2c75b231732bac9a97971a247e96b6e50c6d) Thanks [@yasmro](https://github.com/yasmro)! - CSS API: state token に `emphasis` rung を新設し、淡背景/白地の色文字を WCAG 2.1 AA small-text 4.5:1 に引き上げ ([#344](https://github.com/yasmro/schatten/issues/344) Phase B / [#147](https://github.com/yasmro/schatten/issues/147) Phase 2)。
+
+  state token の 4-token 形（`base` / `hover` / `foreground` / `subtle`）を **5-token 形**に拡張し、5 state（`error` / `success` / `warning` / `info` / `destructive`）それぞれに `--color-{state}-emphasis` を追加。
+
+  - **新トークン**: `--color-{state}-emphasis`（light `-700` / dark `-400`）= 「淡背景・白地の読みやすい色文字」専用。`base`（`-600`/`-500`）は塗り・ボーダー・アイコンが兼用していたが、文字としては subtle(`-50`)・白地で 4.2〜4.4:1 と AA small-text 4.5 未達だった。`emphasis` は文字役を `base` から分離し、塗りを暗くせずに AA を満たす。値は `hover` と一致するが意味が別（文字 vs インタラクティブ塗り）— `destructive` vs `error` と同じ same-value / distinct-name 方針。
+  - **コンポーネント影響**: 非 solid 面の色文字を `base` → `emphasis` に統一 — Callout / Toast / Badge の `subtle`（および Badge `outline`）の色文字、`Text color="error|success|warning|info"` の standalone、`Field` / `FieldSet` の error メッセージ・required `*`、`DropdownMenu` の destructive item。塗り・ボーダー・`foreground`（solid の白文字）・`subtle` 背景は不変。
+  - **solid は意図的に据え置き**: 「白文字・鮮やかな塗り・4.5:1」の trilemma は `-600`/`-500` 塗りでは同時成立しないため、solid は高強調 treat の AA 例外として維持（意味は色のみでなくアイコン＋ラベルで担保 / WCAG 1.4.1）。`inverted-foreground-muted`/`-subtle`（彩色塗り上の淡い白系文字）も同根で incidental/large 専用と明文化。
+  - `--color-destructive-emphasis` は `DropdownMenu` destructive item（メニュー面の赤テキスト）が消費。`Button(destructive)` は solid（白 `foreground`）のため emphasis 非消費。
+  - manifest に CSS 変数 5 件を追加（クラス・状態属性は不変）。`resolution.test.ts` に leaf 解決と `state emphasis WCAG contrast` の AA テストを追加。
+  - VRT baseline は **色文字が閾値を超えて変化する分だけ**を faithful 再撮影（Badge / Callout subtle 系 / Toast subtle 系 / Text colors・state-colors・parity の計 33 件 + Color story の emphasis swatch 行追加 2 件）。Callout/Toast の solid 系・neutral は byte 一致で不変。CSSApi / CSSApiDist 等の集約 docs は emphasis 変化が `maxDiffPixelRatio` (1%) 閾値以下で既存 baseline のまま pass（docs の fullPage 再撮影は sub-pixel ノイズを持つため、guideline の mirror trap を避け再撮影しない）。コントラスト保証は `resolution.test.ts` の AA テストが担保。
+
+- [#404](https://github.com/yasmro/schatten/pull/404) [`403091a`](https://github.com/yasmro/schatten/commit/403091a03a9158540644b30e13d342f354bdcaf5) Thanks [@yasmro](https://github.com/yasmro)! - CSS API: Tabs コンポーネント（lv1）を追加。`@radix-ui/react-tabs` ベースの
+  compound（`Tabs` / `TabsList` / `TabsTrigger` / `TabsContent`）。`.st-tabs` /
+  `.st-tabs__list` / `.st-tabs__trigger` / `.st-tabs__content` クラスと、
+  アクティブ表示の `[data-state="active"]`・縦横レイアウトの `[data-orientation]`
+  state hook を新規公開（closes [#44](https://github.com/yasmro/schatten/issues/44)）。
+
+  単一スタイルの line 型（アクティブ tab を foreground 下線、非アクティブを muted）。
+  `orientation`（horizontal/vertical）と `activationMode`（automatic/manual）を
+  公開 API として持つ。orientation のスタイル分岐は、List/Trigger が Root の値を
+  prop で受け取れない compound 構造のため Radix の `[data-orientation]` 属性
+  セレクタで行う（css-api.md §state に compound 例外として明文化）。
+
+- [#400](https://github.com/yasmro/schatten/pull/400) [`22c2c36`](https://github.com/yasmro/schatten/commit/22c2c3684bda875206660a86e89f3ced222df8f2) Thanks [@yasmro](https://github.com/yasmro)! - feat(lv1): Text に serif family + leading variants + JP/EN size 補正を追加
+
+  `Text` に直交軸を 2 つ追加: `family`（`sans` / `serif`）と `leading`（`--leading-*` スケールの override）。`serif` は EB Garamond / Noto Serif JP スタックに切替え（フォントは同梱せず consumer がロード）。
+
+  あわせて JP/EN の cap-height 補正を **body の reset 層にライブラリ全体で適用**: `font-size-adjust: var(--st-font-size-adjust, cap-height 0.7)`。Latin 系フォント（EB Garamond / Hanken Grotesk）の cap-height を CJK の高さに揃えるため、Button / Input / Badge / Text など**全コンポーネントの欧文混じりテキストの見た目が僅かに変わる**。font-agnostic な目標値なので単一の値で全 family・consumer フォントに効き、`--st-font-size-adjust` で上書き / 無効化できる（非対応ブラウザは補正なしに graceful degrade）。
+
+  CSS API: `.st-text--sans` / `.st-text--serif` / `.st-text--leading-{none,tight,snug,normal,relaxed,loose}` を追加。`--font-serif` セマンティックトークンを default theme で実体化し、`.st-text--serif` から参照されることで manifest に公開 surface 化。
+
+- [#396](https://github.com/yasmro/schatten/pull/396) [`b7d6969`](https://github.com/yasmro/schatten/commit/b7d6969c304aafb5ccf03f7f90e82e019f66ea46) Thanks [@yasmro](https://github.com/yasmro)! - Toast の内部実装を `@radix-ui/react-toast` から [sonner](https://sonner.emilkowal.ski/) に置き換え、loading 機能を追加 ([#318](https://github.com/yasmro/schatten/issues/318))。stacking / swipe / enter-exit / auto-dismiss は Sonner が所有し、各 toast の中身は Schatten が `toast.custom()` で描画する — 実コンポーネント (`Icon` / `Spinner` / `Button`) と `.st-toast*` クラスを使い、`Callout` と構造的に一致させた。
+
+  新機能 (additive):
+
+  - `toast.loading(input)` — spinner 表示・自動 dismiss 無効の loading toast。
+  - `toast.promise(promise, { loading, success, error, finally? })` — promise から loading→success/error を自動遷移。戻り値の `.unwrap()` で元の promise を取り戻して成功後の副作用 (遷移など) を繋げる。
+  - `<Toaster>` に additive な `expand` / `visibleToasts` props。
+  - `ToastFn` / `ToastPromiseOptions` / `ToastPromiseHandle` 型を公開。
+
+  BREAKING (pre-1.0):
+
+  - CSS API: viewport クラス `.st-toaster` と `.st-toaster--{6 position}` を撤去 (位置決めは `<Toaster position>` prop → Sonner に一本化)。`[data-swipe]` 状態属性を撤去 (swipe は Sonner 所有)。`.st-toast` の `[data-state]` 駆動 enter/exit アニメーションを撤去 (Sonner 所有)。新規 sub-element クラス `.st-toast__action` (action / close `<Button>` のスロット) を追加。
+  - Types: 公開 hook `useToast()` と型 `ToastData` を撤去 (自前 store を廃止)。
+
+  維持される surface: `toast()` の signature・`ToastInput` 全プロパティ・`ToastVariant` / `ToastAppearance` union・per-toast の `.st-toast--{tone}` / `.st-toast--{shape}` クラス・`.st-toast__{icon,content,title,description}` sub-element。action / close は実 lv1 `<Button>`、title / description のタイポグラフィは `Callout` と一致。
+
+  依存: `@radix-ui/react-toast` を削除、`sonner@2.0.7` を exact pin で追加 (Sonner は視覚契約に影響しうるため、api-stability の visual-contract-affecting 表 / prepare-release の dep 表に登録済み)。
+
+### Patch Changes
+
+- [#401](https://github.com/yasmro/schatten/pull/401) [`269be4f`](https://github.com/yasmro/schatten/commit/269be4fd2f4fd5f0012b526b4866d5a0d95506d4) Thanks [@yasmro](https://github.com/yasmro)! - CSS API: `.st-btn` のラベル font-weight を 500 (medium) から 700 (bold) に変更し、ボタンテキストを太字に。あわせて `destructive` variant の hover でラベル文字色も沈むよう調整（背景の暗色化だけでなく文字色も `color-mix` で destructive base 側へシフト — primary の `--color-solid-foreground-hover` 相当の挙動を、state トークンの 4-token shape を崩さず CSS 側で表現）。
+
+  いずれもクラス API・状態属性・CSS 変数の追加/改名/削除はなく、既存 `.st-btn` ルールの値変更のみ。`link` variant は `font-weight: inherit` のままなので、段落に埋め込まれたリンクテキストは周囲のウェイトに追従し影響を受けない。ボタンを描画する全 VRT baseline（Button / parity / Dialog / Toast / CSSApi / CSSApiDist / Composition / Spacing / ThemeAudit / SeasonalShowcase）を再生成済み。
+
+- [#406](https://github.com/yasmro/schatten/pull/406) [`68feb59`](https://github.com/yasmro/schatten/commit/68feb5909c02aedd1034e77f1aab09ac96133b1b) Thanks [@yasmro](https://github.com/yasmro)! - perf(lv1): Button のローディングスピナーをアイドル時に停止
+
+  非 link / 非 asChild の Button は、ローディング transition をレイアウトシフトなしでクロスフェードさせるため、`.st-btn__spinner-overlay`（中の `Spinner`）を常に DOM に保持し、アイドル時は `opacity: 0` で隠している。だが `opacity: 0` の要素もコンポジット対象なので、Spinner の `animation: schatten-spin … infinite` が**全アイドルボタン上で回り続け**、ローディング中のボタン数ではなく描画ボタン数に比例した無駄なコンポジタ処理が発生していた（タブが idle に落ちず、低スペック / モバイルでの電力影響、`O(全ボタン数)` のスケール特性）。
+
+  `.st-btn__spinner-overlay .st-spinner__rotor` を既定で `animation-play-state: paused` にし、`.st-btn[aria-busy="true"]` 配下でのみ `running` に切り替える。クロスフェードの UX（overlay の `opacity` 0↔1 transition）と DOM 常駐はそのまま、見えていないスピナーのアニメーション tick だけを止める。
+
+  CSS API: クラス・状態属性・CSS 変数の追加 / 改名 / 削除はなし（既存 `.st-btn__spinner-overlay` / `.st-spinner__rotor` / `[aria-busy="true"]` を使った `animation-play-state` の付与のみ — component-architecture.md §7 が lv1-local CSS で許可する「`animation-play-state` を状態属性に紐づける」パターン）。静止画の見た目は不変（アイドル時は `opacity: 0`、ローディング時は停止フレームと実行中フレームが静止画では区別不能）なため、VRT baseline の再生成は不要。
+
+- [#402](https://github.com/yasmro/schatten/pull/402) [`4585e56`](https://github.com/yasmro/schatten/commit/4585e560d6c87ac3b4bff4bf590b0374146dc8ae) Thanks [@yasmro](https://github.com/yasmro)! - fix(lv1): Checkbox / Radio / Switch の `disabled + isError` で disabled を優先
+
+  `disabled` かつ `isError`（`aria-invalid="true"`）のとき、Checkbox / Radio / Switch がエラーの赤系トークンを表示していたのを修正。disabled なコントロールは送信されず error 状態を表示する意味がないため、disabled の grey トークンが勝つべき。Input / Textarea は既にこの優先順位（`default < [aria-invalid="true"] < :disabled`）だったので、3 コンポーネントを揃えた。
+
+  CSS API: `.st-checkbox` / `.st-radio` / `.st-switch` の `:disabled` ルールを `[aria-invalid="true"]` ルールより後ろに移動し、同一 specificity を source order で解決させる。クラス名・属性 hook の追加 / 削除はなし（cascade 優先順位のみの変更）。`aria-invalid="true"` は引き続き emit されるので assistive tech 向けの contract は不変。
+
+- [#399](https://github.com/yasmro/schatten/pull/399) [`775d1da`](https://github.com/yasmro/schatten/commit/775d1da80cdd0cc89903345f32b8df73243e91a9) Thanks [@yasmro](https://github.com/yasmro)! - refactor(docs): Welcome のリンクマニフェスト (`WELCOME_DEEP_LINKS` /
+  `WELCOME_COMPONENT_SLUGS`) を `Welcome.stories.tsx` の named export から
+  非 stories モジュール `Welcome.links.ts` へ切り出し。Storybook の CSF
+  スキャナがこれらの定数をストーリーと誤認し、空の `WELCOME DEEP LINKS` /
+  `WELCOME COMPONENT SLUGS` というサイドバー項目を生成していた不具合を解消する
+  (CSF は `*.stories.tsx` のみ走査するため構造的に解決し、`excludeStories` の
+  ような後付け抑制が不要)。Welcome ページの deep-link カードと drift テストは
+  新モジュールから import するよう更新。公開 API (React props / CSS class /
+  CSS variable / types) の変更なし。
+
 ## 0.11.0
 
 ### Minor Changes

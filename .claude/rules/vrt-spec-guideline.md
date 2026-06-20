@@ -199,19 +199,24 @@ CI splits them across runners: the macos `vrt` job runs `pnpm test:vrt`
 contrast / role checks derive from CSS, not from macos font / sub-pixel
 rendering, so the scarce macos runner stays pixel-only.
 
-> **Phase 1 (observe-only).** A backlog of pre-existing violations
-> (systemic borderline color-contrast on state tokens — #344;
-> bare-control story artifacts — #345) is worked off before the gate
-> blocks — mirroring the `audit` job's staged rollout (#307). Because
-> those ~115 violations would fail Playwright on **every** run, the
-> `a11y` job's step keeps the **check green as long as axe actually ran**
-> (it tees the full violation list into `$GITHUB_STEP_SUMMARY` for
-> anyone who looks) and only fails when axe *couldn't* run (a crash, or a
-> grep / `--` mistake that yields "No tests found"). The job is also
-> `continue-on-error: true` as a backstop. Phase 2 (#346) deletes that
-> exit-0 shim and `continue-on-error` so the gate blocks. Until then,
-> **read the summary, not the check color** — and new components should
-> still land with zero new violations.
+> **Phase 2 (blocking, #346).** The Phase 1 backlog is cleared — the
+> systemic color-contrast violations on state tokens (#344, fixed by the
+> `--color-{state}-emphasis` retune in Phase B) and the bare-control
+> story label/button-name violations (#345) are resolved — so the gate
+> now **blocks**: the `a11y` job propagates the Playwright exit code and
+> a new violation fails the PR. The step still tees the full axe output
+> into `$GITHUB_STEP_SUMMARY` so a failure's violation list is readable
+> straight from the PR checks. The only `color-contrast` findings that
+> remain are **intentional design exceptions** — solid treatments (white
+> foreground on a saturated/neutral-solid fill, the AA trilemma),
+> inverted-on-saturated foreground, and the `foreground-subtle` tertiary
+> tier (large/incidental-only). Each is suppressed with a **story-scoped**
+> `disableRules(['color-contrast'])` carrying a one-line rationale + the
+> `#344` / `#346` refs, mirrored in the story's `parameters.a11y` for the
+> addon panel (the [Per-story rule disable](storybook-guideline.md) rule).
+> A blanket or whole-file `color-contrast` disable is **not** acceptable —
+> if you reach for one, you are masking a real regression. New components
+> must land with zero new violations.
 
 ## Components rendered into a Portal
 

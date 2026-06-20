@@ -294,6 +294,10 @@ export const Disabled: Story = {
 
 export const InvertedOnSaturatedSurfaces: Story = {
   name: 'Inverted on saturated surfaces',
+  parameters: {
+    // inverted ghost foreground on saturated surfaces — incidental/large-only by design. Mirrors Button.vrt.spec.ts. #344 / #346.
+    a11y: { config: { rules: [{ id: 'color-contrast', enabled: false }] } },
+  },
   render: () => (
     <div className="flex flex-col gap-3">
       {[

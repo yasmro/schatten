@@ -196,9 +196,13 @@ a11y: {
   flipping the gate to blocking ([#346](https://github.com/yasmro/schatten/issues/346))
   surfaced it. Our a11y **test runner** is `@axe-core/playwright` (the CI `a11y`
   job), so the addon's headless run is redundant — `'off'` turns it off and
-  keeps addon-a11y as the **on-demand dev panel** only. If `@storybook/addon-vitest`
-  is ever wired up as a second runner, reconcile the two before re-enabling the
-  flag; don't simply flip it back to `'todo'`/`'error'`.
+  keeps addon-a11y as the **on-demand dev panel** only. `'off'` disables only
+  the headless `afterEach`; the panel's own run path is the `MANUAL` channel
+  event (the **"Rerun accessibility scan"** button), which is independent of
+  `test`, so the panel still scans the current story — you click Rerun instead
+  of it auto-populating on render. If `@storybook/addon-vitest` is ever wired up
+  as a second runner, reconcile the two before re-enabling the flag; don't
+  simply flip it back to `'todo'`/`'error'`.
 - **Dark mode / seasonal violations come for free.** The addon scans the
   rendered DOM *after* the global theme decorator applies `.dark` /
   `data-theme` to `<html>`, so toggling the Theme toolbar surfaces dark-mode

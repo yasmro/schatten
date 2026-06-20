@@ -367,30 +367,74 @@ export const Contrast: Story = {
       <SectionTitle>State tokens</SectionTitle>
       <Note>
         The semantic state tokens (<Code>error</Code> / <Code>success</Code> / <Code>warning</Code>{' '}
-        / <Code>info</Code>) are <em>designed</em> to clear AA against their paired surfaces in
-        light and dark. A backlog of borderline cases is being worked off (tracked in issue #344),
-        so treat the audit — not this prose — as ground truth. The full, mode-toggle-able swatch
-        matrices live in <Code>Tokens/Color</Code> under &quot;Filled / Subtle / Disabled vs
-        ReadOnly Treatments (a11y audit)&quot;.
+        / <Code>info</Code>) clear AA against their paired surfaces in light and dark. Non-solid
+        coloured text routes through the <Code>--color-&#123;state&#125;-emphasis</Code> rung (the
+        4→5-token shape from #344 Phase B) so it meets the 4.5 : 1 body-text line; the saturated{' '}
+        <em>solid</em> fills are the one documented exception (below). The full, mode-toggle-able
+        swatch matrices live in <Code>Tokens/Color</Code> under &quot;Filled / Subtle / Disabled vs
+        ReadOnly Treatments (a11y audit)&quot; — treat the audit, not this prose, as ground truth.
       </Note>
 
       <SubsectionTitle>Worked example — foreground tiers on a surface</SubsectionTitle>
       <Note>
-        <Code>text-foreground</Code> clears the 4.5 : 1 body-text line comfortably in both Modes.{' '}
-        <Code>text-foreground-muted</Code> is intentionally lower-contrast for secondary text — at
-        small sizes it lands in the borderline band (&lt; 4.5 : 1) that #344 is tightening, so reach
-        for it on larger or non-essential text and confirm exact ratios against the{' '}
-        <Code>Tokens/Color</Code> audit.
+        <Code>text-foreground</Code> (primary) and <Code>text-foreground-muted</Code> (secondary)
+        both clear the 4.5 : 1 body-text line in both Modes — muted was raised to AA in #344 Phase
+        A. <Code>text-foreground-subtle</Code> is the <em>tertiary</em> tier and is intentionally
+        below 4.5 : 1 at small sizes (it clears the 3 : 1 large-text line) — reach for it only on
+        large or incidental text, never body copy.
       </Note>
       <div className="rounded-lg border border-border bg-surface p-6 flex flex-col gap-1">
         <p className="text-foreground">
           <Code>text-foreground</Code> on <Code>bg-surface</Code> — primary body text, meets AA.
         </p>
         <p className="text-foreground-muted">
-          <Code>text-foreground-muted</Code> on <Code>bg-surface</Code> — secondary text, borderline
-          at small sizes (#344).
+          <Code>text-foreground-muted</Code> on <Code>bg-surface</Code> — secondary text, meets AA.
+        </p>
+        <p className="text-foreground-subtle">
+          <Code>text-foreground-subtle</Code> on <Code>bg-surface</Code> — tertiary, large /
+          incidental only.
         </p>
       </div>
+
+      <SectionTitle>Intentional AA exceptions</SectionTitle>
+      <Note>
+        Three contrast patterns are deliberately exempt from the 4.5 : 1 body-text line. These are
+        the <em>only</em> <Code>color-contrast</Code> findings the CI a11y gate (#346) suppresses —
+        each via a documented, story-scoped <Code>disableRules([&apos;color-contrast&apos;])</Code>{' '}
+        in the component&apos;s <Code>*.vrt.spec.ts</Code> (mirrored in the story&apos;s{' '}
+        <Code>parameters.a11y</Code>). A blanket disable is never allowed; anything outside this
+        table must clear AA. See <Code>.claude/rules/state-token-guideline.md</Code> for the token
+        rationale.
+      </Note>
+      <DocsTable
+        headers={['Exception', 'Where it appears', 'Why it is AA-exempt']}
+        rows={[
+          {
+            key: 'solid',
+            cells: [
+              'Solid treatments',
+              'Button primary / destructive; Badge / Callout / Toast appearance="solid"; Dialog action button',
+              'Light foreground on a saturated (or neutral-solid) fill cannot reach 4.5 : 1 — the white-on-vivid trilemma. Meaning is carried by an icon + a visible label (WCAG 1.4.1), not by colour.',
+            ],
+          },
+          {
+            key: 'inverted',
+            cells: [
+              'Inverted-on-saturated',
+              'Button variant="inverted"; Text color="inverted" / "inverted-muted" / "inverted-subtle"',
+              'The inverted foreground tiers sit on saturated surfaces and are incidental / large-only by design — the inverted analogue of the foreground-subtle tier.',
+            ],
+          },
+          {
+            key: 'subtle',
+            cells: [
+              'foreground-subtle (tertiary)',
+              'Text color="subtle"; faint helper / placeholder-like copy',
+              'The third foreground tier clears the 3 : 1 large-text line but is intentionally below 4.5 : 1 at small sizes. Never use it for body copy.',
+            ],
+          },
+        ]}
+      />
     </Page>
   ),
 }
@@ -603,8 +647,9 @@ pnpm test:vrt     # playwright test --grep-invert a11y    → screenshots only`}
         design exceptions — solid treatments, inverted-on-saturated foreground, and the{' '}
         <Code>foreground-subtle</Code> tertiary tier — each suppressed with a documented,
         story-scoped <Code>disableRules([&apos;color-contrast&apos;])</Code>. The addon panel&apos;s{' '}
-        <Code>test</Code> flag is <Code>off</Code> so its preview axe run does not race the
-        Playwright suite; addon-a11y remains the on-demand dev companion, not a second gate.
+        <Code>test</Code> flag is <Code>off</Code> so its headless preview run does not race the
+        Playwright suite; addon-a11y stays the on-demand dev companion — click{' '}
+        <strong>Rerun</strong> in the Accessibility panel to scan the current story.
       </Note>
     </Page>
   ),

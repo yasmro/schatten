@@ -91,7 +91,7 @@
 
   .st-field__required-marker {
     margin-left: 0.125rem;
-    color: var(--color-error);
+    color: var(--color-error-emphasis);
   }
 
   .st-field__info {
@@ -117,6 +117,6 @@
   .st-field__error {
     font-size: 0.875rem;
     line-height: 1.25rem;
-    color: var(--color-error);
+    color: var(--color-error-emphasis);
   }
 }

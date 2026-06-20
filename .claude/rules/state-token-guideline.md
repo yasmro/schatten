@@ -154,14 +154,13 @@ no component churn.
 **Rule**: form components and notification components reference `error-*`. Action surfaces
 reference `destructive-*`.
 
-`destructive` carries the full 5-token shape for uniformity, but
-`--color-destructive-emphasis` is **define-only** — `destructive`'s only
-consumer (`Button(destructive)`) is a solid fill (white text on `base`), so
-there is no subtle / standalone-text context that would read `emphasis`. It is
-declared and `@theme`-registered so all five interactive states share one
-shape; its value mirrors `error-emphasis` (both `red-700` / `red-400`).
-Define-only single-value semantic tokens are permitted pre-1.0
-([css-api.md](css-api.md)).
+`destructive` carries the full 5-token shape, and `--color-destructive-emphasis`
+**is consumed** — the `DropdownMenu` destructive item renders red text on the
+menu surface, which is colored text on a non-solid surface and so reads
+`emphasis` (not `base`). `Button(destructive)` — the other `destructive`
+consumer — is a solid fill (white `foreground` on `base`) and does *not* read
+`emphasis`. `destructive-emphasis`'s value mirrors `error-emphasis` (both
+`red-700` / `red-400`) since they share the `red` primitive.
 
 ## `info` independence from the theme scale
 

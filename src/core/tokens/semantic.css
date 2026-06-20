@@ -70,9 +70,9 @@
   --color-destructive-hover: var(--red-700);
   --color-destructive-foreground: var(--paper-white);
   --color-destructive-subtle: var(--red-50);
-  /* emphasis: readable colored text on pale/light surfaces. Define-only for
-     destructive (no subtle/standalone-text consumer today) — kept so all five
-     interactive states share one 5-token shape. See state-token-guideline.md. */
+  /* emphasis: readable colored destructive text on a non-solid surface —
+     consumed by the DropdownMenu destructive item (red text on the menu
+     surface). Same AA contract as the other states. See state-token-guideline.md. */
   --color-destructive-emphasis: var(--red-700);
 
   /*

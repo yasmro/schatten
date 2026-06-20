@@ -200,8 +200,8 @@ const INTERACTIVE_STATE = {
   },
   // `destructive` shares the `red` primitive with `error` but is a distinct
   // semantic (action intent vs. form state) — see state-token-guideline.md.
-  // `destructive-emphasis` is define-only (no subtle/standalone-text consumer);
-  // it exists so all five states share one 5-token shape.
+  // `destructive-emphasis` is consumed by the DropdownMenu destructive item
+  // (red text on the menu surface).
   destructive: {
     light: {
       base: 'red-600',
@@ -619,12 +619,13 @@ describe('foreground tier WCAG contrast (AA) (#344)', () => {
  * A future primitive re-tune that eroded any of these below AA would still pass
  * the leaf pins above; this catches it on every unit run, not only under axe.
  *
- * `destructive` is excluded: it has no subtle/standalone-text consumer
- * (define-only), so there is no rendered context to assert. Its value mirrors
- * `error` (both `red`), so it is covered transitively.
+ * `destructive` is included: the DropdownMenu destructive item renders
+ * `destructive-emphasis` as red text on the menu surface, so it has a real
+ * reading context. (Its `-subtle` assertion below has no current consumer but
+ * passes — same `red` value as `error`.)
  */
 describe('state emphasis WCAG contrast (AA small text) (#344 Phase B)', () => {
-  const STATES = ['error', 'success', 'warning', 'info'] as const
+  const STATES = ['error', 'success', 'warning', 'info', 'destructive'] as const
   const AA_SMALL = 4.5
 
   const ratioBetween = (a: string, b: string, scope: Map<string, string>) =>

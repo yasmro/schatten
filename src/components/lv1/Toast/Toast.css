@@ -95,7 +95,7 @@
   /* success */
   .st-toast--success.st-toast--subtle {
     background-color: var(--color-success-subtle);
-    color: var(--color-success);
+    color: var(--color-success-emphasis);
     border-color: var(--color-success);
   }
   .st-toast--success.st-toast--solid {
@@ -107,7 +107,7 @@
   /* error */
   .st-toast--error.st-toast--subtle {
     background-color: var(--color-error-subtle);
-    color: var(--color-error);
+    color: var(--color-error-emphasis);
     border-color: var(--color-error);
   }
   .st-toast--error.st-toast--solid {
@@ -119,7 +119,7 @@
   /* warning */
   .st-toast--warning.st-toast--subtle {
     background-color: var(--color-warning-subtle);
-    color: var(--color-warning);
+    color: var(--color-warning-emphasis);
     border-color: var(--color-warning);
   }
   .st-toast--warning.st-toast--solid {
@@ -131,7 +131,7 @@
   /* info */
   .st-toast--info.st-toast--subtle {
     background-color: var(--color-info-subtle);
-    color: var(--color-info);
+    color: var(--color-info-emphasis);
     border-color: var(--color-info);
   }
   .st-toast--info.st-toast--solid {

@@ -7,7 +7,7 @@ separated because their shape and consumer story differ.
 
 | Category | Members | Shape | Consumed by |
 |---|---|---|---|
-| **Interactive state** | `error`, `success`, `warning`, `info`, plus `destructive` (action color, same primitive as `error`) | 4-token: `base` / `hover` / `foreground` / `subtle` | Form inputs (`isError`), notification surfaces (`Toast`, `Callout`, `Badge`, …) |
+| **Interactive state** | `error`, `success`, `warning`, `info`, plus `destructive` (action color, same primitive as `error`) | 5-token: `base` / `hover` / `foreground` / `subtle` / `emphasis` | Form inputs (`isError`), notification surfaces (`Toast`, `Callout`, `Badge`, …) |
 | **Non-interactive state** | `disabled`, `readOnly` | Custom: `disabled` = `surface` + `foreground` + `border`; `readOnly` = `surface` + `border` (no `foreground` — the value stays readable) | Form controls when they cannot be acted on (`disabled`) or are display-only (`readOnly`) |
 
 Both categories live at the semantic layer. **Components must consume only
@@ -94,24 +94,49 @@ category — Biome plugins cannot register a named rule, so
 The plugin is exercised by [`no-primitive-color.test.ts`](../../biome-plugins/no-primitive-color.test.ts),
 which runs `biome lint` over fixture files and asserts the diagnostics.
 
-## The 4-token shape
+## The 5-token shape
 
-Every state defines exactly four tokens:
+Every state defines exactly five tokens:
 
 | Token | Role | Typical use |
 |---|---|---|
-| `base` | main color (saturated) | fills, borders, icons, text |
+| `base` | main color (saturated) | fills, borders, icons |
 | `hover` | base's interactive sibling | hover/active state of `base` |
-| `foreground` | on-`base` text/icon color | readable text atop `base` |
+| `foreground` | on-`base` text/icon color | readable text atop `base` (the solid fill) |
 | `subtle` | faint tinted background | low-weight state surfaces (e.g. error input bg) |
+| `emphasis` | readable colored **text** | colored text on a `subtle` / light surface (Callout/Toast/Badge subtle text, `Text color="error"`, Badge outline) |
 
 The tokens form two natural treatment pairs, named to match Pattern B's
 `appearance` value vocabulary (see
 [component-api-conventions](component-api-conventions.md#shape-vocabulary-appearance)):
 
 - **Solid** — `bg-{state}` + `text-{state}-foreground`. Used for buttons, toasts, badges.
-- **Subtle** — `bg-{state}-subtle` + `text-{state}` (often + `border-{state}`). Used for error
+- **Subtle** — `bg-{state}-subtle` + `text-{state}-emphasis` (often + `border-{state}`). Used for error
   input backgrounds, info banners.
+
+### Why `emphasis` is split off `base` (#344 Phase B)
+
+`base` (`-600` light / `-500` dark) does double duty as both the **fill** color
+and the **text** color. As *text* on a `-subtle` (`-50`) or page surface it
+lands at ~4.2–4.4:1 — below WCAG 1.4.3 **small-text 4.5:1**. `emphasis` splits
+the colored-**text** role off `base`, letting it darken to `-700` (light) /
+lighten to `-400` (dark) and clear AA **without** darkening the saturated fill.
+The `-{state}-subtle` background and the `border-{state}` / icon (`base`) are
+unchanged — only the colored *text* moved to `emphasis`.
+
+- **`emphasis` is text-only.** Borders, icons, and solid fills keep using
+  `base`; they're non-text (WCAG 1.4.11, 3:1), which `base` already clears.
+- **`emphasis` shares a primitive value with `hover`** (`-700` light / `-400`
+  dark) but is a **distinct semantic** — text emphasis vs. interactive fill.
+  Reusing `hover` for text would be a semantics mismatch (the same
+  same-value / distinct-name policy as [`destructive` vs `error`](#destructive-vs-error)).
+- **`foreground` (white-on-fill solid text) is deliberately *not* changed.**
+  The solid trilemma — white text **and** vivid fill **and** 4.5:1 — is
+  unsolvable on the `-600`/`-500` fills, so solid keeps its **intentional
+  high-emphasis treatment** (small-text AA exception), with meaning carried by
+  the icon + visible label per WCAG 1.4.1 (not color alone). Likewise the
+  `inverted-foreground-muted` / `-subtle` tiers (faint white-ish text on
+  saturated fills) are **incidental/large-text only** by the same reasoning.
 
 ## `destructive` vs `error`
 
@@ -129,6 +154,15 @@ no component churn.
 **Rule**: form components and notification components reference `error-*`. Action surfaces
 reference `destructive-*`.
 
+`destructive` carries the full 5-token shape for uniformity, but
+`--color-destructive-emphasis` is **define-only** — `destructive`'s only
+consumer (`Button(destructive)`) is a solid fill (white text on `base`), so
+there is no subtle / standalone-text context that would read `emphasis`. It is
+declared and `@theme`-registered so all five interactive states share one
+shape; its value mirrors `error-emphasis` (both `red-700` / `red-400`).
+Define-only single-value semantic tokens are permitted pre-1.0
+([css-api.md](css-api.md)).
+
 ## `info` independence from the theme scale
 
 `info` references `blue-*` directly rather than `theme-*`. Themes that retune the
@@ -139,36 +173,49 @@ meaning. Keep `info` pinned to blue.
 
 Each state shifts shades between modes:
 
-| Mode | `base` | `hover` | `foreground` | `subtle` |
-|---|---|---|---|---|
-| Light | `*-600` | `*-700` | `paper-white` | `*-50` |
-| Dark | `*-500` | `*-400` | `paper-white-inverted` | `*-900` |
+| Mode | `base` | `hover` | `foreground` | `subtle` | `emphasis` |
+|---|---|---|---|---|---|
+| Light | `*-600` | `*-700` | `paper-white` | `*-50` | `*-700` |
+| Dark | `*-500` | `*-400` | `paper-white-inverted` | `*-900` | `*-400` |
 
 The dark-mode `foreground = paper-white-inverted` (`#1a1a1a`) is intentional: in dark mode the
 state `base` shifts brighter (e.g. `red-500`), and dark text on a bright saturated
 fill achieves higher WCAG contrast than white-on-bright. Verify visually in `Foundation/Color`
 → "Solid Treatments (a11y audit)" before introducing new state-driven UI.
 
+`emphasis` shifts the **opposite** direction from `base` between modes — *darker*
+in light (`-700`, more contrast on the pale `-50` / white surface) and *lighter*
+in dark (`-400`, more contrast on the dark `-900` surface). Both clear AA
+small-text 4.5:1 in their reading contexts; the
+[resolution test](../../src/core/tokens/__tests__/resolution.test.ts)
+(`state emphasis WCAG contrast`) pins this on every unit run.
+
 ## Adding a new component that needs state colors
 
 1. **Reach for an existing semantic.** Don't introduce a new state semantic (e.g. `notice`,
    `caution`) unless you can articulate a meaning that `error / success / warning / info`
    genuinely cannot cover.
-2. **Decide treatment**: solid (`bg + foreground`) or subtle (`bg-subtle + base text`)?
-   Components like Toast may support both via the `appearance` prop.
+2. **Decide treatment**: solid (`bg-{state}` + `text-{state}-foreground`) or
+   subtle (`bg-{state}-subtle` + `text-{state}-emphasis`, often + `border-{state}`)?
+   Components like Toast may support both via the `appearance` prop. Colored
+   **text** on a non-solid surface always reads `emphasis`, never `base` —
+   `base` is fill/border/icon only.
 3. **Always use semantic tokens.** Never hardcode `bg-vermillion-600` in a component.
 4. **Audit contrast** by adding the new component to the `Solid / Subtle Treatments` story
    sections, or by toggling light/dark in your component's own story.
 
 ## Adding a new state semantic (rarely needed)
 
-1. Add `--color-{state}`, `-hover`, `-foreground`, `-subtle` in `src/core/tokens/semantic.css`
-   for `:root`, `@media (prefers-color-scheme: dark)`, and `.dark`.
-2. Register all four in `@theme` inside `src/core/tokens/base.css` so Tailwind utilities
-   (`bg-{state}`, `bg-{state}-subtle`, …) become available.
-3. Add the four tokens (light + dark expected primitive) to the fixture in
+1. Add `--color-{state}`, `-hover`, `-foreground`, `-subtle`, `-emphasis` in
+   `src/core/tokens/semantic.css` for `:root`,
+   `@media (prefers-color-scheme: dark)`, and `.dark` (emphasis: `-700` light /
+   `-400` dark).
+2. Register all five in `@theme` inside `src/core/tokens/base.css` so Tailwind utilities
+   (`bg-{state}`, `bg-{state}-subtle`, `text-{state}-emphasis`, …) become available.
+3. Add the five tokens (light + dark expected primitive) to the fixture in
    `src/core/tokens/__tests__/resolution.test.ts` so the semantic→primitive
-   resolution is pinned and silent drift is caught.
+   resolution is pinned and silent drift is caught, and add the new state to the
+   `state emphasis WCAG contrast` block.
 4. Add a subsection to `src/docs/Color.stories.tsx`.
 5. Add rows to the "Solid Treatments" and "Subtle Treatments" audit sections.
 6. Add a changeset (typically `minor` — additive feature).

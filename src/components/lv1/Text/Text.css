@@ -180,17 +180,21 @@
   .st-text--inverted-subtle {
     color: var(--color-inverted-foreground-subtle);
   }
+  /* State colors use the `-emphasis` rung (not `base`): standalone colored
+     text on the page surface needs AA small-text 4.5:1, which `base` (-600)
+     misses (~4.4). `-emphasis` (-700 light / -400 dark) clears it. See
+     state-token-guideline.md "emphasis". */
   .st-text--error {
-    color: var(--color-error);
+    color: var(--color-error-emphasis);
   }
   .st-text--success {
-    color: var(--color-success);
+    color: var(--color-success-emphasis);
   }
   .st-text--warning {
-    color: var(--color-warning);
+    color: var(--color-warning-emphasis);
   }
   .st-text--info {
-    color: var(--color-info);
+    color: var(--color-info-emphasis);
   }
   .st-text--vermillion {
     color: var(--color-vermillion);

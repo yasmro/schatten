@@ -190,9 +190,13 @@ export const Colors: Story = {
 
       <SubsectionTitle>State Tokens</SubsectionTitle>
       <p className="text-sm text-foreground-muted mb-3">
-        Each state provides four tokens — <code>base</code> (main color), <code>hover</code>{' '}
-        (interactive sibling), <code>foreground</code> (text on base) and <code>subtle</code> (faint
-        tinted background).
+        Each state provides five tokens — <code>base</code> (main color, used for fills / borders /
+        icons), <code>hover</code> (interactive sibling), <code>foreground</code> (text on the solid
+        base), <code>subtle</code> (faint tinted background) and <code>emphasis</code> (the readable
+        colored <em>text</em> rung — <code>-700</code> in light, <code>-400</code> in dark — for
+        colored text on a <code>subtle</code> or light surface). <code>emphasis</code> exists
+        because <code>base</code> as text lands just under WCAG AA small-text 4.5:1; it clears AA
+        without darkening the fill (#344 Phase B).
       </p>
 
       <SubsectionTitle>Error</SubsectionTitle>
@@ -217,6 +221,11 @@ export const Colors: Story = {
           description="Subtle background for error states"
           className="bg-error-subtle border border-border"
         />
+        <ColorRow
+          name="error-emphasis"
+          description="Readable colored text on subtle/light surfaces"
+          className="bg-error-emphasis"
+        />
       </div>
 
       <SubsectionTitle>Success</SubsectionTitle>
@@ -236,6 +245,11 @@ export const Colors: Story = {
           name="success-subtle"
           description="Subtle background for success states"
           className="bg-success-subtle border border-border"
+        />
+        <ColorRow
+          name="success-emphasis"
+          description="Readable colored text on subtle/light surfaces"
+          className="bg-success-emphasis"
         />
       </div>
 
@@ -257,6 +271,11 @@ export const Colors: Story = {
           description="Subtle background for warning states"
           className="bg-warning-subtle border border-border"
         />
+        <ColorRow
+          name="warning-emphasis"
+          description="Readable colored text on subtle/light surfaces"
+          className="bg-warning-emphasis"
+        />
       </div>
 
       <SubsectionTitle>Info</SubsectionTitle>
@@ -276,6 +295,11 @@ export const Colors: Story = {
           name="info-subtle"
           description="Subtle background for info states"
           className="bg-info-subtle border border-border"
+        />
+        <ColorRow
+          name="info-emphasis"
+          description="Readable colored text on subtle/light surfaces"
+          className="bg-info-emphasis"
         />
       </div>
 

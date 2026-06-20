@@ -603,8 +603,8 @@ pnpm test:vrt     # playwright test --grep-invert a11y    → screenshots only`}
         design exceptions — solid treatments, inverted-on-saturated foreground, and the{' '}
         <Code>foreground-subtle</Code> tertiary tier — each suppressed with a documented,
         story-scoped <Code>disableRules([&apos;color-contrast&apos;])</Code>. The addon panel&apos;s{' '}
-        <Code>test</Code> flag stays <Code>todo</Code>: it remains the dev-time companion, not a
-        second gate.
+        <Code>test</Code> flag is <Code>off</Code> so its preview axe run does not race the
+        Playwright suite; addon-a11y remains the on-demand dev companion, not a second gate.
       </Note>
     </Page>
   ),

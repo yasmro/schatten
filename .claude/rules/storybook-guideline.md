@@ -185,13 +185,20 @@ a11y: {
   `landmark-one-main` / `page-has-heading-one`) that flag the Storybook iframe
   itself on every story — pure noise. Keeping the tag set identical means
   "green in the dev panel" maps to the same contract CI enforces.
-- **`test: 'todo'`** keeps the addon panel observe-only. The `test` flag only
-  bites through the test addon (`@storybook/addon-vitest`), which is not wired
-  up today, so it is inert. The CI a11y **gate** is already blocking — that is
-  the Playwright `a11y` job ([#346](https://github.com/yasmro/schatten/issues/346)),
-  a separate surface from this addon-vitest flag. Promoting the flag to
-  `'error'` only matters once `@storybook/addon-vitest` is actually wired up;
-  until then it stays `'todo'`.
+- **`test: 'off'` is required, and is NOT "inert".** addon-a11y's preview
+  `afterEach` runs axe on every `viewMode=story` render unless `test === 'off'`
+  (the `shouldRunEnvironmentIndependent` guard in the addon's `preview.js`).
+  `@axe-core/playwright` loads exactly those `iframe.html?viewMode=story` URLs,
+  so any value other than `'off'` makes the addon's run **race** our Playwright
+  `.analyze()` in the same frame → intermittent `Error: Axe is already running`
+  (worst on Toast, which mounts toasts in a `useEffect`, forcing a second
+  render → a second axe run). The Phase-1 observe-only exit-0 shim hid this;
+  flipping the gate to blocking ([#346](https://github.com/yasmro/schatten/issues/346))
+  surfaced it. Our a11y **test runner** is `@axe-core/playwright` (the CI `a11y`
+  job), so the addon's headless run is redundant — `'off'` turns it off and
+  keeps addon-a11y as the **on-demand dev panel** only. If `@storybook/addon-vitest`
+  is ever wired up as a second runner, reconcile the two before re-enabling the
+  flag; don't simply flip it back to `'todo'`/`'error'`.
 - **Dark mode / seasonal violations come for free.** The addon scans the
   rendered DOM *after* the global theme decorator applies `.dark` /
   `data-theme` to `<html>`, so toggling the Theme toolbar surfaces dark-mode

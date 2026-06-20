@@ -84,11 +84,19 @@ const preview: Preview = {
           values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'],
         },
       },
-      // Phase 1 (observe-only): surface violations in the panel, block nothing.
-      // `test` only bites once the test addon (@storybook/addon-vitest) is
-      // wired up — unused today, so 'todo' is inert but documents the stance.
-      // Promotion to 'error' rides with the CI blocking work (#346).
-      test: 'todo',
+      // `test: 'off'` — NOT inert. addon-a11y's preview `afterEach` runs axe
+      // on every `viewMode=story` render whenever `test !== 'off'` (see the
+      // `shouldRunEnvironmentIndependent` guard in addon-a11y's preview.js).
+      // Playwright loads exactly those `iframe.html?viewMode=story` URLs, so
+      // the addon's run RACES our `@axe-core/playwright` `.analyze()` in the
+      // same frame → intermittent `Error: Axe is already running` (worst on
+      // Toast, whose toasts mount in a useEffect → a second render → a second
+      // axe run). Phase 1's exit-0 shim masked it; #346 (blocking) surfaced it.
+      // Our a11y test runner IS `@axe-core/playwright` (the CI `a11y` gate), so
+      // the addon's headless run is redundant — turn it off and keep addon-a11y
+      // as the on-demand dev PANEL only. The panel still scans the selected
+      // story with the pinned tag set above.
+      test: 'off',
     },
     options: {
       // Comparator form (was a `storySort.order` array). The top-level group

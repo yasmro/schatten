@@ -173,7 +173,7 @@
     "tailwindcss": "^4.2.2",
     "tsup": "^8.3.5",
     "typescript": "^5.8.3",
-    "vite": "7.3.5",
+    "vite": "8.0.16",
     "vitest": "^4.1.6"
   },
   "dependencies": {

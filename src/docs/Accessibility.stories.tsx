@@ -45,12 +45,14 @@ import {
  * `.claude/rules/vrt-spec-guideline.md` ("docs / token stories — VRT only when
  * there's a genuine visual contract").
  *
- * Why not even an a11y-only axe spec (no screenshots): this page deliberately
- * renders muted-foreground prose and state-token Callouts to demonstrate the
- * contract — and those are exactly the surfaces in the #344 borderline
- * color-contrast backlog. A green `expect(violations).toEqual([])` is therefore
- * not achievable here until #344 lands. Revisit folding this page into the CI
- * a11y gate when #344 is resolved (or when #346 flips the gate to blocking).
+ * Why not even an a11y-only axe spec (no screenshots): docs pages are
+ * deliberately kept out of the per-page CI a11y roster (vrt-spec-guideline
+ * §"docs page tables and a11y") — their prose a11y is checked at dev time via
+ * the addon-a11y panel, not gated per page. The lv1 a11y gate itself is now
+ * blocking (#346) after the #344 / #345 backlog was cleared; this page renders
+ * the foreground-subtle tertiary tier and solid state Callouts on purpose to
+ * document the contract, so a green per-page axe run would still need those
+ * intentional exceptions suppressed — not worth a bespoke spec here.
  */
 const meta: Meta = {
   title: 'Patterns/Accessibility',
@@ -553,7 +555,7 @@ export const ScreenReader: Story = {
 
 /**
  * §7 — Automated testing. axe in every VRT spec (#147) + the addon-a11y panel
- * (#148), pinned to the WCAG 2.1 A/AA tag set. Phase 1 is observe-only (#346).
+ * (#148), pinned to the WCAG 2.1 A/AA tag set. The CI gate is blocking (#346).
  */
 export const AutomatedTesting: Story = {
   name: 'Automated testing',
@@ -593,12 +595,16 @@ expect(results.violations).toEqual([])`}</CodeBlock>
       <CodeBlock>{`pnpm test:a11y    # playwright test --grep a11y          → a11y only
 pnpm test:vrt     # playwright test --grep-invert a11y    → screenshots only`}</CodeBlock>
 
-      <SectionTitle>Status: observe-only (Phase 1)</SectionTitle>
+      <SectionTitle>Status: blocking gate</SectionTitle>
       <Note>
-        The CI a11y job currently <strong>observes</strong> rather than blocks (it surfaces
-        violations in the job summary while a backlog of pre-existing issues is worked off), and the
-        addon&apos;s <Code>test</Code> flag is <Code>todo</Code>. Promotion to a blocking gate is
-        tracked in issue #346.
+        The CI a11y job <strong>blocks</strong> (#346) — it propagates the Playwright exit code, so
+        a new WCAG 2.1 A/AA violation fails the PR (the full violation list is still tee&apos;d into
+        the job summary). The only <Code>color-contrast</Code> findings that remain are intentional
+        design exceptions — solid treatments, inverted-on-saturated foreground, and the{' '}
+        <Code>foreground-subtle</Code> tertiary tier — each suppressed with a documented,
+        story-scoped <Code>disableRules([&apos;color-contrast&apos;])</Code>. The addon panel&apos;s{' '}
+        <Code>test</Code> flag stays <Code>todo</Code>: it remains the dev-time companion, not a
+        second gate.
       </Note>
     </Page>
   ),

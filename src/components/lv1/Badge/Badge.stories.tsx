@@ -216,6 +216,8 @@ export const OutlineTreatments: Story = {
 export const FullMatrix: Story = {
   name: 'Full Matrix',
   parameters: {
+    // Solid Badges are light-on-saturated fill — the intentional AA solid exception (icon + label carry the meaning). Mirrors Badge.vrt.spec.ts. #344 / #346.
+    a11y: { config: { rules: [{ id: 'color-contrast', enabled: false }] } },
     docs: {
       description: {
         story:

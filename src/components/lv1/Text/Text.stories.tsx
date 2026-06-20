@@ -286,6 +286,8 @@ export const Leading: Story = {
 export const Colors: Story = {
   name: 'Colors',
   parameters: {
+    // Renders the subtle foreground tier (large/incidental-only) + a raw text-blue-500 inherit demo — not state-colour text. Mirrors Text.vrt.spec.ts. #344 / #346.
+    a11y: { config: { rules: [{ id: 'color-contrast', enabled: false }] } },
     docs: {
       description: {
         story:
@@ -346,6 +348,8 @@ export const BrandColors: Story = {
 export const InvertedColor: Story = {
   name: 'Inverted Color',
   parameters: {
+    // inverted foreground tiers on saturated surfaces — incidental/large-only by design. Mirrors Text.vrt.spec.ts. #344 / #346.
+    a11y: { config: { rules: [{ id: 'color-contrast', enabled: false }] } },
     docs: {
       description: {
         story:

@@ -211,17 +211,18 @@ jobs:
 
   a11y:
     runs-on: ubuntu-latest
-    # Phase 1: observe-only. The a11y assertions in *.vrt.spec.ts run axe
-    # (WCAG 2.1 A/AA) against every lv1 story × theme, but ~115 pre-existing
-    # violations (systemic borderline color-contrast on state tokens, plus
-    # bare-control story artifacts) cannot be fixed inside this infra PR
-    # without a designer-owned token retune or a story-relabel + VRT
-    # re-baseline. So this gate observes — the step tees the axe output into
-    # the job summary so the violation list is readable from the PR checks
-    # without blocking merges — mirroring the staged rollout of the `audit`
-    # job (#307). Fixes land as follow-up issues (#344 / #345); Phase 2 (#346)
-    # removes continue-on-error and adds `a11y` to develop's required checks.
-    continue-on-error: true
+    # Phase 2 (#346): blocking. The a11y assertions in *.vrt.spec.ts run axe
+    # (WCAG 2.1 A/AA) against every lv1 story × theme and must report zero
+    # violations. The Phase 1 backlog is cleared — color-contrast (#344, the
+    # state-token `emphasis` retune in Phase B) and label/button-name (#345)
+    # are fixed; the only remaining axe `color-contrast` findings are intentional
+    # design exceptions (solid treatments / inverted-on-saturated / the
+    # foreground-subtle tertiary tier — see state-token-guideline.md), each
+    # disabled with a documented rationale scoped to its own story in the VRT
+    # spec + mirrored in `parameters.a11y`. So the gate now propagates the
+    # Playwright exit code (a new violation fails the PR). Adding `a11y` to
+    # develop's required checks is a repo-settings change (ruleset), tracked in
+    # #346, not in this workflow.
     steps:
       - uses: actions/checkout@v6
 
@@ -241,37 +242,25 @@ jobs:
       # spec, excluded by the `a11y` grep) reads dist directly. axe is run on
       # ubuntu rather than the scarce macos VRT runner because contrast/role
       # checks derive from CSS, not from macos font / sub-pixel rendering.
-      # Tee axe output into the job summary so the violation list is readable
-      # straight from the PR checks (the `audit` job does the same for coverage
-      # gaps). GitHub's default bash shell runs with `-e`, so capture the
-      # Playwright exit code under `set +e` before doing anything else.
       #
-      # Phase 1 observe-only contract: ~115 known violations make Playwright
-      # exit non-zero on EVERY run, so propagating that status would paint the
-      # `a11y` check permanently red and train people to ignore it (unlike the
-      # `audit` job, which is green until a real new gap appears). Instead we
-      # keep the check GREEN as long as axe actually ran — a Playwright result
-      # summary line (`N passed` / `N failed`) proves the suite executed — and
-      # only fail the step when axe could NOT run (crash, or the `--`/grep
-      # mistake that yields "No tests found"). #346 (Phase 2) deletes this
-      # exit-0 shim together with `continue-on-error` to make the gate block.
+      # The axe output is still tee'd into the job summary so a failure's
+      # violation list is readable straight from the PR checks (the `audit` job
+      # does the same for coverage gaps). GitHub's default bash runs with `-e`,
+      # which would abort the step before the summary is written, so the
+      # Playwright exit code is captured under `set +e` via `PIPESTATUS[0]` and
+      # re-raised after the closing fence — the step fails iff axe reports a
+      # violation (Phase 2 blocking, #346).
       - name: a11y (axe) checks
         shell: bash
         run: |
           {
-            echo '## a11y (axe) — WCAG 2.1 A/AA (Phase 1 observe-only)'
+            echo '## a11y (axe) — WCAG 2.1 A/AA'
             echo
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
           set +e
-          pnpm test:a11y 2>&1 | tee axe-out.txt
+          pnpm test:a11y 2>&1 | tee -a "$GITHUB_STEP_SUMMARY"
           status=${PIPESTATUS[0]}
           set -e
-          cat axe-out.txt >> "$GITHUB_STEP_SUMMARY"
           echo '```' >> "$GITHUB_STEP_SUMMARY"
-          if grep -qE '[0-9]+ (passed|failed)' axe-out.txt; then
-            echo 'a11y ran (Phase 1 observe-only): violations are listed in the job summary, not blocking.'
-            exit 0
-          fi
-          echo '::error::axe did not run (no Playwright result summary) — failing the step.'
           exit "$status"

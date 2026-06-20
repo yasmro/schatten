@@ -115,6 +115,10 @@ export const SubtleTreatments: Story = {
 
 export const SolidTreatments: Story = {
   name: 'Solid Treatments',
+  parameters: {
+    // Solid Callouts are light-on-saturated fill — the intentional AA solid exception (icon + title carry the meaning). Mirrors Callout.vrt.spec.ts. #344 / #346.
+    a11y: { config: { rules: [{ id: 'color-contrast', enabled: false }] } },
+  },
   render: () => (
     <div className="flex flex-col gap-3 max-w-xl">
       {VARIANTS.map((variant) => (
@@ -182,6 +186,8 @@ export const WithAction: Story = {
 export const SolidWithAction: Story = {
   name: 'Solid With Action',
   parameters: {
+    // Solid Callouts are light-on-saturated fill — the intentional AA solid exception (icon + title carry the meaning). Mirrors Callout.vrt.spec.ts. #344 / #346.
+    a11y: { config: { rules: [{ id: 'color-contrast', enabled: false }] } },
     docs: {
       description: {
         story:
@@ -222,6 +228,8 @@ export const SolidWithAction: Story = {
 export const SolidDismissible: Story = {
   name: 'Solid Dismissible',
   parameters: {
+    // Solid Callouts are light-on-saturated fill — the intentional AA solid exception (icon + title carry the meaning). Mirrors Callout.vrt.spec.ts. #344 / #346.
+    a11y: { config: { rules: [{ id: 'color-contrast', enabled: false }] } },
     docs: {
       description: {
         story:

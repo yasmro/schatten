@@ -293,6 +293,10 @@ export const SubtleTreatments: Story = {
 
 export const SolidTreatments: Story = {
   name: 'Solid Treatments',
+  parameters: {
+    // Solid Toasts are light-on-saturated fill — the intentional AA solid exception (icon + title carry the meaning). Mirrors Toast.vrt.spec.ts. #344 / #346.
+    a11y: { config: { rules: [{ id: 'color-contrast', enabled: false }] } },
+  },
   render: () => (
     <AutoFireDemo
       inputs={[

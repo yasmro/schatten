@@ -28,6 +28,18 @@ const stories = [
 
 const themes = ['light', 'dark'] as const
 
+// Stories whose only remaining axe `color-contrast` findings are the
+// intentional inverted-on-saturated exception: the `inverted` variant is a
+// ghost button placed on a saturated surface, drawing its label from
+// `--color-inverted-foreground`. That tier is incidental/large-only by design
+// (state-token-guideline.md §Phase B) — a light foreground on a vivid fill
+// can't reach 4.5:1, and the variant is only ever used where the surrounding
+// solid surface already documents that exception. Disable just this rule, just
+// here; mirrored in the story's `parameters.a11y`. #344 (Phase B) / #346.
+const COLOR_CONTRAST_EXCEPTION_STORIES = new Set<(typeof stories)[number]>([
+  'inverted-on-saturated-surfaces',
+])
+
 function storyUrl(storyId: string, theme: string) {
   return `/iframe.html?id=${STORY_ID_PREFIX}--${storyId}&globals=theme:${theme}&viewMode=story`
 }
@@ -58,10 +70,15 @@ for (const story of stories) {
       const root = page.locator('#storybook-root')
       await root.waitFor({ state: 'visible', timeout: 10_000 })
 
-      const results = await new AxeBuilder({ page })
+      const builder = new AxeBuilder({ page })
         .include('#storybook-root')
         .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
-        .analyze()
+
+      if (COLOR_CONTRAST_EXCEPTION_STORIES.has(story)) {
+        builder.disableRules(['color-contrast'])
+      }
+
+      const results = await builder.analyze()
 
       expect(results.violations).toEqual([])
     })

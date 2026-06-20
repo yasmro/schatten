@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { sanitize, storyNameFromExport } from 'storybook/internal/csf'
 import { describe, expect, it } from 'vitest'
-import { WELCOME_COMPONENT_SLUGS, WELCOME_DEEP_LINKS } from './Welcome.stories'
+import { WELCOME_COMPONENT_SLUGS, WELCOME_DEEP_LINKS } from './Welcome.links'
 
 /*
  * Welcome deep-link drift guard (#375).
@@ -51,8 +51,9 @@ function parseStory(raw: string): ParsedStory | null {
   if (!title) return null
   const autodocs = /tags:\s*\[[^\]]*['"]autodocs['"]/.test(src)
   // PascalCase `export const Foo` = a CSF story export. Over-capturing a
-  // non-story const (e.g. WELCOME_DEEP_LINKS) is harmless — it only adds an
-  // extra candidate suffix to a `.toContain` check.
+  // non-story const that happens to be PascalCase is harmless — it only adds an
+  // extra candidate suffix to a `.toContain` check. (The Welcome link manifests
+  // live in Welcome.links.ts, a non-stories module, so they aren't parsed here.)
   const exports = [...src.matchAll(/export const ([A-Z][A-Za-z0-9_]*)/g)].map((m) => m[1])
   return { slug: sanitize(title), exports, autodocs }
 }

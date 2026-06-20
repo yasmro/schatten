@@ -185,11 +185,24 @@ a11y: {
   `landmark-one-main` / `page-has-heading-one`) that flag the Storybook iframe
   itself on every story — pure noise. Keeping the tag set identical means
   "green in the dev panel" maps to the same contract CI enforces.
-- **`test: 'todo'`** keeps the addon observe-only. The `test` flag only bites
-  through the test addon (`@storybook/addon-vitest`), which is not wired up
-  today, so it is inert — but it documents the Phase-1 stance. Promotion to
-  `'error'` rides with the CI blocking-gate work
-  ([#346](https://github.com/yasmro/schatten/issues/346)).
+- **`test: 'off'` is required, and is NOT "inert".** addon-a11y's preview
+  `afterEach` runs axe on every `viewMode=story` render unless `test === 'off'`
+  (the `shouldRunEnvironmentIndependent` guard in the addon's `preview.js`).
+  `@axe-core/playwright` loads exactly those `iframe.html?viewMode=story` URLs,
+  so any value other than `'off'` makes the addon's run **race** our Playwright
+  `.analyze()` in the same frame → intermittent `Error: Axe is already running`
+  (worst on Toast, which mounts toasts in a `useEffect`, forcing a second
+  render → a second axe run). The Phase-1 observe-only exit-0 shim hid this;
+  flipping the gate to blocking ([#346](https://github.com/yasmro/schatten/issues/346))
+  surfaced it. Our a11y **test runner** is `@axe-core/playwright` (the CI `a11y`
+  job), so the addon's headless run is redundant — `'off'` turns it off and
+  keeps addon-a11y as the **on-demand dev panel** only. `'off'` disables only
+  the headless `afterEach`; the panel's own run path is the `MANUAL` channel
+  event (the **"Rerun accessibility scan"** button), which is independent of
+  `test`, so the panel still scans the current story — you click Rerun instead
+  of it auto-populating on render. If `@storybook/addon-vitest` is ever wired up
+  as a second runner, reconcile the two before re-enabling the flag; don't
+  simply flip it back to `'todo'`/`'error'`.
 - **Dark mode / seasonal violations come for free.** The addon scans the
   rendered DOM *after* the global theme decorator applies `.dark` /
   `data-theme` to `<html>`, so toggling the Theme toolbar surfaces dark-mode
@@ -269,8 +282,10 @@ fix all of these **in the same PR**:
   Canvas export) and on a `Patterns/*` page that isn't linked. A title/export
   rename that misses the manifest turns this test red rather than shipping a
   dead link.
-- `options.storySort.order` in `.storybook/preview.tsx` if a top-level group
-  name changed
+- the top-level group order in `options.storySort` in `.storybook/preview.tsx`
+  if a top-level group name changed (it's a comparator function — update the
+  `order` array inside it; the comparator also forces each component's parity
+  story, story id `…--parity`, to sort last)
 
 Story IDs are **internal** per [api-stability.md](api-stability.md) (Storybook
 is not part of the published package), so an IA rename needs **no changeset and

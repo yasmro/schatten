@@ -169,6 +169,8 @@ export const Playground: Story = {
 export const Confirm: Story = {
   name: 'Confirm (primary)',
   parameters: {
+    // Neutral-solid action button (light-on-solid) + trigger scanned behind the modal overlay — neither is fixable content contrast. Mirrors Dialog.vrt.spec.ts. #344 / #346.
+    a11y: { config: { rules: [{ id: 'color-contrast', enabled: false }] } },
     docs: {
       description: {
         story: 'Standard confirmation dialog with a primary action and cancel.',
@@ -196,6 +198,8 @@ export const Confirm: Story = {
 export const Destructive: Story = {
   name: 'Destructive',
   parameters: {
+    // Neutral-solid action button (light-on-solid) + trigger scanned behind the modal overlay — neither is fixable content contrast. Mirrors Dialog.vrt.spec.ts. #344 / #346.
+    a11y: { config: { rules: [{ id: 'color-contrast', enabled: false }] } },
     docs: {
       description: {
         story: 'Set `actionButton.variant: "destructive"` for irreversible actions like delete.',
@@ -229,6 +233,8 @@ export const Destructive: Story = {
 export const WithSubAction: Story = {
   name: 'With Sub-Action',
   parameters: {
+    // Neutral-solid action button (light-on-solid) + trigger scanned behind the modal overlay — neither is fixable content contrast. Mirrors Dialog.vrt.spec.ts. #344 / #346.
+    a11y: { config: { rules: [{ id: 'color-contrast', enabled: false }] } },
     docs: {
       description: {
         story:
@@ -258,6 +264,8 @@ export const WithSubAction: Story = {
 export const Loading: Story = {
   name: 'Loading',
   parameters: {
+    // Neutral-solid action button (light-on-solid) + trigger scanned behind the modal overlay — neither is fixable content contrast. Mirrors Dialog.vrt.spec.ts. #344 / #346.
+    a11y: { config: { rules: [{ id: 'color-contrast', enabled: false }] } },
     docs: {
       description: {
         story:
@@ -286,6 +294,8 @@ export const Loading: Story = {
 export const SubActionLoading: Story = {
   name: 'Sub-Action Loading',
   parameters: {
+    // Neutral-solid action button (light-on-solid) + trigger scanned behind the modal overlay — neither is fixable content contrast. Mirrors Dialog.vrt.spec.ts. #344 / #346.
+    a11y: { config: { rules: [{ id: 'color-contrast', enabled: false }] } },
     docs: {
       description: {
         story:
@@ -404,6 +414,8 @@ export const AsyncSubAction: Story = {
 export const WithoutCloseButton: Story = {
   name: 'Without Close Button',
   parameters: {
+    // Neutral-solid action button (light-on-solid) + trigger scanned behind the modal overlay — neither is fixable content contrast. Mirrors Dialog.vrt.spec.ts. #344 / #346.
+    a11y: { config: { rules: [{ id: 'color-contrast', enabled: false }] } },
     docs: {
       description: {
         story:
@@ -433,6 +445,8 @@ export const WithoutCloseButton: Story = {
 export const InfoOnly: Story = {
   name: 'Info Only (action only)',
   parameters: {
+    // Neutral-solid action button (light-on-solid) + trigger scanned behind the modal overlay — neither is fixable content contrast. Mirrors Dialog.vrt.spec.ts. #344 / #346.
+    a11y: { config: { rules: [{ id: 'color-contrast', enabled: false }] } },
     docs: {
       description: {
         story:
@@ -460,6 +474,8 @@ export const InfoOnly: Story = {
 export const LongContent: Story = {
   name: 'Long Content',
   parameters: {
+    // Neutral-solid action button (light-on-solid) + trigger scanned behind the modal overlay — neither is fixable content contrast. Mirrors Dialog.vrt.spec.ts. #344 / #346.
+    a11y: { config: { rules: [{ id: 'color-contrast', enabled: false }] } },
     docs: {
       description: {
         story:

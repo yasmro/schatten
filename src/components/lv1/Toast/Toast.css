@@ -1,105 +1,63 @@
 /*
- * Toast — `.st-toast` + `.st-toaster` class API.
+ * Toast — `.st-toast` class API (Sonner-rendered, Callout-mirrored).
  *
- * Pattern B (tone × shape) for the per-toast `<li>`, plus a 6-value
- * `--{position}` modifier for the viewport `<ol>`. Modifier axes:
+ * Since #318 the Toast is rendered by **Sonner** via `toast.custom()`: Sonner
+ * owns the viewport positioning, stacking, swipe-to-dismiss, enter/exit
+ * animation, and auto-dismiss, while the toast BODY is rendered by Schatten
+ * (see Toast.tsx) using real `<Icon>` / `<Spinner>` / `<Button>` components and
+ * the `.st-toast*` classes — structurally identical to `Callout`. The
+ * `.st-toast` class chain is applied to Sonner's `<li>` (via the `className`
+ * option); icon / content / action are its direct children. There is NO
+ * `.st-toaster` viewport class and NO `[data-state]` / `[data-swipe]` animation
+ * here — those were Radix-Toast concerns, removed.
  *
- * - `.st-toast` block (per-toast `<li>` Radix Root emits):
- *   - variant (tone):  neutral | success | error | warning | info
+ * Pattern B (tone × shape):
+ *   - variant (tone):    neutral | success | error | warning | info
  *   - appearance (shape): subtle | solid
- * - `.st-toaster` block (viewport `<ol>` Radix Provider+Viewport emits):
- *   - position: top-{left|center|right} | bottom-{left|center|right}
  *
- * Sub-elements (per-toast):
- * - `.st-toast__icon`         — variant icon (sized 20px, shrink-0)
- * - `.st-toast__content`      — title + description column (flex-col, min-w-0)
- * - `.st-toast__title`        — bold heading
- * - `.st-toast__description`  — optional body
+ * Loading: Toast.tsx renders a `<Spinner class="st-toast__icon">` in place of
+ * the variant icon — there is no loading modifier class.
  *
- * The action / close `<button>` is rendered as a `.st-btn` chain directly
- * inside `.st-toast` — no wrapper class. Toast.tsx renders action OR close
- * (exclusive), so the single trailing button is right-justified by the
- * content column's `flex: 1` claim on remaining horizontal space.
+ * Sub-elements (mirror Callout):
+ * - `.st-toast__icon`    — variant icon / loading spinner (20px, shrink-0)
+ * - `.st-toast__content` — title + description + action column (flex-col, min-w-0)
+ * - `.st-toast__title`   — bold heading
+ * - `.st-toast__description` — optional body
+ * - `.st-toast__action`  — action `<Button>`, below the description (self-start)
+ * - `.st-toast__close`   — dedicated bare close (X) button, top-right.
+ *                           NOT `<Button>` — see the rule comment below.
+ *
+ * action XOR close: Toast.tsx renders an action `<Button>` when `action` is
+ * given, otherwise a dedicated `.st-toast__close` button — never both.
  *
  * Visual rules for tone × shape use DOUBLE-CLASS selectors
  * (`.st-toast--success.st-toast--subtle` etc.). The default appearance
- * (`subtle`) is first-class — its CSS rule uses the same double-class
- * form as `solid`, matching the Callout sweep-2 precedent.
+ * (`subtle`) is first-class — same double-class form as `solid`.
  *
  * Two-regime alignment (icon-center for title-only, icon-top for
- * title+description) is driven by `:has(.st-toast__description)` —
- * JSX carries no `items-*` conditional. Mirrors the Callout
- * `:has(.st-callout__title):has(.st-callout__body)` pattern.
+ * title+description) is driven by `:has(.st-toast__description)`.
  *
- * State attributes (Radix-emitted, drive animation only):
- * - `[data-state="open"|"closed"]`         — enter / exit dissolve
- * - `[data-swipe="move"|"cancel"|"end"]`   — swipe-to-dismiss handoff
- * - `prefers-reduced-motion: reduce`        — disables animation
+ * Uses raw CSS + `var(--color-*)` throughout, per css-api.md.
  *
- * Uses raw CSS + `var(--color-*)` throughout, per css-api.md
- * "Component CSS authoring conventions — raw CSS over @apply".
- *
- * Motion timing: the swipe-handoff durations (swipe-cancel snap-back,
- * swipe-end dissolve) reference the shared `--st-duration-*` scale
- * (animation.css) at `--st-duration-slow`. The `var(--st-*, <fallback>)`
- * fallback keeps the per-component standalone build (`dist/css/toast.css`,
- * #291 — ships no tokens) animating at the same cadence. The dissolve
- * enter/exit (`toast-dissolve-in` 320ms / `toast-dissolve-out` 220ms) sit
- * deliberately OFF the scale — a heavier cadence than the Tooltip/Dialog
- * enter/exit, kept hardcoded so the scale's three perceptually-distinct
- * steps (fast 100 / base 150 / slow 200) stay clean. Whether they should
- * fold into the scale is an aesthetic call deferred to a future
- * motion-retune spike (see animation.css), not this seam.
- *
- * See: .claude/rules/css-api.md, #271 sweep-6.
+ * See: .claude/rules/css-api.md, #271 sweep-6, #318.
  */
 @layer components {
-  /* ===== viewport ===== */
-  .st-toaster {
-    position: fixed;
-    z-index: var(--z-toast);
-    display: flex;
-    max-height: 100vh;
-    width: 100%;
-    max-width: 24rem; /* max-w-sm */
-    flex-direction: column;
-    gap: 0.5rem;
-    padding: 1rem;
-    outline: none;
-  }
-  .st-toaster--top-left {
-    top: 0;
-    left: 0;
-  }
-  .st-toaster--top-center {
-    top: 0;
-    left: 50%;
-    translate: -50% 0;
-  }
-  .st-toaster--top-right {
-    top: 0;
-    right: 0;
-  }
-  .st-toaster--bottom-left {
-    bottom: 0;
-    left: 0;
-  }
-  .st-toaster--bottom-center {
-    bottom: 0;
-    left: 50%;
-    translate: -50% 0;
-  }
-  .st-toaster--bottom-right {
-    bottom: 0;
-    right: 0;
-  }
-
-  /* ===== toast base ===== */
+  /* ===== toast root (Sonner <li>, unstyled) ===== */
   .st-toast {
+    /* Sonner's `[data-sonner-toaster]` hardcodes its own font-family (unlayered),
+     * which our toast would otherwise inherit instead of the design-system font.
+     * Re-assert `--font-sans` so the toast matches the rest of the DS — and so a
+     * consumer's brand-font override of `--font-sans` actually reaches it. */
+    font-family: var(--font-sans);
+    /* Optical-centering inputs, mirrors Callout.css: icon size + title line-box
+     * are read by the icon rule, title rule, AND the multi-line icon offset, so
+     * the offset is a single source of truth that can't drift from them. */
+    --schatten-toast-icon-size: 1.25rem;
+    --schatten-toast-title-size: 0.875rem;
+    --schatten-toast-title-leading: 1.25;
     position: relative;
-    pointer-events: auto;
+    box-sizing: border-box;
     width: 100%;
-    overflow: hidden;
     border-width: 1px;
     border-style: solid;
     padding: 1rem;
@@ -112,10 +70,12 @@
     gap: 0.75rem;
     align-items: center;
   }
-  /* Multi-line regime: when a description is present, anchor the icon next
-   * to the heading rather than vertically centering the whole row. Uses
-   * :has() so the JSX side carries no conditional class. */
-  .st-toast:has(.st-toast__description) {
+  /* Multi-line regime: when BOTH title and description are present, anchor the
+   * icon next to the heading rather than vertically centering the whole row.
+   * Mirrors Callout's `:has(title):has(body)` two-condition trigger — a
+   * description-only toast (no title) stays in the single-line `center` regime
+   * so its icon centers on the description line. */
+  .st-toast:has(.st-toast__title):has(.st-toast__description) {
     align-items: flex-start;
   }
 
@@ -135,7 +95,7 @@
   /* success */
   .st-toast--success.st-toast--subtle {
     background-color: var(--color-success-subtle);
-    color: var(--color-success);
+    color: var(--color-success-emphasis);
     border-color: var(--color-success);
   }
   .st-toast--success.st-toast--solid {
@@ -147,7 +107,7 @@
   /* error */
   .st-toast--error.st-toast--subtle {
     background-color: var(--color-error-subtle);
-    color: var(--color-error);
+    color: var(--color-error-emphasis);
     border-color: var(--color-error);
   }
   .st-toast--error.st-toast--solid {
@@ -159,7 +119,7 @@
   /* warning */
   .st-toast--warning.st-toast--subtle {
     background-color: var(--color-warning-subtle);
-    color: var(--color-warning);
+    color: var(--color-warning-emphasis);
     border-color: var(--color-warning);
   }
   .st-toast--warning.st-toast--solid {
@@ -171,7 +131,7 @@
   /* info */
   .st-toast--info.st-toast--subtle {
     background-color: var(--color-info-subtle);
-    color: var(--color-info);
+    color: var(--color-info-emphasis);
     border-color: var(--color-info);
   }
   .st-toast--info.st-toast--solid {
@@ -180,16 +140,26 @@
     border-color: transparent;
   }
 
-  /* ===== sub-elements ===== */
+  /* ===== sub-elements (mirror Callout) ===== */
   .st-toast__icon {
     flex-shrink: 0;
-    width: 1.25rem;
-    height: 1.25rem;
+    width: var(--schatten-toast-icon-size);
+    height: var(--schatten-toast-icon-size);
   }
-  /* Multi-line regime: nudge icon down a touch so its optical center sits
-   * next to the heading's cap height rather than its baseline. */
-  .st-toast:has(.st-toast__description) .st-toast__icon {
-    margin-top: 0.125rem;
+  /* Multi-line regime: center the icon on the title's FIRST line (not the
+   * title+description block). The icon is taller than the title line-box, so
+   * `flex-start` alone drops the icon's optical center ~3px below the title's
+   * center line. Offset = (title line-box − icon) / 2 lifts it onto the title's
+   * center line. Derived from the scoped vars (mirrors Callout.css). */
+  .st-toast:has(.st-toast__title):has(.st-toast__description) .st-toast__icon {
+    margin-top: calc(
+      (
+        var(--schatten-toast-title-size) *
+        var(--schatten-toast-title-leading) -
+        var(--schatten-toast-icon-size)
+      ) /
+      2
+    );
   }
 
   .st-toast__content {
@@ -200,23 +170,10 @@
     gap: 0.25rem;
   }
 
-  /* The trailing action / close button must NOT shrink — Toast.tsx renders
-   * action OR close as a `.st-btn` direct child of `.st-toast` (Pattern B
-   * `:has()` selector relies on direct-child structure, pinned by the
-   * `places icon / content / button as direct children of .st-toast`
-   * unit test). With the content column claiming `flex: 1; min-width: 0`,
-   * the trailing button would otherwise shrink to `min-content` for long
-   * action labels at narrow viewport widths. Reproducing the pre-sweep
-   * `className="shrink-0"` defence via a block-scoped structural selector
-   * keeps it out of other components' `.st-btn` cascade. */
-  .st-toast > .st-btn {
-    flex-shrink: 0;
-  }
-
   .st-toast__title {
-    font-size: 0.875rem;
+    font-size: var(--schatten-toast-title-size);
     font-weight: 600;
-    line-height: 1.25;
+    line-height: var(--schatten-toast-title-leading);
   }
   .st-toast__description {
     font-size: 0.875rem;
@@ -224,69 +181,65 @@
     opacity: 0.9;
   }
 
-  /* ===== Radix data-swipe transition reset ===== */
-  .st-toast[data-swipe="move"] {
-    transition: none;
-  }
-  .st-toast[data-swipe="cancel"] {
-    transition: transform var(--st-duration-slow, 200ms) ease-out;
-    transform: translate(0, 0);
-  }
-
-  /* ===== enter / exit animations =====
-   * The dissolve enter/exit durations (320ms / 220ms) are deliberately OFF
-   * the shared `--st-duration-*` scale — a heavier cadence than the
-   * Tooltip/Dialog enter/exit. Kept hardcoded; folding them into the scale
-   * is an aesthetic call deferred to a future motion-retune spike (see the
-   * file header + animation.css). The swipe-end dissolve, by contrast, is a
-   * dismissal-gesture handoff and rides the scale at `--st-duration-slow`. */
-  .st-toast[data-state="open"] {
-    animation: toast-dissolve-in 320ms ease-out;
-  }
-  .st-toast[data-state="closed"] {
-    animation: toast-dissolve-out 220ms ease-in;
-  }
-  .st-toast[data-swipe="end"] {
-    animation: toast-dissolve-out var(--st-duration-slow, 200ms) ease-in;
+  /* Action sits below the description, aligned with the text column (not the
+   * trailing edge). `align-self: flex-start` keeps the Button at its natural
+   * width inside the stretch column. */
+  .st-toast__action {
+    align-self: flex-start;
+    margin-top: 0.5rem;
   }
 
-  @media (prefers-reduced-motion: reduce) {
-    .st-toast[data-state="open"],
-    .st-toast[data-state="closed"],
-    .st-toast[data-swipe="end"] {
-      animation: none;
-    }
+  /* Dedicated close affordance — a bare icon button, NOT `<Button>`, so it
+   * carries none of Button's text-button padding / sizing. Mirrors
+   * Callout.css's `.st-callout__close`. */
+  .st-toast__close {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-sm);
+    background-color: transparent;
+    color: inherit;
+    cursor: pointer;
+    opacity: 0.7;
+    transition:
+      opacity 200ms,
+      background-color 200ms;
   }
-}
-
-/*
- * Toast enter / exit keyframes.
- *
- * Dissolve = opacity fade with a subtle scale shift to feel alive but not
- * showy. Position-agnostic — works regardless of where the viewport sits.
- *
- * Declared outside `@layer components` so the keyframes are global and
- * shared across the dist (Tailwind v4 + raw CSS pattern, matching the
- * Callout sweep-2 / Spinner / Tooltip / Dialog precedent).
- */
-@keyframes toast-dissolve-in {
-  from {
-    opacity: 0;
-    transform: scale(0.96);
-  }
-  to {
+  .st-toast__close:not(:disabled):hover {
     opacity: 1;
-    transform: scale(1);
+    background-color: color-mix(in srgb, currentColor 10%, transparent);
   }
-}
-
-@keyframes toast-dissolve-out {
-  from {
+  .st-toast__close:focus-visible {
+    outline: none;
     opacity: 1;
-    transform: scale(1);
+    box-shadow:
+      0 0 0 2px var(--color-ring-offset),
+      0 0 0 4px var(--color-ring);
   }
-  to {
-    opacity: 0;
-    transform: scale(0.98);
+  .st-toast__close svg {
+    width: 1rem;
+    height: 1rem;
+    pointer-events: none;
+  }
+  /* Multi-line regime: lift the close ~4px so it sits on the title's line /
+   * tighter to the corner. Mirrors Callout.css. */
+  .st-toast:has(.st-toast__title):has(.st-toast__description) .st-toast__close {
+    margin-top: -0.25rem;
+  }
+  /* Sonner's swipe handler starts a drag on pointerdown unless
+   * `event.target.tagName === 'BUTTON'`. An icon button's inner `<svg>` would
+   * otherwise be the target (tagName "svg"), so Sonner captures the pointer and
+   * the click never fires. Making the icons transparent to pointer events keeps
+   * the `<button>` itself as the event target, so close / action clicks work.
+   * (jsdom ignores this, which is why unit tests didn't catch it — #318.) The
+   * close `<svg>` above is already covered; this keeps any action-label icon
+   * click-through too. */
+  .st-toast__action svg {
+    pointer-events: none;
   }
 }

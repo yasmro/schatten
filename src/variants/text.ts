@@ -5,11 +5,12 @@ import { cva, type VariantProps } from 'class-variance-authority'
  *
  * The actual typography rules live in
  * `src/components/lv1/Text/Text.css` under `@layer components`. This file
- * is the public class-string mapper: a tuple of `(variant, size, color,
- * align, truncate)` translates to a side-by-side chain of `.st-text--*`
- * modifiers that the CSS resolves through specificity (the
- * `variant × size` compound is encoded as a double-class selector in
- * `.st-text--body.st-text--md`).
+ * is the public class-string mapper: a tuple of `(variant, family,
+ * leading, size, color, align, truncate)` translates to a side-by-side
+ * chain of `.st-text--*` modifiers that the CSS resolves through
+ * specificity (the `variant × size` compound is encoded as a double-class
+ * selector in `.st-text--body.st-text--md`; `leading` is an override axis
+ * raised to the same specificity — see Text.css).
  *
  * See: .claude/rules/css-api.md, #266 詳細設計 §4.2.
  */
@@ -19,6 +20,18 @@ export const textVariants = cva('st-text', {
       body: 'st-text--body',
       label: 'st-text--label',
       heading: 'st-text--heading',
+    },
+    family: {
+      sans: 'st-text--sans',
+      serif: 'st-text--serif',
+    },
+    leading: {
+      none: 'st-text--leading-none',
+      tight: 'st-text--leading-tight',
+      snug: 'st-text--leading-snug',
+      normal: 'st-text--leading-normal',
+      relaxed: 'st-text--leading-relaxed',
+      loose: 'st-text--leading-loose',
     },
     size: {
       xs: 'st-text--xs',
@@ -55,6 +68,7 @@ export const textVariants = cva('st-text', {
   },
   defaultVariants: {
     variant: 'body',
+    family: 'sans',
     size: 'md',
     color: 'default',
     truncate: false,

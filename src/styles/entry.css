@@ -77,6 +77,17 @@
 /* #272 sweep-7 — Field / FieldSet class API + #154 完了 */
 @import "../components/lv1/Field/Field.css";
 @import "../components/lv1/FieldSet/FieldSet.css";
+/* #41 — DropdownMenu (keyframes + `.st-dropdown-menu__*` class API). Portal
+ * /popover surface like Select; authors only its own block rules (no
+ * `.st-btn` rules), so layer placement is not order-sensitive. */
+@import "../components/lv1/DropdownMenu/DropdownMenu.css";
+/* #44 — Tabs (`.st-tabs__*` class API). Inline (non-portal) compound; authors
+ * only its own block rules, so layer placement is not order-sensitive. */
+@import "../components/lv1/Tabs/Tabs.css";
+/* #46 — Popover (keyframes + `.st-popover__content` class API). Portal
+ * /popover surface like Select / DropdownMenu; authors only its own block
+ * rules (no `.st-btn` rules), so layer placement is not order-sensitive. */
+@import "../components/lv1/Popover/Popover.css";
 
 /* Class-based dark mode variant — matches `src/styles/globals.css` so
  * `.dark` toggling behaves identically in Storybook and in the dist. */
@@ -117,6 +128,15 @@
     background-color: var(--color-background);
     color: var(--color-foreground);
     font-family: var(--font-sans);
+    /* JP/EN visual-size compensation, library-wide. `cap-height <n>`
+     * normalizes the used font's cap-height to n × em, lifting the Latin
+     * faces (EB Garamond / Hanken Grotesk) to the CJK height so they read at
+     * a matched size in mixed runs. Applied here on body so it inherits to
+     * every component (Button / Input / Badge / Text / …), not just Text.
+     * Font-agnostic, so one value covers all families and consumer fonts;
+     * tune or disable via `--st-font-size-adjust`. Unsupported browsers
+     * (Chrome < 127) ignore it = no compensation, never broken. See #184. */
+    font-size-adjust: var(--st-font-size-adjust, cap-height 0.7);
     line-height: var(--leading-normal);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;

@@ -412,4 +412,90 @@ export const vanillaHtml = `
     </div>
   </div>
 </section>
+
+<section class="cssapi-fixture__sample" data-component="dropdownmenu">
+  <span class="cssapi-fixture__sample-label">DropdownMenu — .st-dropdown-menu__* (static, no portal)</span>
+  <div class="st-dropdown-menu__content" role="menu" data-state="open" style="position: static;">
+    <div class="st-dropdown-menu__label">Actions</div>
+    <div class="st-dropdown-menu__separator"></div>
+    <div class="st-dropdown-menu__item" role="menuitem" data-highlighted>
+      <svg class="st-dropdown-menu__item-icon" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2" stroke-linecap="round"
+           stroke-linejoin="round" aria-hidden="true">
+        <path d="M12 20h9" /><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" />
+      </svg>
+      Edit
+      <span class="st-dropdown-menu__shortcut">⌘E</span>
+    </div>
+    <div class="st-dropdown-menu__item st-dropdown-menu__checkbox-item" role="menuitemcheckbox" aria-checked="true">
+      <span class="st-dropdown-menu__item-indicator">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M20 6 9 17l-5-5" />
+        </svg>
+      </span>
+      Status Bar
+    </div>
+    <div class="st-dropdown-menu__item st-dropdown-menu__radio-item" role="menuitemradio" aria-checked="true">
+      <span class="st-dropdown-menu__item-indicator">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <circle cx="12" cy="12" r="12" />
+        </svg>
+      </span>
+      Bottom
+    </div>
+    <div class="st-dropdown-menu__item st-dropdown-menu__sub-trigger" role="menuitem" data-state="closed">
+      Share
+      <svg class="st-dropdown-menu__sub-trigger-chevron" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2" stroke-linecap="round"
+           stroke-linejoin="round" aria-hidden="true">
+        <path d="m9 18 6-6-6-6" />
+      </svg>
+    </div>
+    <div class="st-dropdown-menu__separator"></div>
+    <div class="st-dropdown-menu__item st-dropdown-menu__item--destructive" role="menuitem">
+      Delete
+    </div>
+  </div>
+</section>
+
+<section class="cssapi-fixture__sample" data-component="tabs">
+  <span class="cssapi-fixture__sample-label">Tabs — .st-tabs__* (static, no JS)</span>
+  <div class="st-tabs" data-orientation="horizontal">
+    <div class="st-tabs__list" role="tablist" data-orientation="horizontal">
+      <button class="st-tabs__trigger" role="tab" type="button" data-state="active" aria-selected="true">
+        <svg class="st-tabs__trigger-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" />
+        </svg>
+        Account
+      </button>
+      <button class="st-tabs__trigger" role="tab" type="button" data-state="inactive" aria-selected="false">
+        Password
+      </button>
+      <button class="st-tabs__trigger" role="tab" type="button" data-state="inactive" aria-selected="false" disabled>
+        Team
+      </button>
+      <!-- The indicator is JS-positioned in the React layer; this static sample
+           pins it under the active tab by hand (transform/width inline). The
+           translateX matches the list's 4px focus-ring padding so it aligns
+           under the first tab. -->
+      <span class="st-tabs__indicator" aria-hidden="true"
+            style="transform: translateX(4px); width: 102px; opacity: 1;"></span>
+    </div>
+    <div class="st-tabs__content" role="tabpanel">Manage your account details and email.</div>
+  </div>
+</section>
+
+<section class="cssapi-fixture__sample" data-component="popover">
+  <span class="cssapi-fixture__sample-label">Popover — .st-popover__content (static, no portal)</span>
+  <!-- data-state is deliberately omitted: the enter animation on
+       [data-state="open"] uses a slide transform, which the static dist smoke
+       test (animations paused) could freeze mid-motion. The base rule already
+       carries the full panel surface (border / padding / shadow), so the
+       resolved "open" visual is identical without triggering the keyframe. -->
+  <div class="st-popover__content" role="dialog" data-side="bottom" style="position: static;">
+    <p>Place any content inside the popover panel.</p>
+  </div>
+</section>
 `

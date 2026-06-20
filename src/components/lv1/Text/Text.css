@@ -1,8 +1,10 @@
 /*
  * Text — `.st-text` class API.
  *
- * Five orthogonal modifier axes:
+ * Seven orthogonal modifier axes:
  * - variant: body | label | heading
+ * - family:  sans | serif
+ * - leading: none | tight | snug | normal | relaxed | loose (override)
  * - size:    xs | sm | md | lg | xl | 2xl
  * - color:   13 options (foreground / state / inverted / brand / inherit)
  * - align:   left | center | right
@@ -29,6 +31,26 @@
     color: var(--color-foreground);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* ===== family =====
+   * Pins the font-family only. The JP/EN visual-size compensation is NOT
+   * here — it lives once on the `body` reset as
+   * `font-size-adjust: var(--st-font-size-adjust, cap-height 0.7)` (see
+   * styles/entry.css + styles/globals.css), so it applies library-wide to
+   * every component, not just Text. `cap-height <n>` is a font-agnostic
+   * target (normalizes the used font's cap-height to n × em), so the single
+   * global value lifts the Latin faces (EB Garamond / Hanken Grotesk) to
+   * the CJK height regardless of which family is active or which font a
+   * consumer swaps in — no per-family value needed. Consumers tune or
+   * disable it via `--st-font-size-adjust`; unsupported browsers (Chrome
+   * < 127, no two-value font-size-adjust) ignore it = no compensation,
+   * never broken. See #184. */
+  .st-text--sans {
+    font-family: var(--font-sans);
+  }
+  .st-text--serif {
+    font-family: var(--font-serif);
   }
 
   /* ===== variant × size: typography =====
@@ -110,6 +132,32 @@
     font-weight: var(--font-bold);
   }
 
+  /* ===== leading (line-height override) =====
+   * `leading` overrides only the line-height baked into the variant × size
+   * pairing above. That bundle's selector is `.st-text--{variant}.st-text--
+   * {size}` = specificity (0,2,0); a lone `.st-text--leading-*` is (0,1,0)
+   * and would lose. We raise these to (0,2,0) by chaining the always-present
+   * `.st-text` (no `!important`), and place them AFTER the bundle so source
+   * order breaks the (0,2,0) tie in their favor. */
+  .st-text.st-text--leading-none {
+    line-height: var(--leading-none);
+  }
+  .st-text.st-text--leading-tight {
+    line-height: var(--leading-tight);
+  }
+  .st-text.st-text--leading-snug {
+    line-height: var(--leading-snug);
+  }
+  .st-text.st-text--leading-normal {
+    line-height: var(--leading-normal);
+  }
+  .st-text.st-text--leading-relaxed {
+    line-height: var(--leading-relaxed);
+  }
+  .st-text.st-text--leading-loose {
+    line-height: var(--leading-loose);
+  }
+
   /* ===== color (13) ===== */
   .st-text--default {
     color: var(--color-foreground);
@@ -132,17 +180,21 @@
   .st-text--inverted-subtle {
     color: var(--color-inverted-foreground-subtle);
   }
+  /* State colors use the `-emphasis` rung (not `base`): standalone colored
+     text on the page surface needs AA small-text 4.5:1, which `base` (-600)
+     misses (~4.4). `-emphasis` (-700 light / -400 dark) clears it. See
+     state-token-guideline.md "emphasis". */
   .st-text--error {
-    color: var(--color-error);
+    color: var(--color-error-emphasis);
   }
   .st-text--success {
-    color: var(--color-success);
+    color: var(--color-success-emphasis);
   }
   .st-text--warning {
-    color: var(--color-warning);
+    color: var(--color-warning-emphasis);
   }
   .st-text--info {
-    color: var(--color-info);
+    color: var(--color-info-emphasis);
   }
   .st-text--vermillion {
     color: var(--color-vermillion);

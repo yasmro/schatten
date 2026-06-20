@@ -248,6 +248,23 @@ the React side (it carries through for a11y wiring of
 Vanilla HTML consumers writing the modifier class get a working
 separator with no required attribute.
 
+**Exception — compound parts that cannot receive the config as a prop.**
+When the author-config value lives on a compound *root* and its nested
+parts receive it only through the library's context (never as a prop the
+Schatten part can read), the parts cannot attach a modifier class without
+re-plumbing the value through every part. In that case the part's CSS
+**may** target the `[data-*]` attribute the library already emits, even
+though the value is author config. `Tabs` is the case today: `orientation`
+is set on `Tabs` (the Radix Root), and `TabsList` / `TabsTrigger` receive
+it via Radix context, so the `.st-tabs__list` / `.st-tabs__trigger` rules
+read `[data-orientation]` rather than carrying an `--vertical` modifier
+([Tabs.css](../../src/components/lv1/Tabs/Tabs.css), #44). A vanilla
+consumer writing `data-orientation="vertical"` on the list still gets the
+same layout — the attribute Radix mirrors is the framework-agnostic hook.
+This exception is narrow: it applies only when the config genuinely cannot
+reach the part as a prop. A part that *can* take the prop (like Separator)
+keeps the modifier class.
+
 ### Variant: visual-less observability hook
 
 The default contract above is that **a state attribute drives a visual
@@ -335,9 +352,20 @@ The contract is `:has()` on the block's documented sub-element classes:
     align-items: flex-start;
   }
 
-  /* The same selector cascades to descendants that need the multi-line nudge */
+  /* The same selector cascades to descendants that need the multi-line nudge.
+   * The icon is taller than the title line-box, so it is lifted by
+   * (title line-box − icon) / 2 to center on the title's first line — the
+   * no-DOM-restructure equivalent of wrapping icon + title in an
+   * `align-items: center` row. The icon size and title metrics are scoped
+   * vars on the block root (`--schatten-callout-icon-size` /
+   * `--schatten-callout-title-size` / `--schatten-callout-title-leading`),
+   * read by the icon rule, the title rule, AND this offset, so the offset
+   * can never drift from the values it derives from. */
   .st-callout:has(.st-callout__title):has(.st-callout__body) .st-callout__icon {
-    margin-top: 0.125rem;
+    margin-top: calc(
+      (var(--schatten-callout-title-size) * var(--schatten-callout-title-leading) -
+        var(--schatten-callout-icon-size)) / 2
+    );
   }
 }
 ```
@@ -406,8 +434,13 @@ adopting `:has()` does not introduce a new browser-support floor.
   — `.st-callout:has(.st-callout__title):has(.st-callout__body)` toggles
   `align-items` from `center` to `flex-start` so the icon anchors to
   the heading when both heading and body are present. The same selector
-  also nudges `.st-callout__icon { margin-top: 0.125rem }` for optical
-  centering against the title's cap-height.
+  also lifts `.st-callout__icon` by `(title line-box − icon) / 2` so the
+  icon's optical center sits on the title's first line. The two inputs are
+  scoped vars (`--schatten-callout-icon-size` / `-title-size` /
+  `-title-leading`) shared by the icon, title, and offset rules, so the
+  derivation has a single source. `Toast` mirrors this exactly via
+  `:has(.st-toast__title):has(.st-toast__description)` and its own
+  `--schatten-toast-*` vars.
 
 When you reach for `:has()` in a future component, walk the four rules
 above before authoring. If the layout decision feels closer to "runtime
@@ -721,6 +754,51 @@ Use `@apply` only inside keyframe / `prefers-reduced-motion` /
 animation-specific CSS where it genuinely helps (the existing
 Spinner.css / Tooltip.css / Dialog.css / Toast.css don't trip this
 because they have no `@apply` for tokens — only `@keyframes`).
+
+### Portal content with nested `position: fixed` children must stay transform-free
+
+A component whose content panel **portals to `<body>` and renders a nested
+`position: fixed` child inside its own DOM subtree** (the canonical case is a
+Radix menu/popover with a *submenu*: `DropdownMenu.SubContent` is a fixed
+popper rendered inside `DropdownMenu.Content`'s tree) must keep that panel
+**free of any `transform` or `translate`** — including transient ones from
+enter/exit animations.
+
+Why: per the CSS spec, an element with a `transform` (or the `translate`
+property, or `perspective`, `filter`, `will-change: transform`, …) becomes the
+**containing block for its `position: fixed` descendants**. So the moment the
+panel gets a transform, the nested fixed child stops resolving against the
+viewport and snaps to the *panel's* box instead — the submenu visibly jumps
+**inside** the parent panel, and (because it briefly re-enters the panel's
+scroll box) flashes a scrollbar. This bites hardest during the panel's **close
+animation**, where the jump is most visible. Found three times over in #403
+(steady-state `translate` offset → scrollbar flash → close-time `scale()`
+jump), all the same trap.
+
+The rules for such a panel:
+
+- **Gaps/offsets come from the positioner, not CSS.** Use the library's
+  positioning prop (Radix `sideOffset` / `alignOffset`) for the directional
+  gap — it moves the *popper wrapper*, which is allowed to have a transform.
+  Do **not** add a `[data-side]` `translate:` on the content itself.
+- **Animations are opacity-only** (or animate a property that is not
+  `transform`). No `scale` / `translate` keyframes on the content. See
+  [`DropdownMenu.css`](../../src/components/lv1/DropdownMenu/DropdownMenu.css)
+  for the opacity-only enter/exit.
+- **This is specific to panels with nested fixed children.** `Select` /
+  `Tooltip` / `Dialog` / `Toast` keep their `scale` enter/exit because their
+  content is portaled with **no** nested fixed descendant inside it, so a
+  transform there is harmless. The constraint kicks in only when a fixed child
+  lives in the panel's subtree.
+- **Guard it.** Because the failure is *animation-transient*, neither static
+  VRT (still frames) nor jsdom unit tests catch it. Pair the component with a
+  real-browser behavioral spec that samples the child's position through the
+  close — see
+  [`DropdownMenu.interaction.vrt.spec.ts`](../../src/components/lv1/DropdownMenu/DropdownMenu.interaction.vrt.spec.ts).
+
+When you build the next nested-menu primitive (ContextMenu, Menubar,
+NavigationMenu, a Popover that hosts a submenu), apply this from the start
+rather than rediscovering it through the same three bugs.
 
 ### Empty base rules are dropped by `--minify`
 

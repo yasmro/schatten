@@ -1,8 +1,6 @@
-import * as ToastPrimitive from '@radix-ui/react-toast'
-import { cn } from '../../../lib/utils'
-import { type ToastPosition, toastViewportVariants } from '../../../variants/toast'
-import { ToastItem } from './Toast'
-import { useToast } from './use-toast'
+import { Toaster as SonnerToaster } from 'sonner'
+import './Toast.css'
+import type { ToastPosition } from '../../../variants/toast'
 
 export interface ToasterProps {
   /**
@@ -18,20 +16,29 @@ export interface ToasterProps {
   duration?: number
   /** Optional class applied to the viewport container. */
   className?: string
-}
-
-const swipeDirectionByPosition: Record<ToastPosition, 'up' | 'down' | 'left' | 'right'> = {
-  'top-left': 'left',
-  'top-center': 'up',
-  'top-right': 'right',
-  'bottom-left': 'left',
-  'bottom-center': 'down',
-  'bottom-right': 'right',
+  /**
+   * Render stacked toasts expanded (all spread out, gap-separated) instead of
+   * Sonner's collapsed card stack. Schatten defaults this to `true`: the
+   * collapsed stack mis-positions toasts of very different heights (a short
+   * toast in front of a tall one), and an expanded list is more predictable
+   * for a design system. Pass `expand={false}` for the card-stack look.
+   * @default true
+   */
+  expand?: boolean
+  /**
+   * Maximum number of toasts visible at once; older toasts collapse behind.
+   * @default 3
+   */
+  visibleToasts?: number
 }
 
 /**
- * Mount once at the app root. Reads from the shared toast store and
- * renders each currently-open toast inside a Radix Toast.Provider.
+ * Mount once at the app root. Renders Sonner's toast viewport — Sonner owns
+ * stacking / swipe / enter-exit / auto-dismiss, while each toast's body is
+ * rendered by Schatten via `toast.custom()` (see Toast.tsx) using real
+ * `<Icon>` / `<Spinner>` / `<Button>` and the `.st-toast*` class API, mirroring
+ * `Callout`. `toastOptions.unstyled` strips Sonner's own visual CSS so the
+ * `.st-toast` skin in Toast.css is the only styling that applies.
  *
  * @example
  *   <App>
@@ -43,19 +50,22 @@ const swipeDirectionByPosition: Record<ToastPosition, 'up' | 'down' | 'left' | '
  *   import { toast } from '@yasmro/schatten/components/lv1'
  *   toast({ title: 'Saved', variant: 'success' })
  */
-export function Toaster({ position = 'bottom-center', duration, className }: ToasterProps) {
-  const { toasts } = useToast()
-
+export function Toaster({
+  position = 'bottom-center',
+  duration,
+  className,
+  expand = true,
+  visibleToasts,
+}: ToasterProps) {
   return (
-    <ToastPrimitive.Provider
-      swipeDirection={swipeDirectionByPosition[position]}
+    <SonnerToaster
+      position={position}
       duration={duration}
-    >
-      {toasts.map((t) => (
-        <ToastItem key={t.id} toast={t} />
-      ))}
-      <ToastPrimitive.Viewport className={cn(toastViewportVariants({ position }), className)} />
-    </ToastPrimitive.Provider>
+      className={className}
+      expand={expand}
+      visibleToasts={visibleToasts}
+      toastOptions={{ unstyled: true }}
+    />
   )
 }
 

@@ -355,8 +355,18 @@ fallback — that policy only holds if the contract below holds.
      possible — Button / Input / Textarea / FieldSet do this today.
    - A Radix primitive that assigns the role for us — Dialog (`dialog`),
      Tooltip (`tooltip`), Checkbox (`checkbox`), Switch (`switch`),
-     Select trigger (`combobox`) + content (`listbox`), Toast
-     (`status`), Radio (`radio` inside `radiogroup`).
+     Select trigger (`combobox`) + content (`listbox`), Radio (`radio`
+     inside `radiogroup`).
+   - A library's accessibility layer — **Toast** is rendered by Sonner
+     (since [#318](https://github.com/yasmro/schatten/issues/318)), which
+     announces toast content through a dedicated visually-hidden ARIA live
+     region rather than putting `role="status"` on the visible toast
+     element. The visible `.st-toast` itself therefore carries no role;
+     the announcement contract is satisfied by Sonner's live region
+     (polite for all variants — Toast does not switch `aria-live` by
+     variant). Vanilla-HTML consumers of the `.st-toast` CSS get the
+     visual shell only and must add `role="status"` / `aria-live`
+     themselves.
    - An explicit `role="…"` written by Schatten — used only when
      neither of the above gives the right semantic. Current explicit
      uses: [Spinner](../../src/components/lv1/Spinner/Spinner.tsx)
@@ -522,11 +532,15 @@ fallback — that policy only holds if the contract below holds.
 2. **VRT a11y assertion** — since v0.11.0 (#147) every lv1
    `*.vrt.spec.ts` pairs each screenshot with an `@axe-core/playwright`
    scan (WCAG 2.1 A/AA) that asserts zero violations. Run locally with
-   `pnpm test:a11y`; in CI the ubuntu `a11y` job runs it. **Phase 1 is
-   observe-only** (`continue-on-error: true`) while a backlog of
-   pre-existing violations is worked off in follow-up issues — see
-   [vrt-spec-guideline §a11y assertions](vrt-spec-guideline.md). The
-   Storybook `addon-a11y` panel remains the manual dev-time companion.
+   `pnpm test:a11y`; in CI the ubuntu `a11y` job runs it. Since the Phase
+   1 backlog was cleared (color-contrast #344, label/button-name #345),
+   the gate is **blocking** (#346) — the `a11y` job propagates the
+   Playwright exit code, so a new violation fails the PR. The only axe
+   `color-contrast` findings that remain are intentional design exceptions
+   (solid treatments / inverted-on-saturated / the foreground-subtle
+   tertiary tier), each disabled with a documented rationale scoped to its
+   own story — see [vrt-spec-guideline §a11y assertions](vrt-spec-guideline.md).
+   The Storybook `addon-a11y` panel remains the manual dev-time companion.
 3. **Code review** — when reviewing an lv1 PR, walk the four
    guarantees and Hard rules above. If the component opts out of a
    default (e.g. Callout's no-role posture), the TSDoc must say so
@@ -549,8 +563,12 @@ fallback — that policy only holds if the contract below holds.
   [AGENTS.md](../../AGENTS.md).
 - **§8 (a11y contract):**
   - [#147](https://github.com/yasmro/schatten/issues/147) landed the
-    `@axe-core/playwright` VRT-paired check (v0.11.0). When the Phase 1
-    backlog is cleared and the `a11y` CI job drops `continue-on-error`
-    (Phase 2), update "Verifying compliance" to call it a blocking gate.
+    `@axe-core/playwright` VRT-paired check (v0.11.0); the Phase 1
+    backlog (#344 / #345) is now cleared and the `a11y` CI job is
+    blocking (#346) — "Verifying compliance" reflects this. If a future
+    component needs a genuinely new `color-contrast` exception, it must
+    be a documented, story-scoped `disableRules(['color-contrast'])`
+    with a rationale (not a blanket disable) — see
+    [vrt-spec-guideline §a11y assertions](vrt-spec-guideline.md).
   - When `Field.required` gains `aria-required` propagation, remove
     the gap note in guarantee #4.

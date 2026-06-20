@@ -84,7 +84,7 @@ export const StackingOrder: Story = {
             <span className="w-44 text-sm font-mono text-foreground">{l.token}</span>
             <span className="text-sm text-foreground-muted">{l.layer}</span>
             {l.reserved && (
-              <span className="ml-auto text-[10px] uppercase tracking-wide text-foreground-subtle">
+              <span className="ml-auto text-[10px] uppercase tracking-wide text-foreground-muted">
                 reserved
               </span>
             )}

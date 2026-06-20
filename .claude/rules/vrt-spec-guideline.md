@@ -199,19 +199,24 @@ CI splits them across runners: the macos `vrt` job runs `pnpm test:vrt`
 contrast / role checks derive from CSS, not from macos font / sub-pixel
 rendering, so the scarce macos runner stays pixel-only.
 
-> **Phase 1 (observe-only).** A backlog of pre-existing violations
-> (systemic borderline color-contrast on state tokens — #344;
-> bare-control story artifacts — #345) is worked off before the gate
-> blocks — mirroring the `audit` job's staged rollout (#307). Because
-> those ~115 violations would fail Playwright on **every** run, the
-> `a11y` job's step keeps the **check green as long as axe actually ran**
-> (it tees the full violation list into `$GITHUB_STEP_SUMMARY` for
-> anyone who looks) and only fails when axe *couldn't* run (a crash, or a
-> grep / `--` mistake that yields "No tests found"). The job is also
-> `continue-on-error: true` as a backstop. Phase 2 (#346) deletes that
-> exit-0 shim and `continue-on-error` so the gate blocks. Until then,
-> **read the summary, not the check color** — and new components should
-> still land with zero new violations.
+> **Phase 2 (blocking, #346).** The Phase 1 backlog is cleared — the
+> systemic color-contrast violations on state tokens (#344, fixed by the
+> `--color-{state}-emphasis` retune in Phase B) and the bare-control
+> story label/button-name violations (#345) are resolved — so the gate
+> now **blocks**: the `a11y` job propagates the Playwright exit code and
+> a new violation fails the PR. The step still tees the full axe output
+> into `$GITHUB_STEP_SUMMARY` so a failure's violation list is readable
+> straight from the PR checks. The only `color-contrast` findings that
+> remain are **intentional design exceptions** — solid treatments (white
+> foreground on a saturated/neutral-solid fill, the AA trilemma),
+> inverted-on-saturated foreground, and the `foreground-subtle` tertiary
+> tier (large/incidental-only). Each is suppressed with a **story-scoped**
+> `disableRules(['color-contrast'])` carrying a one-line rationale + the
+> `#344` / `#346` refs, mirrored in the story's `parameters.a11y` for the
+> addon panel (the [Per-story rule disable](storybook-guideline.md) rule).
+> A blanket or whole-file `color-contrast` disable is **not** acceptable —
+> if you reach for one, you are masking a real regression. New components
+> must land with zero new violations.
 
 ## Components rendered into a Portal
 
@@ -432,6 +437,40 @@ When you skip the parity story, the contract is still defended by:
 - **Existing component VRT** (`{Component}.vrt.spec.ts`) — visual regression
   on the React side is still captured; the Tailwind utility → semantic class
   translation is verified via diff against existing baselines.
+
+### 区分 C/D (JS 必須) — a Playwright interaction test is REQUIRED
+
+区分 C/D components are interactive (dismiss / open / close / select / swipe),
+and **their primary user action runs through JS + real browser semantics that
+jsdom does not reproduce** — `pointer-events`, pointer capture, drag/swipe
+handlers, focus order, portal hit-testing. A green unit suite (jsdom) + green
+VRT (static pixels) can therefore **both pass while the component is broken in
+the browser**. This is not hypothetical: in [#318](https://github.com/yasmro/schatten/issues/318)
+the Toast's close / action buttons shipped non-functional with all gates green
+(an icon-only button's `<svg>` became the click target and Sonner's swipe
+handler captured the pointer; jsdom ignored it).
+
+So, for every 区分 C/D component, the `{Component}.vrt.spec.ts` MUST include at
+least one **non-screenshot Playwright interaction test** that drives the
+primary operation with a real pointer and asserts the result — e.g.:
+
+```ts
+test('Toast / close button dismisses on real click', async ({ page }) => {
+  await page.goto(storyUrl('subtle-treatments', 'light'))
+  await page.waitForFunction(() => document.querySelectorAll('[data-sonner-toast]').length > 0)
+  const toasts = page.locator('li[data-sonner-toast]')
+  const before = await toasts.count()
+  await page.locator('button.st-toast__action').first().click()
+  await expect(toasts).toHaveCount(before - 1)
+})
+```
+
+It runs under `pnpm test:vrt` (it has no `a11y` in the name, so the
+`--grep-invert a11y` split keeps it), so no new CI wiring is needed. Cover the
+operation a consumer would file a bug about if it broke: Toast → dismiss
+(close + action); Dialog → open / close / action; Select → open + pick an
+option; Tooltip → trigger shows content. Screenshots and the class-API unit
+test do **not** substitute for this.
 
 ### Decision flow
 

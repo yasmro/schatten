@@ -1,0 +1,206 @@
+/*
+ * Tabs — `.st-tabs__*` class API.
+ *
+ * Compound block: `st-tabs` (Radix Tabs.Root, a <div>). Sub-elements:
+ *
+ * - `.st-tabs__list`       the tablist (Radix List). State: `[data-orientation]`.
+ * - `.st-tabs__trigger`    a tab button (Radix Trigger, a native <button>).
+ *                          State: `[data-state="active" | "inactive"]`, `:disabled`.
+ * - `.st-tabs__trigger-icon`  optional leading icon, `aria-hidden`, before the label.
+ * - `.st-tabs__indicator`  a single sliding underline shared across the list,
+ *                          positioned/sized by JS to the active trigger and
+ *                          CSS-transitioned so it moves between tabs. The React
+ *                          layer (TabsList) sets its transform/size. Enabled,
+ *                          non-active triggers get a `--color-surface-hover`
+ *                          background on hover (tertiary-Button style, square).
+ * - `.st-tabs__content`    a tab panel (Radix Content, focusable when active).
+ *
+ * Single visual style — a "line" treatment: the active tab is marked by a
+ * foreground-colored sliding underline (horizontal) or trailing border
+ * (vertical). No `variant` axis yet; a future style (enclosed / pill) would be
+ * an additive `--{variant}` modifier (#44 で line 型に確定)。
+ *
+ * Orientation is author configuration, so per css-api.md §state it would
+ * normally ride a modifier class. It rides Radix's `[data-orientation]`
+ * attribute selector here instead: the List / Trigger are nested Radix parts
+ * that receive the orientation from the Root's context, NOT as a prop, so a
+ * Schatten component cannot attach an `.st-tabs__list--vertical` modifier
+ * without re-plumbing orientation through every part. Reading the attribute
+ * Radix already emits is the smaller, framework-agnostic surface. (Approved
+ * exception, css-api.md §state "Exception: variant / appearance / size /
+ * orientation"; #44.)
+ *
+ * State expression follows css-api.md §state — active via `[data-state]`,
+ * disabled via `:disabled` (the trigger is a native button). The active marker
+ * itself is the JS-positioned `.st-tabs__indicator`; a vanilla (no-JS) consumer
+ * gets the static list + triggers but not the sliding underline (Tabs is 区分
+ * D — JS 必須). Raw CSS + `var(--color-*)` throughout, per css-api.md
+ * "Component CSS authoring conventions — raw CSS over @apply".
+ *
+ * See: .claude/rules/css-api.md, #44.
+ */
+
+@layer components {
+  /* ===== root ===== *
+   * Horizontal (default) stacks the list over the panels via normal block
+   * flow. Vertical places the list beside the panels; consumers can override
+   * the gap / layout. */
+  .st-tabs[data-orientation="vertical"] {
+    display: flex;
+    gap: 1rem;
+  }
+
+  /* ===== list ===== *
+   * `position: relative` is the containing block for the absolutely-positioned
+   * sliding indicator. */
+  .st-tabs__list {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    /* The baseline is an INSET box-shadow, not a `border`. A border sits on the
+     * border box (outside the padding), so the indicator — which lives at the
+     * padding-box inner edge — would be separated from it by the focus-ring
+     * padding. An inset shadow is painted on the padding-box inner edge, the
+     * exact line the indicator sits on, so the active (black) indicator lands
+     * flush on the inactive (grey) baseline with no gap. Like a border it's
+     * part of the element's own paint, so it stays FIXED and full-width while
+     * the content scrolls (an absolutely-positioned `::after` would scroll away
+     * with the tabs). 2px to match the indicator width exactly. */
+    box-shadow: inset 0 -2px 0 var(--color-border);
+    /* Overflow: tabs scroll on the main axis when they exceed the width;
+     * scrollbar hidden (trackpad / touch / Shift+wheel still scroll), and
+     * selecting a tab scrolls it into view (TabsList manages scrollLeft).
+     * The `padding` gives the trigger focus ring (box-shadow, spreads 4px)
+     * room so the overflow clip never cuts it; the matching negative `margin`
+     * keeps the list's footprint in `.st-tabs` unchanged. */
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding: 4px;
+    margin: -4px;
+  }
+  .st-tabs__list::-webkit-scrollbar {
+    display: none;
+  }
+  .st-tabs__list[data-orientation="vertical"] {
+    flex-direction: column;
+    align-items: stretch;
+    /* Keep the tab column at its own intrinsic width — without this it shrinks
+     * as a flex child when the active panel's content is wide, shifting the
+     * right baseline between selections. */
+    flex-shrink: 0;
+    /* baseline moves to the inline-end (right) inner edge */
+    box-shadow: inset -2px 0 0 var(--color-border);
+    overflow-x: visible;
+    overflow-y: auto;
+  }
+
+  /* ===== indicator (sliding active underline) ===== *
+   * Position/size are set inline by TabsList from the active trigger's box;
+   * the transition makes it slide + stretch between tabs. `bottom`/`right: 0`
+   * lands it on the same padding-box inner edge as the inset-shadow baseline
+   * (same 2px width), so the active segment is just that line turning
+   * `--color-foreground` — flush, no gap. Staying at 0 also keeps it inside the
+   * padding box so the overflow clip doesn't cut it. */
+  .st-tabs__indicator {
+    position: absolute;
+    pointer-events: none;
+    background-color: var(--color-foreground);
+    transition:
+      transform 200ms ease,
+      width 200ms ease,
+      height 200ms ease,
+      opacity 150ms ease;
+  }
+  .st-tabs__list[data-orientation="horizontal"] .st-tabs__indicator {
+    bottom: 0;
+    left: 0;
+    height: 2px;
+  }
+  .st-tabs__list[data-orientation="vertical"] .st-tabs__indicator {
+    top: 0;
+    right: 0;
+    width: 2px;
+  }
+
+  /* ===== trigger ===== */
+  .st-tabs__trigger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    border: none;
+    background: none;
+    cursor: pointer;
+    white-space: nowrap;
+    font-size: 0.875rem;
+    font-weight: 500;
+    /* Full foreground (not muted): `--color-foreground-muted` fails WCAG AA on
+     * the surface (2.57:1), so the inactive/active distinction is carried by
+     * the sliding indicator + Radix `aria-selected`, never by a sub-AA text
+     * color. */
+    color: var(--color-foreground);
+    /* Square corners (no radius). The active marker is the list-managed
+     * `.st-tabs__indicator`, so the trigger carries no border / radius of its
+     * own. */
+    transition:
+      color 200ms,
+      background-color 200ms;
+  }
+  /* Hover surface — a subtle background on enabled, non-active tabs only,
+   * mirroring the tertiary Button's `--color-surface-hover` hover. The active
+   * tab is already marked by the indicator, and disabled tabs can't be used,
+   * so neither gets a hover background. */
+  .st-tabs__trigger:not(:disabled):not([data-state="active"]):hover {
+    background-color: var(--color-surface-hover);
+  }
+  .st-tabs__trigger:focus-visible {
+    outline: none;
+    box-shadow:
+      0 0 0 2px var(--color-ring-offset),
+      0 0 0 4px var(--color-ring);
+  }
+  .st-tabs__trigger:disabled {
+    cursor: not-allowed;
+    color: var(--color-foreground-disabled);
+  }
+
+  /* ===== leading icon ===== */
+  .st-tabs__trigger-icon {
+    flex-shrink: 0;
+    width: 1rem;
+    height: 1rem;
+  }
+
+  /* vertical: left-align the label; the active marker is the list-managed
+   * indicator on the trailing edge, and the hover background is shared with the
+   * orientation-agnostic rule above. */
+  .st-tabs__list[data-orientation="vertical"] .st-tabs__trigger {
+    justify-content: flex-start;
+  }
+
+  /* ===== content ===== */
+  .st-tabs__content {
+    padding-top: 0.75rem;
+    color: var(--color-foreground);
+  }
+  .st-tabs__content:focus-visible {
+    outline: none;
+    box-shadow:
+      0 0 0 2px var(--color-ring-offset),
+      0 0 0 4px var(--color-ring);
+  }
+
+  /* Reduced motion: the indicator still jumps to the active tab, just without
+   * the slide. This rule sits after the base `.st-tabs__indicator` /
+   * `.st-tabs__trigger` rules in the same layer, so it wins by source order;
+   * the indicator's only inline `transition` value is `none` (first paint), so
+   * no inline override is in play here. */
+  @media (prefers-reduced-motion: reduce) {
+    .st-tabs__indicator,
+    .st-tabs__trigger {
+      transition: none;
+    }
+  }
+}

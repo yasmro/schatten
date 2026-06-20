@@ -84,15 +84,38 @@ const preview: Preview = {
           values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'],
         },
       },
-      // Phase 1 (observe-only): surface violations in the panel, block nothing.
-      // `test` only bites once the test addon (@storybook/addon-vitest) is
-      // wired up — unused today, so 'todo' is inert but documents the stance.
-      // Promotion to 'error' rides with the CI blocking work (#346).
-      test: 'todo',
+      // `test: 'off'` — NOT inert. addon-a11y's preview `afterEach` runs axe
+      // on every `viewMode=story` render whenever `test !== 'off'` (see the
+      // `shouldRunEnvironmentIndependent` guard in addon-a11y's preview.js).
+      // Playwright loads exactly those `iframe.html?viewMode=story` URLs, so
+      // the addon's run RACES our `@axe-core/playwright` `.analyze()` in the
+      // same frame → intermittent `Error: Axe is already running` (worst on
+      // Toast, whose toasts mount in a useEffect → a second render → a second
+      // axe run). Phase 1's exit-0 shim masked it; #346 (blocking) surfaced it.
+      // Our a11y test runner IS `@axe-core/playwright` (the CI `a11y` gate), so
+      // the addon's headless run is redundant — turn it off and keep addon-a11y
+      // as the on-demand dev PANEL only. The panel still scans the selected
+      // story with the pinned tag set above.
+      test: 'off',
     },
     options: {
-      storySort: {
-        order: [
+      // Comparator form (was a `storySort.order` array). The top-level group
+      // order is unchanged; the function exists so the per-component parity
+      // story ("React vs Vanilla HTML", export `Parity`, story id ending
+      // `--parity`) can be forced LAST within its component. That story lives
+      // in `<Name>.parity.stories.tsx`, which loads before `<Name>.stories.tsx`
+      // by filename, so without this it sorts first. Every other pair returns
+      // 0 → the stable sort preserves the previous load order (the default
+      // `configure` method), so only the parity story moves.
+      // NOTE: Storybook statically generates + `eval`s this arrow at index
+      // build (getStorySortParameter). It MUST be an inline arrow of plain JS:
+      // an external reference is `unsupported`, and any TS type annotation on a
+      // param survives babel codegen into the eval'd string → "Unexpected token
+      // ':'". So `a` / `b` cannot be annotated, and `options.storySort` is too
+      // loosely typed to type them contextually — hence the targeted suppress.
+      // @ts-expect-error -- a/b are Storybook IndexEntry (id, title); see note
+      storySort: (a, b) => {
+        const order = [
           'Welcome',
           'Getting Started',
           'Tokens',
@@ -100,7 +123,18 @@ const preview: Preview = {
           'CSS API',
           'Patterns',
           'Components',
-        ],
+        ]
+        const ga = order.indexOf(a.title.split('/')[0])
+        const gb = order.indexOf(b.title.split('/')[0])
+        const ta = ga === -1 ? order.length : ga
+        const tb = gb === -1 ? order.length : gb
+        if (ta !== tb) return ta - tb
+        if (a.title === b.title) {
+          const ap = a.id.endsWith('--parity')
+          const bp = b.id.endsWith('--parity')
+          if (ap !== bp) return ap ? 1 : -1
+        }
+        return 0
       },
     },
   },

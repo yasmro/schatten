@@ -14,6 +14,26 @@ export {
   type DialogProps,
   type DialogSubActionButton,
 } from './Dialog'
+export {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  type DropdownMenuContentProps,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  type DropdownMenuItemProps,
+  DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuSeparator,
+  DropdownMenuShortcut,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  type DropdownMenuSubTriggerProps,
+  DropdownMenuTrigger,
+  type DropdownMenuTriggerProps,
+} from './DropdownMenu'
 export { Field, type FieldContextValue, type FieldProps, useFieldContext } from './Field'
 export {
   FieldSet,
@@ -23,6 +43,15 @@ export {
 } from './FieldSet'
 export { Icon, type IconProps } from './Icon'
 export { Input, type InputProps } from './Input'
+export {
+  Popover,
+  PopoverAnchor,
+  PopoverClose,
+  PopoverContent,
+  type PopoverContentProps,
+  PopoverTrigger,
+  type PopoverTriggerProps,
+} from './Popover'
 export { Radio, RadioGroup, type RadioGroupProps, type RadioProps } from './Radio'
 export {
   Select,
@@ -41,20 +70,30 @@ export {
 export { Separator, type SeparatorProps } from './Separator'
 export { Spinner, type SpinnerProps } from './Spinner'
 export { Switch, type SwitchProps } from './Switch'
+export {
+  Tabs,
+  TabsContent,
+  TabsList,
+  type TabsProps,
+  TabsTrigger,
+  type TabsTriggerProps,
+} from './Tabs'
 export { Text, type TextProps } from './Text'
 export { Textarea, type TextareaProps } from './Textarea'
 export {
+  dismiss,
   dismissAll,
   type ToastAction,
   type ToastAppearance,
-  type ToastData,
   Toaster,
   type ToasterProps,
+  type ToastFn,
   type ToastHandle,
   type ToastInput,
+  type ToastPromiseHandle,
+  type ToastPromiseOptions,
   type ToastVariant,
   toast,
-  useToast,
 } from './Toast'
 export {
   Tooltip,

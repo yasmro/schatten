@@ -1,12 +1,14 @@
-export { Toaster, type ToasterProps } from './Toaster'
 export {
+  dismiss,
   dismissAll,
   type ToastAction,
   type ToastAppearance,
-  type ToastData,
+  type ToastFn,
   type ToastHandle,
   type ToastInput,
+  type ToastPromiseHandle,
+  type ToastPromiseOptions,
   type ToastVariant,
   toast,
-  useToast,
-} from './use-toast'
+} from './Toast'
+export { Toaster, type ToasterProps } from './Toaster'

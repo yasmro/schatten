@@ -115,6 +115,10 @@ export const SubtleTreatments: Story = {
 
 export const SolidTreatments: Story = {
   name: 'Solid Treatments',
+  parameters: {
+    // Solid Callouts are light-on-saturated fill — the intentional AA solid exception (icon + title carry the meaning). Mirrors Callout.vrt.spec.ts. #344 / #346.
+    a11y: { config: { rules: [{ id: 'color-contrast', enabled: false }] } },
+  },
   render: () => (
     <div className="flex flex-col gap-3 max-w-xl">
       {VARIANTS.map((variant) => (
@@ -182,6 +186,8 @@ export const WithAction: Story = {
 export const SolidWithAction: Story = {
   name: 'Solid With Action',
   parameters: {
+    // Solid Callouts are light-on-saturated fill — the intentional AA solid exception (icon + title carry the meaning). Mirrors Callout.vrt.spec.ts. #344 / #346.
+    a11y: { config: { rules: [{ id: 'color-contrast', enabled: false }] } },
     docs: {
       description: {
         story:
@@ -214,6 +220,30 @@ export const SolidWithAction: Story = {
         }
       >
         A newer version of this app is ready.
+      </Callout>
+    </div>
+  ),
+}
+
+export const SolidDismissible: Story = {
+  name: 'Solid Dismissible',
+  parameters: {
+    // Solid Callouts are light-on-saturated fill — the intentional AA solid exception (icon + title carry the meaning). Mirrors Callout.vrt.spec.ts. #344 / #346.
+    a11y: { config: { rules: [{ id: 'color-contrast', enabled: false }] } },
+    docs: {
+      description: {
+        story:
+          'The dedicated close button is tone-agnostic (`currentColor` + `color-mix` hover), so it stays legible on a saturated `solid` surface without a per-appearance variant. Covers the close on `solid` in VRT (the subtle case is covered by "Long Content").',
+      },
+    },
+  },
+  render: () => (
+    <div className="flex flex-col gap-3 max-w-xl">
+      <Callout variant="error" appearance="solid" title="Failed" onClose={() => {}}>
+        Could not connect to the upstream.
+      </Callout>
+      <Callout variant="success" appearance="solid" title="Saved" onClose={() => {}}>
+        Your changes have been persisted.
       </Callout>
     </div>
   ),

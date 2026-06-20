@@ -45,6 +45,7 @@
   --color-destructive-hover: var(--color-destructive-hover);
   --color-destructive-foreground: var(--color-destructive-foreground);
   --color-destructive-subtle: var(--color-destructive-subtle);
+  --color-destructive-emphasis: var(--color-destructive-emphasis);
 
   /* Brand-named (朱 vermillion / 藍 indigo) */
   --color-vermillion: var(--color-vermillion);
@@ -65,26 +66,30 @@
   --color-inverted-foreground-muted: var(--color-inverted-foreground-muted);
   --color-inverted-foreground-subtle: var(--color-inverted-foreground-subtle);
 
-  /* States — each provides { base, hover, foreground, subtle } */
+  /* States — each provides { base, hover, foreground, subtle, emphasis } */
   --color-error: var(--color-error);
   --color-error-hover: var(--color-error-hover);
   --color-error-foreground: var(--color-error-foreground);
   --color-error-subtle: var(--color-error-subtle);
+  --color-error-emphasis: var(--color-error-emphasis);
 
   --color-success: var(--color-success);
   --color-success-hover: var(--color-success-hover);
   --color-success-foreground: var(--color-success-foreground);
   --color-success-subtle: var(--color-success-subtle);
+  --color-success-emphasis: var(--color-success-emphasis);
 
   --color-warning: var(--color-warning);
   --color-warning-hover: var(--color-warning-hover);
   --color-warning-foreground: var(--color-warning-foreground);
   --color-warning-subtle: var(--color-warning-subtle);
+  --color-warning-emphasis: var(--color-warning-emphasis);
 
   --color-info: var(--color-info);
   --color-info-hover: var(--color-info-hover);
   --color-info-foreground: var(--color-info-foreground);
   --color-info-subtle: var(--color-info-subtle);
+  --color-info-emphasis: var(--color-info-emphasis);
 
   /* Non-interactive state — disabled / readOnly */
   --color-surface-disabled: var(--color-surface-disabled);

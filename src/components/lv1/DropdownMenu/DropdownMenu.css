@@ -145,9 +145,12 @@
 
   /* destructive action role — red text carries the role; the highlight
    * background intentionally matches the default item (surface-hover, from the
-   * base rule above) to stay consistent with Select's calm pulldown. */
+   * base rule above) to stay consistent with Select's calm pulldown. Uses the
+   * `-emphasis` rung (not `base`): this is colored text on a non-solid surface,
+   * so it follows the same AA rule as Callout/Toast/Badge subtle text and
+   * `Text color` (state-token-guideline.md "emphasis"). */
   .st-dropdown-menu__item--destructive {
-    color: var(--color-destructive);
+    color: var(--color-destructive-emphasis);
   }
 
   /* ===== leading icon ===== */

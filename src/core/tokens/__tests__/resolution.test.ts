@@ -127,53 +127,95 @@ const inDark = (token: string) => resolveToPrimitive(`--color-${token}`, darkSco
 /* Fixtures — expected leaf primitive per token, per mode               */
 /* ------------------------------------------------------------------ */
 
-/** 4-token interactive states. base / hover / foreground / subtle. */
+/**
+ * 5-token interactive states. base / hover / foreground / subtle / emphasis.
+ * `emphasis` (#344 Phase B) is the readable colored-text rung: -700 in light,
+ * -400 in dark. It shares a primitive value with `hover` but is a distinct
+ * semantic (text vs. interactive fill) — see state-token-guideline.md.
+ */
 const INTERACTIVE_STATE = {
   error: {
-    light: { base: 'red-600', hover: 'red-700', foreground: 'paper-white', subtle: 'red-50' },
+    light: {
+      base: 'red-600',
+      hover: 'red-700',
+      foreground: 'paper-white',
+      subtle: 'red-50',
+      emphasis: 'red-700',
+    },
     dark: {
       base: 'red-500',
       hover: 'red-400',
       foreground: 'paper-white-inverted',
       subtle: 'red-900',
+      emphasis: 'red-400',
     },
   },
   success: {
-    light: { base: 'green-600', hover: 'green-700', foreground: 'paper-white', subtle: 'green-50' },
+    light: {
+      base: 'green-600',
+      hover: 'green-700',
+      foreground: 'paper-white',
+      subtle: 'green-50',
+      emphasis: 'green-700',
+    },
     dark: {
       base: 'green-500',
       hover: 'green-400',
       foreground: 'paper-white-inverted',
       subtle: 'green-900',
+      emphasis: 'green-400',
     },
   },
   warning: {
-    light: { base: 'amber-600', hover: 'amber-700', foreground: 'paper-white', subtle: 'amber-50' },
+    light: {
+      base: 'amber-600',
+      hover: 'amber-700',
+      foreground: 'paper-white',
+      subtle: 'amber-50',
+      emphasis: 'amber-700',
+    },
     dark: {
       base: 'amber-500',
       hover: 'amber-400',
       foreground: 'paper-white-inverted',
       subtle: 'amber-900',
+      emphasis: 'amber-400',
     },
   },
   info: {
-    light: { base: 'blue-600', hover: 'blue-700', foreground: 'paper-white', subtle: 'blue-50' },
+    light: {
+      base: 'blue-600',
+      hover: 'blue-700',
+      foreground: 'paper-white',
+      subtle: 'blue-50',
+      emphasis: 'blue-700',
+    },
     dark: {
       base: 'blue-500',
       hover: 'blue-400',
       foreground: 'paper-white-inverted',
       subtle: 'blue-900',
+      emphasis: 'blue-400',
     },
   },
   // `destructive` shares the `red` primitive with `error` but is a distinct
   // semantic (action intent vs. form state) — see state-token-guideline.md.
+  // `destructive-emphasis` is consumed by the DropdownMenu destructive item
+  // (red text on the menu surface).
   destructive: {
-    light: { base: 'red-600', hover: 'red-700', foreground: 'paper-white', subtle: 'red-50' },
+    light: {
+      base: 'red-600',
+      hover: 'red-700',
+      foreground: 'paper-white',
+      subtle: 'red-50',
+      emphasis: 'red-700',
+    },
     dark: {
       base: 'red-500',
       hover: 'red-400',
       foreground: 'paper-white-inverted',
       subtle: 'red-900',
+      emphasis: 'red-400',
     },
   },
 } as const
@@ -374,7 +416,7 @@ describe('semantic.css token resolution', () => {
     }
   })
 
-  describe('interactive state tokens (4-token shape)', () => {
+  describe('interactive state tokens (5-token shape)', () => {
     for (const [state, modes] of Object.entries(INTERACTIVE_STATE)) {
       describe(state, () => {
         for (const mode of ['light', 'dark'] as const) {
@@ -391,6 +433,9 @@ describe('semantic.css token resolution', () => {
           })
           it(`--color-${state}-subtle resolves to ${slots.subtle} in ${mode} mode`, () => {
             expect(resolveIn(`${state}-subtle`)).toBe(slots.subtle)
+          })
+          it(`--color-${state}-emphasis resolves to ${slots.emphasis} in ${mode} mode`, () => {
+            expect(resolveIn(`${state}-emphasis`)).toBe(slots.emphasis)
           })
         }
       })
@@ -556,6 +601,57 @@ describe('foreground tier WCAG contrast (AA) (#344)', () => {
         ratioVs('foreground-muted', 'surface', scope),
       )
     })
+  }
+})
+
+/* ------------------------------------------------------------------ */
+/* State `emphasis` WCAG contrast (AA small text) — #344 Phase B        */
+/* ------------------------------------------------------------------ */
+
+/*
+ * `emphasis` is the colored-text rung introduced so colored state text clears
+ * WCAG 1.4.3 small-text 4.5:1 where `base` (-600/-500) missed (~4.2–4.4). This
+ * block pins that claim mechanically — for every reading context the rung
+ * actually renders into:
+ *   - on the matching `{state}-subtle` surface (Badge/Callout/Toast subtle text)
+ *   - on the page `surface` AND `background` (standalone `Text color="info"`,
+ *     Badge outline) — the warm background is the lower-contrast case
+ * A future primitive re-tune that eroded any of these below AA would still pass
+ * the leaf pins above; this catches it on every unit run, not only under axe.
+ *
+ * `destructive` is included: the DropdownMenu destructive item renders
+ * `destructive-emphasis` as red text on the menu surface, so it has a real
+ * reading context. (Its `-subtle` assertion below has no current consumer but
+ * passes — same `red` value as `error`.)
+ */
+describe('state emphasis WCAG contrast (AA small text) (#344 Phase B)', () => {
+  const STATES = ['error', 'success', 'warning', 'info', 'destructive'] as const
+  const AA_SMALL = 4.5
+
+  const ratioBetween = (a: string, b: string, scope: Map<string, string>) =>
+    contrastRatio(relLuminance(leafValue(a, scope)), relLuminance(leafValue(b, scope)))
+
+  for (const [mode, scope] of [
+    ['light', lightScope],
+    ['dark', darkScope],
+  ] as const) {
+    for (const state of STATES) {
+      it(`${state}-emphasis clears 4.5:1 on its subtle surface in ${mode} mode`, () => {
+        expect(
+          ratioBetween(`--color-${state}-emphasis`, `--color-${state}-subtle`, scope),
+          `${state}-emphasis on ${state}-subtle (${mode})`,
+        ).toBeGreaterThanOrEqual(AA_SMALL)
+      })
+
+      it(`${state}-emphasis clears 4.5:1 on the page surface + background in ${mode} mode`, () => {
+        for (const surface of ['surface', 'background'] as const) {
+          expect(
+            ratioBetween(`--color-${state}-emphasis`, `--color-${surface}`, scope),
+            `${state}-emphasis on ${surface} (${mode})`,
+          ).toBeGreaterThanOrEqual(AA_SMALL)
+        }
+      })
+    }
   }
 })
 

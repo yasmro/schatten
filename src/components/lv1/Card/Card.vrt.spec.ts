@@ -4,7 +4,7 @@ import { expect, test } from '@playwright/test'
 const STORY_ID_PREFIX = 'components-lv1-card'
 
 // 'playground' — interactive only; not a distinct visual state (covered by 'composition').
-const stories = ['composition', 'content-only'] as const
+const stories = ['composition', 'content-only', 'variants', 'on-surface'] as const
 
 const themes = ['light', 'dark'] as const
 

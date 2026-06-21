@@ -48,6 +48,8 @@
     "st-callout__icon",
     "st-callout__title",
     "st-card",
+    "st-card--filled",
+    "st-card--plain",
     "st-card__content",
     "st-card__description",
     "st-card__footer",

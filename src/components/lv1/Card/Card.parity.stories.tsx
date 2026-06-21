@@ -40,7 +40,7 @@ export const Parity: Story = {
       </div>
       <div>
         <p className="mb-2 text-xs text-foreground-muted">Vanilla HTML</p>
-        <div className="st-card w-[280px]">
+        <div className="st-card st-card--filled w-[280px]">
           <div className="st-card__header">
             <div className="st-card__title">Card title</div>
             <div className="st-card__description">A short supporting description.</div>

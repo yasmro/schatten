@@ -73,4 +73,24 @@ describe('Card', () => {
       expect(screen.queryByRole('region')).not.toBeInTheDocument()
     })
   })
+
+  describe('variant', () => {
+    it('defaults to the filled background treatment', () => {
+      render(<Card data-testid="card">content</Card>)
+      const card = screen.getByTestId('card')
+      expect(card).toHaveClass('st-card', 'st-card--filled')
+      expect(card).not.toHaveClass('st-card--plain')
+    })
+
+    it('applies the plain (transparent) treatment when variant="plain"', () => {
+      render(
+        <Card variant="plain" data-testid="card">
+          content
+        </Card>,
+      )
+      const card = screen.getByTestId('card')
+      expect(card).toHaveClass('st-card', 'st-card--plain')
+      expect(card).not.toHaveClass('st-card--filled')
+    })
+  })
 })

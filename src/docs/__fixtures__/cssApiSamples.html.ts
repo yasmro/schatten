@@ -509,7 +509,7 @@ export const vanillaHtml = `
 
 <section class="cssapi-fixture__sample" data-component="card">
   <span class="cssapi-fixture__sample-label">Card — .st-card</span>
-  <div class="st-card" style="width: 16rem;">
+  <div class="st-card st-card--filled" style="width: 16rem;">
     <div class="st-card__header">
       <div class="st-card__title">Card title</div>
       <div class="st-card__description">A short supporting description.</div>

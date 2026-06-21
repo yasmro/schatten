@@ -506,4 +506,16 @@ export const vanillaHtml = `
     <div class="st-skeleton" style="height: 3rem; width: 3rem; border-radius: 9999px;" aria-hidden="true"></div>
   </div>
 </section>
+
+<section class="cssapi-fixture__sample" data-component="card">
+  <span class="cssapi-fixture__sample-label">Card — .st-card</span>
+  <div class="st-card" style="width: 16rem;">
+    <div class="st-card__header">
+      <div class="st-card__title">Card title</div>
+      <div class="st-card__description">A short supporting description.</div>
+    </div>
+    <div class="st-card__content">Main content goes here.</div>
+    <div class="st-card__footer">Footer</div>
+  </div>
+</section>
 `

@@ -865,12 +865,13 @@ yes → semantic token; no → `.st-*` class rule.
 **Define-only single-value semantic tokens are allowed (pre-1.0).** A
 single-value semantic token MAY be declared ahead of its consumer and
 sit *define-only* — `@theme`-registered and on the public manifest, but
-not yet referenced by any component (today: `--shadow-card`,
-`--radius-control`, `--radius-surface`). This is an accepted state, not
+not yet referenced by any component (today: `--radius-control`,
+`--radius-surface`). This is an accepted state, not
 debt: the policy is to **wait for the token's natural consumer** rather
 than manufacture one to "use it up", and to never apply a token whose
-*name* mismatches the consumer's *role* (e.g. `--shadow-card` on a Switch
-knob — see [docs/decisions/2026-06-shadow-card-define-only.md](../../docs/decisions/2026-06-shadow-card-define-only.md)).
+*name* mismatches the consumer's *role* (e.g. `--shadow-card` was kept
+off the Switch knob until its real consumer — `Card` — landed in #43;
+see [docs/decisions/2026-06-shadow-card-define-only.md](../../docs/decisions/2026-06-shadow-card-define-only.md)).
 Two obligations keep this honest: (1) every define-only token is
 **visualized** with a `defined only` badge in its Tokens story
 (`Tokens/Elevation`, `Tokens/Radius`) so the gap is never hidden; (2) the

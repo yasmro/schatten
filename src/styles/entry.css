@@ -92,6 +92,10 @@
  * decorative primitive; authors only its own block rule, so layer placement
  * is not order-sensitive. */
 @import "../components/lv1/Skeleton/Skeleton.css";
+/* #43 — Card (`.st-card__*` class API). Leaf surface primitive (no Radix);
+ * authors only its own block rules, so layer placement is not order-sensitive.
+ * First consumer of `--shadow-card` (#361). */
+@import "../components/lv1/Card/Card.css";
 
 /* Class-based dark mode variant — matches `src/styles/globals.css` so
  * `.dark` toggling behaves identically in Storybook and in the dist. */

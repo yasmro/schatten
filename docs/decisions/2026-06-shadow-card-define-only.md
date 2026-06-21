@@ -58,3 +58,13 @@ define-only である `--radius-control` / `--radius-surface`（Button / Input /
 
 - 2026-06-03 — #349 の refinement で設計判断を確定。本 issue は lv2 Card への持ち越しを
   記録した上で close。
+- 2026-06-21 — #43 の refinement で Card の分類を確定: アーキ定義（素の div サブ要素・
+  lv1 非合成、`Dialog` と同型の compound primitive）に厳密に当てると Card は **lv1**
+  であり、兄弟の Skeleton / Avatar / Table と同じく **v0.13.0** で出荷する。本文中の
+  「**将来の lv2 Card / post-1.0**」という表現は分類未確定時のものとして、ここに
+  「lv1 / v0.13.0」へ整合修正する（判断そのもの — 「`--shadow-card` は据置し、本来の
+  用途の consumer = Card が初めて消費する」— は不変）。carry-forward は #43 で消化:
+  `Card.css` が `box-shadow: var(--shadow-card)` で**初の consumer** として配線し、
+  Elevation story の `card` を `applied` / `usedBy='Card'` に更新。`--radius-surface`
+  は Card が square 出荷のため**消費せず**、define-only を継続（角丸 designer spike 待ち）。
+  追跡 #361 は v0.13.0 に re-milestone 済みで #43 が close する。

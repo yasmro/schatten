@@ -704,7 +704,7 @@ import '@yasmro/schatten/css/button'
 
 Available components (one subpath per lv1):
 <!-- generated:lv1-components:start -->
-`badge` · `button` · `callout` · `checkbox` · `dialog` ·
+`badge` · `button` · `callout` · `card` · `checkbox` · `dialog` ·
 `dropdownmenu` · `field` · `fieldset` · `icon` · `input` · `popover` ·
 `radio` · `select` · `separator` · `skeleton` · `spinner` · `switch` ·
 `tabs` · `text` · `textarea` · `toast` · `tooltip`.

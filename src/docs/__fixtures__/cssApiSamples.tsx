@@ -28,6 +28,12 @@ import {
   Badge,
   Button,
   Callout,
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
   Checkbox,
   Field,
   FieldSet,
@@ -277,6 +283,21 @@ export function ReactSamples() {
           <Skeleton style={{ height: '1rem', width: '12rem' }} />
           <Skeleton style={{ height: '3rem', width: '3rem', borderRadius: '9999px' }} />
         </div>
+      </section>
+
+      {/* Card — static surface, fully vanilla-able (区分 A). Inline width keeps
+          the sample compact and matches the vanilla column (no Tailwind in the
+          dist CSS path). */}
+      <section className="cssapi-fixture__sample" data-component="card">
+        <span className="cssapi-fixture__sample-label">Card — .st-card</span>
+        <Card style={{ width: '16rem' }}>
+          <CardHeader>
+            <CardTitle>Card title</CardTitle>
+            <CardDescription>A short supporting description.</CardDescription>
+          </CardHeader>
+          <CardContent>Main content goes here.</CardContent>
+          <CardFooter>Footer</CardFooter>
+        </Card>
       </section>
     </>
   )

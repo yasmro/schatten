@@ -1,6 +1,7 @@
 export { type BadgeVariants, badgeVariants } from './badge'
 export { type ButtonVariants, buttonVariants } from './button'
 export { type CalloutVariants, calloutVariants } from './callout'
+export { type CardVariants, cardVariants } from './card'
 export { type CheckboxVariants, checkboxVariants } from './checkbox'
 export { type DropdownMenuItemVariants, dropdownMenuItemVariants } from './dropdown-menu'
 export { type FieldVariants, fieldVariants } from './field'

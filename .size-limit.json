@@ -28,6 +28,7 @@
   { "name": "css/badge", "path": "dist/css/badge.css", "limit": "1.5 KB" },
   { "name": "css/button", "path": "dist/css/button.css", "limit": "1.5 KB" },
   { "name": "css/callout", "path": "dist/css/callout.css", "limit": "1.5 KB" },
+  { "name": "css/card", "path": "dist/css/card.css", "limit": "1.5 KB" },
   { "name": "css/checkbox", "path": "dist/css/checkbox.css", "limit": "1.5 KB" },
   { "name": "css/dialog", "path": "dist/css/dialog.css", "limit": "1.5 KB" },
   { "name": "css/dropdownmenu", "path": "dist/css/dropdownmenu.css", "limit": "1.5 KB" },

@@ -36,6 +36,7 @@ import {
   Radio,
   RadioGroup,
   Separator,
+  Skeleton,
   Spinner,
   Switch,
   Tabs,
@@ -266,6 +267,16 @@ export function ReactSamples() {
           <TabsContent value="password">Change your password here.</TabsContent>
           <TabsContent value="team">Invite and manage team members.</TabsContent>
         </Tabs>
+      </section>
+
+      {/* Skeleton — decorative, className-driven. The vanilla column pairs via
+          inline style since the dist CSS path ships no Tailwind size utilities. */}
+      <section className="cssapi-fixture__sample" data-component="skeleton">
+        <span className="cssapi-fixture__sample-label">Skeleton — .st-skeleton</span>
+        <div className="cssapi-fixture__sample-row">
+          <Skeleton style={{ height: '1rem', width: '12rem' }} />
+          <Skeleton style={{ height: '3rem', width: '3rem', borderRadius: '9999px' }} />
+        </div>
       </section>
     </>
   )

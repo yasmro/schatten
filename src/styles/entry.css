@@ -88,6 +88,10 @@
  * /popover surface like Select / DropdownMenu; authors only its own block
  * rules (no `.st-btn` rules), so layer placement is not order-sensitive. */
 @import "../components/lv1/Popover/Popover.css";
+/* #37 — Skeleton (shimmer keyframes + `.st-skeleton` class API). Leaf
+ * decorative primitive; authors only its own block rule, so layer placement
+ * is not order-sensitive. */
+@import "../components/lv1/Skeleton/Skeleton.css";
 
 /* Class-based dark mode variant — matches `src/styles/globals.css` so
  * `.dark` toggling behaves identically in Storybook and in the dist. */

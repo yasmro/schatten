@@ -498,4 +498,12 @@ export const vanillaHtml = `
     <p>Place any content inside the popover panel.</p>
   </div>
 </section>
+
+<section class="cssapi-fixture__sample" data-component="skeleton">
+  <span class="cssapi-fixture__sample-label">Skeleton — .st-skeleton</span>
+  <div class="cssapi-fixture__sample-row">
+    <div class="st-skeleton" style="height: 1rem; width: 12rem;" aria-hidden="true"></div>
+    <div class="st-skeleton" style="height: 3rem; width: 3rem; border-radius: 9999px;" aria-hidden="true"></div>
+  </div>
+</section>
 `

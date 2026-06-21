@@ -44,10 +44,12 @@ export const Text: Story = {
 export const Shapes: Story = {
   name: 'Shapes',
   render: () => (
+    // Square block placeholders (default corners) at a few sizes — e.g. a
+    // thumbnail, a banner, a media tile. Rounding is opt-in via `rounded-*`.
     <div className="flex items-center gap-6">
-      <Skeleton className="h-12 w-12 rounded-full" />
-      <Skeleton className="h-16 w-24" />
-      <Skeleton className="h-6 w-20 rounded-full" />
+      <Skeleton className="h-16 w-16" />
+      <Skeleton className="h-16 w-40" />
+      <Skeleton className="h-24 w-32" />
     </div>
   ),
 }

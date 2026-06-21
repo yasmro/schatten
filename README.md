@@ -906,7 +906,7 @@ versions they were taken under) are recorded in each example's
 
 Primitive components live under `src/components/lv1/`:
 
-Badge · Button · Callout · Checkbox · Dialog · Field · FieldSet · Input · Radio · Select · Separator · Spinner · Switch · Text · Textarea · Toast · Tooltip
+Badge · Button · Callout · Checkbox · Dialog · DropdownMenu · Field · FieldSet · Icon · Input · Popover · Radio · Select · Separator · Skeleton · Spinner · Switch · Tabs · Text · Textarea · Toast · Tooltip
 
 See Storybook for live examples and prop documentation.
 

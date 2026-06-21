@@ -1,25 +1,26 @@
 /*
  * Card — `.st-card` class API.
  *
- * A compound surface primitive (no Radix): a bordered, subtly-elevated
- * container that groups content. Single neutral surface — no variant /
- * appearance axis (component-api-conventions: Card fits neither Pattern A nor
- * Pattern B; it ships as one neutral surface, and a weight axis can be added
- * additively later).
+ * A compound surface primitive (no Radix): a bordered container that groups
+ * content. One out-of-pattern axis — `variant` toggles the background, like
+ * `Spinner`'s single axis (component-api-conventions: Card fits neither
+ * Pattern A nor Pattern B, so it is documented out of pattern).
  *
  * Block + sub-elements (all written by Card.tsx as side-by-side classes):
- * - `.st-card`              — root surface (flex column, border + shadow)
+ * - `.st-card`              — root surface (flex column, border)
+ * - `.st-card--filled`      — `surface` fill + `--shadow-card` (default)
+ * - `.st-card--plain`       — transparent background, no shadow (border only)
  * - `.st-card__header`      — title + description column (top region)
  * - `.st-card__title`       — bold heading text (no forced heading level)
  * - `.st-card__description` — muted secondary text
  * - `.st-card__content`     — main content region
  * - `.st-card__footer`      — actions row (flex)
  *
- * Elevation: `box-shadow: var(--shadow-card)`. Card is the FIRST consumer of
- * the `--shadow-card` semantic token, which was defined ahead of its natural
- * consumer and kept define-only until now (#145 / #349 / #361). Do NOT
- * hardcode the shadow — the whole point of the token is that Card is its
- * intended home.
+ * Elevation: the default `filled` variant carries `box-shadow:
+ * var(--shadow-card)`. Card is the FIRST consumer of `--shadow-card` (defined
+ * ahead of its natural consumer and kept define-only until #43 — #145 / #349 /
+ * #361). The `plain` variant is transparent and drops the shadow, so the page
+ * or parent surface shows through (#429). Do NOT hardcode the shadow.
  *
  * Corners are square (no border-radius), matching Dialog (shadow-modal +
  * square) and the rest of the system's current square baseline. The
@@ -42,16 +43,27 @@
  * Public CSS variables: none (colors / shadow consumed from the shared token
  * layer).
  *
- * See: .claude/rules/css-api.md, #43.
+ * See: .claude/rules/css-api.md, #43, #429.
  */
 @layer components {
   .st-card {
     display: flex;
     flex-direction: column;
-    background-color: var(--color-surface);
     color: var(--color-foreground);
     border: 1px solid var(--color-border);
+  }
+
+  /* Background treatment (out-of-pattern `variant`). The default (filled)
+   * carries its own rule rather than living in the base — mirrors the
+   * `.st-icon--inherit` precedent (a default value is first-class, not an
+   * empty marker). `plain` is transparent so the page / parent shows through. */
+  .st-card--filled {
+    background-color: var(--color-surface);
     box-shadow: var(--shadow-card);
+  }
+  .st-card--plain {
+    background-color: transparent;
+    box-shadow: none;
   }
 
   .st-card__header {

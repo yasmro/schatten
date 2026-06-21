@@ -46,6 +46,10 @@
  * See: .claude/rules/css-api.md, #43, #429.
  */
 @layer components {
+  /* Layout shell only — NO fill or shadow. Always pair `.st-card` with a
+   * treatment modifier (`--filled` / `--plain`); the CVA emits `--filled` by
+   * default, so React consumers never see a bare card. A bare `.st-card`
+   * written by hand renders like `--plain` (transparent, border only). */
   .st-card {
     display: flex;
     flex-direction: column;

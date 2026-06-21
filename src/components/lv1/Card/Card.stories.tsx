@@ -101,3 +101,28 @@ export const Variants: Story = {
     </div>
   ),
 }
+
+/**
+ * `plain` reads best on a non-default surface. On a tinted panel, `filled` keeps
+ * its own white fill and stands out, while `plain` lets the surface show through
+ * — useful for nested or low-emphasis grouping.
+ */
+export const OnSurface: Story = {
+  name: 'On a tinted surface',
+  render: () => (
+    <div className="flex gap-6 rounded-lg bg-surface-hover p-8">
+      <Card variant="filled" className="w-[220px]">
+        <CardHeader>
+          <CardTitle>Filled</CardTitle>
+        </CardHeader>
+        <CardContent>Own white fill — sits on top of the surface.</CardContent>
+      </Card>
+      <Card variant="plain" className="w-[220px]">
+        <CardHeader>
+          <CardTitle>Plain</CardTitle>
+        </CardHeader>
+        <CardContent>Transparent — the surface shows through.</CardContent>
+      </Card>
+    </div>
+  ),
+}

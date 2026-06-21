@@ -83,19 +83,30 @@ function main() {
   // CSS API fixture: src/docs/CSSApiDist.vrt.spec.ts auto-discovers every lv1
   // with a {X}.tsx + {X}.css and requires a `<section data-component="<slug>">`
   // in the shared vanilla-HTML fixture — without it the dist-CSS VRT throws.
-  // Check only once the `.css` exists (the discovery condition), so a WIP
-  // scaffold without CSS yet isn't nagged about a fixture prematurely. The
-  // PR-time blocking counterpart is `pnpm audit:coverage --check`.
+  // The section must live in BOTH the .html.ts SSOT and the .tsx parity
+  // companion (they drift silently otherwise). Check only once the `.css`
+  // exists (the discovery condition), so a WIP scaffold without CSS yet isn't
+  // nagged prematurely. PR-time blocking counterpart: `pnpm audit:coverage --check`.
   const slug = componentName.toLowerCase()
-  const fixtureFile = path.join(projectDir, 'src/docs/__fixtures__/cssApiSamples.html.ts')
-  let fixtureMissing = false
-  if (existsSync(cssFile) && existsSync(fixtureFile)) {
-    try {
-      fixtureMissing = !readFileSync(fixtureFile, 'utf8').includes(`data-component="${slug}"`)
-    } catch {
-      fixtureMissing = false
+  const fixtureFiles = [
+    'src/docs/__fixtures__/cssApiSamples.html.ts',
+    'src/docs/__fixtures__/cssApiSamples.tsx',
+  ]
+  const missingFixtures = []
+  if (existsSync(cssFile)) {
+    for (const rel of fixtureFiles) {
+      const file = path.join(projectDir, rel)
+      if (!existsSync(file)) continue
+      try {
+        if (!readFileSync(file, 'utf8').includes(`data-component="${slug}"`)) {
+          missingFixtures.push(rel)
+        }
+      } catch {
+        // unreadable — skip
+      }
     }
   }
+  const fixtureMissing = missingFixtures.length > 0
 
   if (missing.length === 0 && !fixtureMissing) return
 
@@ -113,11 +124,10 @@ function main() {
   if (fixtureMissing) {
     if (lines.length > 0) lines.push('')
     lines.push(
-      `[lv1 companion check] ${componentName} has no CSS API fixture sample.`,
-      `CSSApiDist.vrt.spec.ts auto-discovers every lv1 (with {X}.tsx + {X}.css) and requires a matching`,
-      `<section data-component="${slug}"> in src/docs/__fixtures__/cssApiSamples.html.ts (and the same`,
-      `section in the cssApiSamples.tsx companion). Without it the dist-CSS VRT throws`,
-      `'no <section data-component="${slug}">'. Mirror an existing section (card / skeleton are the simplest).`,
+      `[lv1 companion check] ${componentName} is missing its CSS API fixture <section data-component="${slug}"> in: ${missingFixtures.join(', ')}.`,
+      `CSSApiDist.vrt.spec.ts auto-discovers every lv1 (with {X}.tsx + {X}.css) and throws without the`,
+      `.html.ts section; the .tsx parity companion must mirror it (区分 C/D render an "omitted" placeholder).`,
+      `Mirror an existing section (card / skeleton are the simplest).`,
     )
   }
   emit(lines.join('\n'))

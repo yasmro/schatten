@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import { createRef } from 'react'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { Avatar } from './Avatar'
 
 // Note: Radix mounts the <img> only after the image reports `loaded`, and jsdom
@@ -47,6 +47,36 @@ describe('Avatar', () => {
   it('forwards aria-label to the root for a fallback-only accessible name', () => {
     render(<Avatar fallback="JD" aria-label="John Doe" data-testid="named" />)
     expect(screen.getByTestId('named')).toHaveAttribute('aria-label', 'John Doe')
+  })
+
+  describe('alt accessibility warning', () => {
+    it('warns when src is provided without alt', () => {
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      render(<Avatar src="/u.jpg" fallback="JD" />)
+      expect(warn).toHaveBeenCalledWith(expect.stringContaining('without `alt`'))
+      warn.mockRestore()
+    })
+
+    it('does not warn when alt is provided', () => {
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      render(<Avatar src="/u.jpg" alt="Jane Doe" fallback="JD" />)
+      expect(warn).not.toHaveBeenCalled()
+      warn.mockRestore()
+    })
+
+    it('does not warn for an explicit empty alt (decorative)', () => {
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      render(<Avatar src="/u.jpg" alt="" fallback="JD" />)
+      expect(warn).not.toHaveBeenCalled()
+      warn.mockRestore()
+    })
+
+    it('does not warn when there is no image (fallback only)', () => {
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      render(<Avatar fallback="JD" />)
+      expect(warn).not.toHaveBeenCalled()
+      warn.mockRestore()
+    })
   })
 
   describe('class API', () => {

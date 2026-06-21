@@ -220,7 +220,7 @@ describe('auditComponent', () => {
     })
     expect(row.files.cssApiFixture).toBe('missing')
     expect(row.missing).toContain(
-      'src/docs/__fixtures__/cssApiSamples.html.ts <section data-component="button">',
+      '<section data-component="button"> in src/docs/__fixtures__/cssApiSamples.html.ts + .tsx',
     )
   })
 
@@ -499,7 +499,7 @@ describe('runAudit', () => {
     expect(hasFailures(runAudit(workDir))).toBe(true)
   })
 
-  it('fails when a component has no CSS API fixture section (gate active)', () => {
+  it('requires the fixture section in BOTH .html.ts and .tsx (gate active)', () => {
     const lv1Dir = makeLv1Dir()
     makeComponent(lv1Dir, 'Button', {
       snapshots: ['x-light.png', 'parity-parity-light.png'],
@@ -508,23 +508,29 @@ describe('runAudit', () => {
     })
     writeBarrel(lv1Dir, ['Button'])
 
-    const fixtureFile = join(workDir, 'src/docs/__fixtures__/cssApiSamples.html.ts')
-    mkdirSync(dirname(fixtureFile), { recursive: true })
+    const fixtureDir = join(workDir, 'src/docs/__fixtures__')
+    mkdirSync(fixtureDir, { recursive: true })
+    const htmlFile = join(fixtureDir, 'cssApiSamples.html.ts')
+    const tsxFile = join(fixtureDir, 'cssApiSamples.tsx')
+    const withButton = '`<section data-component="button"></section>`\n'
+    const empty = '``\n'
 
-    // Fixture file present but missing the button section → gate fires.
-    writeFileSync(fixtureFile, 'export const vanillaHtml = ``\n')
-    const missingFixture = runAudit(workDir)
-    expect(missingFixture.rows[0].files.cssApiFixture).toBe('missing')
-    expect(hasFailures(missingFixture)).toBe(true)
+    // Neither fixture has the section → missing.
+    writeFileSync(htmlFile, `export const vanillaHtml = ${empty}`)
+    writeFileSync(tsxFile, `export const x = ${empty}`)
+    expect(runAudit(workDir).rows[0].files.cssApiFixture).toBe('missing')
 
-    // Add the section → gate clears.
-    writeFileSync(
-      fixtureFile,
-      'export const vanillaHtml = `<section data-component="button"></section>`\n',
-    )
-    const withFixture = runAudit(workDir)
-    expect(withFixture.rows[0].files.cssApiFixture).toBe('present')
-    expect(hasFailures(withFixture)).toBe(false)
+    // In .html.ts only (the silent-drift case the .tsx check catches) → still missing.
+    writeFileSync(htmlFile, `export const vanillaHtml = ${withButton}`)
+    const htmlOnly = runAudit(workDir)
+    expect(htmlOnly.rows[0].files.cssApiFixture).toBe('missing')
+    expect(hasFailures(htmlOnly)).toBe(true)
+
+    // In both → present, gate clears.
+    writeFileSync(tsxFile, `export const x = ${withButton}`)
+    const both = runAudit(workDir)
+    expect(both.rows[0].files.cssApiFixture).toBe('present')
+    expect(hasFailures(both)).toBe(false)
   })
 })
 

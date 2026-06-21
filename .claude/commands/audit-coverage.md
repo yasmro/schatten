@@ -99,12 +99,13 @@ directory) shouldn't drown the report in red.
   skip"](../rules/vrt-spec-guideline.md). Automating this sync from the
   `add-lv1-component` skill is tracked in #306.
 - **The `cssapi.fx` column** flags a new lv1 that has a `.css` but no
-  `<section data-component="<slug>">` in
-  `src/docs/__fixtures__/cssApiSamples.html.ts`. `CSSApiDist.vrt.spec.ts`
-  auto-discovers every lv1 and throws without that section, so the column
-  turns the invisible-until-VRT gap into an explicit audit failure (it is
-  `n/a` until the `.css` exists, since the dist-CSS discovery requires both
-  `{X}.tsx` + `{X}.css`). The edit-time `check-lv1-companions` hook warns
-  about the same gap.
+  `<section data-component="<slug>">` in **both**
+  `src/docs/__fixtures__/cssApiSamples.html.ts` **and** its `.tsx` companion.
+  `CSSApiDist.vrt.spec.ts` auto-discovers every lv1 and throws without the
+  `.html.ts` section; the `.tsx` companion (rendered by the `parity-comparison`
+  story) must mirror it — requiring both catches the silent drift nothing else
+  does (e.g. `popover` was in `.html.ts` but missing from `.tsx`). The column is
+  `n/a` until the `.css` exists (the dist-CSS discovery requires `{X}.tsx` +
+  `{X}.css`). The edit-time `check-lv1-companions` hook warns about the same gap.
 - **`pnpm audit:coverage` is read-only**. It never creates files, edits
   files, or updates VRT baselines.

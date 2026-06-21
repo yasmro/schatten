@@ -27,13 +27,19 @@ import path from 'node:path'
 const LV1_DIR_REL = 'src/components/lv1'
 const LV2_DIR_REL = 'src/components/lv2'
 const INDEX_FILE_REL = 'src/components/lv1/index.ts'
-// Shared vanilla-HTML fixture that `src/docs/CSSApiDist.vrt.spec.ts`
-// auto-discovers every lv1 against — each component with a `{X}.tsx` + `{X}.css`
-// must have a `<section data-component="<slug>">` here or the dist-CSS VRT
-// throws. The companion `check-lv1-companions` hook warns at edit time; this
-// audit is the PR-time blocking gate (#36 — the gap surfaced when Avatar
-// landed without a fixture section).
-const CSSAPI_FIXTURE_REL = 'src/docs/__fixtures__/cssApiSamples.html.ts'
+// Shared CSS API fixtures, paired by `data-component` slug:
+//  - `.html.ts` — the string SSOT `src/docs/CSSApiDist.vrt.spec.ts`
+//    auto-discovers every lv1 against (each `{X}.tsx` + `{X}.css` component
+//    must have a `<section data-component="<slug>">` or the dist-CSS VRT throws).
+//  - `.tsx` — the React companion the `parity-comparison` story renders; it
+//    must mirror the `.html.ts` sections (区分 C/D render an "omitted"
+//    placeholder, but the section still exists).
+// The `cssApiFixture` column requires the slug in BOTH (the `.tsx`-only check
+// catches the silent drift that nothing else does — e.g. `popover` was in
+// `.html.ts` but missing from `.tsx`). The `check-lv1-companions` hook warns at
+// edit time; this audit is the PR-time blocking gate (#36).
+const CSSAPI_FIXTURE_HTML_REL = 'src/docs/__fixtures__/cssApiSamples.html.ts'
+const CSSAPI_FIXTURE_TSX_REL = 'src/docs/__fixtures__/cssApiSamples.tsx'
 const DATA_COMPONENT_RE = /data-component="([^"]+)"/g
 
 // Components that intentionally do NOT ship parity stories/specs. The
@@ -224,8 +230,10 @@ export function auditComponent({ name, componentDir, exported, exempt, fixtureSl
     files.export = cell(exported)
 
     // The CSS API fixture is required only once the component has a `.css`,
-    // because CSSApiDist discovers `{X}.tsx` + `{X}.css` dirs. With no fixture
-    // file present (`fixtureSlugs === null`) the check is skipped (`na`).
+    // because CSSApiDist discovers `{X}.tsx` + `{X}.css` dirs (the same
+    // condition `scripts/lv1-slugs.mjs` `discoverLv1WithCss()` encodes — kept
+    // in sync by convention, mirroring CSSApiDist's own comment). With no
+    // fixture file present (`fixtureSlugs === null`) the check is skipped (`na`).
     files.cssApiFixture =
       fixtureSlugs && files.css === 'present'
         ? cell(fixtureSlugs.has(name.toLowerCase()))
@@ -253,7 +261,9 @@ export function auditComponent({ name, componentDir, exported, exempt, fixtureSl
   if (files.snap === 'missing') missing.push('__snapshots__/*.png (no baseline captured)')
   if (files.export === 'missing') missing.push('src/components/lv1/index.ts re-export')
   if (files.cssApiFixture === 'missing') {
-    missing.push(`src/docs/__fixtures__/cssApiSamples.html.ts <section data-component="${name.toLowerCase()}">`)
+    missing.push(
+      `<section data-component="${name.toLowerCase()}"> in src/docs/__fixtures__/cssApiSamples.html.ts + .tsx`,
+    )
   }
   if (files.parityStories === 'missing') missing.push(`${name}.parity.stories.tsx`)
   if (files.parityVrt === 'missing') missing.push(`${name}.parity.vrt.spec.ts`)
@@ -422,7 +432,12 @@ export function runAudit(projectDir) {
   const indexPath = path.join(projectDir, INDEX_FILE_REL)
   const names = discoverComponents(lv1Dir)
   const exportedNames = parseExportedNames(indexPath)
-  const fixtureSlugs = parseFixtureSlugs(path.join(projectDir, CSSAPI_FIXTURE_REL))
+  // Require the section in BOTH fixtures: intersect the two slug sets. When
+  // either file is absent (temp test trees), the check is skipped (null).
+  const htmlSlugs = parseFixtureSlugs(path.join(projectDir, CSSAPI_FIXTURE_HTML_REL))
+  const tsxSlugs = parseFixtureSlugs(path.join(projectDir, CSSAPI_FIXTURE_TSX_REL))
+  const fixtureSlugs =
+    htmlSlugs && tsxSlugs ? new Set([...htmlSlugs].filter((s) => tsxSlugs.has(s))) : null
 
   const rows = names.map((name) =>
     auditComponent({

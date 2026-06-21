@@ -61,6 +61,16 @@ export interface AvatarProps
  */
 export const Avatar = forwardRef<ComponentRef<typeof AvatarPrimitive.Root>, AvatarProps>(
   ({ className, size, src, alt, fallback, delayMs, ...props }, ref) => {
+    // An image with no alt has no accessible name (axe `image-alt`). The
+    // component's own a11y VRT can't catch it because every story passes alt,
+    // so warn the developer at dev time. `alt=""` (explicit decorative) is
+    // intentional and does NOT warn — only an omitted `alt` does.
+    if (process.env.NODE_ENV !== 'production' && src != null && alt === undefined) {
+      console.warn(
+        'Avatar: `src` was provided without `alt`. Pass `alt` (e.g. the person’s name) so the image has an accessible name, or `alt=""` if the avatar is purely decorative.',
+      )
+    }
+
     return (
       <AvatarPrimitive.Root
         ref={ref}

@@ -4,6 +4,7 @@ import { expect, test } from '@playwright/test'
 const STORY_ID_PREFIX = 'components-lv1-avatar'
 
 // 'playground' — interactive only; not a distinct visual state.
+// 'with-broken-image' — no screenshot; exercised by the interaction test below.
 // Each entry declares which sub-element must settle before the screenshot: Radix
 // mounts `.st-avatar__image` only once the image has loaded, and renders
 // `.st-avatar__fallback` otherwise — waiting on the right one makes the still

@@ -1,9 +1,18 @@
 import { forwardRef, type HTMLAttributes } from 'react'
 import { cn } from '../../../lib/utils'
-import { cardVariants } from '../../../variants/card'
+import { type CardVariants, cardVariants } from '../../../variants/card'
 import './Card.css'
 
-export type CardProps = HTMLAttributes<HTMLDivElement>
+export interface CardProps extends HTMLAttributes<HTMLDivElement>, CardVariants {
+  /**
+   * Background treatment.
+   * - `filled` — `bg-surface` fill + border + `--shadow-card`; a raised card.
+   * - `plain` — transparent background, no shadow, border only; the page /
+   *   parent shows through (nested or low-emphasis grouping).
+   * @default 'filled'
+   */
+  variant?: CardVariants['variant']
+}
 
 /**
  * A bordered, subtly-elevated surface that groups related content — the
@@ -27,10 +36,11 @@ export type CardProps = HTMLAttributes<HTMLDivElement>
  * </Card>
  * ```
  *
- * **No variant axis.** Card is a single neutral surface — `bg-surface`, a
- * border, and `--shadow-card` elevation. Color/weight is intentionally not a
- * prop (it fits neither the role nor the tone × shape pattern); a future weight
- * axis can be added additively.
+ * **Background treatment via `variant`.** `filled` (default) is a `bg-surface`
+ * card with `--shadow-card`; `plain` is transparent with no shadow (border
+ * only), so the page or parent surface shows through — for nested or
+ * low-emphasis grouping. This is an out-of-pattern single axis (like
+ * `Spinner`), not the role / tone × shape patterns.
  *
  * **Square corners.** Card has no border-radius, matching the system's current
  * square baseline (Dialog is also shadowed + square). Round it per-instance via
@@ -43,9 +53,11 @@ export type CardProps = HTMLAttributes<HTMLDivElement>
  * To apply the surface styling to your own semantic element instead, use
  * `cardVariants()` from `@yasmro/schatten/variants`.
  */
-export const Card = forwardRef<HTMLDivElement, CardProps>(({ className, ...props }, ref) => (
-  <div ref={ref} className={cn(cardVariants(), className)} {...props} />
-))
+export const Card = forwardRef<HTMLDivElement, CardProps>(
+  ({ variant = 'filled', className, ...props }, ref) => (
+    <div ref={ref} className={cn(cardVariants({ variant }), className)} {...props} />
+  ),
+)
 Card.displayName = 'Card'
 
 /**

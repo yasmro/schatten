@@ -9,17 +9,28 @@ const meta: Meta<typeof Card> = {
   parameters: {
     layout: 'centered',
   },
+  argTypes: {
+    variant: {
+      description: 'Background treatment — filled surface vs transparent.',
+      control: 'inline-radio',
+      options: ['filled', 'plain'],
+      table: {
+        type: { summary: '"filled" | "plain"' },
+        defaultValue: { summary: 'filled' },
+      },
+    },
+  },
 }
 
 export default meta
 type Story = StoryObj<typeof Card>
 
 /**
- * Interactive single instance. Card has no schatten-specific props — it is a
- * neutral surface composed from its sub-parts — so the controls cover only the
- * standard DOM attributes.
+ * Interactive single instance — toggle `variant` (filled / plain) in the
+ * Controls panel.
  */
 export const Playground: Story = {
+  args: { variant: 'filled' },
   render: (args) => (
     <Card {...args} className="w-[320px]">
       <CardHeader>
@@ -65,5 +76,28 @@ export const ContentOnly: Story = {
         A bare card with a single content region — useful as a plain panel or widget shell.
       </CardContent>
     </Card>
+  ),
+}
+
+/** Background treatments side by side — `filled` (default) vs `plain`. */
+export const Variants: Story = {
+  name: 'Variants',
+  render: () => (
+    <div className="flex gap-6">
+      <Card variant="filled" className="w-[260px]">
+        <CardHeader>
+          <CardTitle>Filled</CardTitle>
+          <CardDescription>Surface fill with shadow.</CardDescription>
+        </CardHeader>
+        <CardContent>The default treatment — a raised card.</CardContent>
+      </Card>
+      <Card variant="plain" className="w-[260px]">
+        <CardHeader>
+          <CardTitle>Plain</CardTitle>
+          <CardDescription>Transparent, border only.</CardDescription>
+        </CardHeader>
+        <CardContent>No fill or shadow — the page shows through.</CardContent>
+      </Card>
+    </div>
   ),
 }

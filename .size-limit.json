@@ -39,6 +39,7 @@
   { "name": "css/radio", "path": "dist/css/radio.css", "limit": "1.5 KB" },
   { "name": "css/select", "path": "dist/css/select.css", "limit": "1.5 KB" },
   { "name": "css/separator", "path": "dist/css/separator.css", "limit": "1.5 KB" },
+  { "name": "css/skeleton", "path": "dist/css/skeleton.css", "limit": "1.5 KB" },
   { "name": "css/spinner", "path": "dist/css/spinner.css", "limit": "1.5 KB" },
   { "name": "css/switch", "path": "dist/css/switch.css", "limit": "1.5 KB" },
   { "name": "css/tabs", "path": "dist/css/tabs.css", "limit": "1.5 KB" },

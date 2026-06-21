@@ -138,6 +138,7 @@
     "st-separator",
     "st-separator--horizontal",
     "st-separator--vertical",
+    "st-skeleton",
     "st-spinner",
     "st-spinner--default",
     "st-spinner--inverted",

@@ -68,6 +68,7 @@ export {
   SelectValue,
 } from './Select'
 export { Separator, type SeparatorProps } from './Separator'
+export { Skeleton, type SkeletonProps } from './Skeleton'
 export { Spinner, type SpinnerProps } from './Spinner'
 export { Switch, type SwitchProps } from './Switch'
 export {

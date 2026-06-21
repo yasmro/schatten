@@ -6,6 +6,15 @@ export {
   type CalloutProps,
   type CalloutVariant,
 } from './Callout'
+export {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  type CardProps,
+  CardTitle,
+} from './Card'
 export { Checkbox, type CheckboxProps } from './Checkbox'
 export {
   Dialog,

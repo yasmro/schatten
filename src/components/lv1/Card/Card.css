@@ -1,0 +1,97 @@
+/*
+ * Card — `.st-card` class API.
+ *
+ * A compound surface primitive (no Radix): a bordered, subtly-elevated
+ * container that groups content. Single neutral surface — no variant /
+ * appearance axis (component-api-conventions: Card fits neither Pattern A nor
+ * Pattern B; it ships as one neutral surface, and a weight axis can be added
+ * additively later).
+ *
+ * Block + sub-elements (all written by Card.tsx as side-by-side classes):
+ * - `.st-card`              — root surface (flex column, border + shadow)
+ * - `.st-card__header`      — title + description column (top region)
+ * - `.st-card__title`       — bold heading text (no forced heading level)
+ * - `.st-card__description` — muted secondary text
+ * - `.st-card__content`     — main content region
+ * - `.st-card__footer`      — actions row (flex)
+ *
+ * Elevation: `box-shadow: var(--shadow-card)`. Card is the FIRST consumer of
+ * the `--shadow-card` semantic token, which was defined ahead of its natural
+ * consumer and kept define-only until now (#145 / #349 / #361). Do NOT
+ * hardcode the shadow — the whole point of the token is that Card is its
+ * intended home.
+ *
+ * Corners are square (no border-radius), matching Dialog (shadow-modal +
+ * square) and the rest of the system's current square baseline. The
+ * `--radius-surface` token stays define-only pending the rounding designer
+ * spike; consumers who want rounded cards add `border-radius` via their own
+ * utilities layer.
+ *
+ * Region padding is per-region (header / content / footer each pad 1.5rem)
+ * rather than on the root, so a consumer can render edge-to-edge content
+ * (e.g. a full-bleed image) inside `.st-card__content`. The `padding-top: 0`
+ * on content / footer assumes a region above; the `:first-child` rule restores
+ * top padding when content / footer is the first region, so any sub-element
+ * ordering renders correctly. This is a STRUCTURAL layout decision (which
+ * region is first) and so lives in CSS, not in JSX — see css-api.md
+ * "Structural :has() for layout selection".
+ *
+ * Raw CSS + var(--color-*) throughout, per css-api.md "Component CSS authoring
+ * conventions — raw CSS over @apply".
+ *
+ * Public CSS variables: none (colors / shadow consumed from the shared token
+ * layer).
+ *
+ * See: .claude/rules/css-api.md, #43.
+ */
+@layer components {
+  .st-card {
+    display: flex;
+    flex-direction: column;
+    background-color: var(--color-surface);
+    color: var(--color-foreground);
+    border: 1px solid var(--color-border);
+    box-shadow: var(--shadow-card);
+  }
+
+  .st-card__header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+    padding: 1.5rem;
+  }
+
+  .st-card__title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    line-height: 1.4;
+  }
+
+  .st-card__description {
+    font-size: 0.875rem;
+    line-height: 1.4;
+    color: var(--color-foreground-muted);
+  }
+
+  .st-card__content {
+    padding: 1.5rem;
+    padding-top: 0;
+  }
+
+  .st-card__footer {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1.5rem;
+    padding-top: 0;
+  }
+
+  /* Restore top padding when content / footer is the first region (no header
+   * above it). Keeps any sub-element ordering visually correct — the layout
+   * decision is structural (which region is first), so it lives in CSS rather
+   * than as a JSX conditional. */
+  .st-card > .st-card__content:first-child,
+  .st-card > .st-card__footer:first-child {
+    padding-top: 1.5rem;
+  }
+}

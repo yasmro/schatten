@@ -25,6 +25,7 @@
     "path": "dist/css/*.css",
     "limit": "20 KB"
   },
+  { "name": "css/avatar", "path": "dist/css/avatar.css", "limit": "1.5 KB" },
   { "name": "css/badge", "path": "dist/css/badge.css", "limit": "1.5 KB" },
   { "name": "css/button", "path": "dist/css/button.css", "limit": "1.5 KB" },
   { "name": "css/callout", "path": "dist/css/callout.css", "limit": "1.5 KB" },

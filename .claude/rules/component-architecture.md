@@ -74,6 +74,40 @@ need to inject content at multiple slots, that is a sign you have a
 composition on your hands — and a self-built composition belongs in **lv2,
 not in a compound lv1**.
 
+### Carved exception — `Avatar` is flat over a multi-part Radix primitive
+
+`Avatar` (#36) wraps `@radix-ui/react-avatar` — a three-part primitive
+(`Root` / `Image` / `Fallback`) — behind a **single flat component**
+(`<Avatar src alt fallback size />`), instead of the compound shape this
+section's default would prescribe for a multi-part Radix wrapper. This is a
+**sanctioned exception**, not a precedent to copy without discussion:
+
+- **The common case is genuinely single-slot.** ~90% of avatar usage is
+  `src` + `alt` + an initials `fallback` (a `string`). There is no real
+  per-instance need to inject custom content into the image and fallback
+  slots independently — unlike `DialogTitle` / `DialogContent`, which
+  consumers routinely customise.
+- **Radix's wiring does NOT break.** The flat component still renders all
+  three Radix parts internally (`Avatar.Image` inside `Avatar.Root`, with
+  `Avatar.Fallback`), so the image→fallback load-status context stays
+  intact. The "collapsing breaks the wires" caution above is about
+  *consumer-facing* part composition; here the parts are composed *for* the
+  consumer, and the only thing withheld is direct access to each part's
+  props.
+- **The withheld surface is recoverable additively.** Advanced `<img>`
+  attributes (`loading` / `srcSet` / `crossOrigin`), `Avatar.Image`'s
+  `onLoadingStatusChange`, and per-part `className` / `ref` are not exposed
+  in v1. If a real need appears, an `imgProps` escape hatch (or a later
+  compound split) is a non-breaking `minor` — so starting flat costs
+  nothing we can't reclaim.
+
+The rule of thumb this carves out: a multi-part Radix primitive **may** ship
+flat when (a) the multi-slot composition has no real consumer use case, (b)
+the flat wrapper still renders every Radix part internally so no behaviour is
+lost, and (c) the withheld per-part props can be re-exposed additively later.
+If any of the three fails, default back to compound. `Avatar` is the only
+component on this exception today.
+
 ### Special case — imperative APIs
 
 `Toast` is neither compound nor flat in the usual sense: it exposes an

@@ -25,6 +25,7 @@
 
 import { AlertCircle, Info, User } from 'lucide-react'
 import {
+  Avatar,
   Badge,
   Button,
   Callout,
@@ -298,6 +299,15 @@ export function ReactSamples() {
           <CardContent>Main content goes here.</CardContent>
           <CardFooter>Footer</CardFooter>
         </Card>
+      </section>
+
+      <section className="cssapi-fixture__sample" data-component="avatar">
+        <span className="cssapi-fixture__sample-label">Avatar — .st-avatar</span>
+        <div className="cssapi-fixture__sample-row">
+          <Avatar fallback="JD" size="sm" />
+          <Avatar fallback="AB" size="md" />
+          <Avatar fallback="CD" size="lg" />
+        </div>
       </section>
     </>
   )

@@ -518,4 +518,13 @@ export const vanillaHtml = `
     <div class="st-card__footer">Footer</div>
   </div>
 </section>
+
+<section class="cssapi-fixture__sample" data-component="avatar">
+  <span class="cssapi-fixture__sample-label">Avatar — .st-avatar</span>
+  <div class="cssapi-fixture__sample-row">
+    <span class="st-avatar st-avatar--sm"><span class="st-avatar__fallback">JD</span></span>
+    <span class="st-avatar st-avatar--md"><span class="st-avatar__fallback">AB</span></span>
+    <span class="st-avatar st-avatar--lg"><span class="st-avatar__fallback">CD</span></span>
+  </div>
+</section>
 `

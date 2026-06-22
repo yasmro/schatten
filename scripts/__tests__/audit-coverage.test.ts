@@ -9,6 +9,7 @@ import {
   hasFailures,
   PARITY_EXEMPT,
   parseExportedNames,
+  parseFixtureSlugs,
   renderJson,
   renderTable,
   runAudit,
@@ -125,6 +126,28 @@ describe('parseExportedNames', () => {
   })
 })
 
+describe('parseFixtureSlugs', () => {
+  it('returns null when the fixture file is absent (check skipped)', () => {
+    expect(parseFixtureSlugs(join(workDir, 'no-such-fixture.ts'))).toBeNull()
+  })
+
+  it('collects every data-component slug from the fixture', () => {
+    const file = join(workDir, 'cssApiSamples.html.ts')
+    writeFileSync(
+      file,
+      [
+        'export const vanillaHtml = `',
+        '<section class="cssapi-fixture__sample" data-component="avatar"></section>',
+        '<section class="cssapi-fixture__sample" data-component="badge"></section>',
+        '`',
+      ].join('\n'),
+    )
+    const slugs = parseFixtureSlugs(file)
+    expect(slugs).not.toBeNull()
+    expect([...(slugs ?? [])].sort()).toEqual(['avatar', 'badge'])
+  })
+})
+
 describe('auditComponent', () => {
   it('marks every required file present when the directory is complete', () => {
     const lv1Dir = makeLv1Dir()
@@ -179,6 +202,72 @@ describe('auditComponent', () => {
     })
     expect(row.files.css).toBe('missing')
     expect(row.missing).toContain('Button.css')
+  })
+
+  it('flags a missing CSS API fixture section when the slug is absent', () => {
+    const lv1Dir = makeLv1Dir()
+    const dir = makeComponent(lv1Dir, 'Button', {
+      snapshots: ['x-light.png'],
+      parityStories: true,
+      parityVrt: true,
+    })
+    const row = auditComponent({
+      name: 'Button',
+      componentDir: dir,
+      exported: true,
+      exempt: false,
+      fixtureSlugs: new Set(), // fixture file exists but has no button section
+    })
+    expect(row.files.cssApiFixture).toBe('missing')
+    expect(row.missing).toContain(
+      '<section data-component="button"> in src/docs/__fixtures__/cssApiSamples.html.ts + .tsx',
+    )
+  })
+
+  it('marks the CSS API fixture present when the lowercased slug is in the set', () => {
+    const lv1Dir = makeLv1Dir()
+    const dir = makeComponent(lv1Dir, 'Button', {
+      snapshots: ['x-light.png', 'parity-x-light.png'],
+      parityStories: true,
+      parityVrt: true,
+    })
+    const row = auditComponent({
+      name: 'Button',
+      componentDir: dir,
+      exported: true,
+      exempt: false,
+      fixtureSlugs: new Set(['button']),
+    })
+    expect(row.files.cssApiFixture).toBe('present')
+    expect(row.missing).toEqual([])
+  })
+
+  it('treats the fixture column as na when css is missing or no fixture file is given', () => {
+    const lv1Dir = makeLv1Dir()
+    // css missing → not discoverable by CSSApiDist yet → na (css column flags it)
+    const noCss = makeComponent(lv1Dir, 'Button', { css: false, snapshots: ['x.png'] })
+    expect(
+      auditComponent({
+        name: 'Button',
+        componentDir: noCss,
+        exported: true,
+        exempt: false,
+        fixtureSlugs: new Set(),
+      }).files.cssApiFixture,
+    ).toBe('na')
+
+    // fixtureSlugs omitted (null) → check skipped → na, no spurious failure
+    const dialogDir = makeComponent(lv1Dir, 'Dialog', {
+      snapshots: ['x.png'],
+    })
+    const row = auditComponent({
+      name: 'Dialog',
+      componentDir: dialogDir,
+      exported: true,
+      exempt: true,
+    })
+    expect(row.files.cssApiFixture).toBe('na')
+    expect(row.missing).toEqual([])
   })
 
   it('flags an empty __snapshots__ as missing baseline', () => {
@@ -280,18 +369,21 @@ describe('renderTable / renderJson', () => {
     const dialogDir = makeComponent(lv1Dir, 'Dialog', {
       snapshots: ['default-light.png'],
     })
+    const fixtureSlugs = new Set(['button', 'dialog'])
     return [
       auditComponent({
         name: 'Button',
         componentDir: buttonDir,
         exported: true,
         exempt: false,
+        fixtureSlugs,
       }),
       auditComponent({
         name: 'Dialog',
         componentDir: dialogDir,
         exported: true,
         exempt: true,
+        fixtureSlugs,
       }),
     ]
   }
@@ -300,10 +392,10 @@ describe('renderTable / renderJson', () => {
     const out = renderTable(sampleRows(), { generatedAt: fixedAt })
     expect(out).toContain('## Coverage Audit Report (2026-05-25)')
     expect(out).toContain(
-      '| Component | tsx | css | stories | test | vrt | index | snap | export | parity.stories | parity.vrt | parity.snap |',
+      '| Component | tsx | css | stories | test | vrt | index | snap | export | cssapi.fx | parity.stories | parity.vrt | parity.snap |',
     )
-    expect(out).toContain('| Button | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |')
-    expect(out).toContain('| Dialog | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | — | — | — |')
+    expect(out).toContain('| Button | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |')
+    expect(out).toContain('| Dialog | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | — | — | — |')
     expect(out).toContain('_All lv1 components have required companions._')
   })
 
@@ -405,6 +497,40 @@ describe('runAudit', () => {
 
     writeBarrel(lv1Dir, ['Button', 'PhantomDir'])
     expect(hasFailures(runAudit(workDir))).toBe(true)
+  })
+
+  it('requires the fixture section in BOTH .html.ts and .tsx (gate active)', () => {
+    const lv1Dir = makeLv1Dir()
+    makeComponent(lv1Dir, 'Button', {
+      snapshots: ['x-light.png', 'parity-parity-light.png'],
+      parityStories: true,
+      parityVrt: true,
+    })
+    writeBarrel(lv1Dir, ['Button'])
+
+    const fixtureDir = join(workDir, 'src/docs/__fixtures__')
+    mkdirSync(fixtureDir, { recursive: true })
+    const htmlFile = join(fixtureDir, 'cssApiSamples.html.ts')
+    const tsxFile = join(fixtureDir, 'cssApiSamples.tsx')
+    const withButton = '`<section data-component="button"></section>`\n'
+    const empty = '``\n'
+
+    // Neither fixture has the section → missing.
+    writeFileSync(htmlFile, `export const vanillaHtml = ${empty}`)
+    writeFileSync(tsxFile, `export const x = ${empty}`)
+    expect(runAudit(workDir).rows[0].files.cssApiFixture).toBe('missing')
+
+    // In .html.ts only (the silent-drift case the .tsx check catches) → still missing.
+    writeFileSync(htmlFile, `export const vanillaHtml = ${withButton}`)
+    const htmlOnly = runAudit(workDir)
+    expect(htmlOnly.rows[0].files.cssApiFixture).toBe('missing')
+    expect(hasFailures(htmlOnly)).toBe(true)
+
+    // In both → present, gate clears.
+    writeFileSync(tsxFile, `export const x = ${withButton}`)
+    const both = runAudit(workDir)
+    expect(both.rows[0].files.cssApiFixture).toBe('present')
+    expect(hasFailures(both)).toBe(false)
   })
 })
 

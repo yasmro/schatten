@@ -49,9 +49,12 @@ coverage audit does not flag the missing parity files. See
 when to skip" for the classification.
 
 Plus an edit to **`src/components/lv1/index.ts`** adding the public re-export,
-and to **`src/variants/index.ts`** adding the variants re-export, and an
-import line in **`src/styles/entry.css`** so the new `.css` lands in the
-integrated `dist/schatten.css`.
+and to **`src/variants/index.ts`** adding the variants re-export, an import
+line in **`src/styles/entry.css`** so the new `.css` lands in the integrated
+`dist/schatten.css`, and a CSS API fixture sample in
+**`src/docs/__fixtures__/cssApiSamples.html.ts`** (plus its `.tsx` companion) so
+the framework-agnostic dist-CSS VRT — which auto-discovers every lv1 — has a
+`<section>` to render for the new component (Step 3 item 8).
 
 ## Templates
 
@@ -205,6 +208,32 @@ requires a discussion per `component-api-conventions.md`.
      e.g. adding `Popover` yields
      `new Set(['Dialog', 'Popover', 'Select', 'Toast', 'Tooltip'])`). This is
      the only edit to that file — the audit logic is unchanged.
+8. **Register the CSS API fixture sample (mandatory — CI-enforced, easy to
+   miss).** [`CSSApiDist.vrt.spec.ts`](../../../src/docs/CSSApiDist.vrt.spec.ts)
+   auto-discovers every `src/components/lv1/<Name>/` dir that has both
+   `<Name>.tsx` and `<Name>.css` (mirroring `scripts/lv1-slugs.mjs`) and
+   **requires** a matching `<section data-component="<kebab>">` in the shared
+   vanilla-HTML fixture — without it the dist-CSS VRT throws
+   `CSSApiDist: no <section data-component="<kebab>"> in vanillaHtml`. Neither
+   the `check-lv1-companions` hook nor `pnpm audit:coverage` catches this (both
+   only check the component-local 7 files), so the gap is invisible until VRT
+   runs. Add the sample to BOTH fixture files, kept in sync:
+   - **`src/docs/__fixtures__/cssApiSamples.html.ts`** — append a
+     `<section class="cssapi-fixture__sample" data-component="<kebab>">` (a
+     `cssapi-fixture__sample-label` span + the hand-written `.st-<kebab>*`
+     markup). This string is the SSOT the dist test reads, so it is the
+     **REQUIRED** half. Mirror an existing section — `card` / `skeleton` are
+     the simplest references; for a 区分 C/D portal/JS component copy how
+     `tooltip` / `select` / `dialog` / `toast` show static markup only.
+   - **`src/docs/__fixtures__/cssApiSamples.tsx`** — add the matching
+     `<section data-component="<kebab>">` rendering the real `<Name>` (import it
+     into the named-import block, alphabetically). This keeps the
+     `parity-comparison` story's React column consistent with the vanilla
+     column. A 区分 C/D component that portal-mounts may be omitted from the
+     React column (see the file header) but still needs the `.html.ts` section.
+   Keep the markup minimal and **deterministic** — no network images (use
+   initials / a fallback / an inline data-URI), since the dist test screenshots
+   the section with `waitUntil: 'load'`.
 
 ### Step 4 — Strip the scaffold residue
 
@@ -249,8 +278,23 @@ pnpm build:component-css   # the new per-component CSS subpath (#291) — fails
 ```
 
 VRT baselines do not exist yet — the first `pnpm test:vrt` run writes them.
-Tell the user to review the generated PNGs before committing
-(`vrt-spec-guideline.md` § Re-baselining).
+The new fixture section (Step 3 item 8) also shifts **three existing docs
+baselines**, which must be regenerated in the same change:
+
+- `src/docs/__snapshots__/dist-css-<slug>-{light,dark}.png` — new, the
+  per-component dist render.
+- `src/docs/__snapshots__/dist-schatten-css-{light,dark}.png` — the integrated
+  reference grew by one section.
+- `src/docs/__snapshots__/parity-comparison-light.png` — the React≡vanilla
+  story grew by one section.
+
+Run plain `pnpm test:vrt` **first** and confirm the only failures are the new
+component's own stories plus those three docs baselines; open each
+`*-diff.png` to verify the change is purely additive (a column reflow would
+light up unrelated rows — that would be a regression, not a clean add). Only
+then re-baseline with `pnpm test:vrt:update` (scope with `--grep '<Name>'` and
+`--grep 'CSS API'`). Tell the user to review the generated PNGs before
+committing (`vrt-spec-guideline.md` § Re-baselining).
 
 ### Step 6 — Add a changeset
 

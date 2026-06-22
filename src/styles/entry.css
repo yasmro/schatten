@@ -96,6 +96,10 @@
  * authors only its own block rules, so layer placement is not order-sensitive.
  * First consumer of `--shadow-card` (#361). */
 @import "../components/lv1/Card/Card.css";
+/* #36 — Avatar (`.st-avatar*` class API). Flat wrapper over
+ * @radix-ui/react-avatar; authors only its own block rules (no `.st-btn`
+ * rules), so layer placement is not order-sensitive. */
+@import "../components/lv1/Avatar/Avatar.css";
 
 /* Class-based dark mode variant — matches `src/styles/globals.css` so
  * `.dark` toggling behaves identically in Storybook and in the dist. */

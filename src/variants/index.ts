@@ -1,3 +1,4 @@
+export { type AvatarVariants, avatarVariants } from './avatar'
 export { type BadgeVariants, badgeVariants } from './badge'
 export { type ButtonVariants, buttonVariants } from './button'
 export { type CalloutVariants, calloutVariants } from './callout'

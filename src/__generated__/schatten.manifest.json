@@ -1,6 +1,12 @@
 {
   "$schemaVersion": 1,
   "classes": [
+    "st-avatar",
+    "st-avatar--lg",
+    "st-avatar--md",
+    "st-avatar--sm",
+    "st-avatar__fallback",
+    "st-avatar__image",
     "st-badge",
     "st-badge--error",
     "st-badge--icon-only",

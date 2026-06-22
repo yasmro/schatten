@@ -25,6 +25,7 @@
 
 import { AlertCircle, Info, User } from 'lucide-react'
 import {
+  Avatar,
   Badge,
   Button,
   Callout,
@@ -254,6 +255,14 @@ export function ReactSamples() {
         </Text>
       </section>
 
+      <section className="cssapi-fixture__sample" data-component="popover">
+        <span className="cssapi-fixture__sample-label">Popover — portal-mounted (omitted)</span>
+        <Text variant="body" size="sm" color="muted">
+          No comparable React render — Popover portals to body and is JS-driven. The vanilla column
+          shows the static .st-popover__content shape.
+        </Text>
+      </section>
+
       {/* Tabs is 区 D (JS-driven) but renders inline — unlike the portal /
           imperative 区 C/D components above, it has a real React render to pair
           against the vanilla static markup. */}
@@ -298,6 +307,15 @@ export function ReactSamples() {
           <CardContent>Main content goes here.</CardContent>
           <CardFooter>Footer</CardFooter>
         </Card>
+      </section>
+
+      <section className="cssapi-fixture__sample" data-component="avatar">
+        <span className="cssapi-fixture__sample-label">Avatar — .st-avatar</span>
+        <div className="cssapi-fixture__sample-row">
+          <Avatar fallback="JD" size="sm" />
+          <Avatar fallback="AB" size="md" />
+          <Avatar fallback="CD" size="lg" />
+        </div>
       </section>
     </>
   )

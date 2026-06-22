@@ -1,5 +1,5 @@
 // Component CSS for vanilla examples — loaded for the side-effect.
-// All 23 lv1 components are listed explicitly. Tooltip and Select
+// All 24 lv1 components are listed explicitly. Tooltip and Select
 // were missing from this list pre-#313 and rendered correctly by
 // accident (Field transitively imports Tooltip; Select.css happened
 // to be in adjacent story chunks at dev time). In the Storybook
@@ -7,6 +7,7 @@
 // story doesn't reach, and the omissions surface as un-styled
 // vanilla markup — same regression class as the `.st-toast__icon`
 // 300×150 fallback caught on PR #313's preview deployment.
+import '../components/lv1/Avatar/Avatar.css'
 import '../components/lv1/Badge/Badge.css'
 import '../components/lv1/Button/Button.css'
 import '../components/lv1/Callout/Callout.css'
@@ -208,7 +209,7 @@ const CodeBlock = ({ children }: { children: string }) => (
 )
 
 export const Reference: Story = {
-  name: 'Reference (all 23 lv1 components)',
+  name: 'Reference (all 24 lv1 components)',
   render: () => (
     <>
       <ChromeStyles />
@@ -1765,6 +1766,34 @@ export const Reference: Story = {
 <!-- bare .st-card has no fill / shadow — degrades to the plain look -->
 
 <!-- Sub-elements: __header / __title / __description / __content / __footer -->`}</CodeBlock>
+        </Section>
+
+        <Section
+          id="avatar"
+          title="Avatar — .st-avatar"
+          intro="User's profile image with an initials fallback. One size axis (--sm / --md / --lg → 32 / 40 / 48px); the image→fallback swap is JS-driven (Radix), so vanilla HTML renders a static avatar. Fixed circle. The fallback font-size tracks the root size via a descendant rule, so a vanilla consumer writes only the root --size modifier."
+          attributes={[
+            {
+              name: 'alt="…"',
+              meaning: 'Accessible name for the image; use alt="" when the avatar is decorative',
+              required: 'recommended',
+            },
+          ]}
+        >
+          <div className="cssapi-doc__row">
+            <span className="st-avatar st-avatar--sm">
+              <span className="st-avatar__fallback">JD</span>
+            </span>
+            <span className="st-avatar st-avatar--md">
+              <span className="st-avatar__fallback">AB</span>
+            </span>
+            <span className="st-avatar st-avatar--lg">
+              <span className="st-avatar__fallback">CD</span>
+            </span>
+          </div>
+          <CodeBlock>{`<!-- size: --sm | --md | --lg (32 / 40 / 48px); circle fixed -->
+<!-- image:    <img class="st-avatar__image"> (JS swaps to fallback on load error) -->
+<!-- fallback: <span class="st-avatar__fallback">JD</span> (initials) -->`}</CodeBlock>
         </Section>
 
         <Section

@@ -148,9 +148,11 @@ export const Hoverable: Story = {
 }
 
 /**
- * `selected` highlights a row via `data-state="selected"` — a surface tint plus
- * a left accent bar, so the selected row stays distinct even on a striped or
- * hoverable table (where the tint alone would blend into the stripe).
+ * `selected` highlights a row via `data-state="selected"` — a theme-tinted
+ * surface (a different token from the neutral hover / stripe tint) plus a left
+ * accent bar, so it stays distinct even on a striped or hoverable table. The
+ * highlight fades in (respecting `prefers-reduced-motion`) and picks up a
+ * Special's brand hue.
  */
 export const SelectedRow: Story = {
   name: 'Selected Row',

@@ -35,10 +35,12 @@
  * Raw CSS + var(--color-*) throughout, per css-api.md "Component CSS authoring
  * conventions — raw CSS over @apply".
  *
- * Public CSS variables: none (colors consumed from the shared token layer:
- * --color-surface-hover for stripe / hover / selected, --color-solid for the
+ * Public CSS variables: none (consumed from the shared token layer:
+ * --color-surface-hover for stripe / hover, --color-theme-300 / -800 for the
+ * selected-row tint (theme-aware, Mode-split), --color-solid for the
  * selected-row left accent, --color-border for dividers / cell borders,
- * --color-foreground-muted for header + caption).
+ * --color-foreground-muted for header + caption, --motion-quick for the
+ * hover / selection fade).
  *
  * See: .claude/rules/css-api.md, .claude/rules/component-api-conventions.md, #152.
  */
@@ -66,14 +68,25 @@
   }
 
   /* Row divider. Header / last row included, giving the table top + bottom
-   * edges; collapses cleanly with `--bordered` under border-collapse. */
+   * edges; collapses cleanly with `--bordered` under border-collapse. The
+   * background transition fades the hover tint and the selected highlight in /
+   * out (--motion-quick = 100ms hover step); disabled under reduced-motion
+   * below. */
   .st-table__row {
     border-bottom: 1px solid var(--color-border);
+    transition: background-color var(--motion-quick, 100ms) ease;
   }
 
   .st-table__cell,
   .st-table__head {
     vertical-align: middle;
+  }
+
+  /* The selected-row accent (box-shadow on the first cell) fades with the same
+   * timing, so toggling `selected` animates the bar in / out. */
+  .st-table__cell:first-child,
+  .st-table__head:first-child {
+    transition: box-shadow var(--motion-quick, 100ms) ease;
   }
 
   /* Header cells: bolder, muted, to read as column labels. */
@@ -136,17 +149,34 @@
     background-color: var(--color-surface-hover);
   }
 
-  /* Selected row — state attribute, not a class (css-api). The surface tint
-   * follows dark / seasonal Mode automatically; the left accent bar
-   * (--color-solid, inset so it adds no layout width) gives selection a
-   * distinct identity even on a striped / hoverable table, where the tint
-   * alone would collide with the stripe. Token-driven, so the accent picks up
-   * a Special's hue automatically. */
+  /* Selected row — state attribute, not a class (css-api). Selection gets its
+   * own surface — a theme-ramp tint, deliberately a DIFFERENT token from the
+   * neutral `--color-surface-hover` used by stripe / hover — plus the left
+   * accent bar (--color-solid, inset so it adds no layout width). Both ride the
+   * theme ramp, so a Special tints the selected row with its brand hue while
+   * hover stays neutral. The ramp is Mode-agnostic (same rung resolves in light
+   * and dark), so the Mode split is expressed by choosing a light tint rung in
+   * light and a dark tint rung in dark via `:where(.dark)` — `:where()` keeps
+   * specificity at (0,2,0) so a consumer can still override from the utilities
+   * layer. The stripe rule above already excludes `[data-state="selected"]`, so
+   * a selected odd row shows this tint, not the stripe. */
   .st-table__row[data-state="selected"] {
-    background-color: var(--color-surface-hover);
+    background-color: var(--color-theme-300);
+  }
+  :where(.dark) .st-table__row[data-state="selected"] {
+    background-color: var(--color-theme-800);
   }
   .st-table__row[data-state="selected"] > .st-table__cell:first-child,
   .st-table__row[data-state="selected"] > .st-table__head:first-child {
     box-shadow: inset 3px 0 0 var(--color-solid);
+  }
+
+  /* Honour reduced-motion: no fades, instant state changes. */
+  @media (prefers-reduced-motion: reduce) {
+    .st-table__row,
+    .st-table__cell:first-child,
+    .st-table__head:first-child {
+      transition: none;
+    }
   }
 }

@@ -36,8 +36,9 @@
  * conventions — raw CSS over @apply".
  *
  * Public CSS variables: none (colors consumed from the shared token layer:
- * --color-surface-hover for stripe / hover / selected, --color-border for
- * dividers / cell borders, --color-foreground-muted for header + caption).
+ * --color-surface-hover for stripe / hover / selected, --color-solid for the
+ * selected-row left accent, --color-border for dividers / cell borders,
+ * --color-foreground-muted for header + caption).
  *
  * See: .claude/rules/css-api.md, .claude/rules/component-api-conventions.md, #152.
  */
@@ -135,9 +136,17 @@
     background-color: var(--color-surface-hover);
   }
 
-  /* Selected row — state attribute, not a class (css-api). Token-driven, so it
-   * follows dark / seasonal Mode automatically. */
+  /* Selected row — state attribute, not a class (css-api). The surface tint
+   * follows dark / seasonal Mode automatically; the left accent bar
+   * (--color-solid, inset so it adds no layout width) gives selection a
+   * distinct identity even on a striped / hoverable table, where the tint
+   * alone would collide with the stripe. Token-driven, so the accent picks up
+   * a Special's hue automatically. */
   .st-table__row[data-state="selected"] {
     background-color: var(--color-surface-hover);
+  }
+  .st-table__row[data-state="selected"] > .st-table__cell:first-child,
+  .st-table__row[data-state="selected"] > .st-table__head:first-child {
+    box-shadow: inset 3px 0 0 var(--color-solid);
   }
 }

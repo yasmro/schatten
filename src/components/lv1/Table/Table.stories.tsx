@@ -148,15 +148,15 @@ export const Hoverable: Story = {
 }
 
 /**
- * `selected` highlights a row via `data-state="selected"`. Shown here on a
- * striped table — the selected (even) row is tinted, distinct from its
- * un-striped neighbours.
+ * `selected` highlights a row via `data-state="selected"` — a surface tint plus
+ * a left accent bar, so the selected row stays distinct even on a striped or
+ * hoverable table (where the tint alone would blend into the stripe).
  */
 export const SelectedRow: Story = {
   name: 'Selected Row',
   render: () => (
     <div className="w-[520px]">
-      <Table striped>
+      <Table>
         <TableCaption>Team members</TableCaption>
         <TableHeader>
           <TableRow>

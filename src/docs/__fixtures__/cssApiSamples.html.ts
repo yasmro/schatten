@@ -498,4 +498,58 @@ export const vanillaHtml = `
     <p>Place any content inside the popover panel.</p>
   </div>
 </section>
+
+<section class="cssapi-fixture__sample" data-component="skeleton">
+  <span class="cssapi-fixture__sample-label">Skeleton — .st-skeleton</span>
+  <div class="cssapi-fixture__sample-row">
+    <div class="st-skeleton" style="height: 1rem; width: 12rem;" aria-hidden="true"></div>
+    <div class="st-skeleton" style="height: 3rem; width: 3rem; border-radius: 9999px;" aria-hidden="true"></div>
+  </div>
+</section>
+
+<section class="cssapi-fixture__sample" data-component="card">
+  <span class="cssapi-fixture__sample-label">Card — .st-card</span>
+  <div class="st-card st-card--filled" style="width: 16rem;">
+    <div class="st-card__header">
+      <div class="st-card__title">Card title</div>
+      <div class="st-card__description">A short supporting description.</div>
+    </div>
+    <div class="st-card__content">Main content goes here.</div>
+    <div class="st-card__footer">Footer</div>
+  </div>
+</section>
+
+<section class="cssapi-fixture__sample" data-component="avatar">
+  <span class="cssapi-fixture__sample-label">Avatar — .st-avatar</span>
+  <div class="cssapi-fixture__sample-row">
+    <span class="st-avatar st-avatar--sm"><span class="st-avatar__fallback">JD</span></span>
+    <span class="st-avatar st-avatar--md"><span class="st-avatar__fallback">AB</span></span>
+    <span class="st-avatar st-avatar--lg"><span class="st-avatar__fallback">CD</span></span>
+  </div>
+</section>
+
+<section class="cssapi-fixture__sample" data-component="table">
+  <span class="cssapi-fixture__sample-label">Table — .st-table</span>
+  <div class="st-table-scroll" style="width: 18rem;">
+    <table class="st-table st-table--md st-table--striped st-table--bordered">
+      <caption class="st-table__caption">Team members</caption>
+      <thead class="st-table__header">
+        <tr class="st-table__row">
+          <th class="st-table__head st-table__head--start">Name</th>
+          <th class="st-table__head st-table__head--end">Role</th>
+        </tr>
+      </thead>
+      <tbody class="st-table__body">
+        <tr class="st-table__row">
+          <td class="st-table__cell st-table__cell--start">Taro Tanaka</td>
+          <td class="st-table__cell st-table__cell--end">Admin</td>
+        </tr>
+        <tr class="st-table__row" data-state="selected">
+          <td class="st-table__cell st-table__cell--start">Hanako Sato</td>
+          <td class="st-table__cell st-table__cell--end">Editor</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
 `

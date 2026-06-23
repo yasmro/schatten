@@ -1,5 +1,5 @@
 // Component CSS for vanilla examples — loaded for the side-effect.
-// All 18 lv1 components are listed explicitly. Tooltip and Select
+// All 24 lv1 components are listed explicitly. Tooltip and Select
 // were missing from this list pre-#313 and rendered correctly by
 // accident (Field transitively imports Tooltip; Select.css happened
 // to be in adjacent story chunks at dev time). In the Storybook
@@ -7,20 +7,27 @@
 // story doesn't reach, and the omissions surface as un-styled
 // vanilla markup — same regression class as the `.st-toast__icon`
 // 300×150 fallback caught on PR #313's preview deployment.
+import '../components/lv1/Avatar/Avatar.css'
 import '../components/lv1/Badge/Badge.css'
 import '../components/lv1/Button/Button.css'
 import '../components/lv1/Callout/Callout.css'
+import '../components/lv1/Card/Card.css'
 import '../components/lv1/Checkbox/Checkbox.css'
 import '../components/lv1/Dialog/Dialog.css'
+import '../components/lv1/DropdownMenu/DropdownMenu.css'
 import '../components/lv1/Field/Field.css'
 import '../components/lv1/FieldSet/FieldSet.css'
 import '../components/lv1/Icon/Icon.css'
 import '../components/lv1/Input/Input.css'
+import '../components/lv1/Popover/Popover.css'
 import '../components/lv1/Radio/Radio.css'
 import '../components/lv1/Select/Select.css'
 import '../components/lv1/Separator/Separator.css'
+import '../components/lv1/Skeleton/Skeleton.css'
 import '../components/lv1/Spinner/Spinner.css'
 import '../components/lv1/Switch/Switch.css'
+import '../components/lv1/Table/Table.css'
+import '../components/lv1/Tabs/Tabs.css'
 import '../components/lv1/Text/Text.css'
 import '../components/lv1/Textarea/Textarea.css'
 import '../components/lv1/Toast/Toast.css'
@@ -203,7 +210,7 @@ const CodeBlock = ({ children }: { children: string }) => (
 )
 
 export const Reference: Story = {
-  name: 'Reference (all 18 lv1 components)',
+  name: 'Reference (all 25 lv1 components)',
   render: () => (
     <>
       <ChromeStyles />
@@ -1722,6 +1729,357 @@ export const Reference: Story = {
 <!-- .st-fieldset__children     inner <div> flex container with the
                                 actual fields                            -->
 <!-- .st-fieldset__error        group-level error <p>                    -->`}</CodeBlock>
+        </Section>
+
+        <Section
+          id="card"
+          title="Card — .st-card"
+          intro="Surface container. Out-of-pattern single axis: variant toggles the background — --filled (surface fill + --shadow-card) vs --plain (transparent, border only). The bare .st-card is a layout shell with no fill or shadow, so always pair it with --filled or --plain (with no modifier it degrades to the plain look). Sub-elements (__header / __title / __description / __content / __footer) sit directly under the block; region padding is per-region, with a :first-child rule restoring top padding when content or footer leads."
+        >
+          <div className="cssapi-doc__row">
+            <div className="st-card st-card--filled" style={{ width: '13rem' }}>
+              <div className="st-card__header">
+                <div className="st-card__title">Filled</div>
+                <div className="st-card__description">surface + shadow</div>
+              </div>
+              <div className="st-card__content">Raised card.</div>
+            </div>
+            <div className="st-card st-card--plain" style={{ width: '13rem' }}>
+              <div className="st-card__header">
+                <div className="st-card__title">Plain</div>
+                <div className="st-card__description">transparent, border only</div>
+              </div>
+              <div className="st-card__content">Surface shows through.</div>
+            </div>
+          </div>
+          <CodeBlock>{`<!-- variant toggles the background; always pair .st-card with a modifier -->
+<div class="st-card st-card--filled">
+  <div class="st-card__header">
+    <div class="st-card__title">Title</div>
+    <div class="st-card__description">Description</div>
+  </div>
+  <div class="st-card__content">…</div>
+  <div class="st-card__footer">…</div>
+</div>
+
+<!-- Modifier vocabulary -->
+<!-- variant: --filled (default; surface + --shadow-card) | --plain (transparent) -->
+<!-- bare .st-card has no fill / shadow — degrades to the plain look -->
+
+<!-- Sub-elements: __header / __title / __description / __content / __footer -->`}</CodeBlock>
+        </Section>
+
+        <Section
+          id="table"
+          title="Table — .st-table"
+          intro="Presentational-only data table (no sort / filter / pagination logic — compose a headless layer on top). Out of pattern: three orthogonal boolean treatments (--striped / --bordered / --hoverable) plus a --sm / --md / --lg density axis, all root modifiers that reach cells via descendant selectors. Cells carry their own align modifier (__cell--start / --center / --end, same for __head). Selection is a state attribute, not a class: .st-table__row[data-state=&quot;selected&quot;]. The table renders inside a .st-table-scroll container for horizontal overflow. Name the table with a __caption (or aria-label)."
+        >
+          <div className="cssapi-doc__row">
+            <div className="st-table-scroll" style={{ width: '20rem' }}>
+              <table className="st-table st-table--md st-table--striped st-table--bordered">
+                <caption className="st-table__caption">Team members</caption>
+                <thead className="st-table__header">
+                  <tr className="st-table__row">
+                    <th className="st-table__head st-table__head--start">Name</th>
+                    <th className="st-table__head st-table__head--end">Role</th>
+                  </tr>
+                </thead>
+                <tbody className="st-table__body">
+                  <tr className="st-table__row">
+                    <td className="st-table__cell st-table__cell--start">Taro Tanaka</td>
+                    <td className="st-table__cell st-table__cell--end">Admin</td>
+                  </tr>
+                  <tr className="st-table__row" data-state="selected">
+                    <td className="st-table__cell st-table__cell--start">Hanako Sato</td>
+                    <td className="st-table__cell st-table__cell--end">Editor</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <CodeBlock>{`<!-- Treatments are orthogonal root modifiers; cells get an align modifier -->
+<div class="st-table-scroll">
+  <table class="st-table st-table--md st-table--striped st-table--bordered">
+    <caption class="st-table__caption">Team members</caption>
+    <thead class="st-table__header">
+      <tr class="st-table__row">
+        <th class="st-table__head st-table__head--start">Name</th>
+        <th class="st-table__head st-table__head--end">Role</th>
+      </tr>
+    </thead>
+    <tbody class="st-table__body">
+      <tr class="st-table__row">
+        <td class="st-table__cell st-table__cell--start">Taro Tanaka</td>
+        <td class="st-table__cell st-table__cell--end">Admin</td>
+      </tr>
+      <!-- selection is a state attribute, not a class -->
+      <tr class="st-table__row" data-state="selected">
+        <td class="st-table__cell st-table__cell--start">Hanako Sato</td>
+        <td class="st-table__cell st-table__cell--end">Editor</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- Modifier vocabulary -->
+<!-- density:  --sm | --md (default) | --lg -->
+<!-- treatment (orthogonal booleans): --striped, --bordered, --hoverable -->
+<!-- cell align: __cell--start (default) | --center | --end (same for __head) -->`}</CodeBlock>
+        </Section>
+
+        <Section
+          id="avatar"
+          title="Avatar — .st-avatar"
+          intro="User's profile image with an initials fallback. One size axis (--sm / --md / --lg → 32 / 40 / 48px); the image→fallback swap is JS-driven (Radix), so vanilla HTML renders a static avatar. Fixed circle. The fallback font-size tracks the root size via a descendant rule, so a vanilla consumer writes only the root --size modifier."
+          attributes={[
+            {
+              name: 'alt="…"',
+              meaning: 'Accessible name for the image; use alt="" when the avatar is decorative',
+              required: 'recommended',
+            },
+          ]}
+        >
+          <div className="cssapi-doc__row">
+            <span className="st-avatar st-avatar--sm">
+              <span className="st-avatar__fallback">JD</span>
+            </span>
+            <span className="st-avatar st-avatar--md">
+              <span className="st-avatar__fallback">AB</span>
+            </span>
+            <span className="st-avatar st-avatar--lg">
+              <span className="st-avatar__fallback">CD</span>
+            </span>
+          </div>
+          <CodeBlock>{`<!-- size: --sm | --md | --lg (32 / 40 / 48px); circle fixed -->
+<!-- image:    <img class="st-avatar__image"> (JS swaps to fallback on load error) -->
+<!-- fallback: <span class="st-avatar__fallback">JD</span> (initials) -->`}</CodeBlock>
+        </Section>
+
+        <Section
+          id="skeleton"
+          title="Skeleton — .st-skeleton"
+          intro="Loading placeholder. A single decorative block class with no modifiers — width / height / border-radius are class- or style-driven. Decorative: set aria-hidden and announce loading on the container (role='status' aria-busy='true'). The shimmer pauses under prefers-reduced-motion."
+          attributes={[
+            {
+              name: 'aria-hidden="true"',
+              meaning:
+                'Skeletons are decorative; hide them and announce loading on the container instead',
+              required: 'recommended',
+            },
+          ]}
+        >
+          <div className="cssapi-doc__stack">
+            <div
+              className="st-skeleton"
+              style={{ height: '1rem', width: '14rem' }}
+              aria-hidden="true"
+            />
+            <div className="cssapi-doc__row cssapi-doc__row--tight">
+              <div
+                className="st-skeleton"
+                style={{ height: '3rem', width: '3rem', borderRadius: '9999px' }}
+                aria-hidden="true"
+              />
+              <div
+                className="st-skeleton"
+                style={{ height: '3rem', width: '9rem' }}
+                aria-hidden="true"
+              />
+            </div>
+          </div>
+          <CodeBlock>{`<!-- size + shape via class / style; announce loading on the container -->
+<div role="status" aria-busy="true">
+  <div class="st-skeleton" style="height:1rem;width:200px" aria-hidden="true"></div>
+  <div class="st-skeleton" style="height:3rem;width:3rem;border-radius:9999px" aria-hidden="true"></div>
+</div>`}</CodeBlock>
+        </Section>
+
+        <Section
+          id="tabs"
+          title="Tabs — .st-tabs"
+          intro="Tabbed navigation (interactive; Radix-driven). The markup below is the static shape — keyboard nav, selection, and the sliding .st-tabs__indicator need JS. Orientation is author config carried on [data-orientation], which the list / trigger rules read (nested parts receive it via context, so there is no modifier class). The selected trigger is [data-state='active']."
+          attributes={[
+            {
+              name: 'role="tablist" / "tab" / "tabpanel"',
+              meaning: 'Radix assigns these; vanilla consumers add them for SR + keyboard support',
+              required: 'always (vanilla)',
+            },
+            {
+              name: 'data-state="active"',
+              meaning: 'Marks the selected trigger (the indicator tracks it)',
+              required: 'runtime',
+            },
+            {
+              name: 'data-orientation',
+              meaning: 'horizontal (default) / vertical — drives list + trigger layout',
+              required: 'author config',
+            },
+          ]}
+        >
+          <div className="st-tabs">
+            <div className="st-tabs__list" role="tablist" data-orientation="horizontal">
+              <button type="button" className="st-tabs__trigger" role="tab" data-state="active">
+                Account
+              </button>
+              <button type="button" className="st-tabs__trigger" role="tab" data-state="inactive">
+                Password
+              </button>
+            </div>
+            <div className="st-tabs__content" role="tabpanel">
+              Account settings…
+            </div>
+          </div>
+          <CodeBlock>{`<div class="st-tabs">
+  <div class="st-tabs__list" role="tablist" data-orientation="horizontal">
+    <button class="st-tabs__trigger" role="tab" data-state="active">Account</button>
+    <button class="st-tabs__trigger" role="tab" data-state="inactive">Password</button>
+    <span class="st-tabs__indicator" aria-hidden="true"></span>
+  </div>
+  <div class="st-tabs__content" role="tabpanel">…</div>
+</div>
+
+<!-- Sub-elements: __list / __trigger / __trigger-icon / __indicator / __content -->
+<!-- Note: keyboard nav, selection, and the indicator animation need JS (Radix). -->`}</CodeBlock>
+        </Section>
+
+        <Section
+          id="select"
+          title="Select — .st-select__*"
+          intro="Form select (interactive; Radix-driven, portal listbox). The trigger is vanilla-stylable (.st-select__trigger with size --sm / --md / --lg); the dropdown content, options, and keyboard nav need JS. Error state is [aria-invalid='true'] on the trigger, matching the other form controls."
+          attributes={[
+            {
+              name: 'role="combobox" / "listbox" / "option"',
+              meaning: 'Radix assigns these on the trigger / content / items',
+              required: 'always (vanilla)',
+            },
+            {
+              name: 'aria-invalid="true"',
+              meaning: 'Error state on the trigger (red border)',
+              required: 'when isError',
+            },
+          ]}
+        >
+          <button
+            type="button"
+            className="st-select__trigger st-select__trigger--md"
+            style={{ width: '14rem' }}
+          >
+            <span>Pick a fruit</span>
+            <svg
+              className="st-select__icon"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              aria-hidden="true"
+            >
+              <path d="m6 9 6 6 6-6" />
+            </svg>
+          </button>
+          <CodeBlock>{`<!-- trigger is vanilla; the listbox content + keyboard nav need JS (Radix) -->
+<button class="st-select__trigger st-select__trigger--md" aria-invalid="false">
+  <span>Pick a fruit</span>
+  <svg class="st-select__icon" aria-hidden="true">…</svg>
+</button>
+
+<!-- Portal content (JS): -->
+<!-- .st-select__content > .st-select__viewport -->
+<!--   .st-select__label / __item (> __item-indicator) / __separator -->
+<!--   .st-select__scroll-up / __scroll-down -->
+<!-- trigger size: --sm | --md | --lg -->`}</CodeBlock>
+        </Section>
+
+        <Section
+          id="tooltip"
+          title="Tooltip — .st-tooltip__content"
+          intro="Hover / focus hint mounted into a portal (interactive; Radix-driven). Renders a single styled bubble, .st-tooltip__content, plus an optional .st-tooltip__arrow; positioning and the show / hide trigger need JS. [data-side] carries the resolved placement for the directional enter animation."
+          attributes={[
+            {
+              name: 'role="tooltip"',
+              meaning: 'On the content; the trigger gets aria-describedby pointing at it',
+              required: 'always (vanilla)',
+            },
+            {
+              name: 'data-side',
+              meaning:
+                'top / right / bottom / left — resolved placement, drives the enter animation',
+              required: 'runtime',
+            },
+          ]}
+        >
+          <p className="st-text st-text--body st-text--sm st-text--muted mb-3">
+            Tooltip content is portal-mounted and positioned by JS; the static reference below shows
+            the markup.
+          </p>
+          <CodeBlock>{`<!-- portal content; positioning + show/hide need JS (Radix) -->
+<div class="st-tooltip__content" role="tooltip" data-side="top">
+  Add to library
+  <span class="st-tooltip__arrow"></span>
+</div>`}</CodeBlock>
+        </Section>
+
+        <Section
+          id="popover"
+          title="Popover — .st-popover__content"
+          intro="Floating content panel mounted into a portal (interactive; Radix-driven). Renders a single styled surface, .st-popover__content; positioning and the open trigger need JS. [data-side] carries the resolved placement; [data-state] toggles open / closed."
+          attributes={[
+            {
+              name: 'role="dialog"',
+              meaning: 'On the content; the trigger gets aria-expanded / aria-controls',
+              required: 'always (vanilla)',
+            },
+            {
+              name: 'data-side',
+              meaning:
+                'top / right / bottom / left — resolved placement, drives the enter animation',
+              required: 'runtime',
+            },
+          ]}
+        >
+          <p className="st-text st-text--body st-text--sm st-text--muted mb-3">
+            Popover content is portal-mounted and positioned by JS; the static reference below shows
+            the markup.
+          </p>
+          <CodeBlock>{`<!-- portal content; positioning + open/close need JS (Radix) -->
+<div class="st-popover__content" role="dialog" data-side="bottom">
+  …
+</div>`}</CodeBlock>
+        </Section>
+
+        <Section
+          id="dropdownmenu"
+          title="DropdownMenu — .st-dropdown-menu__*"
+          intro="Menu surface mounted into a portal (interactive; Radix-driven). Items are an action subset of Pattern A: --default (resting) / --destructive (delete intent → --color-destructive). The static reference below shows the content panel; opening, keyboard nav, and focus return need JS. [data-highlighted] marks the focused item."
+          attributes={[
+            {
+              name: 'role="menu" / "menuitem"',
+              meaning: 'Radix assigns these on the portal content / items',
+              required: 'always (vanilla)',
+            },
+            {
+              name: 'data-highlighted',
+              meaning: 'Marks the keyboard-focused item',
+              required: 'runtime',
+            },
+          ]}
+        >
+          <p className="st-text st-text--body st-text--sm st-text--muted mb-3">
+            Menu content is portal-mounted; the static reference below shows the panel markup.
+          </p>
+          <CodeBlock>{`<!-- portal content; opening + keyboard nav + focus return need JS (Radix) -->
+<div class="st-dropdown-menu__content" role="menu">
+  <div class="st-dropdown-menu__label">Actions</div>
+  <div class="st-dropdown-menu__item" role="menuitem">Edit</div>
+  <div class="st-dropdown-menu__item" role="menuitem">
+    Duplicate <span class="st-dropdown-menu__shortcut">⌘D</span>
+  </div>
+  <div class="st-dropdown-menu__separator"></div>
+  <div class="st-dropdown-menu__item st-dropdown-menu__item--destructive" role="menuitem">Delete</div>
+</div>
+
+<!-- Item variant: --default (resting) | --destructive (delete intent) -->
+<!-- Sub-elements: __content / __item / __label / __separator / __shortcut /
+     __item-icon / __item-indicator / __checkbox-item / __radio-item /
+     __sub-trigger / __sub-trigger-chevron -->`}</CodeBlock>
         </Section>
       </div>
     </>

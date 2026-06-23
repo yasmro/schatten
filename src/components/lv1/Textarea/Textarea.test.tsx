@@ -137,6 +137,38 @@ describe('Textarea', () => {
       const describedBy = screen.getByRole('textbox').getAttribute('aria-describedby')
       expect(describedBy).toContain('-description')
     })
+
+    it('inherits required (aria-required) from Field', () => {
+      render(
+        <Field label="Bio" required>
+          <Textarea />
+        </Field>,
+      )
+      expect(screen.getByRole('textbox')).toHaveAttribute('aria-required', 'true')
+    })
+
+    it('keeps the native required attribute when Field is not required', () => {
+      render(
+        <Field label="Bio">
+          <Textarea required />
+        </Field>,
+      )
+      const ta = screen.getByRole('textbox')
+      expect(ta).toBeRequired()
+      expect(ta).not.toHaveAttribute('aria-required')
+    })
+  })
+
+  describe('required', () => {
+    it('passes a direct required prop through to the native textarea', () => {
+      render(<Textarea aria-label="bio" required />)
+      expect(screen.getByRole('textbox')).toBeRequired()
+    })
+
+    it('does not set aria-required when neither Field nor required is set', () => {
+      render(<Textarea aria-label="bio" />)
+      expect(screen.getByRole('textbox')).not.toHaveAttribute('aria-required')
+    })
   })
 
   it('forwards className', () => {

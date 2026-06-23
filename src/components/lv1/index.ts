@@ -1,3 +1,4 @@
+export { Avatar, type AvatarProps } from './Avatar'
 export { Badge, type BadgeProps } from './Badge'
 export { Button, type ButtonProps } from './Button'
 export {
@@ -6,6 +7,15 @@ export {
   type CalloutProps,
   type CalloutVariant,
 } from './Callout'
+export {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  type CardProps,
+  CardTitle,
+} from './Card'
 export { Checkbox, type CheckboxProps } from './Checkbox'
 export {
   Dialog,
@@ -68,8 +78,23 @@ export {
   SelectValue,
 } from './Select'
 export { Separator, type SeparatorProps } from './Separator'
+export { Skeleton, type SkeletonProps } from './Skeleton'
 export { Spinner, type SpinnerProps } from './Spinner'
 export { Switch, type SwitchProps } from './Switch'
+export {
+  Table,
+  type TableAlign,
+  TableBody,
+  TableCaption,
+  TableCell,
+  type TableCellProps,
+  TableHead,
+  TableHeader,
+  type TableHeadProps,
+  type TableProps,
+  TableRow,
+  type TableRowProps,
+} from './Table'
 export {
   Tabs,
   TabsContent,

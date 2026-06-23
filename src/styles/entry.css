@@ -88,6 +88,22 @@
  * /popover surface like Select / DropdownMenu; authors only its own block
  * rules (no `.st-btn` rules), so layer placement is not order-sensitive. */
 @import "../components/lv1/Popover/Popover.css";
+/* #37 — Skeleton (shimmer keyframes + `.st-skeleton` class API). Leaf
+ * decorative primitive; authors only its own block rule, so layer placement
+ * is not order-sensitive. */
+@import "../components/lv1/Skeleton/Skeleton.css";
+/* #43 — Card (`.st-card__*` class API). Leaf surface primitive (no Radix);
+ * authors only its own block rules, so layer placement is not order-sensitive.
+ * First consumer of `--shadow-card` (#361). */
+@import "../components/lv1/Card/Card.css";
+/* #36 — Avatar (`.st-avatar*` class API). Flat wrapper over
+ * @radix-ui/react-avatar; authors only its own block rules (no `.st-btn`
+ * rules), so layer placement is not order-sensitive. */
+@import "../components/lv1/Avatar/Avatar.css";
+/* #152 — Table (`.st-table*` class API). Presentational-only compound (no
+ * Radix); authors only its own block rules (no `.st-btn` rules), so layer
+ * placement is not order-sensitive. */
+@import "../components/lv1/Table/Table.css";
 
 /* Class-based dark mode variant — matches `src/styles/globals.css` so
  * `.dark` toggling behaves identically in Storybook and in the dist. */

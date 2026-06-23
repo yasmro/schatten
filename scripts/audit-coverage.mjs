@@ -27,6 +27,20 @@ import path from 'node:path'
 const LV1_DIR_REL = 'src/components/lv1'
 const LV2_DIR_REL = 'src/components/lv2'
 const INDEX_FILE_REL = 'src/components/lv1/index.ts'
+// Shared CSS API fixtures, paired by `data-component` slug:
+//  - `.html.ts` — the string SSOT `src/docs/CSSApiDist.vrt.spec.ts`
+//    auto-discovers every lv1 against (each `{X}.tsx` + `{X}.css` component
+//    must have a `<section data-component="<slug>">` or the dist-CSS VRT throws).
+//  - `.tsx` — the React companion the `parity-comparison` story renders; it
+//    must mirror the `.html.ts` sections (区分 C/D render an "omitted"
+//    placeholder, but the section still exists).
+// The `cssApiFixture` column requires the slug in BOTH (the `.tsx`-only check
+// catches the silent drift that nothing else does — e.g. `popover` was in
+// `.html.ts` but missing from `.tsx`). The `check-lv1-companions` hook warns at
+// edit time; this audit is the PR-time blocking gate (#36).
+const CSSAPI_FIXTURE_HTML_REL = 'src/docs/__fixtures__/cssApiSamples.html.ts'
+const CSSAPI_FIXTURE_TSX_REL = 'src/docs/__fixtures__/cssApiSamples.tsx'
+const DATA_COMPONENT_RE = /data-component="([^"]+)"/g
 
 // Components that intentionally do NOT ship parity stories/specs. The
 // canonical reasoning is in .claude/rules/vrt-spec-guideline.md
@@ -50,6 +64,7 @@ const INDEX_FILE_REL = 'src/components/lv1/index.ts'
 // promote to a `// schatten-classification: B` header comment that
 // gets parsed.
 export const PARITY_EXEMPT = new Set([
+  'Avatar',
   'Dialog',
   'DropdownMenu',
   'Popover',
@@ -72,6 +87,7 @@ const REQUIRED_KEYS = /** @type {const} */ ([
   'index',
   'snap',
   'export',
+  'cssApiFixture',
 ])
 const PARITY_KEYS = /** @type {const} */ (['parityStories', 'parityVrt', 'paritySnap'])
 
@@ -87,6 +103,7 @@ const PARITY_KEYS = /** @type {const} */ (['parityStories', 'parityVrt', 'parity
  *   index: CellState,
  *   snap: CellState,
  *   export: CellState,
+ *   cssApiFixture: CellState,
  *   parityStories: CellState,
  *   parityVrt: CellState,
  *   paritySnap: CellState,
@@ -142,6 +159,27 @@ export function parseExportedNames(indexPath) {
 }
 
 /**
+ * Collect every `data-component="<slug>"` slug declared in the shared CSS API
+ * vanilla-HTML fixture. Returns `null` when the fixture file is absent, which
+ * `auditComponent` treats as "skip the fixture check" — so a temp tree without
+ * the docs fixture (unit tests) is unaffected, while the real repo (where the
+ * file always exists) gets an active gate.
+ *
+ * @param {string} fixturePath absolute path to cssApiSamples.html.ts
+ * @returns {Set<string> | null}
+ */
+export function parseFixtureSlugs(fixturePath) {
+  if (!existsSync(fixturePath)) return null
+  const source = readFileSync(fixturePath, 'utf8')
+  /** @type {Set<string>} */
+  const slugs = new Set()
+  DATA_COMPONENT_RE.lastIndex = 0
+  let m
+  while ((m = DATA_COMPONENT_RE.exec(source)) !== null) slugs.add(m[1])
+  return slugs
+}
+
+/**
  * Audit a single component directory. The I/O surface is small —
  * callers wire `componentDir` (absolute path) and the `exported` /
  * `exempt` booleans, so this function is straightforward to unit-test.
@@ -151,10 +189,12 @@ export function parseExportedNames(indexPath) {
  *   componentDir: string,
  *   exported: boolean,
  *   exempt: boolean,
- * }} opts
+ *   fixtureSlugs?: Set<string> | null,
+ * }} opts `fixtureSlugs` is the set of `data-component` slugs in the CSS API
+ *   fixture; `null`/omitted skips the fixture check (→ `na`).
  * @returns {AuditRow}
  */
-export function auditComponent({ name, componentDir, exported, exempt }) {
+export function auditComponent({ name, componentDir, exported, exempt, fixtureSlugs = null }) {
   const tsxPath = path.join(componentDir, `${name}.tsx`)
   const tsxPresent = existsSync(tsxPath)
 
@@ -174,6 +214,7 @@ export function auditComponent({ name, componentDir, exported, exempt }) {
     index: 'na',
     snap: 'na',
     export: 'na',
+    cssApiFixture: 'na',
     parityStories: 'na',
     parityVrt: 'na',
     paritySnap: 'na',
@@ -187,6 +228,16 @@ export function auditComponent({ name, componentDir, exported, exempt }) {
     files.index = cell(present('index.ts'))
     files.snap = cell(countSnapshots(componentDir, (n) => !n.startsWith('parity-')) >= 1)
     files.export = cell(exported)
+
+    // The CSS API fixture is required only once the component has a `.css`,
+    // because CSSApiDist discovers `{X}.tsx` + `{X}.css` dirs (the same
+    // condition `scripts/lv1-slugs.mjs` `discoverLv1WithCss()` encodes — kept
+    // in sync by convention, mirroring CSSApiDist's own comment). With no
+    // fixture file present (`fixtureSlugs === null`) the check is skipped (`na`).
+    files.cssApiFixture =
+      fixtureSlugs && files.css === 'present'
+        ? cell(fixtureSlugs.has(name.toLowerCase()))
+        : 'na'
 
     if (exempt) {
       files.parityStories = 'exempt'
@@ -209,6 +260,11 @@ export function auditComponent({ name, componentDir, exported, exempt }) {
   if (files.index === 'missing') missing.push('index.ts')
   if (files.snap === 'missing') missing.push('__snapshots__/*.png (no baseline captured)')
   if (files.export === 'missing') missing.push('src/components/lv1/index.ts re-export')
+  if (files.cssApiFixture === 'missing') {
+    missing.push(
+      `<section data-component="${name.toLowerCase()}"> in src/docs/__fixtures__/cssApiSamples.html.ts + .tsx`,
+    )
+  }
   if (files.parityStories === 'missing') missing.push(`${name}.parity.stories.tsx`)
   if (files.parityVrt === 'missing') missing.push(`${name}.parity.vrt.spec.ts`)
   if (files.paritySnap === 'missing') missing.push('__snapshots__/parity-*.png (no parity baseline)')
@@ -267,9 +323,9 @@ export function renderTable(rows, opts = {}) {
     lines.push(`lv1 components: ${total} — required ✓ ${allOk} / missing ✗ ${broken}`)
     lines.push('')
     lines.push(
-      '| Component | tsx | css | stories | test | vrt | index | snap | export | parity.stories | parity.vrt | parity.snap |',
+      '| Component | tsx | css | stories | test | vrt | index | snap | export | cssapi.fx | parity.stories | parity.vrt | parity.snap |',
     )
-    lines.push('|---|---|---|---|---|---|---|---|---|---|---|---|')
+    lines.push('|---|---|---|---|---|---|---|---|---|---|---|---|---|')
     for (const row of rows) {
       const cells = REQUIRED_KEYS.map((k) => CELL_GLYPH[row.files[k]])
         .concat(PARITY_KEYS.map((k) => CELL_GLYPH[row.files[k]]))
@@ -376,6 +432,12 @@ export function runAudit(projectDir) {
   const indexPath = path.join(projectDir, INDEX_FILE_REL)
   const names = discoverComponents(lv1Dir)
   const exportedNames = parseExportedNames(indexPath)
+  // Require the section in BOTH fixtures: intersect the two slug sets. When
+  // either file is absent (temp test trees), the check is skipped (null).
+  const htmlSlugs = parseFixtureSlugs(path.join(projectDir, CSSAPI_FIXTURE_HTML_REL))
+  const tsxSlugs = parseFixtureSlugs(path.join(projectDir, CSSAPI_FIXTURE_TSX_REL))
+  const fixtureSlugs =
+    htmlSlugs && tsxSlugs ? new Set([...htmlSlugs].filter((s) => tsxSlugs.has(s))) : null
 
   const rows = names.map((name) =>
     auditComponent({
@@ -383,6 +445,7 @@ export function runAudit(projectDir) {
       componentDir: path.join(lv1Dir, name),
       exported: exportedNames.has(name),
       exempt: PARITY_EXEMPT.has(name),
+      fixtureSlugs,
     }),
   )
 

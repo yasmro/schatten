@@ -25,9 +25,16 @@
 
 import { AlertCircle, Info, User } from 'lucide-react'
 import {
+  Avatar,
   Badge,
   Button,
   Callout,
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
   Checkbox,
   Field,
   FieldSet,
@@ -36,8 +43,16 @@ import {
   Radio,
   RadioGroup,
   Separator,
+  Skeleton,
   Spinner,
   Switch,
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
   Tabs,
   TabsContent,
   TabsList,
@@ -247,6 +262,14 @@ export function ReactSamples() {
         </Text>
       </section>
 
+      <section className="cssapi-fixture__sample" data-component="popover">
+        <span className="cssapi-fixture__sample-label">Popover — portal-mounted (omitted)</span>
+        <Text variant="body" size="sm" color="muted">
+          No comparable React render — Popover portals to body and is JS-driven. The vanilla column
+          shows the static .st-popover__content shape.
+        </Text>
+      </section>
+
       {/* Tabs is 区 D (JS-driven) but renders inline — unlike the portal /
           imperative 区 C/D components above, it has a real React render to pair
           against the vanilla static markup. */}
@@ -266,6 +289,65 @@ export function ReactSamples() {
           <TabsContent value="password">Change your password here.</TabsContent>
           <TabsContent value="team">Invite and manage team members.</TabsContent>
         </Tabs>
+      </section>
+
+      {/* Skeleton — decorative, className-driven. The vanilla column pairs via
+          inline style since the dist CSS path ships no Tailwind size utilities. */}
+      <section className="cssapi-fixture__sample" data-component="skeleton">
+        <span className="cssapi-fixture__sample-label">Skeleton — .st-skeleton</span>
+        <div className="cssapi-fixture__sample-row">
+          <Skeleton style={{ height: '1rem', width: '12rem' }} />
+          <Skeleton style={{ height: '3rem', width: '3rem', borderRadius: '9999px' }} />
+        </div>
+      </section>
+
+      {/* Card — static surface, fully vanilla-able (区分 A). Inline width keeps
+          the sample compact and matches the vanilla column (no Tailwind in the
+          dist CSS path). */}
+      <section className="cssapi-fixture__sample" data-component="card">
+        <span className="cssapi-fixture__sample-label">Card — .st-card</span>
+        <Card style={{ width: '16rem' }}>
+          <CardHeader>
+            <CardTitle>Card title</CardTitle>
+            <CardDescription>A short supporting description.</CardDescription>
+          </CardHeader>
+          <CardContent>Main content goes here.</CardContent>
+          <CardFooter>Footer</CardFooter>
+        </Card>
+      </section>
+
+      <section className="cssapi-fixture__sample" data-component="avatar">
+        <span className="cssapi-fixture__sample-label">Avatar — .st-avatar</span>
+        <div className="cssapi-fixture__sample-row">
+          <Avatar fallback="JD" size="sm" />
+          <Avatar fallback="AB" size="md" />
+          <Avatar fallback="CD" size="lg" />
+        </div>
+      </section>
+
+      <section className="cssapi-fixture__sample" data-component="table">
+        <span className="cssapi-fixture__sample-label">Table — .st-table</span>
+        <div style={{ width: '18rem' }}>
+          <Table striped bordered>
+            <TableCaption>Team members</TableCaption>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Name</TableHead>
+                <TableHead align="end">Role</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              <TableRow>
+                <TableCell>Taro Tanaka</TableCell>
+                <TableCell align="end">Admin</TableCell>
+              </TableRow>
+              <TableRow selected>
+                <TableCell>Hanako Sato</TableCell>
+                <TableCell align="end">Editor</TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
+        </div>
       </section>
     </>
   )

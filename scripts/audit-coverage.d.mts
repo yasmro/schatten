@@ -14,6 +14,7 @@ export interface AuditFiles {
   readonly index: CellState
   readonly snap: CellState
   readonly export: CellState
+  readonly cssApiFixture: CellState
   readonly parityStories: CellState
   readonly parityVrt: CellState
   readonly paritySnap: CellState
@@ -61,11 +62,22 @@ export function discoverComponents(lv1Dir: string): string[]
 
 export function parseExportedNames(indexPath: string): Set<string>
 
+/**
+ * Collect every `data-component` slug from the shared CSS API vanilla-HTML
+ * fixture. Returns `null` when the fixture file is absent (check skipped).
+ */
+export function parseFixtureSlugs(fixturePath: string): Set<string> | null
+
 export function auditComponent(opts: {
   name: string
   componentDir: string
   exported: boolean
   exempt: boolean
+  /**
+   * Slugs declared in the CSS API fixture. `null`/omitted skips the fixture
+   * check (the `cssApiFixture` column resolves to `na`).
+   */
+  fixtureSlugs?: Set<string> | null
 }): AuditRow
 
 export function renderTable(rows: readonly AuditRow[], opts?: RenderTableOptions): string

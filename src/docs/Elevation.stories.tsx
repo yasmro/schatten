@@ -44,12 +44,7 @@ const SEMANTIC_SHADOWS = [
   },
   { name: 'modal', alias: 'lg', status: 'applied', usedBy: 'Dialog' },
   { name: 'toast', alias: 'md', status: 'applied', usedBy: 'Toast' },
-  {
-    name: 'card',
-    alias: 'sm',
-    status: 'defined-only',
-    usedBy: '— (future: lv2 Card surface, #361)',
-  },
+  { name: 'card', alias: 'sm', status: 'applied', usedBy: 'Card' },
 ] as const
 
 const StatusBadge = ({ status }: { status: 'applied' | 'defined-only' }) =>
@@ -182,7 +177,7 @@ export const UsageGuide: Story = {
         <GuideRow
           surface="Card"
           token="--shadow-card"
-          note="Resting content cards. Lowest elevation. (Alias of --shadow-sm; not yet applied.)"
+          note="Resting content cards. Lowest elevation. (Alias of --shadow-sm; applied by Card.)"
         />
         <GuideRow
           surface="Tooltip / Popover"

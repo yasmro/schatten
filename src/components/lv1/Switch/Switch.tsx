@@ -71,6 +71,11 @@ export const Switch = forwardRef<ElementRef<typeof SwitchPrimitive.Root>, Switch
           id={id}
           className={cn(switchVariants({ size }))}
           aria-invalid={isError || undefined}
+          // Announce-only: never emit `aria-required={undefined}`, which would
+          // clobber Radix's own `required`-derived value (Radix spreads consumer
+          // props after its `aria-required`). Direct `required` flows via
+          // `...props` to Radix (hidden input + its own aria-required).
+          {...(field?.required ? { 'aria-required': true } : null)}
           aria-describedby={ariaDescribedBy}
           aria-labelledby={ariaLabelledBy}
           disabled={disabled}

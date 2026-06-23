@@ -1,0 +1,70 @@
+/*
+ * Skeleton — `.st-skeleton` class API.
+ *
+ * A single decorative block class with no modifier axes: width / height /
+ * border-radius are set by the consumer via utility classes or inline style
+ * (className-driven, per #37).
+ *
+ * Animation: a gentle 2.4s shimmer — a faintly brighter band sweeps left
+ * across the base fill. The highlight is deliberately low-contrast (a small
+ * white mix) and the cadence slow, so the effect reads as "ほのか" / subtle
+ * rather than a hard glare.
+ * The duration is hardcoded (no public CSS var), matching the default-spin
+ * precedent in Spinner.css of NOT introducing a duration variable to keep the
+ * public variable surface minimal; consumers can still override via their own
+ * utilities layer or an inline `animation-duration`. Adding a var later is
+ * additive (minor).
+ *
+ * The shimmer highlight is derived from the base color with `color-mix(...,
+ * white)`, so the band is brighter than the base in BOTH light and dark mode
+ * (in dark, --color-surface-hover is lighter than the page, and mixing toward
+ * white keeps the sweep a highlight rather than a shadow). It also tracks the
+ * base token automatically if `--color-surface-hover` is retuned. `color-mix()`
+ * is already required by the Tailwind v4 baseline (opacity modifiers compile
+ * to it), so it introduces no new browser-support floor.
+ *
+ * Raw CSS + var(--color-*) throughout, per css-api.md "Component CSS authoring
+ * conventions — raw CSS over @apply".
+ *
+ * Public CSS variables: none (duration hardcoded; colors/radius consumed from
+ * the shared token layer).
+ *
+ * See: .claude/rules/css-api.md, #37.
+ */
+
+@keyframes schatten-skeleton-shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@layer components {
+  .st-skeleton {
+    display: block;
+    /* Square corners by default — the consumer rounds via a `rounded-*`
+     * utility / inline `border-radius` when the placeholder stands in for
+     * rounded content (e.g. `rounded-full` for an avatar). */
+    border-radius: 0;
+    background-color: var(--color-surface-hover);
+    background-image: linear-gradient(
+      90deg,
+      var(--color-surface-hover) 0%,
+      color-mix(in oklab, var(--color-surface-hover) 68%, white) 50%,
+      var(--color-surface-hover) 100%
+    );
+    background-size: 200% 100%;
+    background-repeat: no-repeat;
+    animation: schatten-skeleton-shimmer 2.4s ease-in-out infinite;
+  }
+
+  /* Reduced motion: drop the sweep and rest on a solid surface-hover fill. */
+  @media (prefers-reduced-motion: reduce) {
+    .st-skeleton {
+      background-image: none;
+      animation: none;
+    }
+  }
+}

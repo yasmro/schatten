@@ -1,0 +1,89 @@
+/*
+ * Avatar — `.st-avatar` class API.
+ *
+ * A flat wrapper over @radix-ui/react-avatar (Root / Image / Fallback). Block +
+ * two sub-elements:
+ * - `.st-avatar`           — root: circular frame (overflow-hidden) + bg fill
+ * - `.st-avatar__image`    — the <img>, cover-fit, square aspect
+ * - `.st-avatar__fallback` — initials shown when there is no/failed image
+ *
+ * Single modifier axis: size (sm/md/lg → 32/40/48px) on the root. The fallback's
+ * font-size tracks the root size via a descendant selector
+ * (`.st-avatar--sm .st-avatar__fallback`), so size lives in ONE place (the root
+ * modifier) and the sub-element carries no size class of its own — this is
+ * author-config expressed as a modifier class (css-api.md), and a vanilla
+ * consumer who writes `class="st-avatar st-avatar--sm"` on the root gets the
+ * scaled fallback for free.
+ *
+ * Shape: fixed circle (`--radius-full`). A square variant is intentionally not
+ * shipped in v1; it can be added additively as a `--circle`/`--square` modifier.
+ *
+ * Raw CSS + var(--color-*) throughout, per css-api.md "Component CSS authoring
+ * conventions — raw CSS over @apply".
+ *
+ * Public CSS variables: none (colors / radius consumed from the shared token
+ * layer).
+ *
+ * See: .claude/rules/css-api.md, #36.
+ */
+@layer components {
+  .st-avatar {
+    position: relative;
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border-radius: var(--radius-full);
+    background-color: var(--color-surface-hover);
+    vertical-align: middle;
+    user-select: none;
+  }
+
+  /* ===== size (32 / 40 / 48 px) — root only ===== */
+  .st-avatar--sm {
+    width: 2rem;
+    height: 2rem;
+  }
+  .st-avatar--md {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+  .st-avatar--lg {
+    width: 3rem;
+    height: 3rem;
+  }
+
+  /* ===== image ===== */
+  .st-avatar__image {
+    width: 100%;
+    height: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+  }
+
+  /* ===== fallback (initials) ===== */
+  .st-avatar__fallback {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    /* Full foreground (not -muted) so the initials clear WCAG AA contrast on
+     * the surface-hover fill in both light and dark — the a11y gate is blocking. */
+    color: var(--color-foreground);
+    font-weight: var(--font-medium);
+    line-height: 1;
+  }
+
+  /* fallback font-size tracks the root size (size lives on the root only) */
+  .st-avatar--sm .st-avatar__fallback {
+    font-size: var(--text-xs);
+  }
+  .st-avatar--md .st-avatar__fallback {
+    font-size: var(--text-sm);
+  }
+  .st-avatar--lg .st-avatar__fallback {
+    font-size: var(--text-base);
+  }
+}

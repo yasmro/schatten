@@ -92,6 +92,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           disabled={disabled}
           readOnly={readOnly}
           aria-invalid={isError || undefined}
+          aria-required={field?.required || undefined}
           aria-describedby={ariaDescribedBy}
           {...props}
         />

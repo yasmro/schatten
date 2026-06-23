@@ -26,6 +26,7 @@ import '../components/lv1/Separator/Separator.css'
 import '../components/lv1/Skeleton/Skeleton.css'
 import '../components/lv1/Spinner/Spinner.css'
 import '../components/lv1/Switch/Switch.css'
+import '../components/lv1/Table/Table.css'
 import '../components/lv1/Tabs/Tabs.css'
 import '../components/lv1/Text/Text.css'
 import '../components/lv1/Textarea/Textarea.css'
@@ -209,7 +210,7 @@ const CodeBlock = ({ children }: { children: string }) => (
 )
 
 export const Reference: Story = {
-  name: 'Reference (all 24 lv1 components)',
+  name: 'Reference (all 25 lv1 components)',
   render: () => (
     <>
       <ChromeStyles />
@@ -1766,6 +1767,64 @@ export const Reference: Story = {
 <!-- bare .st-card has no fill / shadow — degrades to the plain look -->
 
 <!-- Sub-elements: __header / __title / __description / __content / __footer -->`}</CodeBlock>
+        </Section>
+
+        <Section
+          id="table"
+          title="Table — .st-table"
+          intro="Presentational-only data table (no sort / filter / pagination logic — compose a headless layer on top). Out of pattern: three orthogonal boolean treatments (--striped / --bordered / --hoverable) plus a --sm / --md / --lg density axis, all root modifiers that reach cells via descendant selectors. Cells carry their own align modifier (__cell--start / --center / --end, same for __head). Selection is a state attribute, not a class: .st-table__row[data-state=&quot;selected&quot;]. The table renders inside a .st-table-scroll container for horizontal overflow. Name the table with a __caption (or aria-label)."
+        >
+          <div className="cssapi-doc__row">
+            <div className="st-table-scroll" style={{ width: '20rem' }}>
+              <table className="st-table st-table--md st-table--striped st-table--bordered">
+                <caption className="st-table__caption">Team members</caption>
+                <thead className="st-table__header">
+                  <tr className="st-table__row">
+                    <th className="st-table__head st-table__head--start">Name</th>
+                    <th className="st-table__head st-table__head--end">Role</th>
+                  </tr>
+                </thead>
+                <tbody className="st-table__body">
+                  <tr className="st-table__row">
+                    <td className="st-table__cell st-table__cell--start">Taro Tanaka</td>
+                    <td className="st-table__cell st-table__cell--end">Admin</td>
+                  </tr>
+                  <tr className="st-table__row" data-state="selected">
+                    <td className="st-table__cell st-table__cell--start">Hanako Sato</td>
+                    <td className="st-table__cell st-table__cell--end">Editor</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <CodeBlock>{`<!-- Treatments are orthogonal root modifiers; cells get an align modifier -->
+<div class="st-table-scroll">
+  <table class="st-table st-table--md st-table--striped st-table--bordered">
+    <caption class="st-table__caption">Team members</caption>
+    <thead class="st-table__header">
+      <tr class="st-table__row">
+        <th class="st-table__head st-table__head--start">Name</th>
+        <th class="st-table__head st-table__head--end">Role</th>
+      </tr>
+    </thead>
+    <tbody class="st-table__body">
+      <tr class="st-table__row">
+        <td class="st-table__cell st-table__cell--start">Taro Tanaka</td>
+        <td class="st-table__cell st-table__cell--end">Admin</td>
+      </tr>
+      <!-- selection is a state attribute, not a class -->
+      <tr class="st-table__row" data-state="selected">
+        <td class="st-table__cell st-table__cell--start">Hanako Sato</td>
+        <td class="st-table__cell st-table__cell--end">Editor</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- Modifier vocabulary -->
+<!-- density:  --sm | --md (default) | --lg -->
+<!-- treatment (orthogonal booleans): --striped, --bordered, --hoverable -->
+<!-- cell align: __cell--start (default) | --center | --end (same for __head) -->`}</CodeBlock>
         </Section>
 
         <Section

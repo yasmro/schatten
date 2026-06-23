@@ -707,8 +707,8 @@ Available components (one subpath per lv1):
 `avatar` · `badge` · `button` · `callout` · `card` · `checkbox` ·
 `dialog` · `dropdownmenu` · `field` · `fieldset` · `icon` · `input` ·
 `popover` · `radio` · `select` · `separator` · `skeleton` ·
-`spinner` · `switch` · `tabs` · `text` · `textarea` · `toast` ·
-`tooltip`.
+`spinner` · `switch` · `table` · `tabs` · `text` · `textarea` ·
+`toast` · `tooltip`.
 <!-- generated:lv1-components:end -->
 
 Tokens must be imported separately — the per-component files reference

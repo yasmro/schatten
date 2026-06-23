@@ -44,6 +44,7 @@
   { "name": "css/skeleton", "path": "dist/css/skeleton.css", "limit": "1.5 KB" },
   { "name": "css/spinner", "path": "dist/css/spinner.css", "limit": "1.5 KB" },
   { "name": "css/switch", "path": "dist/css/switch.css", "limit": "1.5 KB" },
+  { "name": "css/table", "path": "dist/css/table.css", "limit": "1.5 KB" },
   { "name": "css/tabs", "path": "dist/css/tabs.css", "limit": "1.5 KB" },
   { "name": "css/text", "path": "dist/css/text.css", "limit": "1.5 KB" },
   { "name": "css/textarea", "path": "dist/css/textarea.css", "limit": "1.5 KB" },

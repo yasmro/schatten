@@ -1,0 +1,143 @@
+/*
+ * Table — `.st-table*` class API.
+ *
+ * A presentational-only / logic-agnostic compound primitive (no Radix, pure
+ * native table elements). Table ships the chrome; sort / filter / pagination
+ * live in a headless layer the consumer composes on top (#152). Out of pattern
+ * (neither Pattern A role nor Pattern B tone × shape) — like `Card` / `Spinner`.
+ *
+ * Block + sub-elements (written by Table.tsx as side-by-side classes):
+ * - `.st-table-scroll`        — horizontal scroll container (overflow-x: auto)
+ * - `.st-table`               — root <table>
+ * - `.st-table--sm/--md/--lg` — cell density (padding; sm/lg also shift font)
+ * - `.st-table--striped`      — zebra-stripe body rows
+ * - `.st-table--bordered`     — border around every cell
+ * - `.st-table--hoverable`    — tint body rows on hover
+ * - `.st-table__caption`      — <caption> (accessible-name source)
+ * - `.st-table__header`       — <thead>
+ * - `.st-table__body`         — <tbody>
+ * - `.st-table__row`          — <tr> (bottom divider)
+ * - `.st-table__head`         — <th> (bold + muted)
+ * - `.st-table__head--start/--center/--end`
+ * - `.st-table__cell`         — <td>
+ * - `.st-table__cell--start/--center/--end`
+ *
+ * Treatment axes (`size` / `striped` / `bordered` / `hoverable`) are root
+ * modifiers; their effect reaches `tr` / `td` / `th` through descendant
+ * selectors here, so no prop is drilled into the sub-parts — the config-free /
+ * pass-through contract of #152.
+ *
+ * Selection is expressed as a state attribute, not a class:
+ * `.st-table__row[data-state="selected"]` (css-api "state is attributes"). The
+ * `selected` prop only drives the visual; ARIA selection semantics (which need
+ * a grid role) stay the consumer's to add.
+ *
+ * Raw CSS + var(--color-*) throughout, per css-api.md "Component CSS authoring
+ * conventions — raw CSS over @apply".
+ *
+ * Public CSS variables: none (colors consumed from the shared token layer:
+ * --color-surface-hover for stripe / hover / selected, --color-border for
+ * dividers / cell borders, --color-foreground-muted for header + caption).
+ *
+ * See: .claude/rules/css-api.md, .claude/rules/component-api-conventions.md, #152.
+ */
+@layer components {
+  /* Horizontal scroll container — fixed internal chrome (no consumer hooks in
+   * v1). Wide tables scroll instead of overflowing the viewport. */
+  .st-table-scroll {
+    position: relative;
+    width: 100%;
+    overflow-x: auto;
+  }
+
+  .st-table {
+    width: 100%;
+    border-collapse: collapse;
+    color: var(--color-foreground);
+    font-size: 0.875rem;
+  }
+
+  .st-table__caption {
+    padding: 0.625rem 0;
+    text-align: start;
+    font-size: 0.8125rem;
+    color: var(--color-foreground-muted);
+  }
+
+  /* Row divider. Header / last row included, giving the table top + bottom
+   * edges; collapses cleanly with `--bordered` under border-collapse. */
+  .st-table__row {
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .st-table__cell,
+  .st-table__head {
+    vertical-align: middle;
+  }
+
+  /* Header cells: bolder, muted, to read as column labels. */
+  .st-table__head {
+    font-weight: 600;
+    color: var(--color-foreground-muted);
+  }
+
+  /* Alignment (per-cell axis). `--start` carries a real declaration rather than
+   * being an empty marker — the default is first-class (Icon `--inherit` /
+   * Card `--filled` precedent). */
+  .st-table__cell--start,
+  .st-table__head--start {
+    text-align: start;
+  }
+  .st-table__cell--center,
+  .st-table__head--center {
+    text-align: center;
+  }
+  .st-table__cell--end,
+  .st-table__head--end {
+    text-align: end;
+  }
+
+  /* Density — padding per size; sm / lg also shift font-size (md uses the base
+   * .st-table font-size). */
+  .st-table--sm .st-table__cell,
+  .st-table--sm .st-table__head {
+    padding: 0.375rem 0.625rem;
+  }
+  .st-table--md .st-table__cell,
+  .st-table--md .st-table__head {
+    padding: 0.625rem 0.75rem;
+  }
+  .st-table--lg .st-table__cell,
+  .st-table--lg .st-table__head {
+    padding: 0.875rem 1rem;
+  }
+  .st-table--sm {
+    font-size: 0.8125rem;
+  }
+  .st-table--lg {
+    font-size: 0.9375rem;
+  }
+
+  /* Bordered — border around every cell. */
+  .st-table--bordered .st-table__cell,
+  .st-table--bordered .st-table__head {
+    border: 1px solid var(--color-border);
+  }
+
+  /* Zebra stripe — odd body rows. Excludes selected rows so the selected
+   * highlight (lower specificity) is never masked by the stripe. */
+  .st-table--striped .st-table__body .st-table__row:nth-child(odd):not([data-state="selected"]) {
+    background-color: var(--color-surface-hover);
+  }
+
+  /* Hover tint (body rows only). */
+  .st-table--hoverable .st-table__body .st-table__row:hover {
+    background-color: var(--color-surface-hover);
+  }
+
+  /* Selected row — state attribute, not a class (css-api). Token-driven, so it
+   * follows dark / seasonal Mode automatically. */
+  .st-table__row[data-state="selected"] {
+    background-color: var(--color-surface-hover);
+  }
+}

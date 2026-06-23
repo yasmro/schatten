@@ -98,6 +98,15 @@ export const WELCOME_DEEP_LINKS: readonly WelcomeDeepLink[] = [
       'Rendering Button as a link, buttonVariants() on your own element, and Text polymorphism.',
   },
   {
+    slug: 'patterns-data-table',
+    suffix: 'overview',
+    viewMode: 'story',
+    section: 'patterns',
+    title: 'Data Table',
+    description:
+      'Compose lv1 Table with a headless logic layer (TanStack Table) to add sorting, filtering, and pagination — Schatten ships the chrome, you bring the logic.',
+  },
+  {
     slug: 'patterns-form-composition',
     suffix: 'basic-field',
     viewMode: 'story',

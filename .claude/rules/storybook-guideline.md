@@ -241,7 +241,7 @@ README and CLAUDE.md only point here, they do not restate it.
 | `Tokens` | Design-token vocabulary (the *values*) | `Color`, `Typography`, `Spacing`, `Elevation`, `Motion`, `Iconography` |
 | `Theming` | The Mode × Special theme machinery | `Overview`, `Theme Audit`, `Customization` |
 | `CSS API` | The framework-agnostic `.st-*` class contract | `Overview`, `Class Reference` |
-| `Patterns` | Recipes spanning multiple lv1s + cross-cutting principles | `Form States`, `Accessibility`, `Form Composition`, `asChild`, `Layout`, `Testing` |
+| `Patterns` | Recipes spanning multiple lv1s + cross-cutting principles | `Form States`, `Accessibility`, `Form Composition`, `asChild`, `Layout`, `Testing`, `Data Table` |
 | `Components` | The `lv1/<Name>` catalog | `lv1/Button`, `lv1/Input`, … |
 
 ### Where does a new page go?

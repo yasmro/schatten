@@ -1,5 +1,90 @@
 # @yasmro/schatten
 
+## 0.13.0
+
+### Minor Changes
+
+- [#434](https://github.com/yasmro/schatten/pull/434) [`d6c1fcf`](https://github.com/yasmro/schatten/commit/d6c1fcf0f68ffc3fe71a206a6f25d33f698b77f7) Thanks [@yasmro](https://github.com/yasmro)! - Add `Avatar` — a user's profile image that falls back to initials when the
+  image is absent or fails to load (profile headers, comment authors, member
+  lists). A flat wrapper over `@radix-ui/react-avatar` (Root / Image / Fallback),
+  driven by `src` / `alt` / `fallback` (a `string`) / `size` (`sm` 32px / `md`
+  40px / `lg` 48px) / `delayMs` — the sanctioned flat-over-multi-part-Radix
+  exception (component-architecture §2). Fixed-circle shape in v1; no
+  `variant`/`appearance` axis (out-of-pattern display primitive). Carries no role
+  of its own — the `<img alt>` supplies the accessible name; pass `aria-label`
+  for a fallback-only avatar.
+
+  CSS API: new `.st-avatar` / `.st-avatar--sm` / `.st-avatar--md` /
+  `.st-avatar--lg` / `.st-avatar__image` / `.st-avatar__fallback` classes, also
+  published per-component at `@yasmro/schatten/css/avatar`.
+
+- [#427](https://github.com/yasmro/schatten/pull/427) [`bde7616`](https://github.com/yasmro/schatten/commit/bde761624f61f87698465db58be7fcd48049fc21) Thanks [@yasmro](https://github.com/yasmro)! - Add `Card` — a bordered, subtly-elevated surface for grouping content
+  (dashboard widgets, list items, settings panels). A compound primitive (no
+  Radix) composed from `CardHeader` / `CardTitle` / `CardDescription` /
+  `CardContent` / `CardFooter`. Single neutral surface (no variant axis); square
+  corners; carries no role by default (pass `role="region"` + `aria-labelledby`
+  for a labelled landmark). Apply the surface to your own element with
+  `cardVariants()`.
+
+  Card is the first consumer of the `--shadow-card` semantic token (previously
+  define-only).
+
+  CSS API: new `.st-card` / `.st-card__header` / `.st-card__title` /
+  `.st-card__description` / `.st-card__content` / `.st-card__footer` classes,
+  also published per-component at `@yasmro/schatten/css/card`.
+
+- [#430](https://github.com/yasmro/schatten/pull/430) [`de8e000`](https://github.com/yasmro/schatten/commit/de8e0008988130cbaff481313ba8baf62d75ae43) Thanks [@yasmro](https://github.com/yasmro)! - Add a background `variant` to `Card`: `filled` (default — `surface` fill +
+  `--shadow-card`) and `plain` (transparent background, no shadow, border only —
+  the page / parent surface shows through, for nested or low-emphasis grouping).
+  Out-of-pattern single axis (like `Spinner`); the default `filled` is
+  value-identical to the previous Card, so existing usage is unchanged.
+
+  CSS API: new `.st-card--filled` / `.st-card--plain` classes.
+
+- [#440](https://github.com/yasmro/schatten/pull/440) [`20c4dab`](https://github.com/yasmro/schatten/commit/20c4dab61db62fb12789f8fb8691b3397512ee18) Thanks [@yasmro](https://github.com/yasmro)! - Field `required` now propagates `aria-required` (announce-only) to the wrapped
+  control (Input / Textarea / Select / Checkbox / Switch / RadioGroup) via
+  FieldContext, mirroring `isError → aria-invalid`. Native / Radix `required`
+  validation is unchanged — it stays driven only by a `required` prop set
+  directly on the control.
+
+- [#426](https://github.com/yasmro/schatten/pull/426) [`2c06108`](https://github.com/yasmro/schatten/commit/2c06108db9dd30f31c6b8c54800daf23f7366376) Thanks [@yasmro](https://github.com/yasmro)! - Add `Skeleton` — a shimmering placeholder shown while content is loading. Size
+  and shape are className-driven (`<Skeleton className="h-4 w-[200px]" />`); the
+  shimmer is disabled under `prefers-reduced-motion`. Decorative by default
+  (`aria-hidden`) — announce loading on the container via `role="status"` /
+  `aria-busy`.
+
+  CSS API: new `.st-skeleton` class, also published per-component at
+  `@yasmro/schatten/css/skeleton`.
+
+- [#439](https://github.com/yasmro/schatten/pull/439) [`282b4ff`](https://github.com/yasmro/schatten/commit/282b4ff3532a279091914ad2a32d0ce758551419) Thanks [@yasmro](https://github.com/yasmro)! - Add `Table` — a semantic, **presentational-only / logic-agnostic** data table
+  ([#152](https://github.com/yasmro/schatten/issues/152)). Compose it from `Table` / `TableHeader` / `TableBody` / `TableRow` /
+  `TableHead` / `TableCell` / `TableCaption`. It ships the chrome only — `size`
+  density (`sm` / `md` / `lg`) plus three orthogonal boolean treatments
+  (`striped` / `bordered` / `hoverable`) and a `selected` row highlight — and
+  holds **no** sort / filter / pagination / virtualization logic, so any headless
+  layer (TanStack Table, react-table, your own) composes on top. Every
+  behavioural hook (`<th onClick>` / `aria-sort`, row `data-state` /
+  `aria-selected`) passes straight through `...props`; cells take an `align`
+  (`start` / `center` / `end`). Out-of-pattern (like `Card` / `Spinner`); named
+  via `TableCaption` or `aria-label`; the table renders inside a `.st-table-scroll`
+  container for horizontal overflow.
+
+  CSS API: new `.st-table*` classes (`.st-table`, `.st-table-scroll`, `--sm` /
+  `--md` / `--lg`, `--striped` / `--bordered` / `--hoverable`, `__caption` /
+  `__header` / `__body` / `__row` / `__head` / `__cell`, and the
+  `__head--{start,center,end}` / `__cell--{start,center,end}` align modifiers),
+  with selection on the `[data-state="selected"]` row hook. Also published
+  per-component at `@yasmro/schatten/css/table`.
+
+### Patch Changes
+
+- [#442](https://github.com/yasmro/schatten/pull/442) [`1c1c910`](https://github.com/yasmro/schatten/commit/1c1c910156e10cc2814ec76e48dfe73a814c4c78) Thanks [@yasmro](https://github.com/yasmro)! - Add a `Patterns/Data Table` Storybook recipe showing how to compose the
+  presentational lv1 `Table` ([#152](https://github.com/yasmro/schatten/issues/152)) with a headless logic layer (TanStack Table
+  v8) for sorting / filtering / pagination. Sorting is a live demo; the toggle is
+  a real `<button>` inside the `<th>` and `aria-sort` is forwarded onto the cell.
+  Docs only — `@tanstack/react-table` is a devDependency, never shipped as a
+  prod / peer dependency.
+
 ## 0.12.0
 
 ### Minor Changes

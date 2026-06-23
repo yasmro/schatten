@@ -10,6 +10,7 @@ function BasicSelect(props: {
   onValueChange?: (v: string) => void
   isError?: boolean
   disabled?: boolean
+  required?: boolean
   size?: 'sm' | 'md' | 'lg'
 }) {
   return (
@@ -17,6 +18,7 @@ function BasicSelect(props: {
       defaultValue={props.defaultValue}
       value={props.value}
       onValueChange={props.onValueChange}
+      required={props.required}
     >
       <SelectTrigger isError={props.isError} disabled={props.disabled} size={props.size}>
         <SelectValue placeholder="Pick a fruit" />
@@ -182,6 +184,39 @@ describe('Select', () => {
       )
       const describedBy = screen.getByRole('combobox').getAttribute('aria-describedby')
       expect(describedBy).toContain('-description')
+    })
+
+    it('inherits required (aria-required) from Field', () => {
+      render(
+        <Field label="Fruit" required>
+          <BasicSelect />
+        </Field>,
+      )
+      expect(screen.getByRole('combobox')).toHaveAttribute('aria-required', 'true')
+    })
+
+    it('does not clobber a direct <Select required> when Field is not required', () => {
+      // Regression guard: Field.required is false here, so we must inject
+      // nothing — emitting aria-required={undefined} would override the value
+      // Radix sets on the combobox from context.required (PR #428).
+      render(
+        <Field label="Fruit">
+          <BasicSelect required />
+        </Field>,
+      )
+      expect(screen.getByRole('combobox')).toHaveAttribute('aria-required', 'true')
+    })
+  })
+
+  describe('required', () => {
+    it('reflects <Select required> as aria-required on the trigger', () => {
+      render(<BasicSelect required />)
+      expect(screen.getByRole('combobox')).toHaveAttribute('aria-required', 'true')
+    })
+
+    it('does not set aria-required when neither Field nor required is set', () => {
+      render(<BasicSelect />)
+      expect(screen.getByRole('combobox')).not.toHaveAttribute('aria-required')
     })
   })
 })

@@ -250,6 +250,65 @@ describe('Radio', () => {
       )
       expect(screen.getByRole('radiogroup', { name: 'Custom name' })).toBeInTheDocument()
     })
+
+    it('RadioGroup inherits required (aria-required) from Field', () => {
+      render(
+        <Field label="Pick one" required>
+          <RadioGroup>
+            <Radio value="a" label="A" />
+          </RadioGroup>
+        </Field>,
+      )
+      expect(screen.getByRole('radiogroup')).toHaveAttribute('aria-required', 'true')
+    })
+
+    it('does not clobber a direct <RadioGroup required> when Field is not required', () => {
+      // Regression guard: Field.required is false here, so we must inject
+      // nothing — emitting aria-required={undefined} would override the value
+      // Radix sets on the group root from the `required` prop (PR #428).
+      render(
+        <Field label="Pick one">
+          <RadioGroup required>
+            <Radio value="a" label="A" />
+          </RadioGroup>
+        </Field>,
+      )
+      expect(screen.getByRole('radiogroup')).toHaveAttribute('aria-required', 'true')
+    })
+  })
+
+  describe('required', () => {
+    it('reflects <RadioGroup required> as aria-required on the group root', () => {
+      render(
+        <RadioGroup required aria-label="Pick one">
+          <Radio value="a" label="A" />
+        </RadioGroup>,
+      )
+      expect(screen.getByRole('radiogroup')).toHaveAttribute('aria-required', 'true')
+    })
+
+    it('does not put aria-required on individual radio items (group-level concept)', () => {
+      render(
+        <Field label="Pick one" required>
+          <RadioGroup>
+            <Radio value="a" label="A" />
+          </RadioGroup>
+        </Field>,
+      )
+      expect(screen.getByRole('radio')).not.toHaveAttribute('aria-required')
+    })
+
+    it('leaves the group not-required when neither Field nor required is set', () => {
+      render(
+        <RadioGroup aria-label="Pick one">
+          <Radio value="a" label="A" />
+        </RadioGroup>,
+      )
+      // Radix's RadioGroup.Root always renders aria-required (defaulting to
+      // "false", unlike Checkbox/Switch/Select which omit it). The contract is
+      // only that the group is not *announced* as required.
+      expect(screen.getByRole('radiogroup')).not.toHaveAttribute('aria-required', 'true')
+    })
   })
 
   it('forwards className on the radio wrapper', () => {

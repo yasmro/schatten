@@ -512,11 +512,17 @@ fallback — that policy only holds if the contract below holds.
      `aria-hidden={!isLoading}` on its inline spinner so the spinner
      only enters the accessibility tree while loading
      ([Button.tsx:131](../../src/components/lv1/Button/Button.tsx:131)).
-   - **Required** — Field renders a visual `*` next to the label but
-     **does not** propagate `aria-required` to the underlying input
-     today. Consumers who need the ARIA flag must set `required` on
-     the input element directly. This is a deliberate gap to revisit;
-     see "When this rule changes" below.
+   - **Required** — Field propagates its `required` to the wrapped
+     control as `aria-required` (announce-only) through `FieldContext`,
+     mirroring `isError → aria-invalid`. It does **not** enable native
+     validation — form-submission blocking still comes only from a
+     `required` prop set directly on the control. For the four
+     Radix-based controls (Checkbox / Switch / RadioGroup / Select) the
+     field-derived value is injected *conditionally* (never as
+     `aria-required={undefined}`) so it can't clobber Radix's own
+     `required`-derived attribute; the two wiring idioms (native vs.
+     Radix) are documented in
+     [field-context-guideline](field-context-guideline.md).
 
 ### Patterns Schatten relies on
 
@@ -604,5 +610,6 @@ fallback — that policy only holds if the contract below holds.
     be a documented, story-scoped `disableRules(['color-contrast'])`
     with a rationale (not a blanket disable) — see
     [vrt-spec-guideline §a11y assertions](vrt-spec-guideline.md).
-  - When `Field.required` gains `aria-required` propagation, remove
-    the gap note in guarantee #4.
+  - `Field.required` now propagates `aria-required` (announce-only) to
+    the wrapped control ([#428](https://github.com/yasmro/schatten/issues/428)) —
+    guarantee #4's "Required" entry reflects the implemented behavior.

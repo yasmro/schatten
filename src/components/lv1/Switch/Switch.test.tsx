@@ -198,6 +198,39 @@ describe('Switch', () => {
       )
       expect(screen.getByRole('switch', { name: 'Custom name' })).toBeInTheDocument()
     })
+
+    it('inherits required (aria-required) from Field', () => {
+      render(
+        <Field label="Notifications" required>
+          <Switch aria-label="sw" />
+        </Field>,
+      )
+      expect(screen.getByRole('switch')).toHaveAttribute('aria-required', 'true')
+    })
+
+    it('does not clobber a direct required prop when Field is not required', () => {
+      // Regression guard: Field.required is false here, so we must inject
+      // nothing — emitting aria-required={undefined} would override the value
+      // Radix sets on the button from the `required` prop (PR #428).
+      render(
+        <Field label="Notifications">
+          <Switch aria-label="sw" required />
+        </Field>,
+      )
+      expect(screen.getByRole('switch')).toHaveAttribute('aria-required', 'true')
+    })
+  })
+
+  describe('required', () => {
+    it('reflects a direct required prop as aria-required (Radix)', () => {
+      render(<Switch aria-label="sw" required />)
+      expect(screen.getByRole('switch')).toHaveAttribute('aria-required', 'true')
+    })
+
+    it('does not set aria-required when neither Field nor required is set', () => {
+      render(<Switch aria-label="sw" />)
+      expect(screen.getByRole('switch')).not.toHaveAttribute('aria-required')
+    })
   })
 
   it('forwards className to the wrapper', () => {

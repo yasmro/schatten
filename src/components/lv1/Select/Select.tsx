@@ -86,6 +86,11 @@ const SelectTrigger = forwardRef<ComponentRef<typeof SelectPrimitive.Trigger>, S
         disabled={disabled}
         className={cn(selectTriggerVariants({ size }), className)}
         aria-invalid={isError || undefined}
+        // Announce-only: never emit `aria-required={undefined}`, which would
+        // clobber the `<Select required>`-derived value Radix sets from
+        // `context.required` (Radix spreads consumer props after its
+        // `aria-required`). The trigger button has no native `required`.
+        {...(field?.required ? { 'aria-required': true } : null)}
         aria-describedby={ariaDescribedBy}
         {...props}
       >

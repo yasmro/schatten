@@ -77,6 +77,11 @@ export const Checkbox = forwardRef<ElementRef<typeof CheckboxPrimitive.Root>, Ch
           id={id}
           className={cn(checkboxVariants({ size }))}
           aria-invalid={isError || undefined}
+          // Announce-only: never emit `aria-required={undefined}`, which would
+          // clobber Radix's own `required`-derived value (Radix spreads consumer
+          // props after its `aria-required`). Direct `required` flows via
+          // `...props` to Radix (hidden input + its own aria-required).
+          {...(field?.required ? { 'aria-required': true } : null)}
           aria-describedby={ariaDescribedBy}
           aria-labelledby={ariaLabelledBy}
           disabled={disabled}

@@ -73,6 +73,13 @@ export const RadioGroup = forwardRef<ElementRef<typeof RadioGroupPrimitive.Root>
           disabled={disabled}
           className={cn('st-radio-group', className)}
           aria-invalid={isError || undefined}
+          // Announce-only at the group root (not on items — required is a
+          // radiogroup-level concept). Never emit `aria-required={undefined}`,
+          // which would clobber Radix's own `required`-derived value (Radix
+          // spreads consumer props after its `aria-required`). Direct
+          // `required` flows via `...props` to Radix (hidden input + its own
+          // aria-required).
+          {...(field?.required ? { 'aria-required': true } : null)}
           aria-describedby={ariaDescribedBy}
           aria-labelledby={ariaLabelledBy}
           {...props}

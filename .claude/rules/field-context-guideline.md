@@ -12,6 +12,7 @@ interface FieldContextValue {
   labelId?: string     // Id of the Field-rendered <label> (undefined when Field has no label)
   isError: boolean     // Error state
   disabled: boolean    // Disabled state
+  required: boolean    // Required state — consumed as aria-required (announce-only)
   describedBy?: string // aria-describedby value (description/error ids)
 }
 ```
@@ -61,6 +62,67 @@ const ariaDescribedBy = field?.describedBy ?? ariaDescribedByProp
 const ariaLabelledBy =
   ariaLabelledByProp ?? (props['aria-label'] ? undefined : field?.labelId)
 ```
+
+## Required propagation via `aria-required` (announce-only)
+
+`Field.required` propagates to the wrapped control as `aria-required`,
+mirroring `isError → aria-invalid`. It is **announce-only**: it adds the
+ARIA flag so assistive tech announces "required", but it does **not** enable
+native validation. Native form-submission blocking (`<input required>`, the
+Radix hidden input) comes **only** from a `required` prop set directly on the
+control — Field never enables it. (Same philosophy as `isError`, which sets
+`aria-invalid` but never forces native `:invalid`.)
+
+Because of that split, **no control destructures `required`** — a direct
+`required` prop keeps flowing through `...props` to the native element / Radix
+Root (so native validation is preserved). The field-derived value is wired
+separately, with **two idioms depending on the control's substrate**:
+
+### native controls (Input, Textarea)
+
+A native `<input required>` already maps to the implicit ARIA required state,
+so a plain `|| undefined` next to `aria-invalid` is safe:
+
+```tsx
+aria-invalid={isError || undefined}
+aria-required={field?.required || undefined}   // omitted when falsy
+{...props}                                       // direct required → native
+```
+
+### Radix controls (Checkbox, Switch, RadioGroup, Select trigger) — conditional injection
+
+Radix's Checkbox / Switch / RadioGroup / Select **set their own
+`aria-required` from the `required` (/ `context.required`) prop and then spread
+consumer props *after* it**. That means a consumer-supplied
+`aria-required={undefined}` would **overwrite** (clobber) Radix's correct
+value. So these controls must **never emit `undefined`** — inject the attribute
+only when the field provides it:
+
+```tsx
+aria-invalid={isError || undefined}
+{...(field?.required ? { 'aria-required': true } : null)}   // never undefined
+{...props}                                                   // direct required → Radix
+```
+
+Worked example (Checkbox; the other three behave identically):
+
+| markup | field.required | direct `required` | injected | Radix's own | final `aria-required` | native validation |
+|---|---|---|---|---|---|---|
+| `<Checkbox required>` | — | true | nothing | `true` | **true** (Radix kept) | yes |
+| `<Field required><Checkbox/>` | true | — | `true` | false | **true** | no (announce-only) |
+| `<Field required={false}><Checkbox required/>` | false | true | nothing | `true` | **true** (not clobbered) | yes |
+| `<Checkbox/>` | false | — | nothing | false | omitted | no |
+
+The naive `aria-required={field?.required || undefined}` form (used for native
+controls) would fail rows 1 and 3 on a Radix control — the injected `undefined`
+clobbers Radix's `true`. A regression-guard unit test pins this for all four
+Radix controls. **Do not "unify" the two idioms onto the naive form.**
+
+`RadioGroup` wires `aria-required` at the **group root only** (the
+`role="radiogroup"` element); individual `Radio` items never carry it —
+`required` is a group-level concept. `Select` has no native `required` on the
+trigger button; its standalone path is `<Select required>` on the Root, which
+Radix reflects onto the combobox via `context.required`.
 
 ## Naming via `labelId` (self-labelled / group components)
 

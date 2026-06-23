@@ -222,6 +222,40 @@ describe('Input', () => {
       const describedBy = screen.getByRole('textbox').getAttribute('aria-describedby')
       expect(describedBy).toContain('-description')
     })
+
+    it('inherits required (aria-required) from Field', () => {
+      render(
+        <Field label="Email" required>
+          <Input />
+        </Field>,
+      )
+      expect(screen.getByRole('textbox')).toHaveAttribute('aria-required', 'true')
+    })
+
+    it('keeps the native required attribute when Field is not required', () => {
+      // announce-only: Field.required is false here, so no field-derived
+      // aria-required, but a direct `required` prop stays on the native input.
+      render(
+        <Field label="Email">
+          <Input required />
+        </Field>,
+      )
+      const input = screen.getByRole('textbox')
+      expect(input).toBeRequired()
+      expect(input).not.toHaveAttribute('aria-required')
+    })
+  })
+
+  describe('required', () => {
+    it('passes a direct required prop through to the native input', () => {
+      render(<Input aria-label="email" required />)
+      expect(screen.getByRole('textbox')).toBeRequired()
+    })
+
+    it('does not set aria-required when neither Field nor required is set', () => {
+      render(<Input aria-label="email" />)
+      expect(screen.getByRole('textbox')).not.toHaveAttribute('aria-required')
+    })
   })
 
   it('forwards className to the wrapper', () => {

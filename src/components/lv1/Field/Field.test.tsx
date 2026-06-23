@@ -13,6 +13,7 @@ function ContextConsumer() {
       <span data-testid="context-labelId">{context?.labelId ?? 'undefined'}</span>
       <span data-testid="context-isError">{String(context?.isError)}</span>
       <span data-testid="context-disabled">{String(context?.disabled)}</span>
+      <span data-testid="context-required">{String(context?.required)}</span>
       <span data-testid="context-describedBy">{context?.describedBy ?? 'undefined'}</span>
     </div>
   )
@@ -141,6 +142,24 @@ describe('Field', () => {
         </Field>,
       )
       expect(screen.getByTestId('context-disabled').textContent).toBe('false')
+    })
+
+    it('provides required=true when required prop is set', () => {
+      render(
+        <Field label="Email" required>
+          <ContextConsumer />
+        </Field>,
+      )
+      expect(screen.getByTestId('context-required').textContent).toBe('true')
+    })
+
+    it('provides required=false by default', () => {
+      render(
+        <Field label="Email">
+          <ContextConsumer />
+        </Field>,
+      )
+      expect(screen.getByTestId('context-required').textContent).toBe('false')
     })
 
     it('provides describedBy with description id when description is set', () => {

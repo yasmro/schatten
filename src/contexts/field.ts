@@ -15,6 +15,13 @@ export interface FieldContextValue {
   isError: boolean
   /** Disabled state */
   disabled: boolean
+  /**
+   * Required state. Consumed as `aria-required` (announce-only) by the wrapped
+   * control — it does NOT enable native validation. Native `required`
+   * (form-submission blocking) comes only from a `required` prop set directly
+   * on the control. Mirrors `isError → aria-invalid`.
+   */
+  required: boolean
   /** aria-describedby id list */
   describedBy?: string
 }

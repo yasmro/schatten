@@ -83,9 +83,10 @@ export function Field({
       labelId: hasLabel ? labelId : undefined,
       isError,
       disabled: effectiveDisabled,
+      required,
       describedBy,
     }),
-    [id, labelId, hasLabel, isError, effectiveDisabled, describedBy],
+    [id, labelId, hasLabel, isError, effectiveDisabled, required, describedBy],
   )
 
   return (

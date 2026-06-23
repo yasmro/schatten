@@ -208,6 +208,39 @@ describe('Checkbox', () => {
       render(<Checkbox aria-label="cb" isError />)
       expect(screen.getByRole('checkbox')).toHaveAttribute('aria-invalid', 'true')
     })
+
+    it('inherits required (aria-required) from Field', () => {
+      render(
+        <Field label="Terms" required>
+          <Checkbox aria-label="cb" />
+        </Field>,
+      )
+      expect(screen.getByRole('checkbox')).toHaveAttribute('aria-required', 'true')
+    })
+
+    it('does not clobber a direct required prop when Field is not required', () => {
+      // Regression guard: Field.required is false here, so we must inject
+      // nothing — emitting aria-required={undefined} would override the value
+      // Radix sets on the button from the `required` prop (PR #428).
+      render(
+        <Field label="Terms">
+          <Checkbox aria-label="cb" required />
+        </Field>,
+      )
+      expect(screen.getByRole('checkbox')).toHaveAttribute('aria-required', 'true')
+    })
+  })
+
+  describe('required', () => {
+    it('reflects a direct required prop as aria-required (Radix)', () => {
+      render(<Checkbox aria-label="cb" required />)
+      expect(screen.getByRole('checkbox')).toHaveAttribute('aria-required', 'true')
+    })
+
+    it('does not set aria-required when neither Field nor required is set', () => {
+      render(<Checkbox aria-label="cb" />)
+      expect(screen.getByRole('checkbox')).not.toHaveAttribute('aria-required')
+    })
   })
 
   it('forwards className to the wrapper element', () => {

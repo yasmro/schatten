@@ -46,6 +46,13 @@ import {
   Skeleton,
   Spinner,
   Switch,
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
   Tabs,
   TabsContent,
   TabsList,
@@ -315,6 +322,31 @@ export function ReactSamples() {
           <Avatar fallback="JD" size="sm" />
           <Avatar fallback="AB" size="md" />
           <Avatar fallback="CD" size="lg" />
+        </div>
+      </section>
+
+      <section className="cssapi-fixture__sample" data-component="table">
+        <span className="cssapi-fixture__sample-label">Table — .st-table</span>
+        <div style={{ width: '18rem' }}>
+          <Table striped bordered>
+            <TableCaption>Team members</TableCaption>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Name</TableHead>
+                <TableHead align="end">Role</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              <TableRow>
+                <TableCell>Taro Tanaka</TableCell>
+                <TableCell align="end">Admin</TableCell>
+              </TableRow>
+              <TableRow selected>
+                <TableCell>Hanako Sato</TableCell>
+                <TableCell align="end">Editor</TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
         </div>
       </section>
     </>

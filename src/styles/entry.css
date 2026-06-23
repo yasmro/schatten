@@ -100,6 +100,10 @@
  * @radix-ui/react-avatar; authors only its own block rules (no `.st-btn`
  * rules), so layer placement is not order-sensitive. */
 @import "../components/lv1/Avatar/Avatar.css";
+/* #152 — Table (`.st-table*` class API). Presentational-only compound (no
+ * Radix); authors only its own block rules (no `.st-btn` rules), so layer
+ * placement is not order-sensitive. */
+@import "../components/lv1/Table/Table.css";
 
 /* Class-based dark mode variant — matches `src/styles/globals.css` so
  * `.dark` toggling behaves identically in Storybook and in the dist. */

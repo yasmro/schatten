@@ -527,4 +527,29 @@ export const vanillaHtml = `
     <span class="st-avatar st-avatar--lg"><span class="st-avatar__fallback">CD</span></span>
   </div>
 </section>
+
+<section class="cssapi-fixture__sample" data-component="table">
+  <span class="cssapi-fixture__sample-label">Table — .st-table</span>
+  <div class="st-table-scroll" style="width: 18rem;">
+    <table class="st-table st-table--md st-table--striped st-table--bordered">
+      <caption class="st-table__caption">Team members</caption>
+      <thead class="st-table__header">
+        <tr class="st-table__row">
+          <th class="st-table__head st-table__head--start">Name</th>
+          <th class="st-table__head st-table__head--end">Role</th>
+        </tr>
+      </thead>
+      <tbody class="st-table__body">
+        <tr class="st-table__row">
+          <td class="st-table__cell st-table__cell--start">Taro Tanaka</td>
+          <td class="st-table__cell st-table__cell--end">Admin</td>
+        </tr>
+        <tr class="st-table__row" data-state="selected">
+          <td class="st-table__cell st-table__cell--start">Hanako Sato</td>
+          <td class="st-table__cell st-table__cell--end">Editor</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
 `

@@ -22,7 +22,7 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      - name: Biome CI
+      - name: Lint (oxlint + format check)
         run: pnpm lint
 
       # README's "Available components" list is derived from

@@ -1,0 +1,13 @@
+# oxfmt owns JS/TS/JSX/TSX — Prettier only formats CSS / JSON / MD / YAML
+**/*.ts
+**/*.tsx
+**/*.js
+**/*.mjs
+**/*.cjs
+
+dist
+node_modules
+storybook-static
+test-results
+pnpm-lock.yaml
+src/__generated__/schatten.manifest.json

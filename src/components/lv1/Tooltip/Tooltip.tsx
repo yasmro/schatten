@@ -15,8 +15,10 @@ const Tooltip = TooltipPrimitive.Root
 
 /* ----- Trigger ----- */
 
-export interface TooltipTriggerProps
-  extends Omit<ComponentPropsWithoutRef<typeof TooltipPrimitive.Trigger>, 'asChild'> {}
+export interface TooltipTriggerProps extends Omit<
+  ComponentPropsWithoutRef<typeof TooltipPrimitive.Trigger>,
+  'asChild'
+> {}
 
 const TooltipTrigger = forwardRef<
   ComponentRef<typeof TooltipPrimitive.Trigger>,
@@ -33,11 +35,10 @@ TooltipTrigger.displayName = TooltipPrimitive.Trigger.displayName
 
 /* ----- Content ----- */
 
-export interface TooltipContentProps
-  extends Omit<
-    ComponentPropsWithoutRef<typeof TooltipPrimitive.Content>,
-    'sideOffset' | 'alignOffset' | 'align'
-  > {
+export interface TooltipContentProps extends Omit<
+  ComponentPropsWithoutRef<typeof TooltipPrimitive.Content>,
+  'sideOffset' | 'alignOffset' | 'align'
+> {
   /**
    * The preferred side of the trigger to render the tooltip.
    * @default 'top'

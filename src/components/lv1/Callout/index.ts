@@ -1,6 +1,1 @@
-export {
-  Callout,
-  type CalloutAppearance,
-  type CalloutProps,
-  type CalloutVariant,
-} from './Callout'
+export { Callout, type CalloutAppearance, type CalloutProps, type CalloutVariant } from './Callout'

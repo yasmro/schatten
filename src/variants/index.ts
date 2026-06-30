@@ -6,11 +6,7 @@ export { type CardVariants, cardVariants } from './card'
 export { type CheckboxVariants, checkboxVariants } from './checkbox'
 export { type DropdownMenuItemVariants, dropdownMenuItemVariants } from './dropdown-menu'
 export { type FieldVariants, fieldVariants } from './field'
-export {
-  type FieldSetVariants,
-  fieldsetChildrenVariants,
-  fieldsetVariants,
-} from './fieldset'
+export { type FieldSetVariants, fieldsetChildrenVariants, fieldsetVariants } from './fieldset'
 export { type IconVariants, iconVariants } from './icon'
 export { type InputVariants, inputVariants, inputWrapperVariants } from './input'
 export { type RadioVariants, radioVariants } from './radio'

@@ -592,7 +592,7 @@ export const Reference: Story = {
         <Section
           id="callout"
           title="Callout — .st-callout"
-          intro="Inline status block. Pattern B (tone × shape): five variants × two appearances. Sub-elements (__icon / __content / __title / __body / __action) sit directly under the block — layout (display: flex) is on .st-callout itself, with align-items auto-switching between center (single-content) and start (multi-line, via :has()). No default ARIA role — pass role=&quot;status&quot; (polite) or role=&quot;alert&quot; (assertive) for dynamic callouts."
+          intro='Inline status block. Pattern B (tone × shape): five variants × two appearances. Sub-elements (__icon / __content / __title / __body / __action) sit directly under the block — layout (display: flex) is on .st-callout itself, with align-items auto-switching between center (single-content) and start (multi-line, via :has()). No default ARIA role — pass role="status" (polite) or role="alert" (assertive) for dynamic callouts.'
           attributes={[
             {
               name: 'role',
@@ -1772,7 +1772,7 @@ export const Reference: Story = {
         <Section
           id="table"
           title="Table — .st-table"
-          intro="Presentational-only data table (no sort / filter / pagination logic — compose a headless layer on top). Out of pattern: three orthogonal boolean treatments (--striped / --bordered / --hoverable) plus a --sm / --md / --lg density axis, all root modifiers that reach cells via descendant selectors. Cells carry their own align modifier (__cell--start / --center / --end, same for __head). Selection is a state attribute, not a class: .st-table__row[data-state=&quot;selected&quot;]. The table renders inside a .st-table-scroll container for horizontal overflow. Name the table with a __caption (or aria-label)."
+          intro='Presentational-only data table (no sort / filter / pagination logic — compose a headless layer on top). Out of pattern: three orthogonal boolean treatments (--striped / --bordered / --hoverable) plus a --sm / --md / --lg density axis, all root modifiers that reach cells via descendant selectors. Cells carry their own align modifier (__cell--start / --center / --end, same for __head). Selection is a state attribute, not a class: .st-table__row[data-state="selected"]. The table renders inside a .st-table-scroll container for horizontal overflow. Name the table with a __caption (or aria-label).'
         >
           <div className="cssapi-doc__row">
             <div className="st-table-scroll" style={{ width: '20rem' }}>

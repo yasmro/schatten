@@ -36,8 +36,10 @@ const PopoverAnchor = PopoverPrimitive.Anchor
  * styled trigger; for an icon-only trigger pass `aria-label` on that Button so
  * the trigger has an accessible name.
  */
-export interface PopoverTriggerProps
-  extends Omit<ComponentPropsWithoutRef<typeof PopoverPrimitive.Trigger>, 'asChild'> {}
+export interface PopoverTriggerProps extends Omit<
+  ComponentPropsWithoutRef<typeof PopoverPrimitive.Trigger>,
+  'asChild'
+> {}
 
 const PopoverTrigger = forwardRef<
   ComponentRef<typeof PopoverPrimitive.Trigger>,
@@ -54,8 +56,9 @@ PopoverTrigger.displayName = PopoverPrimitive.Trigger.displayName
 
 /* ----- Content ----- */
 
-export interface PopoverContentProps
-  extends ComponentPropsWithoutRef<typeof PopoverPrimitive.Content> {
+export interface PopoverContentProps extends ComponentPropsWithoutRef<
+  typeof PopoverPrimitive.Content
+> {
   /**
    * The preferred side of the trigger to render the popover against.
    * @default 'bottom'

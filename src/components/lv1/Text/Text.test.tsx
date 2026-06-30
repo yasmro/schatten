@@ -37,23 +37,17 @@ describe('Text', () => {
   })
 
   describe('as prop', () => {
-    it.each([
-      'h1',
-      'h2',
-      'h3',
-      'h4',
-      'h5',
-      'h6',
-      'span',
-      'p',
-    ] as const)('renders an <%s> element when as="%s"', (tag) => {
-      const { container } = render(
-        <Text variant="heading" as={tag}>
-          Heading
-        </Text>,
-      )
-      expect(container.firstElementChild?.tagName.toLowerCase()).toBe(tag)
-    })
+    it.each(['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'span', 'p'] as const)(
+      'renders an <%s> element when as="%s"',
+      (tag) => {
+        const { container } = render(
+          <Text variant="heading" as={tag}>
+            Heading
+          </Text>,
+        )
+        expect(container.firstElementChild?.tagName.toLowerCase()).toBe(tag)
+      },
+    )
   })
 
   describe('color', () => {

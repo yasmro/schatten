@@ -42,7 +42,8 @@ SelectValue.displayName = SelectPrimitive.Value.displayName
  * explicit `aria-label`.
  */
 export interface SelectTriggerProps
-  extends Omit<ComponentPropsWithoutRef<typeof SelectPrimitive.Trigger>, 'size' | 'asChild'>,
+  extends
+    Omit<ComponentPropsWithoutRef<typeof SelectPrimitive.Trigger>, 'size' | 'asChild'>,
     SelectTriggerVariants {
   /**
    * Size of the select trigger.
@@ -138,8 +139,9 @@ SelectScrollDownButton.displayName = SelectPrimitive.ScrollDownButton.displayNam
 
 /* ----- Content ----- */
 
-export interface SelectContentProps
-  extends ComponentPropsWithoutRef<typeof SelectPrimitive.Content> {
+export interface SelectContentProps extends ComponentPropsWithoutRef<
+  typeof SelectPrimitive.Content
+> {
   /**
    * Custom container element for the portal. Useful for rendering inside
    * a Dialog or Drawer.

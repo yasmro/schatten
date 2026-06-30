@@ -51,8 +51,10 @@ const DropdownMenuRadioGroup = DropdownMenuPrimitive.RadioGroup
  * a styled trigger; for an icon-only trigger pass `aria-label` on that
  * Button so the trigger has an accessible name.
  */
-export interface DropdownMenuTriggerProps
-  extends Omit<ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.Trigger>, 'asChild'> {}
+export interface DropdownMenuTriggerProps extends Omit<
+  ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.Trigger>,
+  'asChild'
+> {}
 
 const DropdownMenuTrigger = forwardRef<
   ComponentRef<typeof DropdownMenuPrimitive.Trigger>,
@@ -69,8 +71,9 @@ DropdownMenuTrigger.displayName = DropdownMenuPrimitive.Trigger.displayName
 
 /* ----- Content ----- */
 
-export interface DropdownMenuContentProps
-  extends ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.Content> {
+export interface DropdownMenuContentProps extends ComponentPropsWithoutRef<
+  typeof DropdownMenuPrimitive.Content
+> {
   /**
    * Custom container element for the portal. Useful for rendering inside
    * a Dialog or Drawer.
@@ -99,8 +102,7 @@ DropdownMenuContent.displayName = DropdownMenuPrimitive.Content.displayName
 /* ----- Item ----- */
 
 export interface DropdownMenuItemProps
-  extends ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.Item>,
-    DropdownMenuItemVariants {
+  extends ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.Item>, DropdownMenuItemVariants {
   /**
    * Visual role of the item.
    * - `default` — standard action
@@ -222,8 +224,9 @@ DropdownMenuShortcut.displayName = 'DropdownMenuShortcut'
 
 /* ----- SubTrigger ----- */
 
-export interface DropdownMenuSubTriggerProps
-  extends ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.SubTrigger> {
+export interface DropdownMenuSubTriggerProps extends ComponentPropsWithoutRef<
+  typeof DropdownMenuPrimitive.SubTrigger
+> {
   /**
    * Leading Lucide icon component, rendered `aria-hidden` before the label.
    */

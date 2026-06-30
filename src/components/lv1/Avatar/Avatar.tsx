@@ -5,7 +5,8 @@ import { type AvatarVariants, avatarVariants } from '../../../variants/avatar'
 import './Avatar.css'
 
 export interface AvatarProps
-  extends Omit<ComponentPropsWithoutRef<typeof AvatarPrimitive.Root>, 'asChild' | 'children'>,
+  extends
+    Omit<ComponentPropsWithoutRef<typeof AvatarPrimitive.Root>, 'asChild' | 'children'>,
     AvatarVariants {
   /**
    * Image URL. When omitted — or when the image fails to load — the `fallback`

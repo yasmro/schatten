@@ -12,8 +12,7 @@ import { type SwitchVariants, switchThumbVariants, switchVariants } from '../../
 import './Switch.css'
 
 export interface SwitchProps
-  extends Omit<ComponentPropsWithoutRef<typeof SwitchPrimitive.Root>, 'size'>,
-    SwitchVariants {
+  extends Omit<ComponentPropsWithoutRef<typeof SwitchPrimitive.Root>, 'size'>, SwitchVariants {
   /**
    * Size of the switch.
    * @default 'md'

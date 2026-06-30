@@ -12,8 +12,7 @@ import { type CheckboxVariants, checkboxVariants } from '../../../variants/check
 import './Checkbox.css'
 
 export interface CheckboxProps
-  extends Omit<ComponentPropsWithoutRef<typeof CheckboxPrimitive.Root>, 'size'>,
-    CheckboxVariants {
+  extends Omit<ComponentPropsWithoutRef<typeof CheckboxPrimitive.Root>, 'size'>, CheckboxVariants {
   /**
    * Size of the checkbox.
    * @default 'md'

@@ -1,12 +1,7 @@
 export { Avatar, type AvatarProps } from './Avatar'
 export { Badge, type BadgeProps } from './Badge'
 export { Button, type ButtonProps } from './Button'
-export {
-  Callout,
-  type CalloutAppearance,
-  type CalloutProps,
-  type CalloutVariant,
-} from './Callout'
+export { Callout, type CalloutAppearance, type CalloutProps, type CalloutVariant } from './Callout'
 export {
   Card,
   CardContent,

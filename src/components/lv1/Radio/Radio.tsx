@@ -96,8 +96,7 @@ RadioGroup.displayName = 'RadioGroup'
 /* ----- Radio ----- */
 
 export interface RadioProps
-  extends Omit<ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Item>, 'size'>,
-    RadioVariants {
+  extends Omit<ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Item>, 'size'>, RadioVariants {
   /**
    * Size of the radio button. Inherited from the parent `RadioGroup` if not set.
    * @default 'md'

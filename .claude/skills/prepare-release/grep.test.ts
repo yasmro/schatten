@@ -61,9 +61,7 @@ function listParityStoryComponents(): string[] {
   return readdirSync(lv1Dir, { withFileTypes: true })
     .filter((d) => d.isDirectory())
     .map((d) => d.name)
-    .filter((name) =>
-      existsSync(join(lv1Dir, name, `${name}.parity.stories.tsx`)),
-    )
+    .filter((name) => existsSync(join(lv1Dir, name, `${name}.parity.stories.tsx`)))
     .sort()
 }
 

@@ -5,8 +5,7 @@ import { type TextareaVariants, textareaVariants } from '../../../variants/texta
 import './Textarea.css'
 
 export interface TextareaProps
-  extends Omit<TextareaHTMLAttributes<HTMLTextAreaElement>, 'size'>,
-    TextareaVariants {
+  extends Omit<TextareaHTMLAttributes<HTMLTextAreaElement>, 'size'>, TextareaVariants {
   /**
    * Size of the textarea.
    * @default 'md'

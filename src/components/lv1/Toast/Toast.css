@@ -154,11 +154,10 @@
   .st-toast:has(.st-toast__title):has(.st-toast__description) .st-toast__icon {
     margin-top: calc(
       (
-        var(--schatten-toast-title-size) *
-        var(--schatten-toast-title-leading) -
-        var(--schatten-toast-icon-size)
-      ) /
-      2
+          var(--schatten-toast-title-size) * var(--schatten-toast-title-leading) -
+            var(--schatten-toast-icon-size)
+        ) /
+        2
     );
   }
 

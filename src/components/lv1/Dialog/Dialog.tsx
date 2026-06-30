@@ -154,6 +154,7 @@ function Body({ children }: { children: ReactNode }) {
   }, [])
 
   return (
+    // oxlint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- a scrollable body is intentionally focusable so keyboard users can scroll it (WAI-ARIA APG scrollable-region pattern)
     <div ref={ref} className="st-dialog__body" tabIndex={isScrollable ? 0 : undefined}>
       {children}
     </div>

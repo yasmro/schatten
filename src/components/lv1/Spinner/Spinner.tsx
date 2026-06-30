@@ -77,6 +77,7 @@ export const Spinner = forwardRef<HTMLDivElement, SpinnerProps>(
     return (
       <div
         className={cn(spinnerVariants({ variant, size }), className)}
+        // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- role="status" is the a11y contract for Spinner (component-architecture.md §8); not an <output> form element
         role="status"
         ref={ref}
         {...props}

@@ -139,11 +139,10 @@
   .st-callout:has(.st-callout__title):has(.st-callout__body) .st-callout__icon {
     margin-top: calc(
       (
-        var(--schatten-callout-title-size) *
-        var(--schatten-callout-title-leading) -
-        var(--schatten-callout-icon-size)
-      ) /
-      2
+          var(--schatten-callout-title-size) * var(--schatten-callout-title-leading) -
+            var(--schatten-callout-icon-size)
+        ) /
+        2
     );
   }
 

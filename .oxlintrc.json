@@ -1,0 +1,81 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["react", "typescript", "unicorn", "oxc", "jsx-a11y"],
+  "jsPlugins": ["./oxlint-plugins/no-primitive-color.js"],
+  "categories": {
+    "correctness": "error"
+  },
+  "rules": {
+    "react-hooks/exhaustive-deps": "error",
+    "no-unused-vars": "error",
+    "typescript/consistent-type-imports": "error",
+    "typescript/consistent-type-exports": "error",
+    "typescript/no-non-null-assertion": "warn",
+    "no-console": ["error", { "allow": ["warn", "error"] }]
+  },
+  "ignorePatterns": [
+    "dist",
+    "node_modules",
+    "storybook-static",
+    "test-results",
+    "src/__generated__/schatten.manifest.json",
+    "scripts/**/*.mjs",
+    "examples/**",
+    "*.mjs",
+    "*.cjs"
+  ],
+  "overrides": [
+    {
+      "files": ["src/components/**/*.tsx"],
+      "rules": {
+        "schatten/no-primitive-color": "error"
+      }
+    },
+    {
+      "files": ["**/*.stories.tsx", "**/*.test.tsx"],
+      "rules": {
+        "schatten/no-primitive-color": "off",
+        "jsx-a11y/prefer-tag-over-role": "off",
+        "jsx-a11y/control-has-associated-label": "off",
+        "jsx-a11y/no-static-element-interactions": "off",
+        "jsx-a11y/click-events-have-key-events": "off",
+        "jsx-a11y/label-has-associated-control": "off",
+        "jsx-a11y/role-supports-aria-props": "off",
+        "unicorn/no-useless-spread": "off"
+      }
+    },
+    {
+      "files": ["**/*.vrt.spec.ts"],
+      "rules": {
+        "typescript/consistent-type-imports": "off"
+      }
+    },
+    {
+      "files": [
+        "src/core/**",
+        "src/variants/**",
+        "src/themes/**",
+        "src/tokens.ts",
+        "src/theme-init.ts"
+      ],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "paths": [
+              {
+                "name": "react",
+                "message": "core / variants / themes must stay framework-free. See .claude/rules/lint-rules-guideline.md."
+              },
+              {
+                "name": "react-dom",
+                "message": "core / variants / themes must stay framework-free."
+              }
+            ],
+            "patterns": ["react/*", "react-dom/*", "@radix-ui/*"]
+          }
+        ]
+      }
+    }
+  ]
+}

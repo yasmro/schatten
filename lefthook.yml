@@ -1,9 +1,17 @@
 pre-commit:
   parallel: true
   jobs:
-    - name: biome check
-      glob: "*.{js,ts,jsx,tsx,json,css}"
-      run: pnpm biome check --no-errors-on-unmatched --files-ignore-unknown=true {staged_files}
+    - name: oxlint
+      glob: "*.{js,ts,jsx,tsx}"
+      run: pnpm oxlint -c .oxlintrc.json {staged_files}
+
+    - name: oxfmt
+      glob: "*.{js,ts,jsx,tsx}"
+      run: pnpm oxfmt --check --ignore-path .gitignore --no-error-on-unmatched-pattern {staged_files}
+
+    - name: prettier
+      glob: "*.{css,json}"
+      run: pnpm prettier --check {staged_files}
 
     - name: typecheck
       run: pnpm typecheck

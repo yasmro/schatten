@@ -5,18 +5,24 @@ import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { afterAll, describe, expect, it } from 'vitest'
 
-// The `no-primitive-color` GritQL plugin has no JS API, so it is exercised
-// the way a consumer would hit it: run `biome lint` over a fixture file and
-// assert on the emitted diagnostics. Each fixture is written into a throwaway
-// temp dir with a minimal biome.json that loads the plugin by absolute path.
+// The `no-primitive-color` oxlint JS plugin is exercised the way a consumer
+// would hit it: run `oxlint` over a fixture file with a minimal config that
+// loads the plugin by absolute path, and assert on the emitted diagnostics.
+// (Port of the former Biome GritQL plugin test.)
 
 const here = dirname(fileURLToPath(import.meta.url))
 const repoRoot = resolve(here, '..')
-const pluginPath = join(here, 'no-primitive-color.grit')
-const biomeBin = join(repoRoot, 'node_modules', '.bin', 'biome')
+const pluginPath = join(here, 'no-primitive-color.js')
+const oxlintBin = join(repoRoot, 'node_modules', '.bin', 'oxlint')
 
 const workdir = mkdtempSync(join(tmpdir(), 'schatten-no-primitive-color-'))
-writeFileSync(join(workdir, 'biome.json'), JSON.stringify({ plugins: [pluginPath] }))
+writeFileSync(
+  join(workdir, '.oxlintrc.json'),
+  JSON.stringify({
+    jsPlugins: [pluginPath],
+    rules: { 'schatten/no-primitive-color': 'error' },
+  }),
+)
 
 afterAll(() => rmSync(workdir, { recursive: true, force: true }))
 
@@ -26,9 +32,12 @@ function countViolations(code: string): number {
   writeFileSync(file, code)
   let output = ''
   try {
-    // biome prints diagnostics to stderr and exits non-zero (throwing here)
-    // whenever a violation is found.
-    execFileSync(biomeBin, ['lint', '--colors=off', file], { cwd: workdir, encoding: 'utf8' })
+    // oxlint prints diagnostics and exits non-zero (throwing here) whenever a
+    // violation is found.
+    output = execFileSync(oxlintBin, ['-c', '.oxlintrc.json', file], {
+      cwd: workdir,
+      encoding: 'utf8',
+    })
   } catch (error) {
     const { stdout, stderr } = error as { stdout?: string; stderr?: string }
     output = `${stdout ?? ''}${stderr ?? ''}`
@@ -112,9 +121,9 @@ describe('no-primitive-color plugin', () => {
   })
 
   describe('suppression', () => {
-    it('is silenced by a // biome-ignore lint/plugin comment', () => {
+    it('is silenced by an oxlint-disable-next-line comment', () => {
       const code = [
-        '// biome-ignore lint/plugin: documenting the primitive palette',
+        '// oxlint-disable-next-line schatten/no-primitive-color -- documenting the primitive palette',
         'export const A = () => <div className="bg-red-500" />',
       ].join('\n')
       expect(countViolations(code)).toBe(0)

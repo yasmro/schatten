@@ -7,8 +7,7 @@ import { type InputVariants, inputVariants, inputWrapperVariants } from '../../.
 import './Input.css'
 
 export interface InputProps
-  extends Omit<InputHTMLAttributes<HTMLInputElement>, 'size'>,
-    InputVariants {
+  extends Omit<InputHTMLAttributes<HTMLInputElement>, 'size'>, InputVariants {
   /**
    * Size of the input.
    * @default 'md'
@@ -79,8 +78,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     }
 
     return (
-      // biome-ignore lint/a11y/noStaticElementInteractions: Wrapper delegates focus to input
-      // biome-ignore lint/a11y/useKeyWithClickEvents: Input handles keyboard events
+      // oxlint-disable-next-line jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events -- wrapper delegates focus to input; input handles keyboard events
       <div className={cn(inputWrapperVariants({ size }), className)} onClick={handleWrapperClick}>
         {textLeft && <span className="st-input__text-left">{textLeft}</span>}
         {LeftIcon && <LeftIcon className="st-input__icon-left" aria-hidden="true" />}

@@ -7,7 +7,7 @@ export default defineConfig({
     setupFiles: ['./vitest.setup.ts'],
     include: [
       'src/**/*.test.{ts,tsx}',
-      'biome-plugins/**/*.test.ts',
+      'oxlint-plugins/**/*.test.ts',
       'scripts/**/*.test.ts',
       '.claude/skills/**/*.test.ts',
     ],

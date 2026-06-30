@@ -197,7 +197,10 @@ export function ThemeProvider({
   // `defaultMode` / `defaultSpecial` / `persistKey` are intentionally
   // captured as initial values here — re-running the hydration effect
   // when those props change would clobber the user's current selection.
-  // biome-ignore lint/correctness/useExhaustiveDependencies: mount-only by design
+  // oxlint-disable-next-line react-hooks/exhaustive-deps -- mount-only by design (oxlint reports
+  // at the first missing-dep usage, not the deps array, so disable-next-line on the hook line is
+  // not enough — a block disable/enable wraps the whole effect).
+  /* oxlint-disable react-hooks/exhaustive-deps */
   useEffect(() => {
     let nextSetting: ThemeModeSetting = defaultMode
     let nextSpecial: SpecialThemeId | null = resolveInitialSpecial(defaultSpecial)
@@ -225,6 +228,7 @@ export function ThemeProvider({
     applyToDocument(nextMode, nextSpecial)
     setIsHydrated(true)
   }, [])
+  /* oxlint-enable react-hooks/exhaustive-deps */
 
   // matchMedia subscription — only active while `modeSetting === 'system'`.
   useEffect(() => {

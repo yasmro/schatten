@@ -30,7 +30,7 @@ export function ThemeInitScript({ nonce, storageKey = 'schatten-theme' }: ThemeI
   const script =
     storageKey === 'schatten-theme' ? THEME_INIT_SCRIPT : buildThemeInitScript(storageKey)
   return (
-    // biome-ignore lint/security/noDangerouslySetInnerHtml: the inline FOUC snippet is the entire purpose of this component — the bytes are built in init-script.ts (storageKey is JSON-escaped, `<`→<) and pinned by fouc-snippet.test.ts.
+    // oxlint-disable-next-line react/no-danger -- the inline FOUC snippet is the entire purpose of this component — the bytes are built in init-script.ts (storageKey is JSON-escaped, `<`→<) and pinned by fouc-snippet.test.ts.
     <script nonce={nonce} dangerouslySetInnerHTML={{ __html: script }} />
   )
 }

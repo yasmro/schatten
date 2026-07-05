@@ -3,7 +3,9 @@
 // companion files (tsx / css / stories / test / vrt / index / __snapshots__
 // baseline / barrel re-export, plus parity story+spec for the components
 // in classification A/B per .claude/rules/vrt-spec-guideline.md
-// §"Parity stories — when to write one, when to skip").
+// §"Parity stories — when to write one, when to skip", plus a
+// non-screenshot Playwright interaction test for classification C/D per
+// §"区分 C/D (JS 必須) — a Playwright interaction test is REQUIRED").
 //
 // This is the *library-wide periodic* counterpart to the existing
 // edit-trigger / session-end hooks:
@@ -84,6 +86,7 @@ const REQUIRED_KEYS = /** @type {const} */ ([
   'stories',
   'test',
   'vrt',
+  'interaction',
   'index',
   'snap',
   'export',
@@ -100,6 +103,7 @@ const PARITY_KEYS = /** @type {const} */ (['parityStories', 'parityVrt', 'parity
  *   stories: CellState,
  *   test: CellState,
  *   vrt: CellState,
+ *   interaction: CellState,
  *   index: CellState,
  *   snap: CellState,
  *   export: CellState,
@@ -179,6 +183,51 @@ export function parseFixtureSlugs(fixturePath) {
   return slugs
 }
 
+// Splits a spec source at every `test(` callsite; each fragment approximates
+// one test block (title + body up to the next `test(`). `\btest\(` skips
+// `test.describe(` / `expect(...).test` shapes and prose like "unit tests (".
+const TEST_BLOCK_SPLIT_RE = /(?=\btest\()/
+const TEST_TITLE_RE = /^test\(\s*(['"`])([\s\S]*?)\1/
+
+/**
+ * Heuristic for the 区分 C/D requirement (vrt-spec-guideline §"区分 C/D
+ * (JS 必須) — a Playwright interaction test is REQUIRED"): scan every
+ * `*.vrt.spec.ts` in the component directory (including a separate
+ * `{Name}.interaction.vrt.spec.ts` like DropdownMenu's) for at least one
+ * test block that is neither a screenshot test (`toHaveScreenshot`) nor an
+ * a11y test (`a11y` in the title — the same marker `pnpm test:a11y` greps).
+ * Pinned to the repo's spec conventions; a `test(` whose body merely
+ * *mentions* toHaveScreenshot in a comment would be a false negative, which
+ * is the safe direction (audit asks for a real interaction test).
+ *
+ * @param {string} componentDir absolute path
+ * @returns {boolean}
+ */
+export function hasInteractionTest(componentDir) {
+  /** @type {string[]} */
+  let specs = []
+  try {
+    specs = readdirSync(componentDir).filter((f) => f.endsWith('.vrt.spec.ts'))
+  } catch {
+    return false
+  }
+  for (const file of specs) {
+    let source = ''
+    try {
+      source = readFileSync(path.join(componentDir, file), 'utf8')
+    } catch {
+      continue
+    }
+    const blocks = source.split(TEST_BLOCK_SPLIT_RE).filter((b) => b.startsWith('test('))
+    for (const block of blocks) {
+      const title = block.match(TEST_TITLE_RE)?.[2] ?? ''
+      if (title.includes('a11y')) continue
+      if (!block.includes('toHaveScreenshot')) return true
+    }
+  }
+  return false
+}
+
 /**
  * Audit a single component directory. The I/O surface is small —
  * callers wire `componentDir` (absolute path) and the `exported` /
@@ -211,6 +260,7 @@ export function auditComponent({ name, componentDir, exported, exempt, fixtureSl
     stories: 'na',
     test: 'na',
     vrt: 'na',
+    interaction: 'na',
     index: 'na',
     snap: 'na',
     export: 'na',
@@ -225,6 +275,10 @@ export function auditComponent({ name, componentDir, exported, exempt, fixtureSl
     files.stories = cell(present(`${name}.stories.tsx`))
     files.test = cell(present(`${name}.test.tsx`))
     files.vrt = cell(present(`${name}.vrt.spec.ts`))
+    // 区分 C/D (== the parity-exempt set: interactive, JS-required) must ship
+    // a non-screenshot Playwright interaction test; 区分 A/B stay `na` — their
+    // real-browser contract is pinned by the parity series instead.
+    files.interaction = exempt ? cell(hasInteractionTest(componentDir)) : 'na'
     files.index = cell(present('index.ts'))
     files.snap = cell(countSnapshots(componentDir, (n) => !n.startsWith('parity-')) >= 1)
     files.export = cell(exported)
@@ -257,6 +311,11 @@ export function auditComponent({ name, componentDir, exported, exempt, fixtureSl
   if (files.stories === 'missing') missing.push(`${name}.stories.tsx`)
   if (files.test === 'missing') missing.push(`${name}.test.tsx`)
   if (files.vrt === 'missing') missing.push(`${name}.vrt.spec.ts`)
+  if (files.interaction === 'missing') {
+    missing.push(
+      `non-screenshot Playwright interaction test in a *.vrt.spec.ts (区分 C/D — vrt-spec-guideline)`,
+    )
+  }
   if (files.index === 'missing') missing.push('index.ts')
   if (files.snap === 'missing') missing.push('__snapshots__/*.png (no baseline captured)')
   if (files.export === 'missing') missing.push('src/components/lv1/index.ts re-export')
@@ -323,9 +382,9 @@ export function renderTable(rows, opts = {}) {
     lines.push(`lv1 components: ${total} — required ✓ ${allOk} / missing ✗ ${broken}`)
     lines.push('')
     lines.push(
-      '| Component | tsx | css | stories | test | vrt | index | snap | export | cssapi.fx | parity.stories | parity.vrt | parity.snap |',
+      '| Component | tsx | css | stories | test | vrt | interaction | index | snap | export | cssapi.fx | parity.stories | parity.vrt | parity.snap |',
     )
-    lines.push('|---|---|---|---|---|---|---|---|---|---|---|---|---|')
+    lines.push('|---|---|---|---|---|---|---|---|---|---|---|---|---|---|')
     for (const row of rows) {
       const cells = REQUIRED_KEYS.map((k) => CELL_GLYPH[row.files[k]])
         .concat(PARITY_KEYS.map((k) => CELL_GLYPH[row.files[k]]))
@@ -360,6 +419,9 @@ export function renderTable(rows, opts = {}) {
     lines.push('- Run `/add-lv1-component` to scaffold missing companions for a new lv1.')
     lines.push(
       '- For an existing lv1 missing only the VRT spec, run `/add-vrt-spec` then `pnpm test:vrt` to capture baselines.',
+    )
+    lines.push(
+      '- For a 区分 C/D component missing its interaction test, add a non-screenshot Playwright test driving the primary operation (see vrt-spec-guideline §区分 C/D; Toast / Popover / Select are the patterns to copy). No baseline needed.',
     )
     lines.push('- For barrel-export drift, add the matching `export { ... } from \'./{Name}\'` line to `src/components/lv1/index.ts`.')
     lines.push('')

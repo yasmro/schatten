@@ -56,3 +56,42 @@ for (const story of stories) {
     })
   }
 }
+
+/**
+ * Behavioral (non-screenshot) regression guards — required for 区分 C (静的
+ * 描画のみ) components per vrt-spec-guideline. The screenshot tests above pin
+ * `open`-forced stories, so real hover / focus triggering was never exercised
+ * in a real browser (jsdom fires synthetic events; portal hit-testing and
+ * pointer semantics differ — the #318 failure shape). Note the guideline's
+ * "hover simulation is unreliable" caveat applies to *screenshot timing* only;
+ * a non-screenshot visibility assert is fine. The `playground` story mounts
+ * closed under `TooltipProvider delayDuration={100}` (the meta decorator).
+ * These run under `pnpm test:vrt` (no `a11y` in the name) and take no
+ * screenshots, so they need no baseline.
+ */
+test('Tooltip / shows on real hover and hides on unhover', async ({ page }) => {
+  await page.goto(storyUrl('playground', 'light'))
+  await page.waitForLoadState('networkidle')
+
+  await page.getByRole('button', { name: 'Hover me' }).hover()
+  // The 100ms open delay is absorbed by the auto-waiting assertion.
+  await expect(page.getByRole('tooltip')).toBeVisible()
+
+  // Move away in steps: Radix's hoverable-content grace polygon only closes on
+  // a pointermove that lands outside it, so a single teleporting move (the
+  // Playwright default) fires pointerleave but never a follow-up move — the
+  // tooltip would stay open forever. Head down-left, away from the side="top"
+  // content, so the path exits the trigger→content polygon quickly.
+  await page.mouse.move(10, 400, { steps: 10 })
+  await expect(page.getByRole('tooltip')).toHaveCount(0)
+})
+
+test('Tooltip / shows on keyboard focus', async ({ page }) => {
+  await page.goto(storyUrl('playground', 'light'))
+  await page.waitForLoadState('networkidle')
+
+  // Tab (not a programmatic .focus()) so the trigger matches :focus-visible —
+  // Radix only opens on focus-visible focus.
+  await page.keyboard.press('Tab')
+  await expect(page.getByRole('tooltip')).toBeVisible()
+})

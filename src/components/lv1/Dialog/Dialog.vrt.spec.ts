@@ -108,3 +108,40 @@ for (const story of stories) {
     })
   }
 }
+
+/**
+ * Behavioral (non-screenshot) regression guards — required for 区分 D (JS 必須)
+ * components per vrt-spec-guideline. The X close button is an icon-only Button
+ * whose click target is the inner Lucide <svg> — the exact failure shape that
+ * shipped broken in #318 while jsdom unit tests and static VRT stayed green.
+ * These run under `pnpm test:vrt` (no `a11y` in the name) and take no
+ * screenshots, so they need no baseline.
+ */
+test('Dialog / opens on trigger click and closes via the X close button', async ({ page }) => {
+  await page.goto(storyUrl('confirm', 'light'))
+  await page.waitForLoadState('networkidle')
+
+  await page.getByRole('button', { name: 'Open' }).click()
+  await expect(page.getByRole('dialog')).toBeVisible()
+
+  await page.getByRole('button', { name: 'Close' }).click()
+  await expect(page.getByRole('dialog')).toHaveCount(0)
+})
+
+test('Dialog / cancel and action buttons close the dialog on real click', async ({ page }) => {
+  await page.goto(storyUrl('confirm', 'light'))
+  await page.waitForLoadState('networkidle')
+
+  await page.getByRole('button', { name: 'Open' }).click()
+  await expect(page.getByRole('dialog')).toBeVisible()
+  await page.getByRole('button', { name: 'Cancel' }).click()
+  await expect(page.getByRole('dialog')).toHaveCount(0)
+
+  // Re-open (the trigger's aria-hidden is lifted once the overlay unmounts) and
+  // drive the action button. The story's onClick is `setIsOpen(false)`, so the
+  // dialog closing IS the proof that `actionButton.onClick` fired.
+  await page.getByRole('button', { name: 'Open' }).click()
+  await expect(page.getByRole('dialog')).toBeVisible()
+  await page.getByRole('button', { name: 'Save' }).click()
+  await expect(page.getByRole('dialog')).toHaveCount(0)
+})

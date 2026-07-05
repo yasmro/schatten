@@ -261,6 +261,18 @@ for the canonical list and rationale. This step pivots on those bumps:
 | `tailwindcss` | The Tailwind v4 compiler's `@layer theme` emission rules can shift between minor versions. The manifest's `cssVariables` section is extracted from that block, so a Tailwind bump can silently add or drop variables from the public surface. | `pnpm build && pnpm check:manifest` |
 | `vite` | Vite builds the Storybook the VRT specs screenshot against **and** is the Vitest runtime. A major bump can shift font / antialiasing / sub-pixel rendering across the **whole** suite, drifting every `*.png` baseline at once (not one parity story — all of them). It is pinned exact in `package.json`. A Vitest major can also force a Vite major via peer (`vite >= 6` for Vitest 4 — see [#254](https://github.com/yasmro/schatten/issues/254)), so check `vite` whenever `vitest` bumps too. | `pnpm build:storybook` (builder health) + full `pnpm test:vrt`, then triage per [vrt-spec-guideline §Bulk re-baseline](../../rules/vrt-spec-guideline.md#re-baselining-updating-snapshots) |
 
+> **Type-surface detection for any `@radix-ui/*` bump (since #156).** The
+> public Props types no longer inherit from Radix — each component redeclares
+> its curated props and **spreads them into the Radix primitive**, so a Radix
+> bump that renames or narrows a prop fails `pnpm typecheck` (already part of
+> Step 2's quality gate). That makes typecheck the **first detector** for
+> Radix API drift; the parity / VRT rows above remain the detector for
+> *visual/attribute* drift. If typecheck fails after a Radix bump, fix the
+> curated redeclaration (or the spread site) per
+> [`api-stability.md` §Radix type boundary](../../rules/api-stability.md#radix-type-boundary-anti-corruption-layer)
+> — never by re-inheriting the Radix type (the
+> `radix-type-boundary.test.tsx` drift guard rejects that).
+
 Detect bumps by diffing the **last released tag's** `package.json` against
 `HEAD`:
 

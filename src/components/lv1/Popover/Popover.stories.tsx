@@ -103,12 +103,12 @@ export const SettingsPanel: Story = {
             </label>
           </div>
           <div className="flex justify-end gap-2">
-            <PopoverClose asChild>
+            <PopoverClose>
               <Button variant="tertiary" size="sm">
                 Cancel
               </Button>
             </PopoverClose>
-            <PopoverClose asChild>
+            <PopoverClose>
               <Button size="sm">Save</Button>
             </PopoverClose>
           </div>
@@ -183,7 +183,7 @@ export const WithAnchor: Story = {
     return (
       <div className="flex flex-col items-center gap-6 py-8">
         <Popover open={open} onOpenChange={setOpen}>
-          <PopoverAnchor asChild>
+          <PopoverAnchor>
             <div className="rounded border border-border-strong px-6 py-3 text-sm text-foreground-muted">
               Positioning anchor
             </div>

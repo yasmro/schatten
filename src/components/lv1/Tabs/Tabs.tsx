@@ -2,7 +2,6 @@ import * as TabsPrimitive from '@radix-ui/react-tabs'
 import type { LucideIcon } from 'lucide-react'
 import {
   type ComponentPropsWithoutRef,
-  type ComponentRef,
   type CSSProperties,
   forwardRef,
   useCallback,
@@ -25,11 +24,24 @@ const useIsoLayoutEffect = typeof window !== 'undefined' ? useLayoutEffect : use
 /**
  * Props for the Tabs root.
  *
- * `value` / `defaultValue` / `onValueChange` come from Radix and cover the
- * controlled and uncontrolled modes. The two props below are redeclared from
- * Radix purely to attach TSDoc and pin the closed enums.
+ * Public props are native `<div>` props plus curated redeclarations — Radix
+ * types never appear in the public signature (api-stability.md §Radix type
+ * boundary). `dir` is omitted from the base: RTL support is out of scope and
+ * the wider HTML `dir: string` would not satisfy Radix's `'ltr' | 'rtl'`.
  */
-export interface TabsProps extends ComponentPropsWithoutRef<typeof TabsPrimitive.Root> {
+export interface TabsProps extends Omit<ComponentPropsWithoutRef<'div'>, 'dir'> {
+  /**
+   * The active tab's value (controlled).
+   */
+  value?: string
+  /**
+   * The initially active tab's value (uncontrolled).
+   */
+  defaultValue?: string
+  /**
+   * Fired when the active tab changes.
+   */
+  onValueChange?: (value: string) => void
   /**
    * Orientation of the tabs. Controls arrow-key direction (Left/Right for
    * horizontal, Up/Down for vertical) and the list layout. Radix mirrors the
@@ -48,16 +60,22 @@ export interface TabsProps extends ComponentPropsWithoutRef<typeof TabsPrimitive
   activationMode?: 'automatic' | 'manual'
 }
 
-const Tabs = forwardRef<ComponentRef<typeof TabsPrimitive.Root>, TabsProps>(
-  ({ className, ...props }, ref) => (
-    <TabsPrimitive.Root ref={ref} className={cn('st-tabs', className)} {...props} />
-  ),
-)
+const Tabs = forwardRef<HTMLDivElement, TabsProps>(({ className, ...props }, ref) => (
+  <TabsPrimitive.Root ref={ref} className={cn('st-tabs', className)} {...props} />
+))
 Tabs.displayName = TabsPrimitive.Root.displayName
 
 /* ----- List ----- */
 
 type IndicatorPosition = { vertical: boolean; offset: number; size: number } | null
+
+export interface TabsListProps extends ComponentPropsWithoutRef<'div'> {
+  /**
+   * Whether arrow-key navigation loops from the last tab back to the first.
+   * @default true
+   */
+  loop?: boolean
+}
 
 /**
  * The tablist. Renders a single sliding `.st-tabs__indicator` that animates to
@@ -66,114 +84,120 @@ type IndicatorPosition = { vertical: boolean; offset: number; size: number } | n
  * of controlled / uncontrolled / keyboard-driven changes. The per-trigger
  * border is only a hover preview; the active marker is this indicator.
  */
-const TabsList = forwardRef<
-  ComponentRef<typeof TabsPrimitive.List>,
-  ComponentPropsWithoutRef<typeof TabsPrimitive.List>
->(({ className, children, ...props }, ref) => {
-  const listRef = useRef<HTMLDivElement>(null)
-  // Stable merged ref so the List ref isn't detached/re-attached every render.
-  const setListRef = useCallback(
-    (node: HTMLDivElement | null) => {
-      listRef.current = node
-      if (typeof ref === 'function') ref(node)
-      else if (ref) ref.current = node
-    },
-    [ref],
-  )
-  const [position, setPosition] = useState<IndicatorPosition>(null)
-  // Transitions stay off until the first measurement lands, so the indicator
-  // appears at the active tab instead of sliding in from the corner on mount.
-  const [animated, setAnimated] = useState(false)
-  // Tracks the last active tab so scroll-into-view only fires when the
-  // selection changes, never on every resize re-measure.
-  const lastActiveRef = useRef<string | null>(null)
+const TabsList = forwardRef<HTMLDivElement, TabsListProps>(
+  ({ className, children, ...props }, ref) => {
+    const listRef = useRef<HTMLDivElement>(null)
+    // Stable merged ref so the List ref isn't detached/re-attached every render.
+    const setListRef = useCallback(
+      (node: HTMLDivElement | null) => {
+        listRef.current = node
+        if (typeof ref === 'function') ref(node)
+        else if (ref) ref.current = node
+      },
+      [ref],
+    )
+    const [position, setPosition] = useState<IndicatorPosition>(null)
+    // Transitions stay off until the first measurement lands, so the indicator
+    // appears at the active tab instead of sliding in from the corner on mount.
+    const [animated, setAnimated] = useState(false)
+    // Tracks the last active tab so scroll-into-view only fires when the
+    // selection changes, never on every resize re-measure.
+    const lastActiveRef = useRef<string | null>(null)
 
-  useIsoLayoutEffect(() => {
-    const list = listRef.current
-    if (!list) return
+    useIsoLayoutEffect(() => {
+      const list = listRef.current
+      if (!list) return
 
-    const update = () => {
-      const active = list.querySelector('[role="tab"][data-state="active"]')
-      if (!(active instanceof HTMLElement)) {
-        setPosition(null)
-        return
-      }
-      const vertical = list.getAttribute('data-orientation') === 'vertical'
-      setPosition(
-        vertical
-          ? { vertical: true, offset: active.offsetTop, size: active.offsetHeight }
-          : { vertical: false, offset: active.offsetLeft, size: active.offsetWidth },
-      )
+      const update = () => {
+        const active = list.querySelector('[role="tab"][data-state="active"]')
+        if (!(active instanceof HTMLElement)) {
+          setPosition(null)
+          return
+        }
+        const vertical = list.getAttribute('data-orientation') === 'vertical'
+        setPosition(
+          vertical
+            ? { vertical: true, offset: active.offsetTop, size: active.offsetHeight }
+            : { vertical: false, offset: active.offsetLeft, size: active.offsetWidth },
+        )
 
-      // When tabs overflow, reveal the newly-selected tab. Adjust ONLY the
-      // list's own scroll offset (never `scrollIntoView`, which would also
-      // scroll the page). Gated on a real selection change so manual scrolling
-      // isn't fought on resize.
-      const activeKey = active.id || active.textContent || ''
-      if (activeKey !== lastActiveRef.current) {
-        lastActiveRef.current = activeKey
-        const PAD = 8
-        if (vertical) {
-          const top = active.offsetTop
-          const bottom = top + active.offsetHeight
-          if (top < list.scrollTop) list.scrollTop = top - PAD
-          else if (bottom > list.scrollTop + list.clientHeight) {
-            list.scrollTop = bottom - list.clientHeight + PAD
-          }
-        } else {
-          const left = active.offsetLeft
-          const right = left + active.offsetWidth
-          if (left < list.scrollLeft) list.scrollLeft = left - PAD
-          else if (right > list.scrollLeft + list.clientWidth) {
-            list.scrollLeft = right - list.clientWidth + PAD
+        // When tabs overflow, reveal the newly-selected tab. Adjust ONLY the
+        // list's own scroll offset (never `scrollIntoView`, which would also
+        // scroll the page). Gated on a real selection change so manual scrolling
+        // isn't fought on resize.
+        const activeKey = active.id || active.textContent || ''
+        if (activeKey !== lastActiveRef.current) {
+          lastActiveRef.current = activeKey
+          const PAD = 8
+          if (vertical) {
+            const top = active.offsetTop
+            const bottom = top + active.offsetHeight
+            if (top < list.scrollTop) list.scrollTop = top - PAD
+            else if (bottom > list.scrollTop + list.clientHeight) {
+              list.scrollTop = bottom - list.clientHeight + PAD
+            }
+          } else {
+            const left = active.offsetLeft
+            const right = left + active.offsetWidth
+            if (left < list.scrollLeft) list.scrollLeft = left - PAD
+            else if (right > list.scrollLeft + list.clientWidth) {
+              list.scrollLeft = right - list.clientWidth + PAD
+            }
           }
         }
       }
-    }
 
-    update()
-    const raf = requestAnimationFrame(() => setAnimated(true))
+      update()
+      const raf = requestAnimationFrame(() => setAnimated(true))
 
-    // Re-measure when the active tab changes (Radix flips `data-state`) and
-    // when the list resizes (responsive layout / font load).
-    const mo = new MutationObserver(update)
-    mo.observe(list, {
-      attributes: true,
-      attributeFilter: ['data-state', 'data-orientation'],
-      subtree: true,
-    })
-    const ro = new ResizeObserver(update)
-    ro.observe(list)
+      // Re-measure when the active tab changes (Radix flips `data-state`) and
+      // when the list resizes (responsive layout / font load).
+      const mo = new MutationObserver(update)
+      mo.observe(list, {
+        attributes: true,
+        attributeFilter: ['data-state', 'data-orientation'],
+        subtree: true,
+      })
+      const ro = new ResizeObserver(update)
+      ro.observe(list)
 
-    return () => {
-      cancelAnimationFrame(raf)
-      mo.disconnect()
-      ro.disconnect()
-    }
-  }, [])
-
-  const indicatorStyle: CSSProperties = position
-    ? {
-        opacity: 1,
-        transition: animated ? undefined : 'none',
-        ...(position.vertical
-          ? { transform: `translateY(${position.offset}px)`, height: `${position.size}px` }
-          : { transform: `translateX(${position.offset}px)`, width: `${position.size}px` }),
+      return () => {
+        cancelAnimationFrame(raf)
+        mo.disconnect()
+        ro.disconnect()
       }
-    : { opacity: 0 }
+    }, [])
 
-  return (
-    <TabsPrimitive.List ref={setListRef} className={cn('st-tabs__list', className)} {...props}>
-      {children}
-      <span className="st-tabs__indicator" aria-hidden="true" style={indicatorStyle} />
-    </TabsPrimitive.List>
-  )
-})
+    const indicatorStyle: CSSProperties = position
+      ? {
+          opacity: 1,
+          transition: animated ? undefined : 'none',
+          ...(position.vertical
+            ? { transform: `translateY(${position.offset}px)`, height: `${position.size}px` }
+            : { transform: `translateX(${position.offset}px)`, width: `${position.size}px` }),
+        }
+      : { opacity: 0 }
+
+    return (
+      <TabsPrimitive.List ref={setListRef} className={cn('st-tabs__list', className)} {...props}>
+        {children}
+        <span className="st-tabs__indicator" aria-hidden="true" style={indicatorStyle} />
+      </TabsPrimitive.List>
+    )
+  },
+)
 TabsList.displayName = TabsPrimitive.List.displayName
 
 /* ----- Trigger ----- */
 
-export interface TabsTriggerProps extends ComponentPropsWithoutRef<typeof TabsPrimitive.Trigger> {
+// Public props are native <button> props plus curated redeclarations — see
+// api-stability.md §Radix type boundary.
+export interface TabsTriggerProps extends ComponentPropsWithoutRef<'button'> {
+  /**
+   * The value identifying this tab. Required — pairs the trigger with the
+   * `TabsContent` carrying the same value.
+   */
+  value: string
   /**
    * Leading Lucide icon component, rendered `aria-hidden` before the label.
    * Import from `lucide-react` and pass the component directly — e.g.
@@ -182,7 +206,7 @@ export interface TabsTriggerProps extends ComponentPropsWithoutRef<typeof TabsPr
   icon?: LucideIcon
 }
 
-const TabsTrigger = forwardRef<ComponentRef<typeof TabsPrimitive.Trigger>, TabsTriggerProps>(
+const TabsTrigger = forwardRef<HTMLButtonElement, TabsTriggerProps>(
   ({ className, icon, children, ...props }, ref) => {
     const IconComponent = icon ?? null
     return (
@@ -197,10 +221,15 @@ TabsTrigger.displayName = TabsPrimitive.Trigger.displayName
 
 /* ----- Content ----- */
 
-const TabsContent = forwardRef<
-  ComponentRef<typeof TabsPrimitive.Content>,
-  ComponentPropsWithoutRef<typeof TabsPrimitive.Content>
->(({ className, ...props }, ref) => (
+export interface TabsContentProps extends ComponentPropsWithoutRef<'div'> {
+  /**
+   * The value identifying this panel. Required — pairs the panel with the
+   * `TabsTrigger` carrying the same value.
+   */
+  value: string
+}
+
+const TabsContent = forwardRef<HTMLDivElement, TabsContentProps>(({ className, ...props }, ref) => (
   <TabsPrimitive.Content ref={ref} className={cn('st-tabs__content', className)} {...props} />
 ))
 TabsContent.displayName = TabsPrimitive.Content.displayName

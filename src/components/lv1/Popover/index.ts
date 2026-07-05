@@ -1,9 +1,12 @@
 export {
   Popover,
   PopoverAnchor,
+  type PopoverAnchorProps,
   PopoverClose,
+  type PopoverCloseProps,
   PopoverContent,
   type PopoverContentProps,
+  type PopoverProps,
   PopoverTrigger,
   type PopoverTriggerProps,
 } from './Popover'

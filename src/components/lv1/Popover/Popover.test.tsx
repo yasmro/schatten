@@ -19,7 +19,7 @@ function BasicPopover(props: {
       <PopoverContent data-testid={props.contentTestId}>
         <p>Panel body</p>
         {props.withClose && (
-          <PopoverClose asChild>
+          <PopoverClose>
             <Button>Done</Button>
           </PopoverClose>
         )}

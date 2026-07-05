@@ -244,6 +244,62 @@ that pivots on dep bumps (today: `prepare-release` Step 3). The skill's
 drift between the SKILL.md grep pattern and the on-disk parity stories;
 the dep-list ↔ SKILL.md table sync is currently maintainer-reviewed.
 
+## Radix type boundary (anti-corruption layer)
+
+The prop types of Radix-based lv1 components are **authored by Schatten,
+never inherited from Radix** ([#156](https://github.com/yasmro/schatten/issues/156)).
+Before this rule, public interfaces extended
+`ComponentPropsWithoutRef<typeof XPrimitive.Y>` — which makes the published
+type surface track whatever Radix version the consumer's lockfile resolves
+(Radix rides in `dependencies` with caret ranges), so the surface could
+change with **zero Schatten source diff and zero release**. That is
+incompatible with the 1.0 contract above ("1.0+ patch: no surface
+additions"). The boundary has three rules:
+
+1. **No direct re-export of a Radix component instance.** `const Select =
+   SelectPrimitive.Root` passes through the props type, `displayName`, and
+   every future Radix prop change untouched. Even DOM-less roots
+   (context-only providers) get a thin wrapper with a curated Props
+   interface.
+2. **Public Props types never extend Radix types.** The base is the
+   **native element** the part renders (`ComponentPropsWithoutRef<'button'>`
+   etc. — this is what keeps the `data-testid` / `aria-*` / event-handler
+   pass-through contract of [component-testid-guideline](component-testid-guideline.md)
+   intact), and every Radix behavioral prop Schatten exposes is
+   **redeclared literally** with its own TSDoc (`side?: 'top' | 'right' |
+   'bottom' | 'left'`, never the indexed-access form
+   `RadixProps['side']`, which silently widens when Radix widens).
+   `forwardRef` element types are concrete DOM types (`HTMLButtonElement`),
+   not `ComponentRef<typeof …>`.
+3. **The boundary is machine-enforced, twice.**
+   [`radix-type-boundary.test.tsx`](../../src/components/lv1/__tests__/radix-type-boundary.test.tsx)
+   scans every lv1 implementation file for the two banned shapes (Radix-derived
+   type references, direct instance re-exports) and pins representative
+   shielded props with `@ts-expect-error`. Value-level compatibility needs no
+   extra harness: the implementation **spreads the curated props into the
+   Radix primitive**, so a Radix bump that renames or narrows a prop fails
+   `pnpm typecheck` inside Schatten — the break is absorbed here instead of
+   reaching consumers.
+
+Consequences and conventions:
+
+- **Curation policy**: expose the controlled/uncontrolled prop pairs
+  (`value`/`defaultValue`/`onValueChange`, `open`/`defaultOpen`/`onOpenChange`,
+  `checked`/…), the native-validation set on form controls
+  (`disabled` / `required` / `name` / `value`), and any Radix prop an
+  existing story/test/doc already uses. Everything else (`dir`,
+  `forceMount`, dismiss-control callbacks, collision tuning) stays
+  unexposed — **adding one back later is `minor` and non-breaking;
+  removing is breaking**, so start minimal.
+- **Radix stays caret-ranged.** With types decoupled, a Radix minor can no
+  longer move the public type surface; runtime/visual drift from Radix
+  bumps is governed by the [visual-contract table](#visual-contract-affecting-dependencies)
+  + dependabot triage + parity VRT as before.
+- **New Radix-based components** follow the same shape from the start:
+  native-element base + curated redeclarations + thin wrappers for the
+  DOM-less parts. When curating, walk the exposure policy above rather
+  than copying Radix's full prop list.
+
 ## CSS class naming — frozen by [css-api.md](css-api.md)
 
 The class-naming surface itself — prefix, BEM shape, attribute-driven state,

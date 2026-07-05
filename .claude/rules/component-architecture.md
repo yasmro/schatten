@@ -49,7 +49,10 @@ Used by: `Dialog`, `Tooltip`, `Select`, `Radio` (`RadioGroup` + `Radio`).
 **When to ship as compound:** when wrapping a Radix primitive that already
 exposes multiple parts. Match Radix's part names one-to-one
 (e.g. [`SelectTrigger`](../../src/components/lv1/Select/Select.tsx) mirrors
-`SelectPrimitive.Trigger`).
+`SelectPrimitive.Trigger`). Part names mirror Radix, but **prop types do
+not**: every part's public Props is native-element props + curated
+redeclarations, never a Radix type — see
+[api-stability.md §Radix type boundary](api-stability.md#radix-type-boundary-anti-corruption-layer).
 
 **Why match Radix one-to-one rather than collapse:** Radix's parts share refs,
 context, and aria attributes internally. Collapsing them into a single component

@@ -1,33 +1,85 @@
 import * as SelectPrimitive from '@radix-ui/react-select'
 import { Check, ChevronDown, ChevronUp } from 'lucide-react'
-import { type ComponentPropsWithoutRef, type ComponentRef, forwardRef, useId } from 'react'
+import { type ComponentPropsWithoutRef, forwardRef, type ReactNode, useId } from 'react'
 import { useFieldContext } from '../../../contexts/field'
 import { cn } from '../../../lib/utils'
 import { type SelectTriggerVariants, selectTriggerVariants } from '../../../variants/select'
 import './Select.css'
 
+// Every public Props type below is native-element props plus curated
+// redeclarations — Radix types never appear in the public signature
+// (api-stability.md §Radix type boundary).
+
 /* ----- Root ----- */
 
-const Select = SelectPrimitive.Root
+export interface SelectProps {
+  /**
+   * The selected value (controlled).
+   */
+  value?: string
+  /**
+   * The initially selected value (uncontrolled).
+   */
+  defaultValue?: string
+  /**
+   * Fired when the selected value changes.
+   */
+  onValueChange?: (value: string) => void
+  /**
+   * Controlled open state of the dropdown.
+   */
+  open?: boolean
+  /**
+   * Initial open state (uncontrolled).
+   */
+  defaultOpen?: boolean
+  /**
+   * Fired when the open state changes.
+   */
+  onOpenChange?: (open: boolean) => void
+  /**
+   * Disables the select.
+   */
+  disabled?: boolean
+  /**
+   * Marks the control required for native form validation (blocks submission
+   * via the hidden select). Inside `<Field required>`, the field's `required`
+   * adds `aria-required` only (announce-only) — see field-context-guideline.
+   */
+  required?: boolean
+  /**
+   * Name submitted with the form data.
+   */
+  name?: string
+  children?: ReactNode
+}
+
+const Select = (props: SelectProps) => <SelectPrimitive.Root {...props} />
+Select.displayName = 'Select'
 
 /* ----- Group ----- */
 
-const SelectGroup = forwardRef<
-  ComponentRef<typeof SelectPrimitive.Group>,
-  ComponentPropsWithoutRef<typeof SelectPrimitive.Group>
->(({ className, ...props }, ref) => (
-  <SelectPrimitive.Group ref={ref} className={cn('st-select__group', className)} {...props} />
-))
+const SelectGroup = forwardRef<HTMLDivElement, ComponentPropsWithoutRef<'div'>>(
+  ({ className, ...props }, ref) => (
+    <SelectPrimitive.Group ref={ref} className={cn('st-select__group', className)} {...props} />
+  ),
+)
 SelectGroup.displayName = SelectPrimitive.Group.displayName
 
 /* ----- Value ----- */
 
-const SelectValue = forwardRef<
-  ComponentRef<typeof SelectPrimitive.Value>,
-  ComponentPropsWithoutRef<typeof SelectPrimitive.Value>
->(({ className, ...props }, ref) => (
-  <SelectPrimitive.Value ref={ref} className={cn('st-select__value', className)} {...props} />
-))
+export interface SelectValueProps extends ComponentPropsWithoutRef<'span'> {
+  /**
+   * Shown while no value is selected.
+   */
+  placeholder?: ReactNode
+}
+
+const SelectValue = forwardRef<HTMLSpanElement, SelectValueProps>(
+  ({ className, ...props }, ref) => (
+    <SelectPrimitive.Value ref={ref} className={cn('st-select__value', className)} {...props} />
+  ),
+)
 SelectValue.displayName = SelectPrimitive.Value.displayName
 
 /* ----- Trigger ----- */
@@ -42,7 +94,7 @@ SelectValue.displayName = SelectPrimitive.Value.displayName
  * explicit `aria-label`.
  */
 export interface SelectTriggerProps
-  extends Omit<ComponentPropsWithoutRef<typeof SelectPrimitive.Trigger>, 'size' | 'asChild'>,
+  extends ComponentPropsWithoutRef<'button'>,
     SelectTriggerVariants {
   /**
    * Size of the select trigger.
@@ -57,7 +109,7 @@ export interface SelectTriggerProps
   isError?: boolean
 }
 
-const SelectTrigger = forwardRef<ComponentRef<typeof SelectPrimitive.Trigger>, SelectTriggerProps>(
+const SelectTrigger = forwardRef<HTMLButtonElement, SelectTriggerProps>(
   (
     {
       className,
@@ -106,48 +158,52 @@ SelectTrigger.displayName = SelectPrimitive.Trigger.displayName
 
 /* ----- ScrollUpButton ----- */
 
-const SelectScrollUpButton = forwardRef<
-  ComponentRef<typeof SelectPrimitive.ScrollUpButton>,
-  ComponentPropsWithoutRef<typeof SelectPrimitive.ScrollUpButton>
->(({ className, ...props }, ref) => (
-  <SelectPrimitive.ScrollUpButton
-    ref={ref}
-    className={cn('st-select__scroll-up', className)}
-    {...props}
-  >
-    <ChevronUp />
-  </SelectPrimitive.ScrollUpButton>
-))
+const SelectScrollUpButton = forwardRef<HTMLDivElement, ComponentPropsWithoutRef<'div'>>(
+  ({ className, ...props }, ref) => (
+    <SelectPrimitive.ScrollUpButton
+      ref={ref}
+      className={cn('st-select__scroll-up', className)}
+      {...props}
+    >
+      <ChevronUp />
+    </SelectPrimitive.ScrollUpButton>
+  ),
+)
 SelectScrollUpButton.displayName = SelectPrimitive.ScrollUpButton.displayName
 
 /* ----- ScrollDownButton ----- */
 
-const SelectScrollDownButton = forwardRef<
-  ComponentRef<typeof SelectPrimitive.ScrollDownButton>,
-  ComponentPropsWithoutRef<typeof SelectPrimitive.ScrollDownButton>
->(({ className, ...props }, ref) => (
-  <SelectPrimitive.ScrollDownButton
-    ref={ref}
-    className={cn('st-select__scroll-down', className)}
-    {...props}
-  >
-    <ChevronDown />
-  </SelectPrimitive.ScrollDownButton>
-))
+const SelectScrollDownButton = forwardRef<HTMLDivElement, ComponentPropsWithoutRef<'div'>>(
+  ({ className, ...props }, ref) => (
+    <SelectPrimitive.ScrollDownButton
+      ref={ref}
+      className={cn('st-select__scroll-down', className)}
+      {...props}
+    >
+      <ChevronDown />
+    </SelectPrimitive.ScrollDownButton>
+  ),
+)
 SelectScrollDownButton.displayName = SelectPrimitive.ScrollDownButton.displayName
 
 /* ----- Content ----- */
 
-export interface SelectContentProps
-  extends ComponentPropsWithoutRef<typeof SelectPrimitive.Content> {
+export interface SelectContentProps extends ComponentPropsWithoutRef<'div'> {
+  /**
+   * Positioning mode.
+   * - `popper` — floats below the trigger like a menu
+   * - `item-aligned` — overlays the trigger, aligning the selected item (native-select style)
+   * @default 'popper'
+   */
+  position?: 'item-aligned' | 'popper'
   /**
    * Custom container element for the portal. Useful for rendering inside
    * a Dialog or Drawer.
    */
-  container?: ComponentPropsWithoutRef<typeof SelectPrimitive.Portal>['container']
+  container?: Element | DocumentFragment | null
 }
 
-const SelectContent = forwardRef<ComponentRef<typeof SelectPrimitive.Content>, SelectContentProps>(
+const SelectContent = forwardRef<HTMLDivElement, SelectContentProps>(
   ({ className, children, position = 'popper', container, ...props }, ref) => (
     <SelectPrimitive.Portal container={container}>
       <SelectPrimitive.Content
@@ -169,43 +225,59 @@ SelectContent.displayName = SelectPrimitive.Content.displayName
 
 /* ----- Label ----- */
 
-const SelectLabel = forwardRef<
-  ComponentRef<typeof SelectPrimitive.Label>,
-  ComponentPropsWithoutRef<typeof SelectPrimitive.Label>
->(({ className, ...props }, ref) => (
-  <SelectPrimitive.Label ref={ref} className={cn('st-select__label', className)} {...props} />
-))
+const SelectLabel = forwardRef<HTMLDivElement, ComponentPropsWithoutRef<'div'>>(
+  ({ className, ...props }, ref) => (
+    <SelectPrimitive.Label ref={ref} className={cn('st-select__label', className)} {...props} />
+  ),
+)
 SelectLabel.displayName = SelectPrimitive.Label.displayName
 
 /* ----- Item ----- */
 
-const SelectItem = forwardRef<
-  ComponentRef<typeof SelectPrimitive.Item>,
-  ComponentPropsWithoutRef<typeof SelectPrimitive.Item>
->(({ className, children, ...props }, ref) => (
-  <SelectPrimitive.Item ref={ref} className={cn('st-select__item', className)} {...props}>
-    <span className="st-select__item-indicator">
-      <SelectPrimitive.ItemIndicator>
-        <Check />
-      </SelectPrimitive.ItemIndicator>
-    </span>
-    <SelectPrimitive.ItemText className="st-select__item-text">{children}</SelectPrimitive.ItemText>
-  </SelectPrimitive.Item>
-))
+export interface SelectItemProps extends ComponentPropsWithoutRef<'div'> {
+  /**
+   * The value reported via `onValueChange` (and submitted with the form) when
+   * this item is selected. Required.
+   */
+  value: string
+  /**
+   * Disables the item.
+   */
+  disabled?: boolean
+  /**
+   * Text used for typeahead matching. Defaults to the item's text content —
+   * pass it when the children are not plain text.
+   */
+  textValue?: string
+}
+
+const SelectItem = forwardRef<HTMLDivElement, SelectItemProps>(
+  ({ className, children, ...props }, ref) => (
+    <SelectPrimitive.Item ref={ref} className={cn('st-select__item', className)} {...props}>
+      <span className="st-select__item-indicator">
+        <SelectPrimitive.ItemIndicator>
+          <Check />
+        </SelectPrimitive.ItemIndicator>
+      </span>
+      <SelectPrimitive.ItemText className="st-select__item-text">
+        {children}
+      </SelectPrimitive.ItemText>
+    </SelectPrimitive.Item>
+  ),
+)
 SelectItem.displayName = SelectPrimitive.Item.displayName
 
 /* ----- Separator ----- */
 
-const SelectSeparator = forwardRef<
-  ComponentRef<typeof SelectPrimitive.Separator>,
-  ComponentPropsWithoutRef<typeof SelectPrimitive.Separator>
->(({ className, ...props }, ref) => (
-  <SelectPrimitive.Separator
-    ref={ref}
-    className={cn('st-select__separator', className)}
-    {...props}
-  />
-))
+const SelectSeparator = forwardRef<HTMLDivElement, ComponentPropsWithoutRef<'div'>>(
+  ({ className, ...props }, ref) => (
+    <SelectPrimitive.Separator
+      ref={ref}
+      className={cn('st-select__separator', className)}
+      {...props}
+    />
+  ),
+)
 SelectSeparator.displayName = SelectPrimitive.Separator.displayName
 
 export {

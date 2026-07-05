@@ -2,7 +2,6 @@ import * as RadioGroupPrimitive from '@radix-ui/react-radio-group'
 import {
   type ComponentPropsWithoutRef,
   createContext,
-  type ElementRef,
   forwardRef,
   type ReactNode,
   useContext,
@@ -28,7 +27,12 @@ const RadioGroupContext = createContext<RadioGroupContextValue>({
 
 /* ----- RadioGroup ----- */
 
-export interface RadioGroupProps extends ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Root> {
+// Public props are native <div> props (the element Radix RadioGroup.Root
+// renders) plus curated redeclarations — Radix types never appear in the
+// public signature (api-stability.md §Radix type boundary). `dir` is omitted
+// from the base: RTL support is out of scope and the wider HTML `dir: string`
+// would not satisfy Radix's `'ltr' | 'rtl'`.
+export interface RadioGroupProps extends Omit<ComponentPropsWithoutRef<'div'>, 'dir'> {
   /**
    * Displays all radio items in an error state. Propagated to children via context.
    * When used inside a `<Field>`, the field's error state takes precedence.
@@ -40,9 +44,44 @@ export interface RadioGroupProps extends ComponentPropsWithoutRef<typeof RadioGr
    * @default 'md'
    */
   size?: RadioVariants['size']
+  /**
+   * The selected item's value (controlled).
+   */
+  value?: string
+  /**
+   * The initially selected item's value (uncontrolled).
+   */
+  defaultValue?: string
+  /**
+   * Fired when the selected value changes.
+   */
+  onValueChange?: (value: string) => void
+  /**
+   * Disables every radio item in the group.
+   */
+  disabled?: boolean
+  /**
+   * Marks the group required for native form validation (blocks submission
+   * via the hidden input). Inside `<Field required>`, the field's `required`
+   * adds `aria-required` only (announce-only) — see field-context-guideline.
+   */
+  required?: boolean
+  /**
+   * Name submitted with the form data.
+   */
+  name?: string
+  /**
+   * Whether arrow-key navigation loops from the last item back to the first.
+   * @default true
+   */
+  loop?: boolean
+  /**
+   * Orientation of the group — controls which arrow keys move focus.
+   */
+  orientation?: 'horizontal' | 'vertical'
 }
 
-export const RadioGroup = forwardRef<ElementRef<typeof RadioGroupPrimitive.Root>, RadioGroupProps>(
+export const RadioGroup = forwardRef<HTMLDivElement, RadioGroupProps>(
   (
     {
       className,
@@ -95,9 +134,19 @@ RadioGroup.displayName = 'RadioGroup'
 
 /* ----- Radio ----- */
 
-export interface RadioProps
-  extends Omit<ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Item>, 'size'>,
-    RadioVariants {
+// Public props are native <button> props (the element Radix RadioGroup.Item
+// renders) plus curated redeclarations — see api-stability.md §Radix type boundary.
+export interface RadioProps extends ComponentPropsWithoutRef<'button'>, RadioVariants {
+  /**
+   * The value submitted (and reported via `onValueChange`) when this radio is
+   * selected. Required — it identifies the item within the group.
+   */
+  value: string
+  /**
+   * Marks the item required for native form validation. Group-level
+   * requiredness normally lives on `RadioGroup` — see field-context-guideline.
+   */
+  required?: boolean
   /**
    * Size of the radio button. Inherited from the parent `RadioGroup` if not set.
    * @default 'md'
@@ -112,7 +161,7 @@ export interface RadioProps
   label?: ReactNode
 }
 
-export const Radio = forwardRef<ElementRef<typeof RadioGroupPrimitive.Item>, RadioProps>(
+export const Radio = forwardRef<HTMLButtonElement, RadioProps>(
   (
     {
       className,

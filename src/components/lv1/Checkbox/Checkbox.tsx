@@ -1,19 +1,40 @@
 import * as CheckboxPrimitive from '@radix-ui/react-checkbox'
-import {
-  type ComponentPropsWithoutRef,
-  type ElementRef,
-  forwardRef,
-  type ReactNode,
-  useId,
-} from 'react'
+import { type ComponentPropsWithoutRef, forwardRef, type ReactNode, useId } from 'react'
 import { useFieldContext } from '../../../contexts/field'
 import { cn } from '../../../lib/utils'
 import { type CheckboxVariants, checkboxVariants } from '../../../variants/checkbox'
 import './Checkbox.css'
 
+// Public props are native <button> props (the element Radix Checkbox.Root
+// renders) plus curated redeclarations — Radix types never appear in the
+// public signature (api-stability.md §Radix type boundary). `defaultChecked`
+// is omitted from the base so it can be redeclared with the tri-state shape.
 export interface CheckboxProps
-  extends Omit<ComponentPropsWithoutRef<typeof CheckboxPrimitive.Root>, 'size'>,
+  extends Omit<ComponentPropsWithoutRef<'button'>, 'defaultChecked'>,
     CheckboxVariants {
+  /**
+   * Controlled checked state. `'indeterminate'` renders the mixed (minus) mark.
+   */
+  checked?: boolean | 'indeterminate'
+  /**
+   * Initial checked state (uncontrolled).
+   */
+  defaultChecked?: boolean | 'indeterminate'
+  /**
+   * Fired when the checked state changes.
+   */
+  onCheckedChange?: (checked: boolean | 'indeterminate') => void
+  /**
+   * Marks the control required for native form validation (blocks submission
+   * via the hidden input). Inside `<Field required>`, the field's `required`
+   * adds `aria-required` only (announce-only) — see field-context-guideline.
+   */
+  required?: boolean
+  /**
+   * Value submitted with the form data when checked.
+   * @default 'on'
+   */
+  value?: string
   /**
    * Size of the checkbox.
    * @default 'md'
@@ -41,7 +62,7 @@ const MinusIcon = () => (
   </svg>
 )
 
-export const Checkbox = forwardRef<ElementRef<typeof CheckboxPrimitive.Root>, CheckboxProps>(
+export const Checkbox = forwardRef<HTMLButtonElement, CheckboxProps>(
   (
     {
       className,

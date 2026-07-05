@@ -111,3 +111,26 @@ for (const story of portalStories) {
     })
   }
 }
+
+/**
+ * Behavioral (non-screenshot) regression guard — required for 区分 D (JS 必須)
+ * components per vrt-spec-guideline. Radix Select opens on trigger pointerdown
+ * and commits on option pointerup — portal hit-testing + pointer capture that
+ * jsdom cannot reproduce (the same failure shape as #318). Runs under
+ * `pnpm test:vrt` (no `a11y` in the name) and takes no screenshots, so it
+ * needs no baseline.
+ */
+test('Select / trigger opens the listbox and picking an option updates the value', async ({
+  page,
+}) => {
+  await page.goto(storyUrl('sizes', 'light'))
+  await page.waitForLoadState('networkidle')
+
+  const trigger = page.getByRole('combobox', { name: 'Medium select' })
+  await trigger.click()
+  await expect(page.getByRole('listbox')).toBeVisible()
+
+  await page.getByRole('option', { name: 'Banana' }).click()
+  await expect(page.getByRole('listbox')).toHaveCount(0)
+  await expect(trigger).toContainText('Banana')
+})

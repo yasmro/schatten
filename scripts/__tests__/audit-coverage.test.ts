@@ -7,6 +7,7 @@ import {
   auditComponent,
   discoverComponents,
   hasFailures,
+  hasInteractionTest,
   PARITY_EXEMPT,
   parseExportedNames,
   parseFixtureSlugs,
@@ -36,6 +37,21 @@ function makeLv1Dir() {
   return dir
 }
 
+// Mirrors the real spec shape: screenshot tests + paired a11y tests, and —
+// when `interactionTest` is requested — a trailing non-screenshot test block
+// like Toast / Popover / Select carry (vrt-spec-guideline §区分 C/D).
+const SCREENSHOT_ONLY_SPEC = [
+  'test(`X / story / light`, async ({ page }) => {',
+  "  await expect(page).toHaveScreenshot('story-light.png')",
+  '})',
+  'test(`X / story / light / a11y`, async ({ page }) => {',
+  '  expect(results.violations).toEqual([])',
+  '})',
+  '',
+].join('\n')
+
+const INTERACTION_SPEC = `${SCREENSHOT_ONLY_SPEC}\ntest('X / primary action works on real click', async ({ page }) => {\n  await page.getByRole('button').click()\n})\n`
+
 function makeComponent(
   lv1Dir: string,
   name: string,
@@ -49,6 +65,7 @@ function makeComponent(
     snapshots?: string[]
     parityStories?: boolean
     parityVrt?: boolean
+    interactionTest?: boolean
   } = {},
 ) {
   const dir = join(lv1Dir, name)
@@ -58,7 +75,12 @@ function makeComponent(
   if (files.css ?? true) stamp(`${name}.css`)
   if (files.stories ?? true) stamp(`${name}.stories.tsx`)
   if (files.test ?? true) stamp(`${name}.test.tsx`)
-  if (files.vrt ?? true) stamp(`${name}.vrt.spec.ts`)
+  if (files.vrt ?? true) {
+    writeFileSync(
+      join(dir, `${name}.vrt.spec.ts`),
+      files.interactionTest ? INTERACTION_SPEC : SCREENSHOT_ONLY_SPEC,
+    )
+  }
   if (files.index ?? true) stamp('index.ts')
   if (files.parityStories) stamp(`${name}.parity.stories.tsx`)
   if (files.parityVrt) stamp(`${name}.parity.vrt.spec.ts`)
@@ -259,6 +281,7 @@ describe('auditComponent', () => {
     // fixtureSlugs omitted (null) → check skipped → na, no spurious failure
     const dialogDir = makeComponent(lv1Dir, 'Dialog', {
       snapshots: ['x.png'],
+      interactionTest: true,
     })
     const row = auditComponent({
       name: 'Dialog',
@@ -326,6 +349,7 @@ describe('auditComponent', () => {
     const lv1Dir = makeLv1Dir()
     const dir = makeComponent(lv1Dir, 'Dialog', {
       snapshots: ['x-light.png'],
+      interactionTest: true,
     })
     const row = auditComponent({
       name: 'Dialog',
@@ -336,6 +360,41 @@ describe('auditComponent', () => {
     expect(row.files.parityStories).toBe('exempt')
     expect(row.files.parityVrt).toBe('exempt')
     expect(row.files.paritySnap).toBe('exempt')
+    expect(row.missing).toEqual([])
+  })
+
+  it('flags a 区分 C/D component whose specs are screenshot/a11y-only (interaction missing)', () => {
+    const lv1Dir = makeLv1Dir()
+    const dir = makeComponent(lv1Dir, 'Dialog', {
+      snapshots: ['x-light.png'],
+      // interactionTest omitted → the vrt spec has only screenshot + a11y tests
+    })
+    const row = auditComponent({
+      name: 'Dialog',
+      componentDir: dir,
+      exported: true,
+      exempt: true,
+    })
+    expect(row.files.interaction).toBe('missing')
+    expect(row.missing).toContain(
+      'non-screenshot Playwright interaction test in a *.vrt.spec.ts (区分 C/D — vrt-spec-guideline)',
+    )
+  })
+
+  it('keeps interaction na for classification A/B (parity covers the browser contract)', () => {
+    const lv1Dir = makeLv1Dir()
+    const dir = makeComponent(lv1Dir, 'Button', {
+      snapshots: ['x-light.png', 'parity-x-light.png'],
+      parityStories: true,
+      parityVrt: true,
+    })
+    const row = auditComponent({
+      name: 'Button',
+      componentDir: dir,
+      exported: true,
+      exempt: false,
+    })
+    expect(row.files.interaction).toBe('na')
     expect(row.missing).toEqual([])
   })
 
@@ -368,6 +427,7 @@ describe('renderTable / renderJson', () => {
     })
     const dialogDir = makeComponent(lv1Dir, 'Dialog', {
       snapshots: ['default-light.png'],
+      interactionTest: true,
     })
     const fixtureSlugs = new Set(['button', 'dialog'])
     return [
@@ -392,10 +452,12 @@ describe('renderTable / renderJson', () => {
     const out = renderTable(sampleRows(), { generatedAt: fixedAt })
     expect(out).toContain('## Coverage Audit Report (2026-05-25)')
     expect(out).toContain(
-      '| Component | tsx | css | stories | test | vrt | index | snap | export | cssapi.fx | parity.stories | parity.vrt | parity.snap |',
+      '| Component | tsx | css | stories | test | vrt | interaction | index | snap | export | cssapi.fx | parity.stories | parity.vrt | parity.snap |',
     )
-    expect(out).toContain('| Button | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |')
-    expect(out).toContain('| Dialog | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | — | — | — |')
+    // A/B (Button): interaction is n/a — the parity series covers the real-browser contract.
+    expect(out).toContain('| Button | ✓ | ✓ | ✓ | ✓ | ✓ | n/a | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |')
+    // C/D (Dialog): interaction required and present; parity exempt.
+    expect(out).toContain('| Dialog | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | — | — | — |')
     expect(out).toContain('_All lv1 components have required companions._')
   })
 
@@ -461,7 +523,7 @@ describe('runAudit', () => {
       parityStories: true,
       parityVrt: true,
     })
-    makeComponent(lv1Dir, 'Dialog', { snapshots: ['x-light.png'] })
+    makeComponent(lv1Dir, 'Dialog', { snapshots: ['x-light.png'], interactionTest: true })
     writeBarrel(lv1Dir, ['Button', 'Dialog', 'GoneAway'])
     const result = runAudit(workDir)
     expect(result.rows.map((r) => r.name)).toEqual(['Button', 'Dialog'])
@@ -531,6 +593,50 @@ describe('runAudit', () => {
     const both = runAudit(workDir)
     expect(both.rows[0].files.cssApiFixture).toBe('present')
     expect(hasFailures(both)).toBe(false)
+  })
+})
+
+describe('hasInteractionTest', () => {
+  function makeSpecDir(specs: Record<string, string>) {
+    const dir = join(workDir, 'Component')
+    mkdirSync(dir, { recursive: true })
+    for (const [file, content] of Object.entries(specs)) {
+      writeFileSync(join(dir, file), content)
+    }
+    return dir
+  }
+
+  it('returns false when every test is a screenshot or a11y test', () => {
+    const dir = makeSpecDir({ 'X.vrt.spec.ts': SCREENSHOT_ONLY_SPEC })
+    expect(hasInteractionTest(dir)).toBe(false)
+  })
+
+  it('detects a non-screenshot, non-a11y test block', () => {
+    const dir = makeSpecDir({ 'X.vrt.spec.ts': INTERACTION_SPEC })
+    expect(hasInteractionTest(dir)).toBe(true)
+  })
+
+  it('detects the test in a separate {Name}.interaction.vrt.spec.ts (DropdownMenu shape)', () => {
+    const dir = makeSpecDir({
+      'X.vrt.spec.ts': SCREENSHOT_ONLY_SPEC,
+      'X.interaction.vrt.spec.ts':
+        "test('X / submenu stays positioned', async ({ page }) => {\n  await page.click('button')\n})\n",
+    })
+    expect(hasInteractionTest(dir)).toBe(true)
+  })
+
+  it('does not count an a11y-titled test as an interaction test', () => {
+    const dir = makeSpecDir({
+      'X.vrt.spec.ts':
+        'test(`X / story / light / a11y`, async ({ page }) => {\n  expect(results.violations).toEqual([])\n})\n',
+    })
+    expect(hasInteractionTest(dir)).toBe(false)
+  })
+
+  it('returns false for an empty spec file / a missing directory', () => {
+    const dir = makeSpecDir({ 'X.vrt.spec.ts': '' })
+    expect(hasInteractionTest(dir)).toBe(false)
+    expect(hasInteractionTest(join(workDir, 'no-such-dir'))).toBe(false)
   })
 })
 

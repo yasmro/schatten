@@ -4,7 +4,9 @@ Scan every lv1 component for the required companion files (test / VRT spec /
 class-API CSS / `__snapshots__/` baseline / `index.ts` re-export / CSS API
 fixture section — the `cssapi.fx` column, a `<section data-component="<slug>">`
 in `src/docs/__fixtures__/cssApiSamples.html.ts`, plus
-`*.parity.stories.tsx` / `*.parity.vrt.spec.ts` for classification A/B per
+`*.parity.stories.tsx` / `*.parity.vrt.spec.ts` for classification A/B and a
+non-screenshot Playwright interaction test — the `interaction` column — for
+classification C/D per
 [vrt-spec-guideline](../rules/vrt-spec-guideline.md)) and report any gaps.
 
 This is the **library-wide periodic** counterpart to the existing
@@ -78,7 +80,7 @@ responsibility split in [CLAUDE.md](../../CLAUDE.md).
 | ✓ | The expected file / re-export exists |
 | ✗ | Expected but missing — action required |
 | — | Not expected (parity columns for classification C/D — `Dialog` / `Select` / `Toast` / `Tooltip`) |
-| n/a | Cannot be evaluated because the parent column (`tsx`) is `✗` |
+| n/a | Cannot be evaluated because the parent column (`tsx`) is `✗`, or not required for the classification (the `interaction` column on A/B components — their real-browser contract is pinned by the parity series instead) |
 
 When a directory has no `{Name}.tsx`, every other column cascades to `n/a`
 to keep the signal-to-noise ratio sane — a WIP scaffold (or a non-component
@@ -94,7 +96,9 @@ directory) shouldn't drown the report in red.
   top of [scripts/audit-coverage.mjs](../../scripts/audit-coverage.mjs).
   When a new lv1 is added that is classification C or D, `PARITY_EXEMPT`
   must be updated; otherwise the audit will spuriously flag its parity
-  files as missing. The source of truth for the classification is
+  files as missing. The same set drives the `interaction` column: a C/D
+  component must carry at least one non-screenshot, non-a11y `test(` block
+  across its `*.vrt.spec.ts` files (vrt-spec-guideline §区分 C/D, #447). The source of truth for the classification is
   [vrt-spec-guideline.md §"Parity stories — when to write one, when to
   skip"](../rules/vrt-spec-guideline.md). Automating this sync from the
   `add-lv1-component` skill is tracked in #306.

@@ -11,6 +11,12 @@ export interface AuditFiles {
   readonly stories: CellState
   readonly test: CellState
   readonly vrt: CellState
+  /**
+   * Non-screenshot Playwright interaction test — required for classification
+   * C/D (== the parity-exempt set), `na` for A/B. See vrt-spec-guideline
+   * §"区分 C/D (JS 必須) — a Playwright interaction test is REQUIRED".
+   */
+  readonly interaction: CellState
   readonly index: CellState
   readonly snap: CellState
   readonly export: CellState
@@ -67,6 +73,13 @@ export function parseExportedNames(indexPath: string): Set<string>
  * fixture. Returns `null` when the fixture file is absent (check skipped).
  */
 export function parseFixtureSlugs(fixturePath: string): Set<string> | null
+
+/**
+ * Heuristic scan of every `*.vrt.spec.ts` in the component directory for a
+ * test block that is neither a screenshot test (`toHaveScreenshot`) nor an
+ * a11y test (`a11y` in the title).
+ */
+export function hasInteractionTest(componentDir: string): boolean
 
 export function auditComponent(opts: {
   name: string

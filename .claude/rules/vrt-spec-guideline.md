@@ -472,6 +472,39 @@ operation a consumer would file a bug about if it broke: Toast → dismiss
 option; Tooltip → trigger shows content. Screenshots and the class-API unit
 test do **not** substitute for this.
 
+**Presence is machine-checked** (#447): `pnpm audit:coverage` (and the CI
+`audit` job) has an `interaction` column that requires every 区分 C/D
+component (== the `PARITY_EXEMPT` set in
+[`scripts/audit-coverage.mjs`](../../scripts/audit-coverage.mjs)) to carry at
+least one non-screenshot, non-a11y `test(` block across its `*.vrt.spec.ts`
+files. A 区分 C/D component whose specs are screenshot/a11y-only fails the
+audit — the gap can no longer sit silent the way the pre-#447 Select / Dialog
+/ Tooltip did.
+
+#### Hover-driven close needs a stepped mouse move (Radix grace polygon)
+
+When an interaction test asserts that hover-triggered content *closes* on
+unhover (Tooltip today; any future HoverCard-like primitive), do **not** use
+a single teleporting `page.mouse.move(x, y)`. Radix's hoverable-content grace
+polygon evaluates "did the pointer leave?" only on a **subsequent
+`pointermove`** — a single jump fires `pointerleave` but never a follow-up
+move, so the content stays open forever and the close assert times out
+(found while implementing #447). Move with steps, heading away from the
+content's `side`, so intermediate moves land outside the trigger→content
+polygon:
+
+```ts
+await page.mouse.move(10, 400, { steps: 10 }) // content is side="top" → head down-left
+await expect(page.getByRole('tooltip')).toHaveCount(0)
+```
+
+The full mechanism is documented in the comment in
+[`Tooltip.vrt.spec.ts`](../../src/components/lv1/Tooltip/Tooltip.vrt.spec.ts).
+(The "hover simulation is unreliable" caveat under
+[Components rendered into a Portal](#components-rendered-into-a-portal)
+applies to *screenshot timing* only — a non-screenshot visibility assert
+driven by a real hover is fine.)
+
 ### Decision flow
 
 When adding a new lv1 component or sweeping an existing one, ask:

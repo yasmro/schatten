@@ -1,19 +1,37 @@
 import * as SwitchPrimitive from '@radix-ui/react-switch'
-import {
-  type ComponentPropsWithoutRef,
-  type ElementRef,
-  forwardRef,
-  type ReactNode,
-  useId,
-} from 'react'
+import { type ComponentPropsWithoutRef, forwardRef, type ReactNode, useId } from 'react'
 import { useFieldContext } from '../../../contexts/field'
 import { cn } from '../../../lib/utils'
 import { type SwitchVariants, switchThumbVariants, switchVariants } from '../../../variants/switch'
 import './Switch.css'
 
-export interface SwitchProps
-  extends Omit<ComponentPropsWithoutRef<typeof SwitchPrimitive.Root>, 'size'>,
-    SwitchVariants {
+// Public props are native <button> props (the element Radix Switch.Root
+// renders) plus curated redeclarations — Radix types never appear in the
+// public signature (api-stability.md §Radix type boundary).
+export interface SwitchProps extends ComponentPropsWithoutRef<'button'>, SwitchVariants {
+  /**
+   * Controlled checked state.
+   */
+  checked?: boolean
+  /**
+   * Initial checked state (uncontrolled).
+   */
+  defaultChecked?: boolean
+  /**
+   * Fired when the checked state changes.
+   */
+  onCheckedChange?: (checked: boolean) => void
+  /**
+   * Marks the control required for native form validation (blocks submission
+   * via the hidden input). Inside `<Field required>`, the field's `required`
+   * adds `aria-required` only (announce-only) — see field-context-guideline.
+   */
+  required?: boolean
+  /**
+   * Value submitted with the form data when checked.
+   * @default 'on'
+   */
+  value?: string
   /**
    * Size of the switch.
    * @default 'md'
@@ -35,7 +53,7 @@ const CheckIcon = () => (
   </svg>
 )
 
-export const Switch = forwardRef<ElementRef<typeof SwitchPrimitive.Root>, SwitchProps>(
+export const Switch = forwardRef<HTMLButtonElement, SwitchProps>(
   (
     {
       className,

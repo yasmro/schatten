@@ -1,14 +1,16 @@
 import * as SeparatorPrimitive from '@radix-ui/react-separator'
-import { type ComponentPropsWithoutRef, type ComponentRef, forwardRef } from 'react'
+import { type ComponentPropsWithoutRef, forwardRef } from 'react'
 import { cn } from '../../../lib/utils'
 import './Separator.css'
 
-export interface SeparatorProps extends ComponentPropsWithoutRef<typeof SeparatorPrimitive.Root> {
+// Public props are native <div> props plus curated redeclarations — Radix types
+// never appear in the public signature (api-stability.md §Radix type boundary).
+export interface SeparatorProps extends ComponentPropsWithoutRef<'div'> {
   /**
    * Orientation of the separator.
    * @default 'horizontal'
    */
-  orientation?: ComponentPropsWithoutRef<typeof SeparatorPrimitive.Root>['orientation']
+  orientation?: 'horizontal' | 'vertical'
   /**
    * When true, the separator is purely visual and hidden from assistive technologies.
    * When false, it is exposed as a semantic divider with `role="separator"`.
@@ -17,7 +19,7 @@ export interface SeparatorProps extends ComponentPropsWithoutRef<typeof Separato
   decorative?: boolean
 }
 
-export const Separator = forwardRef<ComponentRef<typeof SeparatorPrimitive.Root>, SeparatorProps>(
+export const Separator = forwardRef<HTMLDivElement, SeparatorProps>(
   ({ className, orientation = 'horizontal', decorative = true, ...props }, ref) => (
     <SeparatorPrimitive.Root
       ref={ref}

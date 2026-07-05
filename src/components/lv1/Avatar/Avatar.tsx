@@ -1,11 +1,14 @@
 import * as AvatarPrimitive from '@radix-ui/react-avatar'
-import { type ComponentPropsWithoutRef, type ComponentRef, forwardRef } from 'react'
+import { type ComponentPropsWithoutRef, forwardRef } from 'react'
 import { cn } from '../../../lib/utils'
 import { type AvatarVariants, avatarVariants } from '../../../variants/avatar'
 import './Avatar.css'
 
+// Public props are native <span> props (the element Radix Avatar.Root renders)
+// plus Schatten's own flat API — Radix types never appear in the public
+// signature (api-stability.md §Radix type boundary).
 export interface AvatarProps
-  extends Omit<ComponentPropsWithoutRef<typeof AvatarPrimitive.Root>, 'asChild' | 'children'>,
+  extends Omit<ComponentPropsWithoutRef<'span'>, 'children'>,
     AvatarVariants {
   /**
    * Image URL. When omitted — or when the image fails to load — the `fallback`
@@ -59,7 +62,7 @@ export interface AvatarProps
  * for a standalone meaningful avatar, pass `aria-label` (the full name) or place
  * a visible label next to it.
  */
-export const Avatar = forwardRef<ComponentRef<typeof AvatarPrimitive.Root>, AvatarProps>(
+export const Avatar = forwardRef<HTMLSpanElement, AvatarProps>(
   ({ className, size, src, alt, fallback, delayMs, ...props }, ref) => {
     // An image with no alt has no accessible name (axe `image-alt`). The
     // component's own a11y VRT can't catch it because every story passes alt,

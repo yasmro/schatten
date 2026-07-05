@@ -193,9 +193,30 @@ of how cleanly the 3 criteria appear to apply:
 Inside a component's implementation, `<DialogPrimitive.Close asChild>`
 and similar internal `asChild` usages are fine — the rules here are
 about the **public Schatten API surface**. The `TooltipTrigger` pattern
-(omit `asChild` from the public type via `Omit<…, 'asChild'>` and decide
-internally based on `isTextOnly`) is the template for any future
-Trigger-style component that wants to hide the prop from consumers.
+is the template for any future Trigger-style component that wants to
+hide the prop from consumers: since [#156](https://github.com/yasmro/schatten/issues/156)
+the public type is native `<button>` (/`<div>`) props — `asChild` simply
+isn't in it — and the component decides internally.
+
+The internal heuristic, shared by `TooltipTrigger` / `PopoverTrigger` /
+`PopoverAnchor` / `PopoverClose` / `DropdownMenuTrigger`:
+
+- **Text child** (`string` / `number`) → `asChild={false}`; Radix renders
+  its own element around the text.
+- **Element child** → `asChild={true}`; props / ref / behaviour merge onto
+  the child, no wrapper element is emitted.
+
+Two known edges of this heuristic (accepted, not to be "fixed" ad hoc):
+
+- **No children** → the element-child branch is taken and Radix `Slot`
+  renders **nothing**. A bare `<PopoverClose />` therefore draws no button
+  — always pass a child.
+- **Multiple children** → `Slot` requires a single element child and
+  throws. Wrap multiple nodes in one element.
+
+If a future component needs different semantics (e.g. an always-`asChild`
+anchor), document the divergence in its TSDoc rather than silently
+deviating from this table.
 
 ## 4. Polymorphic `as` prop — NOT adopted (with one carved exception)
 

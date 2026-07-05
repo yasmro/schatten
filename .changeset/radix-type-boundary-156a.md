@@ -9,7 +9,7 @@ Types: 公開シグネチャから `ComponentPropsWithoutRef<typeof *Primitive.*
 公開から外れた主な prop (実需が出たら additive に再公開 — minor):
 
 - 全対象: `dir`、Content 系の `forceMount` / `onEscapeKeyDown` / `onPointerDownOutside` / `onInteractOutside` / collision 系 (`avoidCollisions` / `collisionPadding` / `collisionBoundary` 等)。例外として `PopoverContent` の `onOpenAutoFocus` は既存利用があるため残置。
-- `PopoverAnchor` / `PopoverClose`: `asChild` が公開 API から消え、Trigger と同じ「element child → 内部 asChild」方式に統一。`<PopoverClose asChild><Button/></PopoverClose>` は `<PopoverClose><Button/></PopoverClose>` に書き換え (描画結果は同一)。
+- `PopoverAnchor` / `PopoverClose`: `asChild` が公開 API から消え、Trigger と同じ「element child → 内部 asChild」方式に統一。`<PopoverClose asChild><Button/></PopoverClose>` は `<PopoverClose><Button/></PopoverClose>` に書き換え (描画結果は同一)。なお **asChild なしで element child を渡していた `PopoverAnchor` は DOM が変わる**: 従来の `<div>` ラッパが消えて child 要素へ直接マージされるため、`data-testid` 等の属性は child 側に載る (text child のみ従来どおり Radix の `<div>` ラッパが残る)。
 - `TooltipProviderProps`: Radix 型の全面 re-export から `delayDuration` / `skipDelayDuration` / `disableHoverableContent` / `children` の 4 prop に縮小。
 
 方針の本文は `.claude/rules/api-stability.md` の「Radix type boundary (anti-corruption layer)」を参照。境界は `radix-type-boundary.test.tsx` (drift ガード + @ts-expect-error pin) と、curated props を Radix primitive へ spread する実装自体の typecheck で機械的に維持される。

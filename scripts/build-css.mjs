@@ -42,10 +42,21 @@ export const TW4_BASELINE_TARGETS = {
   firefox: 128 << 16,
 }
 
+// lightningcss strips ALL comments (including `/*! … */`), so the MIT
+// attribution for the vendored preflight (src/styles/preflight.css) would
+// silently vanish from the shipped stylesheet — the pre-#317 Tailwind build
+// carried its own `/*! tailwindcss … MIT License */` banner for exactly this
+// reason. Prepend it after compilation; a comment is invisible to the
+// manifest extractor and to VRT pixels. Pinned by the build-css smoke test.
+export const DIST_BANNER =
+  '/*! @yasmro/schatten | includes a vendored copy of the Tailwind CSS v4 preflight (MIT License, https://tailwindcss.com) */\n'
+
 /**
- * Bundle + minify the dist stylesheet. Pure-ish (reads the entry tree from
- * disk, returns the compiled CSS as a string) — exported so the smoke test
- * can assert on the output without touching `dist/`.
+ * Bundle + minify the dist stylesheet (attribution banner included —
+ * the returned string is byte-for-byte what `dist/schatten.css` ships).
+ * Pure-ish (reads the entry tree from disk, returns the compiled CSS as a
+ * string) — exported so the smoke test can assert on the output without
+ * touching `dist/`.
  *
  * @param {string} [entry] entry stylesheet path
  * @returns {string} compiled CSS
@@ -56,7 +67,7 @@ export function buildSchattenCss(entry = 'src/styles/entry.css') {
     minify: true,
     targets: TW4_BASELINE_TARGETS,
   })
-  return code.toString('utf8')
+  return DIST_BANNER + code.toString('utf8')
 }
 
 const isCliEntry = import.meta.url === `file://${resolve(process.argv[1] ?? '')}`

@@ -924,7 +924,8 @@ goal.
   on a composite CSS variable or a `@utility`. Single-value semantic
   tokens (`--radius-control`, `--shadow-modal`) stay variables. Rule:
   "can it be one `var()`?" — no → class.
-- **Layer order**: `reset, tokens, components, utilities`.
+- **Layer order**: `theme, base, reset, tokens, components, utilities`
+  (`theme` = public registrar, `base` = vendored preflight).
 - **Dark / seasonal**: token-driven by default; `:where(.dark)
   .st-*` when a rule (not just a value) differs.
 - **Color alone is never enough** — every visual state has an

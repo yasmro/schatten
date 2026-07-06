@@ -47,6 +47,11 @@ jobs:
       - name: body reset font-size-adjust sync
         run: pnpm check:body-reset
 
+      # #317 — every public-vocabulary var() consumed by the dist CSS chain
+      # must have a row in the hand-maintained registrar (public-tokens.css)
+      - name: Check registrar sync (public CSS variables)
+        run: pnpm check:registrar
+
   typecheck:
     runs-on: ubuntu-latest
     steps:
@@ -96,7 +101,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
 
       # `size-limit` measures files in dist/, so the package must be built
-      # first. build:css now runs `@tailwindcss/cli` against
+      # first. build:css runs lightningcss (scripts/build-css.mjs) against
       # `src/styles/entry.css` (no native postinstall step required).
       - name: Build
         run: pnpm build

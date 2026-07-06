@@ -11,4 +11,6 @@ export interface LightningcssTargets {
 
 export const TW4_BASELINE_TARGETS: LightningcssTargets
 
+export const DIST_BANNER: string
+
 export function buildSchattenCss(entry?: string): string

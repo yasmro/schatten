@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { buildSchattenCss, TW4_BASELINE_TARGETS } from '../build-css.mjs'
+import { buildSchattenCss, DIST_BANNER, TW4_BASELINE_TARGETS } from '../build-css.mjs'
 
 // Smoke tests for the lightningcss dist build (#317). These pin the
 // properties of the compiled output that a lightningcss version bump (or a
@@ -31,9 +31,11 @@ describe('buildSchattenCss', () => {
   it('keeps modern syntax verbatim — no downleveling under the TW4 baseline targets', () => {
     // oklch tokens must NOT be compiled to hex + lab() fallbacks (that is
     // what happens when `targets` includes a pre-oklch browser — the #317
-    // spike caught exactly this with chrome < 111).
+    // spike caught exactly this with chrome < 111). The negative lookbehind
+    // exempts the `oklab` keyword/function so a legitimate future oklab()
+    // usage doesn't false-positive here.
     expect(css).toContain('oklch(')
-    expect(css).not.toContain('lab(')
+    expect(css).not.toMatch(/(?<!ok)lab\(/)
     // Two-value font-size-adjust (#184) passes the parser untouched.
     expect(css).toMatch(/font-size-adjust:var\(--st-font-size-adjust,cap-height\s*\.7\)/)
     // color-mix and :has survive as authored.
@@ -55,6 +57,14 @@ describe('buildSchattenCss', () => {
     expect(css).toContain('--default-font-family:var(--font-sans)')
     expect(css).toContain('--default-mono-font-family:var(--font-mono)')
     expect(css).toMatch(/code,kbd,samp,pre\{font-family:var\(--default-mono-font-family/)
+  })
+
+  it('opens with the MIT attribution banner for the vendored preflight', () => {
+    // lightningcss strips every comment, so the banner must be prepended by
+    // buildSchattenCss itself — losing it would ship the vendored (MIT)
+    // preflight with no license notice in the distributed artifact.
+    expect(css.startsWith(DIST_BANNER)).toBe(true)
+    expect(DIST_BANNER).toMatch(/^\/\*!.*MIT License.*\*\/\n$/)
   })
 
   it('contains no Tailwind build-time syntax', () => {

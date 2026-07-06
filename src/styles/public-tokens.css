@@ -41,7 +41,10 @@
  * MAINTENANCE
  * When a new public variable ships: declare its real value in the token
  * source (unlayered), add a self-referential row here, run
- * `pnpm update:manifest`, and ship the `CSS API:` changeset.
+ * `pnpm update:manifest`, and ship the `CSS API:` changeset. Forgetting
+ * the row here is machine-caught for the common case: `pnpm
+ * check:registrar` (CI `lint` job) fails when a public-vocabulary
+ * variable is consumed by component/reset CSS without a registrar row.
  */
 @layer theme {
   :root,

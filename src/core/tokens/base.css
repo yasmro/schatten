@@ -8,7 +8,9 @@
  * (`src/styles/entry.css`) uses the raw-token twin `index.css` plus the
  * hand-written public registrar `src/styles/public-tokens.css` instead.
  * A new PUBLIC variable therefore needs BOTH a registration here (for
- * Storybook utilities) AND a registrar row (for the manifest surface).
+ * Storybook utilities) AND a registrar row (for the manifest surface) —
+ * a forgotten registrar row is caught by `pnpm check:registrar` when the
+ * variable is consumed by component CSS.
  *
  * Token Hierarchy:
  * 1. primitives.css - Raw color values in OKLCH (fixed, never change between modes)

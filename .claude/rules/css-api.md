@@ -613,6 +613,19 @@ This is the mechanical enforcement of
 [api-stability.md](api-stability.md): a CSS rename can't slip through
 review unnoticed because the manifest is the diff a reviewer sees.
 
+### CSS variable naming lives in api-stability.md
+
+This document owns the `.st-*` **class** naming contract; the public
+**CSS-variable** naming contract (the four-layer model — primitives are
+internal, Tailwind-convention tokens stay bare, semantic `--color-*` stays
+bare but can collide with another design system, and schatten-specific axes
+take the `--st-` prefix that mirrors this document's `st-` class prefix) is
+settled in
+[api-stability.md §CSS variable naming](api-stability.md#css-variable-naming--the-four-layer-model)
+(the #231 audit). Author component CSS against the semantic tokens either way;
+reach for that section when you need to decide whether a **new** token is
+public and how to name it.
+
 ## Adding or modifying a class
 
 1. **Pick the block name.** Match the React component, lowercased

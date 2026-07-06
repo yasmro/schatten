@@ -107,6 +107,59 @@ Stable from **v1.0.0**: class names and CSS custom properties are
 part of the public API contract (see
 [`.claude/rules/api-stability.md`](.claude/rules/api-stability.md)).
 
+#### Using Schatten alongside another design system (token collisions)
+
+Schatten's semantic tokens are **bare** (`--color-background`, `--color-error`,
+the `--color-theme-*` scale, …) — the meaning is Schatten's, but the name is
+not namespaced. This is deliberate: it lets Schatten share Tailwind's scale
+names (`--spacing-4`, `--text-sm`) with your own Tailwind on purpose. The
+trade-off is that if you run Schatten **alongside another full design system**
+that also declares `--color-background` on `:root` (shadcn/ui does), the two
+collide by last-wins. The naming rationale is the
+[four-layer model](.claude/rules/api-stability.md#css-variable-naming--the-four-layer-model).
+
+Schatten declares its token values **unlayered** on `:root` (unlayered wins
+over any `@layer`), so pick the recipe that matches your situation:
+
+**A consumer's own tokens should win globally** — import Schatten into a
+cascade layer. Your unlayered `:root` then beats Schatten's layered values
+deterministically (no reliance on import order):
+
+```css
+@import "@yasmro/schatten/schatten.css" layer(schatten);
+:root {
+  --color-background: #fff; /* your value — wins everywhere */
+}
+```
+
+Note this is a *global* override: Schatten's own components read
+`var(--color-background)` too, so they will adopt your value. Use it when you
+*want* Schatten to inherit your surface, not when the two meanings genuinely
+differ.
+
+**True isolation for separable subtrees** — scope Schatten's tokens onto a
+container. Custom properties resolve to the nearest declaring ancestor, so
+Schatten components inside the wrapper stay on Schatten's values while your
+`:root` keeps its own meaning everywhere else:
+
+```html
+<div class="schatten-scope"><!-- Schatten UI here --></div>
+```
+
+```css
+/* Re-assert only the tokens you actually collide on, scoped to the subtree. */
+.schatten-scope {
+  --color-background: #fafafa; /* Schatten's intended surface */
+}
+```
+
+**Deeply interleaved with conflicting meanings** is the rare irreducible case
+the naming audit named explicitly: when both systems render on the same
+elements and disagree on what `--color-background` means, no cascade trick
+isolates them — alias one side's token in your own build. Because this case is
+uncommon, Schatten does not pay a global `--st-color-*` rename to pre-empt it
+(see the [decision log](docs/decisions/2026-07-css-variable-namespace.md)).
+
 ### Layer B — Optional React components
 
 When React is on the table, the same tokens drive a typed component layer

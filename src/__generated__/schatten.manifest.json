@@ -327,8 +327,6 @@
     "--color-warning-foreground",
     "--color-warning-hover",
     "--color-warning-subtle",
-    "--default-font-family",
-    "--default-mono-font-family",
     "--font-mono",
     "--font-sans",
     "--font-serif",

@@ -163,6 +163,32 @@ If a future product use case genuinely needs theme-aware disabled coloring
 example — do not work around it by adding the tokens to a Special
 allowlist informally.
 
+### Naming: the theme scale stays public and bare (`--color-theme-*`)
+
+The CSS-variable-naming audit
+([#231](https://github.com/yasmro/schatten/issues/231)) kept `--color-theme-*`
+**public and un-namespaced** — it is a layer-3 *semantic* variable in the
+[four-layer model](api-stability.md#css-variable-naming--the-four-layer-model),
+not a `--st-`-prefixed one. Two consequences the theme machinery relies on:
+
+- **The name is the contract for Specials.** Every seasonal palette in
+  [`themes/seasonal/themes.css`](../../src/themes/seasonal/themes.css) writes
+  `--color-theme-*`, and the allowlist is literally `['--color-theme-*']`.
+  Namespacing the scale to `--st-color-theme-*` would have rippled through
+  every Special selector and the allowlist checker for no theming benefit, so
+  the audit left it bare.
+- **A consumer's own `--color-theme-*` can collide.** Because the name is bare
+  and the value is Schatten's semantic (not a shared Tailwind convention), a
+  consumer who *also* defines `--color-theme-*` on `:root` will collide by
+  last-wins — exactly the layer-3 case the audit decided to **document rather
+  than rename away**. A consumer in that situation scopes Schatten's tokens
+  under a container (or imports Schatten into a cascade layer) instead of
+  overriding globally — the worked recipes are in the
+  [README](../../README.md#using-schatten-alongside-another-design-system-token-collisions),
+  the rationale in [api-stability.md](api-stability.md#why-the-semantic-layer-stays-bare).
+  This does not affect `data-theme` switching, which mutates the attribute on
+  `<html>` and re-resolves the same bare `--color-theme-*` names at paint time.
+
 ## Cascade
 
 CSS specificity decides the cascade — load order is only a tie-breaker
@@ -446,3 +472,4 @@ prescribes:
 - **Solid** → `--color-solid*` is declared as rungs of the theme ramp (light 700-on-100, dark 300-on-800). Mode picks the rung, the Special supplies the ramp — an active Special recolors every solid surface without writing a single solid token. Default ramp = neutral alabaster (value-preserving).
 - **Never** touch Mode-owned tokens or `info-*` from a Special.
 - **Components** keep referencing semantic tokens (`bg-theme-500`, `text-foreground`, …) — they don't need to know which axes are active.
+- **Naming** → `--color-theme-*` is public + bare (a layer-3 semantic var, [api-stability.md](api-stability.md#css-variable-naming--the-four-layer-model)); #231 kept it un-namespaced so the Special allowlist stays `['--color-theme-*']`. A consumer's own `--color-theme-*` can collide — documented, not renamed away.

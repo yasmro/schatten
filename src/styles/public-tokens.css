@@ -27,16 +27,20 @@
  * (unlayered beats layered), so these rows exist to mark the variable as
  * public, not to define its value. The exceptions are load-bearing REAL
  * definitions with no unlayered counterpart:
- *   - `--default-font-family: var(--font-sans)` and
- *     `--default-mono-font-family: var(--font-mono)` — the runtime wiring
- *     that routes Schatten's font tokens into the vendored preflight's
- *     `html` / `code, kbd, samp, pre` rules (see src/styles/preflight.css).
- *     Do NOT drop them as "Tailwind leftovers" — `code` elements would fall
- *     back to the browser mono stack. Their naming is a #231 agenda item.
  *   - `--font-sans` / `--font-serif` carry the brand stacks registered by
  *     `src/themes/default/fonts.css`. In the dist these are inert defaults —
  *     `src/styles/entry.css` re-declares `--font-sans` unlayered (fallback
  *     stack) and consumers override it; kept verbatim for value parity.
+ *
+ * #231 — the vendored preflight's `html` / `code` rules used to reach
+ * Schatten's fonts through `--default-font-family` / `--default-mono-font-
+ * family` (Tailwind-convention names). Those were the last Tailwind-named
+ * variables on the public surface — they collide with a consumer's own
+ * Tailwind v4 preflight in this same `@layer theme` — so the CSS-variable
+ * audit removed them and pointed `preflight.css` at `--font-sans` /
+ * `--font-mono` directly (value-identical; the indirection already resolved
+ * to those). Do NOT re-add them. See
+ * docs/decisions/2026-07-css-variable-namespace.md.
  *
  * MAINTENANCE
  * When a new public variable ships: declare its real value in the token
@@ -74,8 +78,6 @@
     --shadow-md: var(--shadow-md);
     --shadow-lg: var(--shadow-lg);
     --shadow-xl: var(--shadow-xl);
-    --default-font-family: var(--font-sans);
-    --default-mono-font-family: var(--font-mono);
     --color-background: var(--color-background);
     --color-surface: var(--color-surface);
     --color-surface-hover: var(--color-surface-hover);

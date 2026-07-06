@@ -6,10 +6,20 @@
  * https://tailwindcss.com — source: `tailwindcss/preflight.css`). Vendored
  * from the COMPILED output, not the source file: the source expresses the
  * font-family rules through the build-time `--theme(--default-font-family, …)`
- * function, which is not valid runtime CSS; the compiled form has it expanded
- * to `var(--default-font-family, …)`. Those `var()` references are wired to
- * Schatten's font tokens by `src/styles/public-tokens.css`
- * (`--default-font-family: var(--font-sans)` etc.).
+ * function, which is not valid runtime CSS; the compiled form had it expanded
+ * to `var(--default-font-family, …)`.
+ *
+ * #231 divergence from the verbatim copy — the `html` / `code` font-family
+ * rules reference `--font-sans` / `--font-mono` DIRECTLY, not through the
+ * Tailwind-named `--default-font-family` / `--default-mono-font-family`
+ * indirection they carried upstream. Those two variables were the only
+ * Tailwind-convention names left on Schatten's public surface (they collide
+ * with a consumer's own Tailwind v4 preflight in the shared `@layer theme`),
+ * so the CSS-variable-naming audit removed them: the indirection pointed at
+ * `--font-sans` / `--font-mono` anyway, so referencing the token directly is
+ * value-identical (same resolved font) while shrinking the public surface by
+ * two variables. See docs/decisions/2026-07-css-variable-namespace.md.
+ * When re-syncing to a newer Tailwind (below), re-apply this substitution.
  *
  * Why vendored at all: Schatten's component CSS depends on preflight
  * behaviour — e.g. `Button.css` relies on `svg { display: block }` and
@@ -48,7 +58,7 @@
     tab-size: 4;
     line-height: 1.5;
     font-family: var(
-      --default-font-family,
+      --font-sans,
       ui-sans-serif,
       system-ui,
       sans-serif,
@@ -95,7 +105,7 @@
   samp,
   pre {
     font-family: var(
-      --default-mono-font-family,
+      --font-mono,
       ui-monospace,
       SFMono-Regular,
       Menlo,

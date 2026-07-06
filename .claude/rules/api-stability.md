@@ -54,6 +54,15 @@ release — including a `patch` — without notice:
   documented class is **not** a breaking change.
 - File paths inside `dist/` other than the ones declared in `package.json`'s
   `exports` map.
+- **Primitive-scale CSS variables** (`--vermillion-*`, `--red-*`, `--blue-*`,
+  `--gray-*`, `--sumi-*`, `--alabaster-*`, `--paper-*`, `--ink-*`, …). They
+  ship in the dist `:root` (unlayered) but are **not** in the registrar /
+  manifest, so they are not public surface — renaming or retuning them is
+  **not** a breaking change and does not require the pre-1.0 settle. Consumers
+  reference the semantic layer (`--color-vermillion`, `--color-error`, the
+  `--color-theme-*` scale) instead. This is decided, not deferred — see
+  [CSS variable naming — the four-layer model](#css-variable-naming--the-four-layer-model)
+  (layer 1) and the #231 decision log.
 
 If a consumer reaches into one of these, that's a usage outside the contract —
 we will not consider their breakage when scoping a release.
@@ -326,26 +335,59 @@ The class-name audit is tracked by
 every public class into the manifest below. Once #154 ships, the manifest
 becomes the diff a reviewer sees on every CSS change.
 
-## CSS variable naming — settle before 1.0
+## CSS variable naming — the four-layer model
 
-A CSS variable rename is `major` after 1.0. So names like `--vermillion-600`
-need to be intentional now, not later. Two checkpoints:
+A CSS variable rename is `major` after 1.0, so the public variable surface
+was audited and settled pre-1.0 by
+[#231](https://github.com/yasmro/schatten/issues/231). The audit's finding is
+that **collision with a consumer's own tokens is harmful only where the two
+sides put a *different meaning* on the same name** — a consumer's `--spacing-4`
+means the same 1rem Schatten's does (harmless, even useful to share), but a
+shadcn consumer's `--color-background` means something different from
+Schatten's (harmful). That principle sorts every public variable into one of
+four layers, each with its own naming rule:
 
-1. **Primitive scale names** (`--vermillion-*`, `--green-*`) — if we ever want
-   to rename to brand-neutral names (`--brand-red-*`), it must happen pre-1.0.
-2. **Semantic token names** (`--color-error`, `--color-destructive`) — these
-   are intentionally meaning-based and should age better, but verify the
-   shape (`base / hover / foreground / subtle` — see
-   [state-token-guideline](state-token-guideline.md)) is final before 1.0.
+| # | Layer | Names | Public? | Rule |
+|---|---|---|---|---|
+| 1 | **Primitive** | `--vermillion-*` `--red-*` `--blue-*` `--gray-*` `--sumi-*` `--alabaster-*` `--paper-*` `--ink-*` | **No** — ships in dist `:root` but not in the registrar/manifest | Internal. Rename/retune freely (see [What is not public API](#what-is-not-public-api)). Consumers use the semantic layer instead. |
+| 2 | **Tailwind-convention** | `--spacing-*` `--text-*` `--leading-*` `--font-*` `--radius-sm..2xl` `--shadow-sm..xl` | Yes, **bare** | Keep the Tailwind-scale names. The value is a shared convention, so a consumer overriding / colliding is **intended** — it lets their Tailwind pick Schatten's scale up. |
+| 3 | **Semantic** | `--color-*` (surfaces / foregrounds / state / inverted / brand / `--color-theme-*`), the schatten-specific aliases `--radius-control` `--radius-surface` `--radius-pill` `--shadow-card/popover/modal/toast` `--z-*` `--motion-*` | Yes, **bare** | The meaning is Schatten's, so these **can** collide with another full design system (shadcn defines `--color-background` too). Not namespaced — the collision is **documented, not renamed away** (see below). Consumers with a conflicting token scope Schatten (below). |
+| 4 | **Schatten-namespaced** | `--st-duration-*` `--st-spinner-*` | Yes, **`--st-` prefix** | For axes with no Tailwind-convention counterpart (raw enter/exit timing, spinner cadence). `--st-` mirrors the `.st-` class prefix ([css-api.md](css-api.md)). New schatten-specific tokens that don't fit layers 2–3 go here. |
 
-The class-name audit is scheduled for v0.9.0 (#58 Phase 2, implemented by
-[#154](https://github.com/yasmro/schatten/issues/154) — pulled forward from
-v0.14.0 so it lands before the lv2 components, see #154 for the rationale).
-The CSS variable audit is tracked by
-[#231](https://github.com/yasmro/schatten/issues/231) (currently milestoned at
-v0.15.0 as a backstop); the only hard requirement is that it lands **before
-v1.0.0**. CONTRIBUTING.md (planned for v0.15.0) will reference this document as
-the source of truth for what consumers can rely on.
+### Why the semantic `--color-*` layer stays bare (not `--st-color-*`)
+
+The audit **considered and rejected** namespacing the whole semantic layer to
+`--st-color-*`. Full namespacing would make collision mechanically impossible,
+but at the cost of (a) ~50 color-variable renames + a migration guide, (b)
+uglier token names for *every* consumer, and (c) breaking the layer-2 win
+where Schatten's `--spacing-*` / `--text-*` share Tailwind's names on purpose.
+The harmful-collision case — Schatten used **alongside another full design
+system** on the same `:root` — is rare, and a consumer in that situation can
+scope Schatten's tokens under a wrapper rather than pay a global rename. So the
+DoD's "collision avoided **or** the un-avoidable collision is documented" is
+satisfied on the *documented* side for layer 3: this table **is** that
+documentation, and the consumer-facing escape hatch (scope Schatten's `:root`
+tokens under a container, or lower them into a `@layer` the consumer's own
+`:root` beats) is the mitigation. See the #231 decision log,
+`docs/decisions/2026-07-css-variable-namespace.md`.
+
+**Semantic token shape.** The state token names (`--color-error`,
+`--color-destructive`, …) are meaning-based and their 5-slot shape
+(`base / hover / foreground / subtle / emphasis` — see
+[state-token-guideline](state-token-guideline.md)) is final for 1.0.
+
+**No Tailwind-convention names on the public surface.** #231 removed the last
+two — `--default-font-family` / `--default-mono-font-family` (Tailwind's own
+preflight variable names, which collided with a consumer's Tailwind v4
+preflight in the shared `@layer theme`). The vendored preflight now references
+`--font-sans` / `--font-mono` directly; the change was value-identical (the
+indirection already resolved to those). See the decision log.
+
+The class-name audit shipped in v0.9.0 (#58 Phase 2, implemented by
+[#154](https://github.com/yasmro/schatten/issues/154)). The CSS-variable audit
+([#231](https://github.com/yasmro/schatten/issues/231)) settled the four-layer
+model above before v1.0.0. CONTRIBUTING.md (planned for v0.15.0) will reference
+this document as the source of truth for what consumers can rely on.
 
 ## Manifest as the authoritative API listing
 

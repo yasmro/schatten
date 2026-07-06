@@ -50,13 +50,19 @@ describe('buildSchattenCss', () => {
     expect(css).toContain('-webkit-text-size-adjust')
   })
 
-  it('wires the vendored preflight to Schatten font tokens via the registrar', () => {
-    // public-tokens.css must keep the two load-bearing --default-* rows —
-    // they are the only definition the preflight html / code rules resolve
-    // against (see src/styles/public-tokens.css header).
-    expect(css).toContain('--default-font-family:var(--font-sans)')
-    expect(css).toContain('--default-mono-font-family:var(--font-mono)')
-    expect(css).toMatch(/code,kbd,samp,pre\{font-family:var\(--default-mono-font-family/)
+  it('wires the vendored preflight to Schatten font tokens directly', () => {
+    // #231: the preflight html / code rules reference --font-sans / --font-mono
+    // DIRECTLY, not through the Tailwind-named --default-*-font-family
+    // indirection they carried upstream. Those two variables were the last
+    // Tailwind-convention names on the public surface (they collide with a
+    // consumer's own Tailwind v4 preflight in the shared @layer theme), so the
+    // CSS-variable audit removed them — value-identical, since the indirection
+    // already resolved to these tokens. Do not regress by re-adding them.
+    // See docs/decisions/2026-07-css-variable-namespace.md.
+    expect(css).not.toContain('--default-font-family')
+    expect(css).not.toContain('--default-mono-font-family')
+    expect(css).toMatch(/[{;]font-family:var\(--font-sans,/)
+    expect(css).toMatch(/code,kbd,samp,pre\{font-family:var\(--font-mono,/)
   })
 
   it('opens with the MIT attribution banner for the vendored preflight', () => {

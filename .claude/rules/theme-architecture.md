@@ -182,8 +182,10 @@ not a `--st-`-prefixed one. Two consequences the theme machinery relies on:
   consumer who *also* defines `--color-theme-*` on `:root` will collide by
   last-wins — exactly the layer-3 case the audit decided to **document rather
   than rename away**. A consumer in that situation scopes Schatten's tokens
-  under a container instead of overriding globally (see
-  [api-stability.md](api-stability.md#why-the-semantic---color--layer-stays-bare-not---st-color-)).
+  under a container (or imports Schatten into a cascade layer) instead of
+  overriding globally — the worked recipes are in the
+  [README](../../README.md#using-schatten-alongside-another-design-system-token-collisions),
+  the rationale in [api-stability.md](api-stability.md#why-the-semantic-layer-stays-bare).
   This does not affect `data-theme` switching, which mutates the attribute on
   `<html>` and re-resolves the same bare `--color-theme-*` names at paint time.
 

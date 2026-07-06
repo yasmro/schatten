@@ -7,19 +7,22 @@ When adding or modifying components, follow shadcn/ui conventions (Radix UI + CV
 
 ## Tech Stack
 
-> **Consumers do NOT need Tailwind.** Schatten is internally built with
-> Tailwind CSS v4 CLI, but the published `dist/schatten.css` ships all
-> design tokens, the base reset, and the full `.st-*` component class
-> API as ready-to-use CSS (since v0.9.0, all 18 lv1 components covered).
-> Consumers `import '@yasmro/schatten/schatten.css'` once and write
-> `<button class="st-btn st-btn--primary">` (or use the React layer) —
-> no Tailwind setup, no PostCSS, no build step required on the consumer
-> side. The Tailwind reference below describes Schatten's *internal*
-> implementation, not a consumer prerequisite.
+> **Consumers do NOT need Tailwind — and since #317, neither does the
+> published CSS.** `dist/schatten.css` is compiled Tailwind-free
+> (lightningcss bundles plain-CSS sources: raw tokens + the hand-written
+> `@layer theme` registrar + vendored preflight + component `.st-*`
+> rules) and ships all design tokens, the base reset, and the full
+> `.st-*` component class API as ready-to-use CSS (since v0.9.0, all lv1
+> components covered). Consumers `import '@yasmro/schatten/schatten.css'`
+> once and write `<button class="st-btn st-btn--primary">` (or use the
+> React layer) — no Tailwind setup, no PostCSS, no build step required on
+> the consumer side. Tailwind v4 remains a **dev-only** dependency for
+> the Storybook path (`src/styles/globals.css` via `@tailwindcss/vite`;
+> stories use Tailwind utilities as layout scaffolding) — it never ships.
 
 - **Base**: shadcn/ui
+- **Styling**: raw CSS `.st-*` class API + class-variance-authority (CVA); Tailwind CSS v4 is Storybook-only
 - **Framework**: React + TypeScript
-- **Styling**: Tailwind CSS + class-variance-authority (CVA) — internal; consumers see `.st-*` classes
 - **Primitives**: Radix UI
 - **Storybook**: Component documentation & visual testing
 - **Build**: tsup

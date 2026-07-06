@@ -1,0 +1,182 @@
+/*
+ * Public CSS-variable registrar — the authoritative "@layer theme" block.
+ *
+ * WHAT THIS FILE IS
+ * Every custom property declared inside this `@layer theme { :root, :host }`
+ * block is PUBLIC API: `scripts/generate-manifest.mjs` walks exactly this
+ * layer to produce the `cssVariables` section of the manifest
+ * (`src/__generated__/schatten.manifest.json` — the CI-gated surface
+ * snapshot). Adding / removing / renaming a declaration here changes the
+ * public surface and requires a `CSS API:` changeset
+ * (see .claude/rules/api-stability.md).
+ *
+ * WHERE IT CAME FROM
+ * Before #317 this block was compiled by Tailwind v4 from the `@theme { … }`
+ * registrations in `src/core/tokens/base.css` + `src/themes/default/fonts.css`
+ * (tree-shaken to the variables actually referenced by component CSS). The
+ * initial content of this file is the mechanically-extracted `@layer theme`
+ * block of the last Tailwind-built `dist/schatten.css` (tailwindcss 4.3.1) —
+ * value-identical by construction. From #317 onward this hand-maintained
+ * file IS the registrar; `base.css`'s `@theme` block remains Storybook-only
+ * (it feeds `@tailwindcss/vite` so stories can use `bg-surface` etc.).
+ *
+ * HOW RESOLUTION WORKS
+ * Most declarations here are self-referential markers
+ * (`--color-error: var(--color-error)`): at runtime the UNLAYERED
+ * declarations in `src/core/tokens/*.css` / `src/themes/**` win the cascade
+ * (unlayered beats layered), so these rows exist to mark the variable as
+ * public, not to define its value. The exceptions are load-bearing REAL
+ * definitions with no unlayered counterpart:
+ *   - `--default-font-family: var(--font-sans)` and
+ *     `--default-mono-font-family: var(--font-mono)` — the runtime wiring
+ *     that routes Schatten's font tokens into the vendored preflight's
+ *     `html` / `code, kbd, samp, pre` rules (see src/styles/preflight.css).
+ *     Do NOT drop them as "Tailwind leftovers" — `code` elements would fall
+ *     back to the browser mono stack. Their naming is a #231 agenda item.
+ *   - `--font-sans` / `--font-serif` carry the brand stacks registered by
+ *     `src/themes/default/fonts.css`. In the dist these are inert defaults —
+ *     `src/styles/entry.css` re-declares `--font-sans` unlayered (fallback
+ *     stack) and consumers override it; kept verbatim for value parity.
+ *
+ * MAINTENANCE
+ * When a new public variable ships: declare its real value in the token
+ * source (unlayered), add a self-referential row here, run
+ * `pnpm update:manifest`, and ship the `CSS API:` changeset. Forgetting
+ * the row here is machine-caught for the common case: `pnpm
+ * check:registrar` (CI `lint` job) fails when a public-vocabulary
+ * variable is consumed by component/reset CSS without a registrar row.
+ */
+@layer theme {
+  :root,
+  :host {
+    --font-sans: "Hanken Grotesk", "LINE Seed JP", var(--font-sans-fallback);
+    --font-serif: "EB Garamond", "Noto Serif JP", var(--font-serif-fallback);
+    --font-mono: var(--font-mono-fallback);
+    --text-xs: 0.75rem;
+    --text-sm: 0.875rem;
+    --text-base: 1rem;
+    --text-lg: 1.125rem;
+    --text-xl: 1.25rem;
+    --text-2xl: 1.5rem;
+    --text-3xl: 1.875rem;
+    --text-4xl: 2.25rem;
+    --leading-tight: 1.25;
+    --leading-snug: 1.375;
+    --leading-normal: 1.5;
+    --leading-relaxed: 1.625;
+    --leading-loose: 2;
+    --radius-sm: var(--radius-sm);
+    --radius-md: var(--radius-md);
+    --radius-lg: var(--radius-lg);
+    --radius-xl: var(--radius-xl);
+    --radius-2xl: var(--radius-2xl);
+    --shadow-sm: var(--shadow-sm);
+    --shadow-md: var(--shadow-md);
+    --shadow-lg: var(--shadow-lg);
+    --shadow-xl: var(--shadow-xl);
+    --default-font-family: var(--font-sans);
+    --default-mono-font-family: var(--font-mono);
+    --color-background: var(--color-background);
+    --color-surface: var(--color-surface);
+    --color-surface-hover: var(--color-surface-hover);
+    --color-foreground: var(--color-foreground);
+    --color-foreground-muted: var(--color-foreground-muted);
+    --color-foreground-subtle: var(--color-foreground-subtle);
+    --color-solid: var(--color-solid);
+    --color-solid-hover: var(--color-solid-hover);
+    --color-solid-foreground: var(--color-solid-foreground);
+    --color-solid-foreground-hover: var(--color-solid-foreground-hover);
+    --color-destructive: var(--color-destructive);
+    --color-destructive-hover: var(--color-destructive-hover);
+    --color-destructive-foreground: var(--color-destructive-foreground);
+    --color-destructive-subtle: var(--color-destructive-subtle);
+    --color-destructive-emphasis: var(--color-destructive-emphasis);
+    --color-vermillion: var(--color-vermillion);
+    --color-vermillion-foreground: var(--color-vermillion-foreground);
+    --color-indigo: var(--color-indigo);
+    --color-indigo-foreground: var(--color-indigo-foreground);
+    --color-border: var(--color-border);
+    --color-border-strong: var(--color-border-strong);
+    --color-ring: var(--color-ring);
+    --color-ring-offset: var(--color-ring-offset);
+    --color-inverted-foreground: var(--color-inverted-foreground);
+    --color-inverted-foreground-muted: var(--color-inverted-foreground-muted);
+    --color-inverted-foreground-subtle: var(--color-inverted-foreground-subtle);
+    --color-error: var(--color-error);
+    --color-error-hover: var(--color-error-hover);
+    --color-error-foreground: var(--color-error-foreground);
+    --color-error-subtle: var(--color-error-subtle);
+    --color-error-emphasis: var(--color-error-emphasis);
+    --color-success: var(--color-success);
+    --color-success-hover: var(--color-success-hover);
+    --color-success-foreground: var(--color-success-foreground);
+    --color-success-subtle: var(--color-success-subtle);
+    --color-success-emphasis: var(--color-success-emphasis);
+    --color-warning: var(--color-warning);
+    --color-warning-hover: var(--color-warning-hover);
+    --color-warning-foreground: var(--color-warning-foreground);
+    --color-warning-subtle: var(--color-warning-subtle);
+    --color-warning-emphasis: var(--color-warning-emphasis);
+    --color-info: var(--color-info);
+    --color-info-hover: var(--color-info-hover);
+    --color-info-foreground: var(--color-info-foreground);
+    --color-info-subtle: var(--color-info-subtle);
+    --color-info-emphasis: var(--color-info-emphasis);
+    --color-surface-disabled: var(--color-surface-disabled);
+    --color-foreground-disabled: var(--color-foreground-disabled);
+    --color-border-disabled: var(--color-border-disabled);
+    --color-surface-readonly: var(--color-surface-readonly);
+    --color-border-readonly: var(--color-border-readonly);
+    --color-theme-50: var(--color-theme-50);
+    --color-theme-100: var(--color-theme-100);
+    --color-theme-200: var(--color-theme-200);
+    --color-theme-300: var(--color-theme-300);
+    --color-theme-400: var(--color-theme-400);
+    --color-theme-500: var(--color-theme-500);
+    --color-theme-600: var(--color-theme-600);
+    --color-theme-700: var(--color-theme-700);
+    --color-theme-800: var(--color-theme-800);
+    --color-theme-900: var(--color-theme-900);
+    --color-theme-950: var(--color-theme-950);
+    --spacing-px: var(--spacing-px);
+    --spacing-0: var(--spacing-0);
+    --spacing-1: var(--spacing-1);
+    --spacing-2: var(--spacing-2);
+    --spacing-3: var(--spacing-3);
+    --spacing-4: var(--spacing-4);
+    --spacing-5: var(--spacing-5);
+    --spacing-6: var(--spacing-6);
+    --spacing-8: var(--spacing-8);
+    --spacing-10: var(--spacing-10);
+    --spacing-12: var(--spacing-12);
+    --spacing-16: var(--spacing-16);
+    --spacing-20: var(--spacing-20);
+    --spacing-24: var(--spacing-24);
+    --radius-none: var(--radius-none);
+    --radius-full: var(--radius-full);
+    --radius-control: var(--radius-control);
+    --radius-surface: var(--radius-surface);
+    --radius-pill: var(--radius-pill);
+    --shadow-card: var(--shadow-card);
+    --shadow-popover: var(--shadow-popover);
+    --shadow-modal: var(--shadow-modal);
+    --shadow-toast: var(--shadow-toast);
+    --z-base: var(--z-base);
+    --z-dropdown: var(--z-dropdown);
+    --z-sticky: var(--z-sticky);
+    --z-fixed: var(--z-fixed);
+    --z-modal-backdrop: var(--z-modal-backdrop);
+    --z-modal: var(--z-modal);
+    --z-popover: var(--z-popover);
+    --z-tooltip: var(--z-tooltip);
+    --z-toast: var(--z-toast);
+    --st-duration-fast: var(--st-duration-fast);
+    --st-duration-base: var(--st-duration-base);
+    --st-duration-slow: var(--st-duration-slow);
+    --motion-quick: var(--motion-quick);
+    --motion-base: var(--motion-base);
+    --motion-expressive: var(--motion-expressive);
+    --st-spinner-duration: var(--st-spinner-duration);
+    --st-spinner-ripple-delay: var(--st-spinner-ripple-delay);
+  }
+}

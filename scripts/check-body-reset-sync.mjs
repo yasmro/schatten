@@ -1,11 +1,12 @@
 #!/usr/bin/env node
 // Check that the JP/EN `font-size-adjust` compensation on the `body`
-// reset is declared identically in the dist entry (`src/styles/entry.css`)
-// and the Storybook entry (`src/styles/globals.css`).
+// reset is declared identically in the dist reset (`src/styles/reset.css`,
+// split out of entry.css by #317) and the Storybook entry
+// (`src/styles/globals.css`).
 //
 // Why this exists: the JP/EN cap-height compensation (#184) lives on the
 // `body` reset so it inherits to every component. It MUST be duplicated in
-// both entries — `entry.css` ships in `dist/schatten.css` (what consumers
+// both entries — `reset.css` ships in `dist/schatten.css` (what consumers
 // get), and `globals.css` is what Storybook (and therefore every VRT
 // screenshot) renders against. If the two drift, Storybook/VRT stays green
 // while the shipped dist looks different — a regression that no other gate
@@ -18,7 +19,7 @@
 
 import { existsSync, readFileSync } from 'node:fs'
 
-const ENTRY_CSS = 'src/styles/entry.css'
+const ENTRY_CSS = 'src/styles/reset.css'
 const GLOBALS_CSS = 'src/styles/globals.css'
 
 /**

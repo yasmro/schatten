@@ -19,25 +19,29 @@
 //   output independently, so a sweep that bloats one component's CSS surfaces
 //   in CI without being absorbed by the integrated total.
 //
-// Why Tailwind v4 CLI (and not postcss-splitting `dist/schatten.css`):
+// Why lightningcss `transform()` (#317, replacing the Tailwind v4 CLI):
 //
 // - Each `src/components/lv1/<Name>/<Name>.css` is already self-contained
-//   raw CSS (no `@apply`, no Tailwind utilities — see css-api.md "Component
-//   CSS authoring conventions"), so the CLI is acting purely as a minifier
-//   (lightningcss under the hood).
-// - Pulling rules back out of the integrated stylesheet would re-introduce
-//   the ordering coupling between sweeps; per-component build keeps each
-//   surface deterministic.
+//   raw CSS (no `@apply`, no Tailwind utilities, no `@import` — see
+//   css-api.md "Component CSS authoring conventions"), so all the build has
+//   to do is minify. The Tailwind CLI was only ever acting as a lightningcss
+//   wrapper here; #317 calls the engine directly.
+// - `transform()` (not `bundle()`) because the inputs have no `@import`
+//   chain to resolve.
+// - Same `TW4_BASELINE_TARGETS` as the integrated build (see
+//   scripts/build-css.mjs for the rationale — modern syntax passes through
+//   verbatim, needed vendor prefixes are kept), so per-component outputs
+//   match its compression profile.
 //
-// See #291.
+// See #291 (per-component delivery) and #317 (Tailwind detach).
 
-import { execFileSync } from 'node:child_process'
-import { existsSync, mkdirSync } from 'node:fs'
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
+import { transform } from 'lightningcss'
+import { TW4_BASELINE_TARGETS } from './build-css.mjs'
 import { discoverLv1WithCss } from './lv1-slugs.mjs'
 
 const DIST_DIR = 'dist/css'
-const TAILWIND_BIN = 'node_modules/.bin/tailwindcss'
 
 function discoverComponents() {
   // Delegated to `scripts/lv1-slugs.mjs` — single source of truth for
@@ -55,36 +59,25 @@ function discoverComponents() {
 
 function buildOne({ name, slug, srcCss }) {
   const outCss = join(DIST_DIR, `${slug}.css`)
-  // `--minify` runs the same lightningcss pass that `build:css` uses on
-  // the integrated stylesheet, so per-component outputs match its
-  // compression profile.
-  //
-  // Tailwind CLI prints `Done in <N>ms` to stderr per invocation; 18 lines
-  // of "Done" noise in CI logs is not useful. Capture stderr and only
-  // surface it on failure — `execFileSync` already throws with the command
-  // detail when the exit code is non-zero, so we just need to forward the
-  // buffered output for diagnostics.
   try {
-    execFileSync(TAILWIND_BIN, ['-i', srcCss, '-o', outCss, '--minify'], {
-      stdio: ['ignore', 'ignore', 'pipe'],
+    const { code } = transform({
+      filename: srcCss,
+      code: readFileSync(srcCss),
+      minify: true,
+      targets: TW4_BASELINE_TARGETS,
     })
+    writeFileSync(outCss, code)
   } catch (error) {
-    if (error && typeof error === 'object' && 'stderr' in error && error.stderr) {
-      process.stderr.write(error.stderr)
-    }
-    throw new Error(`build-component-css: tailwindcss failed for "${name}" (${srcCss})`)
+    throw new Error(
+      `build-component-css: lightningcss failed for "${name}" (${srcCss}): ${
+        error instanceof Error ? error.message : error
+      }`,
+    )
   }
   return outCss
 }
 
 function main() {
-  if (!existsSync(TAILWIND_BIN)) {
-    throw new Error(
-      `build-component-css: tailwindcss CLI not found at "${TAILWIND_BIN}". ` +
-        'Run `pnpm install` first.',
-    )
-  }
-
   mkdirSync(DIST_DIR, { recursive: true })
 
   const components = discoverComponents()

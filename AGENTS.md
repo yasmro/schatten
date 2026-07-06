@@ -6,21 +6,23 @@
 
 ## About this repo
 
-**Schatten** is a design system component library based on [shadcn/ui](https://ui.shadcn.com/), customized for the Schatten brand. Components are built on Radix UI primitives, styled with Tailwind CSS v4, and authored with `class-variance-authority` (CVA).
+**Schatten** is a design system component library based on [shadcn/ui](https://ui.shadcn.com/), customized for the Schatten brand. Components are built on Radix UI primitives, styled through a raw-CSS `.st-*` class API, and authored with `class-variance-authority` (CVA).
 
-> **Consumers do NOT need Tailwind.** Schatten is internally built with
-> Tailwind CSS v4 CLI, but the published `dist/schatten.css` ships all
-> design tokens, the base reset, and the full `.st-*` component class
-> API as ready-to-use CSS. Consumers `import '@yasmro/schatten/schatten.css'`
+> **Consumers do NOT need Tailwind — and since #317, neither does the
+> published CSS.** `dist/schatten.css` is compiled Tailwind-free
+> (lightningcss bundles plain-CSS sources) and ships all design tokens,
+> the base reset, and the full `.st-*` component class API as
+> ready-to-use CSS. Consumers `import '@yasmro/schatten/schatten.css'`
 > once and write `<button class="st-btn st-btn--primary">` (or use the
 > React layer) — no Tailwind setup, no PostCSS, no build step required
-> on the consumer side. The "Tailwind v4" references below describe
-> Schatten's *internal* implementation, not a consumer prerequisite.
+> on the consumer side. Tailwind v4 remains a **dev-only** dependency
+> for the Storybook path (stories use Tailwind utilities as layout
+> scaffolding) — it never ships.
 
 - **Framework**: React 18 / 19 + TypeScript
-- **Styling**: Tailwind CSS v4 + CVA (internal — consumers see `.st-*` classes)
+- **Styling**: raw CSS `.st-*` class API + CVA (Tailwind CSS v4 is Storybook-only)
 - **Primitives**: Radix UI
-- **Build / Test / VRT**: tsup + Tailwind CSS v4 CLI / Vitest / Playwright
+- **Build / Test / VRT**: tsup + lightningcss / Vitest / Playwright
 - **Lint / Format**: Biome
 - **Release**: Changesets
 - **Package manager**: pnpm
@@ -57,7 +59,7 @@ Before adding or modifying components, read the guideline files under [`.claude/
 - [`testing-guideline.md`](.claude/rules/testing-guideline.md) — Unit test conventions: required cases per component type (form / compound / action / display), BDD naming, typed factories, what NOT to test.
 - [`lint-rules-guideline.md`](.claude/rules/lint-rules-guideline.md) — Biome rules added on top of `recommended` (`useExhaustiveDependencies`, `noUnusedImports/Variables`, `useImportType/ExportType`, `noNonNullAssertion`, `noConsole`) and the rationale for each.
 - [`api-stability.md`](.claude/rules/api-stability.md) — Public API stability contract effective from v1.0.0: what counts as public API (React props, CSS classes, CSS variables, CVA output), breaking-change policy, and CHANGELOG prefix conventions.
-- [`css-api.md`](.claude/rules/css-api.md) — Framework-agnostic CSS class API: prefix `st-`, BEM convention (`.st-{block}` / `--{modifier}` / `__{element}`), state expressed as attributes (`[aria-invalid]` / `[aria-busy]` / `[data-state]` / …), `@layer` order (`theme, base, reset, tokens, components, utilities` — `theme` / `base` are Tailwind v4's, then schatten's 4 layers; doc ⇄ entry.css consistency is CI-enforced by `pnpm check:layer-order`), dark / seasonal cascade with `:where(.dark)`, and the "no color-only signal" rule.
+- [`css-api.md`](.claude/rules/css-api.md) — Framework-agnostic CSS class API: prefix `st-`, BEM convention (`.st-{block}` / `--{modifier}` / `__{element}`), state expressed as attributes (`[aria-invalid]` / `[aria-busy]` / `[data-state]` / …), `@layer` order (`theme, base, reset, tokens, components, utilities` — `theme` = the hand-written public-variable registrar, `base` = the vendored preflight, then schatten's 4 layers; doc ⇄ entry.css consistency is CI-enforced by `pnpm check:layer-order`), dark / seasonal cascade with `:where(.dark)`, and the "no color-only signal" rule.
 - [`component-testid-guideline.md`](.claude/rules/component-testid-guideline.md) — `data-testid` flows through `...rest` (no `testId` prop); Schatten never auto-emits testids; how to reach Portal-rendered content.
 
 ## Main commands

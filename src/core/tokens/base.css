@@ -1,13 +1,19 @@
 /*
- * Design Tokens - Base Configuration
+ * Design Tokens - Base Configuration (Storybook-only since #317)
  *
  * This file imports primitive and semantic tokens, then registers them
- * with Tailwind CSS v4 via @theme blocks.
+ * with Tailwind CSS v4 via @theme blocks — so stories can use utilities
+ * like `bg-surface` / `text-foreground-muted`. It is imported ONLY by the
+ * Storybook entry (`src/styles/globals.css`); the dist entry
+ * (`src/styles/entry.css`) uses the raw-token twin `index.css` plus the
+ * hand-written public registrar `src/styles/public-tokens.css` instead.
+ * A new PUBLIC variable therefore needs BOTH a registration here (for
+ * Storybook utilities) AND a registrar row (for the manifest surface).
  *
  * Token Hierarchy:
  * 1. primitives.css - Raw color values in OKLCH (fixed, never change between modes)
  * 2. semantic.css   - Meaningful names referencing primitives (dark mode handled here)
- * 3. base.css       - Tailwind integration
+ * 3. base.css       - Tailwind integration (Storybook path)
  */
 
 @import "./primitives.css";

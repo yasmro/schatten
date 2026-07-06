@@ -457,8 +457,8 @@ the compiled output:
 
 | Layer | Contents |
 |---|---|
-| `theme` | **Reserved for Tailwind v4.** `@theme` registrations Tailwind emits from its own `@import "tailwindcss"`. Schatten does not author rules here. |
-| `base` | **Reserved for Tailwind v4 preflight** — the cross-browser reset (`button { background-color: #0000 }`, `*, ::before, ::after { box-sizing: border-box }`, etc.). Schatten does not author rules here. |
+| `theme` | The **public CSS-variable registrar** — [`src/styles/public-tokens.css`](../../src/styles/public-tokens.css) (#317; previously compiled by Tailwind v4 from `@theme` registrations). Every variable declared here is public surface: `generate-manifest.mjs` extracts `cssVariables` from exactly this layer. |
+| `base` | The **vendored Tailwind v4 preflight** — [`src/styles/preflight.css`](../../src/styles/preflight.css) (#317; previously injected by Tailwind's `@import "tailwindcss"`). The cross-browser reset (`button { background-color: #0000 }`, `*, ::before, ::after { box-sizing: border-box }`, etc.) that component CSS depends on. |
 | `reset` | Schatten-specific reset (body defaults: surface / foreground / font-family / font-smoothing). Minimal — Schatten is not a CSS reset framework, but it pins enough that the body looks right with tokens applied. |
 | `tokens` | `:root` / `.dark` / `[data-theme=…]` custom-property declarations from `src/core/tokens/` and `src/themes/`. |
 | `components` | Every `.st-{block}` rule. Source of truth — all visual rules live here. |
@@ -475,20 +475,24 @@ line, two things go wrong at once:
    could re-order Schatten's layers and silently flip precedence.
    The explicit declaration pins our cascade regardless of import
    order in the consumer's stylesheet.
-2. **Tailwind v4 emits `@layer theme { … }` and `@layer base { … }`
-   as side-effects of `@import "tailwindcss"`.** If those layer names
-   are not declared first, CSS Cascade Layers spec puts them
-   *after* the already-declared layers — meaning Tailwind preflight
-   (`button { background-color: #0000 }`) wins over
+2. **The preflight must sit at the lowest cascade priority.** If
+   `theme, base` are not declared first, the layers get their slots
+   from first appearance — meaning the preflight
+   (`button { background-color: #0000 }`) can end up winning over
    `@layer components { .st-btn--primary { background-color: var(--color-solid) } }`.
    Consumers writing vanilla `<button class="st-btn st-btn--primary">`
    then get an un-styled button. **This is exactly what
    [`CSSApiDist.vrt.spec.ts`](../../src/docs/CSSApiDist.vrt.spec.ts)
-   (#277) caught** — it loads `dist/schatten.css` via
-   `page.setContent()` and visually verifies the contract holds.
+   (#277) caught** back when Tailwind injected those two layers as
+   side-effects of `@import "tailwindcss"` and the entry declared only
+   the four schatten layers. Since #317 both blocks are Schatten's own
+   files (`public-tokens.css` / `preflight.css`) imported right after
+   the declaration line, so their order is self-evident from the entry
+   — but the explicit declaration stays as the structural guarantee
+   (and as protection #1 against consumer re-ordering).
 
 The two roles compose: declaring `theme, base` ahead of schatten's
-own layers parks Tailwind preflight at the *lowest* priority where
+own layers parks the preflight at the *lowest* priority where
 it belongs, and the rest of the declaration pins schatten's cascade
 against consumer import-order surprises.
 
@@ -734,15 +738,16 @@ CSS + `var(--color-*)` directly**, not Tailwind's `@apply` shortcut:
 .st-icon--md    { @apply size-5; }
 ```
 
-Why the rule: Tailwind v4 requires `@reference` in component CSS files
-that use `@apply`, so each file can be processed independently by Vite
-in dev mode (Storybook). But adding `@reference "globals.css"` (or
-similar) to a component CSS file **suppresses `@theme` emission from
-the dist build**, because Tailwind sees the reference and dedupes the
-theme block out of the final `dist/schatten.css` — every `--color-*`
-variable disappears from the manifest. This is a Tailwind v4 / Vite /
-Storybook integration corner case discovered during #266 sweep-1; raw
-CSS sidesteps it entirely.
+Why the rule: since #317 the dist is compiled by **lightningcss**, which
+does not process `@apply` at all — a Tailwind directive in a component
+CSS file would pass through as an invalid at-rule and ship broken. So
+raw CSS is now a hard build requirement, not just a convention. (The
+rule predates #317 for a different reason worth remembering: Tailwind v4
+required `@reference` in component CSS files that used `@apply`, and
+adding `@reference "globals.css"` suppressed `@theme` emission from the
+then-Tailwind dist build — every `--color-*` variable disappeared from
+the manifest. A Tailwind v4 / Vite / Storybook integration corner case
+discovered during #266 sweep-1; raw CSS sidestepped it entirely.)
 
 Beyond compatibility, raw CSS is also **more readable for a
 framework-agnostic CSS consumer** — they can read
@@ -750,10 +755,13 @@ framework-agnostic CSS consumer** — they can read
 understand the contract, with no Tailwind utility-name decoder ring
 required.
 
-Use `@apply` only inside keyframe / `prefers-reduced-motion` /
-animation-specific CSS where it genuinely helps (the existing
-Spinner.css / Tooltip.css / Dialog.css / Toast.css don't trip this
-because they have no `@apply` for tokens — only `@keyframes`).
+There is no sanctioned `@apply` use left in the dist chain: every file
+imported by `src/styles/entry.css` must be plain CSS (the existing
+Spinner.css / Tooltip.css / Dialog.css / Toast.css comply — they carry
+only `@keyframes` / `prefers-reduced-motion`, no Tailwind directives).
+Tailwind syntax (`@theme` / `@apply` / `@custom-variant`) is allowed
+only in the Storybook-only entry chain (`globals.css` →
+`core/tokens/base.css` / `themes/default/fonts.css`).
 
 ### Portal content with nested `position: fixed` children must stay transform-free
 
@@ -800,9 +808,10 @@ When you build the next nested-menu primitive (ContextMenu, Menubar,
 NavigationMenu, a Popover that hosts a submenu), apply this from the start
 rather than rediscovering it through the same three bugs.
 
-### Empty base rules are dropped by `--minify`
+### Empty base rules are dropped by minification
 
-Tailwind v4's `--minify` flag strips CSS rules with no declarations.
+The dist minifier (lightningcss since #317; Tailwind's `--minify` — the
+same engine — before that) strips CSS rules with no declarations.
 Writing `.st-{block} { }` to "document the root class" does **not**
 keep it in `dist/schatten.css`, and the manifest generator (which
 parses the compiled dist) consequently won't list it either —
@@ -822,10 +831,10 @@ Two consequences:
    working around it.
 2. **If a block genuinely needs CSS that applies regardless of
    modifier, give the base a real declaration.** `.st-text` does
-   this (`@apply text-foreground antialiased`), and survives minify
-   into both dist and manifest. The choice should be driven by
-   "does this need to render with no modifiers?" — not by manifest
-   bookkeeping.
+   this (`color: var(--color-foreground)` + font smoothing), and
+   survives minify into both dist and manifest. The choice should be
+   driven by "does this need to render with no modifiers?" — not by
+   manifest bookkeeping.
 
 ### Multi-property bundles bind on the class, not on a token
 
@@ -847,14 +856,15 @@ The contract:
   composite variable layer. The 39 such variables were removed in
   [#144](https://github.com/yasmro/schatten/issues/144); only the base
   scale is part of the public typography variable surface.
-- **Do not reintroduce them as a `@utility`** either. A
-  `@utility text-body-md { … }` is purged from `dist/schatten.css`
-  whenever it is unreferenced (the dist entry compiles with
-  `@import "tailwindcss" source(none)`, so Tailwind scans no JSX), and
-  it never appears in the manifest (the generator's `CLASS_RE` matches
-  `st-`-prefixed classes only). Both make it an untracked, fragile
-  public surface — the exact failure mode [#144](https://github.com/yasmro/schatten/issues/144)
-  rejected.
+- **Do not reintroduce them as a `@utility`** either. `@utility` is
+  Tailwind syntax, and since #317 the dist build (lightningcss) does not
+  process it at all — it would ship as an invalid at-rule. (Under the
+  pre-#317 Tailwind build it was purged whenever unreferenced — the dist
+  entry compiled with `source(none)`, so Tailwind scanned no JSX — and it
+  never appears in the manifest either way, since the generator's
+  `CLASS_RE` matches `st-`-prefixed classes only. Untracked, fragile
+  public surface — the exact failure mode
+  [#144](https://github.com/yasmro/schatten/issues/144) rejected.)
 
 Contrast with single-value semantic tokens (`--radius-control`,
 `--shadow-modal`, `--motion-base`): those *do* live as CSS variables

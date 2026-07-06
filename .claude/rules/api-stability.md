@@ -232,7 +232,8 @@ skill's Step 3) should consult this table rather than duplicate it.
 | `@radix-ui/*` (primitives that emit DOM — `react-checkbox` / `react-radio-group` / `react-select` / `react-separator` / `react-switch` / `react-tooltip` / `react-dialog` / `react-avatar`) | Radix sometimes adds, renames, or removes `data-*` / `aria-*` attributes on its rendered primitives. Parity-covered components (Checkbox / Radio / Separator / Switch — 区分 A/B per [vrt-spec-guideline §Parity stories](vrt-spec-guideline.md#parity-stories--when-to-write-one-when-to-skip)) catch the drift via parity VRT; non-parity components (Tooltip / Dialog / Select / Avatar — 区分 C/D) require manual verification because no parity baseline exists. For `Avatar` specifically, the image→fallback swap is the load-status surface a `react-avatar` bump could shift — verify `pnpm test:vrt --grep "Avatar"` (incl. the broken-image interaction test) after the bump. |
 | `sonner` | Renders the `Toast` (since [#318](https://github.com/yasmro/schatten/issues/318), replacing `@radix-ui/react-toast`). Schatten renders each toast body itself via `toast.custom()` (real `Icon` / `Spinner` / `Button` + `.st-toast*` classes) under `toastOptions.unstyled`, so the inner visual is Schatten's — but Sonner still owns the `<li>` wrapper, viewport positioning, stacking, swipe, and enter/exit animation. A Sonner bump that changes the custom-content wrapper structure, the `unstyled` behavior, or its injected positioning / stacking / animation styles can shift the Toast visual with no source-side change. No parity baseline exists (Toast is 区分 D — JS 必須), so verify manually: `pnpm test:vrt --grep "Toast"` + Storybook visual review. Pinned exact in `package.json`. |
 | `@radix-ui/react-slot` | Slot doesn't emit DOM of its own, but it's the `asChild` plumbing — a bump can change prop-merging order or ref-forwarding behavior. This affects the one component that exposes `asChild` publicly (`Button`) **and** every component that uses Slot internally (`Tooltip.Trigger`'s `isTextOnly` path, `Dialog`'s internal `DialogPrimitive.Close asChild`, `Select`'s `SelectPrimitive.Icon asChild`). |
-| `tailwindcss` | The Tailwind v4 compiler's `@layer theme { … }` emission rules can shift between minor versions. The manifest's `cssVariables` section is extracted from that block (see [Manifest as the authoritative API listing](#manifest-as-the-authoritative-api-listing) above), so a Tailwind bump can silently add or drop variables from the public surface. |
+| `tailwindcss` / `@tailwindcss/vite` | **Storybook/dev path only since #317** (the dist build is Tailwind-free — lightningcss, below). Storybook is what every component VRT screenshots, and stories lean on Tailwind utilities (`flex` / `gap-4` / `bg-surface` / …) as layout scaffolding, so a Tailwind bump can still drift **component/docs VRT baselines** without a source change. It can no longer affect the manifest or the shipped `dist/schatten.css`. |
+| `lightningcss` | The engine that compiles `dist/schatten.css` and every `dist/css/<component>.css` (#317, `scripts/build-css.mjs` / `build-component-css.mjs`). Its output feeds the `CSSApiDist.vrt.spec.ts` baselines **and** is the source `generate-manifest.mjs` parses, so a version bump can shift both without a source change. Exact-pinned in `package.json` (the same rule as `vite` / `@biomejs/biome`); `scripts/__tests__/build-css.test.ts` smoke-pins the output shape (layer order, no downleveling, prefix preservation). |
 | `vite` | Vite is the **engine that renders every VRT screenshot** — it builds the Storybook the Playwright specs screenshot against (`@storybook/react-vite` builder) and is the runtime under which Vitest executes. A Vite major bump can shift font / antialiasing / sub-pixel rendering across the whole suite, drifting **every** `*.png` baseline at once — exactly the bulk-re-baseline case in [vrt-spec-guideline §"Bulk re-baseline"](vrt-spec-guideline.md#re-baselining-updating-snapshots). It is pinned exact in `package.json` (not caret) for this reason. Note Vite also rides in transitively as a Vitest peer (`vite >= 6` for Vitest 4), so a Vitest major can force a Vite major — see [#254](https://github.com/yasmro/schatten/issues/254). |
 
 When adding a new dependency that can shift the visual contract without a
@@ -350,13 +351,18 @@ the source of truth for what consumers can rely on.
 
 `dist/schatten.manifest.json` enumerates every public `.st-*` class, every
 state-hook attribute (`data-*` / `aria-invalid` / `aria-busy`), and every
-CSS custom property registered via Tailwind v4 `@theme { … }` — i.e. the
-machine-readable form of this contract. **`@theme` registration is the
-authoritative public-surface signal for CSS variables**: the generator
+CSS custom property declared in the hand-maintained registrar — i.e. the
+machine-readable form of this contract. **The `@layer theme` registrar
+([`src/styles/public-tokens.css`](../../src/styles/public-tokens.css)) is
+the authoritative public-surface signal for CSS variables** (#317; before
+that, the same block was compiled by Tailwind v4 from `@theme { … }`
+registrations — the extraction criterion is unchanged): the generator
 extracts declarations from the `@layer theme { :root, :host { … } }` block
-that Tailwind compiles `@theme { … }` into, so primitives declared in
-source token files (`--font-bold`, `--font-sans-fallback`, raw
-`--text-xs`) that never go through `@theme` are intentionally excluded.
+of the compiled dist, so primitives declared in source token files
+(`--font-bold`, `--font-sans-fallback`, raw `--text-xs`) that are not
+listed in the registrar are intentionally excluded. Adding / removing a
+registrar row is therefore a public-surface change and follows the same
+changeset policy as any other CSS API change.
 The manifest ships under `@yasmro/schatten/schatten.manifest.json` and is
 regenerated by `pnpm build:manifest` from `dist/schatten.css`. Schema:
 

@@ -1,3 +1,15 @@
+/*
+ * Storybook (dev-only) entry — the ONLY place Tailwind v4 lives post-#317.
+ *
+ * Stories use Tailwind utilities (`flex` / `gap-4` / `bg-surface` / …) as
+ * layout scaffolding, so this entry imports Tailwind plus the `@theme`
+ * registrations in `core/tokens/base.css` / `themes/default/fonts.css`.
+ * None of this ships: the published `dist/schatten.css` is built from the
+ * Tailwind-free twin `src/styles/entry.css` (lightningcss — see
+ * scripts/build-css.mjs). Keep the two entries' body reset in sync:
+ * `pnpm check:body-reset` pins `font-size-adjust` against
+ * `src/styles/reset.css`.
+ */
 @import "tailwindcss";
 @import "../core/tokens/base.css";
 @import "../themes/default/index.css";

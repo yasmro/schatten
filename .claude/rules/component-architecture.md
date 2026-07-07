@@ -329,7 +329,7 @@ importing from a higher one) are forbidden.
 
 | Layer | May import from |
 |---|---|
-| [`lib/`](../../src/lib) (`cn`, `mergeRefs`) | external only (React, clsx, tailwind-merge) |
+| [`lib/`](../../src/lib) (`cn`, `mergeRefs`) | external only (React, clsx) |
 | [`contexts/`](../../src/contexts), [`variants/`](../../src/variants) | external only (React, cva) |
 | [`components/lv1/`](../../src/components/lv1) | `lib/`, `contexts/`, `variants/`, **other `lv1/`** |
 | [`components/lv2/`](../../src/components/lv2) | `lib/`, `contexts/`, `variants/`, `lv1/`, other `lv2/` |

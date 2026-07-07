@@ -206,6 +206,12 @@ their `icon` props. It is declared `optional` in `peerDependenciesMeta` only so
 that Layer A (CSS / token-only) consumers — who never touch the React layer —
 are not warned about a dependency they do not need.
 
+### Upgrading from 0.x
+
+Moving from a pre-1.0 release? The
+[0.x → 1.0 migration guide](docs/migrations/v0-to-v1.md) lists every breaking
+change with a Before → After and the recommended upgrade order.
+
 ## SSR / Next.js App Router
 
 From **v0.8.0**, every Schatten lv1 component bundle carries a `'use client'`

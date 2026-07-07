@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { sanitize, storyNameFromExport } from 'storybook/internal/csf'
 import { describe, expect, it } from 'vitest'
-import { WELCOME_COMPONENT_SLUGS, WELCOME_DEEP_LINKS } from './Welcome.links'
+import { WELCOME_CARD_EXEMPT, WELCOME_COMPONENT_SLUGS, WELCOME_DEEP_LINKS } from './Welcome.links'
 
 /*
  * Welcome deep-link drift guard (#375).
@@ -117,6 +117,29 @@ describe('Welcome component cards ↔ lv1 autodocs', () => {
   it.each(WELCOME_COMPONENT_SLUGS)('%s resolves to an lv1 module with autodocs', (slug) => {
     expect(bySlug.has(slug)).toBe(true)
     expect(hasAutodocs(slug)).toBe(true)
+  })
+})
+
+describe('Welcome component-card catalog completeness', () => {
+  // Every lv1 story module must be either carded on Welcome or explicitly
+  // exempt (portal/pointer-driven — see WELCOME_CARD_EXEMPT). This is the
+  // "forgot to add the card for the new lv1" guard: the two set-equality
+  // checks above only validate the cards that exist, not the ones missing.
+  const lv1Slugs = [...bySlug.keys()].filter((s) => s.startsWith('components-lv1-'))
+
+  it('there is at least one lv1 module to check', () => {
+    expect(lv1Slugs.length).toBeGreaterThan(0)
+  })
+
+  it('every lv1 is either carded on Welcome or listed in WELCOME_CARD_EXEMPT', () => {
+    expect(new Set(lv1Slugs)).toEqual(new Set([...WELCOME_COMPONENT_SLUGS, ...WELCOME_CARD_EXEMPT]))
+  })
+
+  it('no slug is both carded and exempt', () => {
+    const carded = new Set<string>(WELCOME_COMPONENT_SLUGS)
+    for (const slug of WELCOME_CARD_EXEMPT) {
+      expect(carded.has(slug)).toBe(false)
+    }
   })
 })
 

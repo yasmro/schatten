@@ -41,10 +41,10 @@
  *   emitted from CVA — the contract is purely attribute-driven (per
  *   css-api.md §state).
  * - Precedence is CSS source order: default < error < readOnly <
- *   disabled. Tailwind's pre-sweep precedent (tailwind-merge dedupe of
- *   conflicting `bg-*` / `border-*` utilities) was semantically the same
- *   — the disabled / readOnly tokens won because the corresponding
- *   ternary was concatenated last in the wrapper's `cn()` call.
+ *   disabled. The pre-sweep precedent (before the `.st-*` sweep, when the
+ *   wrapper concatenated conflicting `bg-*` / `border-*` Tailwind utilities
+ *   in a `cn()` call) was semantically the same — the disabled / readOnly
+ *   tokens won because their ternary was concatenated last.
  *
  * NB: wrapper-click → focus-input is a **React-only ergonomic** (Input.tsx
  * `onClick` delegates focus). Vanilla HTML consumers click the `<input>`

@@ -154,15 +154,19 @@ The implications:
 - **Pin the `class-variance-authority` dependency** at v1.0. CVA changing how
   it joins, dedupes, or orders class names would silently break consumers.
   Upgrading CVA across a version where output shape changes is a `major`.
-- The **deduplicated set** of class names produced for a given variant tuple
-  is part of the contract; the **order** within the string is not. This is
-  safe *only because* CVA + `tailwind-merge` dedupe conflicting utilities
-  before emitting the string — Tailwind utilities share CSS specificity, so
-  if two conflicting utilities ever made it into the output, "last one wins"
-  would mean order silently became contract-relevant. If we ever drop the
-  dedup step (or `tailwind-merge` changes its conflict-resolution behavior),
-  order has to be reclassified as part of the contract, and the change is a
-  `major`.
+- The **set** of class names produced for a given variant tuple is part of
+  the contract; the **order** within the string is not. This is safe because
+  the CVA output is now **`.st-*` classes only** — every variant emits a
+  side-by-side chain of BEM modifiers (`st-btn st-btn--primary st-btn--md`),
+  with no Tailwind utilities in the string. `.st-*` classes don't conflict on
+  a shared shorthand the way two Tailwind utilities (`p-2` / `p-4`) do, so
+  there is nothing to dedupe and clsx emits them in the deterministic
+  definition order. (Historically `cn()` wrapped the output in
+  `tailwind-merge` to dedupe conflicting Tailwind utilities; that dependency
+  was dropped once the internals went 100% `.st-*` — the dedup step was a
+  no-op on BEM classes. See [css-api.md](css-api.md).) If the internals ever
+  re-introduce raw Tailwind utilities into the CVA output, revisit whether
+  class order becomes contract-relevant.
 - Adding a new variant option to an existing prop (e.g. `<Button variant="ghost">`
   when only `primary | secondary` existed) is `minor` — additive.
 
@@ -207,7 +211,7 @@ The contract:
 The `peerDependencies` ranges in `package.json` (currently `react` and
 `react-dom` at `^18.0.0 || ^19.0.0`) are part of the contract because consumers
 resolve them against their own trees. If we ever promote `class-variance-authority`
-or `tailwind-merge` to peer deps, the same rules apply.
+to a peer dep, the same rules apply.
 
 - **Narrowing a range** (e.g. dropping React 18 support so the package only
   accepts React 19+) is **breaking** — a `major` is required. Some

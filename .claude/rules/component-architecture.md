@@ -372,7 +372,7 @@ Tailwind / CVA cannot reasonably express.
 | `@keyframes` animations (declarative, multi-stop) | Static colors, spacing, typography (use semantic tokens + CVA) |
 | `animation-play-state` / `animation-delay` conditional on `[data-state]` | Hover/focus state styles (use Tailwind variants) |
 | `prefers-reduced-motion` media queries that disable animation | Light/dark adjustments (use CSS variables + `dark:`) |
-| CSS variable definitions scoped to the component (e.g. `--schatten-spinner-duration`) | Layout / flexbox / grid (use Tailwind) |
+| CSS variable definitions scoped to the component (e.g. `--st-spinner-duration`) | Layout / flexbox / grid (use Tailwind) |
 
 **Existing exceptions today** (all animation-only, all comply):
 
@@ -388,7 +388,7 @@ Tailwind / CVA cannot reasonably express.
   dissolve-out keyframes and swipe-handoff animation.
 - [`Spinner.css`](../../src/components/lv1/Spinner/Spinner.css) — ripple
   and breathe keyframes; declares two component-scoped CSS variables
-  (`--schatten-spinner-duration`, `--schatten-spinner-ripple-delay`)
+  (`--st-spinner-duration`, `--st-spinner-ripple-delay`)
   that consumers can override.
 
 **Review check:** if a PR adds a `.css` file under `src/components/lv1/`,

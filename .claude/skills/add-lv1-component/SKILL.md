@@ -235,6 +235,22 @@ requires a discussion per `component-api-conventions.md`.
    initials / a fallback / an inline data-URI), since the dist test screenshots
    the section with `waitUntil: 'load'`.
 
+9. **Decide the component's Welcome-page presence (mandatory — test-enforced,
+   #160).** [`Welcome.drift.test.ts`](../../../src/docs/Welcome.drift.test.ts)
+   asserts that every lv1 story module is either carded in
+   `WELCOME_COMPONENT_SLUGS` or listed in `WELCOME_CARD_EXEMPT` (both in
+   [`Welcome.links.ts`](../../../src/docs/Welcome.links.ts)) — skipping this
+   step fails `pnpm test --run`. Pick one:
+   - **Static-previewable component (the default)** — add
+     `'components-lv1-<kebab>'` to `WELCOME_COMPONENT_SLUGS` AND add a matching
+     `<ComponentCard storyPath="components-lv1-<kebab>">` with a small live
+     preview to `Welcome.stories.tsx` (mirror an existing card; keep the
+     description a one-sentence third-person line in English).
+   - **Portal / pointer-driven component** (dialog-, menu-, popover-like — a
+     static card cannot show the real thing) — add the slug to
+     `WELCOME_CARD_EXEMPT` instead, and extend its header comment if the
+     exemption reason differs from the existing portal rationale.
+
 ### Step 4 — Strip the scaffold residue
 
 The templates carry placeholders that are **not** meant to survive into a

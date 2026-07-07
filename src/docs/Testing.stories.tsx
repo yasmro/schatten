@@ -444,13 +444,6 @@ export const FormFields: Story = {
 
 // Playwright
 await page.getByTestId('email-input').fill('foo@example.com')`}</CodeBlock>
-
-      <Callout variant="info" title="FormField (lv2) is coming in v1+">
-        The one-component short form <Code>FormField</Code> (Field + label + description + error) is
-        planned for v1+ as <a href="https://github.com/yasmro/schatten/issues/123">#123</a>. It will
-        forward testids onto its children the same way. Until then, compose with <Code>Field</Code>{' '}
-        as above.
-      </Callout>
     </Page>
   ),
 }

@@ -156,6 +156,13 @@ export const WELCOME_COMPONENT_SLUGS = [
   'components-lv1-tooltip',
   'components-lv1-toast',
   'components-lv1-callout',
+  'components-lv1-avatar',
+  'components-lv1-card',
+  'components-lv1-icon',
+  'components-lv1-separator',
+  'components-lv1-skeleton',
+  'components-lv1-table',
+  'components-lv1-tabs',
   'components-lv1-field',
   'components-lv1-fieldset',
   'components-lv1-input',
@@ -164,4 +171,22 @@ export const WELCOME_COMPONENT_SLUGS = [
   'components-lv1-checkbox',
   'components-lv1-radio',
   'components-lv1-switch',
+] as const
+
+/**
+ * lv1 components deliberately NOT given a `ComponentCard` on Welcome (#160):
+ * their primary UI is portal-rendered and pointer-driven (dialog, menu,
+ * popover), so a static live-preview card cannot show the real thing — an
+ * open overlay would escape the card's preview box or require interaction
+ * the card's click-trap blocks. They stay reachable through the sidebar's
+ * `Components/lv1/*` catalog.
+ *
+ * `Welcome.drift.test.ts` asserts every lv1 story module is either carded in
+ * `WELCOME_COMPONENT_SLUGS` or listed here — a new lv1 cannot ship without
+ * deciding its Welcome presence.
+ */
+export const WELCOME_CARD_EXEMPT = [
+  'components-lv1-dialog',
+  'components-lv1-dropdownmenu',
+  'components-lv1-popover',
 ] as const

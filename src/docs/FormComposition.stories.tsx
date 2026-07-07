@@ -1,7 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { type FormEvent, useState } from 'react'
 import { Button } from '../components/lv1/Button/Button'
-import { Callout } from '../components/lv1/Callout/Callout'
 import { Checkbox } from '../components/lv1/Checkbox/Checkbox'
 import { Field } from '../components/lv1/Field/Field'
 import { FieldSet } from '../components/lv1/FieldSet/FieldSet'
@@ -250,20 +249,6 @@ function SignUpForm() {
         TanStack Form / Conform work the same way — wrap controlled components in their{' '}
         <code className="text-xs">Controller</code> equivalent.
       </Note>
-    </div>
-  ),
-}
-
-export const FormFieldComingSoon: Story = {
-  name: '7. FormField (lv2) — coming in v1+',
-  render: () => (
-    <div className="mx-auto mt-12 max-w-lg">
-      <Callout variant="info" title="Coming soon">
-        The lv2 <code>FormField</code> (a one-component short form of Field + label + description +
-        error) is planned for the v1+ milestone as{' '}
-        <a href="https://github.com/yasmro/schatten/issues/123">#123</a>. Once it lands, it will be
-        added to this page as a dedicated section.
-      </Callout>
     </div>
   ),
 }

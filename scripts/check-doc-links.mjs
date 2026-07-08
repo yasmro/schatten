@@ -22,8 +22,12 @@
 //
 // Links inside fenced/inline code are ignored (they are examples, not links).
 //
-// Scanned sources: `docs/**/*.md` + `README.md`. Link *targets* may be any
-// file in the repo (rule docs, source files, decision logs), so a rename in
+// Scanned sources: `docs/**/*.md` + `README.md` + the three root entry-point
+// docs (`AGENTS.md` / `CLAUDE.md` / `CONTRIBUTING.md`). Those three are
+// surfaces over `.claude/rules/` that cross-link each other and index the rule
+// files, so scanning them turns a renamed rule (or a stale cross-link between
+// the three) into a lint-time failure. Link *targets* may be any file in the
+// repo (rule docs, source files, decision logs), so a rename in
 // `.claude/rules/*.md` is caught even though those files are not scanned as
 // sources themselves.
 //
@@ -34,7 +38,7 @@ import { dirname, join, relative, resolve } from 'node:path'
 
 const REPO_ROOT = process.cwd()
 const SOURCE_DIRS = ['docs']
-const SOURCE_FILES = ['README.md']
+const SOURCE_FILES = ['README.md', 'AGENTS.md', 'CLAUDE.md', 'CONTRIBUTING.md']
 
 /**
  * Recursively collect `*.md` files under a directory.

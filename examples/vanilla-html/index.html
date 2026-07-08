@@ -144,6 +144,14 @@
         <code>.st-*</code> class chains. No Tailwind, no build step, no JS runtime.
       </p>
 
+      <!-- SSOT NOTE: the .st-* class chains below are copied from the
+           parity-verified fixture at src/docs/__fixtures__/cssApiSamples.html.ts,
+           which is the single source of truth (its React companion is pinned
+           pixel-for-pixel by the *.parity.vrt.spec.ts suite). This example is
+           NOT in the lint/VRT pipeline, so a class rename sweep updates the
+           fixture but not this file — when you rename a class, re-sync the
+           chains here against that fixture so this demo can't silently rot. -->
+
       <!-- ================================================================
            区分 A/B — Fully functional in vanilla HTML.
            Class + HTML/ARIA attributes are enough; parity-verified vs React.

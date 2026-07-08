@@ -52,11 +52,18 @@ jobs:
       - name: Check registrar sync (public CSS variables)
         run: pnpm check:registrar
 
-      # Relative links + heading anchors in docs/**/*.md + README must resolve.
+      # Relative links + heading anchors in docs/**/*.md + README + the three
+      # root entry-point docs (AGENTS / CLAUDE / CONTRIBUTING) must resolve.
       # A heading rename in a rule doc would otherwise silently dead-link the
       # migration guide (#157) and other prose. No build dependency.
       - name: Doc link health
         run: pnpm check:doc-links
+
+      # GitHub issue forms are validated only at new-issue render time, so a
+      # malformed template ships silently. Structural check of the required
+      # top-level keys + file presence (#159). No build dependency.
+      - name: Issue / PR template health
+        run: pnpm check:issue-templates
 
   typecheck:
     runs-on: ubuntu-latest

@@ -1,0 +1,33 @@
+---
+// Import the Schatten CSS bundle ONCE for the whole site. Every page that
+// uses this layout then has the full `.st-*` class API and design tokens.
+import '@yasmro/schatten/schatten.css'
+
+interface Props {
+  title: string
+}
+const { title } = Astro.props
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+  </head>
+  <body>
+    <main style="max-width: 48rem; margin: 0 auto; padding: 2rem 1.5rem;">
+      <slot />
+    </main>
+    <script is:inline>
+      // Mode toggle — mutate <html>, same mechanism as the React ThemeProvider.
+      document.addEventListener('click', (e) => {
+        const t = e.target
+        if (t instanceof Element && t.closest('[data-toggle-dark]')) {
+          document.documentElement.classList.toggle('dark')
+        }
+      })
+    </script>
+  </body>
+</html>

@@ -104,7 +104,7 @@ modifier classes. No JavaScript runtime is required.
 
 - **Tokens**: primitive scales, semantic tokens, base reset, animation keyframes
 - **Component classes** ([css-api.md](.claude/rules/css-api.md) — [#58](https://github.com/yasmro/schatten/issues/58) Phase 2): every lv1 component is reachable via `.st-*` since v0.9.0
-- **Build**: Tailwind CSS v4 CLI — used internally to compile `dist/schatten.css`. **Consumers do not need to install Tailwind.**
+- **Build**: `dist/schatten.css` is compiled Tailwind-free by lightningcss (since [#317](https://github.com/yasmro/schatten/issues/317)) from plain-CSS sources — raw tokens, the hand-written `@layer theme` registrar, a vendored preflight, and the `.st-*` component rules. Tailwind v4 remains a **dev-only** dependency for the Storybook path and never ships. **Consumers do not need to install Tailwind.**
 
 Stable from **v1.0.0**: class names and CSS custom properties are
 part of the public API contract (see

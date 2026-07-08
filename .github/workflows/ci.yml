@@ -151,6 +151,13 @@ jobs:
         run: pnpm check:manifest
         env:
           GITHUB_BASE_REF: ${{ github.base_ref }}
+      # Resolve the manifest through package.json#exports and assert the dist
+      # copy is valid + introspectable (4 surface keys, dist-only
+      # package/version/generatedAt present, surface == committed snapshot).
+      # publint proves the export target exists; this proves it resolves and
+      # parses — the "a consumer can actually import it" half of the contract.
+      - name: Check manifest export
+        run: pnpm check:manifest:export
 
   changeset:
     runs-on: ubuntu-latest

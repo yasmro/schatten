@@ -119,19 +119,21 @@
           <span class="st-btn__content">Toggle dark</span>
         </button>
         <span class="demo-toolbar__label">Special (data-theme)</span>
-        <div class="st-select-native-wrap">
-          <select id="select-season" class="st-input" aria-label="Seasonal theme" style="min-width: 12rem;">
-            <option value="">— none —</option>
-            <option value="season--spring-early">season--spring-early</option>
-            <option value="season--spring-late">season--spring-late</option>
-            <option value="season--summer-early">season--summer-early</option>
-            <option value="season--summer-peak">season--summer-peak</option>
-            <option value="season--autumn-early">season--autumn-early</option>
-            <option value="season--autumn-late">season--autumn-late</option>
-            <option value="season--winter-early">season--winter-early</option>
-            <option value="season--winter-deep">season--winter-deep</option>
-          </select>
-        </div>
+        <!-- Demo chrome only: a native <select> borrowing the .st-input skin so
+             the toolbar reads consistently. This is NOT the Schatten Select —
+             that is `.st-select__trigger` and is React-required (区分 C/D). No
+             wrapper class is used here; `.st-input` styles the control directly. -->
+        <select id="select-season" class="st-input" aria-label="Seasonal theme" style="min-width: 12rem;">
+          <option value="">— none —</option>
+          <option value="season--spring-early">season--spring-early</option>
+          <option value="season--spring-late">season--spring-late</option>
+          <option value="season--summer-early">season--summer-early</option>
+          <option value="season--summer-peak">season--summer-peak</option>
+          <option value="season--autumn-early">season--autumn-early</option>
+          <option value="season--autumn-late">season--autumn-late</option>
+          <option value="season--winter-early">season--winter-early</option>
+          <option value="season--winter-deep">season--winter-deep</option>
+        </select>
       </div>
 
       <h1 class="st-text st-text--heading st-text--lg st-text--default">

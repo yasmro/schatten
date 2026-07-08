@@ -85,6 +85,6 @@ class + HTML/ARIA 属性だけで成立し、React 側と parity VRT でピク�
 
 - [ ] `examples/vanilla-html/index.html` の CDN `<link>` を有効化し、
   `cdn.jsdelivr.net/npm/@yasmro/schatten/dist/schatten.css` を実ブラウザで
-  スモーク。この表の各行を CDN 版でも ✅ 化。
+  スモーク。この表の各行を CDN 版でも ✅ 化。→ [#468](https://github.com/yasmro/schatten/issues/468) で追跡。
 - [ ] （後続 [#160](https://github.com/yasmro/schatten/issues/160)）この記録の
   スクリーンショット + コードサンプルを公開 Storybook ページへ反映。

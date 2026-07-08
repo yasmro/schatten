@@ -1,0 +1,62 @@
+name: Bug report
+description: Report a defect in a component, the CSS API, tokens, or the build.
+labels: ['type: bug']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for filing a bug. Please search existing issues first.
+        For usage questions, prefer Discussions over an issue.
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What is wrong, in one or two sentences.
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      description: Minimal steps — ideally a code snippet or a link to a reproduction.
+      placeholder: |
+        1. Render `<Button variant="primary" isLoading />`
+        2. …
+        3. Observe …
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected vs actual
+      description: What you expected to happen, and what actually happened.
+    validations:
+      required: true
+  - type: dropdown
+    id: surface
+    attributes:
+      label: Surface
+      description: Which layer does the bug affect?
+      options:
+        - React component layer
+        - Framework-agnostic CSS (.st-* classes)
+        - Design tokens / theming
+        - Build / packaging / exports
+        - Docs / Storybook
+        - Other / not sure
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: '@yasmro/schatten version'
+      placeholder: e.g. 0.14.0
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: React version, framework (Next / Astro / vanilla), browser, OS — as relevant.
+    validations:
+      required: false

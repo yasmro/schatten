@@ -1,0 +1,54 @@
+name: Feature request
+description: Propose a new component, variant, token, or capability.
+labels: ['type: feature']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Proposals that add to the public surface should fit the existing
+        conventions in [`.claude/rules/`](https://github.com/yasmro/schatten/tree/develop/.claude/rules).
+        Skim [component-api-conventions.md](https://github.com/yasmro/schatten/blob/develop/.claude/rules/component-api-conventions.md)
+        before proposing a new component or variant.
+  - type: textarea
+    id: overview
+    attributes:
+      label: Overview
+      description: What should exist, and who is it for?
+    validations:
+      required: true
+  - type: textarea
+    id: motivation
+    attributes:
+      label: Motivation
+      description: What problem does this solve? What can't be done today?
+    validations:
+      required: true
+  - type: textarea
+    id: design
+    attributes:
+      label: Proposed design
+      description: |
+        Sketch the public API — props / variants / tokens / CSS classes.
+        Note which existing pattern it follows (Role-based vs Tone × Shape),
+        and any tokens it reuses.
+    validations:
+      required: false
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Other approaches you weighed and why you rejected them.
+    validations:
+      required: false
+  - type: textarea
+    id: dod
+    attributes:
+      label: Definition of Done
+      description: Checklist of what "complete" means (stories / tests / VRT / docs / changeset).
+      value: |
+        - [ ] Component / change implemented
+        - [ ] Stories + unit tests + VRT spec + class-API CSS (for a new lv1)
+        - [ ] a11y contract satisfied (role + name + keyboard + aria-*)
+        - [ ] Changeset added (or `no-changeset` for internal-only)
+    validations:
+      required: false

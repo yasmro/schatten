@@ -22,8 +22,12 @@
 //
 // Links inside fenced/inline code are ignored (they are examples, not links).
 //
-// Scanned sources: `docs/**/*.md` + `README.md`. Link *targets* may be any
-// file in the repo (rule docs, source files, decision logs), so a rename in
+// Scanned sources: `docs/**/*.md` + `README.md` + the three root entry-point
+// docs (`AGENTS.md` / `CLAUDE.md` / `CONTRIBUTING.md`). Those three are
+// surfaces over `.claude/rules/` that cross-link each other and index the rule
+// files, so scanning them turns a renamed rule (or a stale cross-link between
+// the three) into a lint-time failure. Link *targets* may be any file in the
+// repo (rule docs, source files, decision logs), so a rename in
 // `.claude/rules/*.md` is caught even though those files are not scanned as
 // sources themselves.
 //
@@ -34,7 +38,7 @@ import { dirname, join, relative, resolve } from 'node:path'
 
 const REPO_ROOT = process.cwd()
 const SOURCE_DIRS = ['docs']
-const SOURCE_FILES = ['README.md']
+const SOURCE_FILES = ['README.md', 'AGENTS.md', 'CLAUDE.md', 'CONTRIBUTING.md']
 
 /**
  * Recursively collect `*.md` files under a directory.
@@ -54,16 +58,29 @@ function collectMarkdown(dir) {
 }
 
 /**
- * Remove fenced code blocks and inline code so links inside examples are not
- * scanned, and so `#`-prefixed lines inside code are not treated as headings.
+ * Remove fenced code blocks so `#`-prefixed lines inside them are not treated
+ * as headings and `[x](y)` examples inside them are not treated as links.
+ * @param {string} source
+ * @returns {string}
+ */
+function stripFenced(source) {
+  return source.replace(/```[\s\S]*?```/g, '').replace(/~~~[\s\S]*?~~~/g, '')
+}
+
+/**
+ * Remove fenced code blocks AND inline code. Used for link extraction, where
+ * an inline `[x](y)` is a rendered-as-text example, not a real link.
+ *
+ * NOTE: do NOT use this for heading extraction — it strips inline code out of
+ * heading text, so a heading like `## \`destructive\` vs \`error\`` would slug
+ * to `vs` instead of the GitHub-correct `destructive-vs-error`. Heading
+ * extraction uses `stripFenced` (inline code preserved; `slugify` then drops
+ * the backtick markers), so anchors into code-containing headings resolve.
  * @param {string} source
  * @returns {string}
  */
 function stripCode(source) {
-  return source
-    .replace(/```[\s\S]*?```/g, '')
-    .replace(/~~~[\s\S]*?~~~/g, '')
-    .replace(/`[^`\n]*`/g, '')
+  return stripFenced(source).replace(/`[^`\n]*`/g, '')
 }
 
 /**
@@ -102,7 +119,9 @@ const anchorCache = new Map()
 function anchorsFor(mdPath) {
   const cached = anchorCache.get(mdPath)
   if (cached) return cached
-  const src = stripCode(readFileSync(mdPath, 'utf8'))
+  // stripFenced (not stripCode): preserve inline code in headings so slugs
+  // for code-containing headings match GitHub's.
+  const src = stripFenced(readFileSync(mdPath, 'utf8'))
   /** @type {Set<string>} */
   const slugs = new Set()
   const seen = new Map()

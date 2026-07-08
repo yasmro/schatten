@@ -105,6 +105,7 @@
     "schatten:csp-hash": "node scripts/print-csp-hash.mjs",
     "check:layer-order": "node scripts/check-layer-order.mjs",
     "check:doc-links": "node scripts/check-doc-links.mjs",
+    "check:issue-templates": "node scripts/check-issue-templates.mjs",
     "check:registrar": "node scripts/check-registrar-sync.mjs",
     "check:body-reset": "node scripts/check-body-reset-sync.mjs",
     "build:storybook": "storybook build",

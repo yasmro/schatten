@@ -2,7 +2,7 @@
 
 > **What is this file?**
 >
-> Common entry point for AI coding assistants (Codex / Cursor / Aider / OpenHands, etc.). Claude Code reads [CLAUDE.md](CLAUDE.md) instead — that file is Claude Code-specific. Both files share the same source of truth in [`.claude/rules/`](.claude/rules).
+> Common entry point for AI coding assistants (Codex / Cursor / Aider / OpenHands, etc.). Claude Code reads [CLAUDE.md](CLAUDE.md) instead — that file is Claude Code-specific. Human contributors read [CONTRIBUTING.md](CONTRIBUTING.md). All three share the same source of truth in [`.claude/rules/`](.claude/rules).
 
 ## About this repo
 
@@ -52,7 +52,7 @@ Before adding or modifying components, read the guideline files under [`.claude/
 - [`component-architecture.md`](.claude/rules/component-architecture.md) — lv1 vs lv2 folder responsibilities, compound vs flat, `asChild` default-off for new lv1s + hard exclusions on form inputs / portal content (complements `component-api-conventions.md` §`asChild`; `buttonVariants` / `textVariants` are the preferred alternative), polymorphic `as` not adopted, unified `FieldContext` consumption, one-way dependency direction (lv1 → lv2 forbidden, no barrel laundering), when an lv1-local `.css` file is allowed, accessibility contract every lv1 must satisfy (role + accessible name + keyboard + `aria-*` state announcements).
 - [`component-api-conventions.md`](.claude/rules/component-api-conventions.md) — Public prop API shape: two patterns (**Role-based** for action components like `Button`; **Tone × Shape** for state components like `Badge` / `Callout` / `Toast`), per-component matrix, common props (`size` / `isError` / `isLoading` / `disabled` / `readOnly`), and `asChild` adoption criteria.
 - [`storybook-guideline.md`](.claude/rules/storybook-guideline.md) — Story structure (`Playground` story first, group by prop), `argTypes`, English-only labels.
-- [`state-token-guideline.md`](.claude/rules/state-token-guideline.md) — 3-layer token system, state semantic tokens (`error` / `success` / `warning` / `info` / `destructive`) and the 4-token shape (`base` / `hover` / `foreground` / `subtle`).
+- [`state-token-guideline.md`](.claude/rules/state-token-guideline.md) — 3-layer token system, state semantic tokens (`error` / `success` / `warning` / `info` / `destructive`) and the 5-token shape (`base` / `hover` / `foreground` / `subtle` / `emphasis`).
 - [`theme-architecture.md`](.claude/rules/theme-architecture.md) — Mode × Special two-axis theme model, cascade (`Special > Mode > base semantic`), token allowlist, DOM application (`.dark` / `[data-theme=...]`).
 - [`field-context-guideline.md`](.claude/rules/field-context-guideline.md) — `FieldContext` integration patterns for form components (Input / Checkbox / Switch / Radio / Select / Textarea).
 - [`vrt-spec-guideline.md`](.claude/rules/vrt-spec-guideline.md) — Playwright VRT spec template, story-id mapping, snapshot naming.
@@ -92,6 +92,7 @@ pnpm audit:coverage    # Audit lv1 companion-file coverage (test / VRT / .css / 
 | File | One-liner |
 |---|---|
 | [CLAUDE.md](CLAUDE.md) | Claude Code-specific tech stack and rule index. |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | Human contributor on-ramp — setup, branch / PR conventions, quality gates, changesets. |
 | [README.md](README.md) | Public-facing overview, installation, and usage. |
 | [.claude/rules/component-architecture.md](.claude/rules/component-architecture.md) | Component-level design choices — lv1 / lv2 folders, compound vs flat, `asChild` default-off for new lv1s + hard exclusions, unified context consumption, one-way dependency direction, lv1-local `.css` criteria, a11y contract (role + accessible name + keyboard + `aria-*`). |
 | [.claude/rules/component-api-conventions.md](.claude/rules/component-api-conventions.md) | Public prop API shape — Role-based (Button) vs Tone × Shape (Badge/Callout/Toast) patterns, common props, `asChild` criteria. |
@@ -110,6 +111,6 @@ pnpm audit:coverage    # Audit lv1 companion-file coverage (test / VRT / .css / 
 
 ## Maintenance
 
-When you add or remove a file under [`.claude/rules/`](.claude/rules), update **Required reading** and **Resource Map** above so AI agents pick it up automatically. CLAUDE.md's `Guidelines` section also lists the same files — keep both indexes in sync.
+When you add or remove a file under [`.claude/rules/`](.claude/rules), update **Required reading** and **Resource Map** above so AI agents pick it up automatically. CLAUDE.md's `Guidelines` section also lists the same files — keep both indexes in sync. [CONTRIBUTING.md](CONTRIBUTING.md) is the third surface over these rules (human-facing); it links into them rather than indexing them, but the cross-links between the three files must stay valid — `pnpm check:doc-links` scans all three and fails on a dead link.
 
 When you change a rule that the [`add-lv1-component`](.claude/skills/add-lv1-component) skill depends on (component API conventions, testing, VRT, storybook, token usage), check that the skill's `templates/` still match the updated rule — the templates are a frozen scaffold and do not auto-update. `templates.test.ts` only guards their *syntax*, not their *conformance* to the rules.

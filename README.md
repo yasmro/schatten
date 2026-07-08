@@ -14,8 +14,11 @@ brand. Where shadcn distributes copy-pasteable React source, Schatten ships a
 single installable package whose CSS class API is intended to outlive any one
 framework choice.
 
-Built on Radix UI primitives, styled with Tailwind CSS v4, and authored with
-`class-variance-authority` (CVA).
+The React layer is built on Radix UI primitives and authored with
+`class-variance-authority` (CVA); styling ships as a raw-CSS `.st-*` class API.
+Tailwind CSS v4 is a **dev-only** dependency for the Storybook workbench — since
+the published `dist/schatten.css` is compiled Tailwind-free, consumers never
+need it.
 
 ## Quick start
 
@@ -1042,6 +1045,17 @@ changes ship without a changeset. The check is automatically skipped for:
 If the check fails and the PR is genuinely user-facing, run `pnpm changeset` and
 commit the generated file. If the PR is internal, apply the `no-changeset`
 label and re-run the job.
+
+## Contributing
+
+Contributions are welcome. See **[CONTRIBUTING.md](CONTRIBUTING.md)** for the
+full on-ramp — repo setup, branch / PR conventions, the quality gates, and when
+a changeset is required.
+
+**Using an AI assistant?** Point it at **[AGENTS.md](AGENTS.md)** (or
+**[CLAUDE.md](CLAUDE.md)** for Claude Code) — both index the project's
+`.claude/rules/` conventions so generated code lands consistent with the design
+system.
 
 ## License
 

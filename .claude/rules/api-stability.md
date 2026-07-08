@@ -453,6 +453,24 @@ about what is public, treat the manifest as the source of truth and update
 this document. Landed alongside
 [#265](https://github.com/yasmro/schatten/issues/265).
 
+**No companion JSON Schema — decided, not deferred
+([#162](https://github.com/yasmro/schatten/issues/162)).** The manifest ships
+no `.schema.json`. The shape is trivial (a `$schemaVersion` const + three
+sorted string arrays), and its invariants (prefix / sort / uniqueness /
+dist-only-field asymmetry) are already pinned by
+[`schatten.manifest.snapshot.test.ts`](../../src/__generated__/schatten.manifest.snapshot.test.ts);
+`$schemaVersion` is the version anchor a consumer keys off. A separate schema
+file would be a second source of truth to keep in sync for no current consumer
+need. If a real validation use case appears, adding
+`schatten.manifest.schema.json` is an additive `minor` (the `$schemaVersion`
+bump path is already reserved for it). The reachability of the export is
+guarded separately by `pnpm check:manifest:export`
+([`scripts/check-manifest-export.mjs`](../../scripts/check-manifest-export.mjs),
+run in the CI `manifest` job): it resolves `./schatten.manifest.json` through
+the `exports` map and asserts the dist copy is valid JSON with the four
+surface keys plus the dist-only `package` / `version` / `generatedAt`,
+complementing publint's export-target-exists check.
+
 ### Per-component CSS size budgets
 
 Each `@yasmro/schatten/css/<component>` subpath shipped by

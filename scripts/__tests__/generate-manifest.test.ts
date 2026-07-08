@@ -111,10 +111,13 @@ describe('extractManifest', () => {
   })
 
   describe('cssVariables', () => {
-    it('captures declarations from inside `@layer theme { … }` (the @theme output)', () => {
-      // Tailwind v4 compiles `@theme { --foo: …; }` to `@layer theme { :root, :host { --foo: …; } }`.
-      // The manifest captures every `--*` inside that layer regardless of prefix —
-      // `@theme` registration is the authoritative public-surface signal.
+    it('captures declarations from inside `@layer theme { … }` (the registrar)', () => {
+      // The `@layer theme { :root, :host { … } }` block is the public-variable
+      // registrar — since #317 the hand-maintained `src/styles/public-tokens.css`
+      // (before #317, compiled by Tailwind v4 from `@theme { … }`; the "inside
+      // @layer theme" criterion is unchanged). The manifest captures every `--*`
+      // inside that layer regardless of prefix — presence in the registrar is
+      // the authoritative public-surface signal.
       const css = `
         @layer theme {
           :root, :host {

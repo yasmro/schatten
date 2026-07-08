@@ -946,6 +946,40 @@ component or the aggregate exceeds its budget. The manifest pins the
 delivery story honest: a rename trips `pnpm check:manifest`, a runaway
 component CSS trips `pnpm size`.
 
+### Programmatic introspection
+
+The published package ships a machine-readable listing of the public
+**CSS surface** at `@yasmro/schatten/schatten.manifest.json` — the same
+manifest the size/rename gates pin. Tools (AI assistants, IDE plugins,
+lint rules, codegen) can import it to answer CSS-class-level questions
+about the design system without scraping the compiled stylesheet:
+
+```js
+import manifest from '@yasmro/schatten/schatten.manifest.json' with { type: 'json' }
+
+manifest.package        // "@yasmro/schatten"
+manifest.version        // the installed version
+manifest.classes        // ["st-avatar", "st-badge--error", "st-btn", "st-btn--primary", …]
+manifest.dataAttributes // ["aria-busy", "aria-invalid", "data-state", …]
+manifest.cssVariables   // ["--color-background", "--color-error", …]
+
+// e.g. "which modifier classes does Button emit?"
+manifest.classes.filter((c) => c.startsWith('st-btn'))
+```
+
+`$schemaVersion` (currently `1`) is the shape anchor — bumped only when
+the JSON structure itself changes, never for surface additions. The
+committed CI snapshot (`src/__generated__/schatten.manifest.json`)
+intentionally omits `version` / `generatedAt` / `package`; the shipped
+dist copy carries them for in-the-wild introspection.
+
+**The manifest lists the CSS surface only — not prop types.** It answers
+"which `.st-btn--*` classes exist", but the React prop API — the `variant`
+union (`'primary' | 'secondary' | …`), default values, which props a
+component accepts — is **not** in the manifest. That surface lives in the
+package's TypeScript declarations (`.d.ts` + TSDoc); introspect it through
+the type definitions, not this file.
+
 ### Runnable examples
 
 End-to-end runnable demos that target a 100/100/100/100 Lighthouse

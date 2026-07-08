@@ -98,6 +98,7 @@
     "build:manifest": "node scripts/generate-manifest.mjs",
     "update:manifest": "node scripts/generate-manifest.mjs --commit",
     "check:manifest": "node scripts/check-manifest-diff.mjs",
+    "check:manifest:export": "node scripts/check-manifest-export.mjs",
     "sync:readme": "node scripts/sync-readme-components.mjs",
     "check:readme": "node scripts/sync-readme-components.mjs --check",
     "check:use-client": "node scripts/check-use-client-banner.mjs",

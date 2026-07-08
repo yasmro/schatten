@@ -1091,6 +1091,11 @@ a changeset is required.
 `.claude/rules/` conventions so generated code lands consistent with the design
 system.
 
+**Why is it built this way?** The **[decision log](docs/decisions/README.md)**
+records the *why* behind Schatten's architecture — the foundational ADRs
+(shadcn base, npm distribution, framework-agnostic CSS, the two-axis theme, …)
+plus incremental token / API trade-offs.
+
 ## License
 
 MIT

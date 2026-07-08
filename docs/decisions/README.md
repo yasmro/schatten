@@ -4,6 +4,37 @@ Schatten's `.claude/rules/` codifies *what is true*. This directory captures
 *why we chose it* — the trade-off analysis, the alternatives considered, the
 context that the codebase and git history alone do not preserve.
 
+## Two entry types
+
+This directory holds **two families of record**, distinguished by filename:
+
+| Family | Naming | Scope | Change frequency |
+|---|---|---|---|
+| **Foundational ADR** | `ADR-NNNN-<slug>.md` (4-digit, zero-padded) | The small set of project-shaping architecture decisions — adopted tech, distribution model, layer structure. | Rarely change. To reverse one, write a **new** ADR that supersedes it and set the old one's `Status` to `Superseded by ADR-00XX`. |
+| **Incremental log** | `YYYY-MM-<slug>.md` | Implementation-level trade-offs — a token shape, a single variant decision, a build tweak. | Added as work happens. |
+
+Both use the same [format](#format) and both are the *why* counterpart to a
+`.claude/rules/` *what*. The only difference is the naming and the durability:
+foundational ADRs are numbered and near-permanent; incremental logs are dated
+and accrete over time. (An ADR is just a decision log that earned a stable
+number because the whole project leans on it — CONTRIBUTING.md treats
+"decision log" and "ADR" as the same mechanism.)
+
+### Foundational ADR index
+
+| # | Decision | Rule it explains |
+|---|---|---|
+| [ADR-0001](ADR-0001-shadcn-base.md) | shadcn/ui をベースに採用 | component-architecture |
+| [ADR-0002](ADR-0002-npm-distribution.md) | npm パッケージ配布（copy-in ではなく） | api-stability |
+| [ADR-0003](ADR-0003-framework-agnostic.md) | Framework-Agnostic 二層 DS | css-api |
+| [ADR-0004](ADR-0004-tailwind-v4-cva.md) | Tailwind CSS v4 + CVA（dist は後に脱 Tailwind） | css-api / theme-architecture |
+| [ADR-0005](ADR-0005-radix-primitives.md) | Radix UI primitives（型は非継承） | component-architecture / api-stability |
+| [ADR-0006](ADR-0006-variant-vocabulary.md) | Variant 語彙統一（Pattern A / B） | component-api-conventions |
+| [ADR-0007](ADR-0007-lv1-lv2-layering.md) | lv1 / lv2 二層構造 | component-architecture |
+| [ADR-0008](ADR-0008-seasonal-theme.md) | 季節テーマ（Special 軸・8 パレット） | theme-architecture |
+| [ADR-0009](ADR-0009-no-polymorphic-as.md) | Polymorphic `as` 不採用（Text 例外） | component-architecture |
+| [ADR-0010](ADR-0010-no-layout-primitives.md) | Layout primitives 不採用 | css-api |
+
 ## When to add an entry
 
 Add a decision log when a change involves a non-obvious choice that future
@@ -28,7 +59,8 @@ Skip an entry when:
 ## Format
 
 ```
-docs/decisions/YYYY-MM-<kebab-slug>.md
+docs/decisions/YYYY-MM-<kebab-slug>.md   # incremental log
+docs/decisions/ADR-NNNN-<kebab-slug>.md  # foundational ADR (numbered)
 ```
 
 Each entry should include, at minimum:

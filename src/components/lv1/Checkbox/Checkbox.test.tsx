@@ -248,4 +248,15 @@ describe('Checkbox', () => {
     const wrapper = container.firstChild as HTMLElement
     expect(wrapper).toHaveClass('st-checkbox-wrapper', 'custom-class')
   })
+
+  it('forwards ref to the checkbox control', () => {
+    const ref = { current: null as HTMLButtonElement | null }
+    render(<Checkbox aria-label="cb" ref={ref} />)
+    expect(ref.current).toBeInstanceOf(HTMLButtonElement)
+  })
+
+  it('forwards data-testid to the checkbox control', () => {
+    render(<Checkbox aria-label="cb" data-testid="accept" />)
+    expect(screen.getByTestId('accept')).toBe(screen.getByRole('checkbox', { name: 'cb' }))
+  })
 })

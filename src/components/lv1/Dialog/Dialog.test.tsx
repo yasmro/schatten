@@ -277,4 +277,9 @@ describe('Dialog', () => {
     expect(document.querySelector('.st-dialog__footer')).not.toBeNull()
     expect(document.querySelector('.st-dialog__close')).not.toBeNull()
   })
+
+  it('exposes the dialog frame by role + accessible name (from title)', () => {
+    render(<Controlled />)
+    expect(screen.getByRole('dialog', { name: 'Test dialog' })).toBeInTheDocument()
+  })
 })

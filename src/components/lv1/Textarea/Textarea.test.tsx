@@ -181,4 +181,9 @@ describe('Textarea', () => {
     render(<Textarea aria-label="bio" ref={ref} />)
     expect(ref.current).toBeInstanceOf(HTMLTextAreaElement)
   })
+
+  it('forwards data-testid to the <textarea> element', () => {
+    render(<Textarea aria-label="bio" data-testid="bio-input" />)
+    expect(screen.getByTestId('bio-input')).toBe(screen.getByRole('textbox', { name: 'bio' }))
+  })
 })

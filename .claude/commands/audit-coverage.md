@@ -9,6 +9,17 @@ non-screenshot Playwright interaction test — the `interaction` column — for
 classification C/D per
 [vrt-spec-guideline](../rules/vrt-spec-guideline.md)) and report any gaps.
 
+Beyond the required *files*, the report also carries three **advisory
+(non-blocking)** columns — `ref.test` / `testid.test` / `role.test` — that
+check whether the required *common-case unit test* actually exists inside
+`{Name}.test.tsx` (ref-lands per [testing-guideline](../rules/testing-guideline.md),
+`data-testid` pass-through per
+[component-testid-guideline](../rules/component-testid-guideline.md), and a
+`getByRole(<role>, { name })` per
+[component-architecture §8](../rules/component-architecture.md)). These are
+heuristic grep checks: a gap renders `⚠` (not `✗`) and is reported in its own
+"Test-existence gaps" section — it **never** fails `--check`.
+
 This is the **library-wide periodic** counterpart to the existing
 edit-trigger / session-end hooks:
 
@@ -35,8 +46,8 @@ No arguments.
 2. Pass the report (markdown) through to the user **verbatim** — do not
    summarise it.
    - The report layout is `summary header → per-component table → missing
-     files → recommended actions`. Keep that order; users frequently read
-     the table directly.
+     files → recommended actions → test-existence gaps (advisory)`. Keep that
+     order; users frequently read the table directly.
 3. **Only when gaps are present**, append 1–3 lines of "what to do next",
    chosen from the matrix below:
    - **New lv1 added without companions** → suggest `/add-lv1-component`,
@@ -77,10 +88,11 @@ responsibility split in [CLAUDE.md](../../CLAUDE.md).
 
 | Glyph | Meaning |
 |---|---|
-| ✓ | The expected file / re-export exists |
-| ✗ | Expected but missing — action required |
+| ✓ | The expected file / re-export / test exists |
+| ✗ | Expected but missing — **action required, fails `--check`** |
+| ⚠ | Advisory (non-blocking) test-existence gap — reported but **never** fails `--check` (the `ref.test` / `testid.test` / `role.test` columns only) |
 | — | Not expected (parity columns for classification C/D — `Dialog` / `Select` / `Toast` / `Tooltip`) |
-| n/a | Cannot be evaluated because the parent column (`tsx`) is `✗`, or not required for the classification (the `interaction` column on A/B components — their real-browser contract is pinned by the parity series instead) |
+| n/a | Cannot be evaluated because the parent column (`tsx`) is `✗`, or not required for the classification (the `interaction` column on A/B components — their real-browser contract is pinned by the parity series instead; the advisory columns when the component is not forwardRef / does not spread props / has no role+name contract) |
 
 When a directory has no `{Name}.tsx`, every other column cascades to `n/a`
 to keep the signal-to-noise ratio sane — a WIP scaffold (or a non-component
@@ -111,5 +123,17 @@ directory) shouldn't drown the report in red.
   does (e.g. `popover` was in `.html.ts` but missing from `.tsx`). The column is
   `n/a` until the `.css` exists (the dist-CSS discovery requires `{X}.tsx` +
   `{X}.css`). The edit-time `check-lv1-companions` hook warns about the same gap.
+- **The advisory `ref.test` / `testid.test` / `role.test` columns are
+  heuristic and non-blocking.** They grep `{Name}.tsx` (to decide whether
+  the check *applies* — forwardRef → `ref.test`, `{...props}` spread →
+  `testid.test`, membership in `ROLE_NAME_CONTRACT` → `role.test`) and
+  `{Name}.test.tsx` (to decide whether the required test *exists*). Because
+  grep can't parse intent, a false positive is possible — so a gap here
+  renders `⚠`, lands in the "Test-existence gaps" section, and **does not**
+  fail `--check` (`hasFailures` ignores `advisories`). Promotion to blocking
+  is tracked in [#474](https://github.com/yasmro/schatten/issues/474),
+  mirroring the `#307` (audit job) / `#346` (a11y) staged-gate pattern. `ROLE_NAME_CONTRACT` is hand-maintained next to
+  `PARITY_EXEMPT`; `Spinner` is intentionally excluded (its `role="status"`
+  is a live region named by content, not an accessible name).
 - **`pnpm audit:coverage` is read-only**. It never creates files, edits
   files, or updates VRT baselines.

@@ -80,6 +80,205 @@ export const PARITY_EXEMPT = new Set([
 // scripts/check-lv1-export-integrity.mjs — kept in sync deliberately.
 const FROM_RE = /from\s+['"]\.\/([^'"/.]+)['"]/g
 
+// ── Test-existence advisory checks ───────────────────────────────────
+// The required-companion columns above verify that the *files* exist. These
+// three heuristic columns go one level deeper: they check that the required
+// *common-case unit test* the guidelines demand is actually present inside
+// `{Name}.test.tsx`. They are ADVISORY (non-blocking) — reported and glyphed
+// distinctly, but never fed into `row.missing` / `hasFailures`, so a false
+// positive can't fail a PR. This mirrors the repo's staged-gate promotion
+// pattern (#307 audit job Phase 1 → Phase 2; #346 a11y): land the signal as a
+// warn column, confirm it catches the known backlog, then promote to blocking
+// in a follow-up issue (#474).
+//
+// The three contracts, each sourced from a `.claude/rules/` doc:
+//   1. ref-lands  — testing-guideline "ref reaches the underlying DOM node".
+//   2. testid     — component-testid-guideline "Verifying compliance" step 2.
+//   3. role+name  — component-architecture §8 / testing-guideline "query by
+//                   role first" (a `getByRole(<role>, { name })` assertion).
+//
+// grep-based heuristics have unavoidable false positives; the direction is
+// chosen to be safe (a component that genuinely has the test is never flagged;
+// an unusual test shape may over-flag, which is advisory noise, not a failure).
+
+// `forwardRef(` in the component source → a ref-lands test is expected.
+const FORWARD_REF_RE = /\bforwardRef\b/
+// `{...props}` / `{...rest}` spread → a data-testid pass-through test is expected.
+const SPREAD_PROPS_RE = /\{\s*\.\.\.(?:props|rest)\s*\}/
+// A `.current` assertion together with a ref actually handed to the component
+// (JSX `ref={…}`) or a React ref factory (`createRef` / `useRef`). Both halves
+// are required so a stray `.current` elsewhere isn't mistaken for a ref test.
+const REF_CURRENT_RE = /\.current\b/
+const REF_SETUP_RE = /ref=\{|\bcreateRef\b|\buseRef\b/
+// The `data-testid` prop appears AND an assertion latches onto it — either a
+// *ByTestId query or a direct `getAttribute`/`toHaveAttribute('data-testid')`.
+const TESTID_PROP_RE = /data-testid/
+const TESTID_ASSERT_RE =
+  /(?:get|find|query)(?:All)?ByTestId|(?:getAttribute|toHaveAttribute)\(\s*['"]data-testid/
+
+// Components whose a11y contract (component-architecture §8) is a queryable
+// role + accessible name ON THEIR OWN primary element, mapped to that role.
+// The role+name column is `na` for any component NOT listed here — components
+// with no accessible-name contract (Separator / Skeleton / Avatar / Field /
+// Card / Icon / Table) and compound/portal wrappers whose *own* role is not
+// the primary test surface (Select trigger / Tooltip / Popover / Toast /
+// DropdownMenu container) are intentionally omitted rather than over-flagged.
+// The distinction the map captures: a `getByRole(role, { name })` on the
+// component's OWN element — e.g. Dialog's test asserts its footer *buttons* by
+// name but never `getByRole('dialog', { name })`, so the dialog frame's own
+// name goes untested and the map flags it.
+//
+// Deliberately EXCLUDED even though they carry a role: `Spinner` (its
+// `role="status"` is a live region whose meaning is the visually-hidden label
+// *content*, not an accessible name — `status` does not support name-from-
+// content, so a `getByRole('status', { name })` assertion is neither
+// achievable nor the right contract; Spinner's coverage is `getByRole('status')`
+// + `getByText(label)`). Add such a component here only when a
+// `getByRole(role, { name })` genuinely applies.
+//
+// MAINTENANCE: hand-maintained in alphabetical order, mirroring PARITY_EXEMPT.
+// When a new lv1 lands that exposes a role + accessible name on its own root,
+// add it here; otherwise leave it out (the column stays `na`, advisory-safe).
+// Pinned by scripts/__tests__/audit-coverage.test.ts.
+export const ROLE_NAME_CONTRACT = /** @type {const} */ ({
+  Badge: 'img',
+  Button: 'button',
+  Checkbox: 'checkbox',
+  Dialog: 'dialog',
+  FieldSet: 'group',
+  Input: 'textbox',
+  Radio: 'radio',
+  Switch: 'switch',
+  Text: 'heading',
+  Textarea: 'textbox',
+})
+
+// Every lv1 that does NOT carry a role+accessible-name-on-self contract, and so
+// is intentionally out of the `role.test` gate (column stays `na`). Kept as an
+// explicit set — NOT an "everything else" fallthrough — so the two sets form an
+// **exhaustive partition** of the lv1 tree: `roleContractPartitionGaps()` (and
+// its CI test) fails when a component is in neither set OR in both, turning a
+// forgotten classification of a NEW component into a red test instead of a
+// silent `na`. This is the forcing function `ROLE_NAME_CONTRACT` lacked on its
+// own (unlike `ref.test` / `testid.test`, whose applicability self-derives from
+// the `.tsx`, the role contract cannot be reliably grep-derived, so it is
+// hand-classified — and therefore needs the partition guard).
+//
+// The exclusion reasons, by category:
+//   - live region named by content, not an accessible name: `Spinner`
+//     (`role="status"`; see ROLE_NAME_CONTRACT note), `Toast` (Sonner live region)
+//   - role-less by default (consumer supplies the role): `Callout`
+//   - no accessible-name-bearing role on the root: `Avatar` `Card` `Icon`
+//     `Separator` `Skeleton` `Field` `Table`
+//   - compound/portal wrapper whose *own* role is not the primary test surface
+//     (named via a part / Field / options instead): `DropdownMenu` `Popover`
+//     `Select` (combobox named via Field/placeholder; asserted on options) `Tabs`
+//     `Tooltip`
+//
+// MAINTENANCE: when a new lv1 lands, add it to EXACTLY ONE of ROLE_NAME_CONTRACT
+// (has a role+name-on-self contract) or ROLE_NAME_EXEMPT (does not). CI fails
+// otherwise. Alphabetical, mirroring PARITY_EXEMPT.
+export const ROLE_NAME_EXEMPT = new Set([
+  'Avatar',
+  'Callout',
+  'Card',
+  'DropdownMenu',
+  'Field',
+  'Icon',
+  'Popover',
+  'Select',
+  'Separator',
+  'Skeleton',
+  'Spinner',
+  'Table',
+  'Tabs',
+  'Toast',
+  'Tooltip',
+])
+
+/**
+ * Classify every lv1 component directory against the role-contract partition
+ * and return the components that break it. `unclassified` = in neither set (a
+ * new component whose author forgot to decide); `both` = in both (a
+ * contradiction). An empty return means the partition is exhaustive and
+ * disjoint. The CI test in scripts/__tests__/audit-coverage.test.ts asserts
+ * both arrays are empty.
+ *
+ * @param {string[]} componentNames the lv1 directory names (from discoverComponents)
+ * @returns {{ unclassified: string[], both: string[] }}
+ */
+export function roleContractPartitionGaps(componentNames) {
+  const contract = new Set(Object.keys(ROLE_NAME_CONTRACT))
+  /** @type {string[]} */
+  const unclassified = []
+  /** @type {string[]} */
+  const both = []
+  for (const name of componentNames) {
+    const inContract = contract.has(name)
+    const inExempt = ROLE_NAME_EXEMPT.has(name)
+    if (inContract && inExempt) both.push(name)
+    else if (!inContract && !inExempt) unclassified.push(name)
+  }
+  return { unclassified: unclassified.sort(), both: both.sort() }
+}
+
+/**
+ * True when the component source uses `forwardRef` (→ testing-guideline
+ * requires a ref-lands test).
+ * @param {string} tsxSource
+ */
+export function usesForwardRef(tsxSource) {
+  return FORWARD_REF_RE.test(tsxSource)
+}
+
+/**
+ * True when the component spreads `{...props}` / `{...rest}` onto its root (→
+ * component-testid-guideline requires a data-testid pass-through test).
+ * @param {string} tsxSource
+ */
+export function spreadsProps(tsxSource) {
+  return SPREAD_PROPS_RE.test(tsxSource)
+}
+
+/**
+ * Heuristic: the test contains a `.current` assertion AND a ref was handed to
+ * the component (`ref={…}` / `createRef` / `useRef`). Matches the repo's two
+ * ref-lands idioms — the manual `{ current: null }` object and the
+ * `createRef()` factory. See testing-guideline "ref reaches the underlying
+ * DOM node".
+ * @param {string} testSource
+ */
+export function hasRefLandsTest(testSource) {
+  return REF_CURRENT_RE.test(testSource) && REF_SETUP_RE.test(testSource)
+}
+
+/**
+ * Heuristic: the test references `data-testid` AND asserts where it lands
+ * (a *ByTestId query, or `getAttribute`/`toHaveAttribute('data-testid', …)`).
+ * See component-testid-guideline "Verifying compliance" step 2.
+ * @param {string} testSource
+ */
+export function hasTestidPassthroughTest(testSource) {
+  return TESTID_PROP_RE.test(testSource) && TESTID_ASSERT_RE.test(testSource)
+}
+
+/**
+ * Heuristic: the test has a `getByRole('<role>', { name … })`-shaped assertion
+ * (any of get/find/query, singular or All) for the exact `role`. The closing
+ * quote in the role class prevents `radiogroup` from matching a `radio`
+ * contract. See component-architecture §8 / testing-guideline "query by role
+ * first".
+ * @param {string} testSource
+ * @param {string} role
+ */
+export function hasRoleNameTest(testSource, role) {
+  // Quote class covers ' " ` so template-literal role args are matched too.
+  const re = new RegExp(
+    `(?:get|find|query)(?:All)?ByRole\\(\\s*['"\`]${role}['"\`]\\s*,\\s*\\{\\s*name`,
+  )
+  return re.test(testSource)
+}
+
 const REQUIRED_KEYS = /** @type {const} */ ([
   'tsx',
   'css',
@@ -93,6 +292,10 @@ const REQUIRED_KEYS = /** @type {const} */ ([
   'cssApiFixture',
 ])
 const PARITY_KEYS = /** @type {const} */ (['parityStories', 'parityVrt', 'paritySnap'])
+// Advisory (non-blocking) test-existence columns — see the block above. These
+// feed `row.advisories`, never `row.missing`, and render with a distinct warn
+// glyph so a reviewer can tell them apart from the blocking required columns.
+const ADVISORY_KEYS = /** @type {const} */ (['refTest', 'testidTest', 'roleTest'])
 
 /**
  * @typedef {'present' | 'missing' | 'exempt' | 'na'} CellState
@@ -111,12 +314,16 @@ const PARITY_KEYS = /** @type {const} */ (['parityStories', 'parityVrt', 'parity
  *   parityStories: CellState,
  *   parityVrt: CellState,
  *   paritySnap: CellState,
+ *   refTest: CellState,
+ *   testidTest: CellState,
+ *   roleTest: CellState,
  * }} AuditFiles
  *
  * @typedef {{
  *   name: string,
  *   files: AuditFiles,
  *   missing: string[],
+ *   advisories: string[],
  *   exempt: boolean,
  * }} AuditRow
  */
@@ -268,6 +475,9 @@ export function auditComponent({ name, componentDir, exported, exempt, fixtureSl
     parityStories: 'na',
     parityVrt: 'na',
     paritySnap: 'na',
+    refTest: 'na',
+    testidTest: 'na',
+    roleTest: 'na',
   }
 
   if (tsxPresent) {
@@ -302,6 +512,27 @@ export function auditComponent({ name, componentDir, exported, exempt, fixtureSl
       files.parityVrt = cell(present(`${name}.parity.vrt.spec.ts`))
       files.paritySnap = cell(countSnapshots(componentDir, (n) => n.startsWith('parity-')) >= 1)
     }
+
+    // Advisory (non-blocking) test-existence columns. Each is `na` unless the
+    // component's own shape makes the test *required*: refTest only for
+    // forwardRef components, testidTest only for `{...props}`-spreading ones,
+    // roleTest only for components in ROLE_NAME_CONTRACT. Read the sources
+    // once; a missing test file yields empty strings → the applicable column
+    // resolves to `missing` (the `test` column above already flags the file).
+    const tsxSource = readFileSync(tsxPath, 'utf8')
+    const testSource = present(`${name}.test.tsx`)
+      ? readFileSync(path.join(componentDir, `${name}.test.tsx`), 'utf8')
+      : ''
+    files.refTest = usesForwardRef(tsxSource)
+      ? cell(hasRefLandsTest(testSource))
+      : 'na'
+    files.testidTest = spreadsProps(tsxSource)
+      ? cell(hasTestidPassthroughTest(testSource))
+      : 'na'
+    const contractRole = /** @type {Record<string, string>} */ (ROLE_NAME_CONTRACT)[name]
+    files.roleTest = contractRole
+      ? cell(hasRoleNameTest(testSource, contractRole))
+      : 'na'
   }
 
   /** @type {string[]} */
@@ -328,7 +559,28 @@ export function auditComponent({ name, componentDir, exported, exempt, fixtureSl
   if (files.parityVrt === 'missing') missing.push(`${name}.parity.vrt.spec.ts`)
   if (files.paritySnap === 'missing') missing.push('__snapshots__/parity-*.png (no parity baseline)')
 
-  return { name, files, missing, exempt }
+  // Advisory (non-blocking) — deliberately NOT merged into `missing`, so a
+  // false positive never fails `--check` / `hasFailures`.
+  /** @type {string[]} */
+  const advisories = []
+  if (files.refTest === 'missing') {
+    advisories.push(
+      `ref-lands test in ${name}.test.tsx — forwardRef but no \`ref.current\`/\`.current\` assertion (testing-guideline "ref reaches the underlying DOM node")`,
+    )
+  }
+  if (files.testidTest === 'missing') {
+    advisories.push(
+      `data-testid pass-through test in ${name}.test.tsx — spreads \`{...props}\` but no \`data-testid\` + testid/attribute assertion (component-testid-guideline "Verifying compliance" step 2)`,
+    )
+  }
+  if (files.roleTest === 'missing') {
+    const role = /** @type {Record<string, string>} */ (ROLE_NAME_CONTRACT)[name]
+    advisories.push(
+      `role+accessible-name assertion in ${name}.test.tsx — no \`getByRole('${role}', { name })\` (component-architecture §8 / testing-guideline "query by role first")`,
+    )
+  }
+
+  return { name, files, missing, advisories, exempt }
 }
 
 /**
@@ -355,6 +607,20 @@ const CELL_GLYPH = {
   na: 'n/a',
 }
 
+const ADVISORY_KEY_SET = new Set(ADVISORY_KEYS)
+
+/**
+ * Glyph for one cell. Advisory columns render a `missing` as the warn glyph
+ * `⚠` (not the blocking `✗`) so the table itself signals that a gap in those
+ * columns does not fail CI.
+ * @param {string} key
+ * @param {CellState} state
+ */
+function glyphFor(key, state) {
+  if (ADVISORY_KEY_SET.has(key) && state === 'missing') return '⚠'
+  return CELL_GLYPH[state]
+}
+
 /**
  * Render an audit as a markdown report (header + table + missing-files
  * section + recommended-actions section). Returns a single string.
@@ -375,31 +641,45 @@ export function renderTable(rows, opts = {}) {
   const allOk = rows.filter((r) => r.missing.length === 0).length
   const broken = total - allOk
 
+  const advisoryTotal = rows.reduce((n, r) => n + r.advisories.length, 0)
+
   const lines = []
   if (format === 'markdown') {
     lines.push(`## Coverage Audit Report (${date})`)
     lines.push('')
     lines.push(`lv1 components: ${total} — required ✓ ${allOk} / missing ✗ ${broken}`)
+    lines.push(
+      `Advisory (non-blocking) test-existence gaps: ⚠ ${advisoryTotal} — see "Test-existence gaps" below.`,
+    )
     lines.push('')
     lines.push(
-      '| Component | tsx | css | stories | test | vrt | interaction | index | snap | export | cssapi.fx | parity.stories | parity.vrt | parity.snap |',
+      '| Component | tsx | css | stories | test | vrt | interaction | index | snap | export | cssapi.fx | parity.stories | parity.vrt | parity.snap | ref.test | testid.test | role.test |',
     )
-    lines.push('|---|---|---|---|---|---|---|---|---|---|---|---|---|---|')
+    lines.push('|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|')
     for (const row of rows) {
       const cells = REQUIRED_KEYS.map((k) => CELL_GLYPH[row.files[k]])
         .concat(PARITY_KEYS.map((k) => CELL_GLYPH[row.files[k]]))
+        .concat(ADVISORY_KEYS.map((k) => glyphFor(k, row.files[k])))
         .join(' | ')
       lines.push(`| ${row.name} | ${cells} |`)
     }
     lines.push('')
+    lines.push(
+      '_Legend: ✓ present · ✗ missing (blocking) · ⚠ advisory gap (non-blocking) · — exempt · n/a not applicable. The last three columns (`ref.test` / `testid.test` / `role.test`) are advisory — a ⚠ there never fails `--check`._',
+    )
+    lines.push('')
   } else {
     lines.push(`Coverage Audit Report (${date})`)
-    lines.push(`lv1 components: ${total}  required: ${allOk}  missing: ${broken}`)
+    lines.push(`lv1 components: ${total}  required: ${allOk}  missing: ${broken}  advisory: ${advisoryTotal}`)
     lines.push('')
-    const header = ['Component', ...REQUIRED_KEYS, ...PARITY_KEYS]
+    const header = ['Component', ...REQUIRED_KEYS, ...PARITY_KEYS, ...ADVISORY_KEYS]
     lines.push(header.join('\t'))
     for (const row of rows) {
-      const cells = [...REQUIRED_KEYS, ...PARITY_KEYS].map((k) => CELL_GLYPH[row.files[k]])
+      const cells = [
+        ...REQUIRED_KEYS.map((k) => CELL_GLYPH[row.files[k]]),
+        ...PARITY_KEYS.map((k) => CELL_GLYPH[row.files[k]]),
+        ...ADVISORY_KEYS.map((k) => glyphFor(k, row.files[k])),
+      ]
       lines.push([row.name, ...cells].join('\t'))
     }
     lines.push('')
@@ -427,6 +707,24 @@ export function renderTable(rows, opts = {}) {
     lines.push('')
   } else {
     lines.push(format === 'markdown' ? '_All lv1 components have required companions._' : 'All lv1 components have required companions.')
+    lines.push('')
+  }
+
+  // Advisory (non-blocking) test-existence gaps — reported separately from the
+  // blocking "Missing files" section so the two never blur together. These do
+  // NOT affect the exit code (`hasFailures` ignores `advisories`).
+  const advisory_rows = rows.filter((r) => r.advisories.length > 0)
+  if (advisory_rows.length > 0) {
+    lines.push(
+      format === 'markdown'
+        ? '### Test-existence gaps (advisory — non-blocking)'
+        : 'Test-existence gaps (advisory — non-blocking):',
+    )
+    for (const row of advisory_rows) {
+      for (const item of row.advisories) {
+        lines.push(`- \`${row.name}\`: ${item}`)
+      }
+    }
     lines.push('')
   }
 
@@ -464,19 +762,25 @@ export function renderJson(rows, opts = {}) {
   const generatedAt = opts.generatedAt ?? new Date().toISOString()
   const total = rows.length
   const allOk = rows.filter((r) => r.missing.length === 0).length
+  // $schemaVersion 2 (#-audit-test-existence): adds the advisory test-existence
+  // columns (`files.refTest` / `.testidTest` / `.roleTest`), the per-row
+  // `advisories` array, and `totals.advisoryGaps`. Purely additive over v1.
+  const advisoryGaps = rows.reduce((n, r) => n + r.advisories.length, 0)
   const payload = {
-    $schemaVersion: 1,
+    $schemaVersion: 2,
     generatedAt,
     lv1: rows.map((r) => ({
       name: r.name,
       files: r.files,
       missing: r.missing,
+      advisories: r.advisories,
       exempt: r.exempt,
     })),
     totals: {
       components: total,
       allRequiredPresent: allOk,
       missingAny: total - allOk,
+      advisoryGaps,
     },
   }
   return `${JSON.stringify(payload, null, 2)}\n`

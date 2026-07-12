@@ -63,11 +63,11 @@ const SEMANTIC_MOTION = [
 
 const StatusBadge = ({ status }: { status: 'applied' | 'defined-only' }) =>
   status === 'applied' ? (
-    <span className="rounded-full bg-success-subtle px-2 py-0.5 text-xs font-medium text-success">
+    <span className="rounded-full bg-success-subtle px-2 py-0.5 text-xs font-medium text-success-emphasis">
       applied
     </span>
   ) : (
-    <span className="rounded-full bg-warning-subtle px-2 py-0.5 text-xs font-medium text-warning">
+    <span className="rounded-full bg-warning-subtle px-2 py-0.5 text-xs font-medium text-warning-emphasis">
       defined only
     </span>
   )
@@ -143,8 +143,8 @@ export const DurationScale: Story = {
       <Lead>
         Schatten centralizes enter/exit timing in a three-step duration scale, defined in{' '}
         <code>src/core/tokens/animation.css</code> and registered as part of the public token
-        surface via the registrar (<code>src/styles/public-tokens.css</code>). Components reference
-        the scale — or its semantic <code>--motion-*</code> aliases (see{' '}
+        surface via the public-token registrar (<code>src/styles/public-tokens.css</code>).
+        Components reference the scale — or its semantic <code>--motion-*</code> aliases (see{' '}
         <strong>Semantic Tokens</strong>) — never a hardcoded millisecond value.
       </Lead>
 

@@ -197,7 +197,8 @@ export const Overview: Story = {
         <p className="text-lg text-foreground-muted leading-relaxed">
           A design system inspired by Japanese calligraphy — ink on paper.
           <br />
-          Built with React, Tailwind CSS, Radix UI, and class-variance-authority.
+          Built with React, Radix UI, and class-variance-authority — Tailwind-free on the consumer
+          side.
         </p>
       </div>
 
@@ -269,7 +270,7 @@ export const Overview: Story = {
         <h2 className="text-xl font-bold text-foreground mb-2">Engineering discipline</h2>
         <p className="text-sm text-foreground-muted leading-relaxed mb-6">
           The parts worth inspecting are less the components themselves than how they are governed.
-          Four places to look:
+          Five places to look:
         </p>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <TextLinkCard
@@ -353,11 +354,11 @@ export const Overview: Story = {
             description="Transient notifications with variants."
             storyPath="components-lv1-toast"
           >
-            <div className="relative flex w-44 items-start gap-2 border border-success bg-success-subtle p-3 pr-8 text-xs text-success shadow-sm">
+            <div className="relative flex w-44 items-start gap-2 border border-success bg-success-subtle p-3 pr-8 text-xs text-success-emphasis shadow-sm">
               <CircleCheck className="mt-0.5 size-4 shrink-0" aria-hidden />
               <div className="flex flex-col gap-0.5">
                 <div className="font-semibold leading-tight">Saved</div>
-                <div className="leading-snug opacity-90">Your changes have been saved.</div>
+                <div className="leading-snug">Your changes have been saved.</div>
               </div>
               <span
                 aria-hidden
@@ -532,7 +533,7 @@ export const Overview: Story = {
             storyPath="components-lv1-select"
           >
             <Select defaultValue="apple">
-              <SelectTrigger className="w-40">
+              <SelectTrigger aria-label="Fruit" className="w-40">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>

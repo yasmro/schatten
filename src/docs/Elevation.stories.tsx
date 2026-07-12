@@ -49,11 +49,11 @@ const SEMANTIC_SHADOWS = [
 
 const StatusBadge = ({ status }: { status: 'applied' | 'defined-only' }) =>
   status === 'applied' ? (
-    <span className="rounded-full bg-success-subtle px-2 py-0.5 text-xs font-medium text-success">
+    <span className="rounded-full bg-success-subtle px-2 py-0.5 text-xs font-medium text-success-emphasis">
       applied
     </span>
   ) : (
-    <span className="rounded-full bg-warning-subtle px-2 py-0.5 text-xs font-medium text-warning">
+    <span className="rounded-full bg-warning-subtle px-2 py-0.5 text-xs font-medium text-warning-emphasis">
       defined only
     </span>
   )

@@ -6,7 +6,7 @@ import { expect, test } from '@playwright/test'
  * Covers:
  * - `reference`         — the long-form vanilla HTML reference
  *                          (CSSApi.stories.tsx Reference story) that
- *                          documents every `.st-*` chain for all 18 lv1.
+ *                          documents every `.st-*` chain for every lv1.
  *                          Source-mode rendering via Storybook globals.css.
  * - `parity-comparison` — React vs vanilla side-by-side
  *                          (CSSApiParity.stories.tsx), sharing the

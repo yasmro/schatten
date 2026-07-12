@@ -124,7 +124,8 @@ export const Overview: Story = {
         </li>
         <li>
           <strong className="text-foreground">Curated-props exceptions</strong> — Dialog and Toast
-          do not forward arbitrary attributes; address their children or their role.
+          do not forward arbitrary attributes; address Dialog by its role, Toast by its rendered
+          text.
         </li>
         <li>
           <strong className="text-foreground">Naming &amp; no auto-testid</strong> — the value is
@@ -198,7 +199,7 @@ export const CompoundComponents: Story = {
 
       <Demo label="Select with a testid on every part (open it)">
         <Select>
-          <SelectTrigger data-testid="country-trigger" className="w-56">
+          <SelectTrigger aria-label="Country" data-testid="country-trigger" className="w-56">
             <SelectValue placeholder="Country" />
           </SelectTrigger>
           <SelectContent data-testid="country-content">
@@ -307,7 +308,7 @@ export const PortalContent: Story = {
 
       <Demo label="Open the select — the listbox is portaled to body">
         <Select>
-          <SelectTrigger data-testid="fruit-trigger" className="w-56">
+          <SelectTrigger aria-label="Fruit" data-testid="fruit-trigger" className="w-56">
             <SelectValue placeholder="Pick a fruit" />
           </SelectTrigger>
           <SelectContent data-testid="fruit-content">
@@ -399,19 +400,25 @@ export const CuratedPropsExceptions: Story = {
 await page.getByRole('dialog', { name: 'Delete account' })   // the frame
 await page.getByTestId('delete-message')                     // your children`}</CodeBlock>
 
-      <SubsectionTitle>Toast — imperative, so query by role</SubsectionTitle>
+      <SubsectionTitle>Toast — imperative, so query by text</SubsectionTitle>
       <Note>
         Toasts are created by the imperative <Code>{'toast({ … })'}</Code> call, which takes no JSX
-        — there is no element to hang a <Code>data-testid</Code> on. Every toast renders with{' '}
-        <Code>role=&quot;status&quot;</Code>, so query by role + accessible name (the title).
+        — there is no element to hang a <Code>data-testid</Code> on. The visible toast carries{' '}
+        <strong>no role</strong> either: Sonner (the renderer since v0.14.0) announces toast content
+        through its own visually-hidden live region, not via <Code>role=&quot;status&quot;</Code> on
+        the toast element. Query by the rendered text, or by Sonner's{' '}
+        <Code>[data-sonner-toast]</Code> wrapper when you need the toast element itself.
       </Note>
       <Demo label="Fire a toast">
         <ToastTestidDemo />
       </Demo>
       <CodeBlock>{`toast({ title: 'Saved successfully', variant: 'success' })
 
-// Playwright
-await page.getByRole('status', { name: 'Saved successfully' })`}</CodeBlock>
+// Playwright — query the rendered title text
+await expect(page.getByText('Saved successfully')).toBeVisible()
+
+// The toast element itself (Sonner-owned wrapper)
+page.locator('li[data-sonner-toast]')`}</CodeBlock>
     </Page>
   ),
 }

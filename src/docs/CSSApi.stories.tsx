@@ -51,10 +51,10 @@ import type { Meta, StoryObj } from '@storybook/react-vite'
  *   verified per-component in each `{Component}.parity.stories.tsx` and
  *   pinned by `{Component}.parity.vrt.spec.ts`.
  *
- * **Coverage**: all 18 lv1 components — sweep-1 (Separator, Text, Icon)
- * + sweep-2 (Spinner, Badge, Callout) + sweep-3 (Button, Checkbox,
- * Switch) + sweep-4 (Input, Textarea, Radio) + sweep-5 (Tooltip, Select)
- * + sweep-6 (Toast, Dialog) + sweep-7 (Field, FieldSet) of #154.
+ * **Coverage**: every lv1 component. The original 18 landed via #154
+ * sweep-1〜7; each later lv1 adds its own section on arrival (the CSS API
+ * fixture section is required by the audit-coverage gate, and this page
+ * mirrors it).
  */
 const meta: Meta = {
   title: 'CSS API/Overview',
@@ -211,6 +211,13 @@ const CodeBlock = ({ children }: { children: string }) => (
 
 export const Reference: Story = {
   name: 'Reference (all 25 lv1 components)',
+  parameters: {
+    // The reference renders every documented treatment, including the solid
+    // fills whose white-foreground small text is the documented intentional
+    // exception (solid trilemma — #344 / #346). axe flagging those samples
+    // here is expected; component-level a11y (blocking) guards regressions.
+    a11y: { config: { rules: [{ id: 'color-contrast', enabled: false }] } },
+  },
   render: () => (
     <>
       <ChromeStyles />
@@ -218,9 +225,15 @@ export const Reference: Story = {
         <h1 className="st-text st-text--heading st-text--2xl st-text--default cssapi-doc__title-spacing">
           CSS API — every lv1 component
         </h1>
-        <p className="st-text st-text--body st-text--md st-text--muted cssapi-doc__intro-spacing--lg">
+        <p className="st-text st-text--body st-text--md st-text--muted cssapi-doc__intro-spacing">
           The classes below are emitted by `dist/schatten.css`. Import it once and the markup
           samples render with no React and no consumer Tailwind setup.
+        </p>
+        <p className="st-text st-text--body st-text--md st-text--muted cssapi-doc__intro-spacing--lg">
+          What counts as public is machine-tracked: every `.st-*` class, state attribute, and CSS
+          variable is enumerated in `schatten.manifest.json` (shipped with the package), and the CSS
+          variables are sourced from the public-token registrar (`src/styles/public-tokens.css`). A
+          name absent from the manifest is internal and may change without notice.
         </p>
 
         <Section

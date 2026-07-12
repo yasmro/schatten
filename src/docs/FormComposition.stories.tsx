@@ -47,10 +47,10 @@ export const BasicField: Story = {
       <Note>
         A single Field wires the label, description, and required marker to the input. Note:{' '}
         <code className="text-xs">required</code> renders the visual{' '}
-        <code className="text-xs">*</code> but does <strong>not</strong> set{' '}
-        <code className="text-xs">aria-required</code> on the input — add{' '}
-        <code className="text-xs">required</code> to the input element yourself (a known
-        limitation).
+        <code className="text-xs">*</code> and sets <code className="text-xs">aria-required</code>{' '}
+        on the input (announce-only) — native validation is <strong>not</strong> enabled; add{' '}
+        <code className="text-xs">required</code> to the input element yourself when you want
+        form-submission blocking.
       </Note>
       <Field label="Email" description="Used when you sign in" required>
         <Input type="email" placeholder="you@example.com" />

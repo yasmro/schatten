@@ -52,11 +52,11 @@ const SPACING_TOKENS = [
 
 const TierBadge = ({ tier }: { tier: 'curated' | 'raw' }) =>
   tier === 'curated' ? (
-    <span className="rounded-full bg-success-subtle px-2 py-0.5 text-xs font-medium text-success">
+    <span className="rounded-full bg-success-subtle px-2 py-0.5 text-xs font-medium text-success-emphasis">
       curated
     </span>
   ) : (
-    <span className="rounded-full bg-warning-subtle px-2 py-0.5 text-xs font-medium text-warning">
+    <span className="rounded-full bg-warning-subtle px-2 py-0.5 text-xs font-medium text-warning-emphasis">
       raw only
     </span>
   )
@@ -82,7 +82,7 @@ const SpacingRow = ({
       </p>
     </div>
     <div className="w-24 shrink-0 text-xs text-foreground-muted font-mono">
-      {px} <span className="opacity-60">/ {value}</span>
+      {px} / {value}
     </div>
     <div className="w-20 shrink-0">
       <TierBadge tier={tier} />
@@ -109,11 +109,12 @@ export const SpacingScale: Story = {
       <SectionTitle>Full scale</SectionTitle>
       <Note>
         Every <code>--spacing-*</code> token, with its px / rem value and the Tailwind utility it
-        maps to. <strong>curated</strong> tokens are registered in the public registrar and are the
-        recommended values; <strong>raw only</strong> tokens (half steps and odd intermediates)
-        exist as CSS variables for internal CVA use. For Tailwind-using consumers, an arbitrary
-        utility such as <code>p-7</code> still renders via Tailwind's dynamic <code>--spacing</code>{' '}
-        multiplier — "raw only" means "outside the recommended set", not "broken".
+        maps to. <strong>curated</strong> tokens are registered in the public-token registrar and
+        are the recommended values; <strong>raw only</strong> tokens (half steps and odd
+        intermediates) exist as CSS variables for internal CVA use. For Tailwind-using consumers, an
+        arbitrary utility such as <code>p-7</code> still renders via Tailwind's dynamic{' '}
+        <code>--spacing</code> multiplier — "raw only" means "outside the recommended set", not
+        "broken".
       </Note>
       <div className="border border-border rounded-xl px-5">
         {SPACING_TOKENS.map((t) => (
@@ -321,9 +322,9 @@ export const HalfSteps: Story = {
       <PageTitle>Half steps</PageTitle>
       <Lead>
         The half-step tokens (<code>--spacing-0-5</code> through <code>--spacing-3-5</code>) are{' '}
-        <strong>raw only</strong> — they are not registered in the public registrar and are intended
-        for internal CVA use, where a component needs sub-4px optical adjustment (e.g. the gap
-        between an icon and its label). Application code normally does not reach for them.
+        <strong>raw only</strong> — they are not registered in the public-token registrar and are
+        intended for internal CVA use, where a component needs sub-4px optical adjustment (e.g. the
+        gap between an icon and its label). Application code normally does not reach for them.
       </Lead>
 
       <div className="border border-border rounded-xl px-5">

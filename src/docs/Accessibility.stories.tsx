@@ -182,7 +182,7 @@ export const FocusVisibility: Story = {
         <Checkbox label="Checkbox" />
         <Switch label="Switch" />
         <Select>
-          <SelectTrigger className="w-40">
+          <SelectTrigger aria-label="Select demo" className="w-40">
             <SelectValue placeholder="Select" />
           </SelectTrigger>
           <SelectContent>
@@ -293,13 +293,14 @@ export const AriaConventions: Story = {
         ]}
       />
 
-      <SectionTitle>The one gap: required</SectionTitle>
-      <Callout variant="warning" title="Field does not propagate aria-required">
-        <Code>Field</Code> renders the visual required marker (<Code>*</Code>) next to the label,
-        but it does <strong>not</strong> set <Code>aria-required</Code> on the input. Set{' '}
-        <Code>required</Code> on the input element yourself — the native attribute implies{' '}
-        <Code>aria-required</Code> for assistive tech. This is a known, deliberate gap (see
-        component-architecture §8); when Field gains propagation, this note goes away.
+      <SectionTitle>Required: announced, not enforced</SectionTitle>
+      <Callout variant="info" title="Field propagates aria-required — announce-only">
+        <Code>Field required</Code> renders the visual marker (<Code>*</Code>) <strong>and</strong>{' '}
+        sets <Code>aria-required</Code> on the wrapped control, so assistive tech announces
+        "required". It does <strong>not</strong> enable native validation — form-submission blocking
+        still comes only from a <Code>required</Code> attribute set directly on the control (the
+        same split as <Code>isError</Code>, which sets <Code>aria-invalid</Code> without forcing
+        native <Code>:invalid</Code>).
       </Callout>
 
       <SectionTitle>Live wiring</SectionTitle>
@@ -333,6 +334,12 @@ export const AriaConventions: Story = {
  */
 export const Contrast: Story = {
   name: 'Contrast',
+  parameters: {
+    // The foreground-tier demo deliberately renders text-foreground-subtle —
+    // the tertiary tier documented as large/incidental-text-only (#344 / #346
+    // intentional exception). axe flags it here by design.
+    a11y: { config: { rules: [{ id: 'color-contrast', enabled: false }] } },
+  },
   render: () => (
     <Page>
       <PageTitle>Color contrast</PageTitle>
@@ -526,7 +533,7 @@ export const Keyboard: Story = {
       </Demo>
       <Demo label="Select — arrow keys + Enter">
         <Select>
-          <SelectTrigger className="w-48">
+          <SelectTrigger aria-label="Fruit" className="w-48">
             <SelectValue placeholder="Pick a fruit" />
           </SelectTrigger>
           <SelectContent>

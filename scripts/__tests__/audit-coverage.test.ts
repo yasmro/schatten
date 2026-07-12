@@ -8,12 +8,18 @@ import {
   discoverComponents,
   hasFailures,
   hasInteractionTest,
+  hasRefLandsTest,
+  hasRoleNameTest,
+  hasTestidPassthroughTest,
   PARITY_EXEMPT,
   parseExportedNames,
   parseFixtureSlugs,
+  ROLE_NAME_CONTRACT,
   renderJson,
   renderTable,
   runAudit,
+  spreadsProps,
+  usesForwardRef,
 } from '../audit-coverage.mjs'
 
 // Pure-function unit tests for scripts/audit-coverage.mjs. Filesystem
@@ -52,6 +58,36 @@ const SCREENSHOT_ONLY_SPEC = [
 
 const INTERACTION_SPEC = `${SCREENSHOT_ONLY_SPEC}\ntest('X / primary action works on real click', async ({ page }) => {\n  await page.getByRole('button').click()\n})\n`
 
+// The default `.tsx` uses `forwardRef` + `{...props}` so the advisory
+// refTest / testidTest columns are *applicable*; the default `.test.tsx`
+// carries all three positive signals (ref-lands, testid pass-through, and —
+// when the name is in ROLE_NAME_CONTRACT — a role+name assertion). Individual
+// signals can be turned off per test to exercise the advisory-missing path.
+// (The audit only greps these files, so the strings need only contain the
+// heuristic markers — they are never executed.)
+const COMPONENT_TSX =
+  "import { forwardRef } from 'react'\nexport const C = forwardRef((props, ref) => <div ref={ref} {...props} />)\n"
+
+function componentTestSource(
+  name: string,
+  opts: { refLandsTest?: boolean; testidTest?: boolean; roleNameTest?: boolean },
+) {
+  const parts = ['import { render, screen } from "@testing-library/react"']
+  if (opts.refLandsTest ?? true) {
+    parts.push(
+      'const ref = { current: null }\nrender(<C ref={ref} />)\nexpect(ref.current).toBeTruthy()',
+    )
+  }
+  if (opts.testidTest ?? true) {
+    parts.push('render(<C data-testid="x" />)\nexpect(screen.getByTestId("x")).toBeTruthy()')
+  }
+  const role = ROLE_NAME_CONTRACT[name]
+  if (role && (opts.roleNameTest ?? true)) {
+    parts.push(`screen.getByRole('${role}', { name: 'x' })`)
+  }
+  return `${parts.join('\n')}\n`
+}
+
 function makeComponent(
   lv1Dir: string,
   name: string,
@@ -66,15 +102,18 @@ function makeComponent(
     parityStories?: boolean
     parityVrt?: boolean
     interactionTest?: boolean
+    refLandsTest?: boolean
+    testidTest?: boolean
+    roleNameTest?: boolean
   } = {},
 ) {
   const dir = join(lv1Dir, name)
   mkdirSync(dir, { recursive: true })
-  const stamp = (filename: string) => writeFileSync(join(dir, filename), '')
-  if (files.tsx ?? true) stamp(`${name}.tsx`)
+  const stamp = (filename: string, content = '') => writeFileSync(join(dir, filename), content)
+  if (files.tsx ?? true) stamp(`${name}.tsx`, COMPONENT_TSX)
   if (files.css ?? true) stamp(`${name}.css`)
   if (files.stories ?? true) stamp(`${name}.stories.tsx`)
-  if (files.test ?? true) stamp(`${name}.test.tsx`)
+  if (files.test ?? true) stamp(`${name}.test.tsx`, componentTestSource(name, files))
   if (files.vrt ?? true) {
     writeFileSync(
       join(dir, `${name}.vrt.spec.ts`),
@@ -185,9 +224,14 @@ describe('auditComponent', () => {
       exempt: false,
     })
     expect(row.missing).toEqual([])
+    expect(row.advisories).toEqual([])
     expect(row.files.tsx).toBe('present')
     expect(row.files.parityStories).toBe('present')
     expect(row.files.paritySnap).toBe('present')
+    // The default fixture ships all three advisory signals → all present.
+    expect(row.files.refTest).toBe('present')
+    expect(row.files.testidTest).toBe('present')
+    expect(row.files.roleTest).toBe('present')
   })
 
   it('flags a missing test.tsx companion', () => {
@@ -452,12 +496,45 @@ describe('renderTable / renderJson', () => {
     const out = renderTable(sampleRows(), { generatedAt: fixedAt })
     expect(out).toContain('## Coverage Audit Report (2026-05-25)')
     expect(out).toContain(
-      '| Component | tsx | css | stories | test | vrt | interaction | index | snap | export | cssapi.fx | parity.stories | parity.vrt | parity.snap |',
+      '| Component | tsx | css | stories | test | vrt | interaction | index | snap | export | cssapi.fx | parity.stories | parity.vrt | parity.snap | ref.test | testid.test | role.test |',
     )
-    // A/B (Button): interaction is n/a — the parity series covers the real-browser contract.
-    expect(out).toContain('| Button | ✓ | ✓ | ✓ | ✓ | ✓ | n/a | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |')
+    // A/B (Button): interaction is n/a — the parity series covers the real-browser
+    // contract. The three advisory columns are all present in the fixture.
+    expect(out).toContain(
+      '| Button | ✓ | ✓ | ✓ | ✓ | ✓ | n/a | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |',
+    )
     // C/D (Dialog): interaction required and present; parity exempt.
-    expect(out).toContain('| Dialog | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | — | — | — |')
+    expect(out).toContain(
+      '| Dialog | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | — | — | — | ✓ | ✓ | ✓ |',
+    )
+    expect(out).toContain('_All lv1 components have required companions._')
+    expect(out).toContain('Advisory (non-blocking) test-existence gaps: ⚠ 0')
+  })
+
+  it('renders advisory gaps with the ⚠ glyph and a dedicated non-blocking section', () => {
+    const lv1Dir = makeLv1Dir()
+    // Radio is in ROLE_NAME_CONTRACT and forwardRef+spread by default; drop all
+    // three advisory signals so every advisory column is missing.
+    const dir = makeComponent(lv1Dir, 'Radio', {
+      snapshots: ['x-light.png', 'parity-x-light.png'],
+      parityStories: true,
+      parityVrt: true,
+      refLandsTest: false,
+      testidTest: false,
+      roleNameTest: false,
+    })
+    const row = auditComponent({ name: 'Radio', componentDir: dir, exported: true, exempt: false })
+    // Advisory, not blocking: `missing` stays empty, `advisories` holds them.
+    expect(row.missing).toEqual([])
+    expect(row.advisories).toHaveLength(3)
+    const out = renderTable([row], { generatedAt: fixedAt })
+    // ⚠ (advisory) glyph, not ✗ (blocking).
+    expect(out).toContain(
+      '| Radio | ✓ | ✓ | ✓ | ✓ | ✓ | n/a | ✓ | ✓ | ✓ | n/a | ✓ | ✓ | ✓ | ⚠ | ⚠ | ⚠ |',
+    )
+    expect(out).toContain('### Test-existence gaps (advisory — non-blocking)')
+    expect(out).toContain("no `getByRole('radio', { name })`")
+    // The required-companion tree is still clean → the blocking summary is green.
     expect(out).toContain('_All lv1 components have required companions._')
   })
 
@@ -506,12 +583,36 @@ describe('renderTable / renderJson', () => {
   it('matches the documented JSON schema', () => {
     const out = renderJson(sampleRows(), { generatedAt: fixedAt })
     const parsed = JSON.parse(out)
-    expect(parsed.$schemaVersion).toBe(1)
+    expect(parsed.$schemaVersion).toBe(2)
     expect(parsed.generatedAt).toBe(fixedAt)
-    expect(parsed.totals).toEqual({ components: 2, allRequiredPresent: 2, missingAny: 0 })
+    expect(parsed.totals).toEqual({
+      components: 2,
+      allRequiredPresent: 2,
+      missingAny: 0,
+      advisoryGaps: 0,
+    })
     expect(parsed.lv1[0].name).toBe('Button')
+    expect(parsed.lv1[0].advisories).toEqual([])
+    expect(parsed.lv1[0].files.refTest).toBe('present')
     expect(parsed.lv1[1].exempt).toBe(true)
     expect(parsed.lv1[1].files.parityStories).toBe('exempt')
+  })
+
+  it('reports advisories in the JSON payload and totals.advisoryGaps', () => {
+    const lv1Dir = makeLv1Dir()
+    const dir = makeComponent(lv1Dir, 'Text', {
+      snapshots: ['x-light.png', 'parity-x-light.png'],
+      parityStories: true,
+      parityVrt: true,
+      roleNameTest: false, // Text is in ROLE_NAME_CONTRACT → role gap
+    })
+    const row = auditComponent({ name: 'Text', componentDir: dir, exported: true, exempt: false })
+    const parsed = JSON.parse(renderJson([row], { generatedAt: fixedAt }))
+    expect(parsed.totals.advisoryGaps).toBe(1)
+    expect(parsed.lv1[0].advisories).toHaveLength(1)
+    expect(parsed.lv1[0].files.roleTest).toBe('missing')
+    // Advisory gaps do NOT count as required-file failures.
+    expect(parsed.totals.missingAny).toBe(0)
   })
 })
 
@@ -637,6 +738,136 @@ describe('hasInteractionTest', () => {
     const dir = makeSpecDir({ 'X.vrt.spec.ts': '' })
     expect(hasInteractionTest(dir)).toBe(false)
     expect(hasInteractionTest(join(workDir, 'no-such-dir'))).toBe(false)
+  })
+})
+
+describe('advisory test-existence predicates', () => {
+  it('usesForwardRef / spreadsProps read the component source', () => {
+    expect(usesForwardRef('const X = forwardRef((p, r) => null)')).toBe(true)
+    expect(usesForwardRef('const X = (p) => null')).toBe(false)
+    expect(spreadsProps('<div {...props} />')).toBe(true)
+    expect(spreadsProps('<div {...rest} />')).toBe(true)
+    expect(spreadsProps('<div className={x} />')).toBe(false)
+  })
+
+  it('hasRefLandsTest needs both a .current assertion and a ref hand-off', () => {
+    // manual `{ current: null }` idiom
+    expect(
+      hasRefLandsTest(
+        'const ref = { current: null }\nrender(<X ref={ref} />)\nexpect(ref.current).toBeTruthy()',
+      ),
+    ).toBe(true)
+    // createRef idiom with a differently-named variable (`table.current`)
+    expect(
+      hasRefLandsTest('const table = createRef()\nexpect(table.current?.tagName).toBe("TABLE")'),
+    ).toBe(true)
+    // a stray `.current` with no ref hand-off is not enough
+    expect(hasRefLandsTest('expect(store.current).toBe(1)')).toBe(false)
+    // a ref passed but never asserted via .current is not enough
+    expect(hasRefLandsTest('render(<X ref={ref} />)')).toBe(false)
+  })
+
+  it('hasTestidPassthroughTest needs the prop and an assertion on it', () => {
+    expect(hasTestidPassthroughTest('render(<X data-testid="x" />)\nscreen.getByTestId("x")')).toBe(
+      true,
+    )
+    expect(
+      hasTestidPassthroughTest(
+        '<X data-testid="x" />\nexpect(el.getAttribute("data-testid")).toBe("x")',
+      ),
+    ).toBe(true)
+    expect(
+      hasTestidPassthroughTest(
+        '<X data-testid="x" />\nexpect(el).toHaveAttribute("data-testid", "x")',
+      ),
+    ).toBe(true)
+    // findByTestId (async portal) counts
+    expect(
+      hasTestidPassthroughTest('render(<X data-testid="x" />)\nawait screen.findByTestId("x")'),
+    ).toBe(true)
+    // the prop alone, with no assertion, does not count
+    expect(hasTestidPassthroughTest('render(<X data-testid="x" />)')).toBe(false)
+  })
+
+  it('hasRoleNameTest matches the exact role and requires a name option', () => {
+    expect(hasRoleNameTest("screen.getByRole('button', { name: 'Save' })", 'button')).toBe(true)
+    expect(hasRoleNameTest('screen.findByRole("dialog", { name })', 'dialog')).toBe(true)
+    // role without a { name } option does not count
+    expect(hasRoleNameTest("screen.getByRole('radio')", 'radio')).toBe(false)
+    // `radiogroup` must not satisfy a `radio` contract (closing-quote anchor)
+    expect(hasRoleNameTest("getByRole('radiogroup', { name: 'g' })", 'radio')).toBe(false)
+  })
+})
+
+describe('auditComponent — advisory columns applicability', () => {
+  it('keeps refTest/testidTest na when the component is not forwardRef / does not spread', () => {
+    const lv1Dir = makeLv1Dir()
+    // A component whose .tsx neither uses forwardRef nor spreads props.
+    const dir = join(lv1Dir, 'Plain')
+    mkdirSync(dir, { recursive: true })
+    writeFileSync(join(dir, 'Plain.tsx'), 'export const Plain = () => <div />\n')
+    writeFileSync(join(dir, 'Plain.css'), '')
+    writeFileSync(join(dir, 'Plain.stories.tsx'), '')
+    writeFileSync(join(dir, 'Plain.test.tsx'), '')
+    writeFileSync(join(dir, 'Plain.vrt.spec.ts'), SCREENSHOT_ONLY_SPEC)
+    writeFileSync(join(dir, 'index.ts'), '')
+    mkdirSync(join(dir, '__snapshots__'), { recursive: true })
+    writeFileSync(join(dir, '__snapshots__', 'x-light.png'), '')
+    const row = auditComponent({
+      name: 'Plain',
+      componentDir: dir,
+      exported: true,
+      exempt: false,
+      // Plain is not in ROLE_NAME_CONTRACT → roleTest na too.
+    })
+    expect(row.files.refTest).toBe('na')
+    expect(row.files.testidTest).toBe('na')
+    expect(row.files.roleTest).toBe('na')
+    expect(row.advisories).toEqual([])
+  })
+
+  it('routes advisory gaps into advisories, never into missing', () => {
+    const lv1Dir = makeLv1Dir()
+    // Button is in ROLE_NAME_CONTRACT; drop every advisory signal.
+    const dir = makeComponent(lv1Dir, 'Button', {
+      snapshots: ['x-light.png', 'parity-x-light.png'],
+      parityStories: true,
+      parityVrt: true,
+      refLandsTest: false,
+      testidTest: false,
+      roleNameTest: false,
+    })
+    const row = auditComponent({ name: 'Button', componentDir: dir, exported: true, exempt: false })
+    expect(row.files.refTest).toBe('missing')
+    expect(row.files.testidTest).toBe('missing')
+    expect(row.files.roleTest).toBe('missing')
+    expect(row.advisories).toHaveLength(3)
+    expect(row.missing).toEqual([])
+    // hasFailures ignores advisories.
+    expect(hasFailures({ rows: [row], orphanedExports: [] })).toBe(false)
+  })
+})
+
+describe('ROLE_NAME_CONTRACT', () => {
+  // Hand-maintained map (mirrors PARITY_EXEMPT). These guards turn a wrong
+  // insertion order or a stale component name into a CI failure.
+  const repoRoot = join(dirname(fileURLToPath(import.meta.url)), '../..')
+  const lv1Dir = join(repoRoot, 'src/components/lv1')
+
+  it('is declared in alphabetical order', () => {
+    const keys = Object.keys(ROLE_NAME_CONTRACT)
+    expect(keys).toEqual([...keys].sort())
+  })
+
+  it('maps only real lv1 component directories to a non-empty role', () => {
+    for (const [name, role] of Object.entries(ROLE_NAME_CONTRACT)) {
+      const dir = join(lv1Dir, name)
+      expect(existsSync(dir), `${name} is in ROLE_NAME_CONTRACT but ${dir} does not exist`).toBe(
+        true,
+      )
+      expect(statSync(dir).isDirectory(), `${dir} is not a directory`).toBe(true)
+      expect(typeof role === 'string' && role.length > 0, `${name} has an empty role`).toBe(true)
+    }
   })
 })
 

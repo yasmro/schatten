@@ -268,4 +268,9 @@ describe('Input', () => {
     render(<Input aria-label="email" ref={ref} />)
     expect(ref.current).toBeInstanceOf(HTMLInputElement)
   })
+
+  it('forwards data-testid to the <input> element', () => {
+    render(<Input aria-label="email" data-testid="email-input" />)
+    expect(screen.getByTestId('email-input')).toBe(screen.getByRole('textbox', { name: 'email' }))
+  })
 })

@@ -132,4 +132,25 @@ describe('Tooltip', () => {
       expect(tooltip).toHaveClass('st-tooltip__content')
     })
   })
+
+  it('forwards ref to the trigger', () => {
+    const ref = { current: null as HTMLButtonElement | null }
+    renderTooltip(
+      <Tooltip>
+        <TooltipTrigger ref={ref}>Help</TooltipTrigger>
+        <TooltipContent>Info</TooltipContent>
+      </Tooltip>,
+    )
+    expect(ref.current).toBeInstanceOf(HTMLButtonElement)
+  })
+
+  it('forwards data-testid to the trigger', () => {
+    renderTooltip(
+      <Tooltip>
+        <TooltipTrigger data-testid="help-trigger">Help</TooltipTrigger>
+        <TooltipContent>Info</TooltipContent>
+      </Tooltip>,
+    )
+    expect(screen.getByTestId('help-trigger')).toBe(screen.getByRole('button', { name: 'Help' }))
+  })
 })

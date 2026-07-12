@@ -24,12 +24,36 @@ export interface AuditFiles {
   readonly parityStories: CellState
   readonly parityVrt: CellState
   readonly paritySnap: CellState
+  /**
+   * Advisory (non-blocking): a `forwardRef` component whose test asserts the
+   * ref lands on the DOM node. `na` when the component is not a forwardRef.
+   * See testing-guideline "ref reaches the underlying DOM node".
+   */
+  readonly refTest: CellState
+  /**
+   * Advisory (non-blocking): a `{...props}`-spreading component whose test
+   * asserts `data-testid` pass-through. `na` when the component does not
+   * spread props. See component-testid-guideline "Verifying compliance".
+   */
+  readonly testidTest: CellState
+  /**
+   * Advisory (non-blocking): a component in {@link ROLE_NAME_CONTRACT} whose
+   * test asserts a `getByRole(<role>, { name })`. `na` when the component is
+   * not in the map. See component-architecture §8.
+   */
+  readonly roleTest: CellState
 }
 
 export interface AuditRow {
   readonly name: string
   readonly files: AuditFiles
   readonly missing: readonly string[]
+  /**
+   * Advisory (non-blocking) test-existence gaps. Reported separately from
+   * `missing` and NOT counted by `hasFailures` — a false positive here can
+   * never fail `--check`.
+   */
+  readonly advisories: readonly string[]
   readonly exempt: boolean
 }
 
@@ -63,6 +87,38 @@ export interface RenderJsonOptions {
  * pinned by scripts/__tests__/audit-coverage.test.ts.
  */
 export const PARITY_EXEMPT: ReadonlySet<string>
+
+/**
+ * Components whose a11y contract exposes a role + accessible name on their own
+ * primary element, mapped to that role. The advisory `roleTest` column is `na`
+ * for any component not listed here. Hand-maintained in alphabetical order;
+ * pinned by scripts/__tests__/audit-coverage.test.ts.
+ */
+export const ROLE_NAME_CONTRACT: Readonly<Record<string, string>>
+
+/** True when the component source uses `forwardRef`. */
+export function usesForwardRef(tsxSource: string): boolean
+
+/** True when the component spreads `{...props}` / `{...rest}` onto its root. */
+export function spreadsProps(tsxSource: string): boolean
+
+/**
+ * Heuristic: the test asserts a forwarded ref lands (`.current` assertion +
+ * `ref={…}` / `createRef` / `useRef`).
+ */
+export function hasRefLandsTest(testSource: string): boolean
+
+/**
+ * Heuristic: the test references `data-testid` and asserts where it lands
+ * (a *ByTestId query or a `data-testid` attribute assertion).
+ */
+export function hasTestidPassthroughTest(testSource: string): boolean
+
+/**
+ * Heuristic: the test has a `getByRole('<role>', { name … })`-shaped assertion
+ * for the exact `role`.
+ */
+export function hasRoleNameTest(testSource: string, role: string): boolean
 
 export function discoverComponents(lv1Dir: string): string[]
 

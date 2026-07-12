@@ -206,4 +206,15 @@ describe('Button', () => {
       expect(onClick).not.toHaveBeenCalled()
     })
   })
+
+  it('forwards ref to the underlying <button>', () => {
+    const ref = { current: null as HTMLButtonElement | null }
+    render(<Button ref={ref}>Save</Button>)
+    expect(ref.current).toBeInstanceOf(HTMLButtonElement)
+  })
+
+  it('forwards data-testid to the button element', () => {
+    render(<Button data-testid="save-btn">Save</Button>)
+    expect(screen.getByTestId('save-btn')).toBe(screen.getByRole('button', { name: 'Save' }))
+  })
 })

@@ -74,7 +74,7 @@ pnpm lint              # Biome CI checks
 pnpm lint:fix          # Biome auto-fix
 pnpm typecheck         # tsc --noEmit
 pnpm changeset         # Create a changeset for user-facing changes
-pnpm audit:coverage    # Audit lv1 companion-file coverage (test / VRT / .css / __snapshots__ / barrel / CSS API fixture)
+pnpm audit:coverage    # Audit lv1 companion-file coverage (test / VRT / .css / __snapshots__ / barrel / CSS API fixture) + advisory test-existence columns (ref.test / testid.test / role.test — ⚠, non-blocking)
 ```
 
 ## Things you MUST NOT do

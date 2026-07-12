@@ -131,8 +131,8 @@ directory) shouldn't drown the report in red.
   grep can't parse intent, a false positive is possible — so a gap here
   renders `⚠`, lands in the "Test-existence gaps" section, and **does not**
   fail `--check` (`hasFailures` ignores `advisories`). Promotion to blocking
-  is a separate follow-up issue, mirroring the `#307` (audit job) / `#346`
-  (a11y) staged-gate pattern. `ROLE_NAME_CONTRACT` is hand-maintained next to
+  is tracked in [#474](https://github.com/yasmro/schatten/issues/474),
+  mirroring the `#307` (audit job) / `#346` (a11y) staged-gate pattern. `ROLE_NAME_CONTRACT` is hand-maintained next to
   `PARITY_EXEMPT`; `Spinner` is intentionally excluded (its `role="status"`
   is a live region named by content, not an accessible name).
 - **`pnpm audit:coverage` is read-only**. It never creates files, edits

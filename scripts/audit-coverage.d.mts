@@ -96,6 +96,25 @@ export const PARITY_EXEMPT: ReadonlySet<string>
  */
 export const ROLE_NAME_CONTRACT: Readonly<Record<string, string>>
 
+/**
+ * Components intentionally OUT of the `roleTest` gate (no role+accessible-name-
+ * on-self contract). Together with {@link ROLE_NAME_CONTRACT} this forms an
+ * exhaustive, disjoint partition of the lv1 tree — enforced by
+ * {@link roleContractPartitionGaps} so a new component missing from both sets
+ * fails CI instead of silently defaulting to `na`.
+ */
+export const ROLE_NAME_EXEMPT: ReadonlySet<string>
+
+/**
+ * Return the components that break the role-contract partition: `unclassified`
+ * (in neither set) and `both` (in both). Empty arrays mean the partition is
+ * exhaustive and disjoint.
+ */
+export function roleContractPartitionGaps(componentNames: readonly string[]): {
+  unclassified: string[]
+  both: string[]
+}
+
 /** True when the component source uses `forwardRef`. */
 export function usesForwardRef(tsxSource: string): boolean
 

@@ -15,8 +15,10 @@ import {
   parseExportedNames,
   parseFixtureSlugs,
   ROLE_NAME_CONTRACT,
+  ROLE_NAME_EXEMPT,
   renderJson,
   renderTable,
+  roleContractPartitionGaps,
   runAudit,
   spreadsProps,
   usesForwardRef,
@@ -868,6 +870,32 @@ describe('ROLE_NAME_CONTRACT', () => {
       expect(statSync(dir).isDirectory(), `${dir} is not a directory`).toBe(true)
       expect(typeof role === 'string' && role.length > 0, `${name} has an empty role`).toBe(true)
     }
+  })
+
+  it('ROLE_NAME_EXEMPT lists only real lv1 dirs and is disjoint from the contract', () => {
+    const contract = new Set(Object.keys(ROLE_NAME_CONTRACT))
+    for (const name of ROLE_NAME_EXEMPT) {
+      expect(
+        existsSync(join(lv1Dir, name)),
+        `${name} is in ROLE_NAME_EXEMPT but does not exist`,
+      ).toBe(true)
+      expect(contract.has(name), `${name} is in BOTH ROLE_NAME_CONTRACT and ROLE_NAME_EXEMPT`).toBe(
+        false,
+      )
+    }
+  })
+
+  it('classifies EVERY lv1 into exactly one of contract / exempt (partition guard)', () => {
+    // The forcing function: a new lv1 added without being placed in either set
+    // (or placed in both) fails here, instead of silently defaulting `roleTest`
+    // to `na`. This is the role-column counterpart to PARITY_EXEMPT's coverage.
+    const names = discoverComponents(lv1Dir)
+    const { unclassified, both } = roleContractPartitionGaps(names)
+    expect(
+      unclassified,
+      `lv1 component(s) in neither ROLE_NAME_CONTRACT nor ROLE_NAME_EXEMPT — add each to exactly one (see the MAINTENANCE note in audit-coverage.mjs): ${unclassified.join(', ')}`,
+    ).toEqual([])
+    expect(both, `lv1 component(s) in both sets: ${both.join(', ')}`).toEqual([])
   })
 })
 

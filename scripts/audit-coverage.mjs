@@ -89,7 +89,7 @@ const FROM_RE = /from\s+['"]\.\/([^'"/.]+)['"]/g
 // positive can't fail a PR. This mirrors the repo's staged-gate promotion
 // pattern (#307 audit job Phase 1 → Phase 2; #346 a11y): land the signal as a
 // warn column, confirm it catches the known backlog, then promote to blocking
-// in a follow-up issue.
+// in a follow-up issue (#474).
 //
 // The three contracts, each sourced from a `.claude/rules/` doc:
 //   1. ref-lands  — testing-guideline "ref reaches the underlying DOM node".
@@ -152,6 +152,75 @@ export const ROLE_NAME_CONTRACT = /** @type {const} */ ({
   Text: 'heading',
   Textarea: 'textbox',
 })
+
+// Every lv1 that does NOT carry a role+accessible-name-on-self contract, and so
+// is intentionally out of the `role.test` gate (column stays `na`). Kept as an
+// explicit set — NOT an "everything else" fallthrough — so the two sets form an
+// **exhaustive partition** of the lv1 tree: `roleContractPartitionGaps()` (and
+// its CI test) fails when a component is in neither set OR in both, turning a
+// forgotten classification of a NEW component into a red test instead of a
+// silent `na`. This is the forcing function `ROLE_NAME_CONTRACT` lacked on its
+// own (unlike `ref.test` / `testid.test`, whose applicability self-derives from
+// the `.tsx`, the role contract cannot be reliably grep-derived, so it is
+// hand-classified — and therefore needs the partition guard).
+//
+// The exclusion reasons, by category:
+//   - live region named by content, not an accessible name: `Spinner`
+//     (`role="status"`; see ROLE_NAME_CONTRACT note), `Toast` (Sonner live region)
+//   - role-less by default (consumer supplies the role): `Callout`
+//   - no accessible-name-bearing role on the root: `Avatar` `Card` `Icon`
+//     `Separator` `Skeleton` `Field` `Table`
+//   - compound/portal wrapper whose *own* role is not the primary test surface
+//     (named via a part / Field / options instead): `DropdownMenu` `Popover`
+//     `Select` (combobox named via Field/placeholder; asserted on options) `Tabs`
+//     `Tooltip`
+//
+// MAINTENANCE: when a new lv1 lands, add it to EXACTLY ONE of ROLE_NAME_CONTRACT
+// (has a role+name-on-self contract) or ROLE_NAME_EXEMPT (does not). CI fails
+// otherwise. Alphabetical, mirroring PARITY_EXEMPT.
+export const ROLE_NAME_EXEMPT = new Set([
+  'Avatar',
+  'Callout',
+  'Card',
+  'DropdownMenu',
+  'Field',
+  'Icon',
+  'Popover',
+  'Select',
+  'Separator',
+  'Skeleton',
+  'Spinner',
+  'Table',
+  'Tabs',
+  'Toast',
+  'Tooltip',
+])
+
+/**
+ * Classify every lv1 component directory against the role-contract partition
+ * and return the components that break it. `unclassified` = in neither set (a
+ * new component whose author forgot to decide); `both` = in both (a
+ * contradiction). An empty return means the partition is exhaustive and
+ * disjoint. The CI test in scripts/__tests__/audit-coverage.test.ts asserts
+ * both arrays are empty.
+ *
+ * @param {string[]} componentNames the lv1 directory names (from discoverComponents)
+ * @returns {{ unclassified: string[], both: string[] }}
+ */
+export function roleContractPartitionGaps(componentNames) {
+  const contract = new Set(Object.keys(ROLE_NAME_CONTRACT))
+  /** @type {string[]} */
+  const unclassified = []
+  /** @type {string[]} */
+  const both = []
+  for (const name of componentNames) {
+    const inContract = contract.has(name)
+    const inExempt = ROLE_NAME_EXEMPT.has(name)
+    if (inContract && inExempt) both.push(name)
+    else if (!inContract && !inExempt) unclassified.push(name)
+  }
+  return { unclassified: unclassified.sort(), both: both.sort() }
+}
 
 /**
  * True when the component source uses `forwardRef` (→ testing-guideline

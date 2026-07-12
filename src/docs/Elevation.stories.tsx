@@ -14,10 +14,10 @@ type Story = StoryObj
 /**
  * The primitive shadow scale, sourced verbatim from `src/core/tokens/spacing.css`.
  *
- * All four steps are registered in the `@theme` block of `base.css` (so the
- * `shadow-sm` … `shadow-xl` Tailwind utilities exist) and are listed in the
- * public manifest. `xl` is part of the shipped scale but is currently mapped to
- * no semantic alias and used by no component — it is reserved, not retired.
+ * All four steps are registered in the public-token registrar
+ * (`src/styles/public-tokens.css`) and are listed in the public manifest.
+ * `xl` is part of the shipped scale but is currently mapped to no semantic
+ * alias and used by no component — it is reserved, not retired.
  */
 const PRIMITIVE_SHADOWS = [
   { token: 'sm', value: '0 1px 2px 0 rgb(0 0 0 / 0.05)' },
@@ -77,8 +77,8 @@ export const ShadowScale: Story = {
       <PageTitle>Elevation</PageTitle>
       <Lead>
         Schatten expresses elevation with a four-step shadow scale, defined in{' '}
-        <code>src/core/tokens/spacing.css</code> and registered as Tailwind utilities via the{' '}
-        <code>@theme</code> block in <code>base.css</code>. Every shadow is a translucent black (
+        <code>src/core/tokens/spacing.css</code> and registered in the public-token registrar (
+        <code>src/styles/public-tokens.css</code>). Every shadow is a translucent black (
         <code>rgb(0 0 0 / α)</code>); it is mode-agnostic, so the same value reads as a softer
         shadow against a dark surface (see <strong>Usage guide</strong>).
       </Lead>

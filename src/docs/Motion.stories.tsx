@@ -15,8 +15,8 @@ type Story = StoryObj
 /**
  * The shared enter/exit duration scale, sourced verbatim from
  * `src/core/tokens/animation.css`. Three perceptually-distinct steps
- * (fast 100ms / base 150ms / slow 200ms) registered in the `@theme` block of
- * `base.css` and listed in the public manifest.
+ * (fast 100ms / base 150ms / slow 200ms) registered in the public-token
+ * registrar (`src/styles/public-tokens.css`) and listed in the public manifest.
  *
  * `motion` is the semantic alias (`--motion-*`) layered over each step; `use`
  * is the intent the step is reached for. The literal `value` is pinned against
@@ -143,8 +143,8 @@ export const DurationScale: Story = {
       <Lead>
         Schatten centralizes enter/exit timing in a three-step duration scale, defined in{' '}
         <code>src/core/tokens/animation.css</code> and registered as part of the public token
-        surface via the <code>@theme</code> block in <code>base.css</code>. Components reference the
-        scale — or its semantic <code>--motion-*</code> aliases (see{' '}
+        surface via the registrar (<code>src/styles/public-tokens.css</code>). Components reference
+        the scale — or its semantic <code>--motion-*</code> aliases (see{' '}
         <strong>Semantic Tokens</strong>) — never a hardcoded millisecond value.
       </Lead>
 

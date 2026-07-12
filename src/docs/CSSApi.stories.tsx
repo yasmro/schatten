@@ -379,11 +379,11 @@ export const Reference: Story = {
             / inverted-* / error / success / warning / info
             / vermillion / indigo -->
 
-<!-- Note: .st-icon itself has no CSS body. Tailwind's --minify strips it
-     from dist/schatten.css, so the manifest's classes[] list won't include
-     "st-icon". The class still works in JSX (.st-icon st-icon--md
-     st-icon--inherit) and in vanilla HTML — every visual contribution
-     comes from a modifier. -->`}</CodeBlock>
+<!-- Note: .st-icon itself has no CSS body. The dist minifier (lightningcss)
+     strips it from dist/schatten.css, so the manifest's classes[] list
+     won't include "st-icon". The class still works in JSX (.st-icon
+     st-icon--md st-icon--inherit) and in vanilla HTML — every visual
+     contribution comes from a modifier. -->`}</CodeBlock>
         </Section>
 
         <Section

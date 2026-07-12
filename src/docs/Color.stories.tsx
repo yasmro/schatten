@@ -55,6 +55,15 @@ const SubsectionTitle = ({ children }: { children: React.ReactNode }) => (
 
 export const Colors: Story = {
   name: 'Colors',
+  parameters: {
+    // This page IS the contrast-audit surface: the "Solid / Subtle Treatments
+    // (a11y audit)" and disabled/readOnly sections deliberately render every
+    // treatment, including the documented intentional exceptions (solid
+    // trilemma, inverted-on-saturated, disabled tier — #344 / #346). axe
+    // flagging those rows here is expected; real regressions are caught by
+    // the component-level a11y suite, which is blocking.
+    a11y: { config: { rules: [{ id: 'color-contrast', enabled: false }] } },
+  },
   render: () => (
     <div className="max-w-3xl mx-auto px-8 py-12">
       <h1 className="text-4xl font-bold text-foreground mb-4">Colors</h1>
@@ -280,8 +289,8 @@ export const Colors: Story = {
 
       <SubsectionTitle>Info</SubsectionTitle>
       <p className="text-sm text-foreground-muted mb-3">
-        Informational notifications. References blue directly so themes that retune{' '}
-        <code>primary</code> do not affect info.
+        Informational notifications. References blue directly so themes that retune the{' '}
+        <code>theme</code> scale do not affect info.
       </p>
       <div className="border border-border rounded-xl px-5">
         <ColorRow name="info" description="Info base color" className="bg-info" />
@@ -689,7 +698,7 @@ export const Colors: Story = {
       <SectionTitle>Seasonal themes</SectionTitle>
       <p className="text-sm text-foreground-muted mb-4">
         Eight seasonal color themes based on the Japanese 二十四節気 (24 solar terms). Each theme
-        overrides the primary color scale via the{' '}
+        overrides the theme color scale (<code>--color-theme-*</code>) via the{' '}
         <code className="text-xs bg-gray-100 px-1.5 py-0.5 rounded">data-theme</code> attribute on
         the root element (values like{' '}
         <code className="text-xs bg-gray-100 px-1.5 py-0.5 rounded">season--spring-early</code>).

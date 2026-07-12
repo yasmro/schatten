@@ -12,10 +12,10 @@
  * - `ReactSamples` (this file) imports the lv1 React components and
  *   pairs each `data-component` section with a real React render.
  *
- * Coverage policy: the 14 区 A/B components — plus Tabs (区 D but
- * inline-renderable, so it pairs against its vanilla markup) — appear
+ * Coverage policy: every 区 A/B component — plus Tabs (区 D but
+ * inline-renderable, so it pairs against its vanilla markup) — appears
  * in `<ReactSamples />` for visible parity comparison. Tooltip /
- * Select / Dialog / Toast (区 C/D per
+ * Select / Dialog / Toast / DropdownMenu / Popover (区 C/D per
  * .claude/rules/vrt-spec-guideline.md) are intentionally omitted from
  * the React column — they require portal mounting or an imperative API
  * that can't be shown side-by-side. Their vanilla markup still appears

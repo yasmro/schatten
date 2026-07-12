@@ -227,13 +227,17 @@ function CascadeTable() {
       </h2>
       <p className="mb-4 text-foreground-muted text-sm leading-relaxed">
         Each column is a sample point: a wrapper with the indicated Mode class and{' '}
-        <code className="rounded bg-surface-hover px-1 font-mono">data-theme</code>. Per the
-        two-axis model, Mode-owned tokens (background, foreground, border, disabled) must change
-        between the light/dark columns; Special-owned tokens (
-        <code className="rounded bg-surface-hover px-1 font-mono">--color-theme-*</code>) must
-        change between the (none) / (spring-early) columns;{' '}
-        <code className="rounded bg-surface-hover px-1 font-mono">--color-info</code> must remain
-        pinned to blue everywhere.
+        <code className="rounded bg-surface-hover px-1 font-mono text-foreground">data-theme</code>.
+        Per the two-axis model, Mode-owned tokens (background, foreground, border, disabled) must
+        change between the light/dark columns; Special-owned tokens (
+        <code className="rounded bg-surface-hover px-1 font-mono text-foreground">
+          --color-theme-*
+        </code>
+        ) must change between the (none) / (spring-early) columns;{' '}
+        <code className="rounded bg-surface-hover px-1 font-mono text-foreground">
+          --color-info
+        </code>{' '}
+        must remain pinned to blue everywhere.
       </p>
 
       <div className="overflow-x-auto rounded-lg border border-border">
@@ -263,8 +267,8 @@ function CascadeTable() {
                       t.owner === 'Special'
                         ? 'bg-theme-100 text-theme-900'
                         : t.owner === 'Mode'
-                          ? 'bg-info-subtle text-info'
-                          : 'bg-warning-subtle text-warning'
+                          ? 'bg-info-subtle text-info-emphasis'
+                          : 'bg-warning-subtle text-warning-emphasis'
                     }`}
                   >
                     {t.owner}

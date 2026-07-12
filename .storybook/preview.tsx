@@ -159,7 +159,7 @@ const preview: Preview = {
         title: 'Season',
         icon: 'paintbrush',
         items: [
-          { value: 'none', title: 'Default (Blue)' },
+          { value: 'none', title: 'Default (Alabaster)' },
           { value: 'spring-early', title: 'Spring Early' },
           { value: 'spring-late', title: 'Spring Late' },
           { value: 'summer-early', title: 'Summer Early' },

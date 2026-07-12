@@ -31,9 +31,13 @@ export const Note = ({ children }: { children: ReactNode }) => (
   <p className="text-sm text-foreground-muted mb-3">{children}</p>
 )
 
+const codeBlockClasses =
+  'my-3 overflow-x-auto whitespace-pre rounded-lg border border-border bg-surface p-4 font-mono text-sm text-foreground'
+
 /** Monospace code sample box, framework-agnostic (no syntax highlighting needed for short snippets). */
 export const CodeBlock = ({ children }: { children: ReactNode }) => (
-  <pre className="my-3 overflow-x-auto whitespace-pre rounded-lg border border-border bg-surface p-4 font-mono text-sm text-foreground">
+  // biome-ignore lint/a11y/noNoninteractiveTabindex: horizontally scrollable code block — keyboard users need focus to scroll it (axe scrollable-region-focusable)
+  <pre tabIndex={0} className={codeBlockClasses}>
     {children}
   </pre>
 )

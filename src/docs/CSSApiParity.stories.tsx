@@ -12,15 +12,15 @@
  *
  * - **Per-component parity** (`Button.parity.stories.tsx`,
  *   `Badge.parity.stories.tsx`, …) verifies one component in
- *   isolation. 14 of 18 lv1 ship one per
+ *   isolation. Every 区分 A/B lv1 ships one per
  *   .claude/rules/vrt-spec-guideline.md §"Parity stories".
- * - **Integration parity** (this story) verifies all 18 in a single
+ * - **Integration parity** (this story) verifies every lv1 in a single
  *   page. It catches three things the per-component specs cannot:
  *     1. Cross-component CSS leakage (a Toast rule that lands on a
  *        Button because both share `.st-btn` chains).
- *     2. The 4 区 C/D components (Tooltip / Select / Dialog / Toast)
- *        that skip per-component parity — their static `.st-*` shape
- *        is pinned here.
+ *     2. The 区 C/D components (Tooltip / Select / Dialog / Toast /
+ *        DropdownMenu / Popover) that skip per-component parity —
+ *        their static `.st-*` shape is pinned here.
  *     3. The fixture-as-SSOT contract — the same vanilla HTML this
  *        story consumes is what `CSSApiDist.vrt.spec.ts` feeds into
  *        `page.setContent()` against the built `dist/schatten.css`,
@@ -50,6 +50,13 @@ type Story = StoryObj
 
 export const ParityComparison: Story = {
   name: 'React vs Vanilla HTML (parity)',
+  parameters: {
+    // Renders every treatment on both columns, including the solid fills whose
+    // white-foreground small text is the documented intentional exception
+    // (solid trilemma — #344 / #346). Component-level a11y (blocking) guards
+    // real regressions.
+    a11y: { config: { rules: [{ id: 'color-contrast', enabled: false }] } },
+  },
   render: () => (
     <>
       {/* Fixture chrome — scaffolding only, NOT public API. The same

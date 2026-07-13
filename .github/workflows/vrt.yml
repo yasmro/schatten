@@ -18,7 +18,7 @@ jobs:
     # can otherwise occupy the runner for 2h+ — fail fast instead.
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - uses: pnpm/action-setup@v6
 

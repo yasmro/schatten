@@ -11,7 +11,7 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - uses: pnpm/action-setup@v6
 
@@ -68,7 +68,7 @@ jobs:
   typecheck:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - uses: pnpm/action-setup@v6
 
@@ -85,7 +85,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - uses: pnpm/action-setup@v6
 
@@ -102,7 +102,7 @@ jobs:
   size:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - uses: pnpm/action-setup@v6
 
@@ -138,7 +138,7 @@ jobs:
       github.base_ref != 'main' &&
       github.event.pull_request.user.login != 'dependabot[bot]'
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0          # `changeset status --since=origin/<base>` needs full history
       - uses: pnpm/action-setup@v6
@@ -177,7 +177,7 @@ jobs:
       github.event.pull_request.user.login != 'dependabot[bot]' &&
       !contains(github.event.pull_request.labels.*.name, 'no-changeset')
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
@@ -207,7 +207,7 @@ jobs:
     # check. Adding `audit` to develop's required checks is a repo-settings
     # change (ruleset), tracked alongside #346, not in this workflow.
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - uses: pnpm/action-setup@v6
 
@@ -252,7 +252,7 @@ jobs:
     # develop's required checks is a repo-settings change (ruleset), tracked in
     # #346, not in this workflow.
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - uses: pnpm/action-setup@v6
 

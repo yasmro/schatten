@@ -1,0 +1,485 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Schatten — Vanilla HTML verification</title>
+
+    <!--
+      Schatten framework-agnostic CSS. TWO delivery methods are verified by
+      this page (issue #161, "CDN vs npm 両方の方法を検証"):
+
+        1. Local dist (ACTIVE below) — the pre-1.0 verification gate. Requires
+           `pnpm build` at the repo root first (writes ../../dist/schatten.css).
+
+        2. CDN (COMMENTED below) — the published-package path. Uncomment it and
+           comment out the local <link> to smoke-test the real jsdelivr URL
+           AFTER the package is published (planned: 1.0 publish). Do not enable
+           both at once.
+
+      Only the <link> differs between the two methods — the entire markup body
+      is identical, so there is a single source of truth and no drift risk.
+    -->
+    <link rel="stylesheet" href="../../dist/schatten.css" />
+    <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@yasmro/schatten/dist/schatten.css" /> -->
+
+    <style>
+      /* Page chrome only — NOT part of the public API. Deliberately not
+         prefixed `.st-`; these classes style the demo scaffolding, never a
+         Schatten component. */
+      .demo-body {
+        max-width: 72rem;
+        margin: 0 auto;
+        padding: 2rem 1.5rem 4rem;
+      }
+      .demo-toolbar {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.75rem 1rem;
+        margin-bottom: 2rem;
+        background: var(--color-surface);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-surface, 0.75rem);
+      }
+      .demo-toolbar__label {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--color-foreground-muted);
+      }
+      .demo-section {
+        margin-bottom: 2.5rem;
+      }
+      .demo-note {
+        padding: 0.75rem 1rem;
+        margin-bottom: 1.5rem;
+        border-left: 3px solid var(--color-warning);
+        background: var(--color-warning-subtle);
+        color: var(--color-warning-emphasis);
+        font-size: 0.875rem;
+        border-radius: 0 var(--radius-control, 0.5rem) var(--radius-control, 0.5rem) 0;
+      }
+      .demo-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
+        gap: 1.5rem;
+      }
+      .demo-sample {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        padding: 1.25rem;
+        background: var(--color-surface);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-surface, 0.75rem);
+      }
+      .demo-sample__label {
+        font-size: 0.75rem;
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        color: var(--color-foreground-muted);
+      }
+      .demo-row {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.75rem;
+      }
+      .demo-stack {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+      .demo-sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="demo-body">
+      <!-- Theme controls: Mode (.dark class) × Special (data-theme attribute),
+           both on <html>, exactly as theme-architecture.md prescribes. -->
+      <div class="demo-toolbar">
+        <span class="demo-toolbar__label">Mode</span>
+        <button type="button" id="toggle-dark" class="st-btn st-btn--secondary st-btn--sm">
+          <span class="st-btn__spinner-overlay" aria-hidden="true"></span>
+          <span class="st-btn__content">Toggle dark</span>
+        </button>
+        <span class="demo-toolbar__label">Special (data-theme)</span>
+        <!-- Demo chrome only: a native <select> borrowing the .st-input skin so
+             the toolbar reads consistently. This is NOT the Schatten Select —
+             that is `.st-select__trigger` and is React-required (区分 C/D). No
+             wrapper class is used here; `.st-input` styles the control directly. -->
+        <select id="select-season" class="st-input" aria-label="Seasonal theme" style="min-width: 12rem;">
+          <option value="">— none —</option>
+          <option value="season--spring-early">season--spring-early</option>
+          <option value="season--spring-late">season--spring-late</option>
+          <option value="season--summer-early">season--summer-early</option>
+          <option value="season--summer-peak">season--summer-peak</option>
+          <option value="season--autumn-early">season--autumn-early</option>
+          <option value="season--autumn-late">season--autumn-late</option>
+          <option value="season--winter-early">season--winter-early</option>
+          <option value="season--winter-deep">season--winter-deep</option>
+        </select>
+      </div>
+
+      <h1 class="st-text st-text--heading st-text--lg st-text--default">
+        Schatten — Vanilla HTML
+      </h1>
+      <p class="st-text st-text--body st-text--md st-text--muted" style="margin-bottom: 2rem;">
+        One <code>&lt;link&gt;</code> to <code>schatten.css</code>, then hand-written
+        <code>.st-*</code> class chains. No Tailwind, no build step, no JS runtime.
+      </p>
+
+      <!-- SSOT NOTE: the .st-* class chains below are copied from the
+           parity-verified fixture at src/docs/__fixtures__/cssApiSamples.html.ts,
+           which is the single source of truth (its React companion is pinned
+           pixel-for-pixel by the *.parity.vrt.spec.ts suite). This example is
+           NOT in the lint/VRT pipeline, so a class rename sweep updates the
+           fixture but not this file — when you rename a class, re-sync the
+           chains here against that fixture so this demo can't silently rot. -->
+
+      <!-- ================================================================
+           区分 A/B — Fully functional in vanilla HTML.
+           Class + HTML/ARIA attributes are enough; parity-verified vs React.
+           ================================================================ -->
+      <section class="demo-section">
+        <h2 class="st-text st-text--heading st-text--md st-text--default" style="margin-bottom: 1rem;">
+          Fully functional (区分 A/B — 17 components)
+        </h2>
+        <div class="demo-grid">
+          <div class="demo-sample" data-component="text">
+            <span class="demo-sample__label">Text — .st-text</span>
+            <p class="st-text st-text--body st-text--md st-text--default">Body text.</p>
+            <p class="st-text st-text--body st-text--sm st-text--muted">Muted small text.</p>
+          </div>
+
+          <div class="demo-sample" data-component="icon">
+            <span class="demo-sample__label">Icon — .st-icon</span>
+            <div class="demo-row">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="st-icon st-icon--md st-icon--default" aria-hidden="true">
+                <circle cx="12" cy="12" r="10" /><path d="M12 16v-4" /><path d="M12 8h.01" />
+              </svg>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="st-icon st-icon--md st-icon--error" aria-hidden="true">
+                <circle cx="12" cy="12" r="10" /><line x1="12" x2="12" y1="8" y2="12" /><line x1="12" x2="12.01" y1="16" y2="16" />
+              </svg>
+            </div>
+          </div>
+
+          <div class="demo-sample" data-component="button">
+            <span class="demo-sample__label">Button — .st-btn (hover / focus / disabled)</span>
+            <div class="demo-row">
+              <button type="button" class="st-btn st-btn--primary st-btn--md">
+                <span class="st-btn__spinner-overlay" aria-hidden="true"></span>
+                <span class="st-btn__content">Primary</span>
+              </button>
+              <button type="button" class="st-btn st-btn--secondary st-btn--md">
+                <span class="st-btn__spinner-overlay" aria-hidden="true"></span>
+                <span class="st-btn__content">Secondary</span>
+              </button>
+              <button type="button" class="st-btn st-btn--destructive st-btn--md" disabled>
+                <span class="st-btn__spinner-overlay" aria-hidden="true"></span>
+                <span class="st-btn__content">Disabled</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="demo-sample" data-component="badge">
+            <span class="demo-sample__label">Badge — .st-badge</span>
+            <div class="demo-row">
+              <span class="st-badge st-badge--success st-badge--subtle st-badge--md">Saved</span>
+              <span class="st-badge st-badge--error st-badge--solid st-badge--md">Failed</span>
+              <span class="st-badge st-badge--info st-badge--outline st-badge--md">Beta</span>
+            </div>
+          </div>
+
+          <div class="demo-sample" data-component="callout">
+            <span class="demo-sample__label">Callout — .st-callout</span>
+            <div class="st-callout st-callout--info st-callout--subtle" role="status">
+              <svg class="st-callout__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="10" /><path d="M12 16v-4" /><path d="M12 8h.01" />
+              </svg>
+              <div class="st-callout__content">
+                <div class="st-callout__title">Heads up</div>
+                <div class="st-callout__body">Subtle appearance.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="demo-sample" data-component="spinner">
+            <span class="demo-sample__label">Spinner — .st-spinner (pure-CSS animation)</span>
+            <div class="demo-row">
+              <div class="st-spinner st-spinner--default st-spinner--md" role="status">
+                <svg class="st-spinner__rotor" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <circle class="st-spinner__track" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" />
+                  <path class="st-spinner__arc" d="M22 12a10 10 0 0 0-10-10" stroke="currentColor" stroke-width="3" stroke-linecap="round" />
+                </svg>
+                <span class="demo-sr-only">Loading</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="demo-sample" data-component="input">
+            <span class="demo-sample__label">Input — .st-input (error via aria-invalid)</span>
+            <div class="demo-stack">
+              <div class="st-input-wrapper st-input-wrapper--md">
+                <input type="text" placeholder="Default" class="st-input" aria-label="input-default" />
+              </div>
+              <div class="st-input-wrapper st-input-wrapper--md">
+                <input type="text" placeholder="Error" class="st-input" aria-invalid="true" aria-label="input-error" />
+              </div>
+            </div>
+          </div>
+
+          <div class="demo-sample" data-component="textarea">
+            <span class="demo-sample__label">Textarea — .st-textarea</span>
+            <textarea rows="2" placeholder="Default" class="st-textarea st-textarea--md" aria-label="textarea-default"></textarea>
+          </div>
+
+          <div class="demo-sample" data-component="checkbox">
+            <span class="demo-sample__label">Checkbox — .st-checkbox (click toggles via JS below)</span>
+            <div class="demo-row">
+              <div class="st-checkbox-wrapper">
+                <button type="button" id="cb-1" role="checkbox" aria-checked="false" data-state="unchecked" class="st-checkbox st-checkbox--md">
+                  <span class="st-checkbox__indicator">
+                    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M2.5 8.5L3.5 7.5L6.5 10.5L12.5 3.5L13.5 4.5L6.5 12.5Z" fill="currentColor" /></svg>
+                  </span>
+                </button>
+                <label for="cb-1" class="st-checkbox-wrapper__label">Toggle me</label>
+              </div>
+            </div>
+          </div>
+
+          <div class="demo-sample" data-component="switch">
+            <span class="demo-sample__label">Switch — .st-switch</span>
+            <div class="demo-row">
+              <div class="st-switch-wrapper">
+                <button type="button" id="sw-1" role="switch" aria-checked="true" data-state="checked" class="st-switch st-switch--md">
+                  <span class="st-switch__check"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M2.5 8.5L3.5 7.5L6.5 10.5L12.5 3.5L13.5 4.5L6.5 12.5Z" fill="currentColor" /></svg></span>
+                  <span class="st-switch__thumb" data-state="checked"></span>
+                </button>
+                <label for="sw-1" class="st-switch-wrapper__label">On</label>
+              </div>
+            </div>
+          </div>
+
+          <div class="demo-sample" data-component="radio">
+            <span class="demo-sample__label">Radio — .st-radio</span>
+            <div role="radiogroup" class="st-radio-group">
+              <div class="st-radio-wrapper">
+                <button type="button" id="r-a" role="radio" aria-checked="false" data-state="unchecked" class="st-radio st-radio--md"></button>
+                <label for="r-a" class="st-radio-wrapper__label">Option A</label>
+              </div>
+              <div class="st-radio-wrapper">
+                <button type="button" id="r-b" role="radio" aria-checked="true" data-state="checked" class="st-radio st-radio--md">
+                  <span class="st-radio__indicator"><span class="st-radio__dot"></span></span>
+                </button>
+                <label for="r-b" class="st-radio-wrapper__label">Option B</label>
+              </div>
+            </div>
+          </div>
+
+          <div class="demo-sample" data-component="separator">
+            <span class="demo-sample__label">Separator — .st-separator</span>
+            <p class="st-text st-text--body st-text--sm st-text--muted">Above</p>
+            <div class="st-separator st-separator--horizontal" role="none"></div>
+            <p class="st-text st-text--body st-text--sm st-text--muted">Below</p>
+          </div>
+
+          <div class="demo-sample" data-component="field">
+            <span class="demo-sample__label">Field — .st-field (consumer wires ARIA)</span>
+            <div class="st-field" data-error="true">
+              <div class="st-field__label-row">
+                <label for="field-name" class="st-field__label">Name<span class="st-field__required-marker">*</span></label>
+              </div>
+              <div class="st-input-wrapper st-input-wrapper--md">
+                <input id="field-name" class="st-input" required aria-invalid="true" aria-describedby="field-name-error" />
+              </div>
+              <p id="field-name-error" class="st-field__error">Name is required</p>
+            </div>
+          </div>
+
+          <div class="demo-sample" data-component="fieldset">
+            <span class="demo-sample__label">FieldSet — .st-fieldset</span>
+            <fieldset class="st-fieldset">
+              <legend class="st-fieldset__legend">Personal Info</legend>
+              <div class="st-fieldset__children">
+                <div class="st-field">
+                  <div class="st-field__label-row">
+                    <label for="fs-first" class="st-field__label">First name</label>
+                  </div>
+                  <div class="st-input-wrapper st-input-wrapper--md">
+                    <input id="fs-first" class="st-input" />
+                  </div>
+                </div>
+              </div>
+            </fieldset>
+          </div>
+
+          <div class="demo-sample" data-component="card">
+            <span class="demo-sample__label">Card — .st-card</span>
+            <div class="st-card st-card--filled">
+              <div class="st-card__header">
+                <div class="st-card__title">Card title</div>
+                <div class="st-card__description">A short supporting description.</div>
+              </div>
+              <div class="st-card__content">Main content goes here.</div>
+              <div class="st-card__footer">Footer</div>
+            </div>
+          </div>
+
+          <div class="demo-sample" data-component="skeleton">
+            <span class="demo-sample__label">Skeleton — .st-skeleton</span>
+            <div class="demo-row">
+              <div class="st-skeleton" style="height: 1rem; width: 12rem;" aria-hidden="true"></div>
+              <div class="st-skeleton" style="height: 3rem; width: 3rem; border-radius: 9999px;" aria-hidden="true"></div>
+            </div>
+          </div>
+
+          <div class="demo-sample" data-component="table">
+            <span class="demo-sample__label">Table — .st-table</span>
+            <div class="st-table-scroll">
+              <table class="st-table st-table--md st-table--striped st-table--bordered">
+                <caption class="st-table__caption">Team members</caption>
+                <thead class="st-table__header">
+                  <tr class="st-table__row">
+                    <th class="st-table__head st-table__head--start" scope="col">Name</th>
+                    <th class="st-table__head st-table__head--end" scope="col">Role</th>
+                  </tr>
+                </thead>
+                <tbody class="st-table__body">
+                  <tr class="st-table__row">
+                    <td class="st-table__cell st-table__cell--start">Taro Tanaka</td>
+                    <td class="st-table__cell st-table__cell--end">Admin</td>
+                  </tr>
+                  <tr class="st-table__row" data-state="selected">
+                    <td class="st-table__cell st-table__cell--start">Hanako Sato</td>
+                    <td class="st-table__cell st-table__cell--end">Editor</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================================================================
+           区分 C/D — React-required. The .st-* classes render the static
+           surface, but the interactive behaviour (portal, focus trap,
+           positioning, open/close, swipe, enter/exit animation, image→
+           fallback swap) needs the React layer. Shown here as static
+           class rendering ONLY.
+           ================================================================ -->
+      <section class="demo-section">
+        <h2 class="st-text st-text--heading st-text--md st-text--default" style="margin-bottom: 1rem;">
+          React-required (区分 C/D — 8 components, static class only)
+        </h2>
+        <div class="demo-note">
+          These render their visual shell from the class API, but do
+          <strong>not</strong> function in vanilla HTML: Dialog / Tooltip / Select /
+          DropdownMenu / Popover need a portal + positioning + focus management,
+          Tabs needs panel-switch JS, Toast needs Sonner's portal + live region,
+          and Avatar needs Radix's image→fallback swap. Use the React layer
+          (<code>@yasmro/schatten</code>) for these.
+        </div>
+        <div class="demo-grid">
+          <div class="demo-sample" data-component="avatar">
+            <span class="demo-sample__label">Avatar — .st-avatar (fallback only in vanilla)</span>
+            <div class="demo-row">
+              <span class="st-avatar st-avatar--sm"><span class="st-avatar__fallback">JD</span></span>
+              <span class="st-avatar st-avatar--md"><span class="st-avatar__fallback">AB</span></span>
+              <span class="st-avatar st-avatar--lg"><span class="st-avatar__fallback">CD</span></span>
+            </div>
+          </div>
+
+          <div class="demo-sample" data-component="tooltip">
+            <span class="demo-sample__label">Tooltip — .st-tooltip__content (static)</span>
+            <div class="st-tooltip__content" data-state="instant-open" data-side="bottom" role="tooltip">
+              Tooltip body
+              <svg class="st-tooltip__arrow" width="10" height="5" viewBox="0 0 30 10" aria-hidden="true"><polygon points="0,0 30,0 15,10" /></svg>
+            </div>
+          </div>
+
+          <div class="demo-sample" data-component="select">
+            <span class="demo-sample__label">Select — .st-select__trigger (closed)</span>
+            <button type="button" class="st-select__trigger st-select__trigger--md" aria-haspopup="listbox" aria-expanded="false" data-state="closed">
+              <span class="st-select__value">Pick a fruit</span>
+              <svg class="st-select__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
+            </button>
+          </div>
+
+          <div class="demo-sample" data-component="toast">
+            <span class="demo-sample__label">Toast — .st-toast (static, no portal)</span>
+            <div class="st-toast st-toast--success st-toast--subtle" role="status" aria-live="polite">
+              <svg class="st-toast__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>
+              <div class="st-toast__content">
+                <div class="st-toast__title">Saved</div>
+                <div class="st-toast__description">Your changes are saved.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="demo-sample" data-component="popover">
+            <span class="demo-sample__label">Popover — .st-popover__content (static)</span>
+            <div class="st-popover__content" role="dialog" data-side="bottom" style="position: static;">
+              <p>Place any content inside the popover panel.</p>
+            </div>
+          </div>
+
+          <div class="demo-sample" data-component="tabs">
+            <span class="demo-sample__label">Tabs — .st-tabs__* (static, no JS)</span>
+            <div class="st-tabs" data-orientation="horizontal">
+              <div class="st-tabs__list" role="tablist" data-orientation="horizontal">
+                <button class="st-tabs__trigger" role="tab" type="button" data-state="active" aria-selected="true">Account</button>
+                <button class="st-tabs__trigger" role="tab" type="button" data-state="inactive" aria-selected="false">Password</button>
+              </div>
+              <div class="st-tabs__content" role="tabpanel">Manage your account details.</div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <script>
+      // Theme toggles — plain DOM, no framework. Mutating <html> is the whole
+      // switching mechanism (theme-architecture.md): var() re-resolves at paint.
+      document.getElementById('toggle-dark').addEventListener('click', () => {
+        document.documentElement.classList.toggle('dark')
+      })
+      document.getElementById('select-season').addEventListener('change', (e) => {
+        const value = e.target.value
+        if (value) {
+          document.documentElement.setAttribute('data-theme', value)
+        } else {
+          document.documentElement.removeAttribute('data-theme')
+        }
+      })
+
+      // Minimal state toggles so hover/focus/checked states are exercisable
+      // in vanilla — this is the JS the React layer writes for you.
+      for (const id of ['cb-1', 'sw-1']) {
+        const el = document.getElementById(id)
+        el.addEventListener('click', () => {
+          const next = el.getAttribute('aria-checked') !== 'true'
+          el.setAttribute('aria-checked', String(next))
+          el.setAttribute('data-state', next ? 'checked' : 'unchecked')
+          const thumb = el.querySelector('[class*="__thumb"]')
+          if (thumb) thumb.setAttribute('data-state', next ? 'checked' : 'unchecked')
+        })
+      }
+    </script>
+  </body>
+</html>

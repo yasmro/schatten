@@ -39,12 +39,45 @@ const Z_LAYERS = [
 ] as const
 
 // Overlapping cards, each one tier up, to show the paint order visually.
+// Each tile pins its own label color to the theme ramp (not `text-foreground`)
+// because the ramp is Mode-invariant — a dark rung stays dark in dark mode, so
+// the mode-paired foreground would lose contrast on the 500/700 tiles.
 const STACK_DEMO = [
-  { label: 'modal-backdrop (40)', z: 'var(--z-modal-backdrop)', bg: 'bg-surface', offset: 0 },
-  { label: 'modal (50)', z: 'var(--z-modal)', bg: 'bg-theme-100', offset: 36 },
-  { label: 'popover (60)', z: 'var(--z-popover)', bg: 'bg-theme-300', offset: 72 },
-  { label: 'tooltip (70)', z: 'var(--z-tooltip)', bg: 'bg-theme-500', offset: 108 },
-  { label: 'toast (80)', z: 'var(--z-toast)', bg: 'bg-theme-700', offset: 144 },
+  {
+    label: 'modal-backdrop (40)',
+    z: 'var(--z-modal-backdrop)',
+    bg: 'bg-surface',
+    fg: 'text-foreground',
+    offset: 0,
+  },
+  {
+    label: 'modal (50)',
+    z: 'var(--z-modal)',
+    bg: 'bg-theme-100',
+    fg: 'text-theme-950',
+    offset: 36,
+  },
+  {
+    label: 'popover (60)',
+    z: 'var(--z-popover)',
+    bg: 'bg-theme-300',
+    fg: 'text-theme-950',
+    offset: 72,
+  },
+  {
+    label: 'tooltip (70)',
+    z: 'var(--z-tooltip)',
+    bg: 'bg-theme-500',
+    fg: 'text-theme-950',
+    offset: 108,
+  },
+  {
+    label: 'toast (80)',
+    z: 'var(--z-toast)',
+    bg: 'bg-theme-700',
+    fg: 'text-theme-50',
+    offset: 144,
+  },
 ] as const
 
 /**
@@ -101,7 +134,7 @@ export const StackingOrder: Story = {
         {STACK_DEMO.map((c) => (
           <div
             key={c.label}
-            className={`absolute h-28 w-56 rounded-xl border border-border-strong ${c.bg} flex items-start p-3 text-xs font-mono text-foreground`}
+            className={`absolute h-28 w-56 rounded-xl border border-border-strong ${c.bg} ${c.fg} flex items-start p-3 text-xs font-mono`}
             style={{ zIndex: c.z, left: c.offset, top: c.offset / 3 }}
           >
             {c.label}

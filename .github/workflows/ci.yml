@@ -47,6 +47,24 @@ jobs:
       - name: body reset font-size-adjust sync
         run: pnpm check:body-reset
 
+      # #317 — every public-vocabulary var() consumed by the dist CSS chain
+      # must have a row in the hand-maintained registrar (public-tokens.css)
+      - name: Check registrar sync (public CSS variables)
+        run: pnpm check:registrar
+
+      # Relative links + heading anchors in docs/**/*.md + README + the three
+      # root entry-point docs (AGENTS / CLAUDE / CONTRIBUTING) must resolve.
+      # A heading rename in a rule doc would otherwise silently dead-link the
+      # migration guide (#157) and other prose. No build dependency.
+      - name: Doc link health
+        run: pnpm check:doc-links
+
+      # GitHub issue forms are validated only at new-issue render time, so a
+      # malformed template ships silently. Structural check of the required
+      # top-level keys + file presence (#159). No build dependency.
+      - name: Issue / PR template health
+        run: pnpm check:issue-templates
+
   typecheck:
     runs-on: ubuntu-latest
     steps:
@@ -96,7 +114,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
 
       # `size-limit` measures files in dist/, so the package must be built
-      # first. build:css now runs `@tailwindcss/cli` against
+      # first. build:css runs lightningcss (scripts/build-css.mjs) against
       # `src/styles/entry.css` (no native postinstall step required).
       - name: Build
         run: pnpm build
@@ -140,6 +158,13 @@ jobs:
         run: pnpm check:manifest
         env:
           GITHUB_BASE_REF: ${{ github.base_ref }}
+      # Resolve the manifest through package.json#exports and assert the dist
+      # copy is valid + introspectable (4 surface keys, dist-only
+      # package/version/generatedAt present, surface == committed snapshot).
+      # publint proves the export target exists; this proves it resolves and
+      # parses — the "a consumer can actually import it" half of the contract.
+      - name: Check manifest export
+        run: pnpm check:manifest:export
 
   changeset:
     runs-on: ubuntu-latest

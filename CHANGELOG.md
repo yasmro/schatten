@@ -1,5 +1,78 @@
 # @yasmro/schatten
 
+## 0.15.0
+
+### Minor Changes
+
+- chore: v0.15.0 — 1.0 RC 準備マイルストーン。脱 Tailwind（dist を lightningcss 化 [#317](https://github.com/yasmro/schatten/issues/317)）/ CSS 変数命名 audit 確定（[#231](https://github.com/yasmro/schatten/issues/231)）/ Migration guide・ADR・三点セット等の docs 整備 / manifest export 検証（[#162](https://github.com/yasmro/schatten/issues/162)）。公開 surface（`.st-*` 252 / state 属性 8 / CSS 変数 127）は完全不変。個々の変更は patch 相当だが、1.0 RC 前の区切りとして minor で `0.15.0` を発番する。
+
+### Patch Changes
+
+- [#471](https://github.com/yasmro/schatten/pull/471) [`5280544`](https://github.com/yasmro/schatten/commit/52805446c8e0209821c49828d984199af64a5e90) Thanks [@yasmro](https://github.com/yasmro)! - docs: add foundational ADRs (ADR-0001〜0010) to the decision log ([#158](https://github.com/yasmro/schatten/issues/158)). The
+  numbered records live in `docs/decisions/` as an `ADR-NNNN-<slug>.md` series
+  alongside the existing dated incremental logs — shadcn base / npm distribution /
+  framework-agnostic CSS / Tailwind v4 + CVA / Radix / variant vocabulary /
+  lv1-lv2 layering / seasonal theme / no-polymorphic-as / no-layout-primitives.
+  `docs/decisions/README.md` now documents the two entry types and indexes the
+  ADRs, and the root README links to the decision log.
+
+- [#458](https://github.com/yasmro/schatten/pull/458) [`3602993`](https://github.com/yasmro/schatten/commit/36029934d589b70f3c07b04ad30ec67356cde136) Thanks [@yasmro](https://github.com/yasmro)! - CSS API: 公開 CSS 変数の命名 audit ([#231](https://github.com/yasmro/schatten/issues/231)) を確定。命名規約を 4 層モデル
+  (プリミティブ=非公開 / Tailwind 慣習=bare / セマンティック `--color-*`=bare・
+  衝突は文書化して回避側は consumer scoping / schatten 固有=`--st-` prefix) として
+  api-stability.md に一本化した。
+
+  公開面に残っていた唯一の Tailwind 規約名 `--default-font-family` /
+  `--default-mono-font-family` を撤去 (consumer 自前 Tailwind v4 preflight と
+  `@layer theme` 内で衝突するため)。vendored preflight は `var(--font-sans, …)` /
+  `var(--font-mono, …)` を直参照するよう書き換え — 間接層は元々これらを指すだけなので
+  **解決値・レンダリング不変**。公開 CSS 変数は 129 → 127。
+
+- [#454](https://github.com/yasmro/schatten/pull/454) [`91a63dd`](https://github.com/yasmro/schatten/commit/91a63dd1cde27f26bb9a0c385914a88f53401415) Thanks [@yasmro](https://github.com/yasmro)! - dist ビルドパイプラインを脱 Tailwind 化 (lightningcss へ置換)。`dist/schatten.css` / `dist/css/*.css` は Tailwind v4 CLI ではなく lightningcss で bundle + minify されるようになり、`@theme` 展開はハンドメンテナンスの public registrar (`src/styles/public-tokens.css`)、preflight はベンダリング (`src/styles/preflight.css`) に置き換え。公開 surface (`.st-*` クラス 252 / state 属性 8 / CSS 変数 129) は完全不変 — manifest 0 diff・dist VRT 0 diff を確認済み。Tailwind は Storybook (dev) 専用依存として残る。([#317](https://github.com/yasmro/schatten/issues/317))
+
+- [#459](https://github.com/yasmro/schatten/pull/459) [`d39847a`](https://github.com/yasmro/schatten/commit/d39847a65577d1783758661a9918add5dba57829) Thanks [@yasmro](https://github.com/yasmro)! - docs: remove the two "FormField (lv2) coming in v1+" placeholders ([#123](https://github.com/yasmro/schatten/issues/123) closed as not-planned) from the Form Composition / Testing pages, and add the 7 missing static component cards (Avatar / Card / Icon / Separator / Skeleton / Table / Tabs) to the Welcome catalog (refs [#160](https://github.com/yasmro/schatten/issues/160))
+
+- [#473](https://github.com/yasmro/schatten/pull/473) [`3cb2edd`](https://github.com/yasmro/schatten/commit/3cb2eddf3518a2cf4140f8b725d21460030d1423) Thanks [@yasmro](https://github.com/yasmro)! - docs: final cross-page sweep of the Storybook docs pages for 1.0 (refs [#160](https://github.com/yasmro/schatten/issues/160)) —
+
+  - fix post-[#317](https://github.com/yasmro/schatten/issues/317)/[#231](https://github.com/yasmro/schatten/issues/231) stale prose: the public-token registrar is `src/styles/public-tokens.css` (`@layer theme`), not the Storybook-only `@theme` block in `base.css` (Spacing / Radius / Motion / Elevation), and the dist minifier is lightningcss, not Tailwind's `--minify` (CSS API overview)
+  - correct stale behavioral claims: Toast has no `role="status"` on the visible element (Sonner's live region announces — query by text), and `Field required` **does** propagate `aria-required` (announce-only) since [#428](https://github.com/yasmro/schatten/issues/428) (Testing / Form Composition / Accessibility)
+  - resolve every real axe violation on the docs pages: state chips move to the `-emphasis` text tokens, unnamed Select demos get `aria-label`, scrollable code blocks become keyboard-focusable, Z-Index stack tiles get mode-proof ramp-pinned label colors; the documented intentional color-contrast exceptions (solid trilemma / subtle-tier demos) are story-scoped-disabled with rationale
+  - add a manifest/registrar note to the CSS API overview and refresh stale counts (25 lv1, 区 C/D set incl. DropdownMenu / Popover, Welcome "Five places", Tailwind-free hero copy)
+
+- [#461](https://github.com/yasmro/schatten/pull/461) [`8926bdd`](https://github.com/yasmro/schatten/commit/8926bdd90cfe0604311ca897df02b2157c2162e1) Thanks [@yasmro](https://github.com/yasmro)! - Drop the `tailwind-merge` dependency. Since the CVA output and component JSX
+  now emit only `.st-*` BEM classes (post `.st-*` sweep / dist de-Tailwind),
+  `cn()` had no conflicting Tailwind utilities to dedupe — `twMerge` was a no-op
+  passthrough over `.st-*` classes. `cn()` now wraps `clsx` alone, producing
+  byte-identical output while removing a runtime dependency from consumers'
+  installs. `cn` is internal (not part of the public API surface), so this is
+  non-breaking.
+
+  Scoped as `patch`: `cn` is not public API and the class-string output is
+  identical, so nothing consumers rely on within the contract changes. Any
+  consumer that depended on `tailwind-merge` being transitively installed via
+  `@yasmro/schatten` was relying on out-of-contract behavior and should declare
+  it as a direct dependency.
+
+- [#469](https://github.com/yasmro/schatten/pull/469) [`a428b8d`](https://github.com/yasmro/schatten/commit/a428b8de280f8d06b19eac7eb0083b913415219f) Thanks [@yasmro](https://github.com/yasmro)! - manifest export の消費経路を検証する CI ゲート `pnpm check:manifest:export`
+  (`scripts/check-manifest-export.mjs`) を追加。`package.json#exports` 経由で
+  `./schatten.manifest.json` を解決し、dist コピーが valid JSON で 4 つの surface
+  キー + dist 固有の `package` / `version` / `generatedAt` を持ち、surface が
+  committed snapshot と一致することを毎 PR で検証する (publint の「export
+  ターゲット存在」検査を「実際に解決・parse できる」まで補完)。[#162](https://github.com/yasmro/schatten/issues/162)。
+
+  README に「Programmatic introspection」小節を追加 — manifest は公開 **CSS
+  surface** の機械可読リストであり、prop union / default 値など **型情報は含まない**
+  (それは `.d.ts` + TSDoc の責務) という線引きを consumer 向けに明記。JSON Schema は
+  `$schemaVersion` + snapshot 不変条件テストで代替できるため不採用と結論し
+  api-stability.md に記録。あわせて [#317](https://github.com/yasmro/schatten/issues/317) 後に陳腐化していた「Tailwind v4 @theme」
+  系コメント (generate-manifest.mjs / src/**generated**/README.md /
+  generate-manifest.test.ts) を `public-tokens.css` レジストラ表現へ統一。
+
+  CSS surface (`dist/schatten.css` / manifest の内容) は不変。
+
+- [#463](https://github.com/yasmro/schatten/pull/463) [`3b23d9f`](https://github.com/yasmro/schatten/commit/3b23d9f0c73cffd7e7615f7773ff7422b04fec5b) Thanks [@yasmro](https://github.com/yasmro)! - docs: add the 0.x → 1.0 migration guide ([#157](https://github.com/yasmro/schatten/issues/157)). The Markdown guide at
+  `docs/migrations/v0-to-v1.md` lists every pre-1.0 breaking change with a
+  Before → After and the recommended upgrade order, linked from the README.
+
 ## 0.14.0
 
 ### Minor Changes

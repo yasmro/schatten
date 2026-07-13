@@ -1,0 +1,8 @@
+node_modules/
+dist/
+.astro/
+.vite/
+*.log
+# Regenerated on `pnpm install`. Not committed: each example's lockfile pins a
+# `file:../..` integrity hash of the packed dist, which churns on every rebuild.
+pnpm-lock.yaml

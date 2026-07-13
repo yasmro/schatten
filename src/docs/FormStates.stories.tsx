@@ -46,7 +46,7 @@ const StateMatrix = () => (
       <Input placeholder="Input" />
       <Textarea placeholder="Textarea" rows={2} />
       <Select>
-        <SelectTrigger>
+        <SelectTrigger aria-label="Select demo">
           <SelectValue placeholder="Select" />
         </SelectTrigger>
         <SelectContent>
@@ -86,7 +86,7 @@ const StateMatrix = () => (
       <Input placeholder="Input" disabled />
       <Textarea placeholder="Textarea" rows={2} disabled />
       <Select disabled>
-        <SelectTrigger>
+        <SelectTrigger aria-label="Select demo">
           <SelectValue placeholder="Select" />
         </SelectTrigger>
         <SelectContent>

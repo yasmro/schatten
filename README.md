@@ -14,8 +14,11 @@ brand. Where shadcn distributes copy-pasteable React source, Schatten ships a
 single installable package whose CSS class API is intended to outlive any one
 framework choice.
 
-Built on Radix UI primitives, styled with Tailwind CSS v4, and authored with
-`class-variance-authority` (CVA).
+The React layer is built on Radix UI primitives and authored with
+`class-variance-authority` (CVA); styling ships as a raw-CSS `.st-*` class API.
+Tailwind CSS v4 is a **dev-only** dependency for the Storybook workbench — since
+the published `dist/schatten.css` is compiled Tailwind-free, consumers never
+need it.
 
 ## Quick start
 
@@ -101,11 +104,64 @@ modifier classes. No JavaScript runtime is required.
 
 - **Tokens**: primitive scales, semantic tokens, base reset, animation keyframes
 - **Component classes** ([css-api.md](.claude/rules/css-api.md) — [#58](https://github.com/yasmro/schatten/issues/58) Phase 2): every lv1 component is reachable via `.st-*` since v0.9.0
-- **Build**: Tailwind CSS v4 CLI — used internally to compile `dist/schatten.css`. **Consumers do not need to install Tailwind.**
+- **Build**: `dist/schatten.css` is compiled Tailwind-free by lightningcss (since [#317](https://github.com/yasmro/schatten/issues/317)) from plain-CSS sources — raw tokens, the hand-written `@layer theme` registrar, a vendored preflight, and the `.st-*` component rules. Tailwind v4 remains a **dev-only** dependency for the Storybook path and never ships. **Consumers do not need to install Tailwind.**
 
 Stable from **v1.0.0**: class names and CSS custom properties are
 part of the public API contract (see
 [`.claude/rules/api-stability.md`](.claude/rules/api-stability.md)).
+
+#### Using Schatten alongside another design system (token collisions)
+
+Schatten's semantic tokens are **bare** (`--color-background`, `--color-error`,
+the `--color-theme-*` scale, …) — the meaning is Schatten's, but the name is
+not namespaced. This is deliberate: it lets Schatten share Tailwind's scale
+names (`--spacing-4`, `--text-sm`) with your own Tailwind on purpose. The
+trade-off is that if you run Schatten **alongside another full design system**
+that also declares `--color-background` on `:root` (shadcn/ui does), the two
+collide by last-wins. The naming rationale is the
+[four-layer model](.claude/rules/api-stability.md#css-variable-naming--the-four-layer-model).
+
+Schatten declares its token values **unlayered** on `:root` (unlayered wins
+over any `@layer`), so pick the recipe that matches your situation:
+
+**A consumer's own tokens should win globally** — import Schatten into a
+cascade layer. Your unlayered `:root` then beats Schatten's layered values
+deterministically (no reliance on import order):
+
+```css
+@import "@yasmro/schatten/schatten.css" layer(schatten);
+:root {
+  --color-background: #fff; /* your value — wins everywhere */
+}
+```
+
+Note this is a *global* override: Schatten's own components read
+`var(--color-background)` too, so they will adopt your value. Use it when you
+*want* Schatten to inherit your surface, not when the two meanings genuinely
+differ.
+
+**True isolation for separable subtrees** — scope Schatten's tokens onto a
+container. Custom properties resolve to the nearest declaring ancestor, so
+Schatten components inside the wrapper stay on Schatten's values while your
+`:root` keeps its own meaning everywhere else:
+
+```html
+<div class="schatten-scope"><!-- Schatten UI here --></div>
+```
+
+```css
+/* Re-assert only the tokens you actually collide on, scoped to the subtree. */
+.schatten-scope {
+  --color-background: #fafafa; /* Schatten's intended surface */
+}
+```
+
+**Deeply interleaved with conflicting meanings** is the rare irreducible case
+the naming audit named explicitly: when both systems render on the same
+elements and disagree on what `--color-background` means, no cascade trick
+isolates them — alias one side's token in your own build. Because this case is
+uncommon, Schatten does not pay a global `--st-color-*` rename to pre-empt it
+(see the [decision log](docs/decisions/2026-07-css-variable-namespace.md)).
 
 ### Layer B — Optional React components
 
@@ -152,6 +208,12 @@ internally, and `Button` / `Badge` / `Input` accept Lucide icon components via
 their `icon` props. It is declared `optional` in `peerDependenciesMeta` only so
 that Layer A (CSS / token-only) consumers — who never touch the React layer —
 are not warned about a dependency they do not need.
+
+### Upgrading from 0.x
+
+Moving from a pre-1.0 release? The
+[0.x → 1.0 migration guide](docs/migrations/v0-to-v1.md) lists every breaking
+change with a Before → After and the recommended upgrade order.
 
 ## SSR / Next.js App Router
 
@@ -884,6 +946,40 @@ component or the aggregate exceeds its budget. The manifest pins the
 delivery story honest: a rename trips `pnpm check:manifest`, a runaway
 component CSS trips `pnpm size`.
 
+### Programmatic introspection
+
+The published package ships a machine-readable listing of the public
+**CSS surface** at `@yasmro/schatten/schatten.manifest.json` — the same
+manifest the size/rename gates pin. Tools (AI assistants, IDE plugins,
+lint rules, codegen) can import it to answer CSS-class-level questions
+about the design system without scraping the compiled stylesheet:
+
+```js
+import manifest from '@yasmro/schatten/schatten.manifest.json' with { type: 'json' }
+
+manifest.package        // "@yasmro/schatten"
+manifest.version        // the installed version
+manifest.classes        // ["st-avatar", "st-badge--error", "st-btn", "st-btn--primary", …]
+manifest.dataAttributes // ["aria-busy", "aria-invalid", "data-state", …]
+manifest.cssVariables   // ["--color-background", "--color-error", …]
+
+// e.g. "which modifier classes does Button emit?"
+manifest.classes.filter((c) => c.startsWith('st-btn'))
+```
+
+`$schemaVersion` (currently `1`) is the shape anchor — bumped only when
+the JSON structure itself changes, never for surface additions. The
+committed CI snapshot (`src/__generated__/schatten.manifest.json`)
+intentionally omits `version` / `generatedAt` / `package`; the shipped
+dist copy carries them for in-the-wild introspection.
+
+**The manifest lists the CSS surface only — not prop types.** It answers
+"which `.st-btn--*` classes exist", but the React prop API — the `variant`
+union (`'primary' | 'secondary' | …`), default values, which props a
+component accepts — is **not** in the manifest. That surface lives in the
+package's TypeScript declarations (`.d.ts` + TSDoc); introspect it through
+the type definitions, not this file.
+
 ### Runnable examples
 
 End-to-end runnable demos that target a 100/100/100/100 Lighthouse
@@ -983,6 +1079,22 @@ changes ship without a changeset. The check is automatically skipped for:
 If the check fails and the PR is genuinely user-facing, run `pnpm changeset` and
 commit the generated file. If the PR is internal, apply the `no-changeset`
 label and re-run the job.
+
+## Contributing
+
+Contributions are welcome. See **[CONTRIBUTING.md](CONTRIBUTING.md)** for the
+full on-ramp — repo setup, branch / PR conventions, the quality gates, and when
+a changeset is required.
+
+**Using an AI assistant?** Point it at **[AGENTS.md](AGENTS.md)** (or
+**[CLAUDE.md](CLAUDE.md)** for Claude Code) — both index the project's
+`.claude/rules/` conventions so generated code lands consistent with the design
+system.
+
+**Why is it built this way?** The **[decision log](docs/decisions/README.md)**
+records the *why* behind Schatten's architecture — the foundational ADRs
+(shadcn base, npm distribution, framework-agnostic CSS, the two-axis theme, …)
+plus incremental token / API trade-offs.
 
 ## License
 

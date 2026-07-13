@@ -133,4 +133,15 @@ describe('Popover', () => {
       expect(await screen.findByRole('dialog')).toHaveTextContent('Anchored body')
     })
   })
+
+  it('forwards ref to the trigger', () => {
+    const ref = { current: null as HTMLButtonElement | null }
+    render(
+      <Popover>
+        <PopoverTrigger ref={ref}>Open</PopoverTrigger>
+        <PopoverContent>Body</PopoverContent>
+      </Popover>,
+    )
+    expect(ref.current).toBeInstanceOf(HTMLButtonElement)
+  })
 })

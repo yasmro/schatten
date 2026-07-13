@@ -211,4 +211,17 @@ describe('DropdownMenu', () => {
       expect(screen.getByRole('separator')).toHaveClass('st-dropdown-menu__separator')
     })
   })
+
+  it('forwards ref to the trigger', () => {
+    const ref = { current: null as HTMLButtonElement | null }
+    render(
+      <DropdownMenu>
+        <DropdownMenuTrigger ref={ref}>Options</DropdownMenuTrigger>
+        <DropdownMenuContent>
+          <DropdownMenuItem>Edit</DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>,
+    )
+    expect(ref.current).toBeInstanceOf(HTMLButtonElement)
+  })
 })

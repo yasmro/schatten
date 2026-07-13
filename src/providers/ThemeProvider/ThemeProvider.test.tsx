@@ -553,18 +553,35 @@ describe('ThemeProvider', () => {
   describe('disableTransitionOnChange', () => {
     it('injects and removes a transition-blocking style tag on mode change', async () => {
       const user = userEvent.setup()
-      render(
-        <ThemeProvider defaultMode="light" disableTransitionOnChange>
-          <Consumer />
-        </ThemeProvider>,
-      )
-      await user.click(screen.getByRole('button', { name: 'set-dark' }))
-      // Style tag is inserted synchronously; cleanup is on the next frame.
-      const style = document.getElementById('schatten-theme-transition-suppressor')
-      expect(style).not.toBeNull()
-      // Wait one frame
-      await new Promise((resolve) => requestAnimationFrame(() => resolve(null)))
-      expect(document.getElementById('schatten-theme-transition-suppressor')).toBeNull()
+      // Capture the rAF callback instead of letting a real animation frame
+      // fire it. `suppressTransitionsOnce` inserts the <style> synchronously
+      // but schedules its removal via `requestAnimationFrame`; on real timers
+      // a frame can fire between the click and the first query (worse under CI
+      // scheduling), removing the tag before we assert it was inserted. By
+      // controlling the frame we pin the insert-then-cleanup sequence.
+      const rafCallbacks: FrameRequestCallback[] = []
+      const rafSpy = vi
+        .spyOn(window, 'requestAnimationFrame')
+        .mockImplementation((cb) => rafCallbacks.push(cb))
+      try {
+        render(
+          <ThemeProvider defaultMode="light" disableTransitionOnChange>
+            <Consumer />
+          </ThemeProvider>,
+        )
+        await user.click(screen.getByRole('button', { name: 'set-dark' }))
+        // Inserted synchronously; cleanup is deferred to the captured frame.
+        const style = document.getElementById('schatten-theme-transition-suppressor')
+        expect(style).not.toBeNull()
+        // Flush the captured frame — this runs the cleanup deterministically.
+        expect(rafCallbacks).toHaveLength(1)
+        act(() => {
+          for (const cb of rafCallbacks.splice(0)) cb(0)
+        })
+        expect(document.getElementById('schatten-theme-transition-suppressor')).toBeNull()
+      } finally {
+        rafSpy.mockRestore()
+      }
     })
 
     it('does not inject the style tag when disableTransitionOnChange is false', async () => {

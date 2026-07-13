@@ -237,4 +237,15 @@ describe('Switch', () => {
     const { container } = render(<Switch aria-label="sw" className="custom-class" />)
     expect(container.firstChild as HTMLElement).toHaveClass('st-switch-wrapper', 'custom-class')
   })
+
+  it('forwards ref to the switch control', () => {
+    const ref = { current: null as HTMLButtonElement | null }
+    render(<Switch aria-label="sw" ref={ref} />)
+    expect(ref.current).toBeInstanceOf(HTMLButtonElement)
+  })
+
+  it('forwards data-testid to the switch control', () => {
+    render(<Switch aria-label="sw" data-testid="notify" />)
+    expect(screen.getByTestId('notify')).toBe(screen.getByRole('switch', { name: 'sw' }))
+  })
 })

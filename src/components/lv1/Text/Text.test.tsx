@@ -164,4 +164,15 @@ describe('Text', () => {
     expect(el.getAttribute('data-testid')).toBe('t')
     expect(el.id).toBe('my-id')
   })
+
+  it('forwards ref to the rendered element', () => {
+    const ref = { current: null as HTMLElement | null }
+    render(<Text ref={ref}>Hello</Text>)
+    expect(ref.current).toBeInstanceOf(HTMLParagraphElement)
+  })
+
+  it('is queryable by role + accessible name when rendered as a heading', () => {
+    render(<Text as="h2">Section title</Text>)
+    expect(screen.getByRole('heading', { name: 'Section title' })).toBeInTheDocument()
+  })
 })

@@ -1,11 +1,14 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { CircleCheck } from 'lucide-react'
+import { CircleCheck, Search } from 'lucide-react'
+import { Avatar } from '../components/lv1/Avatar'
 import { Badge } from '../components/lv1/Badge'
 import { Button } from '../components/lv1/Button'
 import { Callout } from '../components/lv1/Callout'
+import { Card, CardDescription, CardHeader, CardTitle } from '../components/lv1/Card'
 import { Checkbox } from '../components/lv1/Checkbox'
 import { Field } from '../components/lv1/Field'
 import { FieldSet } from '../components/lv1/FieldSet'
+import { Icon } from '../components/lv1/Icon'
 import { Input } from '../components/lv1/Input'
 import { Radio, RadioGroup } from '../components/lv1/Radio'
 import {
@@ -15,8 +18,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from '../components/lv1/Select'
+import { Separator } from '../components/lv1/Separator'
+import { Skeleton } from '../components/lv1/Skeleton'
 import { Spinner } from '../components/lv1/Spinner'
 import { Switch } from '../components/lv1/Switch'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '../components/lv1/Table'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/lv1/Tabs'
 import { Text } from '../components/lv1/Text'
 import { Textarea } from '../components/lv1/Textarea'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../components/lv1/Tooltip'
@@ -183,7 +197,8 @@ export const Overview: Story = {
         <p className="text-lg text-foreground-muted leading-relaxed">
           A design system inspired by Japanese calligraphy — ink on paper.
           <br />
-          Built with React, Tailwind CSS, Radix UI, and class-variance-authority.
+          Built with React, Radix UI, and class-variance-authority — Tailwind-free on the consumer
+          side.
         </p>
       </div>
 
@@ -255,7 +270,7 @@ export const Overview: Story = {
         <h2 className="text-xl font-bold text-foreground mb-2">Engineering discipline</h2>
         <p className="text-sm text-foreground-muted leading-relaxed mb-6">
           The parts worth inspecting are less the components themselves than how they are governed.
-          Four places to look:
+          Five places to look:
         </p>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <TextLinkCard
@@ -339,11 +354,11 @@ export const Overview: Story = {
             description="Transient notifications with variants."
             storyPath="components-lv1-toast"
           >
-            <div className="relative flex w-44 items-start gap-2 border border-success bg-success-subtle p-3 pr-8 text-xs text-success shadow-sm">
+            <div className="relative flex w-44 items-start gap-2 border border-success bg-success-subtle p-3 pr-8 text-xs text-success-emphasis shadow-sm">
               <CircleCheck className="mt-0.5 size-4 shrink-0" aria-hidden />
               <div className="flex flex-col gap-0.5">
                 <div className="font-semibold leading-tight">Saved</div>
-                <div className="leading-snug opacity-90">Your changes have been saved.</div>
+                <div className="leading-snug">Your changes have been saved.</div>
               </div>
               <span
                 aria-hidden
@@ -364,6 +379,109 @@ export const Overview: Story = {
                 A beta feature.
               </Callout>
             </div>
+          </ComponentCard>
+
+          <ComponentCard
+            name="Avatar"
+            description="User image with initials fallback."
+            storyPath="components-lv1-avatar"
+          >
+            <div className="flex items-center gap-2">
+              <Avatar fallback="YO" />
+              <Avatar fallback="AB" size="sm" />
+            </div>
+          </ComponentCard>
+
+          <ComponentCard
+            name="Card"
+            description="Groups content on a surface."
+            storyPath="components-lv1-card"
+          >
+            <Card className="w-44 scale-90">
+              <CardHeader>
+                <CardTitle>Notifications</CardTitle>
+                <CardDescription>Manage your alerts.</CardDescription>
+              </CardHeader>
+            </Card>
+          </ComponentCard>
+
+          <ComponentCard
+            name="Icon"
+            description="Lucide icons at preset sizes."
+            storyPath="components-lv1-icon"
+          >
+            <div className="flex items-center gap-3 text-foreground">
+              <Icon icon={Search} size="sm" />
+              <Icon icon={Search} size="md" />
+              <Icon icon={Search} size="lg" />
+            </div>
+          </ComponentCard>
+
+          <ComponentCard
+            name="Separator"
+            description="Divides content visually."
+            storyPath="components-lv1-separator"
+          >
+            <div className="flex w-32 flex-col gap-2 text-xs text-foreground-muted">
+              <span>Section A</span>
+              <Separator />
+              <span>Section B</span>
+            </div>
+          </ComponentCard>
+
+          <ComponentCard
+            name="Skeleton"
+            description="Loading placeholder for content."
+            storyPath="components-lv1-skeleton"
+          >
+            <div className="flex w-40 items-center gap-3">
+              <Skeleton className="size-10 rounded-full" />
+              <div className="flex flex-col gap-2">
+                <Skeleton className="h-3 w-24" />
+                <Skeleton className="h-3 w-16" />
+              </div>
+            </div>
+          </ComponentCard>
+
+          <ComponentCard
+            name="Table"
+            description="Presentational data table."
+            storyPath="components-lv1-table"
+          >
+            <Table className="w-44 scale-90 text-xs">
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Role</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                <TableRow>
+                  <TableCell>Aoi</TableCell>
+                  <TableCell>Admin</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell>Ren</TableCell>
+                  <TableCell>Editor</TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
+          </ComponentCard>
+
+          <ComponentCard
+            name="Tabs"
+            description="Switches between content panels."
+            storyPath="components-lv1-tabs"
+          >
+            <Tabs defaultValue="account" className="w-44 scale-90">
+              <TabsList>
+                <TabsTrigger value="account">Account</TabsTrigger>
+                <TabsTrigger value="password">Password</TabsTrigger>
+              </TabsList>
+              <TabsContent value="account" className="text-xs text-foreground-muted">
+                Account settings.
+              </TabsContent>
+            </Tabs>
           </ComponentCard>
         </div>
       </div>
@@ -415,7 +533,7 @@ export const Overview: Story = {
             storyPath="components-lv1-select"
           >
             <Select defaultValue="apple">
-              <SelectTrigger className="w-40">
+              <SelectTrigger aria-label="Fruit" className="w-40">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>

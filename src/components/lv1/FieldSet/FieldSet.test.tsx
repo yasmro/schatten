@@ -498,4 +498,13 @@ describe('FieldSet', () => {
       expect(screen.getByTestId('i')).toBeDisabled()
     })
   })
+
+  it('exposes the fieldset as a group named by its legend', () => {
+    render(
+      <FieldSet legend="Profile">
+        <Input aria-label="name" />
+      </FieldSet>,
+    )
+    expect(screen.getByRole('group', { name: 'Profile' })).toBeInTheDocument()
+  })
 })

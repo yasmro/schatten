@@ -48,4 +48,10 @@ describe('Separator', () => {
     expect(screen.getByTestId('sep')).toHaveClass('st-separator', 'st-separator--vertical')
     expect(screen.getByTestId('sep')).not.toHaveClass('st-separator--horizontal')
   })
+
+  it('forwards ref to the root element', () => {
+    const ref = { current: null as HTMLDivElement | null }
+    render(<Separator ref={ref} />)
+    expect(ref.current).toBeInstanceOf(HTMLDivElement)
+  })
 })

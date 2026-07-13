@@ -15,8 +15,8 @@ type Story = StoryObj
  * The primitive border-radius scale, sourced verbatim from
  * `src/core/tokens/spacing.css`.
  *
- * All steps are registered in the `@theme` block of `base.css` (so the
- * `rounded-*` Tailwind utilities exist) and are listed in the public manifest.
+ * All steps are registered in the public-token registrar
+ * (`src/styles/public-tokens.css`) and are listed in the public manifest.
  * `none` … `2xl` are the discrete steps; `full` (9999px) renders as a pill /
  * circle on any element narrower than it is tall.
  */
@@ -66,11 +66,11 @@ const SEMANTIC_RADII = [
 
 const StatusBadge = ({ status }: { status: 'applied' | 'defined-only' }) =>
   status === 'applied' ? (
-    <span className="rounded-full bg-success-subtle px-2 py-0.5 text-xs font-medium text-success">
+    <span className="rounded-full bg-success-subtle px-2 py-0.5 text-xs font-medium text-success-emphasis">
       applied
     </span>
   ) : (
-    <span className="rounded-full bg-warning-subtle px-2 py-0.5 text-xs font-medium text-warning">
+    <span className="rounded-full bg-warning-subtle px-2 py-0.5 text-xs font-medium text-warning-emphasis">
       defined only
     </span>
   )
@@ -94,8 +94,8 @@ export const RadiusScale: Story = {
       <PageTitle>Radius</PageTitle>
       <Lead>
         Schatten expresses corner rounding with a discrete radius scale, defined in{' '}
-        <code>src/core/tokens/spacing.css</code> and registered as Tailwind utilities via the{' '}
-        <code>@theme</code> block in <code>base.css</code>. Reach for a <em>semantic</em> token (see{' '}
+        <code>src/core/tokens/spacing.css</code> and registered in the public-token registrar (
+        <code>src/styles/public-tokens.css</code>). Reach for a <em>semantic</em> token (see{' '}
         <strong>Semantic tokens</strong>) in components, not the raw step.
       </Lead>
 

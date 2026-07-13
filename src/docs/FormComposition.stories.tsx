@@ -1,7 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { type FormEvent, useState } from 'react'
 import { Button } from '../components/lv1/Button/Button'
-import { Callout } from '../components/lv1/Callout/Callout'
 import { Checkbox } from '../components/lv1/Checkbox/Checkbox'
 import { Field } from '../components/lv1/Field/Field'
 import { FieldSet } from '../components/lv1/FieldSet/FieldSet'
@@ -48,10 +47,10 @@ export const BasicField: Story = {
       <Note>
         A single Field wires the label, description, and required marker to the input. Note:{' '}
         <code className="text-xs">required</code> renders the visual{' '}
-        <code className="text-xs">*</code> but does <strong>not</strong> set{' '}
-        <code className="text-xs">aria-required</code> on the input — add{' '}
-        <code className="text-xs">required</code> to the input element yourself (a known
-        limitation).
+        <code className="text-xs">*</code> and sets <code className="text-xs">aria-required</code>{' '}
+        on the input (announce-only) — native validation is <strong>not</strong> enabled; add{' '}
+        <code className="text-xs">required</code> to the input element yourself when you want
+        form-submission blocking.
       </Note>
       <Field label="Email" description="Used when you sign in" required>
         <Input type="email" placeholder="you@example.com" />
@@ -250,20 +249,6 @@ function SignUpForm() {
         TanStack Form / Conform work the same way — wrap controlled components in their{' '}
         <code className="text-xs">Controller</code> equivalent.
       </Note>
-    </div>
-  ),
-}
-
-export const FormFieldComingSoon: Story = {
-  name: '7. FormField (lv2) — coming in v1+',
-  render: () => (
-    <div className="mx-auto mt-12 max-w-lg">
-      <Callout variant="info" title="Coming soon">
-        The lv2 <code>FormField</code> (a one-component short form of Field + label + description +
-        error) is planned for the v1+ milestone as{' '}
-        <a href="https://github.com/yasmro/schatten/issues/123">#123</a>. Once it lands, it will be
-        added to this page as a dedicated section.
-      </Callout>
     </div>
   ),
 }

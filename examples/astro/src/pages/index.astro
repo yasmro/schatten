@@ -1,0 +1,33 @@
+---
+import Base from '../layouts/Base.astro'
+import { Island } from '../components/Island'
+---
+
+<Base title="Schatten — Astro verification">
+  <div style="display: flex; gap: 0.75rem; align-items: center; margin-bottom: 2rem;">
+    <button type="button" data-toggle-dark class="st-btn st-btn--secondary st-btn--sm">
+      <span class="st-btn__spinner-overlay" aria-hidden="true"></span>
+      <span class="st-btn__content">Toggle dark</span>
+    </button>
+  </div>
+
+  <h1 class="st-text st-text--heading st-text--lg st-text--default">Schatten in Astro</h1>
+
+  <!-- CSS-class layer: static markup, no JS import -->
+  <p class="st-text st-text--body st-text--sm st-text--muted" style="margin: 1.5rem 0 0.5rem;">
+    Class API (static)
+  </p>
+  <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center;">
+    <button type="button" class="st-btn st-btn--primary st-btn--md">
+      <span class="st-btn__spinner-overlay" aria-hidden="true"></span>
+      <span class="st-btn__content">Primary</span>
+    </button>
+    <span class="st-badge st-badge--success st-badge--subtle st-badge--md">Saved</span>
+  </div>
+
+  <!-- React island: real components, client:load hydration -->
+  <p class="st-text st-text--body st-text--sm st-text--muted" style="margin: 1.5rem 0 0.5rem;">
+    React island (client:load) — must render identically to the static row above
+  </p>
+  <Island client:load />
+</Base>

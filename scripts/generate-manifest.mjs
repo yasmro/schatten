@@ -65,14 +65,16 @@ export function extractManifest(css) {
     }
   })
 
-  // Public CSS variables = exactly the declarations Tailwind v4 emits from
-  // `@theme { … }` directives. In compiled dist CSS, those directives land
-  // as `@layer theme { :root, :host { --foo: …; } }`. Variables declared in
-  // source `:root` blocks outside `@theme` (font-weight scalars in
-  // typography.css, fallback stacks like `--font-sans-fallback`, raw scale
-  // tokens like `--text-xs` that route to a Tailwind utility instead of
-  // staying named) are implementation primitives and not part of the
-  // contract — they must not appear in the manifest.
+  // Public CSS variables = exactly the declarations in the `@layer theme`
+  // registrar. Since #317 that block is the hand-maintained
+  // `src/styles/public-tokens.css` (before #317 it was compiled by Tailwind
+  // v4 from `@theme { … }` directives — the extraction criterion, "declared
+  // inside `@layer theme { :root, :host { --foo: …; } }`", is unchanged).
+  // Variables declared in source `:root` blocks outside that registrar
+  // (font-weight scalars in typography.css, fallback stacks like
+  // `--font-sans-fallback`, raw scale tokens like `--text-xs`) are
+  // implementation primitives and not part of the contract — they must not
+  // appear in the manifest.
   root.walkAtRules('layer', (layerRule) => {
     if (layerRule.params !== 'theme') return
     layerRule.walkDecls((decl) => {

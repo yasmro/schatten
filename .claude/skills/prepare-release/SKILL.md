@@ -4,8 +4,9 @@ description: >-
   Run pre-release sanity checks before bumping the package and publishing.
   Verifies the pending changesets, runs the full quality gate (lint / test /
   typecheck / build / manifest / size / publint), and — most importantly —
-  detects `lucide-react` / `@radix-ui/*` / `tailwindcss` / `vite` (+ `vitest`,
-  which can drag `vite` up via peer) peer/dep bumps since the last released tag
+  detects `lucide-react` / `@radix-ui/*` / `tailwindcss` / `lightningcss` /
+  `vite` (+ `vitest`, which can drag `vite` up via peer) peer/dep bumps since
+  the last released tag
   and runs the matching parity / VRT check, so a dependency upgrade can never
   silently break the visual contract (PR #282 の学び).
   Use whenever the user says "次のリリース準備", "release 前にチェック",
@@ -19,9 +20,10 @@ description: >-
 
 Pre-release sanity checks. Verifies that the **next** `/release` will be safe
 to run, and catches the failure mode where a dependency bump (`lucide-react`,
-`@radix-ui/*`, `tailwindcss`, `vite`/`vitest`) silently breaks the visual
-contract — the class-API parity stories, the Icon inline-SVG pin, the manifest
-extraction, or (for `vite`) the whole VRT baseline set at once.
+`@radix-ui/*`, `tailwindcss`, `lightningcss`, `vite`/`vitest`) silently breaks
+the visual contract — the class-API parity stories, the Icon inline-SVG pin,
+the manifest extraction, the dist-CSS compile (for `lightningcss`), or (for
+`vite`) the whole VRT baseline set at once.
 
 This skill is **complementary to**, not a replacement for, the
 [`/release` slash command](../../commands/release.md). The split:
@@ -258,7 +260,8 @@ for the canonical list and rationale. This step pivots on those bumps:
 | `@radix-ui/*` — **non-parity** (`react-tooltip` / `react-dialog` / `react-select`) | Same Radix `data-*` bump risk, but these components are 区分 C/D per [vrt-spec-guideline §Parity stories](../../rules/vrt-spec-guideline.md#parity-stories--when-to-write-one-when-to-skip) — no parity story exists, so no automated baseline can fail. The skill **falls back to manual verification**. | (manual) `pnpm test:vrt --grep "(Tooltip\|Dialog\|Select)"` against the normal `*.vrt.spec.ts` + Storybook visual review |
 | `sonner` | Renders the `Toast` (since [#318](https://github.com/yasmro/schatten/issues/318)). Schatten renders each toast body via `toast.custom()` under `unstyled`, but Sonner owns the wrapper / positioning / stacking / swipe / animation, so a bump that changes the custom-content wrapper, `unstyled` behavior, or injected positioning styles can shift the Toast visual with no source change. 区分 D — no parity baseline. | (manual) `pnpm test:vrt --grep "Toast"` against `Toast.vrt.spec.ts` + Storybook visual review |
 | `@radix-ui/react-slot` | Slot is the `asChild` plumbing primitive — it doesn't emit `data-*` itself, but a bump can change prop-merging behavior (ref forwarding, attribute merge order). Surface area: any component that exposes `asChild` (Button / Text / Tooltip Trigger / Dialog Trigger / Dialog Close / Select Trigger). | (manual) inspect the bump's CHANGELOG for prop-merging behavioral changes; if any are flagged, run the full `pnpm test:vrt` and `pnpm test --run` |
-| `tailwindcss` | The Tailwind v4 compiler's `@layer theme` emission rules can shift between minor versions. The manifest's `cssVariables` section is extracted from that block, so a Tailwind bump can silently add or drop variables from the public surface. | `pnpm build && pnpm check:manifest` |
+| `tailwindcss` / `@tailwindcss/vite` | **Storybook/dev path only since #317** — the dist build is Tailwind-free, so a Tailwind bump can no longer move the manifest or `dist/schatten.css`. It still renders every story the component VRT screenshots (stories use Tailwind utilities as layout scaffolding), so a bump can drift component/docs VRT baselines. | `pnpm build:storybook` (builder health) + `pnpm test:vrt`, triage per [vrt-spec-guideline §Bulk re-baseline](../../rules/vrt-spec-guideline.md#re-baselining-updating-snapshots) |
+| `lightningcss` | Compiles `dist/schatten.css` + every `dist/css/<component>.css` (#317). Its output feeds the `CSSApiDist.vrt.spec.ts` baselines **and** is the source `generate-manifest.mjs` parses — a bump can shift both with zero source diff. Exact-pinned; `scripts/__tests__/build-css.test.ts` smoke-pins the output shape first. | `pnpm test --run scripts/__tests__/build-css.test.ts && pnpm build && pnpm check:manifest && pnpm test:vrt:dist` |
 | `vite` | Vite builds the Storybook the VRT specs screenshot against **and** is the Vitest runtime. A major bump can shift font / antialiasing / sub-pixel rendering across the **whole** suite, drifting every `*.png` baseline at once (not one parity story — all of them). It is pinned exact in `package.json`. A Vitest major can also force a Vite major via peer (`vite >= 6` for Vitest 4 — see [#254](https://github.com/yasmro/schatten/issues/254)), so check `vite` whenever `vitest` bumps too. | `pnpm build:storybook` (builder health) + full `pnpm test:vrt`, then triage per [vrt-spec-guideline §Bulk re-baseline](../../rules/vrt-spec-guideline.md#re-baselining-updating-snapshots) |
 
 > **Type-surface detection for any `@radix-ui/*` bump (since #156).** The
@@ -287,13 +290,14 @@ node -e "
     'lucide-react': ['dependencies', 'peerDependencies', 'devDependencies'],
     'radix':         ['dependencies', 'peerDependencies', 'devDependencies'],
     'tailwindcss':   ['dependencies', 'peerDependencies', 'devDependencies'],
+    'lightningcss':  ['dependencies', 'peerDependencies', 'devDependencies'],
     'vite':          ['dependencies', 'peerDependencies', 'devDependencies'],
     'vitest':        ['dependencies', 'peerDependencies', 'devDependencies'],
   };
   const findRadix = (deps) =>
     Object.entries(deps || {}).filter(([k]) => k.startsWith('@radix-ui/'));
 
-  for (const family of ['lucide-react', 'tailwindcss', 'vite', 'vitest']) {
+  for (const family of ['lucide-react', 'tailwindcss', 'lightningcss', 'vite', 'vitest']) {
     for (const slot of families[family]) {
       const a = (last[slot] || {})[family];
       const b = (head[slot] || {})[family];

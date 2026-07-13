@@ -1,44 +1,64 @@
 /*
  * Schatten — framework-agnostic CSS entry
  *
- * This is the build entry for `dist/schatten.css` (compiled by
- * `pnpm build:css` via `@tailwindcss/cli`). Consumers ship a single
- * `<link>` / `@import "@yasmro/schatten/schatten.css"` and get tokens,
- * default theme, seasonal palettes, the base reset, and the component
- * keyframes — no consumer Tailwind setup required.
+ * This is the build entry for `dist/schatten.css` (bundled + minified by
+ * `pnpm build:css` via lightningcss — see `scripts/build-css.mjs`).
+ * Consumers ship a single `<link>` / `@import "@yasmro/schatten/schatten.css"`
+ * and get tokens, default theme, seasonal palettes, the base reset, and the
+ * component class API — no consumer Tailwind setup required.
  *
- * `source(none)` disables Tailwind v4's automatic source scanning: this
- * file ships its own static rules and does not need utility classes
- * generated from JSX. Storybook keeps its own entry — see
- * `src/styles/globals.css` — that DOES scan sources, because story
- * surfaces render the CVA utility output that this dist file deliberately
- * does not bake in. The `.st-*` component classes that #154 will add are
- * authored with `@apply` inside `@layer components`, which Tailwind
- * resolves without source scanning.
+ * TWO-PATH ARCHITECTURE (#317). This dist entry is Tailwind-free:
+ *
+ *   dist path (this file)       — raw tokens (`core/tokens/index.css`, no
+ *                                 `@theme`) + hand-maintained public
+ *                                 registrar (`public-tokens.css`) + vendored
+ *                                 preflight (`preflight.css`) + Schatten
+ *                                 reset (`reset.css`) + component CSS,
+ *                                 bundled by lightningcss.
+ *   Storybook path (dev only)   — `src/styles/globals.css` still imports
+ *                                 Tailwind v4 (`@tailwindcss/vite`) and the
+ *                                 `@theme` registrations in
+ *                                 `core/tokens/base.css`, because stories use
+ *                                 Tailwind utilities as layout scaffolding.
+ *                                 None of that ships in the dist.
  *
  * Layer order (per .claude/rules/css-api.md): theme < base < reset < tokens <
  * components < utilities.
  *
- * The `theme` and `base` slots are reserved for Tailwind v4 (which emits its
- * preflight reset into `@layer base` from `@import "tailwindcss"` below).
- * They MUST be declared explicitly here ahead of schatten's own layers —
- * otherwise the late-injected `@layer base { … }` from Tailwind gets a
- * cascade slot AFTER our `@layer components { .st-btn … }` rules and the
- * preflight `button { background-color: #0000 }` reset silently overrides
- * the component visuals, breaking the vanilla-HTML contract (caught by
- * `CSSApiDist.vrt.spec.ts`, #277). Putting `theme, base` first puts
- * preflight at the lowest priority where it belongs — `.st-*` component
- * rules win again.
+ * The `theme` and `base` slots are populated by Schatten's own files since
+ * #317 (`public-tokens.css` → `@layer theme`, `preflight.css` → `@layer
+ * base`). The declaration below MUST stay ahead of every import — it pins
+ * the cascade so the preflight stays at the lowest priority and `.st-*`
+ * component rules always win over it (the #277 failure mode), and it
+ * protects against consumer stylesheets re-ordering the layers.
+ * `pnpm check:layer-order` pins this line against css-api.md.
  */
 @layer theme, base, reset, tokens, components, utilities;
 
-@import "tailwindcss" source(none);
+/* Raw design tokens — plain `:root` declarations, no Tailwind `@theme`.
+ * (`core/tokens/base.css` — the `@theme` twin of this chain — is the
+ * Storybook-only entry and must NOT be imported here.) */
+@import "../core/tokens/index.css";
 
-/* Tokens + Tailwind v4 @theme registration */
-@import "../core/tokens/base.css";
+/* Public CSS-variable registrar — the hand-maintained `@layer theme` block
+ * that `scripts/generate-manifest.mjs` extracts the public `cssVariables`
+ * surface from. Also carries the two load-bearing `--default-*` font hooks
+ * the vendored preflight consumes. */
+@import "./public-tokens.css";
 
-/* Default theme (no [data-theme] active) */
-@import "../themes/default/index.css";
+/* Vendored Tailwind v4 preflight (`@layer base`) — cross-browser element
+ * normalization the component CSS depends on. */
+@import "./preflight.css";
+
+/* Schatten reset (`@layer reset`) — body defaults + JP/EN size compensation. */
+@import "./reset.css";
+
+/* Default theme (no [data-theme] active). Imported as colors.css directly —
+ * NOT via `themes/default/index.css` — because its sibling `fonts.css`
+ * registers the brand font stacks through a Tailwind `@theme` block, which
+ * is Storybook-only syntax post-#317. The dist gets the same two variables
+ * (`--font-sans` / `--font-serif` brand stacks) from `public-tokens.css`. */
+@import "../themes/default/colors.css";
 
 /* Seasonal palettes (data-theme attribute) */
 @import "../themes/seasonal/themes.css";
@@ -105,10 +125,6 @@
  * placement is not order-sensitive. */
 @import "../components/lv1/Table/Table.css";
 
-/* Class-based dark mode variant — matches `src/styles/globals.css` so
- * `.dark` toggling behaves identically in Storybook and in the dist. */
-@custom-variant dark (&:where(.dark, .dark *));
-
 /*
  * Font configuration. Consumers override `--font-sans` to layer in their
  * own brand fonts:
@@ -117,44 +133,4 @@
  */
 :root {
   --font-sans: var(--font-sans-fallback);
-}
-
-/* Base reset — the same rules that used to live in `src/schatten.css`,
- * now scoped to `@layer reset` so consumer utilities / their own resets
- * always win on the cascade.
- *
- * Tailwind v4 preflight (`@layer base`, ~97 bytes in dist) already covers
- * `* { box-sizing: border-box; margin: 0; padding: 0 }` and `body
- * { margin: 0 }`, so the matching rules below are idempotently redundant.
- * They are kept deliberately: (a) they pin Schatten's contract regardless
- * of whether a future entry tree imports `tailwindcss/theme + utilities`
- * separately (skipping preflight), and (b) they let `@layer reset` carry
- * the Schatten-specific body defaults (`background-color`, `color`,
- * `font-family`, `line-height`, font-smoothing) as one coherent block
- * instead of split between two layers. The dist cost is < 60 bytes. */
-@layer reset {
-  *,
-  *::before,
-  *::after {
-    box-sizing: border-box;
-  }
-
-  body {
-    margin: 0;
-    background-color: var(--color-background);
-    color: var(--color-foreground);
-    font-family: var(--font-sans);
-    /* JP/EN visual-size compensation, library-wide. `cap-height <n>`
-     * normalizes the used font's cap-height to n × em, lifting the Latin
-     * faces (EB Garamond / Hanken Grotesk) to the CJK height so they read at
-     * a matched size in mixed runs. Applied here on body so it inherits to
-     * every component (Button / Input / Badge / Text / …), not just Text.
-     * Font-agnostic, so one value covers all families and consumer fonts;
-     * tune or disable via `--st-font-size-adjust`. Unsupported browsers
-     * (Chrome < 127) ignore it = no compensation, never broken. See #184. */
-    font-size-adjust: var(--st-font-size-adjust, cap-height 0.7);
-    line-height: var(--leading-normal);
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-  }
 }

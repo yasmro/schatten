@@ -219,4 +219,33 @@ describe('Select', () => {
       expect(screen.getByRole('combobox')).not.toHaveAttribute('aria-required')
     })
   })
+
+  it('forwards ref to the trigger button', () => {
+    const ref = { current: null as HTMLButtonElement | null }
+    render(
+      <Select>
+        <SelectTrigger ref={ref}>
+          <SelectValue placeholder="Pick" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="a">A</SelectItem>
+        </SelectContent>
+      </Select>,
+    )
+    expect(ref.current).toBeInstanceOf(HTMLButtonElement)
+  })
+
+  it('forwards data-testid to the trigger', () => {
+    render(
+      <Select>
+        <SelectTrigger data-testid="country-trigger">
+          <SelectValue placeholder="Pick" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="a">A</SelectItem>
+        </SelectContent>
+      </Select>,
+    )
+    expect(screen.getByTestId('country-trigger')).toBe(screen.getByRole('combobox'))
+  })
 })

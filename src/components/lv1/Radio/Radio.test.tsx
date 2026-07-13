@@ -319,4 +319,32 @@ describe('Radio', () => {
     )
     expect(container.querySelector('.custom-wrap')).toBeInTheDocument()
   })
+
+  it('exposes each radio by role + accessible name (from its label)', () => {
+    render(
+      <RadioGroup>
+        <Radio value="a" label="Apple" />
+      </RadioGroup>,
+    )
+    expect(screen.getByRole('radio', { name: 'Apple' })).toBeInTheDocument()
+  })
+
+  it('forwards ref to the radio control', () => {
+    const ref = { current: null as HTMLButtonElement | null }
+    render(
+      <RadioGroup>
+        <Radio value="a" label="A" ref={ref} />
+      </RadioGroup>,
+    )
+    expect(ref.current).toBeInstanceOf(HTMLButtonElement)
+  })
+
+  it('forwards data-testid to the radio control', () => {
+    render(
+      <RadioGroup>
+        <Radio value="a" label="A" data-testid="radio-a" />
+      </RadioGroup>,
+    )
+    expect(screen.getByTestId('radio-a')).toBe(screen.getByRole('radio', { name: 'A' }))
+  })
 })

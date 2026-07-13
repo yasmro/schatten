@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Contributing guide
+    url: https://github.com/yasmro/schatten/blob/develop/CONTRIBUTING.md
+    about: Setup, branch / PR conventions, quality gates, and changesets.
+  - name: Conventions (.claude/rules)
+    url: https://github.com/yasmro/schatten/tree/develop/.claude/rules
+    about: The prescriptive rules that govern components, tokens, and the CSS API.

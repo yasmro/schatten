@@ -3,23 +3,26 @@
 Design system component library based on [shadcn/ui](https://ui.shadcn.com/), customized for the Schatten brand.
 When adding or modifying components, follow shadcn/ui conventions (Radix UI + CVA + cn utility) as the baseline.
 
-> Non-Claude-Code AI tools (Codex / Cursor / Aider / OpenHands, etc.) should read [AGENTS.md](AGENTS.md) — a tool-agnostic mirror of this file that also covers main commands, anti-patterns, and a resource map.
+> Non-Claude-Code AI tools (Codex / Cursor / Aider / OpenHands, etc.) should read [AGENTS.md](AGENTS.md) — a tool-agnostic mirror of this file that also covers main commands, anti-patterns, and a resource map. Human contributors should read [CONTRIBUTING.md](CONTRIBUTING.md) — the setup / branch / PR / quality-gate on-ramp. All three are surfaces over the same [`.claude/rules/`](.claude/rules) source of truth.
 
 ## Tech Stack
 
-> **Consumers do NOT need Tailwind.** Schatten is internally built with
-> Tailwind CSS v4 CLI, but the published `dist/schatten.css` ships all
-> design tokens, the base reset, and the full `.st-*` component class
-> API as ready-to-use CSS (since v0.9.0, all 18 lv1 components covered).
-> Consumers `import '@yasmro/schatten/schatten.css'` once and write
-> `<button class="st-btn st-btn--primary">` (or use the React layer) —
-> no Tailwind setup, no PostCSS, no build step required on the consumer
-> side. The Tailwind reference below describes Schatten's *internal*
-> implementation, not a consumer prerequisite.
+> **Consumers do NOT need Tailwind — and since #317, neither does the
+> published CSS.** `dist/schatten.css` is compiled Tailwind-free
+> (lightningcss bundles plain-CSS sources: raw tokens + the hand-written
+> `@layer theme` registrar + vendored preflight + component `.st-*`
+> rules) and ships all design tokens, the base reset, and the full
+> `.st-*` component class API as ready-to-use CSS (since v0.9.0, all lv1
+> components covered). Consumers `import '@yasmro/schatten/schatten.css'`
+> once and write `<button class="st-btn st-btn--primary">` (or use the
+> React layer) — no Tailwind setup, no PostCSS, no build step required on
+> the consumer side. Tailwind v4 remains a **dev-only** dependency for
+> the Storybook path (`src/styles/globals.css` via `@tailwindcss/vite`;
+> stories use Tailwind utilities as layout scaffolding) — it never ships.
 
 - **Base**: shadcn/ui
+- **Styling**: raw CSS `.st-*` class API + class-variance-authority (CVA); Tailwind CSS v4 is Storybook-only
 - **Framework**: React + TypeScript
-- **Styling**: Tailwind CSS + class-variance-authority (CVA) — internal; consumers see `.st-*` classes
 - **Primitives**: Radix UI
 - **Storybook**: Component documentation & visual testing
 - **Build**: tsup
@@ -42,7 +45,7 @@ When adding or modifying components, follow shadcn/ui conventions (Radix UI + CV
 - See [.claude/rules/component-api-conventions.md](.claude/rules/component-api-conventions.md) for the public prop API shape — the two patterns (Role-based / Tone × Shape), per-component matrix, common props (`size` / `isError` / `isLoading` / `disabled` / `readOnly`), and `asChild` criteria
 - See [.claude/rules/storybook-guideline.md](.claude/rules/storybook-guideline.md) for Storybook conventions, including the **Story title taxonomy (IA)** — the fixed 7-group docs information architecture (`Welcome` / `Getting Started` / `Tokens` / `Theming` / `CSS API` / `Patterns` / `Components`) that is the single source of truth for where a new docs page belongs (docs IA spike #320)
 - See [.claude/rules/field-context-guideline.md](.claude/rules/field-context-guideline.md) for Field context integration patterns
-- See [.claude/rules/state-token-guideline.md](.claude/rules/state-token-guideline.md) for state semantic tokens (error / success / warning / info / destructive) and the 4-token shape
+- See [.claude/rules/state-token-guideline.md](.claude/rules/state-token-guideline.md) for state semantic tokens (error / success / warning / info / destructive) and the 5-token shape (`base` / `hover` / `foreground` / `subtle` / `emphasis`)
 - See [.claude/rules/theme-architecture.md](.claude/rules/theme-architecture.md) for the Mode × Special two-axis theme model, cascade, and token allowlist
 - See [.claude/rules/vrt-spec-guideline.md](.claude/rules/vrt-spec-guideline.md) for VRT spec conventions
 - See [.claude/rules/testing-guideline.md](.claude/rules/testing-guideline.md) for unit test conventions (required cases per component type, writing style, typed factories)
@@ -58,7 +61,9 @@ When adding or modifying components, follow shadcn/ui conventions (Radix UI + CV
 - **[add-lv1-component](.claude/skills/add-lv1-component/SKILL.md)** — scaffolds a new lv1 primitive. Generates the full 7-file set (variants CVA / tsx / css / stories / unit test / VRT spec / index) from placeholder templates, registers the component in [src/components/lv1/index.ts](src/components/lv1/index.ts) / [src/variants/index.ts](src/variants/index.ts) / [src/styles/entry.css](src/styles/entry.css), and follows every `.claude/rules/` guideline. Use it whenever you add a new lv1 — it structurally prevents test-less / VRT-less / css-less additions. Triggered automatically by requests like "add a new lv1 component" or invoked explicitly via the skill name.
 - **[add-vrt-spec](.claude/skills/add-vrt-spec/SKILL.md)** — generates a `{Name}.vrt.spec.ts` for an *existing* lv1 component: parses its stories, picks the right template (standard / animation / Portal), and pairs each VRT screenshot test with an `@axe-core/playwright` a11y assertion (WCAG 2.1 A/AA, pinned via `.withTags`). `@axe-core/playwright` ships as a devDependency since v0.11.0 (#147), so the full version is the default; the skill keeps a VRT-only fallback for the case the dep is ever absent (a top-level axe import would otherwise wipe out the screenshot tests in the same file too). Conforms to [.claude/rules/vrt-spec-guideline.md](.claude/rules/vrt-spec-guideline.md).
 - **[audit-component](.claude/skills/audit-component/SKILL.md)** — audits one existing lv1 component against every `.claude/rules/*.md` in a single pass. Walks the per-rule checklist (component-architecture / component-api-conventions / css-api / state-token / theme / field-context / storybook / testing / vrt-spec / api-stability / testid / lint-rules) and emits a ✅/⚠️/❌ report anchored at `file:line` with proposed fixes — but never edits files itself. The qualitative per-component counterpart to the structural [/audit-coverage](.claude/commands/audit-coverage.md) command and the edit-time `check-lv1-companions` hook (closes #132).
-- **[prepare-release](.claude/skills/prepare-release/SKILL.md)** — pre-release sanity checks before [`/release`](.claude/commands/release.md) is run. Inventories pending changesets and predicts the next version, runs the full non-mutating quality gate (`lint` / `typecheck` / `test` / `build` / `check:manifest` / `size` / `lint:pkg` / `check:readme`), and — most importantly — diffs `package.json` against the last released tag to detect `lucide-react` / `@radix-ui/*` / `tailwindcss` bumps. For each detected family it runs the matching parity VRT (`Icon parity` / per-component parity / manifest re-check) so a dependency upgrade can never silently break the visual contract (PR [#282](https://github.com/yasmro/schatten/pull/282) の学び). The skill is **non-mutating** — it never bumps version, never runs `test:vrt:update`, never calls `/release` automatically. Use whenever you ask "次のリリース準備して" or "release 大丈夫?".
+- **[prepare-release](.claude/skills/prepare-release/SKILL.md)** — pre-release sanity checks before `/release` is run. Inventories pending changesets and predicts the next version, runs the full non-mutating quality gate (`lint` / `typecheck` / `test` / `build` / `check:manifest` / `size` / `lint:pkg` / `check:readme`), and — most importantly — diffs `package.json` against the last released tag to detect `lucide-react` / `@radix-ui/*` / `tailwindcss` bumps. For each detected family it runs the matching parity VRT (`Icon parity` / per-component parity / manifest re-check) so a dependency upgrade can never silently break the visual contract (PR [#282](https://github.com/yasmro/schatten/pull/282) の学び). The skill is **non-mutating** — it never bumps version, never runs `test:vrt:update`, never calls `/release` automatically. Use whenever you ask "次のリリース準備して" or "release 大丈夫?".
+- **[refinement-issue](.claude/skills/refinement-issue/SKILL.md)** — turns a single GitHub issue into an implementation-ready detailed design (file layout / public API + TSDoc / approach / test plan / a11y contract / dependencies / changeset / open questions), reconciled against every `.claude/rules/` doc and flagging stale references in the issue body. Default output updates the issue body in place. Use for "refinement-issue \<n\>" or "#\<n\> を実装できる状態にして".
+- **[refinement-version](.claude/skills/refinement-version/SKILL.md)** — organizes every issue tied to a version milestone into a dependency graph, ordered work "waves", a critical path, and a stale-reference list. The milestone-scope counterpart to `refinement-issue`; use for "refinement-version v0.15.0" or "このマイルストーン何から着手する?".
 
 ## Claude Code hooks
 
@@ -74,7 +79,7 @@ Both hooks are **non-blocking** — they print to `hookSpecificOutput.additional
 The companion-coverage concern is defended at **two timings**, deliberately overlapping:
 
 - **Edit / session unit (the two hooks above) — non-blocking, immediate feedback.** `check-lv1-companions.mjs` (per edited component) and `check-lv1-export-integrity.mjs` (export integrity) warn only. They are **kept, not retired** — their value is catching a gap *while you are editing*, before a PR even exists.
-- **PR unit (the CI `audit` job) — blocking, whole-tree integrity gate.** The `audit` job in [.github/workflows/ci.yml](.github/workflows/ci.yml) runs **`pnpm audit:coverage --check`** ([scripts/audit-coverage.mjs](scripts/audit-coverage.mjs)) across every lv1 and fails the PR when a required companion (test / VRT spec / class-API CSS / `__snapshots__/` baseline / `index.ts` re-export / CSS API fixture section, plus parity series for classification A/B and a non-screenshot Playwright interaction test for classification C/D) is missing or an export is orphaned. The full report (including "Recommended actions") is written to the PR's job summary. Currently `continue-on-error: true` (Phase 1 observation, see [#307](https://github.com/yasmro/schatten/issues/307)); Phase 2 removes that and adds `audit` to `develop`'s required checks.
+- **PR unit (the CI `audit` job) — blocking, whole-tree integrity gate.** The `audit` job in [.github/workflows/ci.yml](.github/workflows/ci.yml) runs **`pnpm audit:coverage --check`** ([scripts/audit-coverage.mjs](scripts/audit-coverage.mjs)) across every lv1 and fails the PR when a required companion (test / VRT spec / class-API CSS / `__snapshots__/` baseline / `index.ts` re-export / CSS API fixture section, plus parity series for classification A/B and a non-screenshot Playwright interaction test for classification C/D) is missing or an export is orphaned. The full report (including "Recommended actions") is written to the PR's job summary. The gate is now **blocking** — the Phase-1 observe window ([#307](https://github.com/yasmro/schatten/issues/307)) is over and `continue-on-error` was dropped; adding `audit` to `develop`'s required checks is a repo-settings change tracked there. The same report also carries three **advisory (non-blocking) test-existence columns** — `ref.test` / `testid.test` / `role.test` — that flag a required common-case unit test (ref-lands / `data-testid` pass-through / `getByRole(role,{name})`) that is *absent* even though the companion `.test.tsx` file exists. They render `⚠`, list in a separate "Test-existence gaps" section, and **never** fail `--check` (staged-gate Phase 1; blocking promotion tracked in [#474](https://github.com/yasmro/schatten/issues/474), mirroring #307/#346).
 
 The two layers **intentionally report the same gap at different timings** — this is multi-layer defense, not redundancy. Reproduce the CI gate locally with `pnpm audit:coverage` (no `--check`); the output is identical.
 
@@ -84,7 +89,7 @@ In addition to those hooks, the CI `lint` job runs **`pnpm check:readme`** ([scr
 
 `.claude/commands/` holds project-level slash commands (team-shared, checked into git):
 
-- **[/audit-coverage](.claude/commands/audit-coverage.md)** — scans every lv1 component for the required companion files (test / VRT spec / class-API CSS / `__snapshots__/` baseline / `index.ts` re-export / CSS API fixture section in `src/docs/__fixtures__/cssApiSamples.html.ts`, plus `*.parity.stories.tsx` / `*.parity.vrt.spec.ts` for classification A/B per [vrt-spec-guideline](.claude/rules/vrt-spec-guideline.md)). Reports the per-component status as a markdown table plus a "missing files" action list, and lists orphaned exports (entries in `src/components/lv1/index.ts` without a matching directory). The library-wide periodic counterpart to the single-component / session-end hooks above; the script underneath is [scripts/audit-coverage.mjs](scripts/audit-coverage.mjs) and is also runnable as `pnpm audit:coverage` (CI flag `--check`, JSON output `--json`).
+- **[/audit-coverage](.claude/commands/audit-coverage.md)** — scans every lv1 component for the required companion files (test / VRT spec / class-API CSS / `__snapshots__/` baseline / `index.ts` re-export / CSS API fixture section in `src/docs/__fixtures__/cssApiSamples.html.ts`, plus `*.parity.stories.tsx` / `*.parity.vrt.spec.ts` for classification A/B per [vrt-spec-guideline](.claude/rules/vrt-spec-guideline.md)), and additionally emits three **advisory (non-blocking)** test-existence columns — `ref.test` / `testid.test` / `role.test` — that flag a missing required common-case unit test (they render `⚠` and never fail `--check`). Reports the per-component status as a markdown table plus a "missing files" action list, a "Test-existence gaps" advisory section, and lists orphaned exports (entries in `src/components/lv1/index.ts` without a matching directory). The library-wide periodic counterpart to the single-component / session-end hooks above; the script underneath is [scripts/audit-coverage.mjs](scripts/audit-coverage.mjs) and is also runnable as `pnpm audit:coverage` (CI flag `--check`, JSON output `--json`).
 - **[/review-pr](.claude/commands/review-pr.md)** — self-review the current branch's PR (or the local diff). Emits the canonical 3-section output (2 perspectives × ship verdict × prioritised improvements).
 - **[/implement-and-review](.claude/commands/implement-and-review.md)** — single-shot "implement → quality gates → PR → /review-pr" flow for a task or `#<issue>`. PR base is always `develop` (the repo's release flow is `develop → main`).
-- **[/release](.claude/commands/release.md)** — consume pending changesets, bump version, tag / npm publish / GitHub Release.
+- **`/release`** — consume pending changesets, bump version, tag / npm publish / GitHub Release. (Maintainer-local command — not checked into the repo; see `.gitignore`.)

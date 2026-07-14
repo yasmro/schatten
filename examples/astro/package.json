@@ -10,7 +10,7 @@
   "dependencies": {
     "@astrojs/react": "^4.2.0",
     "@yasmro/schatten": "file:../..",
-    "astro": "^5.2.0",
+    "astro": "^7.0.7",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },

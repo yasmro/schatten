@@ -39,6 +39,15 @@ no build step required.**
 <button class="st-btn st-btn--primary">Click me</button>
 ```
 
+> **Scope note:** the stylesheet ships every lv1 component's *visual*
+> classes, but it cannot ship behavior. Static components (Button, Badge,
+> Callout, Table, …) and native form controls (Input, Checkbox, Switch, …)
+> work with CSS alone — the browser handles their state. Interactive
+> compound components — Dialog, DropdownMenu, Popover, Select, Tabs,
+> Toast, Tooltip (and Avatar's image→fallback swap) — render as static
+> markup only; opening, closing, positioning, and selection require the
+> React layer or your own JavaScript.
+
 ### React
 
 ```sh
@@ -651,18 +660,6 @@ import { Button } from '@yasmro/schatten'
 For static, non-interactive markup you can skip React entirely and apply the
 CVA variant classes to a plain element — see
 [Astro / Vue / Svelte](#astro--vue--svelte) under Quick start.
-
-### Known constraints (v0.8.0)
-
-- **Class-based (no-React) usage is limited.** The `.st-*` component
-  classes (`.st-btn`, `.st-input`, …) do not exist yet, so vanilla HTML
-  and Astro cannot style components by class name alone. Use the exported
-  `buttonVariants()` / `inputVariants()` … bridge in the meantime. Full
-  class API (per [css-api.md](.claude/rules/css-api.md)) lands in
-  **v0.9.0** ([#58](https://github.com/yasmro/schatten/issues/58) /
-  [#154](https://github.com/yasmro/schatten/issues/154)).
-- **`ThemeProvider` / FOUC snippet are not available yet** — both arrive in
-  **v0.9.0** (see the two sections above).
 
 ## Usage
 

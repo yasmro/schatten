@@ -127,5 +127,7 @@ ad-hoc 検証（spec はコミットしない）— で確認。**計測値は�
 
 ## TODO
 
-- [ ] （後続 [#160](https://github.com/yasmro/schatten/issues/160)）この記録の
-  スクリーンショット + コードサンプルを公開 Storybook ページへ反映。
+- [ ] （後続 [#483](https://github.com/yasmro/schatten/issues/483)）この記録の
+  スクリーンショット + コードサンプル（CDN スモーク含む）を公開 Storybook
+  ページへ反映。旧参照先の #160 は本反映をスコープに含まないまま closed
+  だったため、#483 へ張り替え。

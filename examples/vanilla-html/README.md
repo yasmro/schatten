@@ -28,9 +28,13 @@ open index.html         # macOS  (or: xdg-open / just double-click)
 ## CDN vs local dist
 
 The `<head>` carries both `<link>` options (local dist active, CDN commented).
-The local path is the pre-1.0 verification gate; swap to the CDN `<link>` to
-smoke-test the published package after the 1.0 release. Only the `<link>`
-differs — the markup body is identical, so there is no drift.
+The local path stays the default — this harness verifies *unreleased* dist
+changes, which a CDN default would mask behind the published CSS. The CDN
+path was smoke-tested against `@0.15.0` (jsdelivr delivery path, byte-identical
+to the npm tarball) — see
+[docs/verification/framework-agnostic.md](../../docs/verification/framework-agnostic.md)
+(#468). Only the `<link>` differs — the markup body is identical, so there is
+no drift.
 
 ## Consumer wires ARIA
 

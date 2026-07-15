@@ -14,8 +14,9 @@
 
         2. CDN (COMMENTED below) — the published-package path. Uncomment it and
            comment out the local <link> to smoke-test the real jsdelivr URL
-           AFTER the package is published (planned: 1.0 publish). Do not enable
-           both at once.
+           (pin the version, e.g. @0.15.0). Smoke-tested against @0.15.0 — see
+           docs/verification/framework-agnostic.md (#468). Do not enable both
+           at once.
 
       Only the <link> differs between the two methods — the entire markup body
       is identical, so there is a single source of truth and no drift risk.

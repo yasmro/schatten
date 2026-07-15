@@ -244,9 +244,12 @@ when a consumer's tree loads two module instances (the classic dual-package
 hazard). With no CJS resolution path, the hazard cannot occur.
 
 **Supported consumers**: Vite, Next.js 13+, Remix, Astro, and Node ESM
-(`"type": "module"` or dynamic `import()`). Legacy CJS tooling (webpack 4,
+(`"type": "module"` or dynamic `import()`), declared as
+`engines.node: ">=18"` in `package.json`. Legacy CJS tooling (webpack 4,
 Jest without ESM support) is out of contract; the migration path is in
 [docs/migrations/v0-to-v1.md](../../docs/migrations/v0-to-v1.md).
+Narrowing the `engines` range post-1.0 is breaking (`major`), same as a
+peer-dependency range — see [Peer dependency ranges](#peer-dependency-ranges).
 
 Rules the contract pins:
 

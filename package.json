@@ -54,6 +54,9 @@
     "*.css",
     "**/*.css"
   ],
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
     "dev": "storybook dev -p 6006",
     "build": "pnpm clean:dist && pnpm build:js && pnpm check:use-client && pnpm build:css && pnpm build:component-css && pnpm build:copy-css && pnpm build:manifest",

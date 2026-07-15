@@ -15,7 +15,11 @@
 //    `require('@yasmro/schatten')` succeed on new Node and throw on old
 //    Node — a Node-version-dependent reopening of the hazard. Keeping
 //    `import`-only makes require() resolution fail fast everywhere with
-//    ERR_PACKAGE_PATH_NOT_EXPORTED.
+//    ERR_PACKAGE_PATH_NOT_EXPORTED. A plain-STRING target pointing at a
+//    JS file is banned for the same reason: per Node's resolution rules a
+//    string target is sugar for `default`, so it resolves for require()
+//    too. String targets are fine for non-JS assets (CSS / JSON), which
+//    is what every current string entry is.
 // 2. `package.json` — no top-level `main` field (the CJS resolution root).
 //    The top-level `module` / `types` fields are deliberately KEPT: they
 //    are the ESM/type path for legacy resolvers that don't read `exports`.
@@ -42,7 +46,17 @@ if ('main' in pkg) {
 }
 
 for (const [subpath, target] of Object.entries(pkg.exports ?? {})) {
-  if (typeof target !== 'object' || target === null) continue // plain string targets (CSS/JSON) are fine
+  if (typeof target === 'string') {
+    // A string target is sugar for a `default` condition — it resolves for
+    // require() too. Only non-JS assets (CSS / JSON) may use the string form.
+    if (/\.(js|mjs|cjs)$/.test(target)) {
+      errors.push(
+        `exports["${subpath}"] is a plain-string JS target (${target}) — a string target acts as "default" and resolves for require(); use { "import": "…" } conditions instead.`,
+      )
+    }
+    continue
+  }
+  if (typeof target !== 'object' || target === null) continue
   if ('require' in target || (target.types && typeof target.types === 'object' && 'require' in target.types)) {
     errors.push(`exports["${subpath}"] declares a "require" condition.`)
   }

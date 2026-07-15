@@ -4,18 +4,13 @@
   "packageManager": "pnpm@10.33.0+sha512.10568bb4a6afb58c9eb3630da90cc9516417abebd3fabbe6739f0ae795728da1491e9db5a544c76ad8eb7570f5c4bb3d6c637b2cb41bfdcdb47fa823c8649319",
   "description": "Design system with CSS variants and React components",
   "type": "module",
-  "main": "./dist/components/index.cjs",
   "module": "./dist/components/index.js",
   "types": "./dist/components/index.d.ts",
   "exports": {
     ".": {
-      "types": {
-        "import": "./dist/components/index.d.ts",
-        "require": "./dist/components/index.d.cts"
-      },
+      "types": "./dist/components/index.d.ts",
       "style": "./dist/schatten.css",
-      "import": "./dist/components/index.js",
-      "require": "./dist/components/index.cjs"
+      "import": "./dist/components/index.js"
     },
     "./schatten.css": "./dist/schatten.css",
     "./schatten.manifest.json": "./dist/schatten.manifest.json",
@@ -23,61 +18,33 @@
     "./core/tokens": "./dist/core/tokens/index.css",
     "./themes/default": "./dist/themes/default/index.css",
     "./themes/seasonal": {
-      "types": {
-        "import": "./dist/themes/seasonal/index.d.ts",
-        "require": "./dist/themes/seasonal/index.d.cts"
-      },
-      "import": "./dist/themes/seasonal/index.js",
-      "require": "./dist/themes/seasonal/index.cjs"
+      "types": "./dist/themes/seasonal/index.d.ts",
+      "import": "./dist/themes/seasonal/index.js"
     },
     "./themes/seasonal/themes.css": "./dist/themes/seasonal/themes.css",
     "./variants": {
-      "types": {
-        "import": "./dist/variants/index.d.ts",
-        "require": "./dist/variants/index.d.cts"
-      },
-      "import": "./dist/variants/index.js",
-      "require": "./dist/variants/index.cjs"
+      "types": "./dist/variants/index.d.ts",
+      "import": "./dist/variants/index.js"
     },
     "./tokens": {
-      "types": {
-        "import": "./dist/tokens/index.d.ts",
-        "require": "./dist/tokens/index.d.cts"
-      },
-      "import": "./dist/tokens/index.js",
-      "require": "./dist/tokens/index.cjs"
+      "types": "./dist/tokens/index.d.ts",
+      "import": "./dist/tokens/index.js"
     },
     "./components": {
-      "types": {
-        "import": "./dist/components/index.d.ts",
-        "require": "./dist/components/index.d.cts"
-      },
-      "import": "./dist/components/index.js",
-      "require": "./dist/components/index.cjs"
+      "types": "./dist/components/index.d.ts",
+      "import": "./dist/components/index.js"
     },
     "./components/lv1": {
-      "types": {
-        "import": "./dist/components/lv1/index.d.ts",
-        "require": "./dist/components/lv1/index.d.cts"
-      },
-      "import": "./dist/components/lv1/index.js",
-      "require": "./dist/components/lv1/index.cjs"
+      "types": "./dist/components/lv1/index.d.ts",
+      "import": "./dist/components/lv1/index.js"
     },
     "./providers": {
-      "types": {
-        "import": "./dist/providers/index.d.ts",
-        "require": "./dist/providers/index.d.cts"
-      },
-      "import": "./dist/providers/index.js",
-      "require": "./dist/providers/index.cjs"
+      "types": "./dist/providers/index.d.ts",
+      "import": "./dist/providers/index.js"
     },
     "./theme-init": {
-      "types": {
-        "import": "./dist/theme-init/index.d.ts",
-        "require": "./dist/theme-init/index.d.cts"
-      },
-      "import": "./dist/theme-init/index.js",
-      "require": "./dist/theme-init/index.cjs"
+      "types": "./dist/theme-init/index.d.ts",
+      "import": "./dist/theme-init/index.js"
     }
   },
   "files": [
@@ -109,6 +76,7 @@
     "check:issue-templates": "node scripts/check-issue-templates.mjs",
     "check:registrar": "node scripts/check-registrar-sync.mjs",
     "check:body-reset": "node scripts/check-body-reset-sync.mjs",
+    "check:esm-only": "node scripts/check-esm-only.mjs",
     "build:storybook": "storybook build",
     "test": "vitest",
     "test:ui": "vitest --ui",

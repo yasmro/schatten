@@ -40,13 +40,42 @@ no build step required.**
 ```
 
 > **Scope note:** the stylesheet ships every lv1 component's *visual*
-> classes, but it cannot ship behavior. Static components (Button, Badge,
-> Callout, Table, …) and native form controls (Input, Checkbox, Switch, …)
-> work with CSS alone — the browser handles their state. Interactive
-> compound components — Dialog, DropdownMenu, Popover, Select, Tabs,
-> Toast, Tooltip (and Avatar's image→fallback swap) — render as static
-> markup only; opening, closing, positioning, and selection require the
-> React layer or your own JavaScript.
+> classes, but it cannot ship behavior. In the matrix below, ✅ means the
+> component works with CSS alone (static rendering, or the browser
+> handles its state natively); ⚠️ means only the visual classes ship —
+> the interactive behavior (opening, closing, positioning, selection;
+> Avatar's image→fallback swap) requires the React layer or your own
+> JavaScript.
+
+<!-- generated:lv1-support-matrix:start -->
+| Component | React | HTML + CSS only |
+| --- | :-: | :-: |
+| `Avatar` | ✅ | ⚠️ |
+| `Badge` | ✅ | ✅ |
+| `Button` | ✅ | ✅ |
+| `Callout` | ✅ | ✅ |
+| `Card` | ✅ | ✅ |
+| `Checkbox` | ✅ | ✅ |
+| `Dialog` | ✅ | ⚠️ |
+| `DropdownMenu` | ✅ | ⚠️ |
+| `Field` | ✅ | ✅ |
+| `FieldSet` | ✅ | ✅ |
+| `Icon` | ✅ | ✅ |
+| `Input` | ✅ | ✅ |
+| `Popover` | ✅ | ⚠️ |
+| `Radio` | ✅ | ✅ |
+| `Select` | ✅ | ⚠️ |
+| `Separator` | ✅ | ✅ |
+| `Skeleton` | ✅ | ✅ |
+| `Spinner` | ✅ | ✅ |
+| `Switch` | ✅ | ✅ |
+| `Table` | ✅ | ✅ |
+| `Tabs` | ✅ | ⚠️ |
+| `Text` | ✅ | ✅ |
+| `Textarea` | ✅ | ✅ |
+| `Toast` | ✅ | ⚠️ |
+| `Tooltip` | ✅ | ⚠️ |
+<!-- generated:lv1-support-matrix:end -->
 
 ### React
 

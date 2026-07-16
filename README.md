@@ -36,7 +36,7 @@ no build step required.**
   rel="stylesheet"
 />
 
-<button class="st-btn st-btn--primary">Click me</button>
+<button class="st-btn st-btn--primary st-btn--md">Click me</button>
 ```
 
 > **Scope note:** the stylesheet ships every lv1 component's *visual*
@@ -103,20 +103,20 @@ chains directly on any element. **No JavaScript import needed.**
 import '@yasmro/schatten/schatten.css'
 ---
 
-<button class="st-btn st-btn--primary">Click me</button>
-<a href="/docs" class="st-btn st-btn--secondary">Docs</a>
+<button class="st-btn st-btn--primary st-btn--md">Click me</button>
+<a href="/docs" class="st-btn st-btn--secondary st-btn--md">Docs</a>
 ```
 
 ```vue
 <!-- Vue -->
 <template>
-  <button class="st-btn st-btn--primary">Click me</button>
+  <button class="st-btn st-btn--primary st-btn--md">Click me</button>
 </template>
 ```
 
 ```svelte
 <!-- Svelte -->
-<button class="st-btn st-btn--primary">Click me</button>
+<button class="st-btn st-btn--primary st-btn--md">Click me</button>
 ```
 
 The exported CVA variant functions (`buttonVariants`, `badgeVariants`,

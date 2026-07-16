@@ -155,7 +155,8 @@ pnpm changeset
 
 Pick the bump level per the breaking-change policy and CHANGELOG prefixes in
 [api-stability.md](.claude/rules/api-stability.md#changelog-conventions)
-(`patch` for fixes, `minor` for additions; pre-1.0 permits breaking changes).
+(`patch` for fixes, `minor` for additions, `major` for breaking changes — see
+the policy table there).
 CI runs `changeset status` and fails a source change that ships without one.
 
 **Internal-only PRs** — `.github/` workflows, docs, `.claude/`, test-only work

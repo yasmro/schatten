@@ -1040,7 +1040,8 @@ Primitive components live under `src/components/lv1/`:
 
 Badge · Button · Callout · Checkbox · Dialog · DropdownMenu · Field · FieldSet · Icon · Input · Popover · Radio · Select · Separator · Skeleton · Spinner · Switch · Tabs · Text · Textarea · Toast · Tooltip
 
-See Storybook for live examples and prop documentation.
+Run `pnpm dev` to browse live examples and prop documentation in Storybook
+(see [Development](#development)).
 
 ## Project Structure
 

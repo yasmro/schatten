@@ -65,6 +65,15 @@ jobs:
       - name: Issue / PR template health
         run: pnpm check:issue-templates
 
+      # ESM-only packaging contract (#479): no `require` / `default` condition
+      # in package.json#exports, no top-level `main`. publint can't express
+      # condition bans, and a `default` condition would reopen the dual-package
+      # hazard Node-version-dependently (Node >= 22.12 require(esm)). Runs here
+      # for the exports-map half (no build dependency); the `manifest` job
+      # re-runs it after its build for the dist half (no .cjs emitted).
+      - name: ESM-only exports contract
+        run: pnpm check:esm-only
+
   typecheck:
     runs-on: ubuntu-latest
     steps:
@@ -165,6 +174,10 @@ jobs:
       # parses — the "a consumer can actually import it" half of the contract.
       - name: Check manifest export
         run: pnpm check:manifest:export
+      # Re-run of the lint job's exports-map check, now with dist/ present:
+      # asserts the build emitted no *.cjs / *.d.cts artifact (#479).
+      - name: ESM-only dist contract
+        run: pnpm check:esm-only
 
   changeset:
     runs-on: ubuntu-latest

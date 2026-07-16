@@ -34,6 +34,7 @@ CHANGELOG:
 | CSS custom properties | `--color-primary-600`, `--color-error`, `--spacing-4`, `--font-sans` |
 | CVA output strings | The class string returned by `buttonVariants({ variant: 'primary' })` |
 | Multi-entry exports | `@yasmro/schatten/components/lv1`, `/tokens`, `/variants`, `/themes/default`, `/themes/seasonal`, `/providers` |
+| Module format | ESM-only — every JS entry in `exports` carries an `import` condition only (no `require`, no `default`). Adding CJS support back would be additive (`minor`); going ESM-only again after that, or narrowing the supported-consumer set, is breaking. See [Module format — ESM-only](#module-format--esm-only-since-v100). |
 | Theme contract | Which CSS variables a custom theme must define to be valid |
 | Provider runtime contract | The `localStorage` key (`'schatten-theme'`) and JSON shape (`{ mode, special }`) that `<ThemeProvider>` reads/writes. This is the contract the FOUC inline snippet ([#129](https://github.com/yasmro/schatten/issues/129)) and any consumer-side persistence code depends on. Renaming the key, adding/removing a field, or changing field semantics is a breaking change. |
 | FOUC snippet bytes | The exact byte sequence of `THEME_INIT_SCRIPT` (and the output of `buildThemeInitScript()`). Consumers paste its SHA-256 into a `script-src 'sha256-…'` CSP directive, so the bytes themselves are public surface. See [FOUC snippet byte stability](#fouc-snippet-byte-stability-theme_init_script) below. |
@@ -230,6 +231,49 @@ to a peer dep, the same rules apply.
 - **Bumping a tooling dep that affects output** (e.g. `class-variance-authority`
   in a way that changes the emitted class string) is covered separately by
   the "CVA output stability" section above and is a `major`.
+
+## Module format — ESM-only (since v1.0.0)
+
+The package ships **ESM only** ([#479](https://github.com/yasmro/schatten/issues/479),
+decided in [#208](https://github.com/yasmro/schatten/issues/208)). The CJS
+build (`exports.*.require`, the top-level `main`, every `dist/**/*.cjs` /
+`*.d.cts`) was removed in v1.0.0. The motivation is structural, not
+aesthetic: Schatten carries module-level state — the `Toast` store, the
+`Field` / `FieldSet` / `Tooltip` React Contexts — that **fails silently**
+when a consumer's tree loads two module instances (the classic dual-package
+hazard). With no CJS resolution path, the hazard cannot occur.
+
+**Supported consumers**: Vite, Next.js 13+, Remix, Astro, and Node ESM
+(`"type": "module"` or dynamic `import()`), declared as
+`engines.node: ">=18"` in `package.json`. Legacy CJS tooling (webpack 4,
+Jest without ESM support) is out of contract; the migration path is in
+[docs/migrations/v0-to-v1.md](../../docs/migrations/v0-to-v1.md).
+Narrowing the `engines` range post-1.0 is breaking (`major`), same as a
+peer-dependency range — see [Peer dependency ranges](#peer-dependency-ranges).
+
+Rules the contract pins:
+
+- **Every JS entry in `exports` declares an `import` condition only.**
+  Never add a `require` condition, and never swap `import` for `default`.
+  The `default` ban is the subtle half: Node ≥ 22.12 resolves `default` for
+  `require(esm)` and loads it, so a `default` condition would make
+  `require('@yasmro/schatten')` succeed on new Node and throw on old Node —
+  a Node-version-dependent reopening of the hazard. With `import`-only
+  conditions, `require()` fails fast **everywhere** with
+  `ERR_PACKAGE_PATH_NOT_EXPORTED`.
+- **No top-level `main` field.** The top-level `module` / `types` fields
+  are deliberately **kept** — they are the ESM/type path for legacy
+  resolvers that don't read `exports` (and TS `moduleResolution: node10`),
+  and removing them buys nothing.
+- **Re-adding CJS support is additive** (`minor`) but must re-litigate the
+  dual-package hazard first — the burden of proof is on the addition.
+  Removing it again afterwards is `major`.
+
+Machine-enforced by `pnpm check:esm-only`
+([scripts/check-esm-only.mjs](../../scripts/check-esm-only.mjs)): the CI
+`lint` job checks the exports map (no `require` / `default` condition, no
+`main`), and the `manifest` job re-runs it after its build to assert no
+`.cjs` / `.d.cts` artifact is emitted.
 
 ## Visual-contract-affecting dependencies
 

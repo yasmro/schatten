@@ -209,6 +209,15 @@ their `icon` props. It is declared `optional` in `peerDependenciesMeta` only so
 that Layer A (CSS / token-only) consumers — who never touch the React layer —
 are not warned about a dependency they do not need.
 
+### ESM-only
+
+The package ships **ESM only** (since v1.0.0) — there is no CJS build, and
+`require('@yasmro/schatten')` fails fast with `ERR_PACKAGE_PATH_NOT_EXPORTED`.
+Supported consumers: **Vite, Next.js 13+, Remix, Astro, and Node ESM**
+(`"type": "module"` or dynamic `import()`). If your tooling still `require()`s
+Schatten, see [item 12 of the migration guide](docs/migrations/v0-to-v1.md#12-esm-only--the-cjs-build-is-removed--v100).
+Layer A (CSS / tokens) involves no JS and is unaffected.
+
 ### Upgrading from 0.x
 
 Moving from a pre-1.0 release? The

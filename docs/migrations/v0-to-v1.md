@@ -1,9 +1,9 @@
 # Migrating from 0.x to 1.0
 
 This guide lists every breaking change made during Schatten's pre-1.0 period
-(v0.1.0 → v0.15.0) so you can upgrade to 1.0 with confidence. Each entry names
-the version that introduced it, its severity, why it changed, and a
-Before → After you can apply directly.
+and in 1.0.0 itself (v0.1.0 → v1.0.0) so you can upgrade to 1.0 with
+confidence. Each entry names the version that introduced it, its severity, why
+it changed, and a Before → After you can apply directly.
 
 > **Pre-1.0 recap.** Before 1.0, breaking changes were permitted in any
 > release (see [`api-stability.md`](../../.claude/rules/api-stability.md)). From
@@ -17,12 +17,15 @@ Before → After you can apply directly.
    ```sh
    pnpm add @yasmro/schatten@^1 lucide-react   # lucide-react only if you use the React layer
    ```
-2. **Fix type errors first.** The Radix type-boundary change (item 10) and the
+2. **Switch any `require()` to `import`.** The package is ESM-only from 1.0
+   (item 12) — a leftover `require('@yasmro/schatten')` fails at load time
+   with `ERR_PACKAGE_PATH_NOT_EXPORTED`, so this surfaces immediately.
+3. **Fix type errors next.** The Radix type-boundary change (item 10) and the
    `<Text asChild>` removal (item 7) surface as TypeScript errors — let `pnpm
    typecheck` (or your editor) drive them.
-3. **Update CSS-class and token references.** If you consume the vanilla CSS
+4. **Update CSS-class and token references.** If you consume the vanilla CSS
    path or read CSS variables directly, walk items 3–6, 8, 9, 11.
-4. **Verify visually.** Toast now renders through Sonner (item 9); re-check any
+5. **Verify visually.** Toast now renders through Sonner (item 9); re-check any
    custom toast styling.
 
 Who is affected by what, at a glance:
@@ -32,6 +35,7 @@ Who is affected by what, at a glance:
 | React props only | 1, 2, 7, 10 |
 | The vanilla `.st-*` CSS path | 4, 9 |
 | CSS variables / design tokens directly | 3, 5, 6, 8, 11 |
+| `require()` / CJS tooling | 12 |
 
 If you use `<Button>` and friends purely through their React props, most CSS
 and token items do not affect you.
@@ -214,6 +218,40 @@ references `--font-sans` / `--font-mono` directly (resolved value unchanged). (#
 - font-family: var(--default-font-family);
 + font-family: var(--font-sans);
 ```
+
+## 12. ESM-only — the CJS build is removed — v1.0.0
+
+**Severity: high (`require()` consumers only).** All `require` conditions in
+`package.json#exports`, the top-level `main` field, and every `dist/**/*.cjs`
+/ `*.d.cts` file were removed. The package now resolves through `import`
+conditions only. (#479, decided in #208)
+
+Why: Schatten carries module-level state — the `Toast` store and the `Field`
+/ `FieldSet` / `Tooltip` React Contexts — that **fails silently** when a
+consumer's tree loads two module instances (the dual-package hazard: a
+Provider from the ESM copy, a consumer from the CJS copy). Removing the CJS
+resolution path makes that failure mode structurally impossible: `require()`
+now fails fast with `ERR_PACKAGE_PATH_NOT_EXPORTED` instead of half-working.
+
+```diff
+- const { Button } = require('@yasmro/schatten')
++ import { Button } from '@yasmro/schatten'
+```
+
+From a CJS file that cannot become ESM, use dynamic import:
+
+```js
+const { Button } = await import('@yasmro/schatten')
+```
+
+**Supported consumers:** Vite, Next.js 13+, Remix, Astro, and Node ESM
+(`"type": "module"` or dynamic `import()`). ESM consumers — the above list —
+need **no change**; this item is invisible to them.
+
+**Out of contract:** webpack 4 and Jest configured with a CJS transform. For
+Jest, enable its ESM support or run component tests under Vitest (what
+Schatten itself uses). The Layer A CSS path (`schatten.css`, `/css/*`,
+tokens CSS) has no JS involved and is unaffected.
 
 ---
 

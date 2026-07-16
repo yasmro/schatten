@@ -52,7 +52,7 @@ export default defineConfig([
       // string directly — see src/theme-init.ts header.
       'theme-init/index': 'src/theme-init.ts',
     },
-    format: ['esm', 'cjs'],
+    format: ['esm'],
     dts: true,
     external: ['react', 'react-dom', 'lucide-react'],
   },
@@ -85,29 +85,12 @@ export default defineConfig([
       options.jsx = 'automatic'
     },
   },
-  // Components — CJS. Barrels only: `require()` consumers do not tree-shake,
-  // and emitting per-component CJS files would duplicate the bundled Radix
-  // code across 17 standalone bundles and bloat the published package.
-  // Carries the same `'use client'` banner as the ESM group (see above) so
-  // the `.cjs` barrels are equally safe to import from a Server Component.
-  {
-    entry: { ...componentBarrelEntries, ...providerEntries },
-    format: ['cjs'],
-    dts: false,
-    external: ['react', 'react-dom', 'lucide-react'],
-    banner: {
-      js: "'use client';",
-    },
-    esbuildOptions(options) {
-      options.jsx = 'automatic'
-    },
-  },
   // Components & providers — type declarations. Only published barrel entries
-  // need `.d.ts` / `.d.cts`; the per-component ESM entries are an internal
-  // build detail and are not part of `package.json#exports`.
+  // need `.d.ts`; the per-component ESM entries are an internal build detail
+  // and are not part of `package.json#exports`.
   {
     entry: { ...componentBarrelEntries, ...providerEntries },
-    format: ['esm', 'cjs'],
+    format: ['esm'],
     dts: { only: true },
     external: ['react', 'react-dom', 'lucide-react'],
   },
@@ -116,7 +99,7 @@ export default defineConfig([
     entry: {
       'themes/seasonal/index': 'src/themes/seasonal/index.ts',
     },
-    format: ['esm', 'cjs'],
+    format: ['esm'],
     dts: true,
     external: ['react', 'react-dom', 'lucide-react'],
   },

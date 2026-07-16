@@ -633,9 +633,11 @@ fallback — that policy only holds if the contract below holds.
     `@axe-core/playwright` VRT-paired check (v0.11.0); the Phase 1
     backlog (#344 / #345) is now cleared and the `a11y` CI job is
     blocking (#346) — "Verifying compliance" reflects this. If a future
-    component needs a genuinely new `color-contrast` exception, it must
-    be a documented, story-scoped `disableRules(['color-contrast'])`
-    with a rationale (not a blanket disable) — see
+    component needs a genuinely new exception, it must use one of the two
+    documented rule ids (`color-contrast` for design exceptions,
+    `aria-hidden-focus` for open Radix poppers), as a documented,
+    story-scoped `disableRules([…])` with a rationale (not a blanket
+    disable, and no other rule id) — see
     [vrt-spec-guideline §a11y assertions](vrt-spec-guideline.md).
   - `Field.required` now propagates `aria-required` (announce-only) to
     the wrapped control ([#428](https://github.com/yasmro/schatten/issues/428)) —

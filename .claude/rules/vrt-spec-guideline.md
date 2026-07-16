@@ -210,11 +210,28 @@ rendering, so the scarce macos runner stays pixel-only.
 > remain are **intentional design exceptions** — solid treatments (white
 > foreground on a saturated/neutral-solid fill, the AA trilemma),
 > inverted-on-saturated foreground, and the `foreground-subtle` tertiary
-> tier (large/incidental-only). Each is suppressed with a **story-scoped**
+> tier (large/incidental-only) — plus one **portal-pattern artifact**: a
+> full-page portal spec (Dialog today) also has axe compositing the
+> `aria-hidden` trigger sitting *behind* the semi-transparent modal
+> overlay into a blended, non-readable pair — not a real content-contrast
+> issue. Each is suppressed with a **story-scoped**
 > `disableRules(['color-contrast'])` carrying a one-line rationale + the
 > `#344` / `#346` refs, mirrored in the story's `parameters.a11y` for the
 > addon panel (the [Per-story rule disable](storybook-guideline.md) rule).
-> A blanket or whole-file `color-contrast` disable is **not** acceptable —
+>
+> One more rule id carries a documented exception: **`aria-hidden-focus`**
+> on open-popper components (`Select` / `DropdownMenu` / `Popover`). While
+> the popper is open, Radix (`hideOthers`) sets `aria-hidden` on
+> `#storybook-root` but leaves the trigger focusable; focus is trapped in
+> the portaled content, so no real keyboard escape exists — a known Radix
+> behavior, not fixable from Schatten. The disable is scoped to the
+> open-state (`portalStories`) a11y tests only, carries the rationale
+> comment, and is mirrored story-scoped in `parameters.a11y` (inventoried
+> in #163).
+>
+> The allowed exception rule ids are **exactly these two** —
+> `color-contrast` and `aria-hidden-focus`. A blanket or whole-file
+> disable, or a disable of any other rule id, is **not** acceptable —
 > if you reach for one, you are masking a real regression. New components
 > must land with zero new violations.
 

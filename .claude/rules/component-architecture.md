@@ -602,8 +602,11 @@ fallback — that policy only holds if the contract below holds.
    Playwright exit code, so a new violation fails the PR. The only axe
    `color-contrast` findings that remain are intentional design exceptions
    (solid treatments / inverted-on-saturated / the foreground-subtle
-   tertiary tier), each disabled with a documented rationale scoped to its
-   own story — see [vrt-spec-guideline §a11y assertions](vrt-spec-guideline.md).
+   tertiary tier / the Dialog overlay-compositing artifact), each disabled
+   with a documented rationale scoped to its own story; the same
+   discipline covers the one other documented exception rule id,
+   `aria-hidden-focus` on open Radix poppers (Select / DropdownMenu /
+   Popover) — see [vrt-spec-guideline §a11y assertions](vrt-spec-guideline.md).
    The Storybook `addon-a11y` panel remains the manual dev-time companion.
 3. **Code review** — when reviewing an lv1 PR, walk the four
    guarantees and Hard rules above. If the component opts out of a

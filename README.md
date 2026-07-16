@@ -39,6 +39,44 @@ no build step required.**
 <button class="st-btn st-btn--primary">Click me</button>
 ```
 
+> **Scope note:** the stylesheet ships every lv1 component's *visual*
+> classes, but it cannot ship behavior. In the matrix below, ✅ means the
+> component works with CSS alone (static rendering, or the browser
+> handles its state natively); ⚠️ means only the visual classes ship —
+> the interactive behavior (opening, closing, positioning, selection;
+> Avatar's image→fallback swap) requires the React layer or your own
+> JavaScript.
+
+<!-- generated:lv1-support-matrix:start -->
+| Component | React | HTML + CSS only |
+| --- | :-: | :-: |
+| `Avatar` | ✅ | ⚠️ |
+| `Badge` | ✅ | ✅ |
+| `Button` | ✅ | ✅ |
+| `Callout` | ✅ | ✅ |
+| `Card` | ✅ | ✅ |
+| `Checkbox` | ✅ | ✅ |
+| `Dialog` | ✅ | ⚠️ |
+| `DropdownMenu` | ✅ | ⚠️ |
+| `Field` | ✅ | ✅ |
+| `FieldSet` | ✅ | ✅ |
+| `Icon` | ✅ | ✅ |
+| `Input` | ✅ | ✅ |
+| `Popover` | ✅ | ⚠️ |
+| `Radio` | ✅ | ✅ |
+| `Select` | ✅ | ⚠️ |
+| `Separator` | ✅ | ✅ |
+| `Skeleton` | ✅ | ✅ |
+| `Spinner` | ✅ | ✅ |
+| `Switch` | ✅ | ✅ |
+| `Table` | ✅ | ✅ |
+| `Tabs` | ✅ | ⚠️ |
+| `Text` | ✅ | ✅ |
+| `Textarea` | ✅ | ✅ |
+| `Toast` | ✅ | ⚠️ |
+| `Tooltip` | ✅ | ⚠️ |
+<!-- generated:lv1-support-matrix:end -->
+
 ### React
 
 ```sh
@@ -660,18 +698,6 @@ import { Button } from '@yasmro/schatten'
 For static, non-interactive markup you can skip React entirely and apply the
 CVA variant classes to a plain element — see
 [Astro / Vue / Svelte](#astro--vue--svelte) under Quick start.
-
-### Known constraints (v0.8.0)
-
-- **Class-based (no-React) usage is limited.** The `.st-*` component
-  classes (`.st-btn`, `.st-input`, …) do not exist yet, so vanilla HTML
-  and Astro cannot style components by class name alone. Use the exported
-  `buttonVariants()` / `inputVariants()` … bridge in the meantime. Full
-  class API (per [css-api.md](.claude/rules/css-api.md)) lands in
-  **v0.9.0** ([#58](https://github.com/yasmro/schatten/issues/58) /
-  [#154](https://github.com/yasmro/schatten/issues/154)).
-- **`ThemeProvider` / FOUC snippet are not available yet** — both arrive in
-  **v0.9.0** (see the two sections above).
 
 ## Usage
 

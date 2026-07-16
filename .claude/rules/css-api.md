@@ -88,6 +88,16 @@ Schatten classes follow a strict three-form BEM:
 - **`size` modifier values are always `--sm` / `--md` / `--lg`.** No
   `--small` / `--medium` / `--large` — the abbreviated form is the
   contract ([component-api-conventions.md](component-api-conventions.md#common-props-across-all-components)).
+- **The size modifier is required on blocks that have a size axis.**
+  Dimensions (height / padding / font-size) live **only** on
+  `.st-{block}--{sm|md|lg}`; the base rule deliberately carries no
+  fallback size, because the React layer's CVA always emits its
+  `defaultVariants` size (`st-btn st-btn--primary st-btn--md`) — a
+  second base-level definition would create two cascade sources for the
+  same visual. A bare `st-btn st-btn--primary` renders collapsed. The
+  **minimum renderable chain is block + variant + size**, exactly the
+  chain the React layer emits (found the expensive way: the README
+  quick-start snippets shipped size-less for ~6 versions, #168).
 - **Block names are kebab-case nouns.** Match the underlying React
   component name lowercased and de-camelCased (`FieldSet` →
   `st-fieldset`, `RadioGroup` → `st-radio-group`,
@@ -908,7 +918,10 @@ goal.
 - **BEM**: `.st-{block}` / `.st-{block}--{modifier}` /
   `.st-{block}__{element}`.
 - **Modifiers**: variant / appearance / size / orientation — one
-  axis per modifier, emitted side-by-side.
+  axis per modifier, emitted side-by-side. On blocks with a size axis
+  the size modifier is **required** (dimensions live only on
+  `--{sm|md|lg}`; no fallback on the base rule) — the minimum
+  renderable chain is block + variant + size.
 - **Pattern B composition**: tone × shape via **double-class
   selectors** (`.st-callout--success.st-callout--subtle`). Default
   appearance is first-class — write its rule via the same double-class

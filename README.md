@@ -39,6 +39,11 @@ no build step required.**
 <button class="st-btn st-btn--primary st-btn--md">Click me</button>
 ```
 
+The size modifier is part of the minimum chain: sizing (height /
+padding / font-size) lives only on `.st-btn--{sm,md,lg}` — there is no
+default size on the bare `.st-btn`. Always write **block + variant +
+size**, exactly the chain the React layer emits.
+
 > **Scope note:** the stylesheet ships every lv1 component's *visual*
 > classes, but it cannot ship behavior. In the matrix below, ✅ means the
 > component works with CSS alone (static rendering, or the browser

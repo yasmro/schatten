@@ -21,6 +21,9 @@ open index.html         # macOS  (or: xdg-open / just double-click)
 - **区分 A/B** — Text, Icon, Button, Badge, Callout, Spinner,
   Input, Textarea, Checkbox, Switch, Radio, Separator, Field, FieldSet, Card,
   Skeleton, Table. Fully functional from the class API + HTML/ARIA attributes.
+  Input / Textarea interact browser-natively; Checkbox / Switch / Radio
+  toggle via the few lines of state-flipping JS in the page script
+  (`aria-checked` / `data-state` — the wiring the React layer does for you).
 - **区分 C/D** — Avatar, Tooltip, Select, Toast, Popover, Tabs,
   Dialog, DropdownMenu. Shown as **static class rendering only**; their
   interactive behaviour needs the React layer (see the on-page note).

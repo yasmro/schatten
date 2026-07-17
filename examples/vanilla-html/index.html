@@ -290,7 +290,7 @@
           </div>
 
           <div class="demo-sample" data-component="switch">
-            <span class="demo-sample__label">Switch — .st-switch</span>
+            <span class="demo-sample__label">Switch — .st-switch (click toggles via JS below)</span>
             <div class="demo-row">
               <div class="st-switch-wrapper">
                 <button type="button" id="sw-1" role="switch" aria-checked="true" data-state="checked" class="st-switch st-switch--md">
@@ -303,7 +303,7 @@
           </div>
 
           <div class="demo-sample" data-component="radio">
-            <span class="demo-sample__label">Radio — .st-radio</span>
+            <span class="demo-sample__label">Radio — .st-radio (click toggles via JS below)</span>
             <div role="radiogroup" class="st-radio-group">
               <div class="st-radio-wrapper">
                 <button type="button" id="r-a" role="radio" aria-checked="false" data-state="unchecked" class="st-radio st-radio--md"></button>
@@ -574,6 +574,27 @@
           el.setAttribute('data-state', next ? 'checked' : 'unchecked')
           const thumb = el.querySelector('[class*="__thumb"]')
           if (thumb) thumb.setAttribute('data-state', next ? 'checked' : 'unchecked')
+        })
+      }
+
+      // Radio needs one extra step on top of the attribute flips above:
+      // Radix *unmounts* the indicator when unchecked (Radio.css has no
+      // CSS hide rule, unlike Checkbox's forceMount + display:none), so
+      // the consumer adds/removes the indicator element alongside the
+      // aria-checked / data-state flip. Group behavior: picking one
+      // unchecks the rest.
+      const RADIO_INDICATOR =
+        '<span class="st-radio__indicator"><span class="st-radio__dot"></span></span>'
+      for (const group of document.querySelectorAll('.st-radio-group')) {
+        group.addEventListener('click', (e) => {
+          const picked = e.target.closest('.st-radio')
+          if (!picked) return
+          for (const radio of group.querySelectorAll('.st-radio')) {
+            const checked = radio === picked
+            radio.setAttribute('aria-checked', String(checked))
+            radio.setAttribute('data-state', checked ? 'checked' : 'unchecked')
+            radio.innerHTML = checked ? RADIO_INDICATOR : ''
+          }
         })
       }
     </script>

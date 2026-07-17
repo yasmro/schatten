@@ -71,6 +71,7 @@
     "check:manifest:export": "node scripts/check-manifest-export.mjs",
     "sync:readme": "node scripts/sync-readme-components.mjs",
     "check:readme": "node scripts/sync-readme-components.mjs --check",
+    "check:harness": "node scripts/check-harness-sync.mjs",
     "check:use-client": "node scripts/check-use-client-banner.mjs",
     "audit:coverage": "node scripts/audit-coverage.mjs",
     "schatten:csp-hash": "node scripts/print-csp-hash.mjs",

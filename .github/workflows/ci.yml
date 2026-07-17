@@ -33,6 +33,15 @@ jobs:
       - name: README components drift
         run: pnpm check:readme
 
+      # The vanilla harness (examples/vanilla-html/index.html) is the
+      # human-eyeball surface for the class API, but nothing else gates it —
+      # audit:coverage forces the CSS API fixture complete, and the harness
+      # silently stayed at 23/25 when Dialog / DropdownMenu landed (found in
+      # #167 refinement, fixed in PR #488). Requires a data-component sample
+      # per lv1, both directions. No build dependency.
+      - name: Vanilla harness coverage drift
+        run: pnpm check:harness
+
       # Catches drift between `.claude/rules/css-api.md` §`@layer order` and
       # `src/styles/entry.css` — exactly the kind of doc-vs-implementation
       # mismatch that hid the preflight-priority bug fixed in #277. Runs in

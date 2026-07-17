@@ -405,10 +405,11 @@ export const Contrast: Story = {
 
       <SectionTitle>Intentional AA exceptions</SectionTitle>
       <Note>
-        Three contrast patterns are deliberately exempt from the 4.5 : 1 body-text line. These are
-        the <em>only</em> <Code>color-contrast</Code> findings the CI a11y gate (#346) suppresses —
-        each via a documented, story-scoped <Code>disableRules([&apos;color-contrast&apos;])</Code>{' '}
-        in the component&apos;s <Code>*.vrt.spec.ts</Code> (mirrored in the story&apos;s{' '}
+        Four patterns are deliberately exempt from the 4.5 : 1 body-text line — three design
+        exceptions plus one portal-testing artifact. These are the <em>only</em>{' '}
+        <Code>color-contrast</Code> findings the CI a11y gate (#346) suppresses — each via a
+        documented, story-scoped <Code>disableRules([&apos;color-contrast&apos;])</Code> in the
+        component&apos;s <Code>*.vrt.spec.ts</Code> (mirrored in the story&apos;s{' '}
         <Code>parameters.a11y</Code>). A blanket disable is never allowed; anything outside this
         table must clear AA. See <Code>.claude/rules/state-token-guideline.md</Code> for the token
         rationale.
@@ -438,6 +439,14 @@ export const Contrast: Story = {
               'foreground-subtle (tertiary)',
               'Text color="subtle"; faint helper / placeholder-like copy',
               'The third foreground tier clears the 3 : 1 large-text line but is intentionally below 4.5 : 1 at small sizes. Never use it for body copy.',
+            ],
+          },
+          {
+            key: 'overlay',
+            cells: [
+              'Dialog overlay compositing (test artifact)',
+              'Dialog *.vrt.spec.ts a11y tests — every story',
+              'The full-page portal spec has axe compositing the aria-hidden trigger sitting behind the semi-transparent modal overlay into a blended, non-readable pair. A portal-pattern testing artifact, not a real content-contrast issue — the dialog text itself clears AA.',
             ],
           },
         ]}
@@ -650,10 +659,16 @@ pnpm test:vrt     # playwright test --grep-invert a11y    → screenshots only`}
       <Note>
         The CI a11y job <strong>blocks</strong> (#346) — it propagates the Playwright exit code, so
         a new WCAG 2.1 A/AA violation fails the PR (the full violation list is still tee&apos;d into
-        the job summary). The only <Code>color-contrast</Code> findings that remain are intentional
-        design exceptions — solid treatments, inverted-on-saturated foreground, and the{' '}
-        <Code>foreground-subtle</Code> tertiary tier — each suppressed with a documented,
-        story-scoped <Code>disableRules([&apos;color-contrast&apos;])</Code>. The addon panel&apos;s{' '}
+        the job summary). The only <Code>color-contrast</Code> findings that remain are the
+        intentional exceptions inventoried on the <strong>Contrast</strong> page of this section,
+        each suppressed with a documented, story-scoped{' '}
+        <Code>disableRules([&apos;color-contrast&apos;])</Code>. One other rule id carries a
+        documented exception: <Code>aria-hidden-focus</Code> on open Radix poppers (Select /
+        DropdownMenu / Popover) — while open, Radix hides the page behind the popper via{' '}
+        <Code>aria-hidden</Code> but leaves the trigger focusable, a known Radix behavior not
+        fixable from Schatten; the disable is scoped to the open-state a11y tests only. These two
+        rule ids are the <em>entire</em> allowed set (see{' '}
+        <Code>.claude/rules/vrt-spec-guideline.md</Code> §a11y assertions). The addon panel&apos;s{' '}
         <Code>test</Code> flag is <Code>off</Code> so its headless preview run does not race the
         Playwright suite; addon-a11y stays the on-demand dev companion — click{' '}
         <strong>Rerun</strong> in the Accessibility panel to scan the current story.

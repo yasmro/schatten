@@ -260,7 +260,10 @@ jobs:
     # design exceptions (solid treatments / inverted-on-saturated / the
     # foreground-subtle tertiary tier — see state-token-guideline.md), each
     # disabled with a documented rationale scoped to its own story in the VRT
-    # spec + mirrored in `parameters.a11y`. So the gate now propagates the
+    # spec + mirrored in `parameters.a11y`; ditto the documented
+    # `aria-hidden-focus` disables on open Radix poppers (Select /
+    # DropdownMenu / Popover — see vrt-spec-guideline.md §a11y assertions).
+    # So the gate now propagates the
     # Playwright exit code (a new violation fails the PR). Adding `a11y` to
     # develop's required checks is a repo-settings change (ruleset), tracked in
     # #346, not in this workflow.

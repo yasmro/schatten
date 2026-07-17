@@ -36,8 +36,13 @@ no build step required.**
   rel="stylesheet"
 />
 
-<button class="st-btn st-btn--primary">Click me</button>
+<button class="st-btn st-btn--primary st-btn--md">Click me</button>
 ```
+
+The size modifier is part of the minimum chain: sizing (height /
+padding / font-size) lives only on `.st-btn--{sm,md,lg}` — there is no
+default size on the bare `.st-btn`. Always write **block + variant +
+size**, exactly the chain the React layer emits.
 
 > **Scope note:** the stylesheet ships every lv1 component's *visual*
 > classes, but it cannot ship behavior. In the matrix below, ✅ means the
@@ -103,20 +108,20 @@ chains directly on any element. **No JavaScript import needed.**
 import '@yasmro/schatten/schatten.css'
 ---
 
-<button class="st-btn st-btn--primary">Click me</button>
-<a href="/docs" class="st-btn st-btn--secondary">Docs</a>
+<button class="st-btn st-btn--primary st-btn--md">Click me</button>
+<a href="/docs" class="st-btn st-btn--secondary st-btn--md">Docs</a>
 ```
 
 ```vue
 <!-- Vue -->
 <template>
-  <button class="st-btn st-btn--primary">Click me</button>
+  <button class="st-btn st-btn--primary st-btn--md">Click me</button>
 </template>
 ```
 
 ```svelte
 <!-- Svelte -->
-<button class="st-btn st-btn--primary">Click me</button>
+<button class="st-btn st-btn--primary st-btn--md">Click me</button>
 ```
 
 The exported CVA variant functions (`buttonVariants`, `badgeVariants`,

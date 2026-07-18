@@ -1,5 +1,62 @@
 # @yasmro/schatten
 
+## 1.0.0
+
+### 🎉 1.0 — Major milestones
+
+- **Framework-agnostic 二層 DS を正式リリース** — React components + `.st-*` CSS class API
+  (Tailwind 不要・`schatten.css` 1 本 + manifest、[#154](https://github.com/yasmro/schatten/issues/154)/[#317](https://github.com/yasmro/schatten/issues/317))。
+  公開 surface: `.st-*` 252 classes / state 属性 8 / CSS 変数 127(四層モデル)
+- **API stability commitment 発効**([#170](https://github.com/yasmro/schatten/issues/170))—
+  以降、React props / 公開型 / CSS class / CSS 変数 / CVA 出力 / exports map の破壊的変更は
+  major bump + migration guide + deprecation(1 minor 以上)必須
+- **季節テーマ 8 パレット × light/dark** の Mode × Special 二軸テーマ機構
+  (`data-theme` 1 属性 / allowlist は `--color-theme-*` のみ)
+- **全 25 lv1 で a11y 自動テスト**(axe-core WCAG 2.1 A/AA)が CI blocking gate
+  ([#346](https://github.com/yasmro/schatten/issues/346))
+
+### Breaking changes (since v0.4.0)
+
+[Migration guide](https://github.com/yasmro/schatten/blob/main/docs/migrations/v0-to-v1.md) 参照:
+
+- **ESM-only 化 — CJS export 削除**([#479](https://github.com/yasmro/schatten/issues/479))— v1.0.0
+- variant 語彙統一(tone × appearance、`treatment` → `appearance`、`default` → `neutral`)— v0.7.0
+- Typography shorthand 一本化([#144](https://github.com/yasmro/schatten/issues/144))— v0.11.0
+- `lucide-react` が optional peerDependency — v0.8.0
+- そのほかの pre-1.0 破壊的変更の全量は migration guide の Before → After 一覧を参照
+
+### Features (since v0.4.0)
+
+- `'use client'` 自動付与で Next.js App Router 対応 — v0.8.0
+- `ThemeProvider` / `useTheme` + FOUC 対策 `THEME_INIT_SCRIPT`(CSP hash 固定)— v0.9.0〜
+- per-component CSS subpath(`@yasmro/schatten/css/<slug>`)+ size-limit budgets — v0.9.0
+- Tabs / DropdownMenu / Popover — v0.12.0、Card — v0.13.0
+- 脱 Tailwind dist(lightningcss、consumer に Tailwind 不要)— v0.15.0
+- `class-variance-authority` exact pin(`0.7.1`)— CVA 出力契約の機械的担保 — v1.0.0
+- Foundations / Tokens / Patterns / CSS API の Storybook docs 完備(7-group IA)
+
+### Major Changes
+
+- [#484](https://github.com/yasmro/schatten/pull/484) [`f7cf99b`](https://github.com/yasmro/schatten/commit/f7cf99b6c937476f010341bf54578d5f75d639f7) Thanks [@yasmro](https://github.com/yasmro)! - BREAKING: The package is now ESM-only. Every `require` condition in
+  `package.json#exports`, the top-level `main` field, and all `dist/**/*.cjs`
+  / `*.d.cts` artifacts are removed — `require('@yasmro/schatten')` now fails
+  fast with `ERR_PACKAGE_PATH_NOT_EXPORTED` instead of risking the
+  dual-package hazard (the `Toast` store and `Field` / `FieldSet` / `Tooltip`
+  Contexts fail silently when ESM and CJS module instances coexist; [#208](https://github.com/yasmro/schatten/issues/208),
+  [#479](https://github.com/yasmro/schatten/issues/479)). Supported consumers: Vite / Next.js 13+ / Remix / Astro / Node ESM,
+  now declared as `engines.node: ">=18"`. ESM consumers need no change.
+  Migration:
+  [docs/migrations/v0-to-v1.md §12](https://github.com/yasmro/schatten/blob/main/docs/migrations/v0-to-v1.md#12-esm-only--the-cjs-build-is-removed--v100).
+
+### Patch Changes
+
+- [#489](https://github.com/yasmro/schatten/pull/489) [`5a33f98`](https://github.com/yasmro/schatten/commit/5a33f982ae243955f918d8266a879a96d9b85436) Thanks [@yasmro](https://github.com/yasmro)! - Pin `class-variance-authority` exact (`0.7.1`) as required by the v1.0.0 API
+  stability contract (api-stability.md § CVA output stability, [#170](https://github.com/yasmro/schatten/issues/170)). CVA output
+  strings are public API — a floating range would let a consumer's lockfile
+  resolve a different 0.7.x patch than the one Schatten tested, shifting the
+  emitted class chain without a Schatten release. No behavior change today:
+  0.7.1 is the only version the previous `^0.7.1` range could resolve.
+
 ## 0.15.0
 
 ### Minor Changes

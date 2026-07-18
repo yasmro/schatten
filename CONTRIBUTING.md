@@ -159,6 +159,16 @@ Pick the bump level per the breaking-change policy and CHANGELOG prefixes in
 the policy table there).
 CI runs `changeset status` and fails a source change that ships without one.
 
+**Breaking changes (post-1.0).** Before shipping a change that renames,
+removes, or re-points anything on the published surface, walk the 3-step
+decision in
+[api-stability.md § When you're about to ship a change](.claude/rules/api-stability.md#when-youre-about-to-ship-a-change):
+(1) is the surface public? (2) is the change purely additive? (3) if breaking
+— `major` bump, a `BREAKING:` changeset entry linking a migration note, and
+the deprecation cycle (at least one minor marked `@deprecated`) observed. CSS
+renames additionally fail `pnpm check:manifest` until the manifest snapshot is
+regenerated and shipped with a `CSS API:` changeset.
+
 **Internal-only PRs** — `.github/` workflows, docs, `.claude/`, test-only work
 — do not touch the published package. Skip the changeset by applying the
 **`no-changeset`** label to the PR. Release mechanics are described in

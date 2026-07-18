@@ -267,6 +267,18 @@ Moving from a pre-1.0 release? The
 [0.x → 1.0 migration guide](docs/migrations/v0-to-v1.md) lists every breaking
 change with a Before → After and the recommended upgrade order.
 
+### API stability commitment
+
+From **v1.0.0**, Schatten commits to semantic versioning over its full public
+surface — React props and exported types, `.st-*` class names, public CSS
+variables, CVA output strings, the multi-entry `exports` map (ESM-only), the
+theme contract, and the FOUC snippet bytes. Breaking changes ship only in a
+**major**, with a migration guide, after at least one minor marked
+`@deprecated`. The authoritative definition of what is public is
+[`.claude/rules/api-stability.md`](.claude/rules/api-stability.md); the
+machine-readable listing is
+[`schatten.manifest.json`](#programmatic-introspection).
+
 ## SSR / Next.js App Router
 
 From **v0.8.0**, every Schatten lv1 component bundle carries a `'use client'`

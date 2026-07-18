@@ -3,8 +3,8 @@
 ## Overview
 
 This document defines Schatten's **public API stability contract**, in effect from
-**v1.0.0 onward**. Pre-1.0 releases are explicitly **out of scope** — breaking
-changes are permitted in any release while we settle the surface.
+**v1.0.0 onward**. Pre-1.0 releases were explicitly **out of scope** — breaking
+changes were permitted in any release while the surface settled.
 
 Schatten ships both **React components** and a **framework-agnostic CSS layer**
 (see [#58](https://github.com/yasmro/schatten/issues/58)). Both surfaces are
@@ -12,13 +12,15 @@ consumer-facing and need the same stability guarantees. That means CSS class
 names, CSS variable names, and CVA output strings are part of the contract —
 not just the React props.
 
-> **Before tagging the v1.0.0 RC, re-read this document end-to-end** and
-> reconcile it against the actual surface (the `package.json` `exports` map,
-> the generated `dist/schatten.manifest.json` if it exists by then, the
-> exported CSS classes and variables). This doc was written while pre-1.0;
-> some claims (e.g. the class-name audit deadline, the manifest's existence,
-> peer dependency ranges) will need to be confirmed or revised before the
-> contract goes live. Track that review as a v1.0 release blocker.
+> **Reconcile pass completed 2026-07-18**
+> ([#170](https://github.com/yasmro/schatten/issues/170)): this document was
+> re-read end-to-end and reconciled against the v1.0.0 surface — the
+> `package.json` `exports` map (ESM-only,
+> [#479](https://github.com/yasmro/schatten/issues/479)),
+> `src/__generated__/schatten.manifest.json` (classes / dataAttributes /
+> cssVariables), the peer ranges (`react` / `react-dom` `^18 || ^19`,
+> `lucide-react` `^1.0.0` — all optional), and `engines.node: ">=18"`.
+> The contract below is live as of v1.0.0.
 
 ## What counts as public API
 
@@ -72,7 +74,7 @@ we will not consider their breakage when scoping a release.
 
 | Phase | Policy |
 |---|---|
-| **Pre-1.0** (current) | Breaking changes permitted in any release. CHANGELOG should still call them out so early adopters can migrate. |
+| **Pre-1.0** (historical) | Breaking changes were permitted in any release. The CHANGELOG still called them out so early adopters could migrate. |
 | **1.0+ patch** | Bug fixes only. No public API **surface** changes — no renames, removals, or additions. Token value tweaks (e.g. a slight hex shift on `--color-primary-600`) are permitted because they don't change the *contract*, only the *value at the named slot*; flag them in the CHANGELOG. |
 | **1.0+ minor** | Additive surface changes only (new components, new variants, new CSS variables, new exports). Existing surface must remain compatible. |
 | **1.0+ major** | Breaking changes permitted. Must ship a migration guide. |
@@ -161,9 +163,12 @@ WordPress blocks).
 
 The implications:
 
-- **Pin the `class-variance-authority` dependency** at v1.0. CVA changing how
-  it joins, dedupes, or orders class names would silently break consumers.
-  Upgrading CVA across a version where output shape changes is a `major`.
+- **The `class-variance-authority` dependency is pinned exact** (`0.7.1`,
+  since v1.0.0). CVA changing how it joins, dedupes, or orders class names
+  would silently break consumers — cva rides in `dependencies`, so a floating
+  range would let a consumer's lockfile resolve a different patch than the one
+  Schatten tested, without any Schatten release. Upgrading CVA across a
+  version where output shape changes is a `major`.
 - The **set** of class names produced for a given variant tuple is part of
   the contract; the **order** within the string is not. This is safe because
   the CVA output is now **`.st-*` classes only** — every variant emits a
@@ -218,10 +223,15 @@ The contract:
 
 ## Peer dependency ranges
 
-The `peerDependencies` ranges in `package.json` (currently `react` and
-`react-dom` at `^18.0.0 || ^19.0.0`) are part of the contract because consumers
-resolve them against their own trees. If we ever promote `class-variance-authority`
-to a peer dep, the same rules apply.
+The `peerDependencies` ranges in `package.json` — `react` and `react-dom` at
+`^18.0.0 || ^19.0.0`, and `lucide-react` at `^1.0.0` (the icon vendor lock,
+[#223](https://github.com/yasmro/schatten/pull/223)) — are part of the contract
+because consumers resolve them against their own trees. All three are marked
+optional in `peerDependenciesMeta` so CSS-only consumers install warning-free;
+dropping the `optional` flag on an existing peer is breaking (it turns a
+working install into a warning/failure). The narrowing / widening rules below
+apply to all three. If we ever promote `class-variance-authority` to a peer
+dep, the same rules apply.
 
 - **Narrowing a range** (e.g. dropping React 18 support so the package only
   accepts React 19+) is **breaking** — a `major` is required. Some
@@ -378,10 +388,10 @@ Two consequences worth pinning here:
   consumer to rewrite their attribute wiring. (See [css-api.md §state](css-api.md#state-is-expressed-as-attributes-not-classes)
   for the full attribute table.)
 
-The class-name audit is tracked by
-[#154](https://github.com/yasmro/schatten/issues/154) (v0.9.0) and writes
-every public class into the manifest below. Once #154 ships, the manifest
-becomes the diff a reviewer sees on every CSS change.
+The class-name audit shipped in v0.9.0
+([#154](https://github.com/yasmro/schatten/issues/154)) and wrote every public
+class into the manifest below; the manifest is the diff a reviewer sees on
+every CSS change.
 
 ## CSS variable naming — the four-layer model
 
@@ -449,8 +459,9 @@ indirection already resolved to those). See the decision log.
 The class-name audit shipped in v0.9.0 (#58 Phase 2, implemented by
 [#154](https://github.com/yasmro/schatten/issues/154)). The CSS-variable audit
 ([#231](https://github.com/yasmro/schatten/issues/231)) settled the four-layer
-model above before v1.0.0. CONTRIBUTING.md (planned for v0.15.0) will reference
-this document as the source of truth for what consumers can rely on.
+model above before v1.0.0. CONTRIBUTING.md references this document
+([§ Changesets & release](../../CONTRIBUTING.md#changesets--release)) as the
+source of truth for what consumers can rely on.
 
 ## Manifest as the authoritative API listing
 

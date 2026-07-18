@@ -78,7 +78,7 @@ we will not consider their breakage when scoping a release.
 | **1.0+ patch** | Bug fixes only. No public API **surface** changes — no renames, removals, or additions. Token value tweaks (e.g. a slight hex shift on `--color-primary-600`) are permitted because they don't change the *contract*, only the *value at the named slot*; flag them in the CHANGELOG. |
 | **1.0+ minor** | Additive surface changes only (new components, new variants, new CSS variables, new exports). Existing surface must remain compatible. |
 | **1.0+ major** | Breaking changes permitted. Must ship a migration guide. |
-| **Deprecation** | Anything to be removed in a major must spend at least one full major cycle marked deprecated first — in TSDoc (`@deprecated`), in console warnings where feasible, and in the CHANGELOG. |
+| **Deprecation** | Anything to be removed in a major must be marked deprecated — in TSDoc (`@deprecated`), in console warnings where feasible, and in the CHANGELOG — for at least one minor release before the removal ships in the next major. (Same rule as step 3 of [When you're about to ship a change](#when-youre-about-to-ship-a-change).) |
 
 ### What counts as "breaking" for CSS
 
@@ -168,7 +168,8 @@ The implications:
   would silently break consumers — cva rides in `dependencies`, so a floating
   range would let a consumer's lockfile resolve a different patch than the one
   Schatten tested, without any Schatten release. Upgrading CVA across a
-  version where output shape changes is a `major`.
+  version where output shape changes is a `major`. Decision log:
+  [docs/decisions/2026-07-cva-exact-pin.md](../../docs/decisions/2026-07-cva-exact-pin.md).
 - The **set** of class names produced for a given variant tuple is part of
   the contract; the **order** within the string is not. This is safe because
   the CVA output is now **`.st-*` classes only** — every variant emits a

@@ -1,6 +1,8 @@
 # Schatten
 
 [![npm](https://img.shields.io/npm/v/@yasmro/schatten.svg)](https://www.npmjs.com/package/@yasmro/schatten)
+[![release](https://img.shields.io/github/v/release/yasmro/schatten?label=release&color=16a34a)](https://github.com/yasmro/schatten/releases/latest)
+[![API stability](https://img.shields.io/badge/API%20stability-1.0%20contract-16a34a)](#api-stability-commitment)
 
 > **A two-layer design system: framework-agnostic CSS + optional React components.**
 

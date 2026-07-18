@@ -125,6 +125,46 @@ ad-hoc 検証（spec はコミットしない）— で確認。**計測値は�
 チェックボックス設置済み。#479（ESM-only 化）は JS エントリのみで CSS の dist
 パスに触れないため、本記録は 1.0.0 でも配信経路の証明として有効。
 
+## 1.0 時点の再検証（§2.8.1 出口条件） — #167
+
+v1.0.0 release 候補 commit **`5a33f982a`**（develop、2026-07-18）上で
+[#167](https://github.com/yasmro/schatten/issues/167) の runbook を実施。
+
+### 機械 gate（ローカル + CI）
+
+| gate | 結果 |
+|---|---|
+| `pnpm check:manifest` / `check:manifest:export` | ✅ in sync（252 classes / 8 attrs / 127 vars） |
+| `pnpm check:layer-order` | ✅ `theme, base, reset, tokens, components, utilities` |
+| `pnpm audit:coverage --check` | ✅ 全 25 lv1 companions 充足 |
+| `pnpm check:registrar` / `check:esm-only` / `check:harness` | ✅（registrar 127 declared / ESM-only clean / ハーネス 25/25） |
+| VRT（`test:vrt` 全 411 テスト — dist 52 本 + parity 17 系列 + interaction 含む） | ✅ committed baseline に対し zero-diff（`--update-snapshots` 不使用） |
+| CI（commit `5a33f982a`） | ✅ lint / test / typecheck / size / **a11y** / audit 全 success（vrt / manifest は同一 tree の PR #489 で pass） |
+
+### manifest 凍結スキャン
+
+counts 252 / 8 / 127（issue 記載の期待値と一致）。classes は全て `st-` prefix
++ BEM 3 形のみ（collapsed modifier ゼロ）、dataAttributes は既知 8 個と完全一致、
+cssVariables は primitive 混入ゼロ・全変数が四層モデル layer 2/3/4 にマップ。
+承認記録は #167 コメント。
+
+### vanilla ハーネス（25/25 + Mode × Special）
+
+ローカル dist でハーネスを開き、25 セクション全ての実描画（layout box +
+computed style）と、Mode（`.dark`）× Special（`data-theme`）の 4 象限を実測:
+
+| 状態 | `--color-solid` → `.st-btn--primary` 実背景 |
+|---|---|
+| light | `oklch(37% .01 70)`（= theme-700、alabaster） |
+| dark | `oklch(83% .01 70)`（= theme-300 — rung flip 動作） |
+| light × `season--spring-early` | `oklch(46% .08 12)` 系 ramp の 700 rung（紅） |
+| dark × `season--spring-early` | `oklch(83% .08 12)`（= seasonal ramp の 300 rung） |
+
+「Mode が rung を選び、Special が ramp を供給する」二軸合成が vanilla でも
+成立。`info` は seasonal 下でも blue に pinned。既存
+`screenshots/vanilla-*.png` は再撮影しない — 全 411 VRT が zero-diff で
+描画不変を証明しており、同一描画の再撮影は churn（#468 と同じ判断）。
+
 ## TODO
 
 - [ ] （後続 [#483](https://github.com/yasmro/schatten/issues/483)）この記録の

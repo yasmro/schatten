@@ -16,16 +16,17 @@ Schatten の framework-agnostic (CSS class API) surface が Vanilla HTML / Astro
 | 環境 | 手段 | schatten の入り方 |
 |---|---|---|
 | Vanilla HTML | Playwright Chromium で `file://.../examples/vanilla-html/index.html` を開き、computed style を assert + スクリーンショット | `../../dist/schatten.css` を相対 `<link>`（ローカル dist 版） |
+| Vanilla HTML（CDN） | 同上（`<link>` を CDN へ一時反転、[#468](https://github.com/yasmro/schatten/issues/468)） | `https://cdn.jsdelivr.net/npm/@yasmro/schatten@0.15.0/dist/schatten.css`（`@0.15.0` ピン留め） |
 | Astro | `pnpm install --ignore-workspace && pnpm build`（Astro 5 + @astrojs/react 4 + React 19） | `import '@yasmro/schatten/schatten.css'`、`@yasmro/schatten` は `file:../..` |
 | Vue | `pnpm install --ignore-workspace && pnpm build`（Vue 3.5 + Vite 7） | `import '@yasmro/schatten/schatten.css'`、`@yasmro/schatten` は `file:../..` |
 
-CDN 版（`cdn.jsdelivr.net/npm/@yasmro/schatten/dist/schatten.css`）は publish
-後のみ叩けるため、pre-1.0 の本記録はローカル dist 版で成立させている。CDN 版の
-スモークは 1.0 publish 直後（下記 TODO）。
+CDN 版は lightningcss 産 dist が npm に載った最初のリリース（v0.15.0、
+2026-07-13 publish）に対して 2026-07-15 にスモーク済み — 下記
+「[CDN スモーク（jsdelivr）](#cdn-スモーク（jsdelivr）--468)」。
 
 ## チェック項目 × 環境
 
-✅ 実測で確認 / ⚠️ 区分 C/D の想定通りの制限（不具合ではない）/ 🕓 publish 後
+✅ 実測で確認 / ⚠️ 区分 C/D の想定通りの制限（不具合ではない）
 
 | チェック項目 | Vanilla | Astro | Vue | 根拠 |
 |---|:--:|:--:|:--:|---|
@@ -81,10 +82,92 @@ class + HTML/ARIA 属性だけで成立し、React 側と parity VRT でピク�
 - 区分 C/D は vanilla では role/focus/live-region が欠ける（例: `.st-toast` は
   Sonner の live region がないと読み上げされない）。
 
-## TODO（1.0 publish 後）
+## CDN スモーク（jsdelivr） — #468
 
-- [ ] `examples/vanilla-html/index.html` の CDN `<link>` を有効化し、
-  `cdn.jsdelivr.net/npm/@yasmro/schatten/dist/schatten.css` を実ブラウザで
-  スモーク。この表の各行を CDN 版でも ✅ 化。→ [#468](https://github.com/yasmro/schatten/issues/468) で追跡。
-- [ ] （後続 [#160](https://github.com/yasmro/schatten/issues/160)）この記録の
-  スクリーンショット + コードサンプルを公開 Storybook ページへ反映。
+**配信経路（npm tarball → jsdelivr）のスモーク**。コンポーネントの見た目契約
+自体は上記ローカル dist 版で実測済みのため、検証対象は配信経路のみに閉じる。
+v0.15.0（lightningcss 産 dist が npm に載った最初のリリース、2026-07-13
+publish）に対して **2026-07-15 実施**。
+
+### Phase 1 — 機械的確認（curl）
+
+| # | 確認 | 結果 |
+|---|---|---|
+| 1 | `@0.15.0` ピン留め URL が 200 + `text/css` | ✅ `HTTP/2 200`、`content-type: text/css; charset=utf-8` |
+| 2 | CDN のバイト列 == npm tarball のバイト列 | ✅ `cmp` 差分ゼロ（77,259 bytes） |
+| 3 | バージョン省略 URL の解決先（data.jsdelivr.com resolved API） | ✅ `"version": "0.15.0"` |
+| 4 | per-component subpath（`dist/css/button.css` / `dist/core/tokens/index.css` / `dist/themes/default/index.css`） | ✅ 3 本すべて 200 + `text/css` |
+
+### Phase 2 — 実ブラウザスモーク（7 項目）
+
+`examples/vanilla-html/index.html` の `<link>` を `@0.15.0` ピン留めの CDN URL
+へ**一時反転**し（コミットする既定状態はローカル dist 有効のまま）、#466 と同じ
+方法 — Playwright Chromium で `file://` を開き computed style を assert する
+ad-hoc 検証（spec はコミットしない）— で確認。**計測値はローカル dist 版の記録
+と完全一致**（Phase 1 手順 2 のバイト一致の帰結）。
+
+| チェック項目 | 結果 | 計測値 |
+|---|---|---|
+| CSS rule 適用（`@layer` 順が配信後も正しい — #277 型の事故検出） | ✅ | `.st-btn--primary` の `background-color` = `oklch(0.37 0.01 70)`（非透明） |
+| light/dark（`.dark` トグル） | ✅ | body bg `rgb(245, 243, 240)` → `rgb(30, 30, 28)` |
+| seasonal（`data-theme="season--spring-early"`） | ✅ | `--color-theme-500` が `oklch(58% .01 70)` → `oklch(64% .1 12)` にシフト |
+| hover / focus-visible ring | ✅ | hover で primary bg シフト、キーボード focus で 2px + 4px の ring（box-shadow） |
+| disabled | ✅ | bg == `--color-surface-disabled`（`oklch(0.96 0 0)`） |
+| form error（`aria-invalid="true"` 経由でのみ発火、class 単体不可） | ✅ | error border `oklch(0.56 0.17 22)`、属性なしの同 class は `oklch(0.18 0.01 250)` |
+| Spinner animation（純 CSS） | ✅ | `animation: schatten-spin 1s` |
+
+スクリーンショットは追加コミットしない — Phase 1 のバイト一致でローカル dist 版
+（上記 `screenshots/vanilla-*.png`）と同一描画が証明されるため、記録はこの結果表
+で足りる（#468 refinement で決定）。
+
+**1.0.0 publish 時の再確認**は Phase 1（curl 4 点）のみ再実行すれば足りる —
+[#480](https://github.com/yasmro/schatten/issues/480) の「publish 後」節に
+チェックボックス設置済み。#479（ESM-only 化）は JS エントリのみで CSS の dist
+パスに触れないため、本記録は 1.0.0 でも配信経路の証明として有効。
+
+## 1.0 時点の再検証（§2.8.1 出口条件） — #167
+
+v1.0.0 release 候補 commit **`5a33f982a`**（develop、2026-07-18）上で
+[#167](https://github.com/yasmro/schatten/issues/167) の runbook を実施。
+
+### 機械 gate（ローカル + CI）
+
+| gate | 結果 |
+|---|---|
+| `pnpm check:manifest` / `check:manifest:export` | ✅ in sync（252 classes / 8 attrs / 127 vars） |
+| `pnpm check:layer-order` | ✅ `theme, base, reset, tokens, components, utilities` |
+| `pnpm audit:coverage --check` | ✅ 全 25 lv1 companions 充足 |
+| `pnpm check:registrar` / `check:esm-only` / `check:harness` | ✅（registrar 127 declared / ESM-only clean / ハーネス 25/25） |
+| VRT（`test:vrt` 全 411 テスト — dist 52 本 + parity 17 系列 + interaction 含む） | ✅ committed baseline に対し zero-diff（`--update-snapshots` 不使用） |
+| CI（commit `5a33f982a`） | ✅ lint / test / typecheck / size / **a11y** / audit 全 success（vrt / manifest は同一 tree の PR #489 で pass） |
+
+### manifest 凍結スキャン
+
+counts 252 / 8 / 127（issue 記載の期待値と一致）。classes は全て `st-` prefix
++ BEM 3 形のみ（collapsed modifier ゼロ）、dataAttributes は既知 8 個と完全一致、
+cssVariables は primitive 混入ゼロ・全変数が四層モデル layer 2/3/4 にマップ。
+承認記録は #167 コメント。
+
+### vanilla ハーネス（25/25 + Mode × Special）
+
+ローカル dist でハーネスを開き、25 セクション全ての実描画（layout box +
+computed style）と、Mode（`.dark`）× Special（`data-theme`）の 4 象限を実測:
+
+| 状態 | `--color-solid` → `.st-btn--primary` 実背景 |
+|---|---|
+| light | `oklch(37% .01 70)`（= theme-700、alabaster） |
+| dark | `oklch(83% .01 70)`（= theme-300 — rung flip 動作） |
+| light × `season--spring-early` | `oklch(46% .08 12)` 系 ramp の 700 rung（紅） |
+| dark × `season--spring-early` | `oklch(83% .08 12)`（= seasonal ramp の 300 rung） |
+
+「Mode が rung を選び、Special が ramp を供給する」二軸合成が vanilla でも
+成立。`info` は seasonal 下でも blue に pinned。既存
+`screenshots/vanilla-*.png` は再撮影しない — 全 411 VRT が zero-diff で
+描画不変を証明しており、同一描画の再撮影は churn（#468 と同じ判断）。
+
+## TODO
+
+- [ ] （後続 [#483](https://github.com/yasmro/schatten/issues/483)）この記録の
+  スクリーンショット + コードサンプル（CDN スモーク含む）を公開 Storybook
+  ページへ反映。旧参照先の #160 は本反映をスコープに含まないまま closed
+  だったため、#483 へ張り替え。

@@ -237,7 +237,7 @@ README and CLAUDE.md only point here, they do not restate it.
 | Top-level group | What belongs there | Examples |
 |---|---|---|
 | `Welcome` | Landing / overview | `Welcome` |
-| `Getting Started` | Integration on-ramp | `Quick Start`, `Installation` |
+| `Getting Started` | Integration on-ramp — **currently empty, reserved**. The README owns the on-ramp narrative ([#112](https://github.com/yasmro/schatten/issues/112) / [#113](https://github.com/yasmro/schatten/issues/113) closed as superseded by it); the group stays in `storySort` as a reserved seat. Fill it only with *differentiated* onboarding (seasonal themes / Mode × Special live demos — see #113's closing note), never with README-duplicating Quick Start prose. | (none yet) |
 | `Tokens` | Design-token vocabulary (the *values*) | `Color`, `Typography`, `Spacing`, `Elevation`, `Motion`, `Iconography` |
 | `Theming` | The Mode × Special theme machinery | `Overview`, `Theme Audit`, `Customization` |
 | `CSS API` | The framework-agnostic `.st-*` class contract | `Overview`, `Class Reference` |

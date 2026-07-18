@@ -19,13 +19,14 @@ function firstLine(path) {
   return readFileSync(path, 'utf8').split('\n', 1)[0].trim()
 }
 
-// Recursively collect emitted JS/CJS files (skips .css / .d.ts / .d.cts).
+// Recursively collect emitted JS files (skips .css / .d.ts). The package is
+// ESM-only since #479, so there are no .cjs bundles to scan.
 function collectBundles(dir) {
   const out = []
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
     const path = `${dir}/${entry.name}`
     if (entry.isDirectory()) out.push(...collectBundles(path))
-    else if (entry.name.endsWith('.js') || entry.name.endsWith('.cjs')) out.push(path)
+    else if (entry.name.endsWith('.js')) out.push(path)
   }
   return out
 }
@@ -41,7 +42,7 @@ const reactBundles = reactBundleDirs.flatMap((dir) =>
 )
 if (reactBundles.length === 0) {
   errors.push(
-    `${reactBundleDirs.join(' / ')} has no .js/.cjs output — did \`pnpm build:js\` run?`,
+    `${reactBundleDirs.join(' / ')} has no .js output — did \`pnpm build:js\` run?`,
   )
 }
 for (const file of reactBundles) {

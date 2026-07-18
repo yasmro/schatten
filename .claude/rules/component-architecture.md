@@ -602,8 +602,11 @@ fallback — that policy only holds if the contract below holds.
    Playwright exit code, so a new violation fails the PR. The only axe
    `color-contrast` findings that remain are intentional design exceptions
    (solid treatments / inverted-on-saturated / the foreground-subtle
-   tertiary tier), each disabled with a documented rationale scoped to its
-   own story — see [vrt-spec-guideline §a11y assertions](vrt-spec-guideline.md).
+   tertiary tier / the Dialog overlay-compositing artifact), each disabled
+   with a documented rationale scoped to its own story; the same
+   discipline covers the one other documented exception rule id,
+   `aria-hidden-focus` on open Radix poppers (Select / DropdownMenu /
+   Popover) — see [vrt-spec-guideline §a11y assertions](vrt-spec-guideline.md).
    The Storybook `addon-a11y` panel remains the manual dev-time companion.
 3. **Code review** — when reviewing an lv1 PR, walk the four
    guarantees and Hard rules above. If the component opts out of a
@@ -630,9 +633,11 @@ fallback — that policy only holds if the contract below holds.
     `@axe-core/playwright` VRT-paired check (v0.11.0); the Phase 1
     backlog (#344 / #345) is now cleared and the `a11y` CI job is
     blocking (#346) — "Verifying compliance" reflects this. If a future
-    component needs a genuinely new `color-contrast` exception, it must
-    be a documented, story-scoped `disableRules(['color-contrast'])`
-    with a rationale (not a blanket disable) — see
+    component needs a genuinely new exception, it must use one of the two
+    documented rule ids (`color-contrast` for design exceptions,
+    `aria-hidden-focus` for open Radix poppers), as a documented,
+    story-scoped `disableRules([…])` with a rationale (not a blanket
+    disable, and no other rule id) — see
     [vrt-spec-guideline §a11y assertions](vrt-spec-guideline.md).
   - `Field.required` now propagates `aria-required` (announce-only) to
     the wrapped control ([#428](https://github.com/yasmro/schatten/issues/428)) —

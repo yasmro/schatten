@@ -18,19 +18,26 @@ open index.html         # macOS  (or: xdg-open / just double-click)
 - **Theme toggles** — the toolbar toggles Mode (`.dark` class on `<html>`) and
   Special (`data-theme="season--*"` on `<html>`). Both are one attribute write;
   the browser re-resolves every `var()` at the next paint.
-- **区分 A/B (17 components)** — Text, Icon, Button, Badge, Callout, Spinner,
+- **区分 A/B** — Text, Icon, Button, Badge, Callout, Spinner,
   Input, Textarea, Checkbox, Switch, Radio, Separator, Field, FieldSet, Card,
   Skeleton, Table. Fully functional from the class API + HTML/ARIA attributes.
-- **区分 C/D (8 components)** — Avatar, Tooltip, Select, Toast, Popover, Tabs,
+  Input / Textarea interact browser-natively; Checkbox / Switch / Radio
+  toggle via the few lines of state-flipping JS in the page script
+  (`aria-checked` / `data-state` — the wiring the React layer does for you).
+- **区分 C/D** — Avatar, Tooltip, Select, Toast, Popover, Tabs,
   Dialog, DropdownMenu. Shown as **static class rendering only**; their
   interactive behaviour needs the React layer (see the on-page note).
 
 ## CDN vs local dist
 
 The `<head>` carries both `<link>` options (local dist active, CDN commented).
-The local path is the pre-1.0 verification gate; swap to the CDN `<link>` to
-smoke-test the published package after the 1.0 release. Only the `<link>`
-differs — the markup body is identical, so there is no drift.
+The local path stays the default — this harness verifies *unreleased* dist
+changes, which a CDN default would mask behind the published CSS. The CDN
+path was smoke-tested against `@0.15.0` (jsdelivr delivery path, byte-identical
+to the npm tarball) — see
+[docs/verification/framework-agnostic.md](../../docs/verification/framework-agnostic.md)
+(#468). Only the `<link>` differs — the markup body is identical, so there is
+no drift.
 
 ## Consumer wires ARIA
 

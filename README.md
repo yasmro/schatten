@@ -1,6 +1,8 @@
 # Schatten
 
 [![npm](https://img.shields.io/npm/v/@yasmro/schatten.svg)](https://www.npmjs.com/package/@yasmro/schatten)
+[![release](https://img.shields.io/github/v/release/yasmro/schatten?label=release&color=16a34a)](https://github.com/yasmro/schatten/releases/latest)
+[![API stability](https://img.shields.io/badge/API%20stability-1.0%20contract-16a34a)](#api-stability-commitment)
 
 > **A two-layer design system: framework-agnostic CSS + optional React components.**
 
@@ -36,8 +38,51 @@ no build step required.**
   rel="stylesheet"
 />
 
-<button class="st-btn st-btn--primary">Click me</button>
+<button class="st-btn st-btn--primary st-btn--md">Click me</button>
 ```
+
+The size modifier is part of the minimum chain: sizing (height /
+padding / font-size) lives only on `.st-btn--{sm,md,lg}` — there is no
+default size on the bare `.st-btn`. Always write **block + variant +
+size**, exactly the chain the React layer emits.
+
+> **Scope note:** the stylesheet ships every lv1 component's *visual*
+> classes, but it cannot ship behavior. In the matrix below, ✅ means the
+> component works with CSS alone (static rendering, or the browser
+> handles its state natively); ⚠️ means only the visual classes ship —
+> the interactive behavior (opening, closing, positioning, selection;
+> Avatar's image→fallback swap) requires the React layer or your own
+> JavaScript.
+
+<!-- generated:lv1-support-matrix:start -->
+| Component | React | HTML + CSS only |
+| --- | :-: | :-: |
+| `Avatar` | ✅ | ⚠️ |
+| `Badge` | ✅ | ✅ |
+| `Button` | ✅ | ✅ |
+| `Callout` | ✅ | ✅ |
+| `Card` | ✅ | ✅ |
+| `Checkbox` | ✅ | ✅ |
+| `Dialog` | ✅ | ⚠️ |
+| `DropdownMenu` | ✅ | ⚠️ |
+| `Field` | ✅ | ✅ |
+| `FieldSet` | ✅ | ✅ |
+| `Icon` | ✅ | ✅ |
+| `Input` | ✅ | ✅ |
+| `Popover` | ✅ | ⚠️ |
+| `Radio` | ✅ | ✅ |
+| `Select` | ✅ | ⚠️ |
+| `Separator` | ✅ | ✅ |
+| `Skeleton` | ✅ | ✅ |
+| `Spinner` | ✅ | ✅ |
+| `Switch` | ✅ | ✅ |
+| `Table` | ✅ | ✅ |
+| `Tabs` | ✅ | ⚠️ |
+| `Text` | ✅ | ✅ |
+| `Textarea` | ✅ | ✅ |
+| `Toast` | ✅ | ⚠️ |
+| `Tooltip` | ✅ | ⚠️ |
+<!-- generated:lv1-support-matrix:end -->
 
 ### React
 
@@ -65,20 +110,20 @@ chains directly on any element. **No JavaScript import needed.**
 import '@yasmro/schatten/schatten.css'
 ---
 
-<button class="st-btn st-btn--primary">Click me</button>
-<a href="/docs" class="st-btn st-btn--secondary">Docs</a>
+<button class="st-btn st-btn--primary st-btn--md">Click me</button>
+<a href="/docs" class="st-btn st-btn--secondary st-btn--md">Docs</a>
 ```
 
 ```vue
 <!-- Vue -->
 <template>
-  <button class="st-btn st-btn--primary">Click me</button>
+  <button class="st-btn st-btn--primary st-btn--md">Click me</button>
 </template>
 ```
 
 ```svelte
 <!-- Svelte -->
-<button class="st-btn st-btn--primary">Click me</button>
+<button class="st-btn st-btn--primary st-btn--md">Click me</button>
 ```
 
 The exported CVA variant functions (`buttonVariants`, `badgeVariants`,
@@ -209,11 +254,32 @@ their `icon` props. It is declared `optional` in `peerDependenciesMeta` only so
 that Layer A (CSS / token-only) consumers — who never touch the React layer —
 are not warned about a dependency they do not need.
 
+### ESM-only
+
+The package ships **ESM only** (since v1.0.0) — there is no CJS build, and
+`require('@yasmro/schatten')` fails fast with `ERR_PACKAGE_PATH_NOT_EXPORTED`.
+Supported consumers: **Vite, Next.js 13+, Remix, Astro, and Node ESM**
+(`"type": "module"` or dynamic `import()`). If your tooling still `require()`s
+Schatten, see [item 12 of the migration guide](docs/migrations/v0-to-v1.md#12-esm-only--the-cjs-build-is-removed--v100).
+Layer A (CSS / tokens) involves no JS and is unaffected.
+
 ### Upgrading from 0.x
 
 Moving from a pre-1.0 release? The
 [0.x → 1.0 migration guide](docs/migrations/v0-to-v1.md) lists every breaking
 change with a Before → After and the recommended upgrade order.
+
+### API stability commitment
+
+From **v1.0.0**, Schatten commits to semantic versioning over its full public
+surface — React props and exported types, `.st-*` class names, public CSS
+variables, CVA output strings, the multi-entry `exports` map (ESM-only), the
+theme contract, and the FOUC snippet bytes. Breaking changes ship only in a
+**major**, with a migration guide, after at least one minor marked
+`@deprecated`. The authoritative definition of what is public is
+[`.claude/rules/api-stability.md`](.claude/rules/api-stability.md); the
+machine-readable listing is
+[`schatten.manifest.json`](#programmatic-introspection).
 
 ## SSR / Next.js App Router
 
@@ -652,18 +718,6 @@ For static, non-interactive markup you can skip React entirely and apply the
 CVA variant classes to a plain element — see
 [Astro / Vue / Svelte](#astro--vue--svelte) under Quick start.
 
-### Known constraints (v0.8.0)
-
-- **Class-based (no-React) usage is limited.** The `.st-*` component
-  classes (`.st-btn`, `.st-input`, …) do not exist yet, so vanilla HTML
-  and Astro cannot style components by class name alone. Use the exported
-  `buttonVariants()` / `inputVariants()` … bridge in the meantime. Full
-  class API (per [css-api.md](.claude/rules/css-api.md)) lands in
-  **v0.9.0** ([#58](https://github.com/yasmro/schatten/issues/58) /
-  [#154](https://github.com/yasmro/schatten/issues/154)).
-- **`ThemeProvider` / FOUC snippet are not available yet** — both arrive in
-  **v0.9.0** (see the two sections above).
-
 ## Usage
 
 ### Recommended import path
@@ -1005,7 +1059,8 @@ Primitive components live under `src/components/lv1/`:
 
 Badge · Button · Callout · Checkbox · Dialog · DropdownMenu · Field · FieldSet · Icon · Input · Popover · Radio · Select · Separator · Skeleton · Spinner · Switch · Tabs · Text · Textarea · Toast · Tooltip
 
-See Storybook for live examples and prop documentation.
+Run `pnpm dev` to browse live examples and prop documentation in Storybook
+(see [Development](#development)).
 
 ## Project Structure
 

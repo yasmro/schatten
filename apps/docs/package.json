@@ -1,0 +1,14 @@
+{
+  "name": "schatten-docs",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview"
+  },
+  "dependencies": {
+    "@yasmro/schatten": "workspace:*",
+    "astro": "^7.0.7"
+  }
+}

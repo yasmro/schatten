@@ -2,7 +2,9 @@
   "$schema": "https://unpkg.com/@changesets/config@3.1.1/schema.json",
   "changelog": [
     "@changesets/changelog-github",
-    { "repo": "yasmro/schatten" }
+    {
+      "repo": "yasmro/schatten"
+    }
   ],
   "commit": false,
   "fixed": [],
@@ -10,5 +12,7 @@
   "access": "public",
   "baseBranch": "develop",
   "updateInternalDependencies": "patch",
-  "ignore": []
+  "ignore": [
+    "schatten-docs"
+  ]
 }

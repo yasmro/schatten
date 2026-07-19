@@ -738,6 +738,45 @@ import { buttonVariants } from '@yasmro/schatten/variants'
 
 Both forms are supported and stable.
 
+### Fonts
+
+Schatten's brand font stacks ship as the **live defaults** of
+`--font-sans` (`"Hanken Grotesk", "LINE Seed JP", …`) and `--font-serif`
+(`"EB Garamond", "Noto Serif JP", …`), but the package does **not** bundle
+any font files. The contract is **load-to-activate**: load the faces
+yourself and every component picks them up automatically; don't load them
+and normal `font-family` matching falls through to the system stack at the
+end of each variable — nothing breaks either way.
+
+```html
+<!-- e.g. Google Fonts — sans (UI / body). Hanken Grotesk is variable
+     (400–700 covers the medium/semibold roles exactly); LINE Seed JP has
+     no 500/600, so JP glyphs in those roles resolve to the nearest
+     available weight (400/700). -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400..700&family=LINE+Seed+JP:wght@400;700&display=swap"
+  rel="stylesheet"
+/>
+```
+
+`--font-serif` is consumed by `<Text family="serif">`; if you use it, also
+load EB Garamond + Noto Serif JP (weights 400/500/600/700 — the heading
+roles use semibold/bold).
+
+To swap in your own brand font — or to keep the system stack even with
+the brand faces present — declare an unlayered override (Schatten's
+defaults live in `@layer theme`, so any unlayered `:root` rule wins):
+
+```css
+/* your own brand font */
+:root { --font-sans: "Your Font", var(--font-sans-fallback); }
+
+/* or: pin the system stack (the pre-brand-default behavior) */
+:root { --font-sans: var(--font-sans-fallback); }
+```
+
 ### Icons
 
 Components that take an icon (`Button` / `Badge` `icon`, `Input`

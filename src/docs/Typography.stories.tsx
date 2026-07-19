@@ -112,7 +112,8 @@ export const Typography: Story = {
             --font-sans: "Hanken Grotesk", "LINE Seed JP", ui-sans-serif, system-ui, sans-serif
           </p>
           <p className="text-xs text-foreground-muted mt-1">
-            Default typeface for UI and body text.
+            Default typeface for UI and body text. Consumers must load Hanken Grotesk + LINE Seed JP
+            themselves (e.g. Google Fonts); otherwise it falls back to the system sans stack.
           </p>
         </div>
         <div className="py-4 border-b border-border">

@@ -126,11 +126,27 @@
 @import "../components/lv1/Table/Table.css";
 
 /*
- * Font configuration. Consumers override `--font-sans` to layer in their
- * own brand fonts:
+ * Font configuration — load-to-activate, symmetric for sans and serif.
+ *
+ * The brand stacks ship as the live defaults in `@layer theme`
+ * (`public-tokens.css`): `--font-sans` = "Hanken Grotesk" / "LINE Seed JP",
+ * `--font-serif` = "EB Garamond" / "Noto Serif JP", each ending in the
+ * system fallback stack. Schatten does NOT bundle the font files — a
+ * consumer who loads the faces (Google Fonts, self-hosted) gets the brand
+ * rendering automatically; one who doesn't falls through to the system
+ * stack, per normal font-family matching. Consumers replace the default
+ * with their own brand font via an unlayered override (unlayered beats
+ * `@layer theme`):
  *
  *   :root { --font-sans: "Your Font", var(--font-sans-fallback); }
+ *
+ * HISTORY (docs/decisions/2026-07-font-sans-brand-default.md): an unlayered
+ * `:root { --font-sans: var(--font-sans-fallback) }` used to live here — a
+ * carry-over from the pre-#275 standalone `src/schatten.css`, where it was
+ * the ONLY `--font-sans` definition (the brand stack lived in a Tailwind
+ * `@theme` file the no-build entry couldn't import). Once #275/#317 put
+ * the brand stack into `@layer theme`, the block silently overrode it,
+ * making the registrar's sans declaration dead in the dist while serif
+ * stayed live. Do not re-add it — `build-css.test.ts` pins `--font-sans`
+ * to a single `@layer theme` declaration.
  */
-:root {
-  --font-sans: var(--font-sans-fallback);
-}

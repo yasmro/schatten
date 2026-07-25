@@ -373,6 +373,10 @@ export const ui: Record<Locale, Strings> = {
   },
 }
 
-/** Route prefix for a locale (`/` for the default locale, `/ja/` otherwise). */
+// Deploy subpath (astro.config `base`, e.g. `/schatten/pr/494/site/` on the
+// PR preview). '/' locally. Normalized to no trailing slash for concatenation.
+const BASE = import.meta.env.BASE_URL.replace(/\/+$/, '')
+
+/** Route prefix for a locale (base-aware: `${base}/` or `${base}/ja/`). */
 export const localePath = (locale: Locale): string =>
-  locale === defaultLocale ? '/' : `/${locale}/`
+  locale === defaultLocale ? `${BASE}/` : `${BASE}/${locale}/`

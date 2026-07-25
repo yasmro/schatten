@@ -30,6 +30,20 @@ jobs:
           STORYBOOK_BASE: /schatten/pr/${{ github.event.pull_request.number }}/
         run: pnpm build:storybook
 
+      # Docs site (#449) rides the same deploy: built into storybook-static/site
+      # so the single deploy step below publishes both under pr/<n>/ —
+      # storybook at the root, the site at /site/. One folder, one clean.
+      - name: Build library (dist the docs site consumes)
+        run: pnpm build
+
+      - name: Build docs site
+        env:
+          DOCS_BASE: /schatten/pr/${{ github.event.pull_request.number }}/site/
+        run: |
+          pnpm --filter schatten-docs build
+          mkdir -p storybook-static/site
+          cp -r apps/docs/dist/. storybook-static/site/
+
       - name: Deploy preview
         uses: JamesIves/github-pages-deploy-action@v4
         with:
@@ -53,10 +67,12 @@ jobs:
           edit-mode: replace
           body: |
             <!-- storybook-preview -->
-            📖 **Storybook Preview**
+            📖 **Preview**
 
-            Preview is available at:
-            🔗 https://yasmro.github.io/schatten/pr/${{ github.event.pull_request.number }}/
+            | | |
+            |---|---|
+            | 🌐 Docs site | https://yasmro.github.io/schatten/pr/${{ github.event.pull_request.number }}/site/ |
+            | 📖 Storybook | https://yasmro.github.io/schatten/pr/${{ github.event.pull_request.number }}/ |
 
             _Updated for commit ${{ github.event.pull_request.head.sha }}_
 

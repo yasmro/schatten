@@ -11,17 +11,20 @@ import '@yasmro/schatten/schatten.css'
 import { THEME_INIT_SCRIPT } from '@yasmro/schatten/theme-init'
 import GoogleFonts from '../components/GoogleFonts.astro'
 import { type Locale, localePath, locales, ui } from '../i18n/ui'
+import { STORYBOOK_ORIGIN } from '../lib/storybook-links.mjs'
 
 interface Props {
   /** Active locale — drives `<html lang>`, copy lookup, and the switcher. */
   locale: Locale
   /** `<meta name="description">` for this page. */
   description: string
+  /** Page part of the document title; omitted on the landing. */
+  title?: string
   /** Path of the current page within a locale, e.g. `''` (home) or `brand`. */
   page?: string
 }
 
-const { locale, description, page = '' } = Astro.props
+const { locale, description, title, page = '' } = Astro.props
 const t = ui[locale]
 const otherLocale: Locale = locale === 'ja' ? 'en' : 'ja'
 
@@ -49,7 +52,7 @@ const THEME_TOGGLE_SCRIPT = `(function(){var KEY='schatten-theme';var root=docum
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Schatten — design system</title>
+    <title>{title ? `${title} — Schatten` : 'Schatten — design system'}</title>
     <meta name="description" content={description} />
     {/* hreflang は本来絶対 URL。デプロイ先が決まり astro.config に `site` を
         設定したら `new URL(hrefFor(l), Astro.site)` に差し替えること。 */}
@@ -64,7 +67,7 @@ const THEME_TOGGLE_SCRIPT = `(function(){var KEY='schatten-theme';var root=docum
         <a href={`${localePath(locale)}components/`}>{t.common.navComponents}</a>
         <a href={`${localePath(locale)}brand/`}>{t.common.navBrand}</a>
         <a href="https://github.com/yasmro/schatten">GitHub</a>
-        <a href="https://yasmro.github.io/schatten/">Storybook</a>
+        <a href={STORYBOOK_ORIGIN}>Storybook</a>
         <a href={hrefFor(otherLocale)} class="site-header__lang" lang={otherLocale}>
           {t.common.langSwitchLabel}
         </a>

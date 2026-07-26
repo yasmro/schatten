@@ -40,6 +40,7 @@ interface Landing {
 
 interface Brand {
   metaDescription: string
+  pageTitle: string
   thesis: Html
   gradationPaper: string
   gradationInk: string
@@ -88,6 +89,7 @@ interface Brand {
 
 interface ComponentsPage {
   metaDescription: string
+  pageTitle: string
   title: string
   lead: Html
   liveTitle: string
@@ -148,6 +150,7 @@ export const ui: Record<Locale, Strings> = {
         'Dark mode follows the OS setting (<code>prefers-color-scheme</code>). That switch is the token layer’s job too — zero page-side code.',
     },
     brand: {
+      pageTitle: 'Brand Concept',
       metaDescription:
         'Schatten brand concept — shadow as the gradation between paper and ink: sumi, washi, vermillion, indigo, and the eight seasonal markers.',
       thesis:
@@ -232,11 +235,12 @@ export const ui: Record<Locale, Strings> = {
         'Note that <strong>body / label / heading are not CSS variables</strong>. Size, leading, and weight are three properties, and a single <code>var()</code> cannot carry three — so the roles bind to the <code>.st-text--*</code> class rules instead.',
     },
     components: {
+      pageTitle: 'Components',
       metaDescription:
         'Every Schatten component, with a live React island — the second delivery layer, running on this page.',
       title: 'Components',
       lead:
-        'The full catalog — stories, props, and every visual state — lives in <a href="https://yasmro.github.io/schatten/">Storybook</a>. This page is the index, plus one living proof: a corner of it runs the real React layer.',
+        'The full catalog — stories, props, and every visual state — lives in <a href="%STORYBOOK%">Storybook</a>. This page is the index, plus one living proof: a corner of it runs the real React layer.',
       liveTitle: 'Live — this corner is a React island',
       liveDesc:
         'Everything else on this site is static HTML painted by the published CSS. This card hydrates the real React components through the same exports map a consumer uses: real state, real events, real ARIA wiring.',
@@ -279,6 +283,7 @@ export const ui: Record<Locale, Strings> = {
         'ダークモードは OS 設定に追従します(<code>prefers-color-scheme</code>)。この切り替えもトークン層の仕事で、ページ側のコードはゼロです。',
     },
     brand: {
+      pageTitle: 'ブランドコンセプト',
       metaDescription:
         'Schatten ブランドコンセプト — 紙と墨のあいだに生まれる階調としての陰影。朱・墨・和紙・藍、そして八節。',
       thesis:
@@ -353,11 +358,12 @@ export const ui: Record<Locale, Strings> = {
         'なお <strong>body / label / heading というロールは CSS 変数ではない</strong>。サイズ・行送り・ウェイトの 3 つを 1 つの <code>var()</code> では表せないため、<code>.st-text--*</code> のクラス規則に束ねられている。',
     },
     components: {
+      pageTitle: 'コンポーネント',
       metaDescription:
         'Schatten の全コンポーネント一覧と、React island によるライブデモ — 第二の配信層がこのページで動いている。',
       title: 'コンポーネント',
       lead:
-        '完全なカタログ(stories・props・全状態)は <a href="https://yasmro.github.io/schatten/">Storybook</a> にある。このページはその索引と、ひとつの生きた証明 — 一角だけ、本物の React 層が動いている。',
+        '完全なカタログ(stories・props・全状態)は <a href="%STORYBOOK%">Storybook</a> にある。このページはその索引と、ひとつの生きた証明 — 一角だけ、本物の React 層が動いている。',
       liveTitle: 'Live — この一角だけ React island',
       liveDesc:
         'このサイトの他の場所はすべて、配布 CSS で描かれた静的 HTML。ここだけが本物の React コンポーネントを hydrate している — 実際の state、実際のイベント、実際の ARIA 配線。消費経路は利用者と同じ exports map。',

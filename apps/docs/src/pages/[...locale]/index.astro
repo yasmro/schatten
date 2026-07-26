@@ -6,6 +6,7 @@
 // Japanese variant. Copy lives in src/i18n/ui.ts; this template is shared.
 import Base from '../../layouts/Base.astro'
 import { defaultLocale, type Locale, locales, ui } from '../../i18n/ui'
+import { STORYBOOK_ORIGIN } from '../../lib/storybook-links.mjs'
 
 export function getStaticPaths() {
   return locales.map((locale) => ({
@@ -50,7 +51,7 @@ const seasonSwatches = [
         >
           {t.ctaGetStarted}
         </a>
-        <a href="https://yasmro.github.io/schatten/" class="st-btn st-btn--secondary st-btn--lg">
+        <a href={STORYBOOK_ORIGIN} class="st-btn st-btn--secondary st-btn--lg">
           {t.ctaStorybook}
         </a>
       </div>

@@ -142,6 +142,18 @@ jobs:
       - name: Build library (dist the site consumes)
         run: pnpm build
 
+      # astro build alone does NOT type-check — without this step the i18n
+      # dictionary's "missing string in either locale is a type error"
+      # guarantee only holds in the IDE.
+      - name: Type-check docs site
+        run: pnpm --filter schatten-docs exec astro check
+
+      # Site → Storybook link drift gate (Welcome.drift.test.ts の site 版):
+      # verifies every /components/ link and the header link derive from a
+      # stories file that actually exists with the expected title + autodocs.
+      - name: Check Storybook links
+        run: pnpm --filter schatten-docs check:links
+
       - name: Build docs site
         run: pnpm --filter schatten-docs build
 

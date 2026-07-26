@@ -86,7 +86,7 @@ const leadings = [
 ]
 ---
 
-<Base locale={locale} description={t.metaDescription} page="brand">
+<Base locale={locale} description={t.metaDescription} title={t.pageTitle} page="brand">
   <main class="brand">
     <header class="brand__masthead">
       <h1 class="brand__mark">陰影<span class="brand__gloss">Schatten · Brand Concept</span></h1>
@@ -185,17 +185,19 @@ const leadings = [
       </section>
     </div>
 
-    <div class="brand__seasons" aria-hidden="true">
+    {/* 装飾ではなくデータ(節気 × 日付 × 色相)を運ぶので aria-hidden にしない。
+        純装飾のランプ・グラデ帯・寒暖表(値は本文にある)だけが hidden。 */}
+    <ul class="brand__seasons">
       {
         seasons.map((s, i) => (
-          <div class="brand__season" style={`background:${s.swatch}`}>
+          <li class="brand__season" style={`background:${s.swatch}`}>
             <span class="brand__sekki">{t.seasonNames[i]}</span>
             <span class="brand__date">{s.date}</span>
             <span class="brand__hue">{s.hue}</span>
-          </div>
+          </li>
         ))
       }
-    </div>
+    </ul>
     <p class="brand__strip-note">{t.seasonsNote}</p>
 
     <div class="brand__body">
@@ -534,6 +536,9 @@ const leadings = [
 
   /* ---- seasons ---- */
   .brand__seasons {
+    list-style: none;
+    margin: 0;
+    padding: 0;
     display: grid;
     grid-template-columns: repeat(8, 1fr);
   }

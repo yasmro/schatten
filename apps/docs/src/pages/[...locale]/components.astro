@@ -13,6 +13,7 @@ import { join } from 'node:path'
 import Base from '../../layouts/Base.astro'
 import LiveDemo from '../../components/LiveDemo'
 import { defaultLocale, type Locale, locales, ui } from '../../i18n/ui'
+import { STORYBOOK_ORIGIN, storybookDocsUrl } from '../../lib/storybook-links.mjs'
 
 export function getStaticPaths() {
   return locales.map((locale) => ({
@@ -23,8 +24,6 @@ export function getStaticPaths() {
 
 const { locale } = Astro.props as { locale: Locale }
 const t = ui[locale].components
-
-const STORYBOOK = 'https://yasmro.github.io/schatten/'
 
 const lv1Dir = fileURLToPath(new URL('../../../../../src/components/lv1/', import.meta.url))
 const components = readdirSync(lv1Dir)
@@ -39,17 +38,17 @@ const components = readdirSync(lv1Dir)
   .sort()
   .map((name) => ({
     name,
-    // Storybook autodocs URL: title `Components/lv1/{Name}` → slug
-    // `components-lv1-{lowercased name}` (Storybook's sanitize()).
-    href: `${STORYBOOK}?path=/docs/components-lv1-${name.toLowerCase()}--docs`,
+    // Derivation + drift gate live in src/lib/storybook-links.mjs
+    // (scripts/check-storybook-links.mjs keeps these from going stale).
+    href: storybookDocsUrl(name),
   }))
 ---
 
-<Base locale={locale} description={t.metaDescription} page="components">
+<Base locale={locale} description={t.metaDescription} title={t.pageTitle} page="components">
   <main class="page">
     <section class="intro">
       <h1 class="intro__title">{t.title}</h1>
-      <p class="intro__lead" set:html={t.lead} />
+      <p class="intro__lead" set:html={t.lead.replace('%STORYBOOK%', STORYBOOK_ORIGIN)} />
     </section>
 
     <section class="live">

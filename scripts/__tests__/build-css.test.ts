@@ -65,6 +65,27 @@ describe('buildSchattenCss', () => {
     expect(css).toMatch(/code,kbd,samp,pre\{font-family:var\(--font-mono,/)
   })
 
+  it('ships the brand font stacks as the live defaults — declared once, in @layer theme only', () => {
+    // The brand stacks (--font-sans / --font-serif) are load-to-activate
+    // defaults: they live in @layer theme (public-tokens.css) and nothing
+    // unlayered may re-declare them, or the registrar value goes dead in
+    // the dist. That is exactly what happened to --font-sans until 2026-07:
+    // a carry-over `:root { --font-sans: var(--font-sans-fallback) }` from
+    // the pre-#275 standalone entry silently overrode the brand stack
+    // (serif had no such override — the asymmetry was accidental). See
+    // docs/decisions/2026-07-font-sans-brand-default.md. This pins the
+    // symmetric contract: exactly one declaration per variable.
+    expect(css).toContain('--font-sans:"Hanken Grotesk", "LINE Seed JP", var(--font-sans-fallback)')
+    expect(css).toContain('--font-serif:"EB Garamond", "Noto Serif JP", var(--font-serif-fallback)')
+    // NOTE: any new `--font-sans:` / `--font-serif:` declaration anywhere in
+    // the dist — including a component-scoped one — fails these counts. That
+    // is intentional: count the declarations, judge whether the newcomer
+    // re-introduces the dead-default hazard, and only then adjust the
+    // expected count.
+    expect(css.match(/--font-sans:/g)).toHaveLength(1)
+    expect(css.match(/--font-serif:/g)).toHaveLength(1)
+  })
+
   it('opens with the MIT attribution banner for the vendored preflight', () => {
     // lightningcss strips every comment, so the banner must be prepended by
     // buildSchattenCss itself — losing it would ship the vendored (MIT)

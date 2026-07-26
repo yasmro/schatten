@@ -77,6 +77,11 @@ describe('buildSchattenCss', () => {
     // symmetric contract: exactly one declaration per variable.
     expect(css).toContain('--font-sans:"Hanken Grotesk", "LINE Seed JP", var(--font-sans-fallback)')
     expect(css).toContain('--font-serif:"EB Garamond", "Noto Serif JP", var(--font-serif-fallback)')
+    // NOTE: any new `--font-sans:` / `--font-serif:` declaration anywhere in
+    // the dist — including a component-scoped one — fails these counts. That
+    // is intentional: count the declarations, judge whether the newcomer
+    // re-introduces the dead-default hazard, and only then adjust the
+    // expected count.
     expect(css.match(/--font-sans:/g)).toHaveLength(1)
     expect(css.match(/--font-serif:/g)).toHaveLength(1)
   })

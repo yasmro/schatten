@@ -25,15 +25,48 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
+      # Preview mirrors the production directory split (#449): the two
+      # surfaces live side by side under named directories —
+      #   pr/<n>/site/       docs site
+      #   pr/<n>/storybook/  Storybook
+      #   pr/<n>/            a router page (below) — the same shape the
+      #                      production Pages root will take, so the preview
+      #                      doubles as its prototype.
       - name: Build Storybook
         env:
-          STORYBOOK_BASE: /schatten/pr/${{ github.event.pull_request.number }}/
+          STORYBOOK_BASE: /schatten/pr/${{ github.event.pull_request.number }}/storybook/
         run: pnpm build:storybook
+
+      - name: Build library (dist the docs site consumes)
+        run: pnpm build
+
+      - name: Build docs site
+        env:
+          DOCS_BASE: /schatten/pr/${{ github.event.pull_request.number }}/site/
+        run: pnpm --filter schatten-docs build
+
+      - name: Assemble preview (site/ + storybook/ + router index)
+        run: |
+          mkdir -p preview-dist/storybook preview-dist/site
+          cp -r storybook-static/. preview-dist/storybook/
+          cp -r apps/docs/dist/. preview-dist/site/
+          # Router: old-style Storybook deep links carry ?path= — send them to
+          # storybook/, everyone else to site/. <noscript> falls back to site/.
+          cat > preview-dist/index.html <<'HTML'
+          <!doctype html>
+          <meta charset="utf-8">
+          <title>Schatten</title>
+          <script>
+            var q = location.search;
+            location.replace(q.indexOf('path=') !== -1 ? 'storybook/' + q : 'site/');
+          </script>
+          <noscript><meta http-equiv="refresh" content="0; url=site/"></noscript>
+          HTML
 
       - name: Deploy preview
         uses: JamesIves/github-pages-deploy-action@v4
         with:
-          folder: storybook-static
+          folder: preview-dist
           target-folder: pr/${{ github.event.pull_request.number }}
           clean: true
 
@@ -53,10 +86,12 @@ jobs:
           edit-mode: replace
           body: |
             <!-- storybook-preview -->
-            📖 **Storybook Preview**
+            📖 **Preview**
 
-            Preview is available at:
-            🔗 https://yasmro.github.io/schatten/pr/${{ github.event.pull_request.number }}/
+            | | |
+            |---|---|
+            | 🌐 Docs site | https://yasmro.github.io/schatten/pr/${{ github.event.pull_request.number }}/site/ |
+            | 📖 Storybook | https://yasmro.github.io/schatten/pr/${{ github.event.pull_request.number }}/storybook/ |
 
             _Updated for commit ${{ github.event.pull_request.head.sha }}_
 

@@ -117,6 +117,46 @@ jobs:
       - name: Unit tests
         run: pnpm vitest run
 
+  # apps/docs (#449 Phase 2) is a workspace member that consumes the library
+  # THROUGH the exports map (`"@yasmro/schatten": "workspace:*"` → repo-root
+  # dist/): schatten.css, theme-init, and the React barrel all resolve exactly
+  # the way a real consumer's install would. Building the site after a full
+  # library build is therefore also an integration test of the published
+  # surface — an exports-map/`use client`/CSS regression that would only bite
+  # consumers fails this job instead of shipping. Deploy is NOT wired here;
+  # the site publishes tag-synced, tracked separately (#449 Phase 2 後半).
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Build library (dist the site consumes)
+        run: pnpm build
+
+      # astro build alone does NOT type-check — without this step the i18n
+      # dictionary's "missing string in either locale is a type error"
+      # guarantee only holds in the IDE.
+      - name: Type-check docs site
+        run: pnpm --filter schatten-docs exec astro check
+
+      # Site → Storybook link drift gate (Welcome.drift.test.ts の site 版):
+      # verifies every /components/ link and the header link derive from a
+      # stories file that actually exists with the expected title + autodocs.
+      - name: Check Storybook links
+        run: pnpm --filter schatten-docs check:links
+
+      - name: Build docs site
+        run: pnpm --filter schatten-docs build
+
   size:
     runs-on: ubuntu-latest
     steps:

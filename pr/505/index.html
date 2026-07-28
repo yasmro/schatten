@@ -1,0 +1,8 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Schatten</title>
+<script>
+  var q = location.search;
+  location.replace(q.indexOf('path=') !== -1 ? 'storybook/' + q : 'site/');
+</script>
+<noscript><meta http-equiv="refresh" content="0; url=site/"></noscript>

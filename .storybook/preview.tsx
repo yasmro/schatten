@@ -56,7 +56,7 @@ function mountUnreleasedBanner() {
   })
   banner.innerHTML =
     '<span>⚠ 未リリース (develop) — 次バージョンの統合プレビューです。npm 未公開のトークン・API が含まれます。</span>' +
-    '<a href="https://yasmro.github.io/schatten/" style="color:#fff;text-decoration:underline;font-weight:700">公開版を見る →</a>'
+    '<a href="https://yasmro.github.io/schatten/storybook/" style="color:#fff;text-decoration:underline;font-weight:700">公開版を見る →</a>'
   document.body.appendChild(banner)
 }
 

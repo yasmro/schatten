@@ -4,9 +4,17 @@
 //
 // i18n: rest-param route — `/` renders the default locale (en), `/ja/` the
 // Japanese variant. Copy lives in src/i18n/ui.ts; this template is shared.
+import { readFileSync } from 'node:fs'
+import { fileURLToPath } from 'node:url'
 import Base from '../../layouts/Base.astro'
 import { defaultLocale, type Locale, locales, ui } from '../../i18n/ui'
 import { STORYBOOK_ORIGIN } from '../../lib/storybook-links.mjs'
+
+// Version badge is generated from the library's package.json — the site is
+// tag-synced (#502), so this always names the release being described.
+const { version } = JSON.parse(
+  readFileSync(fileURLToPath(new URL('../../../../../package.json', import.meta.url)), 'utf8'),
+) as { version: string }
 
 export function getStaticPaths() {
   return locales.map((locale) => ({
@@ -57,7 +65,7 @@ const seasonSwatches = [
       </div>
 
       <div class="hero__badges">
-        <span class="st-badge st-badge--neutral st-badge--solid st-badge--md">v1.0.0</span>
+        <span class="st-badge st-badge--neutral st-badge--solid st-badge--md">v{version}</span>
         <span class="st-badge st-badge--success st-badge--subtle st-badge--md">API stable</span>
         <span class="st-badge st-badge--info st-badge--outline st-badge--md">ESM only</span>
       </div>

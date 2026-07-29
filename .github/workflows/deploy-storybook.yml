@@ -4,6 +4,12 @@ on:
   push:
     branches: [main, develop]
   workflow_dispatch:
+    inputs:
+      channel:
+        description: 'stable -> storybook/ (released), next -> storybook/next/ (develop)'
+        type: choice
+        options: [stable, next]
+        default: stable
 
 permissions:
   contents: write
@@ -21,8 +27,20 @@ jobs:
       #   develop -> /storybook/next/  — unreleased integration preview
       - name: Resolve deploy target
         id: target
+        # push: channel follows the ref (develop -> next, main -> stable).
+        # workflow_dispatch: the channel INPUT decides — needed because a
+        # dispatch runs the workflow definition of its ref, so the first
+        # stable deploy after #502 must be runnable from develop (main only
+        # picks up this file at the next release).
         run: |
-          if [ "${{ github.ref }}" = "refs/heads/develop" ]; then
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            CHANNEL="${{ inputs.channel }}"
+          elif [ "${{ github.ref }}" = "refs/heads/develop" ]; then
+            CHANNEL="next"
+          else
+            CHANNEL="stable"
+          fi
+          if [ "$CHANNEL" = "next" ]; then
             {
               echo "base=/schatten/storybook/next/"
               echo "channel=next"

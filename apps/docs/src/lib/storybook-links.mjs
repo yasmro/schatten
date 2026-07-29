@@ -6,7 +6,7 @@
 // runs under bare Node and must import the SAME derivation the pages use —
 // a .ts copy would be a second source of truth.
 
-export const STORYBOOK_ORIGIN = 'https://yasmro.github.io/schatten/'
+export const STORYBOOK_ORIGIN = 'https://yasmro.github.io/schatten/storybook/'
 
 /**
  * Autodocs URL for an lv1 component.

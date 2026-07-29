@@ -14,23 +14,25 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      # Resolve where this build is published, based on the pushed ref:
-      #   main    -> root (/schatten/)        — canonical, consumer-facing
-      #   develop -> /next/ (/schatten/next/) — unreleased integration preview
+      # Resolve where this build is published, based on the pushed ref (#502 —
+      # the Pages root belongs to nobody; it carries only the router page that
+      # deploy-site.yml owns):
+      #   main    -> /storybook/       — released, what the docs site links to
+      #   develop -> /storybook/next/  — unreleased integration preview
       - name: Resolve deploy target
         id: target
         run: |
           if [ "${{ github.ref }}" = "refs/heads/develop" ]; then
             {
-              echo "base=/schatten/next/"
+              echo "base=/schatten/storybook/next/"
               echo "channel=next"
-              echo "target-folder=next"
+              echo "target-folder=storybook/next"
             } >> "$GITHUB_OUTPUT"
           else
             {
-              echo "base=/schatten/"
+              echo "base=/schatten/storybook/"
               echo "channel=stable"
-              echo "target-folder="
+              echo "target-folder=storybook"
             } >> "$GITHUB_OUTPUT"
           fi
 
@@ -53,10 +55,12 @@ jobs:
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           folder: storybook-static
-          # main -> root; develop -> next/ subpath (root stays canonical)
+          # main -> storybook/; develop -> storybook/next/ (#502)
           target-folder: ${{ steps.target.outputs.target-folder }}
           clean: true
-          # main deploy must not wipe PR previews or the develop /next/ build
+          # clean-exclude is relative to target-folder: the main deploy
+          # (storybook/) must not wipe the develop build at storybook/next/.
+          # The develop deploy targets storybook/next/ itself, where the
+          # exclude simply matches nothing.
           clean-exclude: |
-            pr
             next

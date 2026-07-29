@@ -1,0 +1,72 @@
+name: Deploy Docs Site
+
+# The public docs site is RELEASE-TAG-SYNCED (#449 論点 (5) / #502): readers can
+# only install npm latest, so the site describes released state, never develop.
+# workflow_dispatch exists for the initial publication and for re-deploys of an
+# already-released state (run it on a tag, or on develop only when develop's
+# site content still describes npm latest).
+#
+# This workflow also owns the Pages ROOT: a router page (shared with the PR
+# preview) that sends `?path=` deep links to storybook/ and everyone else to
+# site/. Deploying it here — with clean-exclude for the named directories —
+# also sweeps any legacy files left at the root by the pre-#502 layout.
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Build library (dist the site consumes)
+        run: pnpm build
+
+      # Same gates as the CI docs job — a tag deploy must not publish what a
+      # PR would have failed on.
+      - name: Type-check docs site
+        run: pnpm --filter schatten-docs exec astro check
+
+      - name: Check Storybook links
+        run: pnpm --filter schatten-docs check:links
+
+      - name: Build docs site
+        env:
+          DOCS_BASE: /schatten/site/
+        run: pnpm --filter schatten-docs build
+
+      - name: Deploy site
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: apps/docs/dist
+          target-folder: site
+          clean: true
+
+      - name: Deploy root router
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: .github/pages-root
+          target-folder: ''
+          clean: true
+          # Everything that legitimately lives under the root, by name.
+          # NOT excluded on purpose: the legacy pre-#502 layout (Storybook
+          # files at the root, the old /next/) — this clean is what retires it.
+          clean-exclude: |
+            site
+            storybook
+            pr

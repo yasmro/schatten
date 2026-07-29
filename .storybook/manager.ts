@@ -18,7 +18,7 @@ if (isNextChannel) {
       base: 'light',
       brandTitle:
         'Schatten <span style="margin-left:6px;padding:1px 6px;border-radius:4px;background:#92400e;color:#fff;font-size:10px;font-weight:700;vertical-align:middle">未リリース · develop</span>',
-      brandUrl: 'https://yasmro.github.io/schatten/',
+      brandUrl: 'https://yasmro.github.io/schatten/storybook/',
       brandTarget: '_blank',
     }),
   })

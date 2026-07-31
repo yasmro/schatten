@@ -25,21 +25,6 @@ export function getStaticPaths() {
 
 const { locale } = Astro.props as { locale: Locale }
 const t = ui[locale].landing
-
-// Seasonal swatches: the 500 rung of each Special in
-// src/themes/seasonal/themes.css — every season shares one lightness ladder
-// (L 64% at 500) and moves only hue/chroma. Hand-copied for the skeleton;
-// Phase 3 should generate this strip from the tokens (SSOT → consumer map row).
-const seasonSwatches = [
-  'oklch(64% 0.1 12)',
-  'oklch(64% 0.1 138)',
-  'oklch(64% 0.09 162)',
-  'oklch(64% 0.11 45)',
-  'oklch(64% 0.085 230)',
-  'oklch(64% 0.1 70)',
-  'oklch(64% 0.048 250)',
-  'oklch(64% 0.08 255)',
-]
 ---
 
 <Base locale={locale} description={t.metaDescription}>
@@ -106,20 +91,6 @@ const seasonSwatches = [
       </div>
     </section>
 
-    <!-- Seasonal strip: the Mode × Special demo only a self-hosted site can run. -->
-    <section class="seasons">
-      <h2 class="seasons__title">{t.seasonsTitle}</h2>
-      <p class="seasons__lead" set:html={t.seasonsLead} />
-      <ul class="seasons__strip">
-        {
-          seasonSwatches.map((swatch, i) => (
-            <li class="seasons__swatch" style={`--swatch: ${swatch}`}>
-              <span>{t.seasonNames[i]}</span>
-            </li>
-          ))
-        }
-      </ul>
-    </section>
 
     <section class="callout-demo">
       <div class="st-callout st-callout--info st-callout--subtle" role="note">
@@ -240,52 +211,4 @@ const seasonSwatches = [
     }
   }
 
-  /* ---- seasonal strip ---- */
-  .seasons {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-4);
-  }
-
-  .seasons__title {
-    margin: 0;
-    font-family: var(--font-serif);
-    font-size: var(--text-2xl);
-  }
-
-  .seasons__lead {
-    margin: 0;
-    max-width: 44rem;
-    color: var(--color-foreground-muted);
-    line-height: 1.8;
-  }
-
-  .seasons__strip {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: grid;
-    grid-template-columns: repeat(8, 1fr);
-    gap: var(--spacing-2);
-  }
-
-  .seasons__swatch {
-    aspect-ratio: 3 / 4;
-    border-radius: var(--radius-control);
-    background: var(--swatch);
-    display: flex;
-    align-items: flex-end;
-    padding: var(--spacing-2);
-  }
-
-  .seasons__swatch span {
-    font-size: var(--text-xs);
-    color: oklch(98% 0.005 70);
-  }
-
-  @media (max-width: 40rem) {
-    .seasons__strip {
-      grid-template-columns: repeat(4, 1fr);
-    }
-  }
 </style>

@@ -32,9 +32,6 @@ interface Landing {
   proofRenderLabel: string
   proofRenderButton: string
   proofFooter: Html
-  seasonsTitle: string
-  seasonsLead: Html
-  seasonNames: readonly [string, string, string, string, string, string, string, string]
   calloutNote: Html
 }
 
@@ -133,19 +130,6 @@ export const ui: Record<Locale, Strings> = {
       proofRenderButton: 'Save',
       proofFooter:
         'This sample is painted by the same <code>dist/schatten.css</code> as the page you are reading.',
-      seasonsTitle: 'Eight seasons, one lightness ladder',
-      seasonsLead:
-        'A Special theme swaps only the <code>--color-theme-*</code> ramp; the lightness ladder is shared by every season. Color moves, the contrast structure does not — switched by a single <code>data-theme</code>.',
-      seasonNames: [
-        'Early spring',
-        'Late spring',
-        'Early summer',
-        'Peak summer',
-        'Early autumn',
-        'Late autumn',
-        'Early winter',
-        'Deep winter',
-      ],
       calloutNote:
         'Dark mode follows the OS setting (<code>prefers-color-scheme</code>). That switch is the token layer’s job too — zero page-side code.',
     },
@@ -275,10 +259,6 @@ export const ui: Record<Locale, Strings> = {
       proofRenderButton: '保存',
       proofFooter:
         'この見本を描画しているのも、いま読んでいるページ全体と同じ <code>dist/schatten.css</code> です。',
-      seasonsTitle: '8 つの季節、ひとつの明度設計',
-      seasonsLead:
-        'Special テーマは <code>--color-theme-*</code> のランプだけを差し替え、明度の梯子は全季節で共有します。コントラスト構造を壊さずに、季節が色だけを運ぶ — <code>data-theme</code> ひとつで切り替わる設計です。',
-      seasonNames: ['春・早', '春・晩', '夏・早', '夏・盛', '秋・早', '秋・晩', '冬・早', '冬・深'],
       calloutNote:
         'ダークモードは OS 設定に追従します(<code>prefers-color-scheme</code>)。この切り替えもトークン層の仕事で、ページ側のコードはゼロです。',
     },

@@ -66,8 +66,12 @@ jobs:
           # Everything that legitimately lives under the root, by name.
           # NOT excluded on purpose: the legacy pre-#502 layout (Storybook
           # files at the root, the old /next/) — this clean is what retires it.
+          # NOTE: clean-exclude doubles as an rsync --exclude on the SOURCE
+          # copy (JamesIves v4), so .nojekyll must NOT be listed here — it
+          # would be excluded from the deployment itself (learned in #509's
+          # follow-up). The file ships from .github/pages-root/ every deploy,
+          # so it needs no clean protection.
           clean-exclude: |
             site
             storybook
             pr
-            .nojekyll

@@ -9,6 +9,14 @@ permissions:
   contents: write
   pull-requests: write
 
+# gh-pages に書く workflow は全て同一グループで直列化する。JamesIves の deploy は
+# 実行開始時点の gh-pages を base に force-push するため、並走すると後着が先着の
+# コミットを黙って巻き戻す(#502 の切替作業で 2 回実測: cannot-lock-ref 失敗と、
+# force-push による site 更新の消失)。cancel はせず順番待ちにする。
+concurrency:
+  group: gh-pages
+  cancel-in-progress: false
+
 jobs:
   deploy-preview:
     if: github.event.action != 'closed'

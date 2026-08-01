@@ -161,6 +161,7 @@
     "st-spinner--sm",
     "st-spinner__arc",
     "st-spinner__dot",
+    "st-spinner__label",
     "st-spinner__ripple-1",
     "st-spinner__ripple-2",
     "st-spinner__rotor",

@@ -82,7 +82,7 @@ export const Spinner = forwardRef<HTMLDivElement, SpinnerProps>(
         {...props}
       >
         {type === 'ripple' ? <RippleSpinner /> : <DefaultSpinner />}
-        <span className="sr-only">{label}</span>
+        <span className="st-spinner__label">{label}</span>
       </div>
     )
   },

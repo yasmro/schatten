@@ -829,6 +829,9 @@ track, and vanished.
 | `DropdownMenu` | `.st-dropdown-menu__item[data-disabled] { color: … }` | `.st-dropdown-menu__item-indicator` — declares no color |
 | `Tabs` | `.st-tabs__trigger:disabled { color: … }` | `.st-tabs__trigger-icon` — declares no color |
 
+The five rows are pinned by the guard's `CONFORMING` list, so this table
+cannot silently rot when one of them is refactored.
+
 Declaring nothing and writing `color: currentColor` are equivalent
 (`color` inherits by default); the explicit form is preferred on children
 that would otherwise read as "someone forgot the color", and documents
@@ -841,7 +844,7 @@ color in the state where it is *visible* (`checked`) is the obvious thing
 to put next to it, and a reviewer reads it the same way. #524 sat
 unnoticed from sweep-3.
 
-**And every automated gate misses it:**
+**And every gate that looks at the rendered result misses it:**
 
 | gate | why it doesn't catch it |
 |---|---|
@@ -849,9 +852,22 @@ unnoticed from sweep-3.
 | axe (a11y) | `disabled` elements are exempt from `color-contrast` |
 | VRT | a one-icon delta falls under `maxDiffPixelRatio: 0.01` — green *before and after* the fix |
 
-So this text is the defense. When you add a sub-element whose color should
-move with the block, write `currentColor` and put the token on the block's
-state rule.
+So the defense is this text **plus one static drift guard**:
+[`state-color-inheritance.test.ts`](../../src/components/__tests__/state-color-inheritance.test.ts)
+reads every lv1 stylesheet as text and fails when a sub-element pins
+`color: var(--color-*)` inside a component that has a block-level state
+color — unless that sub-element is classified in the test's `EXEMPT`
+inventory with a reason (`region` / `specificity` / `gray-zone`).
+
+DOM containment is not derivable from CSS, so the guard deliberately does
+**not** decide for you. What it pins is the *inventory*: a newly pinned color
+fails CI until someone writes down which of the three reasons applies — i.e.
+the question gets asked at exactly the moment the rule is at risk. Restoring
+the pre-#524 `.st-switch__check` makes it red on both counts (unclassified,
+and listed as a conforming example).
+
+When you add a sub-element whose color should move with the block, write
+`currentColor` and put the token on the block's state rule.
 
 #### Scope — which sub-elements this covers
 
@@ -870,16 +886,24 @@ Rule of thumb: **"if the block goes `:disabled`, should this child's color
 change?"** — yes → `currentColor` on the child + the token on a block-level
 state rule; no → its own token is correct.
 
-**Known gray zone — muted adornments on a disabled control.**
-`.st-input__icon-*` / `.st-input__text-*`, `.st-select__icon`, and
-`.st-dropdown-menu__sub-trigger-chevron` pin `--color-foreground-muted`
-and therefore do **not** follow their block's disabled state. That is
-defensible at rest (a deliberate adornment tier), but `foreground-muted`
-is an AA-grade ink while `foreground-disabled` is `gray-500` — so on a
-disabled control the adornment ends up reading *stronger* than the value
-it decorates. They are listed here as a **known, deliberate exemption**,
-not as silent drift: revisit them together (one visual decision, not
-three) rather than converting one of them ad hoc.
+**Known gray zone — muted adornments on a disabled control.** Seven
+sub-elements across three components pin `--color-foreground-muted` while
+sitting *inside* a block that has a disabled state, and therefore do **not**
+follow it:
+
+| component | sub-elements |
+|---|---|
+| `Input` | `__icon-left` / `__icon-right` / `__text-left` / `__text-right` |
+| `Select` | `__icon` (the trigger chevron) |
+| `DropdownMenu` | `__shortcut` / `__sub-trigger-chevron` |
+
+That is defensible at rest (a deliberate adornment tier), but
+`foreground-muted` is an AA-grade ink while `foreground-disabled` is
+`gray-500` — so on a disabled control the adornment ends up reading
+*stronger* than the value it decorates. They are carried as `gray-zone`
+entries in the guard's `EXEMPT` inventory, so they are **recorded, not
+forgotten**: revisit them together as one visual decision rather than
+converting one of them ad hoc.
 
 ### Portal content with nested `position: fixed` children must stay transform-free
 
@@ -1045,7 +1069,7 @@ goal.
   the token goes on the **block** and the child inherits `currentColor`.
   Pinning `var(--color-*)` on the child opts it out of the block's state
   rule (#524). Fixed-by-design colors (`.st-field__error`) keep their own
-  token.
+  token. Inventory pinned by `state-color-inheritance.test.ts`.
 - **Multi-property bundles**: a role bundling >1 property (typography's
   size + line-height + weight) binds on the `.st-*` class rule, **not**
   on a composite CSS variable or a `@utility`. Single-value semantic

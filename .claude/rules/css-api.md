@@ -857,7 +857,9 @@ So the defense is this text **plus one static drift guard**:
 reads every lv1 stylesheet as text and fails when a sub-element pins
 `color: var(--color-*)` inside a component that has a block-level state
 color — unless that sub-element is classified in the test's `EXEMPT`
-inventory with a reason (`region` / `specificity` / `gray-zone`).
+inventory with one of exactly two reasons (`region` — it never renders
+inside the stateful block; `specificity` — a block-state sibling outranks
+it).
 
 DOM containment is not derivable from CSS, so the guard deliberately does
 **not** decide for you. What it pins is the *inventory*: a newly pinned color
@@ -886,24 +888,61 @@ Rule of thumb: **"if the block goes `:disabled`, should this child's color
 change?"** — yes → `currentColor` on the child + the token on a block-level
 state rule; no → its own token is correct.
 
-**Known gray zone — muted adornments on a disabled control.** Seven
-sub-elements across three components pin `--color-foreground-muted` while
-sitting *inside* a block that has a disabled state, and therefore do **not**
-follow it:
+#### Second shape — a resting tier plus a state-scoped repaint
 
-| component | sub-elements |
-|---|---|
-| `Input` | `__icon-left` / `__icon-right` / `__text-left` / `__text-right` |
-| `Select` | `__icon` (the trigger chevron) |
-| `DropdownMenu` | `__shortcut` / `__sub-trigger-chevron` |
+`currentColor` is the right answer only when the child should carry
+*exactly* the block's color at rest. A child with a **deliberate resting
+tier of its own** — a muted icon or text affix next to a full-strength value
+— cannot inherit, because inheriting would erase that tier. The conforming
+form there is to keep the resting token on the child and let the block's
+**state rule repaint it explicitly**:
 
-That is defensible at rest (a deliberate adornment tier), but
-`foreground-muted` is an AA-grade ink while `foreground-disabled` is
-`gray-500` — so on a disabled control the adornment ends up reading
-*stronger* than the value it decorates. They are carried as `gray-zone`
-entries in the guard's `EXEMPT` inventory, so they are **recorded, not
-forgotten**: revisit them together as one visual decision rather than
-converting one of them ad hoc.
+```css
+/* resting tier — the adornment is quieter than the value it decorates */
+.st-input__icon-left { color: var(--color-foreground-muted); }
+
+/* the block's disabled state reaches the child explicitly */
+.st-input-wrapper:has(.st-input:disabled) .st-input__icon-left {
+  color: var(--color-foreground-disabled);
+}
+```
+
+This is still "the block owns the state" — the state rule lives on the
+block's selector, the child never decides *when* to change. Both shapes are
+accepted by the guard; what it rejects is a child that pins a color and is
+reached by **neither**.
+
+Skipping the repaint is not a neutral omission. `foreground-muted` is an
+AA-grade ink while `foreground-disabled` is `gray-500`, so a
+resting-tier adornment left alone on a disabled control reads **stronger**
+than the value it decorates — the hierarchy inverts exactly where the
+control is supposed to recede. Measured on the disabled Select trigger
+before the fix: value `L 0.58` vs chevron `L 0.48` (light) and `L 0.58`
+vs `L 0.71` (dark). Today's repaints live in
+[Input.css](../../src/components/lv1/Input/Input.css),
+[Select.css](../../src/components/lv1/Select/Select.css), and
+[DropdownMenu.css](../../src/components/lv1/DropdownMenu/DropdownMenu.css);
+all three win on specificity, so source order is not load-bearing.
+
+`:read-only` deliberately gets no such repaint — a read-only value stays
+readable, so its adornment stays at the resting tier too.
+
+**Bounded exception — non-exempt text stays readable.** WCAG 1.4.3 exempts
+disabled *controls* from contrast, and axe extends that to `aria-disabled`
+descendants — which is why `DropdownMenu`'s shortcut can follow its item down
+to `foreground-disabled`. A plain `<span>` that merely sits *beside* a
+disabled control inherits no such exemption. `Input`'s `__text-left` /
+`__text-right` affixes are exactly that case: repainting them measured
+**3.83:1 (light) / 3.52:1 (dark)** and axe flagged both as `serious`, so they
+keep the resting muted tier while their sibling **icons** — non-text, held to
+1.4.11's 3:1 — do follow the block. The affixes are carried in the guard's
+`EXEMPT` inventory with the `a11y` reason.
+
+The general form: **readability outranks the visual-hierarchy nicety.** When
+repainting a child to follow a disabled block would push non-exempt *text*
+below AA, leave that child at its resting tier and record why — do not reach
+for a story-scoped `color-contrast` disable, which is reserved for the
+documented design exceptions ([vrt-spec-guideline §a11y](vrt-spec-guideline.md)).
 
 ### Portal content with nested `position: fixed` children must stay transform-free
 
@@ -1069,7 +1108,9 @@ goal.
   the token goes on the **block** and the child inherits `currentColor`.
   Pinning `var(--color-*)` on the child opts it out of the block's state
   rule (#524). Fixed-by-design colors (`.st-field__error`) keep their own
-  token. Inventory pinned by `state-color-inheritance.test.ts`.
+  token; a child with its own resting tier (a muted adornment) keeps that
+  token and is repainted by a state-scoped rule on the block. Inventory
+  pinned by `state-color-inheritance.test.ts`.
 - **Multi-property bundles**: a role bundling >1 property (typography's
   size + line-height + weight) binds on the `.st-*` class rule, **not**
   on a composite CSS variable or a `@utility`. Single-value semantic

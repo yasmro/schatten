@@ -21,6 +21,21 @@
  * - `[aria-invalid="true"]`                               — error treatment
  * - `:disabled`                                           — disabled tokens
  *
+ * Check-icon colour is owned by the **block**, not by `.st-switch__check` —
+ * the block declares `color` per state and the check rides it via
+ * `currentColor` (the Checkbox idiom: `.st-checkbox:disabled { color: … }`
+ * + `.st-checkbox__indicator { color: currentColor }`). Per state:
+ * - `[data-state="checked"]` → `--color-background` (on the dark track)
+ * - `:disabled`              → `--color-foreground-disabled` (same token the
+ *                              thumb recedes to; the two stay legible
+ *                              against `--color-surface-disabled` and are
+ *                              separated by position, not by hue)
+ * A single `.st-switch:disabled { color }` therefore covers the checked
+ * position too — it is declared after `.st-switch[data-state="checked"]`
+ * at equal specificity `(0,2,0)`, so source order gives it the win.
+ * Hard-coding a colour on `.st-switch__check` instead is what made the
+ * check icon vanish on `disabled + checked` (#524).
+ *
  * The thumb position and the check-icon fade are driven by parent →
  * child attribute selectors (`.st-switch[data-state="checked"]
  * .st-switch__thumb`) rather than Tailwind's `group-data-` shorthand —
@@ -77,6 +92,7 @@
     border-radius: var(--radius-pill, 9999px);
     cursor: pointer;
     transition:
+      color 200ms,
       background-color 200ms,
       border-color 200ms;
   }
@@ -89,6 +105,8 @@
   .st-switch[data-state="checked"] {
     background-color: var(--color-foreground);
     border-color: var(--color-foreground);
+    /* the check icon inherits this via currentColor */
+    color: var(--color-background);
   }
   /* state precedence — source order (matches Input / Textarea):
    * default < [aria-invalid="true"] < :disabled
@@ -112,6 +130,10 @@
     cursor: not-allowed;
     background-color: var(--color-surface-disabled);
     border-color: var(--color-border-disabled);
+    /* wins over the `[data-state="checked"]` colour above by source order
+     * (both are `(0,2,0)`), so the check icon recedes with the track
+     * instead of staying `--color-background` and vanishing into it. */
+    color: var(--color-foreground-disabled);
   }
   .st-switch:disabled[data-state="checked"] {
     background-color: var(--color-surface-disabled);
@@ -186,7 +208,9 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--color-background);
+    /* colour comes from the block (see the header note) — do NOT pin a
+     * token here, or `:disabled` can no longer move it. */
+    color: currentColor;
     opacity: 0;
     transition: opacity 200ms;
   }

@@ -1,8 +1,17 @@
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 import { Field } from '../Field/Field'
 import { Switch } from './Switch'
+
+// Comments are stripped so the rule-body matches below can't be fooled by
+// prose in the file header that quotes the very selectors being asserted.
+const switchCss = readFileSync(resolve(__dirname, 'Switch.css'), 'utf8').replace(
+  /\/\*[\s\S]*?\*\//g,
+  '',
+)
 
 describe('Switch', () => {
   it('renders an unchecked switch by default', () => {
@@ -121,6 +130,31 @@ describe('Switch', () => {
       expect(check).toBeInTheDocument()
       expect(check?.className).not.toContain('group-data-')
       expect(check?.className).not.toContain('opacity-')
+    })
+
+    // #524 — the check icon used to pin `color: var(--color-background)` on
+    // `.st-switch__check`, so `:disabled` (which recedes the track to
+    // `--color-surface-disabled`) left a pale icon on a pale track. The
+    // colour now lives on the block and the check rides `currentColor`,
+    // the same way Checkbox wires its indicator. The rendered contrast is
+    // the VRT's job; these pin the token wiring the visual hangs off.
+    it('leaves the check icon colour to the block (no token pinned on the child)', () => {
+      const checkRule = switchCss.match(/\.st-switch__check \{[^}]*\}/)?.[0] ?? ''
+      expect(checkRule).toContain('color: currentColor')
+      expect(checkRule).not.toContain('var(--color-')
+    })
+
+    it('recedes the check icon to --color-foreground-disabled when disabled', () => {
+      const disabledRule = switchCss.match(/\.st-switch:disabled \{[^}]*\}/)?.[0] ?? ''
+      expect(disabledRule).toContain('color: var(--color-foreground-disabled)')
+    })
+
+    it('exposes the :disabled + [data-state="checked"] hook that colour rule keys off', () => {
+      render(<Switch aria-label="sw" disabled defaultChecked />)
+      const sw = screen.getByRole('switch')
+      expect(sw).toBeDisabled()
+      expect(sw).toHaveAttribute('data-state', 'checked')
+      expect(sw.querySelector('.st-switch__check')).toBeInTheDocument()
     })
 
     it('JSX no longer adds the `group` Tailwind utility', () => {

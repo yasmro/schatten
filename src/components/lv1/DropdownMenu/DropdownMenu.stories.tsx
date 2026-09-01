@@ -108,8 +108,10 @@ export const ActionMenu: Story = {
           Duplicate
           <DropdownMenuShortcut>⌘D</DropdownMenuShortcut>
         </DropdownMenuItem>
+        {/* Disabled + shortcut: the shortcut must recede with the item. */}
         <DropdownMenuItem icon={Settings} disabled>
           Settings
+          <DropdownMenuShortcut>⌘,</DropdownMenuShortcut>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem icon={Trash} variant="destructive">
@@ -196,6 +198,15 @@ export const Submenu: Story = {
           <DropdownMenuSubContent className="w-48">
             <DropdownMenuItem>Email</DropdownMenuItem>
             <DropdownMenuItem>Copy link</DropdownMenuItem>
+          </DropdownMenuSubContent>
+        </DropdownMenuSub>
+        {/* Disabled sub-trigger: its chevron must recede with the item. */}
+        <DropdownMenuSub>
+          <DropdownMenuSubTrigger icon={Share} disabled>
+            Export
+          </DropdownMenuSubTrigger>
+          <DropdownMenuSubContent className="w-48">
+            <DropdownMenuItem>CSV</DropdownMenuItem>
           </DropdownMenuSubContent>
         </DropdownMenuSub>
       </DropdownMenuContent>

@@ -786,6 +786,125 @@ Tailwind syntax (`@theme` / `@apply` / `@custom-variant`) is allowed
 only in the Storybook-only entry chain (`globals.css` →
 `core/tokens/base.css` / `themes/default/fonts.css`).
 
+### State-driven color lives on the block; sub-elements inherit `currentColor`
+
+When a sub-element's color has to **follow a state the block owns** —
+`:disabled`, `[data-disabled]`, `[data-state]`, `[aria-invalid]`, … —
+declare the color on the **block's** state rule and let the sub-element
+inherit it through `currentColor`. Do **not** pin a `var(--color-*)` on
+the sub-element.
+
+```css
+/* ✅ Right — the block owns color; the indicator follows every state */
+.st-checkbox            { color: var(--color-foreground); }
+.st-checkbox:disabled   { color: var(--color-foreground-disabled); }
+.st-checkbox__indicator { color: currentColor; }
+
+/* ❌ Wrong — the child pins a token, so `:disabled` never reaches it */
+.st-checkbox__indicator { color: var(--color-background); }
+```
+
+Why: a state that applies to the whole block is expressed as **one rule on
+the block** ([§State](#state-is-expressed-as-attributes-not-classes)). A
+child that pins its own `color` opts out of that rule — the block's
+`:disabled` repaints the surface and the border, and the child keeps
+whatever token it hard-coded. The failure mode is not a *missing* style,
+it is a **contrast collapse**: the child holds a color chosen for the
+surface the block no longer has.
+
+That is exactly [#524](https://github.com/yasmro/schatten/issues/524)
+(fixed in [PR #529](https://github.com/yasmro/schatten/pull/529)):
+`.st-switch__check` pinned `--color-background` — correct on the dark
+checked track — while `.st-switch:disabled` dropped the track to
+`--color-surface-disabled`. The check mark stayed pale, on a now-pale
+track, and vanished.
+
+#### Conforming examples
+
+| component | block declares the color | sub-element follows |
+|---|---|---|
+| `Checkbox` | `.st-checkbox:disabled { color: var(--color-foreground-disabled) }` | `.st-checkbox__indicator { color: currentColor }` |
+| `Switch` | `.st-switch[data-state="checked"]` / `.st-switch:disabled` (since #524) | `.st-switch__check { color: currentColor }` |
+| `Select` | `.st-select__item[data-disabled] { color: … }` | `.st-select__item-indicator` — declares no color |
+| `DropdownMenu` | `.st-dropdown-menu__item[data-disabled] { color: … }` | `.st-dropdown-menu__item-indicator` — declares no color |
+| `Tabs` | `.st-tabs__trigger:disabled { color: … }` | `.st-tabs__trigger-icon` — declares no color |
+
+The five rows are pinned by the guard's `CONFORMING` list, so this table
+cannot silently rot when one of them is refactored.
+
+Declaring nothing and writing `color: currentColor` are equivalent
+(`color` inherits by default); the explicit form is preferred on children
+that would otherwise read as "someone forgot the color", and documents
+the intent for a vanilla-HTML consumer reading the class API.
+
+#### Why this needs to be written down
+
+**The mistake is natural to write.** While authoring a sub-element, its
+color in the state where it is *visible* (`checked`) is the obvious thing
+to put next to it, and a reviewer reads it the same way. #524 sat
+unnoticed from sweep-3.
+
+**And every gate that looks at the rendered result misses it:**
+
+| gate | why it doesn't catch it |
+|---|---|
+| unit (jsdom) | no stylesheet is loaded — the computed color is not observable |
+| axe (a11y) | `disabled` elements are exempt from `color-contrast` |
+| VRT | a one-icon delta falls under `maxDiffPixelRatio: 0.01` — green *before and after* the fix |
+
+So the defense is this text **plus one static drift guard**:
+[`state-color-inheritance.test.ts`](../../src/components/__tests__/state-color-inheritance.test.ts)
+reads every lv1 stylesheet as text and fails when a sub-element pins
+`color: var(--color-*)` inside a component that has a block-level state
+color — unless that sub-element is classified in the test's `EXEMPT`
+inventory with a reason (`region` / `specificity` / `gray-zone`).
+
+DOM containment is not derivable from CSS, so the guard deliberately does
+**not** decide for you. What it pins is the *inventory*: a newly pinned color
+fails CI until someone writes down which of the three reasons applies — i.e.
+the question gets asked at exactly the moment the rule is at risk. Restoring
+the pre-#524 `.st-switch__check` makes it red on both counts (unclassified,
+and listed as a conforming example).
+
+When you add a sub-element whose color should move with the block, write
+`currentColor` and put the token on the block's state rule.
+
+#### Scope — which sub-elements this covers
+
+Only children whose color should **track a block-level state**. A
+sub-element that is a fixed color *by design* keeps its own token:
+
+- `.st-field__error` / `.st-field__required-marker`
+  (`--color-error-emphasis`) — the color **is** the element's meaning,
+  not a state of the block.
+- `.st-dropdown-menu__label` / `.st-table__head`
+  (`--color-foreground-muted`) — a deliberate typographic tier.
+- `.st-callout__close` / `.st-toast__close` — `color: inherit`, the same
+  contract spelled differently.
+
+Rule of thumb: **"if the block goes `:disabled`, should this child's color
+change?"** — yes → `currentColor` on the child + the token on a block-level
+state rule; no → its own token is correct.
+
+**Known gray zone — muted adornments on a disabled control.** Seven
+sub-elements across three components pin `--color-foreground-muted` while
+sitting *inside* a block that has a disabled state, and therefore do **not**
+follow it:
+
+| component | sub-elements |
+|---|---|
+| `Input` | `__icon-left` / `__icon-right` / `__text-left` / `__text-right` |
+| `Select` | `__icon` (the trigger chevron) |
+| `DropdownMenu` | `__shortcut` / `__sub-trigger-chevron` |
+
+That is defensible at rest (a deliberate adornment tier), but
+`foreground-muted` is an AA-grade ink while `foreground-disabled` is
+`gray-500` — so on a disabled control the adornment ends up reading
+*stronger* than the value it decorates. They are carried as `gray-zone`
+entries in the guard's `EXEMPT` inventory, so they are **recorded, not
+forgotten**: revisit them together as one visual decision rather than
+converting one of them ad hoc.
+
 ### Portal content with nested `position: fixed` children must stay transform-free
 
 A component whose content panel **portals to `<body>` and renders a nested
@@ -945,6 +1064,12 @@ goal.
   rendered (`.st-callout:has(.st-callout__title):has(.st-callout__body)`).
   Three-axis rule: **state → attribute, structure → `:has()`, author
   config → modifier.** Never use `:has()` for runtime state.
+- **State-driven color**: when a sub-element's color must follow a
+  block-level state (`:disabled` / `[data-disabled]` / `[data-state]`),
+  the token goes on the **block** and the child inherits `currentColor`.
+  Pinning `var(--color-*)` on the child opts it out of the block's state
+  rule (#524). Fixed-by-design colors (`.st-field__error`) keep their own
+  token. Inventory pinned by `state-color-inheritance.test.ts`.
 - **Multi-property bundles**: a role bundling >1 property (typography's
   size + line-height + weight) binds on the `.st-*` class rule, **not**
   on a composite CSS variable or a `@utility`. Single-value semantic

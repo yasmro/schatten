@@ -130,9 +130,9 @@ export const Disabled: Story = {
   render: () => (
     <div className="flex flex-col gap-3">
       <Switch label="Disabled unchecked" disabled />
-      {/* The next row is the `md` reference (Switch's default size); the two
-       * after it put `sm` and `lg` beside it, so all three sizes of
-       * `disabled + checked` are visible at once (#531).
+      {/* The three rows below show `disabled + checked` at every size (#531).
+       * Sizes are named in the labels because this story is read in Storybook,
+       * where the source comment is not visible.
        *
        * Why the intersection needs its own baseline: the check icon scales
        * with the track (sm 0.625rem / md 0.75rem / lg 0.875rem), so at `sm`
@@ -142,12 +142,13 @@ export const Disabled: Story = {
        *
        * Measured on these baselines (#531): the stroke reaches the full
        * `--color-foreground-disabled` value (`gray-500`, `rgb(122,122,122)`)
-       * at every size — antialiasing does NOT dilute the `sm` peak — giving
-       * 3.83:1 against the light track and 3.53:1 against the dark one, i.e.
-       * `sm` is no worse than `md`. Those two numbers are a property of the
-       * token pair, not of this story; see the PR for the follow-up on them. */}
-      <Switch label="Disabled checked" disabled defaultChecked />
+       * at every size — antialiasing does NOT dilute the `sm` peak — so `sm`
+       * is no worse than `md`. The resulting ratio is a property of the token
+       * pair rather than of this story, and lives in
+       * `docs/decisions/2026-05-non-interactive-state-tokens.md` §2, pinned by
+       * `resolution.test.ts` ("non-interactive state WCAG contrast"). */}
       <Switch size="sm" label="Disabled checked (sm)" disabled defaultChecked />
+      <Switch label="Disabled checked (md)" disabled defaultChecked />
       <Switch size="lg" label="Disabled checked (lg)" disabled defaultChecked />
     </div>
   ),

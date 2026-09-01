@@ -79,16 +79,57 @@ Every other state token in the system shifts shade between light/dark
 (`error-600` → `error-500`, etc.). `foreground-disabled` is pinned at
 `gray-500` in both.
 
-**Why**: `gray-500` (OKLCH lightness ≈ 0.58) is the perceptual mid-point.
-Against `gray-100` (light surface, lightness ≈ 0.96) it yields ~5:1
-contrast — muted but legible. Against `gray-800` (dark surface, lightness
-≈ 0.27) it yields ~4:1 — also legible. A symmetric mid-gray solves both
-modes with one declaration.
+**Why**: `gray-500` (OKLCH lightness ≈ 0.58) is the perceptual mid-point. It
+lands at a near-identical contrast against both disabled surfaces, so a
+symmetric mid-gray solves both modes with one declaration:
+
+| Mode | Pair | WCAG contrast |
+|---|---|---|
+| Light | `gray-500` on `gray-100` | **3.81:1** |
+| Dark | `gray-500` on `gray-800` | **3.52:1** |
 
 WCAG 2.1 exempts disabled UI from contrast requirements (SC 1.4.3 Note 1),
 but Schatten deliberately exceeds the exemption: low-vision and aging users
 benefit when a disabled value is still readable, even if it is clearly
-inactive.
+inactive. Both figures clear the 3:1 bar WCAG asks of *non-text* UI
+components (SC 1.4.11) — i.e. disabled content stays as distinguishable as
+an active control's border is required to be — while sitting deliberately
+below the 4.5:1 small-text bar, because a disabled control **should** recede.
+
+> **Correction (2026-09-02, [#531](https://github.com/yasmro/schatten/issues/531)).**
+> This section previously claimed **~5:1** (light) and **~4:1** (dark). Those
+> figures were derived from the OKLCH *lightness* difference rather than from
+> WCAG *relative luminance*, and the light one was materially optimistic. The
+> table above is the measured truth, corroborated by two independent paths:
+> the token math in
+> [`resolution.test.ts`](../../src/core/tokens/__tests__/resolution.test.ts)
+> (3.81 / 3.52, OKLCH → linear sRGB) and a pixel readback of the rendered
+> Switch VRT baselines (3.83 / 3.53, sRGB). The 0.02 gap between the two is
+> rounding in the OKLCH → sRGB 8-bit quantisation, not disagreement.
+>
+> **Nothing about the token values changed** — only the documented figures.
+> The ratios are now machine-pinned (see below), so this class of drift
+> cannot recur silently.
+>
+> **Deliberately not retuned.** Hitting ~5:1 in *both* modes is impossible
+> with one declaration: light wants a darker gray, dark wants a lighter one,
+> so the fix would be an asymmetric `gray-600` / `gray-400` pair — which is
+> exactly the alternative this section already rejected below, and which
+> `--color-foreground-disabled` being **Mode-owned** would propagate to
+> Checkbox / Select / DropdownMenu / Switch at once. Trading the
+> one-declaration symmetry for ~1 point of contrast on intentionally-receding
+> content is a designer-owned aesthetic call, not a correctness fix. Revisit
+> only with a concrete legibility complaint; the numbers above are the
+> starting point for that conversation.
+
+**These ratios are now pinned by test.**
+[`resolution.test.ts`](../../src/core/tokens/__tests__/resolution.test.ts)
+(`non-interactive state WCAG contrast`) asserts the ≥ 3:1 floor in both
+modes, the light/dark symmetry the single declaration rests on, and — for
+`readOnly`, whose value is *real readable content* rather than receding
+chrome — the full 4.5:1 small-text bar. A primitive re-tune that eroded any
+of these now fails on every unit run instead of only being noticed the next
+time someone measures a screenshot by hand.
 
 #### Alternatives considered
 

@@ -562,6 +562,51 @@ pnpm test:vrt -- --grep "Button"
 > the fresh `webServer` boots against the worktree under test. CI is
 > immune (`reuseExistingServer` is false there) — which is exactly why a
 > green local run can still fail CI.
+>
+> **Check the port before *every* re-baseline, not once per session.** The
+> guard above reads as a setup step, and that is not enough: a sibling
+> worktree can claim 6006 **mid-session**, between an early check and a
+> later `--update-snapshots`. That is what happened in #531 — the port was
+> verified free at the start, a parallel session's Storybook (#530's
+> worktree) came up ~7 hours later, and the next re-baseline silently wrote
+> *that* branch's render into this branch's PNGs. The tell is a re-baseline
+> whose output does not match what you just changed (here: a 268×148 file
+> for a story that renders 300×212). Two habits catch it:
+>
+> - **Never filter the guard's output away.** In #531 the `lsof` warning did
+>   fire; it was piped through a `grep` that only kept Playwright's own
+>   lines. Run the check as its own visible command.
+> - **Verify the artifact, not just the exit code.** `--update-snapshots`
+>   exits 0 whatever it captured. Confirm the written PNG afterwards —
+>   `file …/foo.png` for the dimensions, and open it — before committing.
+>
+> **When you cannot have the port, take a different one.** Killing a
+> sibling session's server mid-run breaks *their* work. Instead, run
+> against a Storybook bound to your own worktree on a private port with a
+> throwaway config (delete it before committing):
+>
+> ```ts
+> // playwright.isolated.config.ts — temporary, do not commit
+> import base from './playwright.config'
+> const PORT = 6017
+> export default {
+>   ...base,
+>   use: { ...base.use, baseURL: `http://localhost:${PORT}` },
+>   webServer: {
+>     command: `pnpm exec storybook dev -p ${PORT} --no-open --quiet`,
+>     url: `http://localhost:${PORT}`,
+>     reuseExistingServer: false,
+>     timeout: 180_000,
+>   },
+> }
+> ```
+>
+> ```bash
+> npx playwright test --config playwright.isolated.config.ts src/components/lv1/Switch/
+> ```
+>
+> `reuseExistingServer: false` is the load-bearing line — it makes the
+> contamination structurally impossible rather than merely unlikely.
 
 ## Re-baselining (updating snapshots)
 
@@ -620,6 +665,39 @@ committed baseline no longer reflects the current values. When you have
 intentionally changed something a snapshot covers, force a faithful
 re-capture by **deleting the PNG and re-running** `pnpm test:vrt`, rather
 than trusting a green `test:vrt:update`.
+
+#### The same 1% is a permanent blind spot for small elements
+
+The threshold does not only hide *drift you caused*; it hides **regressions
+nobody caused on purpose**, for any visual element small enough to fit under
+it. This is not hypothetical — it is how
+[#524](https://github.com/yasmro/schatten/issues/524) shipped: Switch's
+`disabled + checked` check icon was pinned to `--color-background` with no
+`:disabled` override, so it rendered pale-on-pale and was effectively
+invisible. Unit tests (jsdom, no stylesheet) could not see a colour, and the
+icon is a ~12px glyph inside a ~268×148 frame — well under 1% of the pixels —
+so **every gate stayed green** through review and release.
+
+The mitigation is roster shape, not a tighter threshold (lowering it globally
+would make every font/antialiasing nudge a failure):
+
+- **Put small elements' state × size intersections into an actual frame.**
+  A story that renders the state at one size only cannot catch the same bug
+  at another. #524's fix was verified at `md`; the `sm` / `lg` intersection
+  had no frame at all until [#531](https://github.com/yasmro/schatten/issues/531)
+  added it to `Disabled`. Prefer extending an existing roster story (no new
+  PNG, no roster edit) over adding a new one.
+- **Group several instances into one frame when they are small.** Four rows
+  of a 12px icon in one story is four chances to exceed 1%; four separate
+  stories is four independent sub-threshold hiding places.
+- **Where the contract is a colour/ratio rather than a shape, assert it
+  outside VRT.** A token-level unit test (`resolution.test.ts`) or a CSS-source
+  assertion (`Switch.test.tsx` §"CSS colour contract") catches what a
+  screenshot structurally cannot. VRT proves "it still looks like this"; it is
+  a poor instrument for "this is legible."
+
+Rule of thumb: **the smaller the element carrying the meaning, the less VRT
+is protecting it** — pair it with a non-pixel assertion.
 
 ### The mirror trap — `rm` + regenerate without `test:vrt` first
 

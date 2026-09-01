@@ -142,14 +142,6 @@
     pointer-events: none;
     color: var(--color-foreground-disabled);
   }
-  /* The shortcut and the sub-trigger chevron keep their own muted tier at
-   * rest, so the disabled `color` above cannot reach them by inheritance —
-   * repaint them from the block's state rule (css-api.md §"State-driven
-   * color lives on the block"). Wins on specificity (0,3,0) vs (0,1,0). */
-  .st-dropdown-menu__item[data-disabled] .st-dropdown-menu__shortcut,
-  .st-dropdown-menu__item[data-disabled] .st-dropdown-menu__sub-trigger-chevron {
-    color: var(--color-foreground-disabled);
-  }
 
   /* destructive action role — red text carries the role; the highlight
    * background intentionally matches the default item (surface-hover, from the
@@ -229,5 +221,14 @@
     width: 1rem;
     height: 1rem;
     color: var(--color-foreground-muted);
+  }
+
+  /* The shortcut and the sub-trigger chevron keep their own muted tier at
+   * rest, so the disabled `color` above cannot reach them by inheritance —
+   * repaint them from the block's state rule (css-api.md §"State-driven
+   * color lives on the block"). Wins on specificity (0,3,0) vs (0,1,0). */
+  .st-dropdown-menu__item[data-disabled] .st-dropdown-menu__shortcut,
+  .st-dropdown-menu__item[data-disabled] .st-dropdown-menu__sub-trigger-chevron {
+    color: var(--color-foreground-disabled);
   }
 }

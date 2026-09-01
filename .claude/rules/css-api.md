@@ -908,7 +908,12 @@ form there is to keep the resting token on the child and let the block's
 ```
 
 This is still "the block owns the state" — the state rule lives on the
-block's selector, the child never decides *when* to change. Both shapes are
+block's selector, the child never decides *when* to change. Place the repaint
+**after** the child's base rule in the source, per
+[§Authoring consequences](#authoring-consequences): it wins on specificity
+either way, but writing it first makes Biome's `noDescendingSpecificity` fire
+on every later rule that touches the same child (14 warnings when this was
+first authored the other way round). Both shapes are
 accepted by the guard; what it rejects is a child that pins a color and is
 reached by **neither**.
 

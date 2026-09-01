@@ -79,8 +79,7 @@ describe('Tooltip', () => {
     await waitFor(() => {
       expect(screen.getByRole('tooltip')).toBeInTheDocument()
     })
-    const tooltipContent = screen.getByRole('tooltip').parentElement
-    expect(tooltipContent).toHaveClass('custom-class')
+    expect(screen.getByRole('tooltip')).toHaveClass('custom-class')
   })
 
   it('can be controlled with open prop', async () => {
@@ -125,11 +124,9 @@ describe('Tooltip', () => {
           </Tooltip>
         </TooltipProvider>,
       )
-      // Radix renders role="tooltip" on the content element; the parent
-      // wrapper holds the className we set (matches the existing
-      // `custom-class` test pattern above).
-      const tooltip = screen.getByRole('tooltip').parentElement
-      expect(tooltip).toHaveClass('st-tooltip__content')
+      // `role="tooltip"` sits on the content element itself, which is where
+      // our className lands (the parent is Radix's popper wrapper).
+      expect(screen.getByRole('tooltip')).toHaveClass('st-tooltip__content')
     })
   })
 

@@ -119,18 +119,23 @@ function scan(): { findings: Finding[]; pinnedAnywhere: Set<string> } {
 
 /*
  * Every sub-element that pins a color inside a stateful component, with the
- * reason it is allowed to. Three kinds of reason are legitimate:
+ * reason it is allowed to. Exactly two reasons are legitimate:
  *
  *   region        — the element never renders inside the stateful block (a
  *                   portal panel, a group label, a tab panel), so the block's
- *                   disabled state cannot reach it in the first place.
+ *                   state cannot reach it in the first place.
  *   specificity   — a modifier whose block-state sibling outranks it, so the
  *                   state still wins where they collide.
- *   gray-zone     — a muted adornment that DOES sit inside the stateful block
- *                   and does NOT follow it. Documented as a deliberate
- *                   exemption in css-api.md; revisit as one visual decision.
+ *   a11y          — following the block's state would push NON-EXEMPT text
+ *                   below WCAG AA. `:disabled` is exempt from 1.4.3 only for
+ *                   the control itself (and `aria-disabled` descendants); a
+ *                   plain <span> beside a disabled <input> is held to 4.5:1.
  *
- * A new entry means a new judgement call — make it before adding the line.
+ * If none applies, the sub-element DOES sit inside the block and DOES NOT
+ * follow it — that is the bug this guard exists for, so fix the CSS instead of
+ * adding a line here. A child with a deliberate resting tier (a muted
+ * adornment) is repainted by a state-scoped descendant rule on the block; see
+ * the `:disabled` adornment rules in Input.css / Select.css / DropdownMenu.css.
  */
 const EXEMPT: Record<string, string> = {
   '.st-dropdown-menu__content':
@@ -138,18 +143,10 @@ const EXEMPT: Record<string, string> = {
   '.st-dropdown-menu__item--destructive':
     'specificity — `.st-dropdown-menu__item[data-disabled]` is (0,2,0) and outranks this (0,1,0), so a disabled destructive item still grays out',
   '.st-dropdown-menu__label': 'region — a group label, not part of any item',
-  '.st-dropdown-menu__shortcut':
-    'gray-zone — muted adornment inside the item; stays foreground-muted while a disabled item drops to foreground-disabled',
-  '.st-dropdown-menu__sub-trigger-chevron':
-    'gray-zone — muted adornment inside the sub-trigger item; same shape as __shortcut',
-  '.st-input__icon-left':
-    'gray-zone — muted adornment inside the wrapper; does not follow `:has(.st-input:disabled)`',
-  '.st-input__icon-right': 'gray-zone — see .st-input__icon-left',
-  '.st-input__text-left': 'gray-zone — see .st-input__icon-left',
-  '.st-input__text-right': 'gray-zone — see .st-input__icon-left',
+  '.st-input__text-left':
+    'a11y — real text in a plain <span> with no aria-disabled ancestor, so WCAG 1.4.3 still applies; foreground-disabled measures 3.83:1 light / 3.52:1 dark (axe: serious). The sibling icons DO follow the block — they are non-text (1.4.11, 3:1)',
+  '.st-input__text-right': 'a11y — see .st-input__text-left',
   '.st-select__content': 'region — the portal panel itself; not inside the trigger',
-  '.st-select__icon':
-    'gray-zone — the chevron inside the trigger; stays foreground-muted while a disabled trigger drops to foreground-disabled',
   '.st-select__label': 'region — a group label inside the panel, not part of any item',
   '.st-tabs__content': 'region — the tab panel, rendered outside the trigger list',
 }

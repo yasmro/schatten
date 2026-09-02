@@ -308,6 +308,23 @@ export const Disabled: Story = {
     <div className="flex flex-col gap-4 w-72">
       <Input disabled placeholder="Disabled" />
       <Input disabled defaultValue="Disabled with value" aria-label="Disabled with value" />
+      {/* Adornments must recede with the block — an icon / text affix that
+          kept its resting muted tier would read stronger than the disabled
+          value it decorates. */}
+      <Input
+        disabled
+        iconLeft={Search}
+        iconRight={Eye}
+        defaultValue="Disabled with icons"
+        aria-label="Disabled with icons"
+      />
+      <Input
+        disabled
+        textLeft="https://"
+        textRight=".com"
+        defaultValue="Disabled with text"
+        aria-label="Disabled with text affixes"
+      />
     </div>
   ),
 }

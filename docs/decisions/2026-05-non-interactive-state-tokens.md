@@ -124,15 +124,27 @@ an active control's border is required to be.
 > class of drift cannot recur silently.
 >
 > **Not retuned, and that is a live question rather than a settled one.**
-> Hitting ~5:1 in *both* modes is impossible with one declaration: light
-> wants a darker gray, dark a lighter one, so the fix is the asymmetric
-> `gray-600` / `gray-400` pair this section already rejected — and
-> `--color-foreground-disabled` being **Mode-owned** would propagate it to
-> Checkbox / Select / DropdownMenu / Switch at once. Trading the
-> one-declaration symmetry for ~1 point of contrast on intentionally-receding
-> content is a designer-owned call, so #531 (a test-coverage change) left it
-> alone rather than deciding it in passing. The numbers above are the
-> starting point for that conversation whenever someone wants to have it.
+> Reaching ~5:1 in *both* modes is impossible with one declaration — light
+> wants a *darker* gray, dark a *lighter* one — so it needs an asymmetric
+> pair. **That pair has never been evaluated**, and it is not the one in the
+> "Alternatives considered" table below: that row rejects `gray-400` light /
+> `gray-600` dark, which moves contrast the **opposite** way (2.56 / 2.30 —
+> more fade, and below the 3:1 floor this entry now commits to). The
+> contrast-*raising* assignment is its mirror:
+>
+> | Candidate | Light (`on gray-100`) | Dark (`on gray-800`) |
+> |---|---|---|
+> | current — `gray-500` both | 3.81:1 | 3.52:1 |
+> | `gray-600` light / `gray-400` dark | **5.82:1** | **5.23:1** |
+>
+> So the option is real and would clear the standard this entry originally
+> claimed. What it costs is the one-declaration symmetry that is the whole
+> subject of this section, and — because `--color-foreground-disabled` is
+> **Mode-owned** — it lands on Checkbox / Select / DropdownMenu / Switch at
+> once. Whether a receding state is worth ~2 points of contrast at that price
+> is a designer-owned call, so #531 (a test-coverage change) left it alone
+> rather than deciding it in passing. These numbers are the starting point
+> for that conversation whenever someone wants to have it.
 
 **The floor is now pinned by test.**
 [`resolution.test.ts`](../../src/core/tokens/__tests__/resolution.test.ts)

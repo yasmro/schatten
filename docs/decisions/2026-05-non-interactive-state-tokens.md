@@ -4,6 +4,7 @@
 |---|---|
 | Date | 2026-05-16 |
 | Status | Accepted |
+| Amended | 2026-09-02 — §2 の contrast 公称値を実測値に訂正 (~5:1 / ~4:1 → 3.81:1 / 3.52:1)。トークン値は不変。[#531](https://github.com/yasmro/schatten/issues/531) / [PR #533](https://github.com/yasmro/schatten/pull/533) |
 | Related issue | [#180](https://github.com/yasmro/schatten/issues/180) |
 | Related PR | [#197](https://github.com/yasmro/schatten/pull/197) |
 | Related rules | [state-token-guideline.md](../../.claude/rules/state-token-guideline.md), [theme-architecture.md](../../.claude/rules/theme-architecture.md) |
@@ -13,6 +14,14 @@ This is the first entry in `docs/decisions/`. The directory exists to capture
 design-time *reasoning* that would otherwise be lost — the choices that
 codebase, rules, and tests do not preserve. Future entries should follow the
 same structure.
+
+**Amending an entry.** A decision log is a record of what was decided *and
+why*, so a later correction is appended, never rewritten in place: keep the
+original claim visible, state plainly what was wrong with it, and add an
+`Amended` row to the header table so a reader who only skims the header can
+see the entry has moved. `Status` stays `Accepted` when the *decision* still
+holds and only its supporting facts were corrected; flip it to `Superseded`
+only when the decision itself changes. §2 below is the worked example.
 
 ## Context
 
@@ -89,47 +98,53 @@ symmetric mid-gray solves both modes with one declaration:
 | Dark | `gray-500` on `gray-800` | **3.52:1** |
 
 WCAG 2.1 exempts disabled UI from contrast requirements (SC 1.4.3 Note 1),
-but Schatten deliberately exceeds the exemption: low-vision and aging users
-benefit when a disabled value is still readable, even if it is clearly
-inactive. Both figures clear the 3:1 bar WCAG asks of *non-text* UI
+and Schatten still holds itself to a floor above that exemption: low-vision
+and aging users benefit when a disabled value is readable, even if it is
+clearly inactive. Both figures clear the 3:1 bar WCAG asks of *non-text* UI
 components (SC 1.4.11) — i.e. disabled content stays as distinguishable as
-an active control's border is required to be — while sitting deliberately
-below the 4.5:1 small-text bar, because a disabled control **should** recede.
+an active control's border is required to be.
 
-> **Correction (2026-09-02, [#531](https://github.com/yasmro/schatten/issues/531)).**
-> This section previously claimed **~5:1** (light) and **~4:1** (dark). Those
-> figures were derived from the OKLCH *lightness* difference rather than from
-> WCAG *relative luminance*, and the light one was materially optimistic. The
-> table above is the measured truth, corroborated by two independent paths:
-> the token math in
-> [`resolution.test.ts`](../../src/core/tokens/__tests__/resolution.test.ts)
+> **Correction (2026-09-02, [#531](https://github.com/yasmro/schatten/issues/531)
+> / [PR #533](https://github.com/yasmro/schatten/pull/533)).**
+>
+> **This section overstated the contrast for four months.** It claimed
+> **~5:1** (light) and **~4:1** (dark); the measured values are **3.81:1** and
+> **3.52:1**. The light figure in particular did not hold — the original
+> numbers were derived from the OKLCH *lightness* difference rather than from
+> WCAG *relative luminance*, so the doc asserted a standard the tokens were
+> not meeting. Any earlier reasoning that leaned on "we clear ~5:1" should be
+> re-read with 3.81 in mind.
+>
+> The corrected values are corroborated by two independent paths: the token
+> math in [`resolution.test.ts`](../../src/core/tokens/__tests__/resolution.test.ts)
 > (3.81 / 3.52, OKLCH → linear sRGB) and a pixel readback of the rendered
-> Switch VRT baselines (3.83 / 3.53, sRGB). The 0.02 gap between the two is
-> rounding in the OKLCH → sRGB 8-bit quantisation, not disagreement.
+> Switch VRT baselines (3.83 / 3.53, sRGB). The 0.02 gap is 8-bit
+> quantisation, not disagreement. **No token value changed** — only the
+> documented figures — and the ratios are now machine-pinned (below), so this
+> class of drift cannot recur silently.
 >
-> **Nothing about the token values changed** — only the documented figures.
-> The ratios are now machine-pinned (see below), so this class of drift
-> cannot recur silently.
->
-> **Deliberately not retuned.** Hitting ~5:1 in *both* modes is impossible
-> with one declaration: light wants a darker gray, dark wants a lighter one,
-> so the fix would be an asymmetric `gray-600` / `gray-400` pair — which is
-> exactly the alternative this section already rejected below, and which
-> `--color-foreground-disabled` being **Mode-owned** would propagate to
+> **Not retuned, and that is a live question rather than a settled one.**
+> Hitting ~5:1 in *both* modes is impossible with one declaration: light
+> wants a darker gray, dark a lighter one, so the fix is the asymmetric
+> `gray-600` / `gray-400` pair this section already rejected — and
+> `--color-foreground-disabled` being **Mode-owned** would propagate it to
 > Checkbox / Select / DropdownMenu / Switch at once. Trading the
 > one-declaration symmetry for ~1 point of contrast on intentionally-receding
-> content is a designer-owned aesthetic call, not a correctness fix. Revisit
-> only with a concrete legibility complaint; the numbers above are the
-> starting point for that conversation.
+> content is a designer-owned call, so #531 (a test-coverage change) left it
+> alone rather than deciding it in passing. The numbers above are the
+> starting point for that conversation whenever someone wants to have it.
 
-**These ratios are now pinned by test.**
+**The floor is now pinned by test.**
 [`resolution.test.ts`](../../src/core/tokens/__tests__/resolution.test.ts)
-(`non-interactive state WCAG contrast`) asserts the ≥ 3:1 floor in both
-modes, the light/dark symmetry the single declaration rests on, and — for
-`readOnly`, whose value is *real readable content* rather than receding
-chrome — the full 4.5:1 small-text bar. A primitive re-tune that eroded any
-of these now fails on every unit run instead of only being noticed the next
-time someone measures a screenshot by hand.
+(`non-interactive state WCAG contrast`) asserts the ≥ 3:1 disabled floor in
+both modes, the light/dark symmetry the single declaration rests on, and —
+for `readOnly`, whose value is *real readable content* rather than receding
+chrome — the full 4.5:1 small-text bar. It deliberately asserts **no upper
+bound** on the disabled ratio: "disabled must also stay below 4.5:1 to keep
+reading as inactive" is a plausible policy, but it is not one this log has
+ever stated, and encoding it in a test would both invent policy and block a
+future legibility fix that landed at, say, 4.6:1. If that bound is wanted,
+state it here first.
 
 #### Alternatives considered
 

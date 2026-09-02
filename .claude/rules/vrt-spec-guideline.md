@@ -562,51 +562,53 @@ pnpm test:vrt -- --grep "Button"
 > the fresh `webServer` boots against the worktree under test. CI is
 > immune (`reuseExistingServer` is false there) — which is exactly why a
 > green local run can still fail CI.
->
-> **Check the port before *every* re-baseline, not once per session.** The
-> guard above reads as a setup step, and that is not enough: a sibling
-> worktree can claim 6006 **mid-session**, between an early check and a
-> later `--update-snapshots`. That is what happened in #531 — the port was
-> verified free at the start, a parallel session's Storybook (#530's
-> worktree) came up ~7 hours later, and the next re-baseline silently wrote
-> *that* branch's render into this branch's PNGs. The tell is a re-baseline
-> whose output does not match what you just changed (here: a 268×148 file
-> for a story that renders 300×212). Two habits catch it:
->
-> - **Never filter the guard's output away.** In #531 the `lsof` warning did
->   fire; it was piped through a `grep` that only kept Playwright's own
->   lines. Run the check as its own visible command.
-> - **Verify the artifact, not just the exit code.** `--update-snapshots`
->   exits 0 whatever it captured. Confirm the written PNG afterwards —
->   `file …/foo.png` for the dimensions, and open it — before committing.
->
-> **When you cannot have the port, take a different one.** Killing a
-> sibling session's server mid-run breaks *their* work. Instead, run
-> against a Storybook bound to your own worktree on a private port with a
-> throwaway config (delete it before committing):
->
-> ```ts
-> // playwright.isolated.config.ts — temporary, do not commit
-> import base from './playwright.config'
-> const PORT = 6017
-> export default {
->   ...base,
->   use: { ...base.use, baseURL: `http://localhost:${PORT}` },
->   webServer: {
->     command: `pnpm exec storybook dev -p ${PORT} --no-open --quiet`,
->     url: `http://localhost:${PORT}`,
->     reuseExistingServer: false,
->     timeout: 180_000,
->   },
-> }
-> ```
->
-> ```bash
-> npx playwright test --config playwright.isolated.config.ts src/components/lv1/Switch/
-> ```
->
-> `reuseExistingServer: false` is the load-bearing line — it makes the
-> contamination structurally impossible rather than merely unlikely.
+
+### Re-check the port before every re-baseline — a cross-worktree trap
+
+**Check the port before *every* re-baseline, not once per session.** The
+guard above reads as a setup step, and that is not enough: a sibling
+worktree can claim 6006 **mid-session**, between an early check and a
+later `--update-snapshots`. That is what happened in #531 — the port was
+verified free at the start, a parallel session's Storybook (#530's
+worktree) came up ~7 hours later, and the next re-baseline silently wrote
+*that* branch's render into this branch's PNGs. The tell is a re-baseline
+whose output does not match what you just changed (here: a 268×148 file
+for a story that renders 300×212). Two habits catch it:
+
+- **Never filter the guard's output away.** In #531 the `lsof` warning did
+  fire; it was piped through a `grep` that only kept Playwright's own
+  lines. Run the check as its own visible command.
+- **Verify the artifact, not just the exit code.** `--update-snapshots`
+  exits 0 whatever it captured. Confirm the written PNG afterwards —
+  `file …/foo.png` for the dimensions, and open it — before committing.
+
+**When you cannot have the port, take a different one.** Killing a
+sibling session's server mid-run breaks *their* work. Instead, run
+against a Storybook bound to your own worktree on a private port with a
+throwaway config (delete it before committing):
+
+```ts
+// playwright.isolated.config.ts — temporary, do not commit
+import base from './playwright.config'
+const PORT = 6017
+export default {
+  ...base,
+  use: { ...base.use, baseURL: `http://localhost:${PORT}` },
+  webServer: {
+    command: `pnpm exec storybook dev -p ${PORT} --no-open --quiet`,
+    url: `http://localhost:${PORT}`,
+    reuseExistingServer: false,
+    timeout: 180_000,
+  },
+}
+```
+
+```bash
+npx playwright test --config playwright.isolated.config.ts src/components/lv1/Switch/
+```
+
+`reuseExistingServer: false` is the load-bearing line — it makes the
+contamination structurally impossible rather than merely unlikely.
 
 ## Re-baselining (updating snapshots)
 

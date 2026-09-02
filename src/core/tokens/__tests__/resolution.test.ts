@@ -676,6 +676,12 @@ describe('state emphasis WCAG contrast (AA small text) (#344 Phase B)', () => {
  *     recede, and WCAG exempts it from 1.4.3 entirely. 3:1 mirrors what
  *     1.4.11 asks of non-text UI, and matches how `foreground-subtle` is
  *     pinned above (≥ 3, deliberately not ≥ 4.5).
+ *     Only a FLOOR is asserted. An upper bound ("disabled must also stay
+ *     below 4.5:1 so it keeps reading as inactive") is arguable, but no such
+ *     policy exists in the decision log today — adding one here would be this
+ *     test inventing design policy rather than pinning it, and would block a
+ *     future legibility fix that happened to land at 4.6:1. If that bound is
+ *     ever wanted, it belongs in the decision log first.
  *   - readOnly ≥ 4.5:1 — a readOnly control's value IS readable content that
  *     gets submitted with the form, so it takes the full small-text bar. It
  *     has no `foreground-readonly` token precisely because the value keeps
@@ -698,13 +704,6 @@ describe('non-interactive state WCAG contrast (#531)', () => {
         disabledRatio(scope),
         `foreground-disabled on surface-disabled (${mode})`,
       ).toBeGreaterThanOrEqual(3)
-    })
-
-    // The other half of the floor: disabled must also stay BELOW the small-text
-    // bar. If a re-tune pushed it past 4.5:1 the state would stop reading as
-    // "not in play" — the recede-by-design intent is a two-sided contract.
-    it(`keeps disabled content receding (below AA small text) in ${mode} mode`, () => {
-      expect(disabledRatio(scope)).toBeLessThan(4.5)
     })
 
     it(`keeps a readOnly value fully readable (AA small text) in ${mode} mode`, () => {

@@ -4,6 +4,7 @@
 |---|---|
 | Date | 2026-05-16 |
 | Status | Accepted |
+| Amended | 2026-09-02 — §2 の contrast 公称値を実測値に訂正 (~5:1 / ~4:1 → 3.81:1 / 3.52:1)。トークン値は不変。[#531](https://github.com/yasmro/schatten/issues/531) / [PR #533](https://github.com/yasmro/schatten/pull/533) |
 | Related issue | [#180](https://github.com/yasmro/schatten/issues/180) |
 | Related PR | [#197](https://github.com/yasmro/schatten/pull/197) |
 | Related rules | [state-token-guideline.md](../../.claude/rules/state-token-guideline.md), [theme-architecture.md](../../.claude/rules/theme-architecture.md) |
@@ -13,6 +14,14 @@ This is the first entry in `docs/decisions/`. The directory exists to capture
 design-time *reasoning* that would otherwise be lost — the choices that
 codebase, rules, and tests do not preserve. Future entries should follow the
 same structure.
+
+**Amending an entry.** A decision log is a record of what was decided *and
+why*, so a later correction is appended, never rewritten in place: keep the
+original claim visible, state plainly what was wrong with it, and add an
+`Amended` row to the header table so a reader who only skims the header can
+see the entry has moved. `Status` stays `Accepted` when the *decision* still
+holds and only its supporting facts were corrected; flip it to `Superseded`
+only when the decision itself changes. §2 below is the worked example.
 
 ## Context
 
@@ -79,16 +88,75 @@ Every other state token in the system shifts shade between light/dark
 (`error-600` → `error-500`, etc.). `foreground-disabled` is pinned at
 `gray-500` in both.
 
-**Why**: `gray-500` (OKLCH lightness ≈ 0.58) is the perceptual mid-point.
-Against `gray-100` (light surface, lightness ≈ 0.96) it yields ~5:1
-contrast — muted but legible. Against `gray-800` (dark surface, lightness
-≈ 0.27) it yields ~4:1 — also legible. A symmetric mid-gray solves both
-modes with one declaration.
+**Why**: `gray-500` (OKLCH lightness ≈ 0.58) is the perceptual mid-point. It
+lands at a near-identical contrast against both disabled surfaces, so a
+symmetric mid-gray solves both modes with one declaration:
+
+| Mode | Pair | WCAG contrast |
+|---|---|---|
+| Light | `gray-500` on `gray-100` | **3.81:1** |
+| Dark | `gray-500` on `gray-800` | **3.52:1** |
 
 WCAG 2.1 exempts disabled UI from contrast requirements (SC 1.4.3 Note 1),
-but Schatten deliberately exceeds the exemption: low-vision and aging users
-benefit when a disabled value is still readable, even if it is clearly
-inactive.
+and Schatten still holds itself to a floor above that exemption: low-vision
+and aging users benefit when a disabled value is readable, even if it is
+clearly inactive. Both figures clear the 3:1 bar WCAG asks of *non-text* UI
+components (SC 1.4.11) — i.e. disabled content stays as distinguishable as
+an active control's border is required to be.
+
+> **Correction (2026-09-02, [#531](https://github.com/yasmro/schatten/issues/531)
+> / [PR #533](https://github.com/yasmro/schatten/pull/533)).**
+>
+> **This section overstated the contrast for four months.** It claimed
+> **~5:1** (light) and **~4:1** (dark); the measured values are **3.81:1** and
+> **3.52:1**. The light figure in particular did not hold — the original
+> numbers were derived from the OKLCH *lightness* difference rather than from
+> WCAG *relative luminance*, so the doc asserted a standard the tokens were
+> not meeting. Any earlier reasoning that leaned on "we clear ~5:1" should be
+> re-read with 3.81 in mind.
+>
+> The corrected values are corroborated by two independent paths: the token
+> math in [`resolution.test.ts`](../../src/core/tokens/__tests__/resolution.test.ts)
+> (3.81 / 3.52, OKLCH → linear sRGB) and a pixel readback of the rendered
+> Switch VRT baselines (3.83 / 3.53, sRGB). The 0.02 gap is 8-bit
+> quantisation, not disagreement. **No token value changed** — only the
+> documented figures — and the ratios are now machine-pinned (below), so this
+> class of drift cannot recur silently.
+>
+> **Not retuned, and that is a live question rather than a settled one.**
+> Reaching ~5:1 in *both* modes is impossible with one declaration — light
+> wants a *darker* gray, dark a *lighter* one — so it needs an asymmetric
+> pair. **That pair has never been evaluated**, and it is not the one in the
+> "Alternatives considered" table below: that row rejects `gray-400` light /
+> `gray-600` dark, which moves contrast the **opposite** way (2.56 / 2.30 —
+> more fade, and below the 3:1 floor this entry now commits to). The
+> contrast-*raising* assignment is its mirror:
+>
+> | Candidate | Light (`on gray-100`) | Dark (`on gray-800`) |
+> |---|---|---|
+> | current — `gray-500` both | 3.81:1 | 3.52:1 |
+> | `gray-600` light / `gray-400` dark | **5.82:1** | **5.23:1** |
+>
+> So the option is real and would clear the standard this entry originally
+> claimed. What it costs is the one-declaration symmetry that is the whole
+> subject of this section, and — because `--color-foreground-disabled` is
+> **Mode-owned** — it lands on Checkbox / Select / DropdownMenu / Switch at
+> once. Whether a receding state is worth ~2 points of contrast at that price
+> is a designer-owned call, so #531 (a test-coverage change) left it alone
+> rather than deciding it in passing. These numbers are the starting point
+> for that conversation whenever someone wants to have it.
+
+**The floor is now pinned by test.**
+[`resolution.test.ts`](../../src/core/tokens/__tests__/resolution.test.ts)
+(`non-interactive state WCAG contrast`) asserts the ≥ 3:1 disabled floor in
+both modes, the light/dark symmetry the single declaration rests on, and —
+for `readOnly`, whose value is *real readable content* rather than receding
+chrome — the full 4.5:1 small-text bar. It deliberately asserts **no upper
+bound** on the disabled ratio: "disabled must also stay below 4.5:1 to keep
+reading as inactive" is a plausible policy, but it is not one this log has
+ever stated, and encoding it in a test would both invent policy and block a
+future legibility fix that landed at, say, 4.6:1. If that bound is wanted,
+state it here first.
 
 #### Alternatives considered
 

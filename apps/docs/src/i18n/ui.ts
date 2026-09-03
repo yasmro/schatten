@@ -247,14 +247,14 @@ export const ui: Record<Locale, Strings> = {
     },
     landing: {
       metaDescription:
-        'Schatten design system — React コンポーネントと framework-agnostic な CSS クラス API を、ひとつのトークン基盤の上で。',
+        'Schatten design system — React コンポーネントと、フレームワークに依存しない CSS クラス API を、共通のトークン基盤の上に。',
       heroTitle: '陰影のあるインターフェースを、ふたつの配信層で。',
       heroLead:
-        'React のコンポーネントと、素の HTML で使える CSS クラス。Schatten はそのふたつを、ひとつのデザイントークンの上で提供します。<br>このページ自体が後者の証明です — React を使わず、配布している CSS 1 枚だけで描かれています。',
+        'React のコンポーネントと、素の HTML で使える CSS クラス。Schatten はこの両方を、共通のデザイントークンの上で提供しています。<br>このページ自体がその証拠です。React は使わず、配布している CSS 1 枚だけで描かれています。',
       ctaGetStarted: 'Get started',
       ctaStorybook: 'Storybook を見る',
       proofTitle: 'ひとつのボタン、ふたつの書き方',
-      proofDesc: 'React でも、素の HTML でも、届く CSS は同じ 1 枚 — だから描画も同じです。',
+      proofDesc: 'React でも、素の HTML でも、届く CSS は同じ 1 枚。だから描画も同じになります。',
       proofRenderLabel: 'Render(このページの実物)',
       proofRenderButton: '保存',
       proofFooter:
@@ -309,12 +309,12 @@ export const ui: Record<Locale, Strings> = {
         'これは <code>-500</code> だけの話ではない。<strong>全 11 段で明度と彩度が一致し、分かれるのは色相だけ</strong>。墨と和紙は同じ階調構造を共有する一対である。',
       chromaticRampTitle: '有彩の二色も、同じ梯子に乗る',
       oklchNote:
-        'すべて OKLCH で定義される。知覚的に均等な色空間なので、「同じ明度」が計算上ではなく<strong>見た目として</strong>成立する。',
+        'すべて OKLCH で定義されている。知覚的に均等な色空間なので、「同じ明度」は数値の上だけでなく、<strong>見た目にもそのまま</strong>現れる。',
 
       seasonsLabel: '季節',
       seasonsTitle: '八つの季節、ひとつの明度',
       seasonsLead:
-        '季節(Special テーマ)は <code>--color-theme-*</code> のランプだけを替える。500 段はすべて L 64%、700 段はすべて L 46% で固定 ― 動くのは色相と彩度だけ。区切りの日付は、古典的な<strong>八節</strong>(四立と二至二分)と一致する。',
+        '季節(Special テーマ)は <code>--color-theme-*</code> のランプだけを替える。500 段はすべて L 64%、700 段はすべて L 46% に固定されていて、動くのは色相と彩度だけだ。区切りの日付は、古典的な<strong>八節</strong>(四立と二至二分)と一致する。',
       seasonNames: ['立春', '春分', '立夏', '夏至', '立秋', '秋分', '立冬', '冬至'],
       seasonsNote: '巡る季節と、動かない可読性。八節は色だけを運び、明度の梯子には触れない。',
 
@@ -323,7 +323,7 @@ export const ui: Record<Locale, Strings> = {
       typeLead1:
         '<strong>構造</strong>は西洋の工学語彙 ― shadcn / Radix / OKLCH / BEM / CVA。<strong>表層</strong>は和の美学語彙 ― 朱・墨・和紙・藍・八節。どちらも他方の装飾ではない。',
       typeLead2:
-        'この二重性は名前と色名だけの話ではなく、組版に実装されている。sans も serif も、<strong>欧文フェイスと和文フェイスを明示的に対にして</strong>ひとつのスタックを組む。バイリンガルであることが、既定の状態。',
+        'この二重性は、名前や色名だけにとどまらない。組版そのものに実装されている。sans も serif も、<strong>欧文フェイスと和文フェイスを明示的に対にして</strong>ひとつのスタックを組む。バイリンガルであることが、既定の状態。',
       faceSansRole: 'sans — UI・本文',
       faceSerifRole: 'serif — 見出し・長文',
       faceSampleLatin: 'Shadow &amp; Gradation',
@@ -343,10 +343,10 @@ export const ui: Record<Locale, Strings> = {
         'Schatten の全コンポーネント一覧と、React island によるライブデモ — 第二の配信層がこのページで動いている。',
       title: 'コンポーネント',
       lead:
-        '完全なカタログ(stories・props・全状態)は <a href="%STORYBOOK%">Storybook</a> にある。このページはその索引と、ひとつの生きた証明 — 一角だけ、本物の React 層が動いている。',
+        '完全なカタログ(stories・props・全状態)は <a href="%STORYBOOK%">Storybook</a> にある。このページはその索引であり、ひとつの生きた証明でもある。ページの一角だけ、本物の React 層が動いている。',
       liveTitle: 'Live — この一角だけ React island',
       liveDesc:
-        'このサイトの他の場所はすべて、配布 CSS で描かれた静的 HTML。ここだけが本物の React コンポーネントを hydrate している — 実際の state、実際のイベント、実際の ARIA 配線。消費経路は利用者と同じ exports map。',
+        'このサイトの他の場所はすべて、配布 CSS で描かれた静的 HTML。ここだけが本物の React コンポーネントを hydrate していて、state もイベントも ARIA 配線も実際に動く。利用者が使うのと同じ exports map を、そのまま経由している。',
       saveLabel: '保存',
       savingDoneLabel: '保存しました ✓',
       switchLabel: '通知',
@@ -354,7 +354,7 @@ export const ui: Record<Locale, Strings> = {
       inputPlaceholder: 'メールアドレス',
       listTitle: '全コンポーネント',
       listLead:
-        'ビルド時にコンポーネントのディレクトリから生成している — README の一覧や coverage ゲートと同じ生成元。各項目は Storybook の該当ページへリンクする。',
+        'ビルド時にコンポーネントのディレクトリから生成していて、README の一覧や coverage ゲートと同じ生成元を使っている。各項目は Storybook の該当ページへリンクする。',
     },
   },
 }

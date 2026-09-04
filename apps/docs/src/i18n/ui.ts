@@ -142,7 +142,7 @@ export const ui: Record<Locale, Strings> = {
       thesis:
         'Shadow is not the absence of light.<br>It is the <em>gradation</em> that arises between paper and ink.',
       origin:
-        'Schatten is German for “shadow.” It is designed to bring the concept of Jun’ichirō Tanizaki’s <em>In Praise of Shadows</em> down to the level of individual components — buttons, text, and the rest.',
+        'Schatten is German for “shadow.” It implements the portfolio site’s brand concept, <em>In Praise of Shadows</em> (Jun’ichirō Tanizaki), as component-level design tokens instead of page-level visuals.',
       gradationPaper: 'paper · washi',
       gradationInk: 'ink · shadow',
 
@@ -273,7 +273,7 @@ export const ui: Record<Locale, Strings> = {
       thesis:
         '陰影とは、光の不在ではなく、<br>紙と墨のあいだに生まれる<em>階調</em>である。',
       origin:
-        'Schatten はドイツ語で「影」。谷崎潤一郎『陰翳礼讃』というコンセプトを、ボタンや文字といったコンポーネント単位まで持ち込むために設計した。',
+        'Schatten はドイツ語で「影」。ポートフォリオサイトのブランドコンセプト『陰翳礼讃』(谷崎潤一郎)を、ページ単位ではなくボタンや文字などのコンポーネント単位のデザイントークンとして実装したものである。',
       gradationPaper: '紙 · 和紙',
       gradationInk: '墨 · 影',
 

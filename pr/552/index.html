@@ -1,0 +1,19 @@
+<!doctype html>
+<!-- Pages root router (#502). The root belongs to nobody: it routes readers
+     to the two surfaces that live under named directories.
+
+     - Old-style Storybook deep links carry `?path=` — send them to
+       storybook/ so pre-migration links keep working.
+     - Everyone else goes to site/ (the public docs site).
+     - <noscript> falls back to site/.
+
+     Deployed to the Pages root by deploy-site.yml. The PR-preview workflow
+     (storybook-preview.yml) copies the SAME file to pr/<n>/, so the preview
+     tree mirrors production exactly. -->
+<meta charset="utf-8">
+<title>Schatten</title>
+<script>
+  var q = location.search;
+  location.replace(q.indexOf('path=') !== -1 ? 'storybook/' + q : 'site/');
+</script>
+<noscript><meta http-equiv="refresh" content="0; url=site/"></noscript>

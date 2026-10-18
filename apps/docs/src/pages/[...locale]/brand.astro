@@ -91,6 +91,7 @@ const leadings = [
     <header class="brand__masthead">
       <h1 class="brand__mark">陰影<span class="brand__gloss">Schatten · Brand Concept</span></h1>
       <p class="brand__thesis" set:html={t.thesis} />
+      <p class="brand__origin" set:html={t.origin} />
     </header>
 
     <div class="brand__gradation" aria-hidden="true">
@@ -315,6 +316,22 @@ const leadings = [
   .brand__thesis :global(em) {
     font-style: normal;
     color: var(--color-vermillion);
+  }
+
+  /* Plain-language counterpart to the thesis above — sans, small, muted.
+   * Deliberately unpoetic: it states the German name and the source essay
+   * as fact, not metaphor. */
+  .brand__origin {
+    margin: var(--spacing-4) 0 0;
+    max-width: 36rem;
+    font-family: var(--font-sans);
+    font-size: var(--text-sm);
+    line-height: 1.7;
+    color: var(--color-foreground-muted);
+  }
+
+  .brand__origin :global(em) {
+    font-style: italic;
   }
 
   /* The thesis, drawn: paper on the left, ink on the right. */

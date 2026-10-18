@@ -137,7 +137,7 @@
     "@types/react": "^19.0.2",
     "@types/react-dom": "^19.0.2",
     "@vitest/ui": "^4.1.6",
-    "jsdom": "29",
+    "jsdom": "30",
     "lefthook": "^2.1.4",
     "lightningcss": "1.32.0",
     "lucide-react": "^1.7.0",

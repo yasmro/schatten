@@ -84,6 +84,24 @@
 }
 
 @layer components {
+  /* Visually-hidden accessible label. Public class — the sr-only utility the
+   * JSX used before was Tailwind-only and does NOT exist in the dist build
+   * (#317 Tailwind-free), so framework-agnostic consumers saw the label as
+   * visible text ("Loading") inside busy Buttons. Found by the docs site's
+   * exports-map consumption (#449 dogfood). */
+  .st-spinner__label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+  }
+
   /* ===== base layout ===== */
   .st-spinner {
     display: inline-flex;

@@ -27,10 +27,16 @@
  * (unlayered beats layered), so these rows exist to mark the variable as
  * public, not to define its value. The exceptions are load-bearing REAL
  * definitions with no unlayered counterpart:
- *   - `--font-sans` / `--font-serif` carry the brand stacks registered by
- *     `src/themes/default/fonts.css`. In the dist these are inert defaults —
- *     `src/styles/entry.css` re-declares `--font-sans` unlayered (fallback
- *     stack) and consumers override it; kept verbatim for value parity.
+ *   - `--font-sans` / `--font-serif` carry the brand stacks (mirroring the
+ *     Storybook-only `@theme` registration in
+ *     `src/themes/default/fonts.css`) and are the LIVE dist defaults —
+ *     load-to-activate: a consumer who loads the faces gets the brand
+ *     rendering, one who doesn't falls through to the system fallback at
+ *     the end of each stack. Consumers replace them with an unlayered
+ *     `:root` override (unlayered beats `@layer theme`). Historical note:
+ *     `--font-sans` was accidentally dead in the dist until the unlayered
+ *     override in `entry.css` was removed — see
+ *     docs/decisions/2026-07-font-sans-brand-default.md.
  *
  * #231 — the vendored preflight's `html` / `code` rules used to reach
  * Schatten's fonts through `--default-font-family` / `--default-mono-font-

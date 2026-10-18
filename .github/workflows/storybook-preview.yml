@@ -9,6 +9,14 @@ permissions:
   contents: write
   pull-requests: write
 
+# gh-pages に書く workflow は全て同一グループで直列化する。JamesIves の deploy は
+# 実行開始時点の gh-pages を base に force-push するため、並走すると後着が先着の
+# コミットを黙って巻き戻す(#502 の切替作業で 2 回実測: cannot-lock-ref 失敗と、
+# force-push による site 更新の消失)。cancel はせず順番待ちにする。
+concurrency:
+  group: gh-pages
+  cancel-in-progress: false
+
 jobs:
   deploy-preview:
     if: github.event.action != 'closed'
@@ -18,22 +26,46 @@ jobs:
 
       - uses: pnpm/action-setup@v6
 
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: pnpm
 
       - run: pnpm install --frozen-lockfile
 
+      # Preview mirrors the production directory split (#449): the two
+      # surfaces live side by side under named directories —
+      #   pr/<n>/site/       docs site
+      #   pr/<n>/storybook/  Storybook
+      #   pr/<n>/            a router page (below) — the same shape the
+      #                      production Pages root will take, so the preview
+      #                      doubles as its prototype.
       - name: Build Storybook
         env:
-          STORYBOOK_BASE: /schatten/pr/${{ github.event.pull_request.number }}/
+          STORYBOOK_BASE: /schatten/pr/${{ github.event.pull_request.number }}/storybook/
         run: pnpm build:storybook
+
+      - name: Build library (dist the docs site consumes)
+        run: pnpm build
+
+      - name: Build docs site
+        env:
+          DOCS_BASE: /schatten/pr/${{ github.event.pull_request.number }}/site/
+        run: pnpm --filter schatten-docs build
+
+      - name: Assemble preview (site/ + storybook/ + router index)
+        run: |
+          mkdir -p preview-dist/storybook preview-dist/site
+          cp -r storybook-static/. preview-dist/storybook/
+          cp -r apps/docs/dist/. preview-dist/site/
+          # Router page — the SAME file production deploys to the Pages root
+          # (deploy-site.yml), so the preview tree mirrors production exactly.
+          cp .github/pages-root/index.html preview-dist/index.html
 
       - name: Deploy preview
         uses: JamesIves/github-pages-deploy-action@v4
         with:
-          folder: storybook-static
+          folder: preview-dist
           target-folder: pr/${{ github.event.pull_request.number }}
           clean: true
 
@@ -53,10 +85,12 @@ jobs:
           edit-mode: replace
           body: |
             <!-- storybook-preview -->
-            📖 **Storybook Preview**
+            📖 **Preview**
 
-            Preview is available at:
-            🔗 https://yasmro.github.io/schatten/pr/${{ github.event.pull_request.number }}/
+            | | |
+            |---|---|
+            | 🌐 Docs site | https://yasmro.github.io/schatten/pr/${{ github.event.pull_request.number }}/site/ |
+            | 📖 Storybook | https://yasmro.github.io/schatten/pr/${{ github.event.pull_request.number }}/storybook/ |
 
             _Updated for commit ${{ github.event.pull_request.head.sha }}_
 

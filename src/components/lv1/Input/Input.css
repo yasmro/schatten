@@ -189,4 +189,28 @@
     width: 1.25rem;
     height: 1.25rem;
   }
+
+  /* Icon adornments keep their own muted tier at rest, so the block's
+   * disabled `color` cannot reach them by inheritance — the block's state
+   * repaints them explicitly instead (css-api.md §"State-driven color lives
+   * on the block"). Without this, `foreground-muted` (an AA-grade ink) reads
+   * STRONGER than the `foreground-disabled` value it decorates. Wins on
+   * specificity (0,4,0) vs (0,1,0), so source order is not load-bearing.
+   *
+   * `__text-left` / `__text-right` are deliberately NOT repainted. They are
+   * real text in a plain <span>, and the `:disabled` exemption from WCAG
+   * 1.4.3 does not reach them: the `disabled` attribute sits on the sibling
+   * <input>, not on an ancestor, so they have no `aria-disabled` ancestor to
+   * inherit the exemption from. Dropping them to `foreground-disabled`
+   * measures 3.83:1 (light) / 3.52:1 (dark) — axe flags both as `serious`.
+   * The icons are non-text (WCAG 1.4.11, 3:1) and are exempt-adjacent either
+   * way, so only they move. Readability outranks the visual-hierarchy nicety
+   * for text; see css-api.md for the bounded exception.
+   *
+   * `:read-only` is not included at all — a read-only value stays readable,
+   * so its adornments stay at the resting tier too. */
+  .st-input-wrapper:has(.st-input:disabled) .st-input__icon-left,
+  .st-input-wrapper:has(.st-input:disabled) .st-input__icon-right {
+    color: var(--color-foreground-disabled);
+  }
 }

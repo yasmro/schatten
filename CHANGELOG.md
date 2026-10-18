@@ -1,5 +1,36 @@
 # @yasmro/schatten
 
+## 1.1.0
+
+### Minor Changes
+
+- [#501](https://github.com/yasmro/schatten/pull/501) [`695d574`](https://github.com/yasmro/schatten/commit/695d574420c902dd617b112b2cf9c5550532094d) Thanks [@yasmro](https://github.com/yasmro)! - CSS API: `--font-sans` のブランドスタック (`"Hanken Grotesk", "LINE Seed JP", …`) が `dist/schatten.css` の live default になりました。従来は `entry.css` 末尾の unlayered `:root { --font-sans: var(--font-sans-fallback) }`([#33](https://github.com/yasmro/schatten/issues/33) standalone CSS 時代の carry-over)が `@layer theme` レジストラの宣言を常に上書きしており、Hanken Grotesk / LINE Seed JP をロードしても `--font-sans` を自分で再宣言しない限りブランド描画が届きませんでした(dead default)。この上書きを撤去し、`--font-serif` と同じ **load-to-activate**(フォントをロードすればブランド描画、しなければ stack 末尾の system fallback へ自然にフォールバック)に統一します。
+  
+  - 変数名・上書き recipe(`:root { --font-sans: "Your Font", var(--font-sans-fallback) }`)は不変 — contract surface は変わらず、named slot の既定値のみ変更。
+  - ブランドフォントをロード/インストールしていない環境では描画は従来と同一。**Hanken Grotesk / LINE Seed JP をページにロード済み(または OS にインストール済み)の環境では、UI/body テキストが system フォント → ブランドフォントに変わります。** 従来挙動(system 既定)を維持したい場合は unlayered `:root { --font-sans: var(--font-sans-fallback) }` を自分の CSS に宣言してください。
+  - 対称契約は `scripts/__tests__/build-css.test.ts` で機械固定。経緯と判断は `docs/decisions/2026-07-font-sans-brand-default.md`。
+
+- [#513](https://github.com/yasmro/schatten/pull/513) [`894fa9a`](https://github.com/yasmro/schatten/commit/894fa9a1a61d2f2bf48c8753b3800a95911e7a60) Thanks [@yasmro](https://github.com/yasmro)! - CSS API: add `.st-spinner__label` — the Spinner's visually-hidden accessible
+  label class. The JSX previously hid the label with Tailwind's `sr-only`
+  utility, which does not exist in the Tailwind-free dist build, so
+  framework-agnostic CSS consumers (and React consumers styling via
+  `dist/schatten.css`) saw the label rendered as visible text — most visibly
+  "Loading" inside a busy `<Button isLoading>`. The label span now carries
+  `.st-spinner__label`, shipped in the dist with the standard visually-hidden
+  pattern. Vanilla-HTML spinner markup should adopt the same class.
+
+### Patch Changes
+
+- [#535](https://github.com/yasmro/schatten/pull/535) [`0aa4a3d`](https://github.com/yasmro/schatten/commit/0aa4a3dcf3d44a30d3c9bdf9ad4416ffff94179d) Thanks [@yasmro](https://github.com/yasmro)! - fix(lv1): `disabled` 時に装飾アイコンが `--color-foreground-muted` のまま残り、退いたはずの値のテキスト (`--color-foreground-disabled`) より濃く読めてしまう問題を修正。対象は Input の `iconLeft` / `iconRight`、Select トリガーの chevron、DropdownMenu の shortcut / サブメニュー chevron。ブロックの `:disabled` / `[data-disabled]` 状態から明示的に塗り直す形にした (resting の muted ティアは不変)。
+  
+  Input の `textLeft` / `textRight` は**意図的に対象外**。`disabled` 属性が兄弟の `<input>` にあり `aria-disabled` 祖先を持たないため WCAG 1.4.3 の免除が及ばず、`--color-foreground-disabled` にすると 3.83:1 (light) / 3.52:1 (dark) で AA を割る。公開クラス名 / トークン名の増減はなし。
+
+- [#520](https://github.com/yasmro/schatten/pull/520) [`0084e4b`](https://github.com/yasmro/schatten/commit/0084e4b4c8c12a3df26ff7c5242297b7c76a5c63) Thanks [@dependabot](https://github.com/apps/dependabot)! - `sonner` を 2.0.7 → 2.0.8 に更新（`dependencies` の exact pin なので、公開パッケージのインストールグラフが変わる）。あわせて `@radix-ui/*` 11 パッケージ（caret 範囲内 / package.json は不変）と `react` / `react-dom` 19.2.8 を更新。
+  
+  視覚契約への影響なし — VRT 411 件・a11y 268 件がゼロ差分で通過（区分 A/B の parity VRT、区分 C/D の実ブラウザ interaction test を含む）。`@radix-ui/react-tooltip` 1.2.16 で `role="tooltip"` がコンテンツ要素そのものに載るようになったため、`Tooltip.test.tsx` の `.parentElement` 経由のアサーションを要素直参照に更新（テストのみ・公開 API 不変）。
+
+- [#529](https://github.com/yasmro/schatten/pull/529) [`c2f95dc`](https://github.com/yasmro/schatten/commit/c2f95dca0b08da85f2f98891e6ef83186ee63c6e) Thanks [@yasmro](https://github.com/yasmro)! - fix(lv1): Switch の `disabled` + `checked` でチェックアイコンがトラックに埋もれて見えなくなる問題を修正。チェックアイコンの色を `.st-switch__check` にハードコードするのをやめ、Checkbox と同じ idiom (ブロックが `color` を持ち、子が `currentColor` を継承) に揃えたことで、`:disabled` 時にアイコンも `--color-foreground-disabled` へ退く。公開クラス名 / トークン名の増減はなし。
+
 ## 1.0.0
 
 ### 🎉 1.0 — Major milestones

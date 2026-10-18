@@ -21,7 +21,7 @@ describe('Spinner', () => {
     render(<Spinner />)
     const labelEl = screen.getByText('Loading')
     expect(labelEl).toBeInTheDocument()
-    expect(labelEl).toHaveClass('sr-only')
+    expect(labelEl).toHaveClass('st-spinner__label')
   })
 
   it('renders a custom label', () => {

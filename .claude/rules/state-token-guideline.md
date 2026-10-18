@@ -36,17 +36,32 @@ Layer 3: Components (consume semantic only)
    bg-error / text-error / border-error / ring-error / bg-error-subtle ...
 ```
 
-**`red` vs `vermillion` — two separate primitives, same value today.** The
+**`red` vs `vermillion` — two separate primitives, now visually diverged.** The
 danger colors (`error` / `destructive`) reference a dedicated `red` primitive
-scale; the brand 朱 references `vermillion`. `red` is currently a value-identical
-copy of `vermillion` (hue 22, same L/C at every shade) — the split is a
-deliberate *governance seam*, not a visual change. It exists so brand 朱 and
+scale; the brand 朱 references `vermillion`. The split was introduced in
+[#238](https://github.com/yasmro/schatten/issues/238) as a deliberate
+*governance seam* — at that point `red` was a value-identical copy of
+`vermillion`, so the split was structural, not visual. It exists so brand 朱 and
 danger red can be retuned independently: retuning brand vermillion no longer
-drags every error state along (and vice versa). Whether danger red *should*
-diverge in hue from brand vermillion is a designer-owned aesthetic call,
-tracked separately in design spike
-[#239](https://github.com/yasmro/schatten/issues/239) — do not merge the two
-scales back together.
+drags every error state along (and vice versa).
+
+**That independence has since been exercised.** Design spike
+[#239](https://github.com/yasmro/schatten/issues/239) (closed 2026-05-29)
+concluded that the two *should* differ, and
+[#327](https://github.com/yasmro/schatten/pull/327) implemented it by moving
+**`vermillion`** to the traditional 真朱 (hue 30, higher chroma — `-500` ≈
+`#ed3726`), while **`red` stayed at hue 22** per that conclusion. So today:
+
+| scale | hue | chroma (`-500`) | reads as |
+|---|---|---|---|
+| `vermillion` (brand 朱) | 30 | 0.22 | warmer, more saturated |
+| `red` (danger 紅) | 22 | 0.18 | cooler, more restrained |
+
+`red` is therefore value-identical to the **pre-#327** vermillion, not to the
+current one — see the comment block in
+[`primitives.css`](../../src/core/tokens/primitives.css). Do not merge the two
+scales back together, and do not "resync" `red` to the current vermillion:
+the gap between them is the decision, not drift.
 
 ## Enforcement — the `no-primitive-color` lint plugin
 

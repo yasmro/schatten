@@ -176,6 +176,14 @@
     height: 1.25rem;
   }
 
+  /* The chevron keeps its own muted tier at rest, so the disabled `color`
+   * above cannot reach it by inheritance — repaint it from the block's state
+   * rule (css-api.md §"State-driven color lives on the block"). Wins on
+   * specificity (0,3,0) vs (0,1,0). */
+  .st-select__trigger:disabled .st-select__icon {
+    color: var(--color-foreground-disabled);
+  }
+
   /* ===== content (portal) ===== */
   .st-select__content {
     position: relative;

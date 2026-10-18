@@ -178,7 +178,7 @@ export const vanillaHtml = `
         <circle class="st-spinner__track" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" />
         <path class="st-spinner__arc" d="M22 12a10 10 0 0 0-10-10" stroke="currentColor" stroke-width="3" stroke-linecap="round" />
       </svg>
-      <span class="cssapi-fixture__sr-only">Loading</span>
+      <span class="st-spinner__label">Loading</span>
     </div>
   </div>
 </section>

@@ -655,6 +655,78 @@ describe('state emphasis WCAG contrast (AA small text) (#344 Phase B)', () => {
   }
 })
 
+/* ------------------------------------------------------------------ */
+/* Non-interactive state WCAG contrast — #531                          */
+/* ------------------------------------------------------------------ */
+
+/*
+ * The leaf fixtures above pin WHICH primitive `disabled` / `readOnly` bottom
+ * out at; this block pins what those primitives are worth as a *pair*.
+ *
+ * Why it exists: `docs/decisions/2026-05-non-interactive-state-tokens.md`
+ * claimed ~5:1 (light) / ~4:1 (dark) for the disabled pair from 2026-05 until
+ * #531 measured it — the real figures are 3.81 / 3.52, because the original
+ * numbers came from OKLCH *lightness* rather than WCAG *relative luminance*.
+ * A prose-only claim about a numeric property drifts silently; that is the
+ * exact failure this block prevents from recurring.
+ *
+ * The thresholds are the contract, not the current values:
+ *   - disabled ≥ 3:1  — Schatten's self-imposed "a disabled value is still
+ *     readable" floor. It is NOT 4.5:1 on purpose: disabled content should
+ *     recede, and WCAG exempts it from 1.4.3 entirely. 3:1 mirrors what
+ *     1.4.11 asks of non-text UI, and matches how `foreground-subtle` is
+ *     pinned above (≥ 3, deliberately not ≥ 4.5).
+ *     Only a FLOOR is asserted. An upper bound ("disabled must also stay
+ *     below 4.5:1 so it keeps reading as inactive") is arguable, but no such
+ *     policy exists in the decision log today — adding one here would be this
+ *     test inventing design policy rather than pinning it, and would block a
+ *     future legibility fix that happened to land at 4.6:1. If that bound is
+ *     ever wanted, it belongs in the decision log first.
+ *   - readOnly ≥ 4.5:1 — a readOnly control's value IS readable content that
+ *     gets submitted with the form, so it takes the full small-text bar. It
+ *     has no `foreground-readonly` token precisely because the value keeps
+ *     using `--color-foreground`; this asserts that staying true against the
+ *     warm readOnly surface.
+ */
+describe('non-interactive state WCAG contrast (#531)', () => {
+  const ratioBetween = (a: string, b: string, scope: Map<string, string>) =>
+    contrastRatio(relLuminance(leafValue(a, scope)), relLuminance(leafValue(b, scope)))
+
+  const disabledRatio = (scope: Map<string, string>) =>
+    ratioBetween('--color-foreground-disabled', '--color-surface-disabled', scope)
+
+  for (const [mode, scope] of [
+    ['light', lightScope],
+    ['dark', darkScope],
+  ] as const) {
+    it(`keeps disabled content above the 3:1 legibility floor in ${mode} mode`, () => {
+      expect(
+        disabledRatio(scope),
+        `foreground-disabled on surface-disabled (${mode})`,
+      ).toBeGreaterThanOrEqual(3)
+    })
+
+    it(`keeps a readOnly value fully readable (AA small text) in ${mode} mode`, () => {
+      expect(
+        ratioBetween('--color-foreground', '--color-surface-readonly', scope),
+        `foreground on surface-readonly (${mode})`,
+      ).toBeGreaterThanOrEqual(4.5)
+    })
+  }
+
+  // `foreground-disabled` is one declaration serving both modes (it is the only
+  // state token that does NOT shift shade — see the decision log §2). That is
+  // only defensible while the two modes land at comparable contrast; if a
+  // surface re-tune pulled them apart, the single declaration would silently
+  // become a compromise favouring one mode. 0.5 is wide enough for ordinary
+  // primitive nudges (today's gap is 0.29) and tight enough to catch a drift
+  // that should have forced an asymmetric pair instead.
+  it('keeps the light/dark disabled contrast symmetric enough for one declaration', () => {
+    const gap = Math.abs(disabledRatio(lightScope) - disabledRatio(darkScope))
+    expect(gap, 'light vs dark disabled contrast gap').toBeLessThan(0.5)
+  })
+})
+
 /**
  * Semantic shadow / radius / motion → primitive resolution (#145).
  *

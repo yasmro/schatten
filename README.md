@@ -750,9 +750,9 @@ end of each variable — nothing breaks either way.
 
 ```html
 <!-- e.g. Google Fonts — sans (UI / body). Hanken Grotesk is variable
-     (400–700 covers the medium/semibold roles exactly); LINE Seed JP has
-     no 500/600, so JP glyphs in those roles resolve to the nearest
-     available weight (400/700). -->
+     (400–700 covers every role — body / heading are 400, `label` is
+     500); LINE Seed JP has no 500, so JP glyphs in `label` resolve to the
+     nearest available weight. -->
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link
@@ -762,8 +762,9 @@ end of each variable — nothing breaks either way.
 ```
 
 `--font-serif` is consumed by `<Text family="serif">`; if you use it, also
-load EB Garamond + Noto Serif JP (weights 400/500/600/700 — the heading
-roles use semibold/bold).
+load EB Garamond + Noto Serif JP (weights 400/500 are enough — headings
+are normal weight, `label` is medium; add 600/700 only if you set bolder
+weights yourself).
 
 To swap in your own brand font — or to keep the system stack even with
 the brand faces present — declare an unlayered override (Schatten's

@@ -132,8 +132,9 @@ export const Typography: Story = {
           <p className="text-xs text-foreground-muted mt-1">
             Editorial serif (use via <code>&lt;Text family="serif"&gt;</code>). Consumers must load
             EB Garamond + Noto Serif JP themselves (e.g. Google Fonts); otherwise it falls back to
-            the system serif stack. Load weights <code>400 / 500 / 600 / 700</code> — the heading
-            roles use semibold/bold, and a missing weight renders as synthetic (faux) bold.
+            the system serif stack. Load weights <code>400 / 500</code> — every Text role is normal
+            weight except <code>label</code> (medium); add <code>600 / 700</code> only if you set
+            bolder weights yourself, since a missing weight renders as synthetic (faux) bold.
           </p>
         </div>
         <div className="py-4">
@@ -181,8 +182,8 @@ export const Typography: Story = {
 
       <SubsectionTitle>Heading</SubsectionTitle>
       <p className="text-sm text-foreground-muted mb-3">
-        Used for page titles, section headers, and card headings. Uses semibold/bold weight with
-        snug/tight line height.
+        Used for page titles, section headers, and card headings. Normal weight at every size — the
+        hierarchy comes from size and snug/tight line height, not from weight.
       </p>
       <div className="border border-border rounded-xl px-5">
         <TypographyRow

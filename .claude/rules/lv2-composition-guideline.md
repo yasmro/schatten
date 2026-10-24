@@ -226,7 +226,10 @@ Rules common to both kinds:
     accessible name** — `aria-labelledby` on it is silently ignored, and axe
     does not necessarily flag it (the same trap `Badge` hit, see
     [component-architecture.md §8](component-architecture.md#8-accessibility-contract)).
-    Pin it with a `getByRole('group', { name })` unit test.
+    Pin it with a `getByRole('group', { name })` unit test. Putting this
+    role on a wrapper is ARIA wiring, not a primitive of the lv2's own, so it
+    does not make the component an lv1
+    ([component-architecture.md §1](component-architecture.md#1-lv1-vs-lv2--folder-responsibilities)).
 - `aria-required` follows the two idioms in
   [field-context-guideline §Required propagation](field-context-guideline.md#required-propagation-via-aria-required-announce-only)
   — conditional injection (never `undefined`) for Radix-based parts.
@@ -416,7 +419,7 @@ visual rules — stays as written.
 | # | File | Change |
 |---|---|---|
 | 1 | `scripts/lv1-slugs.mjs` | Add `discoverLv2()`. For lv2, a missing `.css` is **filtered via `hasCss`, not thrown** (asymmetric with `discoverLv1WithCss()`). Do not rename the file. |
-| 2 | `scripts/audit-coverage.mjs` | Replace the "lv2 is out of scope" warning branch with a real audit. For lv2: no parity / fixture / harness columns (React-only); `.css` conditional; the interaction column required only for interactive lv2s (a per-component flag, since `PARITY_EXEMPT` / A–D does not apply). |
+| 2 | `scripts/audit-coverage.mjs` | Replace the "lv2 is out of scope" warning branch with a real audit. For lv2: no parity / fixture / harness columns (React-only); `.css` conditional; the interaction column required only for the lv2s listed in a new **`LV2_INTERACTIVE`** set (see below). |
 | 3 | `scripts/check-lv1-companions.mjs` | Extend `LV1_TSX_RE` to `lv1\|lv2`; `.css` optional for lv2. |
 | 4 | `scripts/check-lv1-export-integrity.mjs` | Cover the lv2 barrel too. |
 | 5 | `scripts/build-component-css.mjs` | Add lv2s that have a `.css`. |
@@ -428,6 +431,19 @@ visual rules — stays as written.
 | 11 | `scripts/check-registrar-sync.mjs` | Scan `.css`-bearing lv2 stylesheets. **Skipping this lets an lv2 reference an unregistered variable with every gate green** — the exact failure this script exists to catch. |
 | 12 | `scripts/ensure-dist.mjs` | Require `dist/css/<lv2 slug>.css`. |
 | — | `.storybook/preview.tsx` | No change — the sort comparator only orders top-level groups, so `Components/lv1/*` and `Components/lv2/*` sort naturally. |
+
+**How "interactive" is decided — `LV2_INTERACTIVE`.** `audit-coverage.mjs`
+cannot infer whether an lv2 is interactive, and the A–D classification that
+drives `PARITY_EXEMPT` for lv1 does not apply to lv2. So the decision is a
+hard-coded, alphabetical `export const LV2_INTERACTIVE = new Set([...])` next
+to `PARITY_EXEMPT`, with the same maintenance shape: the PR that adds an
+interactive lv2 adds its name, and the audit then requires at least one
+non-screenshot, non-a11y `test(` block in its `*.vrt.spec.ts` files (the
+existing `interaction` column logic). An lv2 **not** in the set gets no
+interaction requirement. "Interactive" means the lv2 opens, closes,
+selects, confirms or syncs values in response to user input — DatePicker
+is in, EmptyState is out. The set is introduced (empty) in the first lv2's
+foundation PR and gets its first entry with #568.
 
 Rows 5, 7, 11, 12 cover every importer of `lv1-slugs.mjs` today (row 7 as
 a deliberate "no change"); a new importer added later must be checked
@@ -459,8 +475,9 @@ Restoring the export is an additive surface change (`minor`).
 2. **Shape the API** (§4): flat + curated props, `...rest` on the root,
    existing vocabulary, a per-component matrix row, no own context.
 3. **Decide the Field kind** (§4.4) if it touches forms.
-4. **Decide whether it is interactive** → a non-screenshot interaction test
-   or not (§6.1). The A–D classification does not apply (§5.0).
+4. **Decide whether it is interactive** → if yes, add it to `LV2_INTERACTIVE`
+   in `scripts/audit-coverage.mjs` and ship a non-screenshot interaction test
+   (§6.1, §6.2). The A–D classification does not apply (§5.0).
 5. **Decide whether it has its own visual rules** → `.css` or not (§5.4). If
    yes: block + modifiers only, descendant selectors on lv1 classes,
    imported after its lv1 parts.

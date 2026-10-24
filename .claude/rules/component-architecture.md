@@ -23,38 +23,39 @@ Anything not covered here defaults to **shadcn/ui + Radix conventions**.
 ### Where the line is — does it introduce a primitive of its own?
 
 Embedding another lv1 does not make a component an lv2 (§6 allows lv1 →
-lv1). The line is whether the component **introduces a primitive of its
-own**:
+lv1). Decide in two steps:
 
-- **lv1** introduces at least one primitive itself — a native element whose
-  semantics it owns (`<button>`, `<label>`, `<fieldset>`, a heading), a
-  Radix primitive, or a React context it provides. It may embed other lv1s
-  as fixed parts.
-- **lv2** introduces **none**. Every semantic element and every primitive
-  comes from an lv1 it composes; its own markup is layout wrappers only, and
-  its own code is the wiring between the parts — layout, `aria-*`, focus,
-  state.
+1. **Does it compose any lv1?** If not, it is an **lv1** — a styled native
+   element is a primitive in its own right (`Skeleton`'s `<div>`, `Text`'s
+   `<p>` / `<h*>`). This is the same line as the lv2 disqualifier D3.
+2. **If it composes lv1s, does it also introduce a primitive of its own?**
+   - **Yes → lv1.** A primitive here is a native element whose semantics the
+     component owns (`<button>`, `<label>`, `<table>`, a heading), a
+     headless-library primitive (Radix, Sonner, …), or a React context it
+     provides. The lv1s it embeds are fixed parts.
+   - **No → lv2.** Every semantic element and every primitive comes from an
+     lv1 it composes. Its own markup is wrappers, and its own code is the
+     wiring between the parts — layout, focus, state, and ARIA. **Putting a
+     `role` or `aria-*` on a wrapper is wiring, not a primitive**: a
+     `role="group"` wrapper named by `aria-labelledby` (the DateRangePicker
+     case, [lv2-composition-guideline.md §4.4](lv2-composition-guideline.md#44-field-context))
+     still introduces nothing a consumer could use on its own.
 
-| Component | Primitive it introduces | Layer |
-|---|---|---|
-| `Dialog` | Radix Dialog (embeds `Button` as a fixed part) | lv1 |
-| `Field` | `<label>` / error `<p>` + `FieldContext` (embeds `Tooltip`) | lv1 |
-| `EmptyState` (#125) | none — `Icon` + `Text` (the heading via `Text`'s `as`) + an action slot | lv2 |
-| `DatePicker` (#568) | none — `Input` + `Popover` + `DateCalendar`, plus the value sync between them | lv2 |
-| `ConfirmDialog` (#124, v1+) | none — wraps `Dialog` and owns the confirm state | lv2 |
+| Component | Composes lv1s? | Primitive it introduces | Layer |
+|---|---|---|---|
+| `Skeleton` | no | its styled `<div>` | lv1 (step 1) |
+| `Toast` | yes (`Icon` / `Spinner` / `Button`) | Sonner's toaster + the imperative store | lv1 |
+| `Dialog` | yes (`Button`) | Radix Dialog | lv1 |
+| `Field` | yes (`Tooltip`) | `<label>` / error `<p>` + `FieldContext` | lv1 |
+| `EmptyState` (#125) | yes (`Icon` / `Text`) | none — the heading comes from `Text`'s `as`; the root `<div>` is a wrapper | lv2 |
+| `DatePicker` (#568) | yes (`Input` / `Popover` / `DateCalendar` / `Button`) | none — the trigger is a `Button`; the value sync is wiring | lv2 |
+| `DateRangePicker` (#568) | yes (same parts) | none — the `role="group"` root is ARIA wiring on a wrapper | lv2 |
+| `ConfirmDialog` (#124, v1+) | yes (`Dialog`) | none — it owns the confirm state | lv2 |
 
-The test cuts both ways: an "lv2" that needs its own semantic element is an
-lv1 (or is missing an lv1), and an lv1 whose only content is other lv1s is
-an lv2 that has not been moved.
-
-**The promotion criterion, API shape, CSS contract, companion set and export
-path for lv2 live in
-[lv2-composition-guideline.md](lv2-composition-guideline.md)** (#492). The
-criterion counts the *decisions* a composition freezes, not the number of
-lv1s it bundles — `FormField` (#123), the candidate that bundled the most
-lv1s, was rejected because `Field` already froze everything it would have.
-lv2 ships post-1.0 as additive `minor` releases; 1.0 froze the lv1 + CSS
-contract.
+The test cuts both ways: an "lv2" that needs a native semantic element of
+its own is either an lv1 or is missing an lv1 (render the heading through
+`Text`, the trigger through `Button`), and an lv1 whose only content is
+other lv1s plus wiring is an lv2 that has not been moved.
 
 ## 2. Compound vs flat
 

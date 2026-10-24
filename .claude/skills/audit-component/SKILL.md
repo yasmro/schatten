@@ -174,11 +174,11 @@ list is not updated yet.
 - **Dependency direction (§6)** — `lv1/` imports `lib/` / `contexts/` /
   `variants/` / other `lv1/`. `lv1/` must not import `lv2/`. No
   barrel-export laundering through a higher layer.
-- **lv1-local `.css` files (§7)** — `<Name>.css` is allowed because it
-  is the SSOT for the `.st-<name>` class API (post-#154 exemption). But
-  any *additional* `.css` (animation-only, scoped vars,
-  `prefers-reduced-motion`) must still meet the "not expressible in
-  Tailwind / CVA" bar.
+- **lv1-local `.css` files (§7)** — one `<Name>.css` holds every visual
+  rule, in raw CSS on semantic tokens inside `@layer components` (no
+  `@apply`, no Tailwind syntax). The component's JSX carries no Tailwind
+  utility classes (Dialog's footer `order-*` is the one known violation,
+  #575). A second `.css` for the same component needs a stated reason.
 - **A11y contract (§8 — four guarantees)**:
   1. Explicit role from a native element / Radix primitive /
      `role="..."`. Calling out a `<div onClick>` masquerading as a button
@@ -186,8 +186,8 @@ list is not updated yet.
   2. Queryable accessible name — `getByRole(role, { name })` returns the
      component. Icon-only triggers need `aria-label`.
   3. Keyboard support — reachable via Tab, activates with the
-     role-appropriate key, visible focus ring (`focus-visible:ring-*`
-     in variants).
+     role-appropriate key, visible focus ring (a `:focus-visible`
+     rule in `<Name>.css`).
   4. State announcements — `aria-invalid` on `isError`, `aria-describedby`
      via Field context, `disabled` HTML attr, `aria-hidden` on
      decorative icons. "Hard rules" (no `<div onClick>`, no color-alone

@@ -33,6 +33,8 @@ PR をセルフレビューする。前半のチェックリストは **観察�
   - 昇格基準 (G1–G4 / D1–D3) の判定結果が issue / PR 説明に書かれているか
   - flat + curated props か (compound になっていないか)、独自 React Context を provide していないか
   - 公開クラスが block + modifier だけか (sub-element を公開するなら消費者ユースケースが PR 説明にあるか)
+  - React 専用の前提を崩していないか (parity / vanilla harness / `CSSApiDist` fixture を足していないか、内部の DOM を素の HTML 向けに約束していないか)
+  - 自前の primitive (semantic な要素・Radix・context) を持ち込んでいないか (`component-architecture.md` §1)
 - [ ] Context 連携パターンに従っているか (`.claude/rules/field-context-guideline.md` 参照)
   - 内部ラベルありコンポーネント: `field?.id` を使わない
   - 内部ラベルなしコンポーネント: `field?.id` を使う

@@ -14,9 +14,16 @@ deferred until the first lv2 was about to land
 - **which companions** it must ship with, and
 - **how** it is exported.
 
+What makes something an lv1 or an lv2 in the first place — whether it
+introduces a primitive of its own — is defined in
+[component-architecture.md §1](component-architecture.md#1-lv1-vs-lv2--folder-responsibilities).
 The folder split and the one-way dependency direction
 ([component-architecture.md §6](component-architecture.md#6-dependency-direction--strictly-one-way))
 are unchanged and are not repeated here.
+
+**lv2 is React-only** (§5). The framework-agnostic CSS path that every lv1
+supports does not extend to lv2: an lv2's value is behaviour, and a
+vanilla-HTML consumer composes the lv1 classes directly instead.
 
 > **Scope of this document vs. the tooling.** This rule fixes *what* the lv2
 > tooling must do (§6, §7). The tooling itself — `audit-coverage`, the
@@ -52,10 +59,23 @@ hits **none of the disqualifiers**.
 
 | # | Gate | Question |
 |---|---|---|
-| **G1** | Recurrence | Does the same composition recur across at least two screen types or products? |
+| **G1** | Recurrence | Does the same composition recur across at least two screen types or products? (Evidence: see below.) |
 | **G2** | Canonicality | Is there one correct way to compose it, such that **getting it wrong causes real a11y or safety harm** (focus order, destructive confirmation, live region, `aria-describedby` wiring, value sync)? A purely visual arrangement fails here. |
 | **G3** | Non-derivability | Do the existing lv1s' curated props **not** already deliver the same value? Read what the lv1 already provides **before** counting what the composition adds. |
 | **G4** | Freeze-worthiness | Can the variation be expressed as props, without the component becoming a bag of slots? **Three or more composition slots** (defined below) is the signal that the consumer should be composing it, not the library. |
+
+What counts as **evidence for G1**: Schatten has no product of its own to
+observe, so "it recurs in our screens" cannot be shown directly. Accept
+either of:
+
+- the same pattern shipped by **at least two established design systems or
+  component collections** (shadcn/ui blocks, Primer, Carbon, Spectrum,
+  Polaris, …) — link them in the issue; or
+- **at least two concrete screen types** where the composition appears
+  (e.g. "empty search results" and "empty inbox"), named in the issue.
+
+An assertion with neither ("this is common") is not evidence; the gate is △
+at best and must be argued as described in the decision flow.
 
 What counts as a **composition slot** for G4 — count by role, not by type:
 
@@ -227,9 +247,13 @@ from its lv1 parts. On top of that:
    the consumer to pass `role="status"` when the content is swapped in
    dynamically.
 2. **The consumer chooses heading levels.** An lv2 that renders a title
-   exposes a `headingLevel` prop (a closed numeric union) and renders
-   `<h{n}>`; it does not decide the page's heading outline. This is not a
-   polymorphic `as` ([ADR-0009](../../docs/decisions/ADR-0009-no-polymorphic-as.md)).
+   exposes a `headingLevel` prop (a closed numeric union) and renders the
+   heading **through `Text`'s `as`** (`<Text as="h2">`), not as its own
+   `<h{n}>` — the semantic element comes from the lv1, which keeps the lv2
+   from introducing a primitive of its own
+   ([component-architecture.md §1](component-architecture.md#1-lv1-vs-lv2--folder-responsibilities)).
+   It does not decide the page's heading outline. This is not a polymorphic
+   `as` on the lv2 ([ADR-0009](../../docs/decisions/ADR-0009-no-polymorphic-as.md)).
 3. **An lv2 may freeze focus defaults** — that is part of the value it
    delivers (§1). A frozen default is a rule of the component, not a prop.
 4. **VRT a11y assertions are the same as lv1's** — `@axe-core/playwright` with
@@ -245,11 +269,49 @@ is allowed by that table, but the PR that introduces one must justify it
 
 ## 5. CSS API contract
 
+### 5.0 lv2 is React-only
+
+Every lv1 ships on two paths — React and framework-agnostic CSS — that
+render pixel-identically ([css-api.md](css-api.md),
+[ADR-0003](../../docs/decisions/ADR-0003-framework-agnostic.md)). **lv2
+ships on the React path only.**
+
+- **An lv2's value does not survive the trip to vanilla HTML.** What an lv2
+  freezes — initial focus, `aria-*` wiring, state ownership, value sync
+  (§1) — is behaviour. A vanilla consumer writing `class="st-empty-state"`
+  gets the look and none of the decisions; that is the same "performative
+  parity" vrt-spec-guideline already refuses for classification C/D.
+- **A vanilla consumer already has the parts.** In vanilla HTML a
+  composition is just markup: the lv1 classes (`.st-icon`, `.st-text`,
+  `.st-btn`, …) cover it. A docs recipe is the vanilla answer when one is
+  needed, not an lv2 class.
+- **It keeps the inner DOM out of the contract.** With no vanilla consumer
+  writing an lv2's inner markup by hand, that markup stays an
+  implementation detail, as
+  [api-stability.md](api-stability.md#what-is-not-public-api) already says
+  of DOM not pinned by a documented class. This is what lets §5.2 style the
+  inside with descendant selectors.
+
+Consequences:
+
+- An lv2's `.st-*` classes still ship and are still in the manifest (§5.1),
+  because React consumers override them with `className` / their own CSS.
+  Renaming or removing one is `major`, as for lv1.
+- **Using an lv2's classes without rendering the React component is outside
+  the contract.** The CSS-path guarantees — parity, the vanilla harness, the
+  `CSSApiDist` fixture — do not apply (§6.1).
+- **The A–D classification is not applied to lv2.** It exists to decide
+  vanilla support; for lv2 that answer is fixed. Interaction testing is
+  decided by behaviour instead (§6.1).
+- Adding a vanilla path for one lv2 later is additive — publish its
+  sub-elements, add parity — and goes through this rule first.
+
 ### 5.1 lv2 `.st-*` classes are public API
 
-An lv2's `.st-*` classes are on the same public contract as lv1's
+An lv2's `.st-*` classes are on the same public naming contract as lv1's
 ([css-api.md](css-api.md), [api-stability.md](api-stability.md)) and are
-listed in the manifest. This is derived from constraints, not chosen:
+listed in the manifest — for the React consumers who override them (§5.0).
+This is derived from constraints, not chosen:
 
 1. **An lv2 cannot use Tailwind utilities in JSX.** Since #317 the dist CSS is
    Tailwind-free and consumers have no Tailwind, so an lv2 with its own layout
@@ -286,6 +348,15 @@ descendant selectors from the block; **sub-element classes (`__*`) are not
 published by default.** Add one only when a concrete consumer needs to
 override that part on its own, and name that use case in the PR description.
 
+The descendant selectors are safe only because lv2 is React-only (§5.0): the
+inner DOM they target is rendered by the component, never written by a
+consumer, so changing it is not a breaking change. Keep them anchored on
+the block and on the **lv1 classes** of the parts (`.st-empty-state .st-icon`)
+rather than on bare tags (`.st-empty-state > svg`) — the lv1 classes are
+public and stable, a tag is incidental
+([css-api.md §Structural `:has()`](css-api.md#structural-has-for-layout-selection)
+makes the same point).
+
 This is deliberately the **opposite** of lv1's default (Callout and Card
 publish their sub-elements). An lv1 is a part the consumer composes, so a
 per-slot override is value; an lv2 is a frozen composition, so a per-slot
@@ -312,7 +383,8 @@ thing lv1 already ships in `.st-field` / `.st-card__header` / `.st-callout`.
 | Manifest | Listed | Listed (automatically) |
 | `@yasmro/schatten/css/<slug>` subpath | Required | Only with a `.css` (the `./css/*` export is a wildcard, so the build picking it up is enough) |
 | Authoring | Raw CSS + `var(--color-*)`, inside `@layer components` | Same |
-| Classification A–D | [vrt-spec-guideline decision flow](vrt-spec-guideline.md#parity-stories--when-to-write-one-when-to-skip) | **The same flow.** The classification follows from the behaviour, not from the layer. |
+| Vanilla-HTML path | Supported (parity-pinned for classification A/B) | **Not supported** — React-only (§5.0) |
+| Classification A–D | [vrt-spec-guideline decision flow](vrt-spec-guideline.md#parity-stories--when-to-write-one-when-to-skip) | **Not applied** (§5.0) |
 
 ## 6. Companion set
 
@@ -327,10 +399,10 @@ thing lv1 already ships in `.st-field` / `.st-card__header` / `.st-callout`.
 | `{X}.vrt.spec.ts` + `__snapshots__/` | Required | Required | Story-id prefix `components-lv2-{x}` |
 | `{X}.css` | **Always** | **Only with own visual rules** | §5.4 |
 | `src/variants/{x}.ts` (CVA) | Effectively always | **Only with a variant axis** | — |
-| CSS API fixture section (`cssApiSamples.html.ts` + `.tsx`) | Required | Only with a `.css` | `CSSApiDist.vrt.spec.ts` discovers by `.css` |
-| Vanilla harness sample | Required | Only for classification A/B **and** with a `.css` | `pnpm check:harness` |
-| Parity story + spec | Classification A/B | Same | — |
-| Non-screenshot interaction test | Classification C/D | Same | — |
+| CSS API fixture section (`cssApiSamples.html.ts` + `.tsx`) | Required | **Not required** | Vanilla markup — React-only (§5.0); `CSSApiDist.vrt.spec.ts` does not discover lv2 |
+| Vanilla harness sample | Required | **Not required** | React-only (§5.0) |
+| Parity story + spec | Classification A/B | **Not required** | React-only (§5.0) |
+| Non-screenshot interaction test | Classification C/D | **Required when the lv2 is interactive** (opens, selects, confirms, syncs values — e.g. DatePicker), not for a static one (EmptyState) | jsdom misses real-pointer bugs the same way it does for lv1 C/D ([vrt-spec-guideline](vrt-spec-guideline.md#区分-cd-js-必須--a-playwright-interaction-test-is-required)) |
 | README per-component CSS row | Required | Only with a `.css` | `pnpm check:readme` |
 
 ### 6.2 Tooling the first lv2 must extend
@@ -344,21 +416,23 @@ visual rules — stays as written.
 | # | File | Change |
 |---|---|---|
 | 1 | `scripts/lv1-slugs.mjs` | Add `discoverLv2()`. For lv2, a missing `.css` is **filtered via `hasCss`, not thrown** (asymmetric with `discoverLv1WithCss()`). Do not rename the file. |
-| 2 | `scripts/audit-coverage.mjs` | Replace the "lv2 is out of scope" warning branch with a real audit. Make `PARITY_EXEMPT` per-level; make the `.css` / fixture / harness columns conditional for lv2. |
+| 2 | `scripts/audit-coverage.mjs` | Replace the "lv2 is out of scope" warning branch with a real audit. For lv2: no parity / fixture / harness columns (React-only); `.css` conditional; the interaction column required only for interactive lv2s (a per-component flag, since `PARITY_EXEMPT` / A–D does not apply). |
 | 3 | `scripts/check-lv1-companions.mjs` | Extend `LV1_TSX_RE` to `lv1\|lv2`; `.css` optional for lv2. |
 | 4 | `scripts/check-lv1-export-integrity.mjs` | Cover the lv2 barrel too. |
 | 5 | `scripts/build-component-css.mjs` | Add lv2s that have a `.css`. |
 | 6 | `scripts/sync-readme-components.mjs` | Add `.css`-bearing lv2s to the per-component CSS table; list lv2 in its own section of the support matrix. |
-| 7 | `scripts/check-harness-sync.mjs` | Cover classification A/B lv2s only. |
+| 7 | `scripts/check-harness-sync.mjs` | **No change** — lv2 has no vanilla harness (React-only). Keep it on `discoverLv1()`. |
 | 8 | `.size-limit.json` | Add `components/lv2 (all)` and `css/<lv2 slug>`; raise the `css/*` aggregate. Raising a budget is an additive surface change — say so in the changeset ([api-stability.md](api-stability.md#per-component-css-size-budgets)). |
 | 9 | `src/styles/entry.css` | `@import` the lv2 CSS **after** the lv1s it composes. |
-| 10 | `src/docs/__fixtures__/cssApiSamples.{html.ts,tsx}` | `<section data-component>` for each `.css`-bearing lv2. |
+| 10 | `src/docs/__fixtures__/cssApiSamples.{html.ts,tsx}` + `CSSApiDist.vrt.spec.ts` | **No lv2 section.** Keep `CSSApiDist` on `discoverLv1WithCss()` so lv2 is never auto-discovered (it would throw on the missing section). |
 | 11 | `scripts/check-registrar-sync.mjs` | Scan `.css`-bearing lv2 stylesheets. **Skipping this lets an lv2 reference an unregistered variable with every gate green** — the exact failure this script exists to catch. |
 | 12 | `scripts/ensure-dist.mjs` | Require `dist/css/<lv2 slug>.css`. |
 | — | `.storybook/preview.tsx` | No change — the sort comparator only orders top-level groups, so `Components/lv1/*` and `Components/lv2/*` sort naturally. |
 
-Rows 5, 7, 11, 12 cover every importer of `lv1-slugs.mjs` today; a new
-importer added later must be checked against lv2 as well.
+Rows 5, 7, 11, 12 cover every importer of `lv1-slugs.mjs` today (row 7 as
+a deliberate "no change"); a new importer added later must be checked
+against lv2 as well — and decide explicitly whether it belongs to the CSS
+path (lv1 only) or the shipped-CSS path (lv1 + lv2).
 
 ## 7. Export path
 
@@ -385,9 +459,11 @@ Restoring the export is an additive surface change (`minor`).
 2. **Shape the API** (§4): flat + curated props, `...rest` on the root,
    existing vocabulary, a per-component matrix row, no own context.
 3. **Decide the Field kind** (§4.4) if it touches forms.
-4. **Classify A–D** with the vrt-spec-guideline flow.
+4. **Decide whether it is interactive** → a non-screenshot interaction test
+   or not (§6.1). The A–D classification does not apply (§5.0).
 5. **Decide whether it has its own visual rules** → `.css` or not (§5.4). If
-   yes: block + modifiers only, imported after its lv1 parts.
+   yes: block + modifiers only, descendant selectors on lv1 classes,
+   imported after its lv1 parts.
 6. **Ship the companions** (§6.1) in the same PR as the component.
 7. **If it is the first lv2**, land the tooling (§6.2) and the export path
    (§7) in a separate foundation PR first.
@@ -396,6 +472,9 @@ Restoring the export is an additive surface change (`minor`).
 
 ## When this rule changes
 
+- **React-only (§5.0):** a vanilla path for an lv2 is added only through
+  this rule — name the consumer, publish the sub-elements it needs, add
+  parity, and record the lv2 as an exception here.
 - **The criterion (§2):** each rejected candidate goes into §3. If a gate
   turns out to let through something it should not (or block something it
   should not), adjust the gate and cite the case.

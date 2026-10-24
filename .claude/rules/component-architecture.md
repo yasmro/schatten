@@ -20,6 +20,33 @@ Anything not covered here defaults to **shadcn/ui + Radix conventions**.
 | Examples (today) | Button, Input, Field, FieldSet, Select, Dialog, Tooltip, … | (none yet — the first, `EmptyState` (#125), is planned for v1.2.0) |
 | Rule doc | this file | [lv2-composition-guideline.md](lv2-composition-guideline.md) |
 
+### Where the line is — does it introduce a primitive of its own?
+
+Embedding another lv1 does not make a component an lv2 (§6 allows lv1 →
+lv1). The line is whether the component **introduces a primitive of its
+own**:
+
+- **lv1** introduces at least one primitive itself — a native element whose
+  semantics it owns (`<button>`, `<label>`, `<fieldset>`, a heading), a
+  Radix primitive, or a React context it provides. It may embed other lv1s
+  as fixed parts.
+- **lv2** introduces **none**. Every semantic element and every primitive
+  comes from an lv1 it composes; its own markup is layout wrappers only, and
+  its own code is the wiring between the parts — layout, `aria-*`, focus,
+  state.
+
+| Component | Primitive it introduces | Layer |
+|---|---|---|
+| `Dialog` | Radix Dialog (embeds `Button` as a fixed part) | lv1 |
+| `Field` | `<label>` / error `<p>` + `FieldContext` (embeds `Tooltip`) | lv1 |
+| `EmptyState` (#125) | none — `Icon` + `Text` (the heading via `Text`'s `as`) + an action slot | lv2 |
+| `DatePicker` (#568) | none — `Input` + `Popover` + `DateCalendar`, plus the value sync between them | lv2 |
+| `ConfirmDialog` (#124, v1+) | none — wraps `Dialog` and owns the confirm state | lv2 |
+
+The test cuts both ways: an "lv2" that needs its own semantic element is an
+lv1 (or is missing an lv1), and an lv1 whose only content is other lv1s is
+an lv2 that has not been moved.
+
 **The promotion criterion, API shape, CSS contract, companion set and export
 path for lv2 live in
 [lv2-composition-guideline.md](lv2-composition-guideline.md)** (#492). The

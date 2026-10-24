@@ -282,11 +282,17 @@ full lv2 checkpoint list is tracked in
 - **API shape (§4)** — flat + curated props (no named parts), `...rest` on
   its own root, existing Pattern A / B vocabulary, **no React Context
   provided**. A form-control lv2 reads `FieldContext` per §4.4.
-- **CSS contract (§5)** — only block + modifier classes published; a
-  published `__*` sub-element needs a named consumer use case. `.css` exists
-  only when the lv2 has visual rules of its own, and is imported in
-  `entry.css` after the lv1s it composes.
-- **Companions (§6.1)** — judged against the lv2 column, not the lv1 one.
+- **CSS contract (§5)** — React-only: no parity story, vanilla harness
+  sample, or `CSSApiDist` fixture section is expected (their absence is ✅,
+  their presence is ⚠️). Only block + modifier classes published; a
+  published `__*` sub-element needs a named consumer use case. Inner rules
+  hang off lv1 classes, not bare tags. `.css` exists only when the lv2 has
+  visual rules of its own, and is imported in `entry.css` after the lv1s it
+  composes.
+- **No primitive of its own** — every semantic element comes from an lv1
+  (e.g. the heading via `Text`'s `as`); see component-architecture §1.
+- **Companions (§6.1)** — judged against the lv2 column, not the lv1 one;
+  an interactive lv2 needs a non-screenshot interaction test.
 
 ### field-context-guideline.md
 

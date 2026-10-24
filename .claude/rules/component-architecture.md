@@ -17,15 +17,17 @@ Anything not covered here defaults to **shadcn/ui + Radix conventions**.
 |---|---|---|
 | Folder | [`src/components/lv1/`](../../src/components/lv1) | [`src/components/lv2/`](../../src/components/lv2) |
 | Purpose | Single-responsibility primitive. Low-level, focused. | A composition of multiple lv1s shaped as a single component. |
-| Examples (today) | Button, Input, Field, FieldSet, Select, Dialog, Tooltip, … | (empty — first lv2s land post-1.0) |
-| Hypothetical lv2 | — | `FormField` = Field + Label + Input + error msg |
+| Examples (today) | Button, Input, Field, FieldSet, Select, Dialog, Tooltip, … | (none yet — the first, `EmptyState` (#125), is planned for v1.2.0) |
+| Rule doc | this file | [lv2-composition-guideline.md](lv2-composition-guideline.md) |
 
-**The promotion criterion (when a recurring composition becomes an lv2) is
-intentionally deferred** — it will be defined in a follow-up rule when the
-first lv2 lands. lv2 is scoped **post-1.0**: 1.0 freezes the lv1 + CSS
-contract, and lv2 (a composition of lv1s) ships afterward as additive
-`minor` releases. Until the first lv2 lands, treat any composition of 3+
-lv1s as a candidate that the DS owner will judge case-by-case.
+**The promotion criterion, API shape, CSS contract, companion set and export
+path for lv2 live in
+[lv2-composition-guideline.md](lv2-composition-guideline.md)** (#492). The
+criterion counts the *decisions* a composition freezes, not the number of
+lv1s it bundles — `FormField` (#123), the candidate that bundled the most
+lv1s, was rejected because `Field` already froze everything it would have.
+lv2 ships post-1.0 as additive `minor` releases; 1.0 froze the lv1 + CSS
+contract.
 
 ## 2. Compound vs flat
 
@@ -615,8 +617,9 @@ fallback — that policy only holds if the contract below holds.
 
 ## When this rule changes
 
-- **§1 (lv2 promotion criterion):** will be defined as a follow-up rule
-  when the first lv2 lands (scoped post-1.0).
+- **§1 (lv2):** the promotion criterion and every other lv2 rule live in
+  [lv2-composition-guideline.md](lv2-composition-guideline.md) (#492). Keep
+  §1 to the folder table and the pointer; change lv2 rules there.
 - **§3 (`asChild`):** the authoritative adoption list lives in
   [component-api-conventions.md](component-api-conventions.md). Keep
   this file's §3 narrowed to the *additional* constraints

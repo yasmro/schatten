@@ -47,3 +47,7 @@
 - 2026-03 — lv1 / lv2 の二層を採用（遡及記録）。lv1 のみ稼働。
 - lv2 昇格基準・lv0/lv3 の導入は post-1.0 の follow-up
   （[component-architecture.md](../../.claude/rules/component-architecture.md) §1「When this rule changes」）。
+- 2026-10 — lv2 の昇格基準と作成規範を [lv2-composition-guideline.md](../../.claude/rules/lv2-composition-guideline.md)
+  に定義（#492）。二層構造と依存方向の決定は変わらないため、supersede はしない。Consequences にある
+  「3 つ以上の lv1 の合成は lv2 候補」は当時の暫定の目安で、現在の基準は lv1 の数ではなく凍結する判断の数で
+  測る（G1–G4 / D1–D3）。Context の例に挙げた FormField は #123 で却下され、同 rule doc の負例になった。

@@ -151,8 +151,10 @@ list is not updated yet.
 ### component-architecture.md
 
 - **lv1 vs lv2 placement** — the component lives in the right folder for
-  its scope. (Today the lv2 folder is empty; flag any lv1 that already
-  reads as a composition of 3+ lv1s as a candidate for promotion post-1.0.)
+  its scope. (Today the lv2 folder is empty. Do not flag an lv1 as a
+  promotion candidate just because it composes several lv1s — the lv2
+  criterion counts frozen decisions, not lv1s; see
+  `lv2-composition-guideline.md` below.)
 - **Compound vs flat** — a compound component (multi-export) wraps a
   Radix primitive with multiple parts and names them 1-to-1 (Schatten
   `SelectTrigger` ↔ `SelectPrimitive.Trigger`). A flat component has one
@@ -267,6 +269,24 @@ list is not updated yet.
   ignore `data-theme` and break Special / Mode cascades. Already
   covered by `state-token-guideline`; mention here only if the violation
   has a theme-cascade implication.
+
+### lv2-composition-guideline.md
+
+For an **lv1** target this section is N/A — write one line saying so. The
+full lv2 checkpoint list is tracked in
+[#311](https://github.com/yasmro/schatten/issues/311); until it lands, an
+**lv2** target gets at least:
+
+- **Criterion recorded** — the issue / PR shows the G1–G4 / D1–D3 result
+  (§2). Missing → ⚠️.
+- **API shape (§4)** — flat + curated props (no named parts), `...rest` on
+  its own root, existing Pattern A / B vocabulary, **no React Context
+  provided**. A form-control lv2 reads `FieldContext` per §4.4.
+- **CSS contract (§5)** — only block + modifier classes published; a
+  published `__*` sub-element needs a named consumer use case. `.css` exists
+  only when the lv2 has visual rules of its own, and is imported in
+  `entry.css` after the lv1s it composes.
+- **Companions (§6.1)** — judged against the lv2 column, not the lv1 one.
 
 ### field-context-guideline.md
 
@@ -428,6 +448,9 @@ lv1 で、<a11y role の出どころ>。Audit 対象: <.tsx / .css / .stories.ts
 ## state-token-guideline.md
 ...
 
+## lv2-composition-guideline.md
+(N/A for lv1)
+
 ## field-context-guideline.md
 (only if form component)
 
@@ -488,9 +511,9 @@ conversation. The structural anchors (`✅`/`⚠️`/`❌`, rule file names,
 - **Update VRT baselines** (`pnpm test:vrt:update`). The blind-update
   prohibition in [vrt-spec-guideline.md](../../rules/vrt-spec-guideline.md)
   applies to all agent-driven runs.
-- **Audit `lv2`** as a separate scope. The lv2 folder is empty pre-1.0;
-  when a real lv2 lands, this skill will need an lv2 section. Until
-  then, point the user at `component-architecture` §1 if they ask.
+- **Audit `lv2` in depth.** The lv2 folder is empty today; the
+  `lv2-composition-guideline.md` section above covers only the minimum.
+  The full lv2 checkpoint list is #311.
 - **Replace `/audit-coverage`.** Structural file-presence checks belong
   to that command — this skill defers to it for the "is the file
   there" question.

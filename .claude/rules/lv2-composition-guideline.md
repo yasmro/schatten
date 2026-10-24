@@ -55,7 +55,22 @@ hits **none of the disqualifiers**.
 | **G1** | Recurrence | Does the same composition recur across at least two screen types or products? |
 | **G2** | Canonicality | Is there one correct way to compose it, such that **getting it wrong causes real a11y or safety harm** (focus order, destructive confirmation, live region, `aria-describedby` wiring, value sync)? A purely visual arrangement fails here. |
 | **G3** | Non-derivability | Do the existing lv1s' curated props **not** already deliver the same value? Read what the lv1 already provides **before** counting what the composition adds. |
-| **G4** | Freeze-worthiness | Can the variation be expressed as props, without the component becoming a bag of slots? **Three or more free `ReactNode` slots** is the signal that the consumer should be composing it, not the library. |
+| **G4** | Freeze-worthiness | Can the variation be expressed as props, without the component becoming a bag of slots? **Three or more composition slots** (defined below) is the signal that the consumer should be composing it, not the library. |
+
+What counts as a **composition slot** for G4 — count by role, not by type:
+
+- **Counts:** a prop where the consumer drops in *arbitrary components* to
+  compose a region the lv2 does not shape — an `action` area, a
+  `breadcrumb`, a custom header region, a render prop.
+- **Does not count:** a content prop whose place and presentation the lv2
+  fixes, even when it is typed `ReactNode` so it can hold inline markup —
+  `title`, `description`, `label`, `children` as the body text. The lv2
+  still decides where it goes and how it looks; nothing is handed back.
+
+Example: EmptyState (`title` / `description` / `action`, all `ReactNode`)
+has **one** composition slot (`action`), so it passes G4. Counting by type
+would give three and reject it — that is the misreading this definition
+rules out.
 
 What counts toward **G3**:
 
@@ -86,6 +101,11 @@ What counts toward **G3**:
    visual one ("native pickers look different per browser" is a visual
    reason and does not count).
 4. All four ✅ / argued △, no disqualifier → lv2.
+
+> Why the criterion replaced the "3+ lv1s" rule, and how #124 / #126 were
+> judged against it, is recorded in
+> [#492](https://github.com/yasmro/schatten/issues/492) (§2 / §6 of its
+> design).
 
 ## 3. Rejected-candidate catalogue
 
@@ -178,9 +198,15 @@ Rules common to both kinds:
   - **One input** (DatePicker) — the inner `Input` consumes `field.id`, so the
     Field label names it through `htmlFor` (the `Input` precedent).
   - **Two or more inputs** (DateRangePicker) — `field.id` is **not**
-    consumed. The group root applies `aria-labelledby={field.labelId}` (the
-    `RadioGroup` precedent), and each inner input gets its own name (e.g.
-    "Start date" / "End date").
+    consumed. The group root carries **`role="group"`** and applies
+    `aria-labelledby={field.labelId}` (the `RadioGroup` precedent), and each
+    inner input gets its own name (e.g. "Start date" / "End date").
+    The role is not optional: `RadioGroup` gets `role="radiogroup"` from
+    Radix, but a bare `<div>` is role `generic`, which **cannot hold an
+    accessible name** — `aria-labelledby` on it is silently ignored, and axe
+    does not necessarily flag it (the same trap `Badge` hit, see
+    [component-architecture.md §8](component-architecture.md#8-accessibility-contract)).
+    Pin it with a `getByRole('group', { name })` unit test.
 - `aria-required` follows the two idioms in
   [field-context-guideline §Required propagation](field-context-guideline.md#required-propagation-via-aria-required-announce-only)
   — conditional injection (never `undefined`) for Radix-based parts.
@@ -240,6 +266,11 @@ listed in the manifest. This is derived from constraints, not chosen:
    ([api-stability.md](api-stability.md#manifest-as-the-authoritative-api-listing)),
    so what ships is what is listed.
 
+> The alternatives considered — a manifest exclusion list, inline `style`
+> instead of CSS — and why each was rejected are recorded in
+> [#492](https://github.com/yasmro/schatten/issues/492) (§1 of its design,
+> decision A).
+
 ### 5.2 Publish the smallest surface — block + modifiers only
 
 Manifest membership is asymmetric:
@@ -258,7 +289,8 @@ override that part on its own, and name that use case in the PR description.
 This is deliberately the **opposite** of lv1's default (Callout and Card
 publish their sub-elements). An lv1 is a part the consumer composes, so a
 per-slot override is value; an lv2 is a frozen composition, so a per-slot
-override mostly undoes it.
+override mostly undoes it. (Decision B in
+[#492](https://github.com/yasmro/schatten/issues/492).)
 
 ### 5.3 Named pattern vs. layout primitive (the ADR-0010 line)
 

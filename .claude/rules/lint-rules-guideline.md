@@ -80,7 +80,7 @@ this lint gates the source boundary. Either one alone permits an "import
 slips in and the build still passes" failure mode.
 
 The architectural layer table in
-[component-architecture.md §6 Dependency direction](component-architecture.md#6-dependency-direction)
+[component-architecture.md §6 Dependency direction](component-architecture.md#6-dependency-direction--strictly-one-way)
 already says `core/` / `variants/` / `themes/` may import from external
 packages *only* (no `react`, no Radix). This rule mechanises that table.
 `lib/` is deliberately out of scope — it's allowed to depend on React

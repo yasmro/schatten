@@ -478,7 +478,7 @@ fallback — that policy only holds if the contract below holds.
      Toast title, Callout title.
    - **`aria-labelledby` auto-wired by Radix** — Dialog (`Title` →
      `aria-labelledby` on Content,
-     [Dialog.tsx:44](../../src/components/lv1/Dialog/Dialog.tsx:44)).
+     [Dialog.tsx](../../src/components/lv1/Dialog/Dialog.tsx)).
    - **`<label htmlFor>` paired through `FieldContext`** —
      externally-labelled form inputs (Input, Textarea, Select). See
      [field-context-guideline](field-context-guideline.md).
@@ -491,13 +491,13 @@ fallback — that policy only holds if the contract below holds.
      [field-context-guideline](field-context-guideline.md#naming-via-labelid-self-labelled--group-components).
    - **`aria-label`** — icon-only or symbol-only triggers. Required
      where a button has no readable text content: Dialog close ✕
-     ([Dialog.tsx:217](../../src/components/lv1/Dialog/Dialog.tsx:217)),
+     ([Dialog.tsx](../../src/components/lv1/Dialog/Dialog.tsx)),
      Callout close ✕
-     ([Callout.tsx:120](../../src/components/lv1/Callout/Callout.tsx:120)),
+     ([Callout.tsx](../../src/components/lv1/Callout/Callout.tsx)),
      Toast close ✕
-     ([Toast.tsx:102](../../src/components/lv1/Toast/Toast.tsx:102)),
+     ([Toast.tsx](../../src/components/lv1/Toast/Toast.tsx)),
      Field tooltip info icon
-     ([Field.tsx:104](../../src/components/lv1/Field/Field.tsx:104)).
+     ([Field.tsx](../../src/components/lv1/Field/Field.tsx)).
 
    The contract: `getByRole(role, { name })` returns the component. If
    it does not, the component has no usable accessible name and the
@@ -537,7 +537,7 @@ fallback — that policy only holds if the contract below holds.
    - **Loading** — component-specific. Button uses
      `aria-hidden={!isLoading}` on its inline spinner so the spinner
      only enters the accessibility tree while loading
-     ([Button.tsx:131](../../src/components/lv1/Button/Button.tsx:131)).
+     ([Button.tsx](../../src/components/lv1/Button/Button.tsx)).
    - **Required** — Field propagates its `required` to the wrapped
      control as `aria-required` (announce-only) through `FieldContext`,
      mirroring `isError → aria-invalid`. It does **not** enable native
@@ -570,7 +570,7 @@ fallback — that policy only holds if the contract below holds.
   conditionally as `undefined` rather than letting Radix emit a
   dangling reference. Dialog does this for `aria-describedby` when
   `description` is absent
-  ([Dialog.tsx:273](../../src/components/lv1/Dialog/Dialog.tsx:273)).
+  ([Dialog.tsx](../../src/components/lv1/Dialog/Dialog.tsx)).
 
 ### Hard rules
 

@@ -341,7 +341,7 @@ additions"). The boundary has three rules:
    `forwardRef` element types are concrete DOM types (`HTMLButtonElement`),
    not `ComponentRef<typeof …>`.
 3. **The boundary is machine-enforced, twice.**
-   [`radix-type-boundary.test.tsx`](../../src/components/lv1/__tests__/radix-type-boundary.test.tsx)
+   [`radix-type-boundary.test.tsx`](../../src/components/__tests__/radix-type-boundary.test.tsx)
    scans every lv1 implementation file for the two banned shapes (Radix-derived
    type references, direct instance re-exports) and pins representative
    shielded props with `@ts-expect-error`. Value-level compatibility needs no

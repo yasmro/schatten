@@ -29,9 +29,9 @@ jobs:
       - uses: actions/checkout@v7
 
       # Resolve where this build is published, based on the pushed ref (#502 —
-      # the Pages root belongs to nobody; it carries only the router page that
-      # deploy-site.yml owns):
-      #   main    -> /storybook/       — released, what the docs site links to
+      # the Pages root belongs to nobody; it carries only the router page and
+      # the site/ redirect stubs that deploy-pages-root.yml owns):
+      #   main    -> /storybook/       — released, what schatten-site links to
       #   develop -> /storybook/next/  — unreleased integration preview
       - name: Resolve deploy target
         id: target

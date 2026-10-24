@@ -1,0 +1,22 @@
+<!doctype html>
+<!-- Pages 404 (#563). GitHub Pages serves this for any missing path under
+     /schatten/. URLs under the retired /schatten/site/ are forwarded to the
+     same path on yasmro/schatten-site (identical layout); the six real pages
+     have their own stubs in site/, so this only catches the rest. Every
+     other missing path just shows a plain 404.
+
+     This page answers with HTTP 404, so search engines ignore its redirect;
+     that is why the known pages get 200 stubs instead of relying on this. -->
+<meta charset="utf-8">
+<title>Schatten — not found</title>
+<script>
+  var prefix = '/schatten/site/';
+  var p = location.pathname;
+  if (p.indexOf(prefix) === 0) {
+    location.replace(
+      'https://yasmro.github.io/schatten-site/' + p.slice(prefix.length) + location.search + location.hash,
+    );
+  }
+</script>
+<p>Page not found. The Schatten site is at
+  <a href="https://yasmro.github.io/schatten-site/">https://yasmro.github.io/schatten-site/</a>.</p>

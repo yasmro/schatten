@@ -111,9 +111,10 @@ Schatten classes follow a strict three-form BEM:
   `st-dialog__content` is fine, `st-dialog__content__header` is not.
   If a hierarchy is needed, the sub-element gets its own peer entry
   (`st-dialog__header`).
-- **No primitive utility classes inside component CSS.** Component
-  rules use semantic tokens (`@apply bg-error text-foreground-muted`)
-  — never primitive utilities (`bg-red-500`, `text-gray-700`). The
+- **No primitive values inside component CSS.** Component rules use
+  semantic tokens (`color: var(--color-foreground-muted)`) — never
+  primitive scales (`var(--red-600)`) or primitive utility classes
+  (`bg-red-500`, `text-gray-700`). The
   [`no-primitive-color` Biome plugin](lint-rules-guideline.md#no-primitive-color--error)
   catches this on JSX; CVA `.ts` files and component `.css` files
   remain a code-review concern.
@@ -538,7 +539,7 @@ The base layer is light. Dark and seasonal palettes layer on top of
 
 ### Pattern 1 — token-driven (default, preferred)
 
-Most rules consume CSS custom properties: `@apply bg-solid` or
+Most rules consume CSS custom properties:
 `background-color: var(--color-solid);`. When `.dark` flips
 `--color-solid` to its dark value, the rule resolves to the new
 colour at paint time without a dedicated dark selector. **Don't
@@ -599,10 +600,10 @@ enforced structurally:
   Stripping the icon or the title to "clean up" the markup breaks
   this contract.
 - **Focus indication is a ring, not a colour swap.** Every
-  interactive `.st-*` rule includes
-  `focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2`
-  via `@apply`. Removing the ring to fit a layout is a contract
-  violation — replace it with an equivalent visible indicator
+  interactive `.st-*` block has a `:focus-visible` rule that draws a
+  ring from `--color-ring` / `--color-ring-offset` (e.g.
+  `.st-btn:focus-visible`). Removing the ring to fit a layout is a
+  contract violation — replace it with an equivalent visible indicator
   instead.
 
 When you add a new component or modifier, walk this list before
@@ -650,9 +651,10 @@ public and how to name it.
    reach for the appropriate HTML / ARIA / Radix attribute selector
    from the table above.
 3. **Author inside `@layer components`** in the component's own
-   `.css` file under `src/components/lv1/{Component}/`. Use
-   `@apply` with semantic tokens (`@apply bg-solid
-   text-solid-foreground`), never primitive utilities.
+   `.css` file under `src/components/lv1/{Component}/`. Write raw CSS
+   against semantic tokens (`background-color: var(--color-solid)`),
+   never `@apply` and never primitive scales — see
+   [§raw CSS over `@apply`](#component-css-authoring-conventions--raw-css-over-apply).
 4. **Verify both modes.** Storybook → Color / Foundation, toggle
    light/dark. If the new modifier is part of a Special's
    allowlist, verify each Special as well.

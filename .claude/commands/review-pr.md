@@ -28,7 +28,7 @@ PR をセルフレビューする。前半のチェックリストは **観察�
   - compound vs flat の選択が妥当か (Radix wrap → compound, 自前 → flat, 自前合成は lv2)
   - **新規に `asChild` prop が追加されていないか** (新規 lv1 は default-off。`buttonVariants` / `textVariants` で代替。form input / portal content には何があっても採用不可。既存採用済みコンポーネントの判定は `component-api-conventions.md` §`asChild` を参照)
   - 依存方向が一方向か (`lv1 → lv2` 禁止、`barrel 経由` 禁止、新規 `lib/` utility は 2 consumer 必要)
-  - 新規ファイルとして `.css` が増えていないか — 増えている場合は Tailwind/CVA で表現困難な理由があるか
+  - `.css` が raw CSS (`var(--color-*)`) で書かれているか — `@apply` / Tailwind 構文 / primitive の値がないか。component の JSX に Tailwind のユーティリティがないか (§7)。1 コンポーネントに 2 つ目の `.css` を足すなら理由があるか
 - [ ] lv2 を追加・変更する場合は `.claude/rules/lv2-composition-guideline.md` に準拠しているか
   - 昇格基準 (G1–G4 / D1–D3) の判定結果が issue / PR 説明に書かれているか
   - flat + curated props か (compound になっていないか)、独自 React Context を provide していないか

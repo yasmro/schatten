@@ -4,8 +4,8 @@
 
 This file records the design-time choices that go into adding or extending a
 component in Schatten: which folder it lives in, how its API is shaped, what
-escape hatches it exposes, and when a `.css` file is allowed to exist next to
-a `.tsx`. These choices used to live in reviewers' heads — making them
+escape hatches it exposes, and what goes into the `.css` file next to its
+`.tsx`. These choices used to live in reviewers' heads — making them
 explicit lets contributors (human and AI) land the right thing the first time
 and lets reviewers anchor feedback on a shared text instead of taste.
 
@@ -65,16 +65,23 @@ consumer composes) and **flat** (one component the consumer uses directly).
 ### Compound — the consumer composes named parts
 
 ```tsx
-<Dialog>
-  <DialogTrigger>Open</DialogTrigger>
-  <DialogContent>
-    <DialogTitle>Confirm</DialogTitle>
-    <DialogDescription>Are you sure?</DialogDescription>
-  </DialogContent>
-</Dialog>
+<Select defaultValue="jp">
+  <SelectTrigger>
+    <SelectValue placeholder="Country" />
+  </SelectTrigger>
+  <SelectContent>
+    <SelectItem value="jp">Japan</SelectItem>
+    <SelectItem value="us">United States</SelectItem>
+  </SelectContent>
+</Select>
 ```
 
-Used by: `Dialog`, `Tooltip`, `Select`, `Radio` (`RadioGroup` + `Radio`).
+Used by: `Select`, `Tooltip`, `Popover`, `DropdownMenu`, `Tabs`, `Radio`
+(`RadioGroup` + `Radio`) — each over a multi-part Radix primitive — and
+`Card` / `Table`, which mirror a multi-part **native** structure
+(`<table>` / `<thead>` / `<tr>` / `<td>`; a card's header / content / footer
+regions) instead of a Radix one. `Dialog` is **not** compound — see the
+carved exception below.
 
 **When to ship as compound:** when wrapping a Radix primitive that already
 exposes multiple parts. Match Radix's part names one-to-one
@@ -87,8 +94,8 @@ redeclarations, never a Radix type — see
 **Why match Radix one-to-one rather than collapse:** Radix's parts share refs,
 context, and aria attributes internally. Collapsing them into a single component
 breaks those wires. It also strips the consumer's ability to inject custom
-content into specific slots — a custom icon inside `DialogTitle`, an extra
-className on `DialogContent`, etc.
+content into specific slots — a custom icon inside a `SelectItem`, an extra
+className on `TooltipContent`, etc.
 
 ### Flat — the consumer uses one component
 
@@ -118,7 +125,7 @@ section's default would prescribe for a multi-part Radix wrapper. This is a
 - **The common case is genuinely single-slot.** ~90% of avatar usage is
   `src` + `alt` + an initials `fallback` (a `string`). There is no real
   per-instance need to inject custom content into the image and fallback
-  slots independently — unlike `DialogTitle` / `DialogContent`, which
+  slots independently — unlike `SelectItem` / `TooltipContent`, which
   consumers routinely customise.
 - **Radix's wiring does NOT break.** The flat component still renders all
   three Radix parts internally (`Avatar.Image` inside `Avatar.Root`, with
@@ -138,8 +145,45 @@ The rule of thumb this carves out: a multi-part Radix primitive **may** ship
 flat when (a) the multi-slot composition has no real consumer use case, (b)
 the flat wrapper still renders every Radix part internally so no behaviour is
 lost, and (c) the withheld per-part props can be re-exposed additively later.
-If any of the three fails, default back to compound. `Avatar` is the only
-component on this exception today.
+If any of the three fails, default back to compound.
+
+### Carved exception — `Dialog` is curated props over a multi-part Radix primitive
+
+`Dialog` wraps `@radix-ui/react-dialog` (it renders Root / Portal / Overlay /
+Content / Title / Description / Close internally) but exports **one** component,
+`Dialog`, driven by curated props — controlled `isOpen` / `onOpenChange`,
+`title`, `description`, `children` for the body, and the footer slots
+`actionButton` / `cancelButton` / `subActionButton`. There is no public
+`DialogTrigger` / `DialogContent` / `DialogClose`. This is the second
+sanctioned exception, and its reason differs from Avatar's:
+
+- **The composition itself is what Dialog standardises.** A confirmation
+  dialog's footer — which buttons exist, their order, the `destructive`
+  mapping, a separator above them, the close ✕ — is exactly the part
+  consumers would otherwise assemble differently on every screen. Dialog
+  fixes it; consumers supply only the content and the button configs.
+- **It owns behaviour a compound API would hand back.** While any footer
+  button is `isLoading`, Dialog blocks every dismissal path (ESC, overlay
+  click, ✕); it wires `aria-describedby` only when a `description` exists
+  (conditional ARIA opt-out, §8); it warns when `actionButton.onClick` is
+  missing. With named parts, each consumer would have to re-implement these.
+- **Radix's wiring is intact.** The Radix parts are rendered internally, so
+  focus trap, `aria-labelledby` from the title, and portal stacking work as
+  Radix intends. (There is no `Trigger`: the dialog is controlled through
+  `isOpen`, so the consumer's own button opens it.)
+- **The withheld surface is recoverable additively.** Exporting the parts
+  later (a compound split) adds exports without changing `Dialog`.
+
+The rule of thumb this adds: a multi-part Radix primitive **may** ship as
+curated props when the **composition is the standard being shipped** (not
+just the common case, as for Avatar), the component owns behaviour that
+depends on that fixed composition, and conditions (b) and (c) above hold.
+This is also the shape lv2 follows — see
+[lv2-composition-guideline.md §4.1](lv2-composition-guideline.md#41-flat--curated-props-by-default-compound-is-not-allowed).
+`Dialog` stays lv1 because it introduces the Radix Dialog primitive itself
+(§1).
+
+`Avatar` and `Dialog` are the only components on these exceptions today.
 
 ### Special case — imperative APIs
 
@@ -381,50 +425,56 @@ importing from a higher one) are forbidden.
 
 ## 7. lv1-local CSS files
 
-Most styling lives in Tailwind classes composed through CVA. A `.css` file
-next to a `.tsx` is allowed **only** when the styling expresses something
-Tailwind / CVA cannot reasonably express.
+Every lv1 ships **one** `{Component}.css` next to its `.tsx`, and that file
+holds **all** of the component's visual rules. Since
+[#154](https://github.com/yasmro/schatten/issues/154) it is the source of
+truth for the public `.st-*` class API ([css-api.md](css-api.md)), and since
+[#317](https://github.com/yasmro/schatten/issues/317) the dist that ships it
+is Tailwind-free. Consequences:
 
-> **Exception — `.st-{block}` class API definitions.** The `{Component}.css`
-> files added by [#154](https://github.com/yasmro/schatten/issues/154)
-> sweep-1〜7 are **exempt from the table below**: they ARE the SSOT for
-> the public class API per [css-api.md](css-api.md), and authoring them
-> with `@apply` against semantic tokens is the intended pattern. CVA
-> simplifies to class-name concatenation only, and the visual rules
-> (static colors, spacing, typography, hover/focus, light/dark, layout)
-> all land in the component's own `.css` under `@layer components`. The
-> table below remains the rule for any *other* lv1-local CSS — animation,
-> scoped variables, `prefers-reduced-motion`, conditional
-> `animation-play-state`.
+- **Everything visual goes in the `.css`, inside `@layer components`** —
+  colors, spacing, typography, hover / focus / state rules, light/dark
+  differences, layout, `@keyframes`, `prefers-reduced-motion`, and
+  component-scoped CSS variables (`--st-spinner-duration`).
+- **Raw CSS with `var(--color-*)`, never `@apply`.** lightningcss does not
+  process Tailwind directives, so `@apply` would ship as a broken at-rule
+  ([css-api.md §raw CSS over `@apply`](css-api.md#component-css-authoring-conventions--raw-css-over-apply)).
+- **Semantic tokens only**, never primitive scales (`var(--red-600)`) —
+  [state-token-guideline](state-token-guideline.md).
+- **No Tailwind utilities in component JSX.** Consumers have no Tailwind.
+  CVA only concatenates `.st-*` class names
+  ([api-stability.md §CVA output stability](api-stability.md#cva-output-stability)).
+  Tailwind remains a Storybook-only tool for story layout scaffolding.
+- **One `.css` per component.** A second stylesheet for the same component
+  needs a reason the single file cannot carry (none exists today).
 
-| Allowed | Not allowed |
-|---|---|
-| `@keyframes` animations (declarative, multi-stop) | Static colors, spacing, typography (use semantic tokens + CVA) |
-| `animation-play-state` / `animation-delay` conditional on `[data-state]` | Hover/focus state styles (use Tailwind variants) |
-| `prefers-reduced-motion` media queries that disable animation | Light/dark adjustments (use CSS variables + `dark:`) |
-| CSS variable definitions scoped to the component (e.g. `--st-spinner-duration`) | Layout / flexbox / grid (use Tailwind) |
+> **Known violations (tracked).** `Dialog.tsx` still orders its footer buttons
+> with Tailwind utilities (`order-*`, `sm:order-*`, `sm:mr-auto`) on the
+> `<Button>` elements. The Tailwind-free dist does not contain them, so in a
+> consumer app the footer falls back to DOM order; Storybook masks this
+> because it loads Tailwind. Tracked in
+> [#575](https://github.com/yasmro/schatten/issues/575). Do not copy the
+> pattern.
 
-**Existing exceptions today** (all animation-only, all comply):
+Examples of the less obvious rules that live in these files:
 
 - [`Tooltip.css`](../../src/components/lv1/Tooltip/Tooltip.css) — directional
-  enter/exit slide+fade animations driven by Radix `[data-state]` and
-  `[data-side]`. Per-side composed `animation:` shorthand is impractical
-  in Tailwind.
-- [`Dialog.css`](../../src/components/lv1/Dialog/Dialog.css) — overlay
-  fade and content zoom keyframes. Documents the `translate:` /
-  `transform: translate(...)` interaction with Tailwind v4 in an inline
-  comment.
+  enter/exit animations driven by Radix `[data-state]` and `[data-side]`.
+- [`Dialog.css`](../../src/components/lv1/Dialog/Dialog.css) — overlay fade
+  and content zoom keyframes, with an inline note on how `translate:` and
+  `transform: translate(...)` interact.
 - [`Toast.css`](../../src/components/lv1/Toast/Toast.css) — dissolve-in /
-  dissolve-out keyframes and swipe-handoff animation.
-- [`Spinner.css`](../../src/components/lv1/Spinner/Spinner.css) — ripple
-  and breathe keyframes; declares two component-scoped CSS variables
-  (`--st-spinner-duration`, `--st-spinner-ripple-delay`)
-  that consumers can override.
+  dissolve-out keyframes and the swipe hand-off animation.
+- [`Spinner.css`](../../src/components/lv1/Spinner/Spinner.css) — ripple and
+  breathe keyframes, plus two component-scoped variables
+  (`--st-spinner-duration`, `--st-spinner-ripple-delay`) consumers can
+  override.
 
-**Review check:** if a PR adds a `.css` file under `src/components/lv1/`,
-the reviewer must verify each rule satisfies the "not expressible in
-Tailwind / CVA" bar above. If any rule could be a Tailwind class, move
-it.
+**Review check:** a PR that touches an lv1 `.css` must keep it raw CSS
+(no `@apply` / `@theme` / Tailwind syntax), on semantic tokens, inside
+`@layer components`, with state expressed through attributes rather than
+state classes ([css-api.md](css-api.md#state-is-expressed-as-attributes-not-classes)).
+A PR that adds a second `.css` for one component must say why.
 
 ## 8. Accessibility contract
 
@@ -537,13 +587,12 @@ fallback — that policy only holds if the contract below holds.
      inner wrappers.)
    - Activates with the role-appropriate key (`Enter` / `Space` for
      buttons; `Arrow` keys for Radio / Select).
-   - A visible focus indicator — every interactive variant in
-     [src/variants/](../../src/variants/) bakes
-     `focus-visible:outline-none focus-visible:ring-2
-     focus-visible:ring-ring focus-visible:ring-offset-2` into its
-     base class. Do not strip this chain. If a layout conflicts,
-     replace it with an equivalent visible indicator, do not delete
-     it.
+   - A visible focus indicator — every interactive block declares a
+     `:focus-visible` rule in its `.css` that draws the ring from
+     `--color-ring` / `--color-ring-offset` (e.g. `.st-btn:focus-visible`
+     in [Button.css](../../src/components/lv1/Button/Button.css)). Do
+     not remove it. If a layout conflicts, replace it with an
+     equivalent visible indicator, do not delete it.
 
    For Radix-based components the keyboard wiring is implemented by
    Radix. The contract here is to **not break** it — don't override
@@ -605,13 +654,16 @@ fallback — that policy only holds if the contract below holds.
 - **Do not** wrap interactive content in a `<div>` with `onClick` and
   call it a button. Use `<button>` (or `<Button>`), or a Radix
   primitive that renders a button.
-- **Do not** rely on color alone to convey state. `isError` must add
-  both `aria-invalid` (for assistive tech) and `border-error` (for
-  sighted users) — both are required, never either-or. Same for
+- **Do not** rely on color alone to convey state. `isError` must set
+  `aria-invalid` (for assistive tech), and the error border is drawn by
+  the CSS rule that targets that same attribute (for sighted users) —
+  both are required, never either-or. Same for
   Callout / Toast variants.
-- **Do not** strip the `focus-visible:ring-*` chain from a variant
-  base class. Override the ring color if you need contrast on a
-  colored surface (see Input's `has-focus-visible:ring-error` for the
+- **Do not** strip the `:focus-visible` ring rule from an interactive
+  block's CSS. Override the ring color if you need contrast on a
+  colored surface (see Input's
+  `.st-input-wrapper:has(.st-input[aria-invalid="true"]:focus-visible)`
+  in [Input.css](../../src/components/lv1/Input/Input.css) for the
   pattern), but never disable it outright.
 - **Do not** introduce `tabIndex={-1}` on the root of a focusable
   component. It's correct on inner wrappers when focus lives

@@ -52,3 +52,8 @@ Schatten のビジュアルを一切使えない。一方、shadcn ベース（[
 
 - v0.9.0（#154）— `.st-*` クラス API + manifest パイプラインを実装（全 lv1 カバー）。
 - v0.15.0（#317）— dist を lightningcss で Tailwind-free コンパイル、路線を完遂。
+- 2026-10 — lv2（合成コンポーネント）は React 層だけで提供すると決めた（#492、
+  [lv2-composition-guideline.md §5.0](../../.claude/rules/lv2-composition-guideline.md#50-lv2-is-react-only)）。
+  lv2 の価値は focus・`aria-*` の配線・状態の所有といった振る舞いで、素の HTML には持ち込めないため。
+  素の HTML で同じ見た目が要るときは lv1 のクラスを組み合わせる。本 ADR の二層の決定は lv1 について
+  そのまま有効で、supersede はしない。

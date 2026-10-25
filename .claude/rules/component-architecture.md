@@ -17,15 +17,45 @@ Anything not covered here defaults to **shadcn/ui + Radix conventions**.
 |---|---|---|
 | Folder | [`src/components/lv1/`](../../src/components/lv1) | [`src/components/lv2/`](../../src/components/lv2) |
 | Purpose | Single-responsibility primitive. Low-level, focused. | A composition of multiple lv1s shaped as a single component. |
-| Examples (today) | Button, Input, Field, FieldSet, Select, Dialog, Tooltip, … | (empty — first lv2s land post-1.0) |
-| Hypothetical lv2 | — | `FormField` = Field + Label + Input + error msg |
+| Examples (today) | Button, Input, Field, FieldSet, Select, Dialog, Tooltip, … | (none yet — the first, `EmptyState` (#125), is planned for v1.2.0) |
+| Rule doc | this file | [lv2-composition-guideline.md](lv2-composition-guideline.md) |
 
-**The promotion criterion (when a recurring composition becomes an lv2) is
-intentionally deferred** — it will be defined in a follow-up rule when the
-first lv2 lands. lv2 is scoped **post-1.0**: 1.0 freezes the lv1 + CSS
-contract, and lv2 (a composition of lv1s) ships afterward as additive
-`minor` releases. Until the first lv2 lands, treat any composition of 3+
-lv1s as a candidate that the DS owner will judge case-by-case.
+### Where the line is — does it introduce a primitive of its own?
+
+Embedding another lv1 does not make a component an lv2 (§6 allows lv1 →
+lv1). Decide in two steps:
+
+1. **Does it compose any lv1?** If not, it is an **lv1** — a styled native
+   element is a primitive in its own right (`Skeleton`'s `<div>`, `Text`'s
+   `<p>` / `<h*>`). This is the same line as the lv2 disqualifier D3.
+2. **If it composes lv1s, does it also introduce a primitive of its own?**
+   - **Yes → lv1.** A primitive here is a native element whose semantics the
+     component owns (`<button>`, `<label>`, `<table>`, a heading), a
+     headless-library primitive (Radix, Sonner, …), or a React context it
+     provides. The lv1s it embeds are fixed parts.
+   - **No → lv2.** Every semantic element and every primitive comes from an
+     lv1 it composes. Its own markup is wrappers, and its own code is the
+     wiring between the parts — layout, focus, state, and ARIA. **Putting a
+     `role` or `aria-*` on a wrapper is wiring, not a primitive**: a
+     `role="group"` wrapper named by `aria-labelledby` (the DateRangePicker
+     case, [lv2-composition-guideline.md §4.4](lv2-composition-guideline.md#44-field-context))
+     still introduces nothing a consumer could use on its own.
+
+| Component | Composes lv1s? | Primitive it introduces | Layer |
+|---|---|---|---|
+| `Skeleton` | no | its styled `<div>` | lv1 (step 1) |
+| `Toast` | yes (`Icon` / `Spinner` / `Button`) | Sonner's toaster + the imperative store | lv1 |
+| `Dialog` | yes (`Button`) | Radix Dialog | lv1 |
+| `Field` | yes (`Tooltip`) | `<label>` / error `<p>` + `FieldContext` | lv1 |
+| `EmptyState` (#125) | yes (`Icon` / `Text`) | none — the heading comes from `Text`'s `as`; the root `<div>` is a wrapper | lv2 |
+| `DatePicker` (#568) | yes (`Input` / `Popover` / `DateCalendar` / `Button`) | none — the trigger is a `Button`; the value sync is wiring | lv2 |
+| `DateRangePicker` (#568) | yes (same parts) | none — the `role="group"` root is ARIA wiring on a wrapper | lv2 |
+| `ConfirmDialog` (#124, v1+) | yes (`Dialog`) | none — it owns the confirm state | lv2 |
+
+The test cuts both ways: an "lv2" that needs a native semantic element of
+its own is either an lv1 or is missing an lv1 (render the heading through
+`Text`, the trigger through `Button`), and an lv1 whose only content is
+other lv1s plus wiring is an lv2 that has not been moved.
 
 ## 2. Compound vs flat
 
@@ -476,7 +506,7 @@ fallback — that policy only holds if the contract below holds.
      Toast title, Callout title.
    - **`aria-labelledby` auto-wired by Radix** — Dialog (`Title` →
      `aria-labelledby` on Content,
-     [Dialog.tsx:44](../../src/components/lv1/Dialog/Dialog.tsx:44)).
+     [Dialog.tsx](../../src/components/lv1/Dialog/Dialog.tsx)).
    - **`<label htmlFor>` paired through `FieldContext`** —
      externally-labelled form inputs (Input, Textarea, Select). See
      [field-context-guideline](field-context-guideline.md).
@@ -489,13 +519,13 @@ fallback — that policy only holds if the contract below holds.
      [field-context-guideline](field-context-guideline.md#naming-via-labelid-self-labelled--group-components).
    - **`aria-label`** — icon-only or symbol-only triggers. Required
      where a button has no readable text content: Dialog close ✕
-     ([Dialog.tsx:217](../../src/components/lv1/Dialog/Dialog.tsx:217)),
+     ([Dialog.tsx](../../src/components/lv1/Dialog/Dialog.tsx)),
      Callout close ✕
-     ([Callout.tsx:120](../../src/components/lv1/Callout/Callout.tsx:120)),
+     ([Callout.tsx](../../src/components/lv1/Callout/Callout.tsx)),
      Toast close ✕
-     ([Toast.tsx:102](../../src/components/lv1/Toast/Toast.tsx:102)),
+     ([Toast.tsx](../../src/components/lv1/Toast/Toast.tsx)),
      Field tooltip info icon
-     ([Field.tsx:104](../../src/components/lv1/Field/Field.tsx:104)).
+     ([Field.tsx](../../src/components/lv1/Field/Field.tsx)).
 
    The contract: `getByRole(role, { name })` returns the component. If
    it does not, the component has no usable accessible name and the
@@ -535,7 +565,7 @@ fallback — that policy only holds if the contract below holds.
    - **Loading** — component-specific. Button uses
      `aria-hidden={!isLoading}` on its inline spinner so the spinner
      only enters the accessibility tree while loading
-     ([Button.tsx:131](../../src/components/lv1/Button/Button.tsx:131)).
+     ([Button.tsx](../../src/components/lv1/Button/Button.tsx)).
    - **Required** — Field propagates its `required` to the wrapped
      control as `aria-required` (announce-only) through `FieldContext`,
      mirroring `isError → aria-invalid`. It does **not** enable native
@@ -568,7 +598,7 @@ fallback — that policy only holds if the contract below holds.
   conditionally as `undefined` rather than letting Radix emit a
   dangling reference. Dialog does this for `aria-describedby` when
   `description` is absent
-  ([Dialog.tsx:273](../../src/components/lv1/Dialog/Dialog.tsx:273)).
+  ([Dialog.tsx](../../src/components/lv1/Dialog/Dialog.tsx)).
 
 ### Hard rules
 
@@ -615,8 +645,9 @@ fallback — that policy only holds if the contract below holds.
 
 ## When this rule changes
 
-- **§1 (lv2 promotion criterion):** will be defined as a follow-up rule
-  when the first lv2 lands (scoped post-1.0).
+- **§1 (lv2):** the promotion criterion and every other lv2 rule live in
+  [lv2-composition-guideline.md](lv2-composition-guideline.md) (#492). Keep
+  §1 to the folder table and the pointer; change lv2 rules there.
 - **§3 (`asChild`):** the authoritative adoption list lives in
   [component-api-conventions.md](component-api-conventions.md). Keep
   this file's §3 narrowed to the *additional* constraints

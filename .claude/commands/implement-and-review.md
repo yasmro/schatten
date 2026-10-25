@@ -121,7 +121,7 @@ git switch -c "$BRANCH" origin/develop
 
 | タスクの種類 | 読むべき rule |
 |---|---|
-| 新規 lv1 / lv2 component 追加 | `component-architecture.md` / `component-api-conventions.md` / `storybook-guideline.md` / `testing-guideline.md` / `vrt-spec-guideline.md` / `component-testid-guideline.md` |
+| 新規 lv1 / lv2 component 追加 | `component-architecture.md` / `component-api-conventions.md` / `storybook-guideline.md` / `testing-guideline.md` / `vrt-spec-guideline.md` / `component-testid-guideline.md` (lv2 はさらに `lv2-composition-guideline.md`) |
 | 既存 component の variant / prop 追加 | `component-api-conventions.md` + 該当 component の現状 |
 | トークン / theme 関連 | `state-token-guideline.md` / `theme-architecture.md` |
 | Field / Form 系 | `field-context-guideline.md` |

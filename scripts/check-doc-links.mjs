@@ -22,14 +22,19 @@
 //
 // Links inside fenced/inline code are ignored (they are examples, not links).
 //
-// Scanned sources: `docs/**/*.md` + `README.md` + the three root entry-point
-// docs (`AGENTS.md` / `CLAUDE.md` / `CONTRIBUTING.md`). Those three are
-// surfaces over `.claude/rules/` that cross-link each other and index the rule
-// files, so scanning them turns a renamed rule (or a stale cross-link between
-// the three) into a lint-time failure. Link *targets* may be any file in the
-// repo (rule docs, source files, decision logs), so a rename in
-// `.claude/rules/*.md` is caught even though those files are not scanned as
-// sources themselves.
+// Scanned sources: `docs/**/*.md` + `.claude/rules/**/*.md` + `README.md` +
+// the three root entry-point docs (`AGENTS.md` / `CLAUDE.md` /
+// `CONTRIBUTING.md`). Those three are surfaces over `.claude/rules/` that
+// cross-link each other and index the rule files, so scanning them turns a
+// renamed rule (or a stale cross-link between the three) into a lint-time
+// failure. The rule docs themselves are scanned too (#492): they cross-link
+// each other by heading anchor (`component-architecture.md#5-…`), and before
+// they were sources a heading rename broke those anchors silently — 11 dead
+// links had accumulated when the scan was added. Link *targets* may be any
+// file in the repo (rule docs, source files, decision logs).
+//
+// Editor-style `Foo.tsx:42` targets are NOT valid links (GitHub 404s them);
+// link the file, or use a `#L42` anchor if the line really matters.
 //
 // Run as `pnpm check:doc-links`. Wired into CI's `lint` job.
 
@@ -37,7 +42,7 @@ import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs'
 import { dirname, join, relative, resolve } from 'node:path'
 
 const REPO_ROOT = process.cwd()
-const SOURCE_DIRS = ['docs']
+const SOURCE_DIRS = ['docs', '.claude/rules']
 const SOURCE_FILES = ['README.md', 'AGENTS.md', 'CLAUDE.md', 'CONTRIBUTING.md']
 
 /**
@@ -95,8 +100,10 @@ function slugify(text, seen) {
     .trim()
     // unwrap markdown link syntax in a heading: [label](url) -> label
     .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1')
-    // drop emphasis / code markers
-    .replace(/[`*_~]/g, '')
+    // drop emphasis / code markers. `_` is deliberately NOT stripped:
+    // GitHub keeps underscores in slugs (`THEME_INIT_SCRIPT` ->
+    // `theme_init_script`), and `_emphasis_` is not used in headings here.
+    .replace(/[`*~]/g, '')
     .toLowerCase()
     // github-slugger's stripped punctuation set (incl. the U+2000-U+206F
     // general-punctuation block, so em dashes / smart quotes are removed).

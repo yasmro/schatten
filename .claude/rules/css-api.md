@@ -9,7 +9,11 @@ Schatten ships two parallel rendering paths:
 
 Both paths emit the same class string, render against the same compiled
 stylesheet (`dist/schatten.css`), and must produce visually identical
-output. This document is the **class-API contract** consumers code
+output.
+The two-path guarantee covers **lv1**. lv2 (composite) components ship on
+the React path only — their classes are in the manifest for React consumers
+to override, but rendering them from vanilla HTML is outside the contract
+([lv2-composition-guideline.md §5.0](lv2-composition-guideline.md#50-lv2-is-react-only)). This document is the **class-API contract** consumers code
 against when they reach for the CSS path: the prefix, the BEM shape,
 how state is expressed, how `@layer` cascades, how dark and seasonal
 themes compose on top, and the "no color-only signal" rule.

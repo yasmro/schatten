@@ -177,7 +177,10 @@ The implications:
   with no Tailwind utilities in the string. `.st-*` classes don't conflict on
   a shared shorthand the way two Tailwind utilities (`p-2` / `p-4`) do, so
   there is nothing to dedupe and clsx emits them in the deterministic
-  definition order. (Historically `cn()` wrapped the output in
+  definition order. The "`.st-*` only" half is machine-checked by
+  [`no-tailwind-in-component-jsx.test.ts`](../../src/components/__tests__/no-tailwind-in-component-jsx.test.ts),
+  which walks every `cva(…)` call in `src/variants/` (base class, option
+  values, `compoundVariants` classes). (Historically `cn()` wrapped the output in
   `tailwind-merge` to dedupe conflicting Tailwind utilities; that dependency
   was dropped once the internals went 100% `.st-*` — the dedup step was a
   no-op on BEM classes. See [css-api.md](css-api.md).) If the internals ever

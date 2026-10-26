@@ -37,6 +37,12 @@ export type Common = {
   pagedNavigation?: boolean
   captionLayout?: 'label' | 'dropdown'
   showWeekNumber?: boolean
+  /**
+   * Where the month change is announced (#566 VoiceOver check).
+   * - `region` — a separate visually-hidden `aria-live` element
+   * - `caption` — `aria-live` on the visible caption itself (APG date picker)
+   */
+  announceIn?: 'region' | 'caption'
   /** Extra data-* attributes per day (e.g. booked). */
   getDayAttributes?: (d: ISODate) => Record<`data-${string}`, string | boolean | undefined>
   labels?: {
@@ -84,6 +90,7 @@ export function DateCalendarSelf(props: SingleProps | RangeProps) {
     captionLayout = 'label',
     showWeekNumber = false,
     getDayAttributes,
+    announceIn = 'region',
   } = props
   const [single, setSingle] = useState(props.mode === 'single' ? props.defaultValue : undefined)
   const [range, setRange] = useState<DateRange>(
@@ -214,9 +221,11 @@ export function DateCalendarSelf(props: SingleProps | RangeProps) {
 
   return (
     <div className="st-date-calendar" ref={rootRef} dir={props.dir}>
-      <div aria-live="polite" style={srOnly}>
-        {announce}
-      </div>
+      {announceIn === 'region' && (
+        <div aria-live="polite" style={srOnly}>
+          {announce}
+        </div>
+      )}
       <div className="st-date-calendar__months" style={{ display: 'flex', gap: '1.5rem' }}>
         {months.map((month, mi) => {
           const captionId = `${baseId}-cap-${mi}`
@@ -279,7 +288,11 @@ export function DateCalendarSelf(props: SingleProps | RangeProps) {
                     </select>
                   </div>
                 ) : (
-                  <h2 id={captionId} className="st-date-calendar__caption">
+                  <h2
+                    id={captionId}
+                    className="st-date-calendar__caption"
+                    aria-live={announceIn === 'caption' ? 'polite' : undefined}
+                  >
                     {formatCaption(month, locale)}
                   </h2>
                 )}

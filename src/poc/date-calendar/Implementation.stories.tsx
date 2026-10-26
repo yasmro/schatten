@@ -84,6 +84,35 @@ export const Single: Story = {
   ),
 }
 
+export const LiveRegionPlacement: Story = {
+  name: 'Live region placement (VoiceOver check)',
+  render: () => {
+    const props: SingleProps = { mode: 'single', today, defaultValue: '2026-10-20' }
+    return (
+      <div className="flex flex-wrap gap-10 items-start">
+        <Panel
+          title="Self — separate live region"
+          props={props}
+          Impl={DateCalendarSelf}
+          note="A visually-hidden aria-live element next to the grid (current)."
+        />
+        <Panel
+          title="Self — aria-live on the caption"
+          props={{ ...props, announceIn: 'caption' }}
+          Impl={DateCalendarSelf}
+          note="The visible h2 caption carries aria-live (APG date picker pattern)."
+        />
+        <Panel
+          title="react-day-picker v10"
+          props={props}
+          Impl={DateCalendarRdp}
+          note='rdp puts role="status" aria-live="polite" on the caption.'
+        />
+      </div>
+    )
+  },
+}
+
 export const Range: Story = {
   render: () => (
     <Compare

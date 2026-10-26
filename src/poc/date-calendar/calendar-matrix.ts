@@ -72,8 +72,13 @@ export function formatCaption(month: ISODate, locale?: string) {
 export function formatDayLabel(iso: ISODate, locale?: string) {
   return new Intl.DateTimeFormat(locale, utc({ dateStyle: 'full' })).format(at(iso))
 }
+// The grid cell shows the bare number. `format()` with `day: 'numeric'` adds
+// the locale's day suffix in some locales (ja / zh / ko print "20日" / "20일"),
+// so take only the `day` part — it still carries locale digits (fa-IR "۲۴").
+// The full date stays in the cell's aria-label (formatDayLabel).
 export function formatDayNumber(iso: ISODate, locale?: string) {
-  return new Intl.DateTimeFormat(locale, utc({ day: 'numeric' })).format(at(iso))
+  const parts = new Intl.DateTimeFormat(locale, utc({ day: 'numeric' })).formatToParts(at(iso))
+  return parts.find((p) => p.type === 'day')?.value ?? String(Number(iso.slice(8, 10)))
 }
 
 /** ISO-8601 week number (weeks start Monday, week 1 contains Jan 4). */

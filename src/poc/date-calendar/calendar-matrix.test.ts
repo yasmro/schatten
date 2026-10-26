@@ -30,6 +30,12 @@ describe('calendar-matrix', () => {
     expect(weekdayNames('en-US', 1)[0].short).toBe('Mon')
     expect(formatCaption('2026-10-01', 'ja-JP')).toBe('2026年10月')
   })
+  it('prints the bare day number without a locale suffix', () => {
+    expect(formatDayNumber('2026-10-20', 'ja-JP')).toBe('20')
+    expect(formatDayNumber('2026-10-20', 'zh-CN')).toBe('20')
+    expect(formatDayNumber('2026-10-20', 'ko-KR')).toBe('20')
+    expect(formatDayNumber('2026-10-05', 'en-US')).toBe('5')
+  })
 })
 describe('isoWeek', () => {
   it('matches known ISO weeks', () => {

@@ -553,3 +553,40 @@ export const vanillaHtml = `
   </div>
 </section>
 `
+
+/**
+ * Dialog footer in the exact DOM order the React layer emits
+ * (action → cancel → separator → sub-action — action first so Radix's
+ * focus trap lands on it), rendered unscoped so `.st-dialog__content`
+ * keeps its real fixed / centered positioning and the 640px footer
+ * breakpoint resolves against the viewport.
+ *
+ * Consumed by `CSSApiDist.vrt.spec.ts` at a mobile and a desktop width:
+ * the visual order must come from the dist CSS alone, with no Tailwind
+ * on the page (#575 — the order used to live in Tailwind utilities on
+ * each `<Button>`, which the Tailwind-free dist does not ship).
+ */
+export const dialogFooterHtml = `
+<div class="st-dialog__overlay"></div>
+<div class="st-dialog__content" role="dialog" aria-modal="true"
+     aria-labelledby="footer-fixture-title">
+  <div class="st-dialog__header">
+    <h2 id="footer-fixture-title" class="st-dialog__title">Delete project?</h2>
+  </div>
+  <div class="st-dialog__footer">
+    <button type="button" class="st-btn st-btn--primary st-btn--md st-dialog__action">
+      <span class="st-btn__spinner-overlay" aria-hidden="true"></span>
+      <span class="st-btn__content">Confirm</span>
+    </button>
+    <button type="button" class="st-btn st-btn--secondary st-btn--md st-dialog__cancel">
+      <span class="st-btn__spinner-overlay" aria-hidden="true"></span>
+      <span class="st-btn__content">Cancel</span>
+    </button>
+    <div class="st-separator st-separator--horizontal st-dialog__separator" aria-hidden="true"></div>
+    <button type="button" class="st-btn st-btn--tertiary st-btn--md st-dialog__sub-action">
+      <span class="st-btn__spinner-overlay" aria-hidden="true"></span>
+      <span class="st-btn__content">Delete</span>
+    </button>
+  </div>
+</div>
+`

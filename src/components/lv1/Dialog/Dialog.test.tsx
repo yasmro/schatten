@@ -278,6 +278,61 @@ describe('Dialog', () => {
     expect(document.querySelector('.st-dialog__close')).not.toBeNull()
   })
 
+  describe('footer layout classes (#575)', () => {
+    const renderFull = () =>
+      render(
+        <Controlled
+          cancelButton={{ label: 'Cancel' }}
+          subActionButton={{ label: 'Delete', onClick: () => {} }}
+        />,
+      )
+
+    it('marks each footer button with its sub-element class', () => {
+      renderFull()
+      expect(screen.getByRole('button', { name: 'Confirm' })).toHaveClass('st-dialog__action')
+      expect(screen.getByRole('button', { name: 'Cancel' })).toHaveClass('st-dialog__cancel')
+      expect(screen.getByRole('button', { name: 'Delete' })).toHaveClass('st-dialog__sub-action')
+    })
+
+    it('marks the separator with both the Dialog and Separator classes', () => {
+      renderFull()
+      const separator = document.querySelector('.st-dialog__separator')
+      expect(separator).toHaveClass('st-separator')
+    })
+
+    it('keeps the footer DOM order action → cancel → separator → sub-action', () => {
+      // The focus trap relies on this order (action gets initial focus);
+      // the visual order is recovered by `order` in Dialog.css.
+      renderFull()
+      const footer = document.querySelector('.st-dialog__footer')
+      const order = Array.from(footer?.children ?? []).map(
+        (child) => Array.from(child.classList).find((c) => c.startsWith('st-dialog__')) ?? '',
+      )
+      expect(order).toEqual([
+        'st-dialog__action',
+        'st-dialog__cancel',
+        'st-dialog__separator',
+        'st-dialog__sub-action',
+      ])
+    })
+
+    it('emits no Tailwind order utilities on the footer children', () => {
+      renderFull()
+      const footer = document.querySelector('.st-dialog__footer')
+      for (const child of Array.from(footer?.children ?? [])) {
+        for (const className of Array.from(child.classList)) {
+          expect(className.startsWith('st-'), className).toBe(true)
+        }
+      }
+    })
+
+    it('omits the separator when there is no sub-action', () => {
+      render(<Controlled cancelButton={{ label: 'Cancel' }} />)
+      expect(document.querySelector('.st-dialog__separator')).toBeNull()
+      expect(document.querySelector('.st-dialog__sub-action')).toBeNull()
+    })
+  })
+
   it('exposes the dialog frame by role + accessible name (from title)', () => {
     render(<Controlled />)
     expect(screen.getByRole('dialog', { name: 'Test dialog' })).toBeInTheDocument()

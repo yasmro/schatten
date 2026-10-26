@@ -5,7 +5,7 @@ import { expect, test } from '@playwright/test'
 // of the React component graph — Playwright's Babel pipeline mis-parses
 // `*.css` side-effect imports that the lv1 React layer brings in.
 // See `cssApiSamples.html.ts` header for the full rationale.
-import { fixtureChromeCss, vanillaHtml } from './__fixtures__/cssApiSamples.html'
+import { dialogFooterHtml, fixtureChromeCss, vanillaHtml } from './__fixtures__/cssApiSamples.html'
 
 /*
  * Dist-artifact VRT for the framework-agnostic CSS surface.
@@ -201,4 +201,53 @@ for (const { slug } of PER_COMPONENT) {
       await expect(page).toHaveScreenshot(`dist-css-${slug}-${theme}.png`)
     })
   }
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Dialog footer order — `@yasmro/schatten/schatten.css`, no Tailwind
+//
+// The React Dialog emits its footer in focus order (action → cancel →
+// separator → sub-action) and relies on `order` in Dialog.css to lay it
+// out. Storybook loads Tailwind, so its VRT cannot tell whether that
+// layout comes from the dist or from a stray utility class (#575). This
+// renders the same DOM order against the dist alone, at both sides of
+// the 640px footer breakpoint, and asserts the geometry as well as the
+// pixels.
+// ─────────────────────────────────────────────────────────────────────
+
+const footerViewports = [
+  { name: 'mobile', width: 375, height: 667 },
+  { name: 'desktop', width: 800, height: 600 },
+] as const
+
+for (const viewport of footerViewports) {
+  test(`CSS API dist / dialog footer order / ${viewport.name}`, async ({ page }) => {
+    await page.setViewportSize({ width: viewport.width, height: viewport.height })
+    const html = buildHtml('light', [readCss(DIST_SCHATTEN_CSS)], dialogFooterHtml)
+    await page.setContent(html, { waitUntil: 'load' })
+    await pauseAnimations(page)
+
+    const box = async (selector: string) => {
+      const b = await page.locator(selector).boundingBox()
+      if (!b) throw new Error(`${selector} is not rendered`)
+      return b
+    }
+    const action = await box('.st-dialog__action')
+    const cancel = await box('.st-dialog__cancel')
+    const subAction = await box('.st-dialog__sub-action')
+
+    if (viewport.name === 'mobile') {
+      // Stacked: visual order equals DOM order, separator shown.
+      expect(action.y).toBeLessThan(cancel.y)
+      expect(cancel.y).toBeLessThan(subAction.y)
+      await expect(page.locator('.st-dialog__separator')).toBeVisible()
+    } else {
+      // Row: SubAction … Cancel Action, separator hidden.
+      expect(subAction.x).toBeLessThan(cancel.x)
+      expect(cancel.x).toBeLessThan(action.x)
+      await expect(page.locator('.st-dialog__separator')).toBeHidden()
+    }
+
+    await expect(page).toHaveScreenshot(`dist-dialog-footer-${viewport.name}.png`)
+  })
 }

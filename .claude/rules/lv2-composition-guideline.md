@@ -321,6 +321,9 @@ This is derived from constraints, not chosen:
    **must** write raw CSS
    ([css-api.md §raw CSS over `@apply`](css-api.md#component-css-authoring-conventions--raw-css-over-apply)).
    Inline `style` is not an option either — it cannot express media queries.
+   Pinned by
+   [`no-tailwind-in-component-jsx.test.ts`](../../src/components/__tests__/no-tailwind-in-component-jsx.test.ts),
+   which scans lv2 as well as lv1 (#575).
 2. **CSS that ships is observable.** Once imported by
    [`src/styles/entry.css`](../../src/styles/entry.css) it is in
    `dist/schatten.css`, and `generate-manifest.mjs` parses the dist, so its

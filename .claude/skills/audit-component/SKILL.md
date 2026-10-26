@@ -177,7 +177,7 @@ list is not updated yet.
 - **lv1-local `.css` files (§7)** — one `<Name>.css` holds every visual
   rule, in raw CSS on semantic tokens inside `@layer components` (no
   `@apply`, no Tailwind syntax). The component's JSX carries no Tailwind
-  utility classes (pinned by `no-tailwind-in-lv1-jsx.test.ts`, #575).
+  utility classes (pinned by `no-tailwind-in-component-jsx.test.ts`, #575).
   A second `.css` for the same component needs a stated reason.
 - **A11y contract (§8 — four guarantees)**:
   1. Explicit role from a native element / Radix primitive /

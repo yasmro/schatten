@@ -445,10 +445,10 @@ is Tailwind-free. Consequences:
   CVA only concatenates `.st-*` class names
   ([api-stability.md §CVA output stability](api-stability.md#cva-output-stability)).
   Tailwind remains a Storybook-only tool for story layout scaffolding.
-  Machine-enforced by
-  [`no-tailwind-in-lv1-jsx.test.ts`](../../src/components/__tests__/no-tailwind-in-lv1-jsx.test.ts)
-  — every class literal in an lv1 `className="…"` or `cn(…)` must start
-  with `st-`. Storybook masks a violation (it loads Tailwind), which is how
+  Machine-enforced for lv1 and lv2 by
+  [`no-tailwind-in-component-jsx.test.ts`](../../src/components/__tests__/no-tailwind-in-component-jsx.test.ts)
+  — every class literal in `className="…"`, a `className={…}` expression,
+  or `cn(…)` must start with `st-`. Storybook masks a violation (it loads Tailwind), which is how
   Dialog's footer order shipped broken until
   [#575](https://github.com/yasmro/schatten/issues/575).
 - **One `.css` per component.** A second stylesheet for the same component

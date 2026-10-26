@@ -445,16 +445,14 @@ is Tailwind-free. Consequences:
   CVA only concatenates `.st-*` class names
   ([api-stability.md §CVA output stability](api-stability.md#cva-output-stability)).
   Tailwind remains a Storybook-only tool for story layout scaffolding.
+  Machine-enforced by
+  [`no-tailwind-in-lv1-jsx.test.ts`](../../src/components/__tests__/no-tailwind-in-lv1-jsx.test.ts)
+  — every class literal in an lv1 `className="…"` or `cn(…)` must start
+  with `st-`. Storybook masks a violation (it loads Tailwind), which is how
+  Dialog's footer order shipped broken until
+  [#575](https://github.com/yasmro/schatten/issues/575).
 - **One `.css` per component.** A second stylesheet for the same component
   needs a reason the single file cannot carry (none exists today).
-
-> **Known violations (tracked).** `Dialog.tsx` still orders its footer buttons
-> with Tailwind utilities (`order-*`, `sm:order-*`, `sm:mr-auto`) on the
-> `<Button>` elements. The Tailwind-free dist does not contain them, so in a
-> consumer app the footer falls back to DOM order; Storybook masks this
-> because it loads Tailwind. Tracked in
-> [#575](https://github.com/yasmro/schatten/issues/575). Do not copy the
-> pattern.
 
 Examples of the less obvious rules that live in these files:
 

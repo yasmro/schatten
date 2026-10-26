@@ -177,8 +177,8 @@ list is not updated yet.
 - **lv1-local `.css` files (§7)** — one `<Name>.css` holds every visual
   rule, in raw CSS on semantic tokens inside `@layer components` (no
   `@apply`, no Tailwind syntax). The component's JSX carries no Tailwind
-  utility classes (Dialog's footer `order-*` is the one known violation,
-  #575). A second `.css` for the same component needs a stated reason.
+  utility classes (pinned by `no-tailwind-in-lv1-jsx.test.ts`, #575).
+  A second `.css` for the same component needs a stated reason.
 - **A11y contract (§8 — four guarantees)**:
   1. Explicit role from a native element / Radix primitive /
      `role="..."`. Calling out a `<div onClick>` masquerading as a button

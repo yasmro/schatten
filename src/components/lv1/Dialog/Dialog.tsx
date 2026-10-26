@@ -173,9 +173,10 @@ function Footer({
 }) {
   // DOM order is action → cancel → separator → subAction so that Radix's
   // default `onOpenAutoFocus` (focus first tabbable inside Content) lands
-  // on the action button. CSS `order` utilities recover the desired visual
-  // layout — see `tab order` JSDoc on `DialogProps['children']` for the
-  // resulting Tab-vs-visual relationship.
+  // on the action button. The `.st-dialog__{action,cancel,separator,sub-action}`
+  // rules in Dialog.css recover the desired visual layout with `order` — see
+  // `tab order` JSDoc on `DialogProps['children']` for the resulting
+  // Tab-vs-visual relationship.
   //
   // Per-button states:
   //   - The button whose own `isLoading` is true shows the spinner
@@ -193,7 +194,7 @@ function Footer({
         disabled={isSubActionLoading}
         onClick={actionButton.onClick}
         icon={actionButton.icon}
-        className="order-1 sm:order-3"
+        className="st-dialog__action"
       >
         {actionButton.label}
       </Button>
@@ -205,16 +206,14 @@ function Footer({
             disabled={anyLoading}
             onClick={cancelButton.onClick}
             icon={cancelButton.icon}
-            className="order-2"
+            className="st-dialog__cancel"
           >
             {cancelButton.label}
           </Button>
         </DialogPrimitive.Close>
       )}
 
-      {subActionButton && (
-        <Separator className="order-3 my-2 sm:my-0 sm:hidden" aria-hidden="true" />
-      )}
+      {subActionButton && <Separator className="st-dialog__separator" aria-hidden="true" />}
 
       {subActionButton && (
         <Button
@@ -223,7 +222,7 @@ function Footer({
           disabled={isActionLoading}
           onClick={subActionButton.onClick}
           icon={subActionButton.icon}
-          className="order-4 sm:order-1 sm:mr-auto"
+          className="st-dialog__sub-action"
         >
           {subActionButton.label}
         </Button>

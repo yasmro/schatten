@@ -2,6 +2,7 @@ import { fireEvent, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { useState } from 'react'
 import { describe, expect, it, vi } from 'vitest'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../Select'
 import { Dialog, type DialogProps } from './Dialog'
 
 type ControlledOverrides = Partial<Omit<DialogProps, 'isOpen' | 'onOpenChange'>>
@@ -203,6 +204,53 @@ describe('Dialog', () => {
 
     await user.keyboard('{Escape}')
     expect(screen.queryByText('Test dialog')).not.toBeInTheDocument()
+  })
+
+  // Radix tracks which layer an ESC / outside click belongs to through
+  // module-level context in @radix-ui/react-dismissable-layer. When Dialog
+  // and Select resolve two copies of it, both layers handle the same ESC and
+  // the Dialog closes along with the Select. That happened in the published
+  // dist (react-dialog sat in devDependencies and was bundled) and in this
+  // repo whenever react-dialog lagged behind the other Radix packages.
+  describe('with a Select open inside the body', () => {
+    function WithSelect() {
+      return (
+        <Controlled>
+          <Select>
+            <SelectTrigger aria-label="Fruit">
+              <SelectValue placeholder="Pick a fruit" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="apple">Apple</SelectItem>
+              <SelectItem value="banana">Banana</SelectItem>
+            </SelectContent>
+          </Select>
+        </Controlled>
+      )
+    }
+
+    it('closes only the Select on ESC', async () => {
+      const user = userEvent.setup()
+      render(<WithSelect />)
+
+      await user.click(screen.getByRole('combobox', { name: 'Fruit' }))
+      expect(await screen.findByRole('listbox')).toBeInTheDocument()
+
+      await user.keyboard('{Escape}')
+      expect(screen.queryByRole('listbox')).not.toBeInTheDocument()
+      expect(screen.getByRole('dialog', { name: 'Test dialog' })).toBeInTheDocument()
+    })
+
+    it('stays open after an option is picked', async () => {
+      const user = userEvent.setup()
+      render(<WithSelect />)
+
+      await user.click(screen.getByRole('combobox', { name: 'Fruit' }))
+      await user.click(await screen.findByRole('option', { name: 'Banana' }))
+
+      expect(screen.getByRole('combobox', { name: 'Fruit' })).toHaveTextContent('Banana')
+      expect(screen.getByRole('dialog', { name: 'Test dialog' })).toBeInTheDocument()
+    })
   })
 
   it('blocks overlay click dismissal when a footer button is loading', () => {

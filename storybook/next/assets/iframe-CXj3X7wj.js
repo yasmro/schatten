@@ -1,1 +1,0 @@
-import{t as e}from"./iframe-GN01NeBL.js";e();

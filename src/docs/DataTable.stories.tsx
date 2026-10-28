@@ -1,11 +1,14 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import {
-  type ColumnDef,
+  createColumnHelper,
+  createSortedRowModel,
   flexRender,
-  getCoreRowModel,
-  getSortedRowModel,
+  rowSortingFeature,
   type SortingState,
-  useReactTable,
+  sortFn_alphanumeric,
+  sortFn_text,
+  tableFeatures,
+  useTable,
 } from '@tanstack/react-table'
 import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react'
 import { type ReactNode, useState } from 'react'
@@ -35,7 +38,7 @@ import {
  * do I add it?". Table is presentational-only by design (#152): it ships the
  * chrome (`.st-table*`, density, zebra / border / hover) and holds NO sort /
  * filter / pagination logic. This page demonstrates the intended seam — compose
- * a headless logic layer (TanStack Table v8) on top, keep the look on Schatten's
+ * a headless logic layer (TanStack Table v9) on top, keep the look on Schatten's
  * side — exactly like shadcn/ui's "Data Table" doc.
  *
  * Schatten does NOT bundle TanStack: `@tanstack/react-table` is a devDependency
@@ -85,15 +88,27 @@ const DATA: Person[] = [
   { name: 'Mio Kato', email: 'mio@example.com', amount: 75 },
 ]
 
-const columns: ColumnDef<Person>[] = [
-  { accessorKey: 'name', header: 'Name' },
-  { accessorKey: 'email', header: 'Email' },
-  {
-    accessorKey: 'amount',
+// v9 registers features explicitly. `text` / `alphanumeric` let the default
+// `auto` sort resolve for the string columns; numbers need no registration.
+// Both `features` and `columns` live at module scope so they stay stable
+// across renders.
+const features = tableFeatures({
+  rowSortingFeature,
+  sortedRowModel: createSortedRowModel(),
+  sortFns: { alphanumeric: sortFn_alphanumeric, text: sortFn_text },
+})
+
+const helper = createColumnHelper<typeof features, Person>()
+
+const columns = helper.columns([
+  helper.accessor('name', { header: 'Name' }),
+  helper.accessor('email', { header: 'Email' }),
+  helper.accessor('amount', {
     header: 'Amount',
-    cell: ({ getValue }) => `$${(getValue() as number).toLocaleString()}`,
-  },
-]
+    // Call getValue on the context: v9 methods lose `this` when destructured.
+    cell: (info) => `$${info.getValue().toLocaleString()}`,
+  }),
+])
 
 // Columns that read as numbers are end-aligned. The headless lib owns the data;
 // alignment is a presentational choice the consumer makes on the Schatten side.
@@ -108,13 +123,12 @@ const ariaSort = (sorted: false | 'asc' | 'desc') =>
 function SortableTableDemo() {
   const [sorting, setSorting] = useState<SortingState>([])
 
-  const table = useReactTable({
+  const table = useTable({
+    features,
     data: DATA,
     columns,
     state: { sorting },
     onSortingChange: setSorting,
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
   })
 
   return (
@@ -149,7 +163,7 @@ function SortableTableDemo() {
       <TableBody>
         {table.getRowModel().rows.map((row) => (
           <TableRow key={row.id}>
-            {row.getVisibleCells().map((cell) => (
+            {row.getAllCells().map((cell) => (
               <TableCell key={cell.id} align={NUMERIC.has(cell.column.id) ? 'end' : 'start'}>
                 {flexRender(cell.column.columnDef.cell, cell.getContext())}
               </TableCell>
@@ -204,7 +218,7 @@ export const Overview: Story = {
             cells: [
               'Sort / filter / pagination state',
               'Headless lib',
-              <Code key="c">useReactTable(…)</Code>,
+              <Code key="c">useTable(…)</Code>,
             ],
           },
           {
@@ -242,7 +256,7 @@ export const Overview: Story = {
 }
 
 /**
- * §1 — Sorting (live). State lives in TanStack's `useReactTable`; the toggle is
+ * §1 — Sorting (live). State lives in TanStack's `useTable`; the toggle is
  * a real <button> inside the <th>, and `aria-sort` is forwarded onto the <th>.
  */
 export const Sorting: Story = {
@@ -251,11 +265,12 @@ export const Sorting: Story = {
     <Page>
       <PageTitle>1. Sorting</PageTitle>
       <Lead>
-        Hold the sort state in <Code>useReactTable</Code> with <Code>getSortedRowModel()</Code>,
-        then render the sorted rows through Schatten <Code>Table</Code> parts. The header&apos;s
-        sort toggle is a real <Code>{'<Button>'}</Code> inside the <Code>{'<th>'}</Code> (keyboard
-        operable), and <Code>aria-sort</Code> rides onto the <Code>{'<th>'}</Code> via{' '}
-        <Code>TableHead</Code>&apos;s <Code>{'{...props}'}</Code> pass-through.
+        Register <Code>rowSortingFeature</Code> and <Code>createSortedRowModel()</Code> in{' '}
+        <Code>tableFeatures</Code>, hold the sort state in <Code>useTable</Code>, then render the
+        sorted rows through Schatten <Code>Table</Code> parts. The header&apos;s sort toggle is a
+        real <Code>{'<Button>'}</Code> inside the <Code>{'<th>'}</Code> (keyboard operable), and{' '}
+        <Code>aria-sort</Code> rides onto the <Code>{'<th>'}</Code> via <Code>TableHead</Code>
+        &apos;s <Code>{'{...props}'}</Code> pass-through.
       </Lead>
 
       <div className="mb-6">
@@ -264,8 +279,8 @@ export const Sorting: Story = {
 
       <SectionTitle>The wiring</SectionTitle>
       <CodeBlock>{`import {
-  type ColumnDef, type SortingState,
-  flexRender, getCoreRowModel, getSortedRowModel, useReactTable,
+  createSortedRowModel, flexRender, rowSortingFeature,
+  sortFn_alphanumeric, sortFn_text, tableFeatures, useTable,
 } from '@tanstack/react-table'
 import {
   Table, TableHeader, TableBody, TableRow, TableHead, TableCell, TableCaption,
@@ -273,17 +288,22 @@ import {
 import { Button } from '@yasmro/schatten'
 import { ArrowUp, ArrowDown, ArrowUpDown } from 'lucide-react'
 
+// Module scope, so the feature set stays stable across renders.
+const features = tableFeatures({
+  rowSortingFeature,
+  sortedRowModel: createSortedRowModel(),
+  sortFns: { alphanumeric: sortFn_alphanumeric, text: sortFn_text },
+})
+
 const ariaSort = (s: false | 'asc' | 'desc') =>
   s === 'asc' ? 'ascending' : s === 'desc' ? 'descending' : 'none'
 
 function DataTable({ data, columns }) {
   const [sorting, setSorting] = useState([])
-  const table = useReactTable({
-    data, columns,
+  const table = useTable({
+    features, data, columns,
     state: { sorting },
     onSortingChange: setSorting,
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
   })
 
   return (
@@ -312,7 +332,7 @@ function DataTable({ data, columns }) {
       <TableBody>
         {table.getRowModel().rows.map((row) => (
           <TableRow key={row.id}>
-            {row.getVisibleCells().map((cell) => (
+            {row.getAllCells().map((cell) => (
               <TableCell key={cell.id}>
                 {flexRender(cell.column.columnDef.cell, cell.getContext())}
               </TableCell>
@@ -344,22 +364,32 @@ export const FilteringAndPagination: Story = {
     <Page>
       <PageTitle>2. Filtering &amp; Pagination</PageTitle>
       <Lead>
-        Filtering and pagination ride the exact same seam as sorting — add the matching row model
-        and drive a Schatten control (<Code>Input</Code>, <Code>Button</Code>) off the table
-        instance. Shown as code so you can lift the bits you need; the render side is unchanged from
-        section 1.
+        Filtering and pagination ride the exact same seam as sorting — register the matching feature
+        and row model in <Code>tableFeatures</Code> and drive a Schatten control (<Code>Input</Code>
+        , <Code>Button</Code>) off the table instance. Shown as code so you can lift the bits you
+        need; the render side is unchanged from section 1.
       </Lead>
 
       <SubsectionTitle>Filtering</SubsectionTitle>
-      <CodeBlock>{`import { getFilteredRowModel } from '@tanstack/react-table'
+      <CodeBlock>{`import {
+  columnFilteringFeature, createFilteredRowModel, filterFn_includesString,
+  globalFilteringFeature, tableFeatures, useTable,
+} from '@tanstack/react-table'
+
+// Global filtering builds on column filtering, so register both.
+const features = tableFeatures({
+  columnFilteringFeature,
+  globalFilteringFeature,
+  filteredRowModel: createFilteredRowModel(),
+  filterFns: { includesString: filterFn_includesString },
+})
 
 const [globalFilter, setGlobalFilter] = useState('')
-const table = useReactTable({
-  data, columns,
+const table = useTable({
+  features, data, columns,
+  globalFilterFn: 'includesString',
   state: { globalFilter },
   onGlobalFilterChange: setGlobalFilter,
-  getCoreRowModel: getCoreRowModel(),
-  getFilteredRowModel: getFilteredRowModel(),
 })
 
 // Drive it with a Schatten Input:
@@ -370,12 +400,18 @@ const table = useReactTable({
 />`}</CodeBlock>
 
       <SubsectionTitle>Pagination</SubsectionTitle>
-      <CodeBlock>{`import { getPaginationRowModel } from '@tanstack/react-table'
+      <CodeBlock>{`import {
+  createPaginatedRowModel, rowPaginationFeature, tableFeatures, useTable,
+} from '@tanstack/react-table'
 
-const table = useReactTable({
-  data, columns,
-  getCoreRowModel: getCoreRowModel(),
-  getPaginationRowModel: getPaginationRowModel(),
+const features = tableFeatures({
+  rowPaginationFeature,
+  paginatedRowModel: createPaginatedRowModel(),
+})
+
+const table = useTable({
+  features, data, columns,
+  initialState: { pagination: { pageIndex: 0, pageSize: 10 } },
 })
 
 // table.getRowModel().rows is already the current page. Page with Buttons:
@@ -388,8 +424,9 @@ const table = useReactTable({
 
       <Note>
         The render loop (<Code>getHeaderGroups()</Code> / <Code>getRowModel().rows</Code>) is
-        identical to section 1 — only the row models and the controls differ. Compose as many row
-        models as you need; they layer in the order TanStack documents.
+        identical to section 1 — only the registered features and the controls differ. Register as
+        many features as you need in one <Code>tableFeatures</Code> call; their row models layer in
+        the order TanStack documents.
       </Note>
     </Page>
   ),

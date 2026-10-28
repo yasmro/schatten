@@ -761,6 +761,69 @@ The category-by-category triage is what saved #277 from shipping the
 preflight bug ─ the new baselines for `dist-schatten-css-*` would
 have looked "almost right" without that triage. Don't shortcut it.
 
+### `CSS API / reference` — re-baseline from the CI actual (interim, #581)
+
+`src/docs/CSSApi.vrt.spec.ts`'s `reference-{light,dark}` is the one
+snapshot the procedure above **cannot** be run against locally. The page is
+~24,500px tall, and a local macOS render drifts from the CI (macos-latest)
+render by a little on every text row; over the full page that adds up to
+**+21px of height** and ~4% differing pixels — even on an unchanged
+`develop` ([#581](https://github.com/yasmro/schatten/issues/581)). Every other
+spec matches its baseline locally.
+
+Two consequences:
+
+- **A local `pnpm test:vrt` failure on `CSS API / reference` tells you
+  nothing.** It fails with or without your change.
+- **Never run `pnpm test:vrt:update` for this page locally.** It writes a
+  local render that CI then rejects.
+
+The page renders every lv1 automatically, so **any** lv1 addition or any
+change to a vanilla sample in `CSSApi.stories.tsx` changes it. Re-baseline it
+from CI instead:
+
+1. **Push the change and let the `vrt` job fail** on
+   `CSS API / reference / {light,dark}`. Every other failure goes through the
+   normal local procedure above.
+2. **Download the `vrt-diff` artifact** of that run (retention: 7 days):
+
+   ```bash
+   gh run download <run-id> -n vrt-diff -D /tmp/vrt-diff
+   find /tmp/vrt-diff -name 'reference-*-actual.png'
+   ```
+
+   With `retries: 2`, the same failure appears up to three times
+   (`…-chromium`, `…-retry1`, `…-retry2`); the renders are identical, so any
+   one will do.
+3. **Check the `reference-{light,dark}-diff.png` against what you changed.**
+   Both images come from CI, so the 21px local drift is not in play here —
+   unrelated rows must not light up.
+   - **Height unchanged** (you edited a section in place): only the section
+     you touched may light up. This is how
+     [#578](https://github.com/yasmro/schatten/pull/578) verified its Dialog
+     change.
+   - **Height changed** (you added a section or made one taller): everything
+     below the first changed row shifts and lights up. Confirm that nothing
+     **above** your section lit up, and that the sections **below** it in
+     `-actual.png` look the same as in `-expected.png`, only lower.
+4. **Copy the verified actuals over the baselines and commit:**
+
+   ```bash
+   cp <dir>/reference-light-actual.png src/docs/__snapshots__/reference-light.png
+   cp <dir>/reference-dark-actual.png  src/docs/__snapshots__/reference-dark.png
+   ```
+
+5. **Say so in the PR description** — "re-baselined `CSS API / reference`
+   from the CI actual (#581 interim procedure)" plus what the diff check in
+   step 3 showed (which rows changed, and that the rest matched). This is the
+   only review this baseline gets.
+
+This procedure is **temporary**. It is retired once
+[#583](https://github.com/yasmro/schatten/issues/583) settles the VRT runtime
+(e.g. a pinned container image, or per-region snapshots via
+[#237](https://github.com/yasmro/schatten/issues/237)) so the page renders
+the same locally and in CI — delete this section in that PR.
+
 ## Snapshot Naming
 
 Snapshots are named `{story}-{theme}.png`:

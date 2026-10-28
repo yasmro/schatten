@@ -44,10 +44,6 @@
     cursor: pointer;
     user-select: none;
   }
-  .st-checkbox-wrapper:has(.st-checkbox:disabled) .st-checkbox-wrapper__label {
-    cursor: not-allowed;
-    color: var(--color-foreground-disabled);
-  }
   /* Label font-size + line-height pair, derived from the inner checkbox
    * size — vanilla HTML consumers only write the size on the checkbox itself.
    *
@@ -67,6 +63,10 @@
   .st-checkbox-wrapper:has(.st-checkbox--lg) .st-checkbox-wrapper__label {
     font-size: 1rem;
     line-height: 1.5rem;
+  }
+  .st-checkbox-wrapper:has(.st-checkbox:disabled) .st-checkbox-wrapper__label {
+    cursor: not-allowed;
+    color: var(--color-foreground-disabled);
   }
 
   /* ===== block ===== */

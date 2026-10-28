@@ -120,6 +120,32 @@ discipline** (always run `pnpm test:vrt` and inspect the `*-diff.png` before
 > you** — CI runs `pnpm test:vrt` in compare-only mode and does *not* generate
 > baselines, so a spec with no committed PNG fails CI on the first run.
 
+> **One exception: `CSS API / reference`.** That page does not render the
+> same locally as in CI, so its baseline is re-captured from the CI actual,
+> not with `pnpm test:vrt:update`. See
+> [vrt-spec-guideline.md § `CSS API / reference`](.claude/rules/vrt-spec-guideline.md#css-api--reference--re-baseline-from-the-ci-actual-interim-581)
+> (interim, #581).
+
+### `vrt` failed without running any test — re-run it
+
+The `vrt` job runs on GitHub's `macos-latest` runners, which are sometimes
+short on capacity. When no runner picks the job up, GitHub cancels it after
+~15 minutes and the PR shows **`vrt` fail**, the same as a real visual
+regression ([#582](https://github.com/yasmro/schatten/issues/582)). Tell the
+two apart before reading any diff:
+
+| | Runner not acquired | Real VRT failure |
+|---|---|---|
+| Steps in the job log | none | checkout → … → `pnpm test:vrt` (red) |
+| Annotation | `The job was not acquired by Runner of type hosted even after multiple attempts` (often with `Due to capacity constraints, jobs targeting macOS arm64 runners may experience longer queue times.`) | Playwright errors |
+| `vrt-diff` artifact / `🔴 VRT Failed` comment | none | present |
+| Fix | **Re-run the job** (`gh run rerun <run-id> --failed`) — no code change needed | Follow the re-baselining procedure |
+
+When it happens, add the run URL to
+[#582](https://github.com/yasmro/schatten/issues/582) so we can see how often
+it recurs; an automatic re-run (or moving VRT off macOS, #87) is decided from
+that count.
+
 ## Accessibility
 
 Every component must satisfy the a11y contract in

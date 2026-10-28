@@ -25,6 +25,22 @@ const Controlled = ({
   )
 }
 
+function WithSelect() {
+  return (
+    <Controlled>
+      <Select>
+        <SelectTrigger aria-label="Fruit">
+          <SelectValue placeholder="Pick a fruit" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="apple">Apple</SelectItem>
+          <SelectItem value="banana">Banana</SelectItem>
+        </SelectContent>
+      </Select>
+    </Controlled>
+  )
+}
+
 describe('Dialog', () => {
   it('renders title and description', () => {
     render(<Controlled description="Subtitle here" />)
@@ -213,22 +229,6 @@ describe('Dialog', () => {
   // dist (react-dialog sat in devDependencies and was bundled) and in this
   // repo whenever react-dialog lagged behind the other Radix packages.
   describe('with a Select open inside the body', () => {
-    function WithSelect() {
-      return (
-        <Controlled>
-          <Select>
-            <SelectTrigger aria-label="Fruit">
-              <SelectValue placeholder="Pick a fruit" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="apple">Apple</SelectItem>
-              <SelectItem value="banana">Banana</SelectItem>
-            </SelectContent>
-          </Select>
-        </Controlled>
-      )
-    }
-
     it('closes only the Select on ESC', async () => {
       const user = userEvent.setup()
       render(<WithSelect />)

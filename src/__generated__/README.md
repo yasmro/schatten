@@ -49,7 +49,6 @@ moves.
 `scripts/check-manifest-diff.mjs` regenerates the manifest from the freshly
 built `dist/schatten.css` and compares against this file. A drift means
 either:
-
 - **You forgot `pnpm update:manifest`.** Run it, commit, push.
 - **You did not realise the change affected the public surface.** That is
   exactly what this gate is for. Decide whether the change is intentional

@@ -28,6 +28,27 @@ function BasicPopover(props: {
   )
 }
 
+// Canonical separate-anchor usage: an explicit PopoverAnchor positions the
+// panel, and a separate button toggles controlled `open` — NOT a
+// PopoverTrigger (rendering both gives Radix two competing anchors). See
+// the WithAnchor story.
+function AnchoredPopover() {
+  const [open, setOpen] = useState(false)
+  return (
+    <>
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverAnchor data-testid="anchor">
+          <span>anchor region</span>
+        </PopoverAnchor>
+        <PopoverContent>
+          <p>Anchored body</p>
+        </PopoverContent>
+      </Popover>
+      <Button onClick={() => setOpen((o) => !o)}>Toggle</Button>
+    </>
+  )
+}
+
 describe('Popover', () => {
   it('renders a trigger reachable by role + name', () => {
     render(<BasicPopover />)
@@ -101,27 +122,6 @@ describe('Popover', () => {
   })
 
   describe('with PopoverAnchor', () => {
-    // Canonical separate-anchor usage: an explicit PopoverAnchor positions the
-    // panel, and a separate button toggles controlled `open` — NOT a
-    // PopoverTrigger (rendering both gives Radix two competing anchors). See
-    // the WithAnchor story.
-    function AnchoredPopover() {
-      const [open, setOpen] = useState(false)
-      return (
-        <>
-          <Popover open={open} onOpenChange={setOpen}>
-            <PopoverAnchor data-testid="anchor">
-              <span>anchor region</span>
-            </PopoverAnchor>
-            <PopoverContent>
-              <p>Anchored body</p>
-            </PopoverContent>
-          </Popover>
-          <Button onClick={() => setOpen((o) => !o)}>Toggle</Button>
-        </>
-      )
-    }
-
     it('renders the anchor and opens via a separate (non-trigger) button', async () => {
       const user = userEvent.setup()
       render(<AnchoredPopover />)

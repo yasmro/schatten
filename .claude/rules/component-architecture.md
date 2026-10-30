@@ -106,7 +106,7 @@ className on `TooltipContent`, etc.
 ```
 
 Used by: `Button`, `Input`, `Badge`, `Callout`, `Spinner`, `Text`, `Textarea`,
-`Field`, `FieldSet`, `Checkbox`, `Switch`.
+`Field`, `FieldSet`, `Checkbox`, `Switch`, `DateCalendar`, `DateRangeCalendar`.
 
 **When to ship as flat:** when the component is one styled tag with variants
 and has at most one content injection point (its `children`). If consumers
@@ -506,7 +506,9 @@ fallback — that policy only holds if the contract below holds.
      themselves.
    - An explicit `role="…"` written by Schatten — used only when
      neither of the above gives the right semantic. Current explicit
-     uses: [Spinner](../../src/components/lv1/Spinner/Spinner.tsx)
+     uses: [DateCalendar](../../src/components/lv1/DateCalendar/CalendarView.tsx)
+     (`role="grid"` + `role="gridcell"`, self-implemented, no Radix primitive),
+     [Spinner](../../src/components/lv1/Spinner/Spinner.tsx)
      (`role="status"`),
      [Separator](../../src/components/lv1/Separator/Separator.tsx)
      (`role="separator"` when `decorative={false}`, else

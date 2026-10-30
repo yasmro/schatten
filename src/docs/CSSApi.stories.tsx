@@ -1,5 +1,5 @@
 // Component CSS for vanilla examples — loaded for the side-effect.
-// All 24 lv1 components are listed explicitly. Tooltip and Select
+// All 26 lv1 components are listed explicitly. Tooltip and Select
 // were missing from this list pre-#313 and rendered correctly by
 // accident (Field transitively imports Tooltip; Select.css happened
 // to be in adjacent story chunks at dev time). In the Storybook
@@ -13,6 +13,7 @@ import '../components/lv1/Button/Button.css'
 import '../components/lv1/Callout/Callout.css'
 import '../components/lv1/Card/Card.css'
 import '../components/lv1/Checkbox/Checkbox.css'
+import '../components/lv1/DateCalendar/DateCalendar.css'
 import '../components/lv1/Dialog/Dialog.css'
 import '../components/lv1/DropdownMenu/DropdownMenu.css'
 import '../components/lv1/Field/Field.css'
@@ -34,6 +35,7 @@ import '../components/lv1/Toast/Toast.css'
 import '../components/lv1/Tooltip/Tooltip.css'
 
 import type { Meta, StoryObj } from '@storybook/react-vite'
+import { DateRangeCalendar } from '../components/lv1/DateCalendar'
 
 /**
  * # CSS API
@@ -210,7 +212,7 @@ const CodeBlock = ({ children }: { children: string }) => (
 )
 
 export const Reference: Story = {
-  name: 'Reference (all 25 lv1 components)',
+  name: 'Reference (all 26 lv1 components)',
   parameters: {
     // The reference renders every documented treatment, including the solid
     // fills whose white-foreground small text is the documented intentional
@@ -1790,6 +1792,46 @@ export const Reference: Story = {
 <!-- bare .st-card has no fill / shadow — degrades to the plain look -->
 
 <!-- Sub-elements: __header / __title / __description / __content / __footer -->`}</CodeBlock>
+        </Section>
+
+        <Section
+          id="datecalendar"
+          title="DateCalendar — .st-date-calendar"
+          intro="Month grid shared by DateCalendar and DateRangeCalendar. The class API covers the static shape only: navigation, selection and the roving tabindex need JS. Out of pattern, with no size axis. State is attribute-driven and lives on the cell: [aria-selected], [aria-disabled], [data-outside], and for a range [data-range-start] / [data-range-end] / [data-range-middle]. Today is [aria-current=&quot;date&quot;] on __day. Add .st-date-range-calendar next to .st-date-calendar to lay several months side by side. Name the grid with aria-labelledby pointing at __caption, and keep aria-live on the caption so a month change is announced."
+        >
+          <div className="cssapi-doc__row">
+            <DateRangeCalendar
+              aria-label="Stay"
+              today="2026-10-24"
+              defaultValue={{ from: '2026-10-13', to: '2026-10-22' }}
+            />
+          </div>
+          <CodeBlock>{`<div class="st-date-calendar" role="group" aria-label="Check-in">
+  <div class="st-date-calendar__months">
+    <div class="st-date-calendar__month">
+      <div class="st-date-calendar__header">
+        <button class="st-date-calendar__nav st-date-calendar__nav--previous" aria-label="Previous month">…</button>
+        <div class="st-date-calendar__caption" id="caption" aria-live="polite">October 2026</div>
+        <button class="st-date-calendar__nav st-date-calendar__nav--next" aria-label="Next month">…</button>
+      </div>
+      <table class="st-date-calendar__grid" role="grid" aria-labelledby="caption">
+        <thead><tr><th class="st-date-calendar__weekday" scope="col">Sun</th>…</tr></thead>
+        <tbody>
+          <tr>
+            <td class="st-date-calendar__cell" role="gridcell" aria-selected="true">
+              <button class="st-date-calendar__day" aria-label="October 20, 2026">20</button>
+            </td>
+            …
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Sub-elements: __months / __month / __header / __nav / __nav-icon / __caption /
+     __selects / __select / __grid / __weekday / __cell / __day -->
+<!-- Modifiers: __nav--previous / __nav--next / __caption--hidden -->`}</CodeBlock>
         </Section>
 
         <Section

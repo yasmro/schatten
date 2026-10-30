@@ -34,10 +34,10 @@ const CLASS_RE = /\.(st-[A-Za-z0-9_-]+)/g
 
 // State hooks recognised by the contract: every `data-*` (data-state /
 // data-side / data-swipe / data-orientation / data-theme / data-error /
-// data-disabled / …) plus the two ARIA attributes `aria-invalid` and
-// `aria-busy` that css-api.md pins as styling hooks. Other aria-* are
-// outside the contract.
-const ATTR_RE = /\[(data-[a-z-]+|aria-(?:invalid|busy))(?:=|~=|\^=|\$=|\*=|\])/g
+// data-disabled / …) plus the ARIA attributes css-api.md pins as styling
+// hooks: `aria-invalid` / `aria-busy` / `aria-selected` / `aria-disabled` /
+// `aria-current`. Other aria-* are outside the contract.
+const ATTR_RE = /\[(data-[a-z-]+|aria-(?:invalid|busy|selected|disabled|current))(?:=|~=|\^=|\$=|\*=|\])/g
 
 /**
  * Extract the public CSS surface from a compiled stylesheet.

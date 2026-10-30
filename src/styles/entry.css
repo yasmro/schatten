@@ -125,6 +125,11 @@
  * placement is not order-sensitive. */
 @import "../components/lv1/Table/Table.css";
 
+/* #567 — DateCalendar (`.st-date-calendar*` class API). Self-implemented grid
+ * shared by DateRangeCalendar; authors only its own block rules, so layer
+ * placement is not order-sensitive. */
+@import "../components/lv1/DateCalendar/DateCalendar.css";
+
 /*
  * Font configuration — load-to-activate, symmetric for sans and serif.
  *

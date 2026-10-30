@@ -470,7 +470,8 @@ source of truth for what consumers can rely on.
 ## Manifest as the authoritative API listing
 
 `dist/schatten.manifest.json` enumerates every public `.st-*` class, every
-state-hook attribute (`data-*` / `aria-invalid` / `aria-busy`), and every
+state-hook attribute (`data-*` / `aria-invalid` / `aria-busy` / `aria-selected` /
+`aria-disabled` / `aria-current`), and every
 CSS custom property declared in the hand-maintained registrar — i.e. the
 machine-readable form of this contract. **The `@layer theme` registrar
 ([`src/styles/public-tokens.css`](../../src/styles/public-tokens.css)) is

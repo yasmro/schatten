@@ -63,6 +63,7 @@ size**, exactly the chain the React layer emits.
 | `Callout` | ✅ | ✅ |
 | `Card` | ✅ | ✅ |
 | `Checkbox` | ✅ | ✅ |
+| `DateCalendar` | ✅ | ⚠️ |
 | `Dialog` | ✅ | ⚠️ |
 | `DropdownMenu` | ✅ | ⚠️ |
 | `Field` | ✅ | ✅ |
@@ -860,10 +861,10 @@ import '@yasmro/schatten/css/button'
 Available components (one subpath per lv1, plus each lv2 that ships CSS of its own):
 <!-- generated:lv1-components:start -->
 `avatar` · `badge` · `button` · `callout` · `card` · `checkbox` ·
-`dialog` · `dropdownmenu` · `field` · `fieldset` · `icon` · `input` ·
-`popover` · `radio` · `select` · `separator` · `skeleton` ·
-`spinner` · `switch` · `table` · `tabs` · `text` · `textarea` ·
-`toast` · `tooltip`.
+`datecalendar` · `dialog` · `dropdownmenu` · `field` · `fieldset` ·
+`icon` · `input` · `popover` · `radio` · `select` · `separator` ·
+`skeleton` · `spinner` · `switch` · `table` · `tabs` · `text` ·
+`textarea` · `toast` · `tooltip`.
 <!-- generated:lv1-components:end -->
 
 Tokens must be imported separately — the per-component files reference

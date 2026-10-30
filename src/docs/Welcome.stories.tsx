@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { CircleCheck, Search } from 'lucide-react'
+import { CircleCheck, Inbox, Search } from 'lucide-react'
 import { Avatar } from '../components/lv1/Avatar'
 import { Badge } from '../components/lv1/Badge'
 import { Button } from '../components/lv1/Button'
@@ -34,6 +34,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/lv1/Tabs
 import { Text } from '../components/lv1/Text'
 import { Textarea } from '../components/lv1/Textarea'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../components/lv1/Tooltip'
+import { EmptyState } from '../components/lv2/EmptyState'
 import { WELCOME_DEEP_LINKS, type WelcomeDeepLink } from './Welcome.links'
 
 const meta: Meta = {
@@ -571,6 +572,16 @@ export const Overview: Story = {
             storyPath="components-lv1-switch"
           >
             <Switch label="Enable" defaultChecked />
+          </ComponentCard>
+
+          <ComponentCard
+            name="EmptyState"
+            description="Shows that there is nothing here yet."
+            storyPath="components-lv2-emptystate"
+          >
+            <div className="w-44 scale-90">
+              <EmptyState size="sm" icon={Inbox} title="No messages" />
+            </div>
           </ComponentCard>
         </div>
       </div>

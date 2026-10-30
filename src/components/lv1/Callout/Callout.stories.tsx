@@ -30,10 +30,11 @@ import { Callout } from './Callout'
  * lives with the consumer.
  *
  * ## a11y
- * No `role` is set by default. For dynamic callouts that should be
- * announced when they appear, pass `role="status"` (polite) or
- * `role="alert"` (assertive). Static informational callouts do not
- * require a role.
+ * No `role` is set by default, and static informational callouts do not
+ * require one. To announce a callout that appears at runtime, pass
+ * `role="alert"` (assertive), or render it inside a wrapper that stays mounted
+ * and carries `role="status"` (polite) — a status region that mounts together
+ * with its content is usually not read out.
  */
 
 const meta: Meta<typeof Callout> = {

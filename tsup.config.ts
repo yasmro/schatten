@@ -11,7 +11,7 @@ import { defineConfig } from 'tsup'
 // `clean: true` can race with the other configs' DTS emit and silently wipe
 // already-written outputs (this was hitting `dist/themes/seasonal/index.d.ts`).
 
-// One ESM entry per lv1 component directory. Building each component as its
+// One ESM entry per lv1 / lv2 component directory. Building each component as its
 // own entry (instead of a single bundled barrel) is what makes the public
 // `components/lv1` barrel tree-shakeable: a consumer importing `{ Button }`
 // pulls in only Button's module + its shared chunks, not all 17 components.
@@ -19,17 +19,20 @@ import { defineConfig } from 'tsup'
 // by Radix internals that carry no `/* @__PURE__ */` annotations, so a
 // consumer bundler has to retain the whole chunk. See
 // docs/decisions/2026-05-lv1-barrel-tree-shaking.md.
-const LV1_DIR = 'src/components/lv1'
-const lv1ComponentEntries = Object.fromEntries(
-  readdirSync(LV1_DIR, { withFileTypes: true })
-    .filter((d) => d.isDirectory() && existsSync(`${LV1_DIR}/${d.name}/index.ts`))
-    .map((d) => [`components/lv1/${d.name}/index`, `${LV1_DIR}/${d.name}/index.ts`]),
-)
+const componentEntries = (layer: 'lv1' | 'lv2') => {
+  const dir = `src/components/${layer}`
+  return Object.fromEntries(
+    readdirSync(dir, { withFileTypes: true })
+      .filter((d) => d.isDirectory() && existsSync(`${dir}/${d.name}/index.ts`))
+      .map((d) => [`components/${layer}/${d.name}/index`, `${dir}/${d.name}/index.ts`]),
+  )
+}
 
-// The two barrel entries that `package.json#exports` actually publishes.
+// The barrel entries that `package.json#exports` actually publishes.
 const componentBarrelEntries = {
   'components/index': 'src/components/index.ts',
   'components/lv1/index': 'src/components/lv1/index.ts',
+  'components/lv2/index': 'src/components/lv2/index.ts',
 }
 
 // React Context Providers (e.g. `<ThemeProvider>`). Same `'use client'`
@@ -71,7 +74,8 @@ export default defineConfig([
   {
     entry: {
       ...componentBarrelEntries,
-      ...lv1ComponentEntries,
+      ...componentEntries('lv1'),
+      ...componentEntries('lv2'),
       ...providerEntries,
     },
     format: ['esm'],

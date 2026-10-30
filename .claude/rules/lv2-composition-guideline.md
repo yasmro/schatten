@@ -247,9 +247,12 @@ An lv2 inherits the four guarantees of
 from its lv1 parts. On top of that:
 
 1. **Do not add a role the parts don't already provide.** A static lv2 with
-   its own root (EmptyState) ships role-less, like `Callout`; its TSDoc tells
-   the consumer to pass `role="status"` when the content is swapped in
-   dynamically.
+   its own root (EmptyState) ships role-less, like `Callout`. Its TSDoc tells
+   the consumer how to announce it when it appears at runtime: put
+   `role="status"` on a wrapper that **stays mounted**. A status region
+   announces changes to its content, so one that mounts together with that
+   content is usually not read out
+   ([component-architecture.md §8](component-architecture.md#8-accessibility-contract)).
 2. **The consumer chooses heading levels.** An lv2 that renders a title
    exposes a `headingLevel` prop (a closed numeric union) and renders the
    heading **through `Text`'s `as`** (`<Text as="h2">`), not as its own
@@ -364,6 +367,16 @@ public and stable, a tag is incidental
 ([css-api.md §Structural `:has()`](css-api.md#structural-has-for-layout-selection)
 makes the same point).
 
+Two details that a descendant selector needs here:
+
+- **Use the child combinator (`>`) when the lv2 has a composition slot.** A
+  slot holds arbitrary consumer content, so `.st-empty-state .st-icon` would
+  also reach the icon of a `Button` passed in `action`.
+- **A wrapper of the lv2's own has no lv1 class, and an `st-` class on it
+  would be published.** Select it by what it is not —
+  `.st-empty-state > :not(.st-icon, .st-text)` — and pin its place in the DOM
+  with a unit test.
+
 This is deliberately the **opposite** of lv1's default (Callout and Card
 publish their sub-elements). An lv1 is a part the consumer composes, so a
 per-slot override is value; an lv2 is a frozen composition, so a per-slot
@@ -433,7 +446,7 @@ visual rules) needs no later loosening.
 | 5 | `scripts/build-component-css.mjs` | Add lv2s that have a `.css`. |
 | 6 | `scripts/sync-readme-components.mjs` | Add `.css`-bearing lv2s to the per-component CSS table; list lv2 in its own section of the support matrix. |
 | 7 | `scripts/check-harness-sync.mjs` | **No change** — lv2 has no vanilla harness (React-only). Keep it on `discoverLv1()`. |
-| 8 | `.size-limit.json` | Add `components/lv2 (all)` and `css/<lv2 slug>`; raise the `css/*` aggregate. Raising a budget is an additive surface change — say so in the changeset ([api-stability.md](api-stability.md#per-component-css-size-budgets)). |
+| 8 | `.size-limit.json` | Add `components/lv2 (all)` and `css/<lv2 slug>`; raise the `css/*` aggregate if the new total needs it. Raising a budget is an additive surface change — say so in the changeset ([api-stability.md](api-stability.md#per-component-css-size-budgets)). |
 | 9 | `src/styles/entry.css` | `@import` the lv2 CSS **after** the lv1s it composes. |
 | 10 | `src/docs/__fixtures__/cssApiSamples.{html.ts,tsx}` + `CSSApiDist.vrt.spec.ts` | **No lv2 section.** Keep `CSSApiDist` on `discoverLv1WithCss()` so lv2 is never auto-discovered (it would throw on the missing section). |
 | 11 | `scripts/check-registrar-sync.mjs` | Scan `.css`-bearing lv2 stylesheets. **Skipping this lets an lv2 reference an unregistered variable with every gate green** — the exact failure this script exists to catch. |
@@ -460,17 +473,18 @@ path (lv1 only) or the shipped-CSS path (lv1 + lv2).
 
 ## 7. Export path
 
-Restored in **the first lv2's own PR**, not in the foundation PR — **never as
-an empty barrel**. PR #210 removed `./components/lv2` precisely because an
-export that resolves to an empty module reads as incomplete, and the
-foundation PR (§6.2) ships no component, so the export has to wait for one.
+Restored in **the first lv2's own PR** (#125), not in the foundation PR —
+**never as an empty barrel**. PR #210 removed `./components/lv2` precisely
+because an export that resolves to an empty module reads as incomplete, and
+the foundation PR (§6.2) ships no component, so the export had to wait for
+one. A later lv2 only adds its re-export to the barrel; the rest is in place:
 
 ```
 src/components/lv2/{X}/index.ts           named export
-src/components/lv2/index.ts               re-export (today: `export {}`)
-src/components/index.ts                   add `export * from './lv2'`
-package.json#exports["./components/lv2"]  restore (types + import only — ESM-only, api-stability.md)
-tsup.config.ts                            add 'components/lv2/index' to componentBarrelEntries,
+src/components/lv2/index.ts               re-export
+src/components/index.ts                   `export * from './lv2'`
+package.json#exports["./components/lv2"]  types + import only — ESM-only, api-stability.md
+tsup.config.ts                            'components/lv2/index' in componentBarrelEntries,
                                           plus per-component entries shaped like lv1's (tree-shaking)
 .size-limit.json                          'components/lv2 (all)'
 ```

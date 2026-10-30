@@ -35,7 +35,7 @@ CHANGELOG:
 | CSS class names | `.st-btn`, `.st-btn--primary`, `.st-input-wrapper`, `.st-callout__icon`, plus the `[aria-invalid="true"]` / `[aria-busy="true"]` / `[data-state]` / `[data-side]` state hooks they target. The naming convention (prefix `st-`, BEM, attribute-driven state) is fixed in [css-api.md](css-api.md); this document only sets the breaking-change policy that sits on top. |
 | CSS custom properties | `--color-primary-600`, `--color-error`, `--spacing-4`, `--font-sans` |
 | CVA output strings | The class string returned by `buttonVariants({ variant: 'primary' })` |
-| Multi-entry exports | `@yasmro/schatten/components/lv1`, `/tokens`, `/variants`, `/themes/default`, `/themes/seasonal`, `/providers` |
+| Multi-entry exports | `@yasmro/schatten/components/lv1`, `/components/lv2`, `/tokens`, `/variants`, `/themes/default`, `/themes/seasonal`, `/providers` |
 | Module format | ESM-only — every JS entry in `exports` carries an `import` condition only (no `require`, no `default`). Adding CJS support back would be additive (`minor`); going ESM-only again after that, or narrowing the supported-consumer set, is breaking. See [Module format — ESM-only](#module-format--esm-only-since-v100). |
 | Theme contract | Which CSS variables a custom theme must define to be valid |
 | Provider runtime contract | The `localStorage` key (`'schatten-theme'`) and JSON shape (`{ mode, special }`) that `<ThemeProvider>` reads/writes. This is the contract the FOUC inline snippet ([#129](https://github.com/yasmro/schatten/issues/129)) and any consumer-side persistence code depends on. Renaming the key, adding/removing a field, or changing field semantics is a breaking change. |

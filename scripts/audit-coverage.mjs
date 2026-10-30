@@ -172,6 +172,7 @@ export const ROLE_NAME_CONTRACT = /** @type {const} */ ({
   Checkbox: 'checkbox',
   DateCalendar: 'grid',
   Dialog: 'dialog',
+  EmptyState: 'heading',
   FieldSet: 'group',
   Input: 'textbox',
   Radio: 'radio',

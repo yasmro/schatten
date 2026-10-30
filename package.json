@@ -38,6 +38,10 @@
       "types": "./dist/components/lv1/index.d.ts",
       "import": "./dist/components/lv1/index.js"
     },
+    "./components/lv2": {
+      "types": "./dist/components/lv2/index.d.ts",
+      "import": "./dist/components/lv2/index.js"
+    },
     "./providers": {
       "types": "./dist/providers/index.d.ts",
       "import": "./dist/providers/index.js"

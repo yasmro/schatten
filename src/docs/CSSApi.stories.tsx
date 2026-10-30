@@ -667,7 +667,7 @@ export const Reference: Story = {
             </div>
           </div>
           <CodeBlock>{`<!-- Layout is on .st-callout itself — sub-elements sit directly under it -->
-<div class="st-callout st-callout--info st-callout--subtle" role="status">
+<div class="st-callout st-callout--info st-callout--subtle">
   <svg class="st-callout__icon" aria-hidden="true">…</svg>
   <div class="st-callout__content">
     <div class="st-callout__title">Heads up</div>

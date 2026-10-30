@@ -6,8 +6,10 @@ import {
   useEffect,
   useId,
   useMemo,
+  useReducer,
   useRef,
   useState,
+  useSyncExternalStore,
 } from 'react'
 import { useFieldContext } from '../../../contexts/field'
 import { mergeRefs } from '../../../lib/merge-refs'
@@ -135,8 +137,9 @@ export interface CalendarCommonProps
   /**
    * The date marked as today, as `YYYY-MM-DD`. Defaults to the local date when
    * the component mounts; it does not update if the date changes while mounted.
-   * For SSR, pass this or `defaultMonth` so the server and the client agree on
-   * the first month.
+   * With SSR the default mark appears after hydration, because the server does
+   * not know the user's time zone. Pass this prop (or `defaultMonth`) so the
+   * server and the client agree on the first month.
    */
   today?: string
   /**
@@ -212,6 +215,9 @@ export function useInvalidDateWarning(dates: Record<string, string | undefined>)
     }
   }, [invalid])
 }
+
+const subscribeToNothing = () => () => {}
+const getServerToday = () => undefined
 
 /** Where a key moves focus from `date`, or `undefined` for any other key. */
 function getKeyTarget(
@@ -307,10 +313,16 @@ export const CalendarView = forwardRef<HTMLDivElement, CalendarViewProps>(
     const labels = { ...DEFAULT_LABELS, ...labelsProp }
 
     const [localToday] = useState(getLocalToday)
-    const today = validDate(todayProp) ?? localToday
+    const validToday = validDate(todayProp)
+    // The reference date picks the first month and the year range. The mark is
+    // held back during hydration: the server cannot know the user's local date,
+    // so an `aria-current` rendered there may be on the wrong day.
+    const referenceDate = validToday ?? localToday
+    const hydratedToday = useSyncExternalStore(subscribeToNothing, () => localToday, getServerToday)
+    const today = validToday ?? hydratedToday
 
     const initialMonth = startOfMonth(
-      clampDate(validDate(defaultMonth) ?? selection.anchor ?? today, min, max),
+      clampDate(validDate(defaultMonth) ?? selection.anchor ?? referenceDate, min, max),
     )
     const validMonth = validDate(monthProp)
     const [firstMonth, setFirstMonth] = useControllable(
@@ -333,19 +345,24 @@ export const CalendarView = forwardRef<HTMLDivElement, CalendarViewProps>(
     const isUnavailable = (date: string) =>
       disabled || isBaseDisabled(date) || !!selection.isUnavailable?.(date, isBaseDisabled)
 
+    // The last day that really held focus. Only the day's own focus event writes
+    // this, so it can never name a day the parent refused to show.
     const [focused, setFocused] = useState<string>()
     const pendingFocus = useRef<string | null>(null)
+    const [, requestCommit] = useReducer((count: number) => count + 1, 0)
     const rootRef = useRef<HTMLDivElement>(null)
     const baseId = useId()
 
-    // Runs after every commit, not only when `focused` changes: an arrow key
-    // that clamps at `min` leaves `focused` as it was, and a flag left up would
-    // steal focus on some later, unrelated render.
+    const findDay = (date: string) =>
+      rootRef.current?.querySelector<HTMLElement>(`[data-date="${date}"]`)
+
+    // Clears the request whether or not the day appeared, so a month the parent
+    // refused cannot move focus later, on some unrelated render.
     useEffect(() => {
       const date = pendingFocus.current
       if (date === null) return
       pendingFocus.current = null
-      rootRef.current?.querySelector<HTMLElement>(`[data-date="${date}"]`)?.focus()
+      findDay(date)?.focus()
     })
 
     const tabStop =
@@ -355,8 +372,15 @@ export const CalendarView = forwardRef<HTMLDivElement, CalendarViewProps>(
 
     function moveFocus(target: string) {
       const next = clampDate(target, min, max)
+      const day = findDay(next)
+      if (day) {
+        day.focus()
+        return
+      }
+      // The day is in a month not on screen yet. requestCommit guarantees the
+      // effect runs even if the parent ignores the month change.
       pendingFocus.current = next
-      setFocused(next)
+      requestCommit()
       const nextMonth = startOfMonth(next)
       if (compareDates(nextMonth, firstMonth) < 0) setFirstMonth(nextMonth)
       else if (compareDates(nextMonth, lastMonth) > 0) {
@@ -373,7 +397,8 @@ export const CalendarView = forwardRef<HTMLDivElement, CalendarViewProps>(
 
     function onGridKeyDown(event: KeyboardEvent<HTMLTableElement>) {
       if (event.altKey || event.ctrlKey || event.metaKey) return
-      const base = focused ?? tabStop
+      // The focused element, not state: this must follow what the user is on.
+      const base = (event.target as HTMLElement).dataset.date ?? tabStop
       const isRtl = getComputedStyle(event.currentTarget).direction === 'rtl'
       const target = getKeyTarget(event.key, base, event.shiftKey, isRtl, weekStartsOn)
       if (!target) return
@@ -408,8 +433,9 @@ export const CalendarView = forwardRef<HTMLDivElement, CalendarViewProps>(
 
     function renderDropdowns(month: string, index: number) {
       const year = Number(month.slice(0, 4))
-      const firstYear = Math.max(Number(min.slice(0, 4)), Number(today.slice(0, 4)) - 100)
-      const lastYear = Math.min(Number(max.slice(0, 4)), Number(today.slice(0, 4)) + 10)
+      const center = Number(clampDate(referenceDate, min, max).slice(0, 4))
+      const firstYear = Math.max(Number(min.slice(0, 4)), center - 100)
+      const lastYear = Math.min(Number(max.slice(0, 4)), center + 10)
       const years = Array.from({ length: lastYear - firstYear + 1 }, (_, i) => firstYear + i)
       if (!years.includes(year)) years.push(year)
       years.sort((a, b) => a - b)

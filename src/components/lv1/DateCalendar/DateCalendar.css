@@ -35,6 +35,10 @@
     gap: 1.5rem;
   }
 
+  .st-date-calendar__month {
+    flex: none;
+  }
+
   .st-date-calendar__header {
     display: grid;
     grid-template-columns: 2rem 1fr 2rem;
@@ -80,6 +84,8 @@
     border-radius: var(--radius-control);
     background-color: var(--color-surface);
     padding: 0.125rem 0.25rem;
+    color: inherit;
+    font: inherit;
   }
 
   .st-date-calendar__nav {
@@ -87,10 +93,13 @@
     cursor: pointer;
     width: 2rem;
     height: 2rem;
-    grid-column: 1;
     align-items: center;
     justify-content: center;
     border-radius: var(--radius-control);
+  }
+
+  .st-date-calendar__nav--previous {
+    grid-column: 1;
   }
 
   .st-date-calendar__nav--next {

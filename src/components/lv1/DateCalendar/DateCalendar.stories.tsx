@@ -1,7 +1,17 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { useState } from 'react'
+import { type ComponentType, useState } from 'react'
 import { Field } from '../Field'
-import { DateCalendar, type DateRange, DateRangeCalendar } from './DateCalendar'
+import {
+  DateCalendar,
+  type DateCalendarProps,
+  type DateRange,
+  DateRangeCalendar,
+  type DateRangeCalendarProps,
+} from './DateCalendar'
+
+/** The page documents both components, so the table lists the range-only props too. */
+type CalendarArgs = DateCalendarProps &
+  Pick<DateRangeCalendarProps, 'numberOfMonths' | 'minDays' | 'maxDays' | 'allowDisabledInRange'>
 
 const TODAY = '2026-10-24'
 
@@ -10,10 +20,10 @@ const TODAY = '2026-10-24'
  * (`DateRangeCalendar`). Values are ISO `YYYY-MM-DD` strings, so a time zone can
  * never shift a date by one day.
  */
-const meta: Meta<typeof DateCalendar> = {
+const meta: Meta<CalendarArgs> = {
   title: 'Components/lv1/DateCalendar',
-  component: DateCalendar,
-  subcomponents: { DateRangeCalendar } as Meta<typeof DateCalendar>['subcomponents'],
+  component: DateCalendar as ComponentType<CalendarArgs>,
+  subcomponents: { DateRangeCalendar } as Meta<CalendarArgs>['subcomponents'],
   parameters: {
     layout: 'centered',
   },
@@ -107,11 +117,39 @@ const meta: Meta<typeof DateCalendar> = {
       control: 'boolean',
       table: { type: { summary: 'boolean' }, defaultValue: { summary: 'false' } },
     },
+    numberOfMonths: {
+      description: 'Number of months shown side by side.',
+      control: false,
+      table: {
+        category: 'DateRangeCalendar only',
+        type: { summary: 'number' },
+        defaultValue: { summary: '1' },
+      },
+    },
+    minDays: {
+      description: 'Shortest allowed range in days, counting both ends.',
+      control: false,
+      table: { category: 'DateRangeCalendar only', type: { summary: 'number' } },
+    },
+    maxDays: {
+      description: 'Longest allowed range in days, counting both ends.',
+      control: false,
+      table: { category: 'DateRangeCalendar only', type: { summary: 'number' } },
+    },
+    allowDisabledInRange: {
+      description: 'Allows a range to span days marked by `isDateDisabled`.',
+      control: false,
+      table: {
+        category: 'DateRangeCalendar only',
+        type: { summary: 'boolean' },
+        defaultValue: { summary: 'false' },
+      },
+    },
   },
 }
 
 export default meta
-type Story = StoryObj<typeof DateCalendar>
+type Story = StoryObj<CalendarArgs>
 
 /** Interactive single instance — always the first export (storybook-guideline.md). */
 export const Playground: Story = {

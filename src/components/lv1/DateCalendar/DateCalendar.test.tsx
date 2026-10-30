@@ -1,7 +1,8 @@
 import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { createRef, useState } from 'react'
-import { describe, expect, it, vi } from 'vitest'
+import { renderToString } from 'react-dom/server'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { Field } from '../Field/Field'
 import {
   DateCalendar,
@@ -46,6 +47,28 @@ function ControlledRange(props: { onValueChange?: (value: DateRange) => void }) 
         props.onValueChange?.(next)
       }}
     />
+  )
+}
+
+function WithInput() {
+  const [text, setText] = useState('')
+  return (
+    <>
+      <DateCalendar today={TODAY} defaultValue="2026-10-20" min="2026-10-20" />
+      <input aria-label="Other" value={text} onChange={(event) => setText(event.target.value)} />
+    </>
+  )
+}
+
+function Delayed() {
+  const [month, setMonth] = useState('2026-10-01')
+  return (
+    <>
+      <DateCalendar today={TODAY} month={month} defaultValue="2026-10-31" />
+      <button type="button" onClick={() => setMonth('2026-11-01')}>
+        Show November
+      </button>
+    </>
   )
 }
 
@@ -213,6 +236,13 @@ describe('DateCalendar', () => {
       expect(screen.getByRole('option', { name: 'December' })).toBeDisabled()
     })
 
+    it('offers years around min when min is far from today', () => {
+      renderCalendar({ captionLayout: 'dropdown', min: '3000-01-01' })
+      const years = within(screen.getByRole('combobox', { name: 'Year' }))
+      expect(years.getByRole('option', { name: '3000' })).toBeInTheDocument()
+      expect(years.getByRole('option', { name: '3010' })).toBeInTheDocument()
+    })
+
     it('prints the years in the locale digits', () => {
       renderCalendar({ captionLayout: 'dropdown', locale: 'fa-IR', labels: { year: 'Year' } })
       const digits = new Intl.NumberFormat('fa-IR', { useGrouping: false })
@@ -324,6 +354,37 @@ describe('DateCalendar', () => {
     })
   })
 
+  describe('server rendering', () => {
+    afterEach(() => {
+      vi.useRealTimers()
+    })
+
+    it('does not depend on the local date when the first month is given', () => {
+      vi.useFakeTimers()
+      vi.setSystemTime(new Date(2026, 9, 24, 12))
+      const server = renderToString(<DateCalendar defaultMonth="2026-10-01" id="calendar" />)
+      vi.setSystemTime(new Date(2026, 9, 25, 12))
+      const client = renderToString(<DateCalendar defaultMonth="2026-10-01" id="calendar" />)
+      expect(server).toBe(client)
+    })
+
+    it('leaves the default today mark out of the server HTML', () => {
+      const html = renderToString(<DateCalendar defaultMonth="2026-10-01" />)
+      expect(html).not.toContain('aria-current')
+    })
+
+    it('keeps an explicit today in the server HTML', () => {
+      expect(renderToString(<DateCalendar today={TODAY} />)).toContain('aria-current="date"')
+    })
+
+    it('marks the local date once mounted on the client', () => {
+      vi.useFakeTimers()
+      vi.setSystemTime(new Date(2026, 9, 24, 12))
+      render(<DateCalendar />)
+      expect(day('2026-10-24')).toHaveAttribute('aria-current', 'date')
+    })
+  })
+
   describe('keyboard', () => {
     async function focusDay(date: string, props: DateCalendarProps = {}) {
       const user = userEvent.setup()
@@ -389,15 +450,45 @@ describe('DateCalendar', () => {
     })
 
     it('does not steal focus after an arrow key clamps at min', async () => {
-      // Regression (#566 PoC): the "move focus" flag stayed up when clamping
-      // left the focused date unchanged, and fired on the next render.
-      const user = await focusDay('2026-10-20', { min: '2026-10-20' })
+      // Regression (#566 PoC, reintroduced in the first cut of #567): clamping
+      // leaves the day unchanged, so no commit ran and a "move focus" flag
+      // stayed up until the next render. The day must stay on screen here, or
+      // the stale flag finds nothing and the test passes for the wrong reason.
+      const user = userEvent.setup()
+      render(<WithInput />)
+      day('2026-10-20').focus()
       await user.keyboard('{ArrowLeft}')
-      const next = screen.getByRole('button', { name: 'Next month' })
+      const input = screen.getByRole('textbox', { name: 'Other' })
 
-      await user.click(next)
+      await user.click(input)
+      await user.keyboard('a')
 
-      expect(next).toHaveFocus()
+      expect(input).toHaveFocus()
+      expect(input).toHaveValue('a')
+    })
+
+    it('follows the real focus when the parent refuses the month', async () => {
+      const user = userEvent.setup()
+      renderCalendar({ month: '2026-10-01', defaultValue: '2026-10-31' })
+      day('2026-10-31').focus()
+
+      await user.keyboard('{ArrowRight}')
+      expect(day('2026-10-31')).toHaveFocus()
+
+      await user.keyboard('{ArrowLeft}')
+      expect(day('2026-10-30')).toHaveFocus()
+    })
+
+    it('does not move focus later into a month the parent refused', async () => {
+      const user = userEvent.setup()
+      render(<Delayed />)
+      day('2026-10-31').focus()
+      await user.keyboard('{ArrowRight}')
+      const show = screen.getByRole('button', { name: 'Show November' })
+
+      await user.click(show)
+
+      expect(show).toHaveFocus()
     })
 
     it('passes through a disabled date', async () => {

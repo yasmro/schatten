@@ -63,9 +63,10 @@ for (const story of stories) {
   }
 }
 
-// Forced colors removes backgrounds, so this frame proves selection survives
-// without one. Light only: the system palette replaces both modes.
-for (const story of ['single', 'range'] as const) {
+// Forced colors removes backgrounds and gradients, so these frames prove that
+// selection and the unavailable-day slash survive without them. Light only: the
+// system palette replaces both modes.
+for (const story of ['single', 'range', 'disabled-dates'] as const) {
   test(`DateCalendar / ${story} / forced-colors`, async ({ page }) => {
     await page.emulateMedia({ forcedColors: 'active' })
     await page.goto(storyUrl(story, 'light'))

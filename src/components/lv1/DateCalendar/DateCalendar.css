@@ -213,8 +213,19 @@
   }
 
   .st-date-calendar__day[aria-disabled="true"] {
-    text-decoration: line-through;
+    position: relative;
     cursor: not-allowed;
+  }
+
+  /* The "／" that marks an unavailable day, so the state is not color alone. A
+   * border, not a gradient: forced colors removes gradients and would leave the
+   * day with no signal at all. */
+  .st-date-calendar__day[aria-disabled="true"]::after {
+    position: absolute;
+    inset: 50% 15% auto;
+    border-top: 1px solid currentColor;
+    content: "";
+    rotate: -45deg;
   }
 
   .st-date-calendar__day:focus-visible,

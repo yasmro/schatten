@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { createRef, useState } from 'react'
@@ -681,6 +683,26 @@ describe('DateCalendar', () => {
       expect(cell(TODAY)).not.toHaveAttribute('aria-disabled')
       warn.mockRestore()
     })
+  })
+})
+
+describe('DateCalendar CSS contract', () => {
+  // The slash is a few pixels, well under the VRT threshold, and jsdom loads no
+  // stylesheet (vrt-spec-guideline §"The same 1% is a permanent blind spot").
+  const css = readFileSync(resolve(__dirname, 'DateCalendar.css'), 'utf8')
+  const slashRule = css.match(/__day\[aria-disabled="true"\]::after \{([^}]*)\}/)?.[1] ?? ''
+
+  it('draws the unavailable-day slash at 45°, rising to the right', () => {
+    expect(slashRule).toContain('rotate: -45deg')
+  })
+
+  it('draws it with a border, which forced colors keeps', () => {
+    expect(slashRule).toContain('border-top: 1px solid currentColor')
+    expect(slashRule).not.toMatch(/gradient|background/)
+  })
+
+  it('no longer strikes the digit through', () => {
+    expect(css).not.toContain('line-through')
   })
 })
 

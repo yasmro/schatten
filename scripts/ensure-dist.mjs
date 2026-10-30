@@ -9,7 +9,7 @@
 // exists for the local case (#277).
 
 import { existsSync } from 'node:fs'
-import { discoverLv1WithCss } from './lv1-slugs.mjs'
+import { discoverLv1WithCss, discoverLv2 } from './lv1-slugs.mjs'
 
 // Static set — these are not lv1-derived and are pinned by name.
 const REQUIRED_STATIC = [
@@ -29,7 +29,15 @@ const REQUIRED_STATIC = [
 // the shared module exists to eliminate).
 const REQUIRED_LV1 = discoverLv1WithCss().map((entry) => `dist/css/${entry.slug}.css`)
 
-const REQUIRED = [...REQUIRED_STATIC, ...REQUIRED_LV1]
+// `.css`-bearing lv2s ship a per-component subpath too
+// (lv2-composition-guideline §6.2 row 12). The CSSApiDist spec itself
+// never reads them (lv2 is React-only — no vanilla fixture), but a
+// missing file here means `build-component-css` skipped a shipped lv2.
+const REQUIRED_LV2 = discoverLv2()
+  .filter((entry) => entry.hasCss)
+  .map((entry) => `dist/css/${entry.slug}.css`)
+
+const REQUIRED = [...REQUIRED_STATIC, ...REQUIRED_LV1, ...REQUIRED_LV2]
 
 const missing = REQUIRED.filter((path) => !existsSync(path))
 

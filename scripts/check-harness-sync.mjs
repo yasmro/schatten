@@ -27,6 +27,7 @@
 
 import { existsSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
+import { isCliEntry } from './is-cli-entry.mjs'
 import { discoverLv1 } from './lv1-slugs.mjs'
 
 export const HARNESS_REL = 'examples/vanilla-html/index.html'
@@ -65,9 +66,7 @@ export function diffHarnessSlugs(lv1Slugs, harnessSlugs) {
   return { missing, orphaned }
 }
 
-const isCliEntry = import.meta.url === `file://${resolve(process.argv[1] ?? '')}`
-
-if (isCliEntry) {
+if (isCliEntry(import.meta.url)) {
   if (!existsSync(HARNESS_REL)) {
     console.error(`✗ harness not found: ${HARNESS_REL} (run from the repo root)`)
     process.exit(1)

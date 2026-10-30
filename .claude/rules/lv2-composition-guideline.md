@@ -26,12 +26,13 @@ supports does not extend to lv2: an lv2's value is behaviour, and a
 vanilla-HTML consumer composes the lv1 classes directly instead.
 
 > **Scope of this document vs. the tooling.** This rule fixes *what* the lv2
-> tooling must do (§6, §7). The tooling itself — `audit-coverage`, the
-> companion hooks, the CSS build, size-limit, the `./components/lv2` export —
-> is implemented together with the first lv2
-> ([#125](https://github.com/yasmro/schatten/issues/125) EmptyState, in its
-> "lv2 foundation" PR), and only as far as that lv2 needs. Until then, the
-> scripts still report lv2 as out of scope.
+> tooling must do (§6, §7). The tooling lands in two steps around the first
+> lv2 ([#125](https://github.com/yasmro/schatten/issues/125) EmptyState):
+> the **lv2 foundation PR** makes the scripts (`audit-coverage`, the
+> companion hooks, the CSS build, the registrar check, the README sync)
+> discover and audit lv2, and the **first lv2's own PR** wires what needs a
+> real component — size-limit, `entry.css`, and the `./components/lv2`
+> export (§6.2, §7).
 
 ## 1. Central claim — count decisions, not lv1s
 
@@ -413,11 +414,15 @@ thing lv1 already ships in `.st-field` / `.st-card__header` / `.st-callout`.
 
 ### 6.2 Tooling the first lv2 must extend
 
-Implemented in the first lv2's foundation PR (#125), not before. The first
-lv2 (EmptyState) has a `.css`, so the tooling **may require `.css` for lv2 at
-first**; make it optional when the first `.css`-less lv2 arrives (a
-loosening change, safe to make later). The rule above — `.css` only with own
-visual rules — stays as written.
+Split across two PRs (#125). The **foundation PR** lands the script rows —
+1–7, 11, 12 — each a no-op while `src/components/lv2/` holds only its barrel,
+and each pinned by a unit test on a temp-dir fixture rather than by a dummy
+lv2 in the repo. The **first lv2's PR** lands rows 8 and 9, which need a real
+stylesheet to point at, together with the export path (§7). The tooling
+treats `.css` as optional for lv2 from the start — `discoverLv2()` reports
+it through `hasCss`, the audit renders a missing one as `n/a`, and the
+companion hook does not ask for it — so the rule above (`.css` only with own
+visual rules) needs no later loosening.
 
 | # | File | Change |
 |---|---|---|
@@ -455,9 +460,10 @@ path (lv1 only) or the shipped-CSS path (lv1 + lv2).
 
 ## 7. Export path
 
-Restored in the first lv2's foundation PR — **never as an empty barrel**.
-PR #210 removed `./components/lv2` precisely because an export that resolves
-to an empty module reads as incomplete.
+Restored in **the first lv2's own PR**, not in the foundation PR — **never as
+an empty barrel**. PR #210 removed `./components/lv2` precisely because an
+export that resolves to an empty module reads as incomplete, and the
+foundation PR (§6.2) ships no component, so the export has to wait for one.
 
 ```
 src/components/lv2/{X}/index.ts           named export
@@ -485,8 +491,9 @@ Restoring the export is an additive surface change (`minor`).
    yes: block + modifiers only, descendant selectors on lv1 classes,
    imported after its lv1 parts.
 6. **Ship the companions** (§6.1) in the same PR as the component.
-7. **If it is the first lv2**, land the tooling (§6.2) and the export path
-   (§7) in a separate foundation PR first.
+7. **If it is the first lv2**, land the script tooling (§6.2 foundation
+   rows) in a separate foundation PR first; the export path (§7) and the
+   size-limit / `entry.css` rows ship with the component itself.
 8. **Changeset**: `minor` (a new component is additive), with a `CSS API:`
    line when it ships classes.
 
@@ -500,8 +507,6 @@ Restoring the export is an additive surface change (`minor`).
   should not), adjust the gate and cite the case.
 - **Sub-element publication (§5.2):** when the first sub-element is published,
   record the consumer use case next to it.
-- **`.css`-less lv2 (§6.2):** when the first one lands, make the tooling's
-  `.css` requirement optional for lv2 in that PR.
 - **Scaffolding skill:** there is no `add-lv2-component` skill yet. It is
   filed when the second lv2 starts (#568), once two real lv2s show which
   steps repeat.

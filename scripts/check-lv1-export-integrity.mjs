@@ -1,7 +1,10 @@
 #!/usr/bin/env node
 // Stop hook: verify src/components/lv1/index.ts re-exports every lv1
-// component directory. Catches the "added a component but forgot to wire
-// up the barrel" failure mode at session end.
+// component directory, and src/components/lv2/index.ts every lv2 one.
+// Catches the "added a component but forgot to wire up the barrel"
+// failure mode at session end. (lv2 coverage: lv2-composition-guideline
+// §6.2 row 4. The file keeps its lv1 name — it is registered by path in
+// .claude/settings.json.)
 //
 // Heuristic:
 //  - List subdirectories of src/components/lv1/.
@@ -16,8 +19,10 @@
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs'
 import path from 'node:path'
 
-const LV1_DIR_REL = 'src/components/lv1'
-const INDEX_FILE_REL = 'src/components/lv1/index.ts'
+const LAYERS = [
+  { dir: 'src/components/lv1', index: 'src/components/lv1/index.ts' },
+  { dir: 'src/components/lv2', index: 'src/components/lv2/index.ts' },
+]
 const FROM_RE = /from\s+['"]\.\/([^'"/.]+)['"]/g
 
 function listComponentDirs(lv1Dir) {
@@ -38,6 +43,7 @@ function parseExportedNames(indexPath) {
   if (!existsSync(indexPath)) return new Set()
   const source = readFileSync(indexPath, 'utf8')
   const names = new Set()
+  FROM_RE.lastIndex = 0
   let m
   while ((m = FROM_RE.exec(source)) !== null) names.add(m[1])
   return names
@@ -53,22 +59,23 @@ function emit(additionalContext) {
   process.stdout.write(JSON.stringify(response))
 }
 
-function main() {
-  const projectDir = process.env.CLAUDE_PROJECT_DIR ?? process.cwd()
-  const lv1Dir = path.join(projectDir, LV1_DIR_REL)
-  const indexPath = path.join(projectDir, INDEX_FILE_REL)
+/**
+ * Diff one layer's component directories against its barrel. Returns the
+ * report lines for that layer, or `[]` when they agree (or the layer has no
+ * component directory — lv2 may hold only its barrel).
+ */
+function checkLayer(projectDir, { dir, index }) {
+  const dirs = listComponentDirs(path.join(projectDir, dir))
+  if (dirs.length === 0) return []
 
-  const dirs = listComponentDirs(lv1Dir)
-  if (dirs.length === 0) return
-
-  const exported = parseExportedNames(indexPath)
+  const exported = parseExportedNames(path.join(projectDir, index))
 
   const missingFromIndex = dirs.filter((d) => !exported.has(d))
   const orphanedExports = [...exported].filter((name) => !dirs.includes(name)).sort()
 
-  if (missingFromIndex.length === 0 && orphanedExports.length === 0) return
+  if (missingFromIndex.length === 0 && orphanedExports.length === 0) return []
 
-  const lines = [`[lv1 export integrity] mismatch between ${LV1_DIR_REL}/ and ${INDEX_FILE_REL}:`]
+  const lines = [`[export integrity] mismatch between ${dir}/ and ${index}:`]
   if (missingFromIndex.length > 0) {
     lines.push(
       `- Directories without a corresponding export in index.ts: ${missingFromIndex.join(', ')}`,
@@ -79,10 +86,15 @@ function main() {
       `- Exports in index.ts without a matching component directory: ${orphanedExports.join(', ')}`,
     )
   }
-  lines.push(
-    'Update src/components/lv1/index.ts so every lv1 component dir is re-exported exactly once.',
-  )
-  emit(lines.join('\n'))
+  lines.push(`Update ${index} so every component dir is re-exported exactly once.`)
+  return lines
+}
+
+function main() {
+  const projectDir = process.env.CLAUDE_PROJECT_DIR ?? process.cwd()
+  const reports = LAYERS.map((layer) => checkLayer(projectDir, layer)).filter((l) => l.length > 0)
+  if (reports.length === 0) return
+  emit(reports.map((lines) => lines.join('\n')).join('\n\n'))
 }
 
 main()

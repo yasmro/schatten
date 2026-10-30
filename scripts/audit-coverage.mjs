@@ -1,11 +1,17 @@
 #!/usr/bin/env node
-// Scan every lv1 component and report the coverage of the required
+// Scan every lv1 and lv2 component and report the coverage of the required
 // companion files (tsx / css / stories / test / vrt / index / __snapshots__
 // baseline / barrel re-export, plus parity story+spec for the components
 // in classification A/B per .claude/rules/vrt-spec-guideline.md
 // §"Parity stories — when to write one, when to skip", plus a
 // non-screenshot Playwright interaction test for classification C/D per
 // §"区分 C/D (JS 必須) — a Playwright interaction test is REQUIRED").
+//
+// lv2 components (src/components/lv2/) get a reduced audit — see
+// .claude/rules/lv2-composition-guideline.md §6.1 / §6.2 row 2: no parity /
+// CSS API fixture / harness columns (lv2 is React-only), `.css` optional
+// (an lv2 ships one only with visual rules of its own), and the interaction
+// test required only for the lv2s listed in `LV2_INTERACTIVE`.
 //
 // This is the *library-wide periodic* counterpart to the existing
 // edit-trigger / session-end hooks:
@@ -25,10 +31,12 @@
 
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs'
 import path from 'node:path'
+import { isCliEntry } from './is-cli-entry.mjs'
 
 const LV1_DIR_REL = 'src/components/lv1'
 const LV2_DIR_REL = 'src/components/lv2'
 const INDEX_FILE_REL = 'src/components/lv1/index.ts'
+const LV2_INDEX_FILE_REL = 'src/components/lv2/index.ts'
 // Shared CSS API fixtures, paired by `data-component` slug:
 //  - `.html.ts` — the string SSOT `src/docs/CSSApiDist.vrt.spec.ts`
 //    auto-discovers every lv1 against (each `{X}.tsx` + `{X}.css` component
@@ -75,6 +83,21 @@ export const PARITY_EXEMPT = new Set([
   'Toast',
   'Tooltip',
 ])
+
+// lv2 components that are interactive — they open, close, select, confirm or
+// sync values in response to user input — and so must ship a non-screenshot
+// Playwright interaction test, like lv1 区分 C/D. The A–D classification that
+// drives PARITY_EXEMPT does not apply to lv2 (it decides vanilla support, and
+// lv2 is React-only), and the audit cannot infer interactivity, so this set is
+// the decision (lv2-composition-guideline §6.2 "How interactive is decided").
+// An lv2 NOT listed here gets no interaction requirement (column `na`).
+//
+// MAINTENANCE: the PR that adds an interactive lv2 adds its name here,
+// alphabetically (DatePicker / DateRangePicker with #568 are expected to be
+// the first entries). A static lv2 (EmptyState) stays out. Pinned by
+// scripts/__tests__/audit-coverage.test.ts.
+/** @type {Set<string>} */
+export const LV2_INTERACTIVE = new Set([])
 
 // Match `from './<name>'` / `from "./<name>"`. Same shape as
 // scripts/check-lv1-export-integrity.mjs — kept in sync deliberately.
@@ -137,8 +160,10 @@ const TESTID_ASSERT_RE =
 // `getByRole(role, { name })` genuinely applies.
 //
 // MAINTENANCE: hand-maintained in alphabetical order, mirroring PARITY_EXEMPT.
-// When a new lv1 lands that exposes a role + accessible name on its own root,
-// add it here; otherwise leave it out (the column stays `na`, advisory-safe).
+// When a new lv1 or lv2 lands that exposes a role + accessible name on its own
+// root, add it here; otherwise leave it out (the column stays `na`,
+// advisory-safe). The map is keyed by name and shared by both layers — an lv2
+// such as EmptyState (a heading named by its title) belongs here too.
 // Pinned by scripts/__tests__/audit-coverage.test.ts.
 export const ROLE_NAME_CONTRACT = /** @type {const} */ ({
   Badge: 'img',
@@ -153,10 +178,10 @@ export const ROLE_NAME_CONTRACT = /** @type {const} */ ({
   Textarea: 'textbox',
 })
 
-// Every lv1 that does NOT carry a role+accessible-name-on-self contract, and so
-// is intentionally out of the `role.test` gate (column stays `na`). Kept as an
-// explicit set — NOT an "everything else" fallthrough — so the two sets form an
-// **exhaustive partition** of the lv1 tree: `roleContractPartitionGaps()` (and
+// Every lv1 / lv2 that does NOT carry a role+accessible-name-on-self contract,
+// and so is intentionally out of the `role.test` gate (column stays `na`). Kept
+// as an explicit set — NOT an "everything else" fallthrough — so the two sets
+// form an **exhaustive partition** of the lv1 + lv2 trees: `roleContractPartitionGaps()` (and
 // its CI test) fails when a component is in neither set OR in both, turning a
 // forgotten classification of a NEW component into a red test instead of a
 // silent `na`. This is the forcing function `ROLE_NAME_CONTRACT` lacked on its
@@ -175,9 +200,9 @@ export const ROLE_NAME_CONTRACT = /** @type {const} */ ({
 //     `Select` (combobox named via Field/placeholder; asserted on options) `Tabs`
 //     `Tooltip`
 //
-// MAINTENANCE: when a new lv1 lands, add it to EXACTLY ONE of ROLE_NAME_CONTRACT
-// (has a role+name-on-self contract) or ROLE_NAME_EXEMPT (does not). CI fails
-// otherwise. Alphabetical, mirroring PARITY_EXEMPT.
+// MAINTENANCE: when a new lv1 or lv2 lands, add it to EXACTLY ONE of
+// ROLE_NAME_CONTRACT (has a role+name-on-self contract) or ROLE_NAME_EXEMPT
+// (does not). CI fails otherwise. Alphabetical, mirroring PARITY_EXEMPT.
 export const ROLE_NAME_EXEMPT = new Set([
   'Avatar',
   'Callout',
@@ -197,14 +222,14 @@ export const ROLE_NAME_EXEMPT = new Set([
 ])
 
 /**
- * Classify every lv1 component directory against the role-contract partition
+ * Classify every lv1 / lv2 component directory against the role-contract partition
  * and return the components that break it. `unclassified` = in neither set (a
  * new component whose author forgot to decide); `both` = in both (a
  * contradiction). An empty return means the partition is exhaustive and
  * disjoint. The CI test in scripts/__tests__/audit-coverage.test.ts asserts
  * both arrays are empty.
  *
- * @param {string[]} componentNames the lv1 directory names (from discoverComponents)
+ * @param {string[]} componentNames the lv1 + lv2 directory names (from discoverComponents)
  * @returns {{ unclassified: string[], both: string[] }}
  */
 export function roleContractPartitionGaps(componentNames) {
@@ -319,8 +344,11 @@ const ADVISORY_KEYS = /** @type {const} */ (['refTest', 'testidTest', 'roleTest'
  *   roleTest: CellState,
  * }} AuditFiles
  *
+ * @typedef {'lv1' | 'lv2'} Layer
+ *
  * @typedef {{
  *   name: string,
+ *   layer: Layer,
  *   files: AuditFiles,
  *   missing: string[],
  *   advisories: string[],
@@ -440,17 +468,37 @@ export function hasInteractionTest(componentDir) {
  * callers wire `componentDir` (absolute path) and the `exported` /
  * `exempt` booleans, so this function is straightforward to unit-test.
  *
+ * `layer: 'lv2'` switches to the reduced lv2 audit
+ * (lv2-composition-guideline §6.1): `css` is `present` or `na` (never
+ * `missing`), `cssApiFixture` and the three parity columns are always `na`,
+ * and `interaction` is required only when `interactive` is true. `exempt`
+ * is ignored for lv2 (the A–D classification does not apply).
+ *
  * @param {{
  *   name: string,
  *   componentDir: string,
  *   exported: boolean,
  *   exempt: boolean,
  *   fixtureSlugs?: Set<string> | null,
+ *   layer?: Layer,
+ *   interactive?: boolean,
  * }} opts `fixtureSlugs` is the set of `data-component` slugs in the CSS API
- *   fixture; `null`/omitted skips the fixture check (→ `na`).
+ *   fixture; `null`/omitted skips the fixture check (→ `na`). `interactive`
+ *   is read for lv2 only (membership in `LV2_INTERACTIVE`).
  * @returns {AuditRow}
  */
-export function auditComponent({ name, componentDir, exported, exempt, fixtureSlugs = null }) {
+export function auditComponent({
+  name,
+  componentDir,
+  exported,
+  exempt: exemptOpt,
+  fixtureSlugs = null,
+  layer = 'lv1',
+  interactive = false,
+}) {
+  const isLv2 = layer === 'lv2'
+  // Parity exemption is an lv1 concept (区分 C/D); an lv2 is never "exempt".
+  const exempt = isLv2 ? false : exemptOpt
   const tsxPath = path.join(componentDir, `${name}.tsx`)
   const tsxPresent = existsSync(tsxPath)
 
@@ -481,14 +529,18 @@ export function auditComponent({ name, componentDir, exported, exempt, fixtureSl
   }
 
   if (tsxPresent) {
-    files.css = cell(present(`${name}.css`))
+    // lv2: a `.css` is shipped only with visual rules of its own (§5.4), so
+    // its absence is `na`, not a gap.
+    files.css = isLv2 ? (present(`${name}.css`) ? 'present' : 'na') : cell(present(`${name}.css`))
     files.stories = cell(present(`${name}.stories.tsx`))
     files.test = cell(present(`${name}.test.tsx`))
     files.vrt = cell(present(`${name}.vrt.spec.ts`))
     // 区分 C/D (== the parity-exempt set: interactive, JS-required) must ship
     // a non-screenshot Playwright interaction test; 区分 A/B stay `na` — their
     // real-browser contract is pinned by the parity series instead.
-    files.interaction = exempt ? cell(hasInteractionTest(componentDir)) : 'na'
+    // lv2 uses the hand-maintained LV2_INTERACTIVE decision instead.
+    const needsInteraction = isLv2 ? interactive : exempt
+    files.interaction = needsInteraction ? cell(hasInteractionTest(componentDir)) : 'na'
     files.index = cell(present('index.ts'))
     files.snap = cell(countSnapshots(componentDir, (n) => !n.startsWith('parity-')) >= 1)
     files.export = cell(exported)
@@ -498,16 +550,18 @@ export function auditComponent({ name, componentDir, exported, exempt, fixtureSl
     // condition `scripts/lv1-slugs.mjs` `discoverLv1WithCss()` encodes — kept
     // in sync by convention, mirroring CSSApiDist's own comment). With no
     // fixture file present (`fixtureSlugs === null`) the check is skipped (`na`).
+    // lv2 is React-only (§5.0) — no vanilla fixture section, no parity.
     files.cssApiFixture =
-      fixtureSlugs && files.css === 'present'
+      !isLv2 && fixtureSlugs && files.css === 'present'
         ? cell(fixtureSlugs.has(name.toLowerCase()))
         : 'na'
 
-    if (exempt) {
+    // The parity columns stay `na` for lv2.
+    if (!isLv2 && exempt) {
       files.parityStories = 'exempt'
       files.parityVrt = 'exempt'
       files.paritySnap = 'exempt'
-    } else {
+    } else if (!isLv2) {
       files.parityStories = cell(present(`${name}.parity.stories.tsx`))
       files.parityVrt = cell(present(`${name}.parity.vrt.spec.ts`))
       files.paritySnap = cell(countSnapshots(componentDir, (n) => n.startsWith('parity-')) >= 1)
@@ -544,12 +598,14 @@ export function auditComponent({ name, componentDir, exported, exempt, fixtureSl
   if (files.vrt === 'missing') missing.push(`${name}.vrt.spec.ts`)
   if (files.interaction === 'missing') {
     missing.push(
-      `non-screenshot Playwright interaction test in a *.vrt.spec.ts (区分 C/D — vrt-spec-guideline)`,
+      isLv2
+        ? 'non-screenshot Playwright interaction test in a *.vrt.spec.ts (interactive lv2 — lv2-composition-guideline §6.1)'
+        : `non-screenshot Playwright interaction test in a *.vrt.spec.ts (区分 C/D — vrt-spec-guideline)`,
     )
   }
   if (files.index === 'missing') missing.push('index.ts')
   if (files.snap === 'missing') missing.push('__snapshots__/*.png (no baseline captured)')
-  if (files.export === 'missing') missing.push('src/components/lv1/index.ts re-export')
+  if (files.export === 'missing') missing.push(`src/components/${layer}/index.ts re-export`)
   if (files.cssApiFixture === 'missing') {
     missing.push(
       `<section data-component="${name.toLowerCase()}"> in src/docs/__fixtures__/cssApiSamples.html.ts + .tsx`,
@@ -580,7 +636,7 @@ export function auditComponent({ name, componentDir, exported, exempt, fixtureSl
     )
   }
 
-  return { name, files, missing, advisories, exempt }
+  return { name, layer, files, missing, advisories, exempt }
 }
 
 /**
@@ -621,33 +677,72 @@ function glyphFor(key, state) {
   return CELL_GLYPH[state]
 }
 
+// lv2 rows drop the lv1-only columns: the CSS API fixture and the parity
+// series never apply (lv2 is React-only — lv2-composition-guideline §5.0).
+const LV2_REQUIRED_KEYS = /** @type {const} */ ([
+  'tsx',
+  'css',
+  'stories',
+  'test',
+  'vrt',
+  'interaction',
+  'index',
+  'snap',
+  'export',
+])
+
 /**
- * Render an audit as a markdown report (header + table + missing-files
- * section + recommended-actions section). Returns a single string.
+ * @param {AuditRow} row
+ * @param {readonly string[]} requiredKeys
+ * @param {readonly string[]} parityKeys
+ */
+function rowCells(row, requiredKeys, parityKeys) {
+  return [
+    ...requiredKeys.map((k) => CELL_GLYPH[row.files[k]]),
+    ...parityKeys.map((k) => CELL_GLYPH[row.files[k]]),
+    ...ADVISORY_KEYS.map((k) => glyphFor(k, row.files[k])),
+  ]
+}
+
+/**
+ * Render an audit as a markdown report (header + lv1 table + lv2 table +
+ * missing-files section + recommended-actions section). Returns a single
+ * string.
  *
- * @param {AuditRow[]} rows
+ * @param {AuditRow[]} rows lv1 rows
  * @param {{
  *   format?: 'markdown' | 'plain',
  *   generatedAt?: string,
  *   orphanedExports?: string[],
- *   lv2DirSeen?: boolean,
+ *   lv2Rows?: AuditRow[],
+ *   lv2OrphanedExports?: string[],
  * }} [opts]
  */
 export function renderTable(rows, opts = {}) {
-  const { format = 'markdown', generatedAt, orphanedExports = [], lv2HasComponents = false } = opts
+  const {
+    format = 'markdown',
+    generatedAt,
+    orphanedExports = [],
+    lv2Rows = [],
+    lv2OrphanedExports = [],
+  } = opts
   const date = (generatedAt ?? new Date().toISOString()).slice(0, 10)
+  const allRows = [...rows, ...lv2Rows]
 
   const total = rows.length
   const allOk = rows.filter((r) => r.missing.length === 0).length
   const broken = total - allOk
+  const lv2Total = lv2Rows.length
+  const lv2Ok = lv2Rows.filter((r) => r.missing.length === 0).length
 
-  const advisoryTotal = rows.reduce((n, r) => n + r.advisories.length, 0)
+  const advisoryTotal = allRows.reduce((n, r) => n + r.advisories.length, 0)
 
   const lines = []
   if (format === 'markdown') {
     lines.push(`## Coverage Audit Report (${date})`)
     lines.push('')
     lines.push(`lv1 components: ${total} — required ✓ ${allOk} / missing ✗ ${broken}`)
+    lines.push(`lv2 components: ${lv2Total} — required ✓ ${lv2Ok} / missing ✗ ${lv2Total - lv2Ok}`)
     lines.push(
       `Advisory (non-blocking) test-existence gaps: ⚠ ${advisoryTotal} — see "Test-existence gaps" below.`,
     )
@@ -657,13 +752,25 @@ export function renderTable(rows, opts = {}) {
     )
     lines.push('|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|')
     for (const row of rows) {
-      const cells = REQUIRED_KEYS.map((k) => CELL_GLYPH[row.files[k]])
-        .concat(PARITY_KEYS.map((k) => CELL_GLYPH[row.files[k]]))
-        .concat(ADVISORY_KEYS.map((k) => glyphFor(k, row.files[k])))
-        .join(' | ')
-      lines.push(`| ${row.name} | ${cells} |`)
+      lines.push(`| ${row.name} | ${rowCells(row, REQUIRED_KEYS, PARITY_KEYS).join(' | ')} |`)
     }
     lines.push('')
+    if (lv2Rows.length > 0) {
+      lines.push('### lv2 components')
+      lines.push('')
+      lines.push(
+        '| Component | tsx | css | stories | test | vrt | interaction | index | snap | export | ref.test | testid.test | role.test |',
+      )
+      lines.push('|---|---|---|---|---|---|---|---|---|---|---|---|---|')
+      for (const row of lv2Rows) {
+        lines.push(`| ${row.name} | ${rowCells(row, LV2_REQUIRED_KEYS, []).join(' | ')} |`)
+      }
+      lines.push('')
+      lines.push(
+        '_lv2 is React-only (lv2-composition-guideline §5.0): no CSS API fixture / parity columns. `css` is n/a when the lv2 has no visual rules of its own; `interaction` is required only for the lv2s in `LV2_INTERACTIVE`._',
+      )
+      lines.push('')
+    }
     lines.push(
       '_Legend: ✓ present · ✗ missing (blocking) · ⚠ advisory gap (non-blocking) · — exempt · n/a not applicable. The last three columns (`ref.test` / `testid.test` / `role.test`) are advisory — a ⚠ there never fails `--check`._',
     )
@@ -671,26 +778,31 @@ export function renderTable(rows, opts = {}) {
   } else {
     lines.push(`Coverage Audit Report (${date})`)
     lines.push(`lv1 components: ${total}  required: ${allOk}  missing: ${broken}  advisory: ${advisoryTotal}`)
+    lines.push(`lv2 components: ${lv2Total}  required: ${lv2Ok}  missing: ${lv2Total - lv2Ok}`)
     lines.push('')
-    const header = ['Component', ...REQUIRED_KEYS, ...PARITY_KEYS, ...ADVISORY_KEYS]
-    lines.push(header.join('\t'))
+    lines.push(['Component', ...REQUIRED_KEYS, ...PARITY_KEYS, ...ADVISORY_KEYS].join('\t'))
     for (const row of rows) {
-      const cells = [
-        ...REQUIRED_KEYS.map((k) => CELL_GLYPH[row.files[k]]),
-        ...PARITY_KEYS.map((k) => CELL_GLYPH[row.files[k]]),
-        ...ADVISORY_KEYS.map((k) => glyphFor(k, row.files[k])),
-      ]
-      lines.push([row.name, ...cells].join('\t'))
+      lines.push([row.name, ...rowCells(row, REQUIRED_KEYS, PARITY_KEYS)].join('\t'))
     }
     lines.push('')
+    if (lv2Rows.length > 0) {
+      lines.push('lv2:')
+      lines.push(['Component', ...LV2_REQUIRED_KEYS, ...ADVISORY_KEYS].join('\t'))
+      for (const row of lv2Rows) {
+        lines.push([row.name, ...rowCells(row, LV2_REQUIRED_KEYS, [])].join('\t'))
+      }
+      lines.push('')
+    }
   }
 
   // Per-component missing list. Quiet section header in plain mode.
-  const broken_rows = rows.filter((r) => r.missing.length > 0)
+  /** @param {AuditRow} row */
+  const label = (row) => (row.layer === 'lv2' ? `\`${row.name}\` (lv2)` : `\`${row.name}\``)
+  const broken_rows = allRows.filter((r) => r.missing.length > 0)
   if (broken_rows.length > 0) {
     lines.push(format === 'markdown' ? '### Missing files (action required)' : 'Missing files:')
     for (const row of broken_rows) {
-      lines.push(`- \`${row.name}\`: missing ${row.missing.join(', ')}`)
+      lines.push(`- ${label(row)}: missing ${row.missing.join(', ')}`)
     }
     lines.push('')
     lines.push(
@@ -704,16 +816,21 @@ export function renderTable(rows, opts = {}) {
       '- For a 区分 C/D component missing its interaction test, add a non-screenshot Playwright test driving the primary operation (see vrt-spec-guideline §区分 C/D; Toast / Popover / Select are the patterns to copy). No baseline needed.',
     )
     lines.push('- For barrel-export drift, add the matching `export { ... } from \'./{Name}\'` line to `src/components/lv1/index.ts`.')
+    if (broken_rows.some((r) => r.layer === 'lv2')) {
+      lines.push(
+        '- For an lv2, follow the companion set in lv2-composition-guideline §6.1 (no `add-lv2-component` skill yet); its barrel is `src/components/lv2/index.ts`.',
+      )
+    }
     lines.push('')
   } else {
-    lines.push(format === 'markdown' ? '_All lv1 components have required companions._' : 'All lv1 components have required companions.')
+    lines.push(format === 'markdown' ? '_All lv1 / lv2 components have required companions._' : 'All lv1 / lv2 components have required companions.')
     lines.push('')
   }
 
   // Advisory (non-blocking) test-existence gaps — reported separately from the
   // blocking "Missing files" section so the two never blur together. These do
   // NOT affect the exit code (`hasFailures` ignores `advisories`).
-  const advisory_rows = rows.filter((r) => r.advisories.length > 0)
+  const advisory_rows = allRows.filter((r) => r.advisories.length > 0)
   if (advisory_rows.length > 0) {
     lines.push(
       format === 'markdown'
@@ -722,28 +839,26 @@ export function renderTable(rows, opts = {}) {
     )
     for (const row of advisory_rows) {
       for (const item of row.advisories) {
-        lines.push(`- \`${row.name}\`: ${item}`)
+        lines.push(`- ${label(row)}: ${item}`)
       }
     }
     lines.push('')
   }
 
-  if (orphanedExports.length > 0) {
+  if (orphanedExports.length > 0 || lv2OrphanedExports.length > 0) {
     lines.push(
       format === 'markdown' ? '### Orphaned exports' : 'Orphaned exports:',
     )
-    lines.push(
-      `- src/components/lv1/index.ts re-exports the following with no matching directory: ${orphanedExports.join(', ')}`,
-    )
-    lines.push('')
-  }
-
-  if (lv2HasComponents) {
-    lines.push(
-      format === 'markdown'
-        ? '> Note: `src/components/lv2/` now contains components but is out of scope for this audit (lv2 deferred to post-1.0). Update `scripts/audit-coverage.mjs` to audit lv2.'
-        : 'Note: src/components/lv2/ now contains components but is out of scope for this audit (lv2 deferred to post-1.0). Update scripts/audit-coverage.mjs to audit lv2.',
-    )
+    if (orphanedExports.length > 0) {
+      lines.push(
+        `- src/components/lv1/index.ts re-exports the following with no matching directory: ${orphanedExports.join(', ')}`,
+      )
+    }
+    if (lv2OrphanedExports.length > 0) {
+      lines.push(
+        `- src/components/lv2/index.ts re-exports the following with no matching directory: ${lv2OrphanedExports.join(', ')}`,
+      )
+    }
     lines.push('')
   }
 
@@ -755,31 +870,42 @@ export function renderTable(rows, opts = {}) {
  * shape is pinned by Vitest so consumers (CI scripts, future lint
  * plugins) can rely on stable keys.
  *
- * @param {AuditRow[]} rows
- * @param {{ generatedAt?: string }} [opts]
+ * @param {AuditRow[]} rows lv1 rows
+ * @param {{ generatedAt?: string, lv2Rows?: AuditRow[] }} [opts]
  */
 export function renderJson(rows, opts = {}) {
   const generatedAt = opts.generatedAt ?? new Date().toISOString()
+  const lv2Rows = opts.lv2Rows ?? []
   const total = rows.length
   const allOk = rows.filter((r) => r.missing.length === 0).length
+  const lv2Ok = lv2Rows.filter((r) => r.missing.length === 0).length
   // $schemaVersion 2 (#-audit-test-existence): adds the advisory test-existence
   // columns (`files.refTest` / `.testidTest` / `.roleTest`), the per-row
   // `advisories` array, and `totals.advisoryGaps`. Purely additive over v1.
-  const advisoryGaps = rows.reduce((n, r) => n + r.advisories.length, 0)
+  // $schemaVersion 3 (#125): adds the `lv2` array and `totals.lv2*`;
+  // `totals.advisoryGaps` now counts lv1 + lv2. `components` /
+  // `allRequiredPresent` / `missingAny` stay lv1-only.
+  const advisoryGaps = [...rows, ...lv2Rows].reduce((n, r) => n + r.advisories.length, 0)
+  /** @param {AuditRow} r */
+  const entry = (r) => ({
+    name: r.name,
+    files: r.files,
+    missing: r.missing,
+    advisories: r.advisories,
+    exempt: r.exempt,
+  })
   const payload = {
-    $schemaVersion: 2,
+    $schemaVersion: 3,
     generatedAt,
-    lv1: rows.map((r) => ({
-      name: r.name,
-      files: r.files,
-      missing: r.missing,
-      advisories: r.advisories,
-      exempt: r.exempt,
-    })),
+    lv1: rows.map(entry),
+    lv2: lv2Rows.map(entry),
     totals: {
       components: total,
       allRequiredPresent: allOk,
       missingAny: total - allOk,
+      lv2Components: lv2Rows.length,
+      lv2AllRequiredPresent: lv2Ok,
+      lv2MissingAny: lv2Rows.length - lv2Ok,
       advisoryGaps,
     },
   }
@@ -788,8 +914,8 @@ export function renderJson(rows, opts = {}) {
 
 /**
  * Run the full audit against the project tree rooted at `projectDir`.
- * Returns the rows plus auxiliary findings (orphaned exports, lv2 dir
- * presence) for the renderers to consume.
+ * Returns the lv1 rows, the lv2 rows, and the orphaned exports of each
+ * barrel for the renderers to consume.
  *
  * @param {string} projectDir
  */
@@ -816,19 +942,34 @@ export function runAudit(projectDir) {
   )
 
   const orphanedExports = [...exportedNames].filter((n) => !names.includes(n)).sort()
-  // The lv2 directory itself ships as an empty placeholder today (lv2 is
-  // deferred to post-1.0). Only flag it once it actually contains a
-  // component directory — otherwise the note prints on every audit and
-  // becomes background noise, defeating its purpose as a reminder for
-  // when lv2 finally lands.
-  const lv2HasComponents = discoverComponents(path.join(projectDir, LV2_DIR_REL)).length > 0
 
-  return { rows, orphanedExports, lv2HasComponents }
+  // lv2: `src/components/lv2/` may hold only its barrel (or not exist in a
+  // temp tree) — both yield zero rows, no error.
+  const lv2Dir = path.join(projectDir, LV2_DIR_REL)
+  const lv2Names = discoverComponents(lv2Dir)
+  const lv2ExportedNames = parseExportedNames(path.join(projectDir, LV2_INDEX_FILE_REL))
+  const lv2Rows = lv2Names.map((name) =>
+    auditComponent({
+      name,
+      componentDir: path.join(lv2Dir, name),
+      exported: lv2ExportedNames.has(name),
+      exempt: false,
+      layer: 'lv2',
+      interactive: LV2_INTERACTIVE.has(name),
+    }),
+  )
+  const lv2OrphanedExports = [...lv2ExportedNames].filter((n) => !lv2Names.includes(n)).sort()
+
+  return { rows, orphanedExports, lv2Rows, lv2OrphanedExports }
 }
 
 /** @returns {boolean} true when the audit found any required-file gap. */
-export function hasFailures({ rows, orphanedExports }) {
-  return rows.some((r) => r.missing.length > 0) || orphanedExports.length > 0
+export function hasFailures({ rows, orphanedExports, lv2Rows = [], lv2OrphanedExports = [] }) {
+  return (
+    [...rows, ...lv2Rows].some((r) => r.missing.length > 0) ||
+    orphanedExports.length > 0 ||
+    lv2OrphanedExports.length > 0
+  )
 }
 
 // ── CLI entry ────────────────────────────────────────────────────────
@@ -886,16 +1027,16 @@ function main() {
   const projectDir = process.cwd()
   const audit = runAudit(projectDir)
   const output = opts.json
-    ? renderJson(audit.rows)
+    ? renderJson(audit.rows, { lv2Rows: audit.lv2Rows })
     : renderTable(audit.rows, {
         format: opts.format,
         orphanedExports: audit.orphanedExports,
-        lv2HasComponents: audit.lv2HasComponents,
+        lv2Rows: audit.lv2Rows,
+        lv2OrphanedExports: audit.lv2OrphanedExports,
       })
   process.stdout.write(output)
 
   if (opts.check && hasFailures(audit)) process.exit(1)
 }
 
-const isCliEntry = import.meta.url === `file://${path.resolve(process.argv[1] ?? '')}`
-if (isCliEntry) main()
+if (isCliEntry(import.meta.url)) main()

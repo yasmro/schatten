@@ -64,9 +64,12 @@ export interface EmptyStateProps
  * The "nothing here yet" pattern: icon, title, description and a next step in
  * one frozen layout.
  *
- * Ships role-less, like `Callout`: a static empty state needs no role. When the
- * content is swapped in at runtime (e.g. search results emptying out), pass
- * `role="status"` so the change is announced.
+ * Ships role-less, like `Callout`: a static empty state needs no role. When it
+ * appears at runtime (e.g. search results emptying out) and that should be
+ * announced, wrap it in an element that carries `role="status"` and stays
+ * mounted: a live region announces changes to its content, so one that mounts
+ * together with its content is usually not read out. A `role` on EmptyState
+ * itself only works when EmptyState is already mounted before its text changes.
  *
  * lv2 — React only. Without React, compose the `.st-icon` / `.st-text` /
  * `.st-btn` classes directly.

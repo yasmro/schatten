@@ -143,7 +143,7 @@ export const WELCOME_DEEP_LINKS: readonly WelcomeDeepLink[] = [
 /**
  * The `storyPath` slugs the `ComponentCard`s link to (viewMode `'docs'`,
  * suffix `'docs'`). Kept here as the SSOT so `Welcome.drift.test.ts` can
- * assert each resolves to an lv1 module that actually carries autodocs — the
+ * assert each resolves to a component module that actually carries autodocs — the
  * `--docs` entry only exists when the component is autodocs-tagged. The card
  * JSX (live previews) stays inline; the test pins the const against the
  * storyPaths actually wired into the cards.
@@ -171,6 +171,7 @@ export const WELCOME_COMPONENT_SLUGS = [
   'components-lv1-checkbox',
   'components-lv1-radio',
   'components-lv1-switch',
+  'components-lv2-emptystate',
 ] as const
 
 /**
@@ -182,7 +183,7 @@ export const WELCOME_COMPONENT_SLUGS = [
  * `Components/lv1/*` catalog.
  *
  * `Welcome.drift.test.ts` asserts every lv1 story module is either carded in
- * `WELCOME_COMPONENT_SLUGS` or listed here — a new lv1 cannot ship without
+ * `WELCOME_COMPONENT_SLUGS` or listed here — a new component cannot ship without
  * deciding its Welcome presence.
  */
 export const WELCOME_CARD_EXEMPT = [

@@ -1,9 +1,16 @@
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 import { render, screen } from '@testing-library/react'
 import { Inbox } from 'lucide-react'
 import { createRef } from 'react'
 import { describe, expect, it } from 'vitest'
 import { Button } from '../../lv1/Button'
 import { EmptyState } from './EmptyState'
+
+const emptyStateCss = readFileSync(resolve(__dirname, 'EmptyState.css'), 'utf8').replace(
+  /\/\*[\s\S]*?\*\//g,
+  '',
+)
 
 describe('EmptyState', () => {
   it('renders with only a title', () => {
@@ -147,6 +154,26 @@ describe('EmptyState', () => {
         />,
       )
       expect(screen.getByTestId('root').querySelector('[class*="st-empty-state__"]')).toBeNull()
+    })
+  })
+
+  // jsdom loads no stylesheet, and a `Button` icon growing from 16px to 40px is
+  // well under VRT's 1% threshold in a story this size, so neither gate sees a
+  // descendant selector reach into the `action` slot. These pin the selectors
+  // themselves (lv2-composition-guideline §5.2).
+  describe('CSS selector contract', () => {
+    const selectors = [...emptyStateCss.matchAll(/^\s*([^{}@\n][^{}\n]*)\{/gm)].map((m) =>
+      m[1].trim(),
+    )
+
+    it.each(['.st-icon', '.st-text'])('reaches %s through the child combinator only', (part) => {
+      const reaching = selectors.filter((selector) => selector.includes(part))
+      expect(reaching.length).toBeGreaterThan(0)
+      for (const selector of reaching) {
+        expect(selector, `\`${selector}\` must not reach into the action slot`).toMatch(
+          /^\.st-empty-state[\w-]* > /,
+        )
+      }
     })
   })
 })

@@ -11,6 +11,11 @@
     "limit": "12 KB"
   },
   {
+    "name": "components/lv2 (all)",
+    "path": "dist/components/lv2/index.js",
+    "limit": "3 KB"
+  },
+  {
     "name": "variants",
     "path": "dist/variants/index.js",
     "limit": "5 KB"
@@ -33,6 +38,7 @@
   { "name": "css/checkbox", "path": "dist/css/checkbox.css", "limit": "1.5 KB" },
   { "name": "css/dialog", "path": "dist/css/dialog.css", "limit": "1.5 KB" },
   { "name": "css/dropdownmenu", "path": "dist/css/dropdownmenu.css", "limit": "1.5 KB" },
+  { "name": "css/emptystate", "path": "dist/css/emptystate.css", "limit": "1.5 KB" },
   { "name": "css/field", "path": "dist/css/field.css", "limit": "1.5 KB" },
   { "name": "css/fieldset", "path": "dist/css/fieldset.css", "limit": "1.5 KB" },
   { "name": "css/icon", "path": "dist/css/icon.css", "limit": "1.5 KB" },

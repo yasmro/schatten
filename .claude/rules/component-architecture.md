@@ -17,7 +17,7 @@ Anything not covered here defaults to **shadcn/ui + Radix conventions**.
 |---|---|---|
 | Folder | [`src/components/lv1/`](../../src/components/lv1) | [`src/components/lv2/`](../../src/components/lv2) |
 | Purpose | Single-responsibility primitive. Low-level, focused. | A composition of multiple lv1s shaped as a single component. |
-| Examples (today) | Button, Input, Field, FieldSet, Select, Dialog, Tooltip, … | (none yet — the first, `EmptyState` (#125), is planned for v1.2.0) |
+| Examples (today) | Button, Input, Field, FieldSet, Select, Dialog, Tooltip, … | EmptyState |
 | Rule doc | this file | [lv2-composition-guideline.md](lv2-composition-guideline.md) |
 
 ### Where the line is — does it introduce a primitive of its own?

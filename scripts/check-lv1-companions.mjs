@@ -12,6 +12,13 @@
 // without a `.css` file silently gets no per-component CSS subpath — this
 // hook surfaces that gap immediately.
 //
+// lv2 (src/components/lv2/{X}/{X}.tsx) is checked too, with the reduced
+// lv2 companion set (lv2-composition-guideline §6.1): the unit test and VRT
+// spec are required, but the `.css` is optional (an lv2 ships one only with
+// visual rules of its own) and there is no CSS API fixture section (lv2 is
+// React-only). The file keeps its lv1 name — the hook is registered by path
+// in .claude/settings.json.
+//
 // Contract with Claude Code:
 //  - Reads a JSON payload from stdin containing { tool_name, tool_input, ... }.
 //  - Exits 0 always (this hook never blocks the edit).
@@ -21,7 +28,7 @@
 import { existsSync, readFileSync } from 'node:fs'
 import path from 'node:path'
 
-const LV1_TSX_RE = /(?:^|\/)src\/components\/lv1\/([^/]+)\/\1\.tsx$/
+const LV1_TSX_RE = /(?:^|\/)src\/components\/(lv1|lv2)\/([^/]+)\/\2\.tsx$/
 
 function readStdin() {
   try {
@@ -69,8 +76,10 @@ function main() {
   const match = relative.match(LV1_TSX_RE)
   if (!match) return
 
-  const componentName = match[1]
-  const dir = path.join(projectDir, 'src/components/lv1', componentName)
+  const layer = match[1]
+  const componentName = match[2]
+  const isLv2 = layer === 'lv2'
+  const dir = path.join(projectDir, 'src/components', layer, componentName)
   const testFile = path.join(dir, `${componentName}.test.tsx`)
   const vrtFile = path.join(dir, `${componentName}.vrt.spec.ts`)
   const cssFile = path.join(dir, `${componentName}.css`)
@@ -78,7 +87,8 @@ function main() {
   const missing = []
   if (!existsSync(testFile)) missing.push(`${componentName}.test.tsx`)
   if (!existsSync(vrtFile)) missing.push(`${componentName}.vrt.spec.ts`)
-  if (!existsSync(cssFile)) missing.push(`${componentName}.css`)
+  // lv2: `.css` only with own visual rules (§5.4) — never nag about it.
+  if (!isLv2 && !existsSync(cssFile)) missing.push(`${componentName}.css`)
 
   // CSS API fixture: src/docs/CSSApiDist.vrt.spec.ts auto-discovers every lv1
   // with a {X}.tsx + {X}.css and requires a `<section data-component="<slug>">`
@@ -93,7 +103,8 @@ function main() {
     'src/docs/__fixtures__/cssApiSamples.tsx',
   ]
   const missingFixtures = []
-  if (existsSync(cssFile)) {
+  // lv2 is React-only — CSSApiDist never discovers it, so no section.
+  if (!isLv2 && existsSync(cssFile)) {
     for (const rel of fixtureFiles) {
       const file = path.join(projectDir, rel)
       if (!existsSync(file)) continue
@@ -111,7 +122,14 @@ function main() {
   if (missing.length === 0 && !fixtureMissing) return
 
   const lines = []
-  if (missing.length > 0) {
+  if (missing.length > 0 && isLv2) {
+    lines.push(
+      `[lv2 companion check] ${componentName} is missing companion file(s): ${missing.join(', ')}.`,
+      `Every lv2 component must ship with a sibling unit test and VRT spec (a .css only when it has`,
+      `visual rules of its own). See .claude/rules/lv2-composition-guideline.md §6.1 (companion set).`,
+      `Create the missing file(s) in src/components/lv2/${componentName}/ before completing this change.`,
+    )
+  } else if (missing.length > 0) {
     lines.push(
       `[lv1 companion check] ${componentName} is missing companion file(s): ${missing.join(', ')}.`,
       `Every lv1 component must ship with a sibling unit test, VRT spec, and class-API CSS file.`,

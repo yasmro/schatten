@@ -1,6 +1,7 @@
 # audit-coverage
 
-Scan every lv1 component for the required companion files (test / VRT spec /
+Scan every lv1 component (and every lv2, with the reduced lv2 set — see
+Gotchas) for the required companion files (test / VRT spec /
 class-API CSS / `__snapshots__/` baseline / `index.ts` re-export / CSS API
 fixture section — the `cssapi.fx` column, a `<section data-component="<slug>">`
 in `src/docs/__fixtures__/cssApiSamples.html.ts`, plus
@@ -27,7 +28,7 @@ edit-trigger / session-end hooks:
 |---|---|---|
 | `scripts/check-lv1-companions.mjs` (PostToolUse hook) | a single edited component | non-blocking warning |
 | `scripts/check-lv1-export-integrity.mjs` (Stop hook) | barrel export integrity only | non-blocking warning |
-| `/audit-coverage` (this command) | all lv1 components, every required surface | report on demand |
+| `/audit-coverage` (this command) | all lv1 + lv2 components, every required surface | report on demand |
 
 The edit-time hooks fire on a narrow signal; this command takes a snapshot of
 the *current* coverage state for the whole lv1 tree whenever the user asks.
@@ -100,10 +101,15 @@ directory) shouldn't drown the report in red.
 
 ## Gotchas
 
-- **lv2 is out of scope** (deferred until post-1.0). When
-  `src/components/lv2/` contains at least one component subdirectory, the
-  report prints a one-line reminder at the end — the empty placeholder
-  state is silent. The bootstrap work is tracked separately.
+- **lv2 gets a reduced audit** in its own table
+  ([lv2-composition-guideline §6.1](../rules/lv2-composition-guideline.md#6-companion-set)).
+  lv2 is React-only, so there are no `cssapi.fx` / parity columns; `css` is
+  `n/a` when the lv2 has no visual rules of its own; and `interaction` is
+  required only for the lv2s listed in `LV2_INTERACTIVE` (hand-maintained,
+  alphabetical, next to `PARITY_EXEMPT`). The lv2 barrel
+  `src/components/lv2/index.ts` is checked for missing / orphaned exports the
+  same way as lv1's. With no lv2 on disk the report shows `lv2 components: 0`
+  and no lv2 table.
 - **Classification A/B vs C/D** is hard-coded in `PARITY_EXEMPT` at the
   top of [scripts/audit-coverage.mjs](../../scripts/audit-coverage.mjs).
   When a new lv1 is added that is classification C or D, `PARITY_EXEMPT`

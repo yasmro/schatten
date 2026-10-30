@@ -21,6 +21,12 @@
 //   - HTML+CSS-only column: `PARITY_EXEMPT` from audit-coverage.mjs — the
 //     区分 C/D set (vrt-spec-guideline §Parity stories). Exempt = the CSS
 //     ships visual classes only; behavior needs React or BYO-JS.
+//   - lv2 components (`discoverLv2()` from lv1-slugs.mjs —
+//     lv2-composition-guideline §6.2 row 6): a `.css`-bearing lv2 joins the
+//     per-component CSS list (it ships `@yasmro/schatten/css/<slug>`), and
+//     every lv2 gets a row in its own table below the lv1 support matrix,
+//     marked React-only (§5.0). With no lv2 on disk both blocks render
+//     exactly as before.
 //
 // Markers in README (each block is regenerated between its pair):
 //   <!-- generated:lv1-components:start --> … <!-- generated:lv1-components:end -->
@@ -34,7 +40,9 @@
 
 import { existsSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
+import path from 'node:path'
 import { PARITY_EXEMPT } from './audit-coverage.mjs'
+import { discoverLv2 } from './lv1-slugs.mjs'
 
 const LV1_DIR = 'src/components/lv1'
 const README_PATH = 'README.md'
@@ -58,13 +66,21 @@ function discoverNames() {
   return names.sort()
 }
 
-function discoverSlugs() {
-  return discoverNames()
-    .map((n) => n.toLowerCase())
+function discoverLv2Names() {
+  return discoverLv2()
+    .map((entry) => entry.name)
     .sort()
 }
 
-function renderBlock(slugs) {
+function discoverSlugs() {
+  const lv2WithCss = discoverLv2()
+    .filter((entry) => entry.hasCss)
+    .map((entry) => entry.name)
+  return [...discoverNames(), ...lv2WithCss].map((n) => n.toLowerCase()).sort()
+}
+
+/** @param {string[]} slugs */
+export function renderBlock(slugs) {
   // Wrap to ~70 chars per line so the rendered Markdown stays readable in
   // a 80-column diff. Use ` · ` (middle dot with spaces) as the separator —
   // mirrors the existing list style and renders inline-prose-friendly.
@@ -86,7 +102,11 @@ function renderBlock(slugs) {
   return lines.join('\n')
 }
 
-function renderMatrix(names) {
+/**
+ * @param {string[]} names lv1 component names
+ * @param {string[]} [lv2Names] lv2 component names
+ */
+export function renderMatrix(names, lv2Names = []) {
   // Per-component support matrix (Quick start §Vanilla HTML). The
   // HTML+CSS-only column derives from PARITY_EXEMPT (区分 C/D): those
   // components ship visual classes only — behavior needs React / BYO-JS.
@@ -94,6 +114,20 @@ function renderMatrix(names) {
   for (const name of names) {
     const cssOnly = PARITY_EXEMPT.has(name) ? '⚠️' : '✅'
     lines.push(`| \`${name}\` | ✅ | ${cssOnly} |`)
+  }
+  // lv2 is React-only (lv2-composition-guideline §5.0): its classes ship so
+  // React consumers can override them, but rendering it from vanilla HTML is
+  // outside the contract — compose the lv1 classes instead.
+  if (lv2Names.length > 0) {
+    lines.push(
+      '',
+      'Composite (lv2) components are React-only — their `.st-*` classes ship for overriding, but',
+      'rendering one without React is outside the contract; compose the lv1 classes instead.',
+      '',
+      '| Component (lv2) | React | HTML + CSS only |',
+      '| --- | :-: | :-: |',
+    )
+    for (const name of lv2Names) lines.push(`| \`${name}\` | ✅ | ❌ |`)
   }
   return lines.join('\n')
 }
@@ -110,7 +144,7 @@ const BLOCKS = [
     label: 'Support matrix',
     start: '<!-- generated:lv1-support-matrix:start -->',
     end: '<!-- generated:lv1-support-matrix:end -->',
-    render: () => renderMatrix(discoverNames()),
+    render: () => renderMatrix(discoverNames(), discoverLv2Names()),
   },
 ]
 
@@ -161,12 +195,16 @@ function rewriteReadme({ check }) {
   console.log(`✓ README rewritten (${count} components)`)
 }
 
-const args = process.argv.slice(2)
-const check = args.includes('--check')
-
-try {
-  rewriteReadme({ check })
-} catch (error) {
-  console.error(error instanceof Error ? error.message : error)
-  process.exit(1)
+// CLI guard — the renderers above are imported by
+// scripts/__tests__/sync-readme-components.test.ts, which must not rewrite
+// README.md as a side effect.
+const isCliEntry = import.meta.url === `file://${path.resolve(process.argv[1] ?? '')}`
+if (isCliEntry) {
+  const check = process.argv.slice(2).includes('--check')
+  try {
+    rewriteReadme({ check })
+  } catch (error) {
+    console.error(error instanceof Error ? error.message : error)
+    process.exit(1)
+  }
 }

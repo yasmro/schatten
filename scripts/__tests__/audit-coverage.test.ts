@@ -11,6 +11,7 @@ import {
   hasRefLandsTest,
   hasRoleNameTest,
   hasTestidPassthroughTest,
+  LV2_INTERACTIVE,
   PARITY_EXEMPT,
   parseExportedNames,
   parseFixtureSlugs,
@@ -41,6 +42,12 @@ afterEach(() => {
 
 function makeLv1Dir() {
   const dir = join(workDir, 'src/components/lv1')
+  mkdirSync(dir, { recursive: true })
+  return dir
+}
+
+function makeLv2Dir() {
+  const dir = join(workDir, 'src/components/lv2')
   mkdirSync(dir, { recursive: true })
   return dir
 }
@@ -461,6 +468,134 @@ describe('auditComponent', () => {
   })
 })
 
+describe('auditComponent — lv2', () => {
+  it('passes a static lv2 with no parity, fixture or interaction test', () => {
+    const lv2Dir = makeLv2Dir()
+    const dir = makeComponent(lv2Dir, 'EmptyState', { snapshots: ['x-light.png'] })
+    const row = auditComponent({
+      name: 'EmptyState',
+      componentDir: dir,
+      exported: true,
+      exempt: false,
+      layer: 'lv2',
+      fixtureSlugs: new Set(),
+    })
+    expect(row.layer).toBe('lv2')
+    expect(row.missing).toEqual([])
+    expect(row.files.cssApiFixture).toBe('na')
+    expect(row.files.parityStories).toBe('na')
+    expect(row.files.parityVrt).toBe('na')
+    expect(row.files.paritySnap).toBe('na')
+    expect(row.files.interaction).toBe('na')
+  })
+
+  it('treats a missing .css as not applicable rather than a gap', () => {
+    const lv2Dir = makeLv2Dir()
+    const dir = makeComponent(lv2Dir, 'ConfirmDialog', { css: false, snapshots: ['x-light.png'] })
+    const row = auditComponent({
+      name: 'ConfirmDialog',
+      componentDir: dir,
+      exported: true,
+      exempt: false,
+      layer: 'lv2',
+    })
+    expect(row.files.css).toBe('na')
+    expect(row.missing).toEqual([])
+  })
+
+  it('reports a present .css as present', () => {
+    const lv2Dir = makeLv2Dir()
+    const dir = makeComponent(lv2Dir, 'EmptyState', { snapshots: ['x-light.png'] })
+    const row = auditComponent({
+      name: 'EmptyState',
+      componentDir: dir,
+      exported: true,
+      exempt: false,
+      layer: 'lv2',
+    })
+    expect(row.files.css).toBe('present')
+  })
+
+  it('requires an interaction test only when the lv2 is interactive', () => {
+    const lv2Dir = makeLv2Dir()
+    const dir = makeComponent(lv2Dir, 'DatePicker', { snapshots: ['x-light.png'] })
+    const row = auditComponent({
+      name: 'DatePicker',
+      componentDir: dir,
+      exported: true,
+      exempt: false,
+      layer: 'lv2',
+      interactive: true,
+    })
+    expect(row.files.interaction).toBe('missing')
+    expect(row.missing.join('\n')).toContain('interactive lv2')
+  })
+
+  it('accepts an interactive lv2 that ships an interaction test', () => {
+    const lv2Dir = makeLv2Dir()
+    const dir = makeComponent(lv2Dir, 'DatePicker', {
+      snapshots: ['x-light.png'],
+      interactionTest: true,
+    })
+    const row = auditComponent({
+      name: 'DatePicker',
+      componentDir: dir,
+      exported: true,
+      exempt: false,
+      layer: 'lv2',
+      interactive: true,
+    })
+    expect(row.files.interaction).toBe('present')
+    expect(row.missing).toEqual([])
+  })
+
+  it('ignores `exempt` for lv2 (the A–D classification does not apply)', () => {
+    const lv2Dir = makeLv2Dir()
+    const dir = makeComponent(lv2Dir, 'EmptyState', { snapshots: ['x-light.png'] })
+    const row = auditComponent({
+      name: 'EmptyState',
+      componentDir: dir,
+      exported: true,
+      exempt: true,
+      layer: 'lv2',
+    })
+    expect(row.exempt).toBe(false)
+    expect(row.files.parityStories).toBe('na')
+    expect(row.files.interaction).toBe('na')
+  })
+
+  it('points a missing export at the lv2 barrel', () => {
+    const lv2Dir = makeLv2Dir()
+    const dir = makeComponent(lv2Dir, 'EmptyState', { snapshots: ['x-light.png'] })
+    const row = auditComponent({
+      name: 'EmptyState',
+      componentDir: dir,
+      exported: false,
+      exempt: false,
+      layer: 'lv2',
+    })
+    expect(row.missing).toEqual(['src/components/lv2/index.ts re-export'])
+  })
+
+  it('still requires the stories / test / VRT / baseline companions', () => {
+    const lv2Dir = makeLv2Dir()
+    const dir = makeComponent(lv2Dir, 'EmptyState', { stories: false, test: false, vrt: false })
+    const row = auditComponent({
+      name: 'EmptyState',
+      componentDir: dir,
+      exported: true,
+      exempt: false,
+      layer: 'lv2',
+    })
+    expect(row.missing).toEqual([
+      'EmptyState.stories.tsx',
+      'EmptyState.test.tsx',
+      'EmptyState.vrt.spec.ts',
+      '__snapshots__/*.png (no baseline captured)',
+    ])
+  })
+})
+
 describe('renderTable / renderJson', () => {
   const fixedAt = '2026-05-25T00:00:00.000Z'
 
@@ -509,7 +644,7 @@ describe('renderTable / renderJson', () => {
     expect(out).toContain(
       '| Dialog | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | — | — | — | ✓ | ✓ | ✓ |',
     )
-    expect(out).toContain('_All lv1 components have required companions._')
+    expect(out).toContain('_All lv1 / lv2 components have required companions._')
     expect(out).toContain('Advisory (non-blocking) test-existence gaps: ⚠ 0')
   })
 
@@ -537,7 +672,7 @@ describe('renderTable / renderJson', () => {
     expect(out).toContain('### Test-existence gaps (advisory — non-blocking)')
     expect(out).toContain("no `getByRole('radio', { name })`")
     // The required-companion tree is still clean → the blocking summary is green.
-    expect(out).toContain('_All lv1 components have required companions._')
+    expect(out).toContain('_All lv1 / lv2 components have required companions._')
   })
 
   it('lists missing files per component when present', () => {
@@ -571,28 +706,70 @@ describe('renderTable / renderJson', () => {
     expect(out).toContain('LegacyThing')
   })
 
-  it('notes the lv2 directory only when it has actual components', () => {
-    const out = renderTable(sampleRows(), { generatedAt: fixedAt, lv2HasComponents: true })
-    expect(out).toContain('lv2/')
-    expect(out).toContain('post-1.0')
+  it('reports zero lv2 components and omits the lv2 table when there are none', () => {
+    const out = renderTable(sampleRows(), { generatedAt: fixedAt })
+    expect(out).toContain('lv2 components: 0')
+    expect(out).not.toContain('### lv2 components')
+    expect(out).not.toContain('out of scope')
   })
 
-  it('stays quiet about lv2 when the dir is empty (no note printed)', () => {
-    const out = renderTable(sampleRows(), { generatedAt: fixedAt, lv2HasComponents: false })
-    expect(out).not.toContain('lv2/')
+  it('renders lv2 rows in their own table without the lv1-only columns', () => {
+    const lv2Dir = makeLv2Dir()
+    const dir = makeComponent(lv2Dir, 'EmptyState', { snapshots: ['x-light.png'] })
+    const lv2Row = auditComponent({
+      name: 'EmptyState',
+      componentDir: dir,
+      exported: true,
+      exempt: false,
+      layer: 'lv2',
+    })
+    const out = renderTable(sampleRows(), { generatedAt: fixedAt, lv2Rows: [lv2Row] })
+    expect(out).toContain('lv2 components: 1 — required ✓ 1 / missing ✗ 0')
+    expect(out).toContain('### lv2 components')
+    const lv2Header = out
+      .split('\n')
+      .find((l) => l.startsWith('| Component') && !l.includes('cssapi.fx'))
+    expect(lv2Header).toBeDefined()
+    expect(lv2Header).not.toContain('parity')
+    expect(out).toMatch(/^\| EmptyState \|/m)
+  })
+
+  it('labels lv2 rows in the missing-files list and points at the lv2 barrel', () => {
+    const lv2Dir = makeLv2Dir()
+    const dir = makeComponent(lv2Dir, 'EmptyState', { snapshots: ['x-light.png'] })
+    const lv2Row = auditComponent({
+      name: 'EmptyState',
+      componentDir: dir,
+      exported: false,
+      exempt: false,
+      layer: 'lv2',
+    })
+    const out = renderTable(sampleRows(), { generatedAt: fixedAt, lv2Rows: [lv2Row] })
+    expect(out).toContain('- `EmptyState` (lv2): missing src/components/lv2/index.ts re-export')
+    expect(out).toContain('lv2-composition-guideline §6.1')
+  })
+
+  it('lists orphaned lv2 exports against the lv2 barrel', () => {
+    const out = renderTable(sampleRows(), { generatedAt: fixedAt, lv2OrphanedExports: ['Gone'] })
+    expect(out).toContain('src/components/lv2/index.ts re-exports')
+    expect(out).toContain('Gone')
   })
 
   it('matches the documented JSON schema', () => {
     const out = renderJson(sampleRows(), { generatedAt: fixedAt })
     const parsed = JSON.parse(out)
-    expect(parsed.$schemaVersion).toBe(2)
+    expect(parsed.$schemaVersion).toBe(3)
     expect(parsed.generatedAt).toBe(fixedAt)
     expect(parsed.totals).toEqual({
       components: 2,
       allRequiredPresent: 2,
       missingAny: 0,
+      lv2Components: 0,
+      lv2AllRequiredPresent: 0,
+      lv2MissingAny: 0,
       advisoryGaps: 0,
     })
+    expect(parsed.lv2).toEqual([])
     expect(parsed.lv1[0].name).toBe('Button')
     expect(parsed.lv1[0].advisories).toEqual([])
     expect(parsed.lv1[0].files.refTest).toBe('present')
@@ -632,21 +809,40 @@ describe('runAudit', () => {
     expect(result.rows.map((r) => r.name)).toEqual(['Button', 'Dialog'])
     expect(result.rows[1].exempt).toBe(true)
     expect(result.orphanedExports).toEqual(['GoneAway'])
-    expect(result.lv2HasComponents).toBe(false)
+    expect(result.lv2Rows).toEqual([])
+    expect(result.lv2OrphanedExports).toEqual([])
   })
 
-  it('stays lv2HasComponents=false when the lv2 dir exists but is empty', () => {
+  it('yields no lv2 rows when the lv2 dir holds only its barrel', () => {
     makeLv1Dir()
-    mkdirSync(join(workDir, 'src/components/lv2'), { recursive: true })
+    const lv2Dir = makeLv2Dir()
+    writeFileSync(join(lv2Dir, 'index.ts'), 'export {}\n')
     const result = runAudit(workDir)
-    expect(result.lv2HasComponents).toBe(false)
+    expect(result.lv2Rows).toEqual([])
+    expect(hasFailures(result)).toBe(false)
   })
 
-  it('flips lv2HasComponents=true when the lv2 dir contains a component subdir', () => {
+  it('audits lv2 components against the lv2 barrel', () => {
     makeLv1Dir()
-    mkdirSync(join(workDir, 'src/components/lv2/FormField'), { recursive: true })
+    const lv2Dir = makeLv2Dir()
+    makeComponent(lv2Dir, 'EmptyState', { snapshots: ['x-light.png'] })
+    writeBarrel(lv2Dir, ['EmptyState', 'Gone'])
     const result = runAudit(workDir)
-    expect(result.lv2HasComponents).toBe(true)
+    expect(result.lv2Rows.map((r) => r.name)).toEqual(['EmptyState'])
+    expect(result.lv2Rows[0].layer).toBe('lv2')
+    expect(result.lv2Rows[0].files.export).toBe('present')
+    expect(result.lv2OrphanedExports).toEqual(['Gone'])
+  })
+
+  it('fails --check on an lv2 gap or an orphaned lv2 export', () => {
+    makeLv1Dir()
+    const lv2Dir = makeLv2Dir()
+    makeComponent(lv2Dir, 'EmptyState', { snapshots: ['x-light.png'], test: false })
+    writeBarrel(lv2Dir, ['EmptyState'])
+    expect(hasFailures(runAudit(workDir))).toBe(true)
+    expect(
+      hasFailures({ rows: [], orphanedExports: [], lv2Rows: [], lv2OrphanedExports: ['Gone'] }),
+    ).toBe(true)
   })
 
   it('hasFailures returns true on missing required files OR orphaned exports', () => {
@@ -918,6 +1114,26 @@ describe('PARITY_EXEMPT', () => {
     for (const name of PARITY_EXEMPT) {
       const dir = join(lv1Dir, name)
       expect(existsSync(dir), `${name} is in PARITY_EXEMPT but ${dir} does not exist`).toBe(true)
+      expect(statSync(dir).isDirectory(), `${dir} is not a directory`).toBe(true)
+    }
+  })
+})
+
+describe('LV2_INTERACTIVE', () => {
+  // Same maintenance shape as PARITY_EXEMPT: hand-maintained, alphabetical,
+  // and every entry must name a real lv2 directory. Empty until #568.
+  const repoRoot = join(dirname(fileURLToPath(import.meta.url)), '../..')
+  const lv2Dir = join(repoRoot, 'src/components/lv2')
+
+  it('is declared in alphabetical order', () => {
+    const entries = [...LV2_INTERACTIVE]
+    expect(entries).toEqual([...entries].sort())
+  })
+
+  it('lists only real lv2 component directories', () => {
+    for (const name of LV2_INTERACTIVE) {
+      const dir = join(lv2Dir, name)
+      expect(existsSync(dir), `${name} is in LV2_INTERACTIVE but ${dir} does not exist`).toBe(true)
       expect(statSync(dir).isDirectory(), `${dir} is not a directory`).toBe(true)
     }
   })

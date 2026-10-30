@@ -701,6 +701,10 @@ describe('DateCalendar CSS contract', () => {
     expect(slashRule).not.toMatch(/gradient|background/)
   })
 
+  it('keeps square corners, like Button, Input and Select', () => {
+    expect(css).not.toContain('radius')
+  })
+
   it('no longer strikes the digit through', () => {
     expect(css).not.toContain('line-through')
   })

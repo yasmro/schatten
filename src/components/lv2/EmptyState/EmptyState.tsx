@@ -67,7 +67,7 @@ export interface EmptyStateProps
  * Ships role-less, like `Callout`: a static empty state needs no role. When it
  * appears at runtime (e.g. search results emptying out) and that should be
  * announced, wrap it in an element that carries `role="status"` and stays
- * mounted: a live region announces changes to its content, so one that mounts
+ * mounted: a status region announces changes to its content, so one that mounts
  * together with its content is usually not read out. A `role` on EmptyState
  * itself only works when EmptyState is already mounted before its text changes.
  *

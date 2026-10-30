@@ -249,9 +249,10 @@ from its lv1 parts. On top of that:
 1. **Do not add a role the parts don't already provide.** A static lv2 with
    its own root (EmptyState) ships role-less, like `Callout`. Its TSDoc tells
    the consumer how to announce it when it appears at runtime: put
-   `role="status"` on a wrapper that **stays mounted**. A live region
+   `role="status"` on a wrapper that **stays mounted**. A status region
    announces changes to its content, so one that mounts together with that
-   content is usually not read out.
+   content is usually not read out
+   ([component-architecture.md §8](component-architecture.md#8-accessibility-contract)).
 2. **The consumer chooses heading levels.** An lv2 that renders a title
    exposes a `headingLevel` prop (a closed numeric union) and renders the
    heading **through `Text`'s `as`** (`<Text as="h2">`), not as its own

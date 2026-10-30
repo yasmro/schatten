@@ -13,11 +13,10 @@
  * (it's what documents an element as an Icon) even though it carries no
  * CSS itself.
  *
- * Consequence for the manifest: `dist/schatten.css` doesn't contain a
- * `.st-icon { … }` rule (Tailwind's minify drops empty rules), so the
- * manifest's `classes` list won't include `st-icon` either. This is the
- * honest outcome — there is no CSS to inspect under that name. The
- * functional modifiers all appear in the manifest as expected.
+ * `dist/schatten.css` has no `.st-icon { … }` rule of its own (the minifier
+ * drops empty rules). The manifest still lists `st-icon` because the
+ * EmptyState lv2 selects it (`.st-empty-state--md > .st-icon`), and the
+ * manifest is parsed from every selector in the dist.
  *
  * Uses raw CSS + `var(--color-*)` throughout rather than `@apply size-4`
  * / `@apply text-foreground` etc., to avoid Tailwind v4 / Vite / Storybook

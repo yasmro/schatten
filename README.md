@@ -82,6 +82,13 @@ size**, exactly the chain the React layer emits.
 | `Textarea` | ✅ | ✅ |
 | `Toast` | ✅ | ⚠️ |
 | `Tooltip` | ✅ | ⚠️ |
+
+Composite (lv2) components are React-only — their `.st-*` classes ship for overriding, but
+rendering one without React is outside the contract; compose the lv1 classes instead.
+
+| Component (lv2) | React | HTML + CSS only |
+| --- | :-: | :-: |
+| `EmptyState` | ✅ | ❌ |
 <!-- generated:lv1-support-matrix:end -->
 
 ### React
@@ -860,10 +867,10 @@ import '@yasmro/schatten/css/button'
 Available components (one subpath per lv1, plus each lv2 that ships CSS of its own):
 <!-- generated:lv1-components:start -->
 `avatar` · `badge` · `button` · `callout` · `card` · `checkbox` ·
-`dialog` · `dropdownmenu` · `field` · `fieldset` · `icon` · `input` ·
-`popover` · `radio` · `select` · `separator` · `skeleton` ·
-`spinner` · `switch` · `table` · `tabs` · `text` · `textarea` ·
-`toast` · `tooltip`.
+`dialog` · `dropdownmenu` · `emptystate` · `field` · `fieldset` ·
+`icon` · `input` · `popover` · `radio` · `select` · `separator` ·
+`skeleton` · `spinner` · `switch` · `table` · `tabs` · `text` ·
+`textarea` · `toast` · `tooltip`.
 <!-- generated:lv1-components:end -->
 
 Tokens must be imported separately — the per-component files reference

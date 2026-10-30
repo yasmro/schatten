@@ -17,7 +17,7 @@ Anything not covered here defaults to **shadcn/ui + Radix conventions**.
 |---|---|---|
 | Folder | [`src/components/lv1/`](../../src/components/lv1) | [`src/components/lv2/`](../../src/components/lv2) |
 | Purpose | Single-responsibility primitive. Low-level, focused. | A composition of multiple lv1s shaped as a single component. |
-| Examples (today) | Button, Input, Field, FieldSet, Select, Dialog, Tooltip, … | (none yet — the first, `EmptyState` (#125), is planned for v1.2.0) |
+| Examples (today) | Button, Input, Field, FieldSet, Select, Dialog, Tooltip, … | EmptyState |
 | Rule doc | this file | [lv2-composition-guideline.md](lv2-composition-guideline.md) |
 
 ### Where the line is — does it introduce a primitive of its own?
@@ -532,7 +532,11 @@ fallback — that policy only holds if the contract below holds.
      (a count that updates, a "saved"/"error" indicator that appears in
      response to an action). These are live-region roles; using one on a
      never-changing badge makes assistive tech re-announce it on
-     unrelated DOM mutations and is the wrong semantic. A Badge whose
+     unrelated DOM mutations and is the wrong semantic. **`status` must
+     already be mounted when its content changes** — a status region that
+     mounts together with its content is usually not read out, so put it
+     on a wrapper that stays mounted. `alert` does not need this: most
+     screen readers announce an alert when it is inserted. A Badge whose
      *consumer* drives such updates should have the consumer pass the
      live-region role (Badge's consumer-role-wins rule supports this);
      Schatten does not bake it in because most badges are static.
@@ -636,9 +640,9 @@ fallback — that policy only holds if the contract below holds.
   inside Dialog's footer. When you add an icon, add it.
 - **Components that intentionally have no default role** —
   [Callout](../../src/components/lv1/Callout/Callout.tsx) ships
-  role-less and documents in TSDoc that consumers should pass
-  `role="status"` (polite) or `role="alert"` (assertive) when the
-  callout content is dynamic. Don't bake in a role that's wrong half
+  role-less and documents in TSDoc how consumers announce a callout that
+  appears at runtime: `role="alert"` (assertive) on the callout, or
+  `role="status"` (polite) on a wrapper that stays mounted. Don't bake in a role that's wrong half
   the time — make the absence explicit and tell the consumer how to
   fill it.
 - **Conditional ARIA opt-out** — when a default-wired ARIA reference

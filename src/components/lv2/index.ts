@@ -1,3 +1,1 @@
-// lv2 components will be added here
-// Example: FormField, Dialog, etc.
-export {}
+export { EmptyState, type EmptyStateProps } from './EmptyState'

@@ -212,7 +212,7 @@ export const vanillaHtml = `
 
 <section class="cssapi-fixture__sample" data-component="callout">
   <span class="cssapi-fixture__sample-label">Callout — .st-callout</span>
-  <div class="st-callout st-callout--info st-callout--subtle" role="status">
+  <div class="st-callout st-callout--info st-callout--subtle">
     <svg class="st-callout__icon" viewBox="0 0 24 24" fill="none"
          stroke="currentColor" stroke-width="2" stroke-linecap="round"
          stroke-linejoin="round" aria-hidden="true">

@@ -25,6 +25,7 @@
 import { readFileSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import postcss from 'postcss'
+import { isCliEntry } from './is-cli-entry.mjs'
 
 // Public class shape, enforced by .claude/rules/css-api.md. `.tooltip-content`
 // and similar legacy names that still live in dist today (the pre-sweep
@@ -93,10 +94,8 @@ export function extractManifest(css) {
 }
 
 // CLI side. Skip when imported as a module (Node sets import.meta.url to
-// the file's URL; we compare against process.argv[1] resolved to a URL).
-const isCliEntry = import.meta.url === `file://${resolve(process.argv[1] ?? '')}`
-
-if (isCliEntry) {
+// the file's URL; `isCliEntry` compares it against process.argv[1] as a URL).
+if (isCliEntry(import.meta.url)) {
   const args = new Set(process.argv.slice(2))
   const distCssPath = resolve('dist/schatten.css')
   const distManifestPath = resolve('dist/schatten.manifest.json')

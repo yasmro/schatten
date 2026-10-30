@@ -23,6 +23,7 @@
 
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
+import { isCliEntry } from './is-cli-entry.mjs'
 
 /** The four keys that make up the public CSS surface (present on both copies). */
 export const SURFACE_KEYS = ['$schemaVersion', 'classes', 'dataAttributes', 'cssVariables']
@@ -122,9 +123,7 @@ export function validateDistManifest(distJson, snapshot) {
 }
 
 // CLI side — skipped when imported as a module.
-const isCliEntry = import.meta.url === `file://${resolve(process.argv[1] ?? '')}`
-
-if (isCliEntry) {
+if (isCliEntry(import.meta.url)) {
   const pkg = JSON.parse(readFileSync(resolve('package.json'), 'utf8'))
   const target = resolveExportTarget(pkg)
   const distManifestPath = resolve(target)

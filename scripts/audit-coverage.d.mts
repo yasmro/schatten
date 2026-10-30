@@ -119,7 +119,7 @@ export const ROLE_NAME_CONTRACT: Readonly<Record<string, string>>
 /**
  * Components intentionally OUT of the `roleTest` gate (no role+accessible-name-
  * on-self contract). Together with {@link ROLE_NAME_CONTRACT} this forms an
- * exhaustive, disjoint partition of the lv1 tree — enforced by
+ * exhaustive, disjoint partition of the lv1 + lv2 trees — enforced by
  * {@link roleContractPartitionGaps} so a new component missing from both sets
  * fails CI instead of silently defaulting to `na`.
  */

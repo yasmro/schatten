@@ -40,8 +40,8 @@
 
 import { existsSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
-import path from 'node:path'
 import { PARITY_EXEMPT } from './audit-coverage.mjs'
+import { isCliEntry } from './is-cli-entry.mjs'
 import { discoverLv2 } from './lv1-slugs.mjs'
 
 const LV1_DIR = 'src/components/lv1'
@@ -198,8 +198,7 @@ function rewriteReadme({ check }) {
 // CLI guard — the renderers above are imported by
 // scripts/__tests__/sync-readme-components.test.ts, which must not rewrite
 // README.md as a side effect.
-const isCliEntry = import.meta.url === `file://${path.resolve(process.argv[1] ?? '')}`
-if (isCliEntry) {
+if (isCliEntry(import.meta.url)) {
   const check = process.argv.slice(2).includes('--check')
   try {
     rewriteReadme({ check })

@@ -31,6 +31,7 @@
 
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs'
 import path from 'node:path'
+import { isCliEntry } from './is-cli-entry.mjs'
 
 const LV1_DIR_REL = 'src/components/lv1'
 const LV2_DIR_REL = 'src/components/lv2'
@@ -159,8 +160,10 @@ const TESTID_ASSERT_RE =
 // `getByRole(role, { name })` genuinely applies.
 //
 // MAINTENANCE: hand-maintained in alphabetical order, mirroring PARITY_EXEMPT.
-// When a new lv1 lands that exposes a role + accessible name on its own root,
-// add it here; otherwise leave it out (the column stays `na`, advisory-safe).
+// When a new lv1 or lv2 lands that exposes a role + accessible name on its own
+// root, add it here; otherwise leave it out (the column stays `na`,
+// advisory-safe). The map is keyed by name and shared by both layers — an lv2
+// such as EmptyState (a heading named by its title) belongs here too.
 // Pinned by scripts/__tests__/audit-coverage.test.ts.
 export const ROLE_NAME_CONTRACT = /** @type {const} */ ({
   Badge: 'img',
@@ -175,10 +178,10 @@ export const ROLE_NAME_CONTRACT = /** @type {const} */ ({
   Textarea: 'textbox',
 })
 
-// Every lv1 that does NOT carry a role+accessible-name-on-self contract, and so
-// is intentionally out of the `role.test` gate (column stays `na`). Kept as an
-// explicit set — NOT an "everything else" fallthrough — so the two sets form an
-// **exhaustive partition** of the lv1 tree: `roleContractPartitionGaps()` (and
+// Every lv1 / lv2 that does NOT carry a role+accessible-name-on-self contract,
+// and so is intentionally out of the `role.test` gate (column stays `na`). Kept
+// as an explicit set — NOT an "everything else" fallthrough — so the two sets
+// form an **exhaustive partition** of the lv1 + lv2 trees: `roleContractPartitionGaps()` (and
 // its CI test) fails when a component is in neither set OR in both, turning a
 // forgotten classification of a NEW component into a red test instead of a
 // silent `na`. This is the forcing function `ROLE_NAME_CONTRACT` lacked on its
@@ -197,9 +200,9 @@ export const ROLE_NAME_CONTRACT = /** @type {const} */ ({
 //     `Select` (combobox named via Field/placeholder; asserted on options) `Tabs`
 //     `Tooltip`
 //
-// MAINTENANCE: when a new lv1 lands, add it to EXACTLY ONE of ROLE_NAME_CONTRACT
-// (has a role+name-on-self contract) or ROLE_NAME_EXEMPT (does not). CI fails
-// otherwise. Alphabetical, mirroring PARITY_EXEMPT.
+// MAINTENANCE: when a new lv1 or lv2 lands, add it to EXACTLY ONE of
+// ROLE_NAME_CONTRACT (has a role+name-on-self contract) or ROLE_NAME_EXEMPT
+// (does not). CI fails otherwise. Alphabetical, mirroring PARITY_EXEMPT.
 export const ROLE_NAME_EXEMPT = new Set([
   'Avatar',
   'Callout',
@@ -219,14 +222,14 @@ export const ROLE_NAME_EXEMPT = new Set([
 ])
 
 /**
- * Classify every lv1 component directory against the role-contract partition
+ * Classify every lv1 / lv2 component directory against the role-contract partition
  * and return the components that break it. `unclassified` = in neither set (a
  * new component whose author forgot to decide); `both` = in both (a
  * contradiction). An empty return means the partition is exhaustive and
  * disjoint. The CI test in scripts/__tests__/audit-coverage.test.ts asserts
  * both arrays are empty.
  *
- * @param {string[]} componentNames the lv1 directory names (from discoverComponents)
+ * @param {string[]} componentNames the lv1 + lv2 directory names (from discoverComponents)
  * @returns {{ unclassified: string[], both: string[] }}
  */
 export function roleContractPartitionGaps(componentNames) {
@@ -1036,5 +1039,4 @@ function main() {
   if (opts.check && hasFailures(audit)) process.exit(1)
 }
 
-const isCliEntry = import.meta.url === `file://${path.resolve(process.argv[1] ?? '')}`
-if (isCliEntry) main()
+if (isCliEntry(import.meta.url)) main()

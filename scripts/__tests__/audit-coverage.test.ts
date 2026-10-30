@@ -1048,50 +1048,60 @@ describe('auditComponent — advisory columns applicability', () => {
 
 describe('ROLE_NAME_CONTRACT', () => {
   // Hand-maintained map (mirrors PARITY_EXEMPT). These guards turn a wrong
-  // insertion order or a stale component name into a CI failure.
+  // insertion order or a stale component name into a CI failure. The map and
+  // ROLE_NAME_EXEMPT cover lv1 AND lv2 — an lv2 with a role+name contract
+  // (EmptyState's heading) is audited the same way (#594 review).
   const repoRoot = join(dirname(fileURLToPath(import.meta.url)), '../..')
   const lv1Dir = join(repoRoot, 'src/components/lv1')
+  const lv2Dir = join(repoRoot, 'src/components/lv2')
+  const componentDirOf = (name: string) =>
+    [join(lv1Dir, name), join(lv2Dir, name)].find((dir) => existsSync(dir))
 
   it('is declared in alphabetical order', () => {
     const keys = Object.keys(ROLE_NAME_CONTRACT)
     expect(keys).toEqual([...keys].sort())
   })
 
-  it('maps only real lv1 component directories to a non-empty role', () => {
+  it('maps only real lv1 / lv2 component directories to a non-empty role', () => {
     for (const [name, role] of Object.entries(ROLE_NAME_CONTRACT)) {
-      const dir = join(lv1Dir, name)
-      expect(existsSync(dir), `${name} is in ROLE_NAME_CONTRACT but ${dir} does not exist`).toBe(
-        true,
-      )
-      expect(statSync(dir).isDirectory(), `${dir} is not a directory`).toBe(true)
+      const dir = componentDirOf(name)
+      expect(dir, `${name} is in ROLE_NAME_CONTRACT but has no lv1 / lv2 directory`).toBeDefined()
+      expect(statSync(dir as string).isDirectory(), `${dir} is not a directory`).toBe(true)
       expect(typeof role === 'string' && role.length > 0, `${name} has an empty role`).toBe(true)
     }
   })
 
-  it('ROLE_NAME_EXEMPT lists only real lv1 dirs and is disjoint from the contract', () => {
+  it('ROLE_NAME_EXEMPT lists only real lv1 / lv2 dirs and is disjoint from the contract', () => {
     const contract = new Set(Object.keys(ROLE_NAME_CONTRACT))
     for (const name of ROLE_NAME_EXEMPT) {
       expect(
-        existsSync(join(lv1Dir, name)),
-        `${name} is in ROLE_NAME_EXEMPT but does not exist`,
-      ).toBe(true)
+        componentDirOf(name),
+        `${name} is in ROLE_NAME_EXEMPT but has no lv1 / lv2 directory`,
+      ).toBeDefined()
       expect(contract.has(name), `${name} is in BOTH ROLE_NAME_CONTRACT and ROLE_NAME_EXEMPT`).toBe(
         false,
       )
     }
   })
 
-  it('classifies EVERY lv1 into exactly one of contract / exempt (partition guard)', () => {
-    // The forcing function: a new lv1 added without being placed in either set
-    // (or placed in both) fails here, instead of silently defaulting `roleTest`
-    // to `na`. This is the role-column counterpart to PARITY_EXEMPT's coverage.
-    const names = discoverComponents(lv1Dir)
+  it('has no component name shared by lv1 and lv2 (the maps are keyed by name)', () => {
+    const lv1 = new Set(discoverComponents(lv1Dir))
+    const shared = discoverComponents(lv2Dir).filter((name) => lv1.has(name))
+    expect(shared, `name(s) in both lv1 and lv2: ${shared.join(', ')}`).toEqual([])
+  })
+
+  it('classifies EVERY lv1 / lv2 into exactly one of contract / exempt (partition guard)', () => {
+    // The forcing function: a new component added without being placed in
+    // either set (or placed in both) fails here, instead of silently
+    // defaulting `roleTest` to `na`. This is the role-column counterpart to
+    // PARITY_EXEMPT's coverage.
+    const names = [...discoverComponents(lv1Dir), ...discoverComponents(lv2Dir)]
     const { unclassified, both } = roleContractPartitionGaps(names)
     expect(
       unclassified,
-      `lv1 component(s) in neither ROLE_NAME_CONTRACT nor ROLE_NAME_EXEMPT — add each to exactly one (see the MAINTENANCE note in audit-coverage.mjs): ${unclassified.join(', ')}`,
+      `component(s) in neither ROLE_NAME_CONTRACT nor ROLE_NAME_EXEMPT — add each to exactly one (see the MAINTENANCE note in audit-coverage.mjs): ${unclassified.join(', ')}`,
     ).toEqual([])
-    expect(both, `lv1 component(s) in both sets: ${both.join(', ')}`).toEqual([])
+    expect(both, `component(s) in both sets: ${both.join(', ')}`).toEqual([])
   })
 })
 

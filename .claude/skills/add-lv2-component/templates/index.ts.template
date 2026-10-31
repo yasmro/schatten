@@ -1,0 +1,1 @@
+export { __ComponentName__, type __ComponentName__Props } from './__ComponentName__'

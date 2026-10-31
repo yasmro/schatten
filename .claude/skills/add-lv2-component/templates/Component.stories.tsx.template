@@ -1,0 +1,62 @@
+import type { Meta, StoryObj } from '@storybook/react-vite'
+import { __ComponentName__ } from './__ComponentName__'
+
+const meta: Meta<typeof __ComponentName__> = {
+  title: 'Components/lv2/__ComponentName__',
+  component: __ComponentName__,
+  tags: ['autodocs'],
+  parameters: {
+    layout: 'centered',
+  },
+  argTypes: {
+    title: {
+      description: 'Heading text, rendered as a heading through `Text`.',
+      control: 'text',
+      table: { type: { summary: 'ReactNode' } },
+    },
+    headingLevel: {
+      description: 'Heading level of the title. The consumer decides the page outline.',
+      control: 'select',
+      options: [1, 2, 3, 4, 5, 6],
+      table: {
+        type: { summary: '1 | 2 | 3 | 4 | 5 | 6' },
+        defaultValue: { summary: '2' },
+      },
+    },
+    size: {
+      description: 'Overall scale of the composition.',
+      control: 'select',
+      options: ['sm', 'md', 'lg'],
+      table: {
+        type: { summary: '"sm" | "md" | "lg"' },
+        defaultValue: { summary: 'md' },
+      },
+    },
+  },
+}
+
+export default meta
+type Story = StoryObj<typeof __ComponentName__>
+
+const SIZES = ['sm', 'md', 'lg'] as const
+
+/** Interactive single instance — always the first export (storybook-guideline.md). */
+export const Playground: Story = {
+  name: 'Playground',
+  args: {
+    title: '__ComponentName__',
+    size: 'md',
+  },
+}
+
+/** Every size in one frame. Group by prop — do not create one story per value. */
+export const Sizes: Story = {
+  name: 'Sizes',
+  render: () => (
+    <div className="flex flex-col gap-6">
+      {SIZES.map((size) => (
+        <__ComponentName__ key={size} size={size} title={`Size ${size}`} />
+      ))}
+    </div>
+  ),
+}

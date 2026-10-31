@@ -1,0 +1,33 @@
+import { render, screen } from '@testing-library/react'
+import { createRef } from 'react'
+import { describe, expect, it } from 'vitest'
+import { __ComponentName__ } from './__ComponentName__'
+
+describe('__ComponentName__', () => {
+  it('exposes the title as a heading', () => {
+    render(<__ComponentName__ title="Title" />)
+    expect(screen.getByRole('heading', { name: 'Title' })).toBeInTheDocument()
+  })
+
+  it('forwards ref to the root element', () => {
+    const ref = createRef<HTMLDivElement>()
+    render(<__ComponentName__ ref={ref} title="Title" data-testid="root" />)
+    expect(ref.current).toBe(screen.getByTestId('root'))
+  })
+
+  it('forwards className and data-testid to the root', () => {
+    render(<__ComponentName__ title="Title" className="custom" data-testid="root" />)
+    expect(screen.getByTestId('root')).toHaveClass('st-__component-name__', 'custom')
+  })
+
+  it('renders the title through Text', () => {
+    render(<__ComponentName__ title="Title" />)
+    expect(screen.getByRole('heading', { name: 'Title' })).toHaveClass('st-text')
+  })
+
+  // Fill these in once the real API exists. The bucket follows the behaviour
+  // (lv2-composition-guideline §6.1): a form-control lv2 is "form input", a
+  // static one "display".
+  it.todo('applies a distinct class for each size')
+  it.todo('covers the decisions this composition freezes')
+})

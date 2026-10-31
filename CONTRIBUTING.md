@@ -64,6 +64,11 @@ the Claude Code skill. Before writing code, read the component rules:
 [css-api.md](.claude/rules/css-api.md), and
 [state-token-guideline.md](.claude/rules/state-token-guideline.md).
 
+A new `lv2` composite has its own scaffold in
+[`.claude/skills/add-lv2-component/`](.claude/skills/add-lv2-component). Its
+`SKILL.md` starts from the promotion criterion in
+[lv2-composition-guideline.md](.claude/rules/lv2-composition-guideline.md).
+
 `pnpm audit:coverage` reports any missing companion file across every lv1
 (and every lv2, with the smaller lv2 companion set) —
 run it locally; the CI `audit` job runs the same check.

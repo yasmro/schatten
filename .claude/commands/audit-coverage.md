@@ -53,6 +53,7 @@ No arguments.
    chosen from the matrix below:
    - **New lv1 added without companions** → suggest `/add-lv1-component`,
      or recheck `scripts/check-lv1-companions.mjs`'s hook output.
+   - **New lv2 added without companions** → suggest `/add-lv2-component`.
    - **Existing lv1 missing the VRT spec** → suggest `/add-vrt-spec`, and
      remind the user that baseline capture must be **manual** (see
      [vrt-spec-guideline](../rules/vrt-spec-guideline.md) "Re-baselining").

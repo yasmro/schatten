@@ -105,7 +105,7 @@ against `pnpm audit:coverage` rather than re-deriving the structural matrix
 here (this skill is content-first; refer the user to `/audit-coverage` for
 missing-file detail).
 
-For compound components (`Dialog`, `Select`, `Tooltip`, `Radio` / `RadioGroup`),
+For compound components (`Select`, `Tooltip`, `Radio` / `RadioGroup`),
 the `.tsx` is multi-export — read every named export.
 
 ### Step 4 — Run the audit, rule by rule
@@ -340,7 +340,6 @@ before judging its checkpoint.
   child combinator (`>`), so they cannot reach into consumer content. A
   wrapper of the lv2's own is selected with `:not(...)` and carries no `st-`
   class, and a unit test pins its place in the DOM.
-- **Named pattern (§5.3)** — covered by D1 above; cite it there.
 - **Mechanics (§5.4)** — `.css` exists only when the lv2 has visual rules of
   its own, and is imported in `entry.css` after every lv1 it composes.
 - **Companions (§6.1)** — judged against the lv2 column, not the lv1 one.
@@ -429,7 +428,7 @@ to form-control lv2s (lv2-composition-guideline §4.4).
   comment.
 - **Parity story / spec** — for classification A/B (fully vanilla-able
   + browser-handled), `*.parity.stories.tsx` and `*.parity.vrt.spec.ts`
-  exist. For classification C/D (JS-driven compounds — Tooltip / Select
+  exist. For classification C/D (JS-driven components — Tooltip / Select
   / Dialog / Toast), they must **not** exist. lv1 only: an lv2 has no
   classification and no parity. Where this guideline requires an
   interaction test for classification C/D, an lv2 follows `LV2_INTERACTIVE`

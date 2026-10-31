@@ -97,6 +97,10 @@ describe('audit-component SKILL.md ↔ lv2-composition-guideline.md integrity', 
     })
   }
 
+  it('excuses only sections the guideline still has', () => {
+    expect(Object.keys(NOT_AUDITED).filter((number) => !sectionNumbers.includes(number))).toEqual([])
+  })
+
   it('resolves lv2 paths in the file set', () => {
     expect(skill).toContain('src/components/<lv>/<Name>/<Name>.tsx')
     expect(skill).toContain('LV2_INTERACTIVE')

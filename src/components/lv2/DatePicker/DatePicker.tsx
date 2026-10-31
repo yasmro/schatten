@@ -185,8 +185,9 @@ export interface DatePickerProps extends PickerCommonProps {
  * With `granularity="minute"` the input holds `YYYY-MM-DD HH:mm`, and the panel
  * gains a time input. Picking a day moves focus there and leaves the panel open,
  * until a click outside or Escape. A day without a time is an unfinished value:
- * no time is assumed. The browser's locale formats the time in the panel; the
- * input and the value are always 24-hour.
+ * no time is assumed. Enter in the time closes the panel. Times are always
+ * 24-hour, whatever the locale. The error state waits until focus leaves the
+ * picker or the panel closes.
  *
  * lv2 — React only. Without React, use `<input type="date">`, or
  * `<input type="datetime-local">` for a time.
@@ -295,6 +296,7 @@ export const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(
         onOpenChange={onOpenChange}
         label={label}
         isBlocked={disabled || readOnly}
+        onFocusLeave={isTimed ? input.markBlurred : undefined}
         calendar={
           <>
             <DateCalendar
@@ -318,6 +320,7 @@ export const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(
                   disabled={!parts.date}
                   isInvalid={input.isInvalid && !!parts.date}
                   onTimeChange={(time) => input.edit(joinText(parts.date, time))}
+                  onEnter={() => onOpenChange(false)}
                 />
               </div>
             ) : null}
@@ -343,7 +346,7 @@ export const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(
             input.edit(event.target.value)
             setOpen(false)
           }}
-          onBlur={input.markBlurred}
+          onBlur={isTimed ? undefined : input.markBlurred}
         />
         {name ? <input type="hidden" name={name} value={value} disabled={disabled} /> : null}
       </PickerShell>
@@ -556,7 +559,7 @@ export const DateRangePicker = forwardRef<HTMLDivElement, DateRangePickerProps>(
 
     function pickRange(next: DateRange) {
       const endTime = endParts.time || keptEndTimeRef.current
-      keptEndTimeRef.current = endTime
+      keptEndTimeRef.current = next.to ? '' : endTime
       const startText = joinText(next.from ?? '', startParts.time)
       const endText = next.to ? joinText(next.to, endTime) : ''
       start.reset(startText)
@@ -587,7 +590,7 @@ export const DateRangePicker = forwardRef<HTMLDivElement, DateRangePickerProps>(
       required,
       'aria-required': field?.required || undefined,
       'aria-describedby': ariaDescribedBy,
-      onBlur: onInputBlur,
+      onBlur: isTimed ? undefined : onInputBlur,
     }
 
     return (
@@ -602,6 +605,7 @@ export const DateRangePicker = forwardRef<HTMLDivElement, DateRangePickerProps>(
         onOpenChange={onOpenChange}
         label={label}
         isBlocked={disabled || readOnly}
+        onFocusLeave={isTimed ? onInputBlur : undefined}
         calendar={
           <>
             <DateRangeCalendar
@@ -629,6 +633,7 @@ export const DateRangePicker = forwardRef<HTMLDivElement, DateRangePickerProps>(
                   disabled={!startParts.date}
                   isInvalid={start.isInvalid && !!startParts.date}
                   onTimeChange={(time) => start.edit(joinText(startParts.date, time))}
+                  onEnter={() => onOpenChange(false)}
                 />
                 <PickerTimeRow
                   label={labels?.endTime ?? 'End time'}
@@ -637,6 +642,7 @@ export const DateRangePicker = forwardRef<HTMLDivElement, DateRangePickerProps>(
                   disabled={!endParts.date}
                   isInvalid={end.isInvalid && !!endParts.date}
                   onTimeChange={(time) => end.edit(joinText(endParts.date, time))}
+                  onEnter={() => onOpenChange(false)}
                 />
               </div>
             ) : null}

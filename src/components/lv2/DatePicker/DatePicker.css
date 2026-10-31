@@ -98,6 +98,15 @@
     grid-column: 2;
   }
 
+  /* A line between the two inputs. It is a background because the wrapper gives
+   * up its border in every state above. */
+  .st-date-range-picker--minute > .st-input-wrapper:first-child {
+    background-image: linear-gradient(var(--color-border), var(--color-border));
+    background-repeat: no-repeat;
+    background-position: bottom;
+    background-size: 100% 1px;
+  }
+
   .st-date-picker:has(.st-input:focus-visible),
   .st-date-range-picker:has(.st-input:focus-visible) {
     box-shadow:
@@ -144,27 +153,11 @@
     border-block-start: 1px solid var(--color-border);
   }
 
+  /* A line, not a second box inside the panel's. It keeps the strong ink: the
+   * pale border token would fall under 3:1 against the panel (WCAG 1.4.11). */
   .st-date-picker-time > .st-input-wrapper {
     grid-column: 3;
-  }
-
-  /* The calendar button is one icon away, and a time needs the width. */
-  .st-date-picker-time .st-input::-webkit-calendar-picker-indicator {
-    display: none;
-  }
-
-  /* WebKit focuses a segment inside a time input, which leaves the input itself
-   * out of :focus-visible. A field that takes typing always shows focus, so
-   * :focus says the same thing. */
-  .st-date-picker-time > .st-input-wrapper:has(.st-input:focus) {
-    box-shadow:
-      0 0 0 2px var(--color-ring-offset),
-      0 0 0 4px var(--color-ring);
-  }
-
-  .st-date-picker-time > .st-input-wrapper:has(.st-input[aria-invalid="true"]:focus) {
-    box-shadow:
-      0 0 0 2px var(--color-ring-offset),
-      0 0 0 4px var(--color-error);
+    border-block-start: 0;
+    border-inline: 0;
   }
 }

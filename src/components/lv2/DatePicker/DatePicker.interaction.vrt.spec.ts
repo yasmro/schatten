@@ -182,6 +182,26 @@ test('DatePicker / Escape from the time returns focus to the input', async ({ pa
   await expect(input).toBeFocused()
 })
 
+test('DatePicker / Enter in the time closes the panel', async ({ page }) => {
+  const input = await openWithTime(page)
+  await page.getByLabel('Time').click()
+  await page.keyboard.press('Enter')
+  await expect(panel(page)).toHaveCount(0)
+  await expect(input).toBeFocused()
+})
+
+test('DatePicker / a typed date is not an error on the way to the calendar', async ({ page }) => {
+  await page.goto(`/iframe.html?id=${STORY_ID_PREFIX}--with-time-states&viewMode=story`)
+  await page.waitForLoadState('networkidle')
+  const input = page.getByRole('textbox', { name: 'Empty', exact: true })
+  await input.fill('2026-10-24')
+  await page.getByRole('button', { name: 'Choose date', exact: true }).first().click()
+  await expect(panel(page)).toBeVisible()
+  await expect(input).not.toHaveAttribute('aria-invalid', 'true')
+  await page.keyboard.press('Escape')
+  await expect(input).toHaveAttribute('aria-invalid', 'true')
+})
+
 test('DatePicker / a click outside closes and reports an unfinished value', async ({ page }) => {
   await page.goto(`/iframe.html?id=${STORY_ID_PREFIX}--with-time-states&viewMode=story`)
   await page.waitForLoadState('networkidle')

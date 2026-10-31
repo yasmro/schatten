@@ -1,6 +1,7 @@
 import { CalendarDays, Clock } from 'lucide-react'
 import {
   type ComponentPropsWithoutRef,
+  type FocusEvent,
   forwardRef,
   type KeyboardEvent,
   type MouseEvent,
@@ -14,6 +15,7 @@ import { Button } from '../../lv1/Button'
 import { Input } from '../../lv1/Input'
 import { Popover, PopoverAnchor, PopoverContent, PopoverTrigger } from '../../lv1/Popover'
 import { Text } from '../../lv1/Text'
+import { isValidISOTime, useDateInput } from './use-date-input'
 
 /** The input an event landed on, including the padding of its wrapper. */
 const inputOf = (target: EventTarget) =>
@@ -28,6 +30,8 @@ export interface PickerShellProps extends ComponentPropsWithoutRef<'div'> {
   /** `disabled` or `readOnly`: nothing may open the panel. */
   isBlocked: boolean
   calendar: ReactNode
+  /** Focus left the picker while the panel was closed. */
+  onFocusLeave?: () => void
 }
 
 /**
@@ -44,8 +48,10 @@ export const PickerShell = forwardRef<HTMLDivElement, PickerShellProps>(
       label,
       isBlocked,
       calendar,
+      onFocusLeave,
       onClick,
       onKeyDown,
+      onBlur,
       children,
       ...props
     },
@@ -57,6 +63,7 @@ export const PickerShell = forwardRef<HTMLDivElement, PickerShellProps>(
     const originRef = useRef<HTMLElement | null>(null)
     const movesFocusInRef = useRef(true)
     const hasLeftRef = useRef(false)
+    const isPressedRef = useRef(false)
 
     function prepareOpen(origin: HTMLElement | null, movesFocusIn: boolean) {
       originRef.current = origin
@@ -94,6 +101,19 @@ export const PickerShell = forwardRef<HTMLDivElement, PickerShellProps>(
       }
     }
 
+    // Moving to the calendar button or into the panel is still part of filling
+    // the picker in. Closing the panel reports on its own. Safari does not focus
+    // a clicked button, so `relatedTarget` alone would miss a click on it.
+    function onRootBlur(event: FocusEvent<HTMLDivElement>) {
+      onBlur?.(event)
+      const next = event.relatedTarget
+      const staysInside =
+        isPressedRef.current ||
+        rootRef.current?.contains(next) ||
+        contentRef.current?.contains(next)
+      if (!open && !staysInside) onFocusLeave?.()
+    }
+
     return (
       <Popover
         open={open}
@@ -108,6 +128,13 @@ export const PickerShell = forwardRef<HTMLDivElement, PickerShellProps>(
             ref={mergeRefs(ref, rootRef)}
             onClick={onRootClick}
             onKeyDown={onRootKeyDown}
+            onBlur={onRootBlur}
+            onPointerDownCapture={() => {
+              isPressedRef.current = true
+            }}
+            onPointerUpCapture={() => {
+              isPressedRef.current = false
+            }}
             {...props}
           >
             {children}
@@ -161,34 +188,49 @@ interface PickerTimeRowProps {
   disabled: boolean
   isInvalid: boolean
   onTimeChange: (time: string) => void
+  /** Enter ends the panel: Tab stays inside it. */
+  onEnter: () => void
 }
 
-/** A time input in the panel, below the calendar. */
+const parseTime = (text: string) => (isValidISOTime(text.trim()) ? text.trim() : '')
+
+/**
+ * A time input in the panel, below the calendar. It is a text input rather than
+ * `type="time"`: the browser would format that one in its own locale, and show
+ * `01:30 PM` under an input holding `13:30`.
+ */
 export const PickerTimeRow = forwardRef<HTMLInputElement, PickerTimeRowProps>(
-  ({ label, date, value, disabled, isInvalid, onTimeChange }, ref) => {
+  ({ label, date, value, disabled, isInvalid, onTimeChange, onEnter }, ref) => {
     const dateId = useId()
+    const time = useDateInput(value, parseTime, (text) => onTimeChange(parseTime(text)), '')
     return (
       <>
-        <Text as="span" size="sm" color="muted" aria-hidden="true">
+        <Text as="span" size="xs" color="muted" aria-hidden="true">
           {label}
         </Text>
         {date === undefined ? null : (
-          <Text as="span" size="sm" id={dateId}>
+          <Text as="span" size="xs" id={dateId}>
             {date || '—'}
           </Text>
         )}
         <Input
-          ref={ref}
-          type="time"
+          ref={mergeRefs(ref, time.inputRef)}
           size="sm"
           iconLeft={Clock}
           autoComplete="off"
+          placeholder="HH:mm"
           aria-label={label}
           aria-describedby={date ? dateId : undefined}
-          aria-invalid={isInvalid || undefined}
+          aria-invalid={isInvalid || time.isInvalid || undefined}
           disabled={disabled}
-          value={value}
-          onChange={(event) => onTimeChange(event.target.value)}
+          value={time.text}
+          onChange={(event) => time.edit(event.target.value)}
+          onBlur={time.markBlurred}
+          onKeyDown={(event) => {
+            if (event.key !== 'Enter') return
+            event.preventDefault()
+            onEnter()
+          }}
         />
       </>
     )

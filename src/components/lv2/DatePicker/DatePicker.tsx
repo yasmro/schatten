@@ -5,10 +5,12 @@ import {
   type KeyboardEvent,
   type MouseEvent,
   type ReactNode,
+  type Ref,
   useRef,
   useState,
 } from 'react'
 import { FieldContext, useFieldContext } from '../../../contexts/field'
+import { mergeRefs } from '../../../lib/merge-refs'
 import { useControllable } from '../../../lib/use-controllable'
 import { cn } from '../../../lib/utils'
 import { Button } from '../../lv1/Button'
@@ -162,6 +164,11 @@ export interface DatePickerLabels extends DateCalendarLabels {
    * @default 'Choose date'
    */
   openCalendar?: string
+  /**
+   * Native validation message for an invalid typed date.
+   * @default 'Enter a valid date.'
+   */
+  invalidDate?: string
 }
 
 export interface DatePickerProps extends PickerCommonProps {
@@ -180,13 +187,18 @@ export interface DatePickerProps extends PickerCommonProps {
   onValueChange?: (value: string) => void
   /**
    * Submits the selected date under this name. An unfinished or invalid draft
-   * submits an empty value.
+   * submits an empty value, and fails native form validation.
    */
   name?: string
   /**
    * Overrides for the English default labels.
    */
   labels?: DatePickerLabels
+  /**
+   * Ref to the input, e.g. to focus it after a failed validation. `ref` lands on
+   * the root.
+   */
+  inputRef?: Ref<HTMLInputElement>
 }
 
 /**
@@ -217,6 +229,7 @@ export const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(
       today,
       placeholder = DEFAULT_PLACEHOLDER,
       labels,
+      inputRef,
       isError: isErrorProp = false,
       disabled: disabledProp,
       readOnly = false,
@@ -240,7 +253,7 @@ export const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(
 
     const constraints: DateConstraints = { min, max, isDateDisabled }
     const parse = (text: string) => parseDate(text, constraints)
-    const input = useDateInput(value, parse, (text) => setValue(parse(text)))
+    const input = useDateInput(value, parse, (text) => setValue(parse(text)), labels?.invalidDate)
 
     const label = labels?.openCalendar ?? 'Choose date'
 
@@ -279,6 +292,7 @@ export const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(
         {...props}
       >
         <Input
+          ref={mergeRefs(inputRef, input.inputRef)}
           id={id}
           size={size}
           autoComplete="off"
@@ -320,6 +334,11 @@ export interface DateRangePickerLabels extends DateCalendarLabels {
    * @default 'End date'
    */
   endDate?: string
+  /**
+   * Native validation message for an invalid typed date.
+   * @default 'Enter a valid date.'
+   */
+  invalidDate?: string
 }
 
 export interface DateRangePickerProps extends PickerCommonProps {
@@ -350,6 +369,14 @@ export interface DateRangePickerProps extends PickerCommonProps {
    * Overrides for the English default labels.
    */
   labels?: DateRangePickerLabels
+  /**
+   * Ref to the start input. `ref` lands on the root.
+   */
+  startInputRef?: Ref<HTMLInputElement>
+  /**
+   * Ref to the end input.
+   */
+  endInputRef?: Ref<HTMLInputElement>
 }
 
 /**
@@ -371,6 +398,8 @@ export const DateRangePicker = forwardRef<HTMLDivElement, DateRangePickerProps>(
       onValueChange,
       startName,
       endName,
+      startInputRef,
+      endInputRef,
       size,
       min,
       max,
@@ -413,17 +442,27 @@ export const DateRangePicker = forwardRef<HTMLDivElement, DateRangePickerProps>(
     }
 
     function commit(startText: string, endText: string) {
-      const nextFrom = parseStart(startText)
-      const nextTo = parseEndAfter(endText, nextFrom)
+      // A side the user did not edit stays as given, even outside `min` / `max`.
+      const keepOrParse = (text: string, current: string) =>
+        text === current ? current : parseDate(text, constraints)
+      const nextFrom = keepOrParse(startText, from)
+      const parsedTo = keepOrParse(endText, to)
+      const nextTo = nextFrom && parsedTo < nextFrom ? '' : parsedTo
       if (nextFrom === from && nextTo === to) return
       setRange({ ...(nextFrom && { from: nextFrom }), ...(nextTo && { to: nextTo }) })
     }
 
-    const start = useDateInput(from, parseStart, (text) => commit(text, end.text))
+    const start = useDateInput(
+      from,
+      parseStart,
+      (text) => commit(text, end.text),
+      labels?.invalidDate,
+    )
     const end = useDateInput(
       to,
       (text) => parseEndAfter(text, from),
       (text) => commit(start.text, text),
+      labels?.invalidDate,
     )
 
     const label = labels?.openCalendar ?? 'Choose date range'
@@ -484,6 +523,7 @@ export const DateRangePicker = forwardRef<HTMLDivElement, DateRangePickerProps>(
         <FieldContext.Provider value={null}>
           <Input
             {...sharedInputProps}
+            ref={mergeRefs(startInputRef, start.inputRef)}
             aria-label={labels?.startDate ?? 'Start date'}
             aria-invalid={isError || start.isInvalid || undefined}
             value={start.text}
@@ -494,6 +534,7 @@ export const DateRangePicker = forwardRef<HTMLDivElement, DateRangePickerProps>(
           </Text>
           <Input
             {...sharedInputProps}
+            ref={mergeRefs(endInputRef, end.inputRef)}
             aria-label={labels?.endDate ?? 'End date'}
             aria-invalid={isError || end.isInvalid || undefined}
             value={end.text}

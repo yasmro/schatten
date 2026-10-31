@@ -39,7 +39,10 @@ lv1). Decide in two steps:
      `role` or `aria-*` on a wrapper is wiring, not a primitive**: a
      `role="group"` wrapper named by `aria-labelledby` (the DateRangePicker
      case, [lv2-composition-guideline.md §4.4](lv2-composition-guideline.md#44-field-context))
-     still introduces nothing a consumer could use on its own.
+     still introduces nothing a consumer could use on its own. **The same goes
+     for `<input type="hidden">`**: it has no role, no focus and no semantics,
+     so it is the wiring that carries a form value (`DatePicker`'s `name`), not
+     a native element the lv2 owns.
 
 | Component | Composes lv1s? | Primitive it introduces | Layer |
 |---|---|---|---|

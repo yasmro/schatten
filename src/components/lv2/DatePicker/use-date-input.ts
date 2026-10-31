@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { compareDates, isValidISODate } from '../../lv1/DateCalendar/date-math'
+import { useEffect, useRef, useState } from 'react'
+import { compareDates, isValidISODate, resolveBounds } from '../../lv1/DateCalendar/date-math'
 
 export interface DateConstraints {
   min?: string
@@ -9,42 +9,50 @@ export interface DateConstraints {
 
 /**
  * The date `text` stands for, or `''` when it is unfinished, invalid or
- * unavailable. Reads `min` / `max` the way DateCalendar does: an invalid bound
- * counts as unset, and an inverted pair is ignored.
+ * unavailable.
  */
 export function parseDate(text: string, { min, max, isDateDisabled }: DateConstraints): string {
   const date = text.trim()
   if (!isValidISODate(date)) return ''
-  const validMin = min && isValidISODate(min) ? min : undefined
-  const validMax = max && isValidISODate(max) ? max : undefined
-  const isInverted = !!validMin && !!validMax && compareDates(validMin, validMax) > 0
-  if (!isInverted && validMin && compareDates(date, validMin) < 0) return ''
-  if (!isInverted && validMax && compareDates(date, validMax) > 0) return ''
+  const bounds = resolveBounds(min, max)
+  if (bounds.min && compareDates(date, bounds.min) < 0) return ''
+  if (bounds.max && compareDates(date, bounds.max) > 0) return ''
   return isDateDisabled?.(date) ? '' : date
 }
 
 /**
  * What the user is typing, kept next to the committed `value`. The text only
  * follows `value` when the two disagree, so an unfinished draft (which commits
- * `''`) survives the parent's `value=""`.
+ * `''`) survives the parent's `value=""`. A bad draft also fails native form
+ * validation: the hidden input submits `''`, so `required` alone would pass it,
+ * the way a native date input reports `badInput`.
  */
 export function useDateInput(
   value: string,
   parse: (text: string) => string,
   onCommit: (text: string) => void,
+  invalidMessage = 'Enter a valid date.',
 ) {
   const [text, setText] = useState(value)
   const [isBlurred, setIsBlurred] = useState(false)
+  const inputRef = useRef<HTMLInputElement>(null)
 
   if (text !== value && parse(text) !== value) {
     setText(value)
     setIsBlurred(false)
   }
 
+  const hasBadDraft = text.trim() !== '' && parse(text) === ''
+
+  useEffect(() => {
+    inputRef.current?.setCustomValidity(hasBadDraft ? invalidMessage : '')
+  }, [hasBadDraft, invalidMessage])
+
   return {
     text,
+    inputRef,
     /** Held back until blur, so an unfinished date does not turn red mid-typing. */
-    isInvalid: isBlurred && text.trim() !== '' && parse(text) === '',
+    isInvalid: isBlurred && hasBadDraft,
     edit(next: string) {
       setText(next)
       setIsBlurred(false)

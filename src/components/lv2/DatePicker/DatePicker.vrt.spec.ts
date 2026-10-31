@@ -4,6 +4,7 @@ import { expect, test } from '@playwright/test'
 const STORY_ID_PREFIX = 'components-lv2-datepicker'
 
 // 'playground' — interactive only; not a distinct visual state (covered by 'sizes').
+// 'in-dialog' — behaviour only, in the interaction spec; visual covered by 'open'.
 const stories = ['sizes', 'states', 'in-field'] as const
 // The panel portals to <body>, outside #storybook-root.
 const portalStories = ['open', 'open-range'] as const

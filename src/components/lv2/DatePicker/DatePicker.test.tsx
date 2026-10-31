@@ -12,6 +12,18 @@ const startInput = () => screen.getByRole('textbox', { name: 'Start date' })
 const endInput = () => screen.getByRole('textbox', { name: 'End date' })
 const day = (date: string) => document.querySelector<HTMLElement>(`[data-date="${date}"]`)
 
+function ValidatedForm(props: { required?: boolean; invalidDate?: string }) {
+  return (
+    <form aria-label="Form">
+      <DatePicker
+        aria-label="Birthday"
+        required={props.required}
+        labels={{ invalidDate: props.invalidDate }}
+      />
+    </form>
+  )
+}
+
 describe('DatePicker', () => {
   it('names the input through aria-label', () => {
     render(<DatePicker aria-label="Birthday" />)
@@ -251,6 +263,44 @@ describe('DatePicker', () => {
     })
   })
 
+  describe('native validation', () => {
+    const form = () => screen.getByRole('form') as HTMLFormElement
+
+    it('fails while the draft is invalid, even with required satisfied', async () => {
+      const user = userEvent.setup()
+      render(<ValidatedForm required />)
+      await user.type(dateInput(), '2026-13-99')
+      expect(form().checkValidity()).toBe(false)
+    })
+
+    it('passes once the draft is a real date', async () => {
+      const user = userEvent.setup()
+      render(<ValidatedForm required />)
+      await user.type(dateInput(), '2026-13-99')
+      await user.clear(dateInput())
+      await user.type(dateInput(), '2026-10-24')
+      expect(form().checkValidity()).toBe(true)
+    })
+
+    it('does not fail an empty optional input', () => {
+      render(<ValidatedForm />)
+      expect(form().checkValidity()).toBe(true)
+    })
+
+    it('uses labels.invalidDate as the message', async () => {
+      const user = userEvent.setup()
+      render(<ValidatedForm invalidDate="Bad date" />)
+      await user.type(dateInput(), 'nope')
+      expect((dateInput() as HTMLInputElement).validationMessage).toBe('Bad date')
+    })
+  })
+
+  it('exposes the input through inputRef', () => {
+    const inputRef = createRef<HTMLInputElement>()
+    render(<DatePicker inputRef={inputRef} aria-label="Birthday" />)
+    expect(inputRef.current).toBe(dateInput())
+  })
+
   describe('inside <Field>', () => {
     it('is named by the Field label', () => {
       render(
@@ -390,6 +440,37 @@ describe('DateRangePicker', () => {
       await user.type(startInput(), '2026-10-01')
       expect(onValueChange).toHaveBeenLastCalledWith({ from: '2026-10-01', to: '2026-10-24' })
     })
+  })
+
+  it('fails native validation while the end is before the start', async () => {
+    const user = userEvent.setup()
+    render(<DateRangePicker defaultValue={{ from: '2026-10-20' }} aria-label="Stay" />)
+    await user.type(endInput(), '2026-10-01')
+    expect((endInput() as HTMLInputElement).validity.valid).toBe(false)
+    expect((startInput() as HTMLInputElement).validity.valid).toBe(true)
+  })
+
+  it('keeps a start outside min while the end is edited', async () => {
+    const user = userEvent.setup()
+    const onValueChange = vi.fn()
+    render(
+      <DateRangePicker
+        defaultValue={{ from: '2026-01-01' }}
+        min="2026-10-01"
+        onValueChange={onValueChange}
+        aria-label="Stay"
+      />,
+    )
+    await user.type(endInput(), '2026-10-24')
+    expect(onValueChange).toHaveBeenLastCalledWith({ from: '2026-01-01', to: '2026-10-24' })
+  })
+
+  it('exposes each input through its own ref', () => {
+    const startRef = createRef<HTMLInputElement>()
+    const endRef = createRef<HTMLInputElement>()
+    render(<DateRangePicker startInputRef={startRef} endInputRef={endRef} aria-label="Stay" />)
+    expect(startRef.current).toBe(startInput())
+    expect(endRef.current).toBe(endInput())
   })
 
   describe('calendar', () => {

@@ -48,6 +48,30 @@ test('DatePicker / Enter on a day picks it from the keyboard', async ({ page }) 
   await expect(page.getByRole('textbox', { name: 'Date' })).toHaveValue('2026-10-23')
 })
 
+test('DatePicker / a day can be picked inside a modal Dialog', async ({ page }) => {
+  await open(page, 'in-dialog')
+  await page.getByRole('button', { name: 'Choose date' }).click()
+  const calendar = page.getByRole('dialog', { name: 'Choose date' })
+  await expect(calendar).toBeVisible()
+  await expect(day(page, '2026-10-24')).toBeFocused()
+  await day(page, '2026-10-15').click()
+  await expect(calendar).toHaveCount(0)
+  await expect(page.getByRole('textbox', { name: 'Date' })).toHaveValue('2026-10-15')
+  await expect(page.getByRole('button', { name: 'Choose date' })).toBeFocused()
+  await expect(page.getByRole('dialog', { name: 'Schedule' })).toBeVisible()
+})
+
+test('DatePicker / Escape closes the panel but not the Dialog around it', async ({ page }) => {
+  await open(page, 'in-dialog')
+  await page.getByRole('button', { name: 'Choose date' }).click()
+  const calendar = page.getByRole('dialog', { name: 'Choose date' })
+  await expect(calendar).toBeVisible()
+  await page.keyboard.press('Escape')
+  await expect(calendar).toHaveCount(0)
+  await expect(page.getByRole('dialog', { name: 'Schedule' })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Choose date' })).toBeFocused()
+})
+
 test('DateRangePicker / two clicks pick a range', async ({ page }) => {
   await open(page, 'open-range')
   await day(page, '2026-10-05').click()

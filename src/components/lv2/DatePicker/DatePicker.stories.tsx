@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { Dialog } from '../../lv1/Dialog'
 import { Field } from '../../lv1/Field'
 import { DatePicker, DateRangePicker } from './DatePicker'
 
@@ -79,6 +80,11 @@ const meta: Meta<typeof DatePicker> = {
       description: 'Overrides for the English default labels.',
       control: false,
       table: { type: { summary: 'DatePickerLabels' } },
+    },
+    inputRef: {
+      description: 'Ref to the input, e.g. to focus it after a failed validation.',
+      control: false,
+      table: { type: { summary: 'Ref<HTMLInputElement>' } },
     },
     isError: {
       description: 'Displays the error state. A Field takes precedence.',
@@ -182,6 +188,27 @@ export const InField: Story = {
       </Field>
     </div>
   ),
+}
+
+function InDialogDemo() {
+  const [isOpen, setIsOpen] = useState(true)
+  return (
+    <Dialog
+      isOpen={isOpen}
+      onOpenChange={setIsOpen}
+      title="Schedule"
+      actionButton={{ label: 'Save', onClick: () => setIsOpen(false) }}
+    >
+      <Field label="Date">
+        <DatePicker defaultValue="2026-10-24" today="2026-10-20" />
+      </Field>
+    </Dialog>
+  )
+}
+
+export const InDialog: Story = {
+  name: 'In Dialog',
+  render: () => <InDialogDemo />,
 }
 
 /** Opens the panel once on mount, so VRT and axe can see it. */

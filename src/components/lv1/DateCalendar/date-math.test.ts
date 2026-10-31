@@ -16,6 +16,7 @@ import {
   MAX_DATE,
   MIN_DATE,
   monthMatrix,
+  resolveBounds,
   resolveLocale,
   startOfMonth,
   startOfWeek,
@@ -365,5 +366,31 @@ describe('createFormatters', () => {
     expect(names).toHaveLength(12)
     expect(names[0]).toBe('January')
     expect(names[11]).toBe('December')
+  })
+})
+
+describe('resolveBounds', () => {
+  it('passes valid bounds through', () => {
+    expect(resolveBounds('2026-01-01', '2026-12-31')).toEqual({
+      isInverted: false,
+      min: '2026-01-01',
+      max: '2026-12-31',
+    })
+  })
+
+  it('treats an invalid bound as unset', () => {
+    expect(resolveBounds('2026-02-30', '2026-12-31')).toEqual({
+      isInverted: false,
+      min: undefined,
+      max: '2026-12-31',
+    })
+  })
+
+  it('ignores an inverted pair', () => {
+    expect(resolveBounds('2026-12-31', '2026-01-01')).toEqual({
+      isInverted: true,
+      min: undefined,
+      max: undefined,
+    })
   })
 })

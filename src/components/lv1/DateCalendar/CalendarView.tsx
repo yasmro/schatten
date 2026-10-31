@@ -31,6 +31,7 @@ import {
   MIN_DATE,
   monthMatrix,
   pad,
+  resolveBounds,
   resolveLocale,
   startOfMonth,
   startOfWeek,
@@ -295,16 +296,15 @@ export const CalendarView = forwardRef<HTMLDivElement, CalendarViewProps>(
       today: todayProp,
     })
 
-    const validMin = validDate(minProp)
-    const validMax = validDate(maxProp)
-    const isInverted = !!validMin && !!validMax && compareDates(validMin, validMax) > 0
+    const bounds = resolveBounds(minProp, maxProp)
+    const { isInverted } = bounds
     useEffect(() => {
       if (process.env.NODE_ENV !== 'production' && isInverted) {
         console.warn(`DateCalendar: \`min\` is after \`max\`. Ignoring both.`)
       }
     }, [isInverted])
-    const min = (!isInverted && validMin) || MIN_DATE
-    const max = (!isInverted && validMax) || MAX_DATE
+    const min = bounds.min ?? MIN_DATE
+    const max = bounds.max ?? MAX_DATE
 
     const locale = useMemo(() => resolveLocale(localeProp), [localeProp])
     const format = useMemo(() => createFormatters(locale), [locale])

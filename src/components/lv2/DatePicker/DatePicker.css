@@ -11,9 +11,13 @@
  * border stays inside that height and the root lines up with `Input`. The button
  * sits inset in the frame: its hover fill must not touch the border.
  *
- * `--minute` adds a time input to each date. A range then takes two rows, start
- * above end, with no separator: one row would need about 530px, and a form column
- * rarely has it. The button spans both rows because it opens the whole range.
+ * With a time, each range input holds 16 characters, so `--minute` takes two rows,
+ * start above end, with no separator: one row would not fit a form column. The
+ * button spans both rows because it opens the whole range.
+ *
+ * `.st-date-picker-time` is the time inputs in the panel. The panel portals out of
+ * the block, so no descendant selector reaches them and they need a block of their
+ * own. Its grid is label, date, input: a range shows the date each time belongs to.
  *
  * lv2 is React-only: the inner DOM is not public, so the selectors below are
  * free to rely on it. Child combinators keep them off anything else.
@@ -86,35 +90,16 @@
 
   .st-date-range-picker--minute {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) auto auto;
+    grid-template-columns: minmax(0, 1fr) auto;
   }
 
   .st-date-range-picker--minute > .st-btn {
     grid-row: 1 / span 2;
-    grid-column: 3;
+    grid-column: 2;
   }
 
-  /* After the rule above that makes every wrapper flexible: the state selectors
-   * there tie with this one, and source order settles it. */
-  .st-date-picker--minute > .st-input-wrapper:has(.st-input[type="time"]),
-  .st-date-range-picker--minute > .st-input-wrapper:has(.st-input[type="time"]) {
-    flex: none;
-    width: 7rem;
-  }
-
-  /* A second icon beside the calendar button, and the width a time needs. */
-  .st-date-picker--minute .st-input[type="time"]::-webkit-calendar-picker-indicator,
-  .st-date-range-picker--minute .st-input[type="time"]::-webkit-calendar-picker-indicator {
-    display: none;
-  }
-
-  /* WebKit focuses a segment inside a time input, which leaves the input itself
-   * out of :focus-visible. A field that takes typing always shows focus, so
-   * :focus says the same thing. */
   .st-date-picker:has(.st-input:focus-visible),
-  .st-date-range-picker:has(.st-input:focus-visible),
-  .st-date-picker:has(.st-input[type="time"]:focus),
-  .st-date-range-picker:has(.st-input[type="time"]:focus) {
+  .st-date-range-picker:has(.st-input:focus-visible) {
     box-shadow:
       0 0 0 2px var(--color-ring-offset),
       0 0 0 4px var(--color-ring);
@@ -127,9 +112,7 @@
   }
 
   .st-date-picker:has(.st-input[aria-invalid="true"]:focus-visible),
-  .st-date-range-picker:has(.st-input[aria-invalid="true"]:focus-visible),
-  .st-date-picker:has(.st-input[type="time"][aria-invalid="true"]:focus),
-  .st-date-range-picker:has(.st-input[type="time"][aria-invalid="true"]:focus) {
+  .st-date-range-picker:has(.st-input[aria-invalid="true"]:focus-visible) {
     box-shadow:
       0 0 0 2px var(--color-ring-offset),
       0 0 0 4px var(--color-error);
@@ -145,5 +128,43 @@
   .st-date-range-picker:has(.st-input:disabled) {
     border-color: var(--color-border-disabled);
     background-color: var(--color-surface-disabled);
+  }
+
+  /* `width: 0` keeps the rows out of the panel's own width, which the calendar
+   * sets; `min-width` then takes all of it back. */
+  .st-date-picker-time {
+    display: grid;
+    grid-template-columns: auto auto minmax(0, 1fr);
+    gap: 0.5rem;
+    width: 0;
+    min-width: 100%;
+    align-items: center;
+    margin-block-start: 0.75rem;
+    padding-block-start: 0.75rem;
+    border-block-start: 1px solid var(--color-border);
+  }
+
+  .st-date-picker-time > .st-input-wrapper {
+    grid-column: 3;
+  }
+
+  /* The calendar button is one icon away, and a time needs the width. */
+  .st-date-picker-time .st-input::-webkit-calendar-picker-indicator {
+    display: none;
+  }
+
+  /* WebKit focuses a segment inside a time input, which leaves the input itself
+   * out of :focus-visible. A field that takes typing always shows focus, so
+   * :focus says the same thing. */
+  .st-date-picker-time > .st-input-wrapper:has(.st-input:focus) {
+    box-shadow:
+      0 0 0 2px var(--color-ring-offset),
+      0 0 0 4px var(--color-ring);
+  }
+
+  .st-date-picker-time > .st-input-wrapper:has(.st-input[aria-invalid="true"]:focus) {
+    box-shadow:
+      0 0 0 2px var(--color-ring-offset),
+      0 0 0 4px var(--color-error);
   }
 }

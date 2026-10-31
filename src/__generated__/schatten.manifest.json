@@ -79,7 +79,7 @@
     "st-date-calendar__selects",
     "st-date-calendar__weekday",
     "st-date-picker",
-    "st-date-picker--minute",
+    "st-date-picker-time",
     "st-date-range-calendar",
     "st-date-range-picker",
     "st-date-range-picker--minute",

@@ -80,9 +80,12 @@ const meta: Meta<typeof DatePicker> = {
       table: { type: { summary: 'string' } },
     },
     placeholder: {
-      description: 'Text shown while the date input is empty.',
+      description: 'Text shown while the input is empty.',
       control: 'text',
-      table: { type: { summary: 'string' }, defaultValue: { summary: 'YYYY-MM-DD' } },
+      table: {
+        type: { summary: 'string' },
+        defaultValue: { summary: 'YYYY-MM-DD, or YYYY-MM-DD HH:mm at minute' },
+      },
     },
     labels: {
       description: 'Overrides for the English default labels.',
@@ -100,7 +103,7 @@ const meta: Meta<typeof DatePicker> = {
       table: { type: { summary: 'boolean' }, defaultValue: { summary: 'false' } },
     },
     disabled: {
-      description: 'Disables the inputs and the calendar button.',
+      description: 'Disables the input and the calendar button.',
       control: 'boolean',
       table: { type: { summary: 'boolean' }, defaultValue: { summary: 'false' } },
     },
@@ -110,7 +113,7 @@ const meta: Meta<typeof DatePicker> = {
       table: { type: { summary: 'boolean' }, defaultValue: { summary: 'false' } },
     },
     required: {
-      description: 'Native required validation on the inputs.',
+      description: 'Native required validation on the input.',
       control: 'boolean',
       table: { type: { summary: 'boolean' }, defaultValue: { summary: 'false' } },
     },
@@ -330,7 +333,7 @@ export const WithTimeInForm: Story = {
   ),
 }
 
-function InDialogDemo() {
+function InDialogDemo({ granularity }: { granularity?: 'minute' }) {
   const [isOpen, setIsOpen] = useState(false)
   return (
     <>
@@ -342,7 +345,11 @@ function InDialogDemo() {
         actionButton={{ label: 'Save', onClick: () => setIsOpen(false) }}
       >
         <Field label="Date">
-          <DatePicker defaultValue="2026-10-24" today="2026-10-20" />
+          <DatePicker
+            granularity={granularity}
+            defaultValue={granularity ? '2026-10-24T13:30' : '2026-10-24'}
+            today="2026-10-20"
+          />
         </Field>
       </Dialog>
     </>
@@ -352,6 +359,11 @@ function InDialogDemo() {
 export const InDialog: Story = {
   name: 'In Dialog',
   render: () => <InDialogDemo />,
+}
+
+export const WithTimeInDialog: Story = {
+  name: 'With Time In Dialog',
+  render: () => <InDialogDemo granularity="minute" />,
 }
 
 /** Opens the panel once on mount, so VRT and axe can see it. */
@@ -400,13 +412,30 @@ export const OpenWithTime: Story = {
   name: 'Open With Time',
   parameters: openLayout,
   render: () => (
-    <div className="h-96">
+    <div className="h-[28rem]">
       <OpenOnMount>
         <DatePicker
           granularity="minute"
           defaultValue="2026-10-24T13:30"
           today="2026-10-20"
           aria-label="Departure"
+        />
+      </OpenOnMount>
+    </div>
+  ),
+}
+
+export const OpenRangeWithTime: Story = {
+  name: 'Open Range With Time',
+  parameters: openLayout,
+  render: () => (
+    <div className="h-[28rem]">
+      <OpenOnMount>
+        <DateRangePicker
+          granularity="minute"
+          defaultValue={{ from: '2026-10-24T09:00' }}
+          today="2026-10-20"
+          aria-label="Stay"
         />
       </OpenOnMount>
     </div>

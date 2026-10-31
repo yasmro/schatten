@@ -138,7 +138,7 @@ the association dangled (axe `button-name`, found in #345).
 | `RadioGroup` | At the group root, unless the consumer passed `aria-label` / `aria-labelledby` (items keep their own labels) |
 | `DateCalendar` / `DateRangeCalendar` | At the `role="group"` root, same rule as `RadioGroup`. `Field.required` is **not** wired: `aria-required` is not allowed on `group` / `grid`, and the calendar submits no value of its own. The lv2 pickers (#568) carry it on their inputs |
 | `Input` / `Textarea` / `Select` | Never — they consume `field.id` and are named natively via `htmlFor` |
-| `DatePicker` (lv2) | Never at `granularity="day"` — its inner `Input` consumes `field.id`, like a bare `Input`. At `granularity="minute"` it has a date and a time input, so it follows `DateRangePicker` |
+| `DatePicker` (lv2) | Never — its inner `Input` consumes `field.id`, like a bare `Input` |
 | `DateRangePicker` (lv2) | At the `role="group"` root, same rule as `RadioGroup`. See [Range input](#range-input-two-inputs-in-one-group) |
 
 Precedence (per component-architecture §5): explicit `aria-label` /
@@ -159,7 +159,7 @@ Precedence (per component-architecture §5): explicit `aria-label` /
 
 A control with two inputs cannot take `field.id`: one `<label htmlFor>` reaches
 one element, and `Input` would put the same id on both. `DateRangePicker` (#568)
-is the pattern, and `DatePicker` follows it at `granularity="minute"` (#569):
+is the pattern:
 
 ```tsx
 const field = useFieldContext()
@@ -179,8 +179,7 @@ const ariaLabelledBy = ariaLabelledByProp ?? (ariaLabel ? undefined : field?.lab
 ```
 
 - **The group is named, each input is named on its own.** The Field label names
-  the group; "Start date" / "End date" (with a time, also "Start time" / "End
-  time", or "Date" / "Time" for `DatePicker`) name the inputs.
+  the group; "Start date" / "End date" name the inputs.
 - **`aria-required`, `aria-invalid` and `aria-describedby` go on each input.**
   `aria-required` is not allowed on `group`, and a description on the group is
   not read when focus lands on an input.

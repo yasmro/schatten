@@ -215,10 +215,9 @@ Rules common to both kinds:
   it, because a direct prop cannot override `Field` (`field?.x ?? prop`). The lv2
   then resolves the value itself and passes it down. `null` adds no value and no
   stage to the collapse chain, so the rule above stands: **never provide any
-  other value.** Two uses today: the `Input`s of a picker with two or more of
-  them (`DateRangePicker`, `DatePicker` with `granularity="minute"`), which would
-  otherwise share `field.id`, and the calendar inside a picker's popover, which
-  a portal does not shield from the context.
+  other value.** Two uses today: `DateRangePicker`'s two `Input`s, which would
+  otherwise share `field.id`, and the contents of a picker's popover (the
+  calendar, the time inputs), which a portal does not shield from the context.
 - A form-control lv2 reads `FieldContext` itself (rather than relying on its
   inner lv1 `Input` to pick it up) so that **its non-input parts** — a popover
   trigger, a clear button — follow `disabled` / `isError` too. An inner
@@ -227,8 +226,7 @@ Rules common to both kinds:
   ([field-context-guideline](field-context-guideline.md)):
   - **One input** (DatePicker) — the inner `Input` consumes `field.id`, so the
     Field label names it through `htmlFor` (the `Input` precedent).
-  - **Two or more inputs** (DateRangePicker, and DatePicker with
-    `granularity="minute"`, which adds a time input) — `field.id` is **not**
+  - **Two or more inputs** (DateRangePicker) — `field.id` is **not**
     consumed. The group root carries **`role="group"`** and applies
     `aria-labelledby={field.labelId}` (the `RadioGroup` precedent), and each
     inner input gets its own name (e.g. "Start date" / "End date").
@@ -386,6 +384,10 @@ Two details that a descendant selector needs here:
   would be published.** Select it by what it is not —
   `.st-empty-state > :not(.st-icon, .st-text)` — and pin its place in the DOM
   with a unit test.
+- **A part that portals out of the block is out of reach of both.** No selector
+  anchored on the block finds it, so a wrapper with its own rules takes a block
+  class of its own, named for what it holds: `.st-date-picker-time`, the time
+  inputs in the picker's panel. This is a block, not a `__*` sub-element.
 
 This is deliberately the **opposite** of lv1's default (Callout and Card
 publish their sub-elements). An lv1 is a part the consumer composes, so a

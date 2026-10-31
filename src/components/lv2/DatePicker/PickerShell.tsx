@@ -1,29 +1,23 @@
-import { CalendarDays } from 'lucide-react'
+import { CalendarDays, Clock } from 'lucide-react'
 import {
   type ComponentPropsWithoutRef,
   forwardRef,
   type KeyboardEvent,
   type MouseEvent,
   type ReactNode,
+  useId,
   useRef,
 } from 'react'
 import { FieldContext } from '../../../contexts/field'
 import { mergeRefs } from '../../../lib/merge-refs'
 import { Button } from '../../lv1/Button'
-import { Input, type InputProps } from '../../lv1/Input'
+import { Input } from '../../lv1/Input'
 import { Popover, PopoverAnchor, PopoverContent, PopoverTrigger } from '../../lv1/Popover'
-import type { useTimeInput } from './use-date-input'
+import { Text } from '../../lv1/Text'
 
-/**
- * The date input an event landed on, including the padding of its wrapper. A
- * time input opens nothing: the calendar only answers for the date.
- */
+/** The input an event landed on, including the padding of its wrapper. */
 const inputOf = (target: EventTarget) =>
-  (target as Element)
-    .closest('.st-input-wrapper')
-    ?.querySelector<HTMLElement>('.st-input:not([type="time"])')
-
-const isTimeInput = (target: EventTarget) => !!(target as Element).closest('.st-input[type="time"]')
+  (target as Element).closest('.st-input-wrapper')?.querySelector<HTMLElement>('.st-input')
 
 export interface PickerShellProps extends ComponentPropsWithoutRef<'div'> {
   size: 'sm' | 'md' | 'lg' | undefined
@@ -75,9 +69,13 @@ export const PickerShell = forwardRef<HTMLDivElement, PickerShellProps>(
         ?.querySelector<HTMLElement>('.st-date-calendar__day[tabindex="0"]')
         ?.focus()
 
+    // Events from the panel bubble here too: a portal keeps the React tree.
+    const ownInput = (target: EventTarget) =>
+      rootRef.current?.contains(target as Node) ? inputOf(target) : null
+
     function onRootClick(event: MouseEvent<HTMLDivElement>) {
       onClick?.(event)
-      const input = inputOf(event.target)
+      const input = ownInput(event.target)
       if (!input || isBlocked) return
       prepareOpen(input, false)
       onOpenChange(true)
@@ -85,7 +83,7 @@ export const PickerShell = forwardRef<HTMLDivElement, PickerShellProps>(
 
     function onRootKeyDown(event: KeyboardEvent<HTMLDivElement>) {
       onKeyDown?.(event)
-      const input = inputOf(event.target)
+      const input = ownInput(event.target)
       if (!input || isBlocked || !event.altKey || event.key !== 'ArrowDown') return
       event.preventDefault()
       if (open) {
@@ -139,15 +137,13 @@ export const PickerShell = forwardRef<HTMLDivElement, PickerShellProps>(
             if (!hasLeftRef.current) originRef.current.focus()
           }}
           onInteractOutside={(event) => {
-            // The date inputs live in the root: clicking one must not close the
-            // panel. Moving to a time input leaves the calendar behind.
-            const target = event.target as Node
-            if (rootRef.current?.contains(target) && !isTimeInput(target)) event.preventDefault()
+            // The inputs live in the root: clicking one must not close the panel.
+            if (rootRef.current?.contains(event.target as Node)) event.preventDefault()
             else hasLeftRef.current = true
           }}
         >
-          {/* A portal keeps React context, so the calendar would otherwise take
-           * the Field's error outline and label. The panel has its own name. */}
+          {/* A portal keeps React context, so the panel would otherwise take the
+           * Field's error outline, label and id. It has its own name. */}
           <FieldContext.Provider value={null}>{calendar}</FieldContext.Provider>
         </PopoverContent>
       </Popover>
@@ -156,32 +152,46 @@ export const PickerShell = forwardRef<HTMLDivElement, PickerShellProps>(
 )
 PickerShell.displayName = 'PickerShell'
 
-interface PickerTimeInputProps extends Omit<InputProps, 'type' | 'isError' | 'value' | 'onChange'> {
-  control: ReturnType<typeof useTimeInput>
-  /** The error from outside: the prop or the Field. */
-  isError: boolean
+interface PickerTimeRowProps {
+  /** Shown beside the input, and its accessible name. */
+  label: string
+  /** The date this time belongs to. A range shows it, `''` while unset. */
+  date?: string
   value: string
+  disabled: boolean
+  isInvalid: boolean
   onTimeChange: (time: string) => void
 }
 
-/** The time input of a picker. `Field` has to be cut off around it. */
-export function PickerTimeInput({
-  control,
-  isError,
-  onTimeChange,
-  ...props
-}: PickerTimeInputProps) {
-  return (
-    <Input
-      {...props}
-      ref={control.inputRef}
-      type="time"
-      autoComplete="off"
-      aria-invalid={isError || control.isInvalid || undefined}
-      onChange={(event) => {
-        control.reset()
-        onTimeChange(event.target.value)
-      }}
-    />
-  )
-}
+/** A time input in the panel, below the calendar. */
+export const PickerTimeRow = forwardRef<HTMLInputElement, PickerTimeRowProps>(
+  ({ label, date, value, disabled, isInvalid, onTimeChange }, ref) => {
+    const dateId = useId()
+    return (
+      <>
+        <Text as="span" size="sm" color="muted" aria-hidden="true">
+          {label}
+        </Text>
+        {date === undefined ? null : (
+          <Text as="span" size="sm" id={dateId}>
+            {date || '—'}
+          </Text>
+        )}
+        <Input
+          ref={ref}
+          type="time"
+          size="sm"
+          iconLeft={Clock}
+          autoComplete="off"
+          aria-label={label}
+          aria-describedby={date ? dateId : undefined}
+          aria-invalid={isInvalid || undefined}
+          disabled={disabled}
+          value={value}
+          onChange={(event) => onTimeChange(event.target.value)}
+        />
+      </>
+    )
+  },
+)
+PickerTimeRow.displayName = 'PickerTimeRow'

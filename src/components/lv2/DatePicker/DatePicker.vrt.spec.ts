@@ -7,9 +7,10 @@ const STORY_ID_PREFIX = 'components-lv2-datepicker'
 // 'in-dialog' — behaviour only, in the interaction spec; visual covered by 'open'.
 // 'in-form' — behaviour only, in the interaction spec; visual covered by 'sizes'.
 // 'with-time-in-form' — behaviour only, in the interaction spec; visual covered by 'with-time'.
+// 'with-time-in-dialog' — behaviour only, in the interaction spec; visual covered by 'open-with-time'.
 const stories = ['sizes', 'states', 'in-field', 'with-time', 'with-time-states'] as const
 // The panel portals to <body>, outside #storybook-root.
-const portalStories = ['open', 'open-range', 'open-with-time'] as const
+const portalStories = ['open', 'open-range', 'open-with-time', 'open-range-with-time'] as const
 
 const themes = ['light', 'dark'] as const
 

@@ -1,14 +1,15 @@
 import { act, renderHook } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import {
+  fromText,
   isValidISOTime,
   isValidValue,
-  joinDateTime,
+  joinText,
   parseDate,
-  splitDateTime,
+  parseDateTime,
+  readText,
+  toText,
   useDateInput,
-  useDateTimeDraft,
-  useTimeInput,
   useValueBounds,
 } from './use-date-input'
 
@@ -43,16 +44,66 @@ describe('isValidValue', () => {
   })
 })
 
-describe('splitDateTime and joinDateTime', () => {
+describe('toText and fromText', () => {
   it('round-trips a value', () => {
-    expect(joinDateTime(splitDateTime('2026-10-24T13:30'), true)).toBe('2026-10-24T13:30')
-    expect(joinDateTime(splitDateTime('2026-10-24'), false)).toBe('2026-10-24')
-    expect(joinDateTime(splitDateTime(''), true)).toBe('')
+    expect(toText('2026-10-24T13:30')).toBe('2026-10-24 13:30')
+    expect(fromText('2026-10-24 13:30')).toBe('2026-10-24T13:30')
   })
 
-  it('holds a value back until both halves are there', () => {
-    expect(joinDateTime({ date: '2026-10-24', time: '' }, true)).toBe('')
-    expect(joinDateTime({ date: '', time: '13:30' }, true)).toBe('')
+  it('leaves a bare date alone', () => {
+    expect(toText('2026-10-24')).toBe('2026-10-24')
+    expect(fromText('2026-10-24')).toBe('2026-10-24')
+  })
+})
+
+describe('readText', () => {
+  it('reads both halves, with a space or a T', () => {
+    const halves = { date: '2026-10-24', time: '13:30' }
+    expect(readText('2026-10-24 13:30')).toEqual(halves)
+    expect(readText('2026-10-24T13:30')).toEqual(halves)
+    expect(readText(' 2026-10-24 13:30 ')).toEqual(halves)
+  })
+
+  it('keeps the half that can be read', () => {
+    expect(readText('2026-10-24')).toEqual({ date: '2026-10-24', time: '' })
+    expect(readText('2026-10-24 13')).toEqual({ date: '2026-10-24', time: '' })
+    expect(readText('2026-13-99 13:30')).toEqual({ date: '', time: '13:30' })
+  })
+
+  it('reads no time from trailing text', () => {
+    expect(readText('2026-10-24 13:30 pm').time).toBe('')
+  })
+})
+
+describe('joinText', () => {
+  it('leaves out a missing time', () => {
+    expect(joinText('2026-10-24', '13:30')).toBe('2026-10-24 13:30')
+    expect(joinText('2026-10-24', '')).toBe('2026-10-24')
+  })
+
+  it('drops a time without a date', () => {
+    expect(joinText('', '13:30')).toBe('')
+  })
+})
+
+describe('parseDateTime', () => {
+  const accept = (value: string) => value
+
+  it('returns the text form of a complete value', () => {
+    expect(parseDateTime('2026-10-24T13:30', {}, accept)).toBe('2026-10-24 13:30')
+  })
+
+  it('rejects a date without a time', () => {
+    expect(parseDateTime('2026-10-24', {}, accept)).toBe('')
+  })
+
+  it('applies the date constraints', () => {
+    expect(parseDateTime('2026-10-24 13:30', { min: '2026-10-25' }, accept)).toBe('')
+    expect(parseDateTime('2026-10-24 13:30', { isDateDisabled: () => true }, accept)).toBe('')
+  })
+
+  it('rejects what accept refuses', () => {
+    expect(parseDateTime('2026-10-24 13:30', {}, () => '')).toBe('')
   })
 })
 
@@ -96,63 +147,6 @@ describe('useValueBounds', () => {
     expect(dateMin).toBeUndefined()
     expect(accept('2026-10-24T12:00')).toBe('2026-10-24T12:00')
     warn.mockRestore()
-  })
-})
-
-describe('useDateTimeDraft', () => {
-  const accept = (value: string) => value
-
-  function setup(initial: string, acceptValue = accept) {
-    return renderHook(({ value }) => useDateTimeDraft(value, true, acceptValue), {
-      initialProps: { value: initial },
-    })
-  }
-
-  it('keeps a date waiting for its time while the value is empty', () => {
-    const { result, rerender } = setup('')
-    act(() => result.current[1]({ date: '2026-10-24', time: '' }))
-    rerender({ value: '' })
-    expect(result.current[0]).toEqual({ date: '2026-10-24', time: '' })
-  })
-
-  it('follows a new value', () => {
-    const { result, rerender } = setup('2026-10-24T13:30')
-    rerender({ value: '2026-10-25T08:00' })
-    expect(result.current[0]).toEqual({ date: '2026-10-25', time: '08:00' })
-  })
-
-  it('keeps a complete draft that accept refuses', () => {
-    const { result, rerender } = setup('', () => '')
-    act(() => result.current[1]({ date: '2026-10-24', time: '13:30' }))
-    rerender({ value: '' })
-    expect(result.current[0]).toEqual({ date: '2026-10-24', time: '13:30' })
-  })
-
-  it('settles on a value accept refuses instead of looping', () => {
-    const { result } = setup('2026-10-24T13:30', () => '')
-    expect(result.current[0]).toEqual({ date: '2026-10-24', time: '13:30' })
-  })
-})
-
-describe('useTimeInput', () => {
-  it('reports a refused time only after blur', () => {
-    const { result } = renderHook(() => useTimeInput(true, false))
-    expect(result.current.isInvalid).toBe(false)
-    act(() => result.current.markBlurred())
-    expect(result.current.isInvalid).toBe(true)
-  })
-
-  it('never reports a missing time', () => {
-    const { result } = renderHook(() => useTimeInput(false, true))
-    act(() => result.current.markBlurred())
-    expect(result.current.isInvalid).toBe(false)
-  })
-
-  it('clears the report on reset', () => {
-    const { result } = renderHook(() => useTimeInput(true, false))
-    act(() => result.current.markBlurred())
-    act(() => result.current.reset())
-    expect(result.current.isInvalid).toBe(false)
   })
 })
 

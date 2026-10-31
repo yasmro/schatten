@@ -126,7 +126,7 @@
 @import "../components/lv1/Table/Table.css";
 /* #125 — EmptyState (`.st-empty-state*` class API, lv2). Its size modifiers
  * override `.st-icon--lg`, and inside `@layer components` source order breaks
- * specificity ties, so every lv2 stylesheet comes after all lv1 ones
+ * specificity ties, so an lv2 stylesheet comes after every lv1 it composes
  * (lv2-composition-guideline §5.4). */
 @import "../components/lv2/EmptyState/EmptyState.css";
 

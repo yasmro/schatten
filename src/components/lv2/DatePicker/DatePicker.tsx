@@ -1,10 +1,7 @@
-import { CalendarDays } from 'lucide-react'
 import {
   type ComponentPropsWithoutRef,
   forwardRef,
-  type KeyboardEvent,
   type MouseEvent,
-  type ReactNode,
   type Ref,
   useRef,
   useState,
@@ -13,7 +10,6 @@ import { FieldContext, useFieldContext } from '../../../contexts/field'
 import { mergeRefs } from '../../../lib/merge-refs'
 import { useControllable } from '../../../lib/use-controllable'
 import { cn } from '../../../lib/utils'
-import { Button } from '../../lv1/Button'
 import {
   DateCalendar,
   type DateCalendarLabels,
@@ -22,43 +18,66 @@ import {
   DateRangeCalendar,
   type WeekDay,
 } from '../../lv1/DateCalendar'
-import { isValidISODate } from '../../lv1/DateCalendar/date-math'
 import { Input } from '../../lv1/Input'
-import { Popover, PopoverAnchor, PopoverContent, PopoverTrigger } from '../../lv1/Popover'
 import { Text } from '../../lv1/Text'
-import { type DateConstraints, parseDate, useDateInput, useFormReset } from './use-date-input'
+import { PickerShell, PickerTimeRow } from './PickerShell'
+import {
+  type DateConstraints,
+  type DateGranularity,
+  fromText,
+  isValidValue,
+  joinText,
+  parseDate,
+  parseDateTime,
+  readText,
+  toText,
+  useDateInput,
+  useFocusAfterRender,
+  useFormReset,
+  useValueBounds,
+} from './use-date-input'
 import './DatePicker.css'
 
-const DEFAULT_PLACEHOLDER = 'YYYY-MM-DD'
+const placeholderOf = (isTimed: boolean) => (isTimed ? 'YYYY-MM-DD HH:mm' : 'YYYY-MM-DD')
+const invalidMessageOf = (isTimed: boolean) =>
+  isTimed ? 'Enter a valid date and time.' : undefined
 
-/** An invalid or missing date counts as unset, as it does in DateCalendar. */
-const toValue = (date: string | undefined) => (date && isValidISODate(date) ? date : '')
-
-/** The input an event landed on, including the padding of its wrapper. */
-const inputOf = (target: EventTarget) =>
-  (target as Element).closest('.st-input-wrapper')?.querySelector<HTMLElement>('.st-input')
+/** An invalid or missing value counts as unset, as it does in DateCalendar. */
+const toValue = (value: string | undefined, granularity: DateGranularity) =>
+  value && isValidValue(value, granularity) ? value : ''
 
 /** Props shared by `DatePicker` and `DateRangePicker`. */
 interface PickerCommonProps
   extends Omit<ComponentPropsWithoutRef<'div'>, 'defaultValue' | 'onChange' | 'children'> {
+  /**
+   * What the value holds.
+   * - `day` — a date, `YYYY-MM-DD`
+   * - `minute` — a local date and time, `YYYY-MM-DDTHH:mm`, the format of
+   *   `<input type="datetime-local">`. It has no time zone. The input shows and
+   *   takes `YYYY-MM-DD HH:mm`, and the panel gains a time input.
+   * @default 'day'
+   */
+  granularity?: 'day' | 'minute'
   /**
    * Size of the control.
    * @default 'md'
    */
   size?: 'sm' | 'md' | 'lg'
   /**
-   * The earliest selectable date, as `YYYY-MM-DD`. Applies to the calendar and
-   * to typed dates.
+   * The earliest selectable value, in the format of `value`: `YYYY-MM-DD`, or
+   * `YYYY-MM-DDTHH:mm` with `granularity="minute"`. Applies to the calendar and
+   * to typed values.
    */
   min?: string
   /**
-   * The latest selectable date, as `YYYY-MM-DD`. Applies to the calendar and to
-   * typed dates.
+   * The latest selectable value, in the format of `value`: `YYYY-MM-DD`, or
+   * `YYYY-MM-DDTHH:mm` with `granularity="minute"`. Applies to the calendar and
+   * to typed values.
    */
   max?: string
   /**
-   * Marks individual dates unavailable. Applies to the calendar and to typed
-   * dates.
+   * Marks individual dates unavailable, always by the date. Applies to the
+   * calendar and to typed dates.
    */
   isDateDisabled?: (date: string) => boolean
   /**
@@ -79,7 +98,7 @@ interface PickerCommonProps
   today?: string
   /**
    * Text shown while the input is empty.
-   * @default 'YYYY-MM-DD'
+   * @default 'YYYY-MM-DD', or 'YYYY-MM-DD HH:mm' with `granularity="minute"`
    */
   placeholder?: string
   /**
@@ -98,135 +117,6 @@ interface PickerCommonProps
   required?: boolean
 }
 
-interface PickerShellProps extends ComponentPropsWithoutRef<'div'> {
-  size: PickerCommonProps['size']
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  /** Accessible name of the calendar button and of the panel it opens. */
-  label: string
-  /** `disabled` or `readOnly`: nothing may open the panel. */
-  isBlocked: boolean
-  calendar: ReactNode
-}
-
-/**
- * The frame, the calendar button and the panel both pickers share. A click on an
- * input opens the panel and leaves focus there, so typing still works. The
- * calendar button and Alt+ArrowDown move focus into the calendar.
- */
-const PickerShell = forwardRef<HTMLDivElement, PickerShellProps>(
-  (
-    {
-      size,
-      open,
-      onOpenChange,
-      label,
-      isBlocked,
-      calendar,
-      onClick,
-      onKeyDown,
-      children,
-      ...props
-    },
-    ref,
-  ) => {
-    const rootRef = useRef<HTMLDivElement>(null)
-    const contentRef = useRef<HTMLDivElement>(null)
-    // Where focus goes back to on close. Without it, Radix uses the trigger.
-    const originRef = useRef<HTMLElement | null>(null)
-    const movesFocusInRef = useRef(true)
-    const hasLeftRef = useRef(false)
-
-    function prepareOpen(origin: HTMLElement | null, movesFocusIn: boolean) {
-      originRef.current = origin
-      movesFocusInRef.current = movesFocusIn
-      hasLeftRef.current = false
-    }
-
-    const focusCalendar = () =>
-      contentRef.current
-        ?.querySelector<HTMLElement>('.st-date-calendar__day[tabindex="0"]')
-        ?.focus()
-
-    function onRootClick(event: MouseEvent<HTMLDivElement>) {
-      onClick?.(event)
-      const input = inputOf(event.target)
-      if (!input || isBlocked) return
-      prepareOpen(input, false)
-      onOpenChange(true)
-    }
-
-    function onRootKeyDown(event: KeyboardEvent<HTMLDivElement>) {
-      onKeyDown?.(event)
-      const input = inputOf(event.target)
-      if (!input || isBlocked || !event.altKey || event.key !== 'ArrowDown') return
-      event.preventDefault()
-      if (open) {
-        focusCalendar()
-      } else {
-        prepareOpen(input, true)
-        onOpenChange(true)
-      }
-    }
-
-    return (
-      <Popover
-        open={open}
-        onOpenChange={(next) => {
-          if (next) prepareOpen(null, true)
-          onOpenChange(next)
-        }}
-      >
-        <PopoverAnchor>
-          {/* biome-ignore lint/a11y/noStaticElementInteractions: the handlers delegate to the input, which keeps its own role and keyboard */}
-          <div
-            ref={mergeRefs(ref, rootRef)}
-            onClick={onRootClick}
-            onKeyDown={onRootKeyDown}
-            {...props}
-          >
-            {children}
-            <PopoverTrigger>
-              <Button
-                variant="tertiary"
-                size={size}
-                icon={CalendarDays}
-                aria-label={label}
-                disabled={isBlocked}
-              />
-            </PopoverTrigger>
-          </div>
-        </PopoverAnchor>
-        <PopoverContent
-          ref={contentRef}
-          align="start"
-          aria-label={label}
-          onOpenAutoFocus={(event) => {
-            // Radix would focus the first tabbable, the previous-month button.
-            event.preventDefault()
-            if (movesFocusInRef.current) focusCalendar()
-          }}
-          onCloseAutoFocus={(event) => {
-            if (!originRef.current) return
-            event.preventDefault()
-            if (!hasLeftRef.current) originRef.current.focus()
-          }}
-          onInteractOutside={(event) => {
-            // The inputs live in the root: clicking one must not close the panel.
-            if (rootRef.current?.contains(event.target as Node)) event.preventDefault()
-            else hasLeftRef.current = true
-          }}
-        >
-          {/* A portal keeps React context, so the calendar would otherwise take
-           * the Field's error outline and label. The panel has its own name. */}
-          <FieldContext.Provider value={null}>{calendar}</FieldContext.Provider>
-        </PopoverContent>
-      </Popover>
-    )
-  },
-)
-PickerShell.displayName = 'PickerShell'
-
 /* ----- DatePicker ----- */
 
 export interface DatePickerLabels extends DateCalendarLabels {
@@ -237,28 +127,36 @@ export interface DatePickerLabels extends DateCalendarLabels {
   openCalendar?: string
   /**
    * Native validation message for an invalid typed date.
-   * @default 'Enter a valid date.'
+   * @default 'Enter a valid date.', or 'Enter a valid date and time.' with
+   * `granularity="minute"`
    */
   invalidDate?: string
+  /**
+   * Label of the time input in the panel.
+   * @default 'Time'
+   */
+  time?: string
 }
 
 export interface DatePickerProps extends PickerCommonProps {
   /**
-   * The selected date as `YYYY-MM-DD` (controlled). Pass `''` for no selection.
+   * The selected value (controlled), in the format of `granularity`. Pass `''`
+   * for no selection.
    */
   value?: string
   /**
-   * The initially selected date as `YYYY-MM-DD` (uncontrolled). A `<form>` reset
-   * restores it.
+   * The initially selected value (uncontrolled), in the format of `granularity`.
+   * A `<form>` reset restores it.
    */
   defaultValue?: string
   /**
-   * Fired when the date changes. While the input holds an unfinished, invalid
-   * or unavailable date this is `''`, so the value never lags behind the text.
+   * Fired when the value changes. While the input holds an unfinished, invalid
+   * or unavailable value this is `''`, so the value never lags behind the text.
+   * With `granularity="minute"`, that includes a date without a time.
    */
   onValueChange?: (value: string) => void
   /**
-   * Submits the selected date under this name. An unfinished or invalid draft
+   * Submits the selected value under this name. An unfinished or invalid draft
    * submits an empty value, and fails native form validation.
    */
   name?: string
@@ -284,7 +182,15 @@ export interface DatePickerProps extends PickerCommonProps {
  * on the root `<div>`; `id` and the `aria-label*` / `aria-describedby` props
  * land on the input. Out of pattern, like the other form controls.
  *
- * lv2 — React only. Without React, use `<input type="date">`.
+ * With `granularity="minute"` the input holds `YYYY-MM-DD HH:mm`, and the panel
+ * gains a time input. Picking a day moves focus there and leaves the panel open,
+ * until a click outside or Escape. A day without a time is an unfinished value:
+ * no time is assumed. Enter in the time closes the panel. Times are always
+ * 24-hour, whatever the locale. The error state waits until focus leaves the
+ * picker or the panel closes.
+ *
+ * lv2 — React only. Without React, use `<input type="date">`, or
+ * `<input type="datetime-local">` for a time.
  */
 export const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(
   (
@@ -293,6 +199,7 @@ export const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(
       defaultValue = '',
       onValueChange,
       name,
+      granularity = 'day',
       size,
       min,
       max,
@@ -300,7 +207,7 @@ export const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(
       locale,
       weekStartsOn,
       today,
-      placeholder = DEFAULT_PLACEHOLDER,
+      placeholder,
       labels,
       inputRef,
       isError: isErrorProp = false,
@@ -320,26 +227,64 @@ export const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(
     const isError = field?.isError ?? isErrorProp
     const disabled = field?.disabled ?? disabledProp ?? false
 
+    const isTimed = granularity === 'minute'
+
     const [open, setOpen] = useState(false)
     const [rawValue, setValue] = useControllable(valueProp, defaultValue, onValueChange)
-    const value = toValue(rawValue)
+    const value = toValue(rawValue, granularity)
 
-    const constraints: DateConstraints = { min, max, isDateDisabled }
-    const parse = (text: string) => parseDate(text, constraints)
-    const input = useDateInput(value, parse, (text) => setValue(parse(text)), labels?.invalidDate)
+    const bounds = useValueBounds(min, max, granularity)
+    const constraints: DateConstraints = {
+      min: bounds.dateMin,
+      max: bounds.dateMax,
+      isDateDisabled,
+    }
+    const parse = (text: string) =>
+      isTimed ? parseDateTime(text, constraints, bounds.accept) : parseDate(text, constraints)
+    const input = useDateInput(
+      toText(value),
+      parse,
+      (text) => setValue(fromText(parse(text))),
+      labels?.invalidDate ?? invalidMessageOf(isTimed),
+    )
+    const parts = readText(input.text)
+
+    const timeRef = useRef<HTMLInputElement>(null)
+    const focusTime = useFocusAfterRender(timeRef)
 
     // A controlled value belongs to the parent; only the draft goes.
     useFormReset(input.inputRef, () => {
       const next = valueProp === undefined ? defaultValue : value
-      input.reset(toValue(next))
+      input.reset(toText(toValue(next, granularity)))
       setValue(next)
     })
 
     const label = labels?.openCalendar ?? 'Choose date'
 
+    function pickDay(date: string) {
+      const text = joinText(date, parts.time)
+      input.reset(text)
+      setValue(fromText(parse(text)))
+      if (!isTimed) {
+        setOpen(false)
+        return
+      }
+      // A kept time the day refuses gets no blur to report it.
+      if (parts.time) input.markBlurred()
+      focusTime()
+    }
+
     // Picking the selected day changes no value, so onValueChange stays silent.
-    function closeOnSelectedDay(event: MouseEvent<HTMLDivElement>) {
-      if ((event.target as Element).closest('[aria-selected="true"]')) setOpen(false)
+    function onCalendarClick(event: MouseEvent<HTMLDivElement>) {
+      if (!(event.target as Element).closest('[aria-selected="true"]')) return
+      if (isTimed) timeRef.current?.focus()
+      else setOpen(false)
+    }
+
+    // The panel is where a time gets lost: nothing else reports it.
+    function onOpenChange(next: boolean) {
+      if (!next && isTimed) input.markBlurred()
+      setOpen(next)
     }
 
     return (
@@ -348,26 +293,38 @@ export const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(
         className={cn('st-date-picker', className)}
         size={size}
         open={open}
-        onOpenChange={setOpen}
+        onOpenChange={onOpenChange}
         label={label}
         isBlocked={disabled || readOnly}
+        onFocusLeave={isTimed ? input.markBlurred : undefined}
         calendar={
-          <DateCalendar
-            value={value}
-            onValueChange={(date) => {
-              input.reset(date)
-              setValue(date)
-              setOpen(false)
-            }}
-            onClick={closeOnSelectedDay}
-            min={min}
-            max={max}
-            isDateDisabled={isDateDisabled}
-            locale={locale}
-            weekStartsOn={weekStartsOn}
-            today={today}
-            labels={labels}
-          />
+          <>
+            <DateCalendar
+              value={isTimed ? parts.date : value}
+              onValueChange={pickDay}
+              onClick={onCalendarClick}
+              min={bounds.dateMin}
+              max={bounds.dateMax}
+              isDateDisabled={isDateDisabled}
+              locale={locale}
+              weekStartsOn={weekStartsOn}
+              today={today}
+              labels={labels}
+            />
+            {isTimed ? (
+              <div className="st-date-picker-time">
+                <PickerTimeRow
+                  ref={timeRef}
+                  label={labels?.time ?? 'Time'}
+                  value={parts.time}
+                  disabled={!parts.date}
+                  isInvalid={input.isInvalid && !!parts.date}
+                  onTimeChange={(time) => input.edit(joinText(parts.date, time))}
+                  onEnter={() => onOpenChange(false)}
+                />
+              </div>
+            ) : null}
+          </>
         }
         {...props}
       >
@@ -376,7 +333,7 @@ export const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(
           id={id}
           size={size}
           autoComplete="off"
-          placeholder={placeholder}
+          placeholder={placeholder ?? placeholderOf(isTimed)}
           disabled={disabled}
           readOnly={readOnly}
           required={required}
@@ -389,7 +346,7 @@ export const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(
             input.edit(event.target.value)
             setOpen(false)
           }}
-          onBlur={input.markBlurred}
+          onBlur={isTimed ? undefined : input.markBlurred}
         />
         {name ? <input type="hidden" name={name} value={value} disabled={disabled} /> : null}
       </PickerShell>
@@ -418,33 +375,46 @@ export interface DateRangePickerLabels extends DateCalendarLabels {
   endDate?: string
   /**
    * Native validation message for an invalid typed date.
-   * @default 'Enter a valid date.'
+   * @default 'Enter a valid date.', or 'Enter a valid date and time.' with
+   * `granularity="minute"`
    */
   invalidDate?: string
+  /**
+   * Label of the first time input in the panel.
+   * @default 'Start time'
+   */
+  startTime?: string
+  /**
+   * Label of the second time input in the panel.
+   * @default 'End time'
+   */
+  endTime?: string
 }
 
 export interface DateRangePickerProps extends PickerCommonProps {
   /**
-   * The selected range (controlled). Pass `{}` for no selection.
+   * The selected range (controlled), in the format of `granularity`. Pass `{}`
+   * for no selection.
    */
   value?: DateRange
   /**
-   * The initially selected range (uncontrolled). A `<form>` reset restores it.
+   * The initially selected range (uncontrolled), in the format of `granularity`.
+   * A `<form>` reset restores it.
    */
   defaultValue?: DateRange
   /**
    * Fired when the range changes. A side holding an unfinished, invalid or
-   * unavailable date is left out, and so is an end before the start: typed
-   * dates are never swapped. The days between two typed dates are not checked
-   * against `isDateDisabled`.
+   * unavailable value is left out, and so is an end before the start: typed
+   * values are never swapped. A start and an end at the same moment are fine.
+   * The days between two typed dates are not checked against `isDateDisabled`.
    */
   onValueChange?: (value: DateRange) => void
   /**
-   * Submits the start date under this name.
+   * Submits the start under this name.
    */
   startName?: string
   /**
-   * Submits the end date under this name.
+   * Submits the end under this name.
    */
   endName?: string
   /**
@@ -470,7 +440,13 @@ export interface DateRangePickerProps extends PickerCommonProps {
  * `Field` label, and each input has its own name. Outside a `Field`, pass
  * `aria-label`. `ref` and unknown props land on the root `<div>`.
  *
- * lv2 — React only. Without React, use two `<input type="date">`.
+ * With `granularity="minute"` each input holds `YYYY-MM-DD HH:mm` and the frame
+ * takes two rows. The panel gains a time input per end, next to the date it
+ * belongs to, and stays open until a click outside or Escape: picking the end date
+ * moves focus to the first time. Its time waits until the date is there.
+ *
+ * lv2 — React only. Without React, use two `<input type="date">`, or two
+ * `<input type="datetime-local">` for a time.
  */
 export const DateRangePicker = forwardRef<HTMLDivElement, DateRangePickerProps>(
   (
@@ -482,6 +458,7 @@ export const DateRangePicker = forwardRef<HTMLDivElement, DateRangePickerProps>(
       endName,
       startInputRef,
       endInputRef,
+      granularity = 'day',
       size,
       min,
       max,
@@ -489,7 +466,7 @@ export const DateRangePicker = forwardRef<HTMLDivElement, DateRangePickerProps>(
       locale,
       weekStartsOn,
       today,
-      placeholder = DEFAULT_PLACEHOLDER,
+      placeholder,
       labels,
       isError: isErrorProp = false,
       disabled: disabledProp,
@@ -511,49 +488,64 @@ export const DateRangePicker = forwardRef<HTMLDivElement, DateRangePickerProps>(
     // it the same way it names RadioGroup.
     const ariaLabelledBy = ariaLabelledByProp ?? (ariaLabel ? undefined : field?.labelId)
 
+    const isTimed = granularity === 'minute'
+
     const [open, setOpen] = useState(false)
     const [range, setRange] = useControllable(valueProp, defaultValue, onValueChange)
-    const from = toValue(range.from)
-    const to = toValue(range.to)
+    const from = toText(toValue(range.from, granularity))
+    const to = toText(toValue(range.to, granularity))
 
-    const constraints: DateConstraints = { min, max, isDateDisabled }
-    const parseStart = (text: string) => parseDate(text, constraints)
-    const parseEndAfter = (text: string, start: string) => {
-      const date = parseDate(text, constraints)
-      return start && date < start ? '' : date
+    const bounds = useValueBounds(min, max, granularity)
+    const constraints: DateConstraints = {
+      min: bounds.dateMin,
+      max: bounds.dateMax,
+      isDateDisabled,
+    }
+    const parse = (text: string) =>
+      isTimed ? parseDateTime(text, constraints, bounds.accept) : parseDate(text, constraints)
+    const parseEndAfter = (text: string, startText: string) => {
+      const parsed = parse(text)
+      return startText && parsed < startText ? '' : parsed
     }
 
     function commit(startText: string, endText: string) {
       // A side the user did not edit stays as given, even outside `min` / `max`.
       const keepOrParse = (text: string, current: string) =>
-        text === current ? current : parseDate(text, constraints)
+        text === current ? current : parse(text)
       const nextFrom = keepOrParse(startText, from)
       const parsedTo = keepOrParse(endText, to)
       const nextTo = nextFrom && parsedTo < nextFrom ? '' : parsedTo
       if (nextFrom === from && nextTo === to) return
-      setRange({ ...(nextFrom && { from: nextFrom }), ...(nextTo && { to: nextTo }) })
+      setRange({
+        ...(nextFrom && { from: fromText(nextFrom) }),
+        ...(nextTo && { to: fromText(nextTo) }),
+      })
     }
 
-    const start = useDateInput(
-      from,
-      parseStart,
-      (text) => commit(text, end.text),
-      labels?.invalidDate,
-    )
+    const invalidMessage = labels?.invalidDate ?? invalidMessageOf(isTimed)
+    const start = useDateInput(from, parse, (text) => commit(text, end.text), invalidMessage)
     const end = useDateInput(
       to,
       (text) => parseEndAfter(text, from),
       (text) => commit(start.text, text),
-      labels?.invalidDate,
+      invalidMessage,
     )
+    const startParts = readText(start.text)
+    const endParts = readText(end.text)
+
+    // The first pick of a new range clears the end, not the time it had.
+    const keptEndTimeRef = useRef('')
+    const startTimeRef = useRef<HTMLInputElement>(null)
+    const focusStartTime = useFocusAfterRender(startTimeRef)
 
     // A controlled value belongs to the parent; only the drafts go.
     useFormReset(start.inputRef, () => {
       const isControlled = valueProp !== undefined
-      const nextFrom = isControlled ? from : toValue(defaultValue.from)
-      const nextTo = isControlled ? to : toValue(defaultValue.to)
+      const nextFrom = isControlled ? from : toText(toValue(defaultValue.from, granularity))
+      const nextTo = isControlled ? to : toText(toValue(defaultValue.to, granularity))
       start.reset(nextFrom)
       end.reset(nextTo)
+      keptEndTimeRef.current = ''
       if (!isControlled && (nextFrom !== from || nextTo !== to)) setRange(defaultValue)
     })
 
@@ -565,47 +557,96 @@ export const DateRangePicker = forwardRef<HTMLDivElement, DateRangePickerProps>(
       end.markBlurred()
     }
 
+    function pickRange(next: DateRange) {
+      const endTime = endParts.time || keptEndTimeRef.current
+      keptEndTimeRef.current = next.to ? '' : endTime
+      const startText = joinText(next.from ?? '', startParts.time)
+      const endText = next.to ? joinText(next.to, endTime) : ''
+      start.reset(startText)
+      end.reset(endText)
+      commit(startText, endText)
+      if (!next.from || !next.to) return
+      if (!isTimed) {
+        setOpen(false)
+        return
+      }
+      // Kept times the days refuse get no blur to report them.
+      if (startParts.time && endTime) onInputBlur()
+      focusStartTime()
+    }
+
+    // The panel is where a time gets lost: nothing else reports it.
+    function onOpenChange(next: boolean) {
+      if (!next && isTimed) onInputBlur()
+      setOpen(next)
+    }
+
     const sharedInputProps = {
       size,
       autoComplete: 'off',
-      placeholder,
+      placeholder: placeholder ?? placeholderOf(isTimed),
       disabled,
       readOnly,
       required,
       'aria-required': field?.required || undefined,
       'aria-describedby': ariaDescribedBy,
-      onBlur: onInputBlur,
+      onBlur: isTimed ? undefined : onInputBlur,
     }
 
     return (
       <PickerShell
         ref={ref}
         role="group"
-        className={cn('st-date-range-picker', className)}
+        className={cn('st-date-range-picker', isTimed && 'st-date-range-picker--minute', className)}
         aria-label={ariaLabel}
         aria-labelledby={ariaLabelledBy}
         size={size}
         open={open}
-        onOpenChange={setOpen}
+        onOpenChange={onOpenChange}
         label={label}
         isBlocked={disabled || readOnly}
+        onFocusLeave={isTimed ? onInputBlur : undefined}
         calendar={
-          <DateRangeCalendar
-            value={{ from: from || undefined, to: to || undefined }}
-            onValueChange={(next) => {
-              start.reset(next.from ?? '')
-              end.reset(next.to ?? '')
-              setRange(next)
-              if (next.from && next.to) setOpen(false)
-            }}
-            min={min}
-            max={max}
-            isDateDisabled={isDateDisabled}
-            locale={locale}
-            weekStartsOn={weekStartsOn}
-            today={today}
-            labels={labels}
-          />
+          <>
+            <DateRangeCalendar
+              value={
+                isTimed
+                  ? { from: startParts.date || undefined, to: endParts.date || undefined }
+                  : { from: from || undefined, to: to || undefined }
+              }
+              onValueChange={pickRange}
+              min={bounds.dateMin}
+              max={bounds.dateMax}
+              isDateDisabled={isDateDisabled}
+              locale={locale}
+              weekStartsOn={weekStartsOn}
+              today={today}
+              labels={labels}
+            />
+            {isTimed ? (
+              <div className="st-date-picker-time">
+                <PickerTimeRow
+                  ref={startTimeRef}
+                  label={labels?.startTime ?? 'Start time'}
+                  date={startParts.date}
+                  value={startParts.time}
+                  disabled={!startParts.date}
+                  isInvalid={start.isInvalid && !!startParts.date}
+                  onTimeChange={(time) => start.edit(joinText(startParts.date, time))}
+                  onEnter={() => onOpenChange(false)}
+                />
+                <PickerTimeRow
+                  label={labels?.endTime ?? 'End time'}
+                  date={endParts.date}
+                  value={endParts.time}
+                  disabled={!endParts.date}
+                  isInvalid={end.isInvalid && !!endParts.date}
+                  onTimeChange={(time) => end.edit(joinText(endParts.date, time))}
+                  onEnter={() => onOpenChange(false)}
+                />
+              </div>
+            ) : null}
+          </>
         }
         {...props}
       >
@@ -623,9 +664,11 @@ export const DateRangePicker = forwardRef<HTMLDivElement, DateRangePickerProps>(
               setOpen(false)
             }}
           />
-          <Text as="span" size="sm" color="muted" aria-hidden="true">
-            –
-          </Text>
+          {isTimed ? null : (
+            <Text as="span" size="sm" color="muted" aria-hidden="true">
+              –
+            </Text>
+          )}
           <Input
             {...sharedInputProps}
             ref={mergeRefs(endInputRef, end.inputRef)}
@@ -639,9 +682,11 @@ export const DateRangePicker = forwardRef<HTMLDivElement, DateRangePickerProps>(
           />
         </FieldContext.Provider>
         {startName ? (
-          <input type="hidden" name={startName} value={from} disabled={disabled} />
+          <input type="hidden" name={startName} value={fromText(from)} disabled={disabled} />
         ) : null}
-        {endName ? <input type="hidden" name={endName} value={to} disabled={disabled} /> : null}
+        {endName ? (
+          <input type="hidden" name={endName} value={fromText(to)} disabled={disabled} />
+        ) : null}
       </PickerShell>
     )
   },

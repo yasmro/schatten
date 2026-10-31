@@ -11,6 +11,14 @@
  * border stays inside that height and the root lines up with `Input`. The button
  * sits inset in the frame: its hover fill must not touch the border.
  *
+ * With a time, each range input holds 16 characters, so `--minute` takes two rows,
+ * start above end, with no separator: one row would not fit a form column. The
+ * button spans both rows because it opens the whole range.
+ *
+ * `.st-date-picker-time` is the time inputs in the panel. The panel portals out of
+ * the block, so no descendant selector reaches them and they need a block of their
+ * own. Its grid is label, date, input: a range shows the date each time belongs to.
+ *
  * lv2 is React-only: the inner DOM is not public, so the selectors below are
  * free to rely on it. Child combinators keep them off anything else.
  */
@@ -80,6 +88,25 @@
     margin-inline-end: 0.75rem;
   }
 
+  .st-date-range-picker--minute {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .st-date-range-picker--minute > .st-btn {
+    grid-row: 1 / span 2;
+    grid-column: 2;
+  }
+
+  /* A line between the two inputs. It is a background because the wrapper gives
+   * up its border in every state above. */
+  .st-date-range-picker--minute > .st-input-wrapper:first-child {
+    background-image: linear-gradient(var(--color-border), var(--color-border));
+    background-repeat: no-repeat;
+    background-position: bottom;
+    background-size: 100% 1px;
+  }
+
   .st-date-picker:has(.st-input:focus-visible),
   .st-date-range-picker:has(.st-input:focus-visible) {
     box-shadow:
@@ -110,5 +137,27 @@
   .st-date-range-picker:has(.st-input:disabled) {
     border-color: var(--color-border-disabled);
     background-color: var(--color-surface-disabled);
+  }
+
+  /* `width: 0` keeps the rows out of the panel's own width, which the calendar
+   * sets; `min-width` then takes all of it back. */
+  .st-date-picker-time {
+    display: grid;
+    grid-template-columns: auto auto minmax(0, 1fr);
+    gap: 0.5rem;
+    width: 0;
+    min-width: 100%;
+    align-items: center;
+    margin-block-start: 0.75rem;
+    padding-block-start: 0.75rem;
+    border-block-start: 1px solid var(--color-border);
+  }
+
+  /* A line, not a second box inside the panel's. It keeps the strong ink: the
+   * pale border token would fall under 3:1 against the panel (WCAG 1.4.11). */
+  .st-date-picker-time > .st-input-wrapper {
+    grid-column: 3;
+    border-block-start: 0;
+    border-inline: 0;
   }
 }

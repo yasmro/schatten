@@ -216,8 +216,8 @@ Rules common to both kinds:
   then resolves the value itself and passes it down. `null` adds no value and no
   stage to the collapse chain, so the rule above stands: **never provide any
   other value.** Two uses today: `DateRangePicker`'s two `Input`s, which would
-  otherwise share `field.id`, and the calendar inside a picker's popover, which
-  a portal does not shield from the context.
+  otherwise share `field.id`, and the contents of a picker's popover (the
+  calendar, the time inputs), which a portal does not shield from the context.
 - A form-control lv2 reads `FieldContext` itself (rather than relying on its
   inner lv1 `Input` to pick it up) so that **its non-input parts** — a popover
   trigger, a clear button — follow `disabled` / `isError` too. An inner
@@ -384,6 +384,10 @@ Two details that a descendant selector needs here:
   would be published.** Select it by what it is not —
   `.st-empty-state > :not(.st-icon, .st-text)` — and pin its place in the DOM
   with a unit test.
+- **A part that portals out of the block is out of reach of both.** No selector
+  anchored on the block finds it, so a wrapper with its own rules takes a block
+  class of its own, named for what it holds: `.st-date-picker-time`, the time
+  inputs in the picker's panel. This is a block, not a `__*` sub-element.
 
 This is deliberately the **opposite** of lv1's default (Callout and Card
 publish their sub-elements). An lv1 is a part the consumer composes, so a

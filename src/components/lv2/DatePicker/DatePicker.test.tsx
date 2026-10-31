@@ -1,4 +1,4 @@
-import { render, screen, within } from '@testing-library/react'
+import { fireEvent, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { createRef } from 'react'
 import { describe, expect, it, vi } from 'vitest'
@@ -12,6 +12,15 @@ const startInput = () => screen.getByRole('textbox', { name: 'Start date' })
 const endInput = () => screen.getByRole('textbox', { name: 'End date' })
 const day = (date: string) => document.querySelector<HTMLElement>(`[data-date="${date}"]`)
 
+const namedInput = (name: string) => screen.getByLabelText(name) as HTMLInputElement
+/** Past the calendar button and out of the picker. */
+async function tabOut(user: ReturnType<typeof userEvent.setup>) {
+  await user.tab()
+  await user.tab()
+}
+const setTime = (name: string, time: string) =>
+  fireEvent.change(namedInput(name), { target: { value: time } })
+
 function ValidatedForm(props: { required?: boolean; invalidDate?: string }) {
   return (
     <form aria-label="Form">
@@ -20,6 +29,21 @@ function ValidatedForm(props: { required?: boolean; invalidDate?: string }) {
         required={props.required}
         labels={{ invalidDate: props.invalidDate }}
       />
+    </form>
+  )
+}
+
+function TimedForm(props: { required?: boolean; invalidDate?: string }) {
+  return (
+    <form aria-label="Form">
+      <DatePicker
+        granularity="minute"
+        name="departure"
+        required={props.required}
+        labels={{ invalidDate: props.invalidDate }}
+        aria-label="Departure"
+      />
+      <button type="reset">Reset</button>
     </form>
   )
 }
@@ -524,6 +548,640 @@ describe('DatePicker', () => {
       expect(calendar).not.toHaveAttribute('aria-invalid')
       expect(calendar).not.toHaveAccessibleName()
     })
+  })
+})
+
+describe('DatePicker with granularity="minute"', () => {
+  const departure = () => screen.getByRole('textbox', { name: 'Departure' }) as HTMLInputElement
+
+  it('stays one input in the frame', () => {
+    render(<DatePicker granularity="minute" data-testid="picker" aria-label="Departure" />)
+    expect(screen.getAllByRole('textbox')).toHaveLength(1)
+    expect(screen.getByTestId('picker')).not.toHaveAttribute('role')
+    expect(departure()).toHaveAttribute('placeholder', 'YYYY-MM-DD HH:mm')
+    expect(screen.queryByLabelText('Time')).not.toBeInTheDocument()
+  })
+
+  it('has no time in the panel by default', async () => {
+    const user = userEvent.setup()
+    render(<DatePicker aria-label="Birthday" />)
+    await user.click(calendarButton())
+    expect(screen.queryByLabelText('Time')).not.toBeInTheDocument()
+  })
+
+  describe('value', () => {
+    it('shows a value with a space', () => {
+      render(<DatePicker granularity="minute" value="2026-10-24T13:30" aria-label="Departure" />)
+      expect(departure()).toHaveValue('2026-10-24 13:30')
+    })
+
+    it.each(['2026-10-24', '2026-10-24T13:30:00', '2026-10-24T13:30Z'])(
+      'shows nothing for %s',
+      (value) => {
+        render(<DatePicker granularity="minute" value={value} aria-label="Departure" />)
+        expect(departure()).toHaveValue('')
+      },
+    )
+
+    it('commits a typed date and time', async () => {
+      const user = userEvent.setup()
+      const onValueChange = vi.fn()
+      render(
+        <DatePicker granularity="minute" onValueChange={onValueChange} aria-label="Departure" />,
+      )
+      await user.type(departure(), '2026-10-24')
+      expect(onValueChange).not.toHaveBeenCalled()
+      await user.type(departure(), ' 13:30')
+      expect(onValueChange).toHaveBeenCalledExactlyOnceWith('2026-10-24T13:30')
+    })
+
+    it('keeps a typed date while a controlled parent holds the value empty', async () => {
+      const user = userEvent.setup()
+      render(<DatePicker granularity="minute" value="" aria-label="Departure" />)
+      await user.type(departure(), '2026-10-24')
+      expect(departure()).toHaveValue('2026-10-24')
+    })
+
+    it('reports a date without a time after blur', async () => {
+      const user = userEvent.setup()
+      render(<DatePicker granularity="minute" aria-label="Departure" />)
+      await user.type(departure(), '2026-10-24')
+      expect(departure()).not.toHaveAttribute('aria-invalid')
+      await tabOut(user)
+      expect(departure()).toHaveAttribute('aria-invalid', 'true')
+    })
+
+    it('holds the error back while focus moves to the calendar button', async () => {
+      const user = userEvent.setup()
+      render(<DatePicker granularity="minute" aria-label="Departure" />)
+      await user.type(departure(), '2026-10-24')
+      await user.tab()
+      expect(calendarButton()).toHaveFocus()
+      expect(departure()).not.toHaveAttribute('aria-invalid')
+    })
+  })
+
+  describe('min and max', () => {
+    it('refuses a time before min on its day', async () => {
+      const user = userEvent.setup()
+      const onValueChange = vi.fn()
+      render(
+        <DatePicker
+          granularity="minute"
+          min="2026-10-24T09:00"
+          onValueChange={onValueChange}
+          aria-label="Departure"
+        />,
+      )
+      await user.type(departure(), '2026-10-24 08:00')
+      expect(onValueChange).not.toHaveBeenCalled()
+      await tabOut(user)
+      expect(departure()).toHaveAttribute('aria-invalid', 'true')
+    })
+
+    it('allows the same time on a later day', async () => {
+      const user = userEvent.setup()
+      const onValueChange = vi.fn()
+      render(
+        <DatePicker
+          granularity="minute"
+          min="2026-10-24T09:00"
+          onValueChange={onValueChange}
+          aria-label="Departure"
+        />,
+      )
+      await user.type(departure(), '2026-10-25 08:00')
+      expect(onValueChange).toHaveBeenCalledExactlyOnceWith('2026-10-25T08:00')
+    })
+
+    it('passes the date of min to the calendar', async () => {
+      const user = userEvent.setup()
+      render(
+        <DatePicker
+          granularity="minute"
+          defaultValue="2026-10-24T10:00"
+          min="2026-10-24T09:00"
+          aria-label="Departure"
+        />,
+      )
+      await user.click(calendarButton())
+      expect(day('2026-10-23')).toHaveAttribute('aria-disabled', 'true')
+      expect(day('2026-10-24')).not.toHaveAttribute('aria-disabled')
+    })
+  })
+
+  describe('panel', () => {
+    function setup(props: { defaultValue?: string; min?: string } = {}) {
+      const onValueChange = vi.fn()
+      render(
+        <DatePicker
+          granularity="minute"
+          today="2026-10-24"
+          onValueChange={onValueChange}
+          aria-label="Departure"
+          {...props}
+        />,
+      )
+      return onValueChange
+    }
+
+    it('shows the time of the value, in a named input', async () => {
+      const user = userEvent.setup()
+      setup({ defaultValue: '2026-10-24T13:30' })
+      await user.click(calendarButton())
+      expect(within(screen.getByRole('dialog')).getByLabelText('Time')).toHaveValue('13:30')
+    })
+
+    it('renames the time through labels', async () => {
+      const user = userEvent.setup()
+      render(<DatePicker granularity="minute" labels={{ time: 'Hour' }} aria-label="Departure" />)
+      await user.click(calendarButton())
+      expect(namedInput('Hour')).toBeInTheDocument()
+    })
+
+    it('keeps the time disabled until there is a date', async () => {
+      const user = userEvent.setup()
+      setup()
+      await user.click(calendarButton())
+      expect(namedInput('Time')).toBeDisabled()
+      await user.click(day('2026-10-15') as HTMLElement)
+      expect(namedInput('Time')).toBeEnabled()
+    })
+
+    it('stays open after a pick and moves focus to the time', async () => {
+      const user = userEvent.setup()
+      setup()
+      await user.click(calendarButton())
+      await user.click(day('2026-10-15') as HTMLElement)
+      expect(screen.getByRole('dialog')).toBeInTheDocument()
+      expect(namedInput('Time')).toHaveFocus()
+      expect(departure()).toHaveValue('2026-10-15')
+    })
+
+    it('moves to the time when the selected day is picked again', async () => {
+      const user = userEvent.setup()
+      const onValueChange = setup({ defaultValue: '2026-10-24T13:30' })
+      await user.click(calendarButton())
+      await user.click(day('2026-10-24') as HTMLElement)
+      expect(screen.getByRole('dialog')).toBeInTheDocument()
+      expect(namedInput('Time')).toHaveFocus()
+      expect(onValueChange).not.toHaveBeenCalled()
+    })
+
+    it('keeps the time when a day is picked', async () => {
+      const user = userEvent.setup()
+      const onValueChange = setup({ defaultValue: '2026-10-24T13:30' })
+      await user.click(calendarButton())
+      await user.click(day('2026-10-15') as HTMLElement)
+      expect(onValueChange).toHaveBeenCalledExactlyOnceWith('2026-10-15T13:30')
+      expect(departure()).toHaveValue('2026-10-15 13:30')
+    })
+
+    it('commits a time, leaving the panel open', async () => {
+      const user = userEvent.setup()
+      const onValueChange = setup({ defaultValue: '2026-10-24T13:30' })
+      await user.click(calendarButton())
+      setTime('Time', '08:45')
+      expect(onValueChange).toHaveBeenCalledExactlyOnceWith('2026-10-24T08:45')
+      expect(departure()).toHaveValue('2026-10-24 08:45')
+      expect(screen.getByRole('dialog')).toBeInTheDocument()
+    })
+
+    it('reports an empty value when the time goes, keeping the date', async () => {
+      const user = userEvent.setup()
+      const onValueChange = setup({ defaultValue: '2026-10-24T13:30' })
+      await user.click(calendarButton())
+      setTime('Time', '')
+      expect(onValueChange).toHaveBeenCalledExactlyOnceWith('')
+      expect(departure()).toHaveValue('2026-10-24')
+    })
+
+    it('marks a kept time the picked day refuses', async () => {
+      const user = userEvent.setup()
+      const onValueChange = setup({ defaultValue: '2026-10-25T08:00', min: '2026-10-24T09:00' })
+      await user.click(calendarButton())
+      await user.click(day('2026-10-24') as HTMLElement)
+      expect(onValueChange).toHaveBeenLastCalledWith('')
+      expect(departure()).toHaveAttribute('aria-invalid', 'true')
+      expect(namedInput('Time')).toHaveAttribute('aria-invalid', 'true')
+    })
+
+    it('leaves a time waiting clean until the panel closes', async () => {
+      const user = userEvent.setup()
+      setup()
+      await user.click(calendarButton())
+      await user.click(day('2026-10-15') as HTMLElement)
+      expect(departure()).not.toHaveAttribute('aria-invalid')
+      await user.keyboard('{Escape}')
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+      expect(departure()).toHaveAttribute('aria-invalid', 'true')
+    })
+
+    it('does not treat a click on the time as a click on the input', async () => {
+      const user = userEvent.setup()
+      setup({ defaultValue: '2026-10-24T13:30' })
+      await user.click(calendarButton())
+      await user.click(namedInput('Time'))
+      await user.keyboard('{Escape}')
+      expect(calendarButton()).toHaveFocus()
+    })
+
+    it('keeps a partly typed time, and reports it after blur', async () => {
+      const user = userEvent.setup()
+      const onValueChange = setup({ defaultValue: '2026-10-24T13:30' })
+      await user.click(calendarButton())
+      await user.clear(namedInput('Time'))
+      await user.type(namedInput('Time'), '09')
+      expect(namedInput('Time')).toHaveValue('09')
+      expect(onValueChange).toHaveBeenLastCalledWith('')
+      await user.tab()
+      expect(namedInput('Time')).toHaveAttribute('aria-invalid', 'true')
+    })
+
+    it('commits a typed time once it is complete', async () => {
+      const user = userEvent.setup()
+      const onValueChange = setup({ defaultValue: '2026-10-24T13:30' })
+      await user.click(calendarButton())
+      await user.clear(namedInput('Time'))
+      await user.type(namedInput('Time'), '09:15')
+      expect(onValueChange).toHaveBeenLastCalledWith('2026-10-24T09:15')
+    })
+
+    it('closes on Enter in the time, returning focus', async () => {
+      const user = userEvent.setup()
+      setup({ defaultValue: '2026-10-24T13:30' })
+      await user.click(calendarButton())
+      await user.click(namedInput('Time'))
+      await user.keyboard('{Enter}')
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+      expect(calendarButton()).toHaveFocus()
+    })
+
+    it('does not submit a surrounding form on Enter in the time', async () => {
+      const user = userEvent.setup()
+      const onSubmit = vi.fn((event) => event.preventDefault())
+      render(
+        <form onSubmit={onSubmit}>
+          <DatePicker granularity="minute" defaultValue="2026-10-24T13:30" aria-label="Departure" />
+        </form>,
+      )
+      await user.click(calendarButton())
+      await user.click(namedInput('Time'))
+      await user.keyboard('{Enter}')
+      expect(onSubmit).not.toHaveBeenCalled()
+    })
+
+    it('closes when typing starts in the input', async () => {
+      const user = userEvent.setup()
+      setup()
+      await user.click(departure())
+      await user.keyboard('2')
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    })
+  })
+
+  describe('in a form', () => {
+    const form = () => screen.getByRole('form') as HTMLFormElement
+
+    it('submits the value with a T', async () => {
+      const user = userEvent.setup()
+      render(<TimedForm />)
+      await user.type(departure(), '2026-10-24 13:30')
+      expect(new FormData(form()).get('departure')).toBe('2026-10-24T13:30')
+    })
+
+    it('fails validation on a date without a time', async () => {
+      const user = userEvent.setup()
+      render(<TimedForm invalidDate="Add a time" />)
+      await user.type(departure(), '2026-10-24')
+      expect(form().checkValidity()).toBe(false)
+      expect(departure().validationMessage).toBe('Add a time')
+      expect(new FormData(form()).get('departure')).toBe('')
+    })
+
+    it('uses a message that names the time by default', async () => {
+      const user = userEvent.setup()
+      render(<TimedForm />)
+      await user.type(departure(), 'nope')
+      expect(departure().validationMessage).toBe('Enter a valid date and time.')
+    })
+
+    it('passes when empty and when complete', async () => {
+      const user = userEvent.setup()
+      render(<TimedForm />)
+      expect(form().checkValidity()).toBe(true)
+      await user.type(departure(), '2026-10-24 13:30')
+      expect(form().checkValidity()).toBe(true)
+    })
+
+    it('restores defaultValue on reset', async () => {
+      const user = userEvent.setup()
+      render(
+        <form>
+          <DatePicker granularity="minute" defaultValue="2026-10-24T13:30" aria-label="Departure" />
+          <button type="reset">Reset</button>
+        </form>,
+      )
+      await user.type(departure(), '{Backspace}')
+      await user.click(screen.getByRole('button', { name: 'Reset' }))
+      expect(departure()).toHaveValue('2026-10-24 13:30')
+    })
+  })
+
+  describe('inside <Field>', () => {
+    it('is named by the Field label, like the day granularity', () => {
+      render(
+        <Field label="Departure">
+          <DatePicker granularity="minute" />
+        </Field>,
+      )
+      expect(departure()).toBeInTheDocument()
+    })
+
+    it('focuses the input from the Field label', async () => {
+      const user = userEvent.setup()
+      render(
+        <Field label="Departure">
+          <DatePicker granularity="minute" />
+        </Field>,
+      )
+      await user.click(screen.getByText('Departure'))
+      expect(departure()).toHaveFocus()
+    })
+
+    it('keeps the Field out of the time in the panel', async () => {
+      const user = userEvent.setup()
+      render(
+        <Field label="Departure" error="Pick a time">
+          <DatePicker granularity="minute" defaultValue="2026-10-24T13:30" />
+        </Field>,
+      )
+      await user.click(calendarButton())
+      expect(namedInput('Time').id).not.toBe(departure().id)
+      expect(namedInput('Time')).not.toHaveAttribute('aria-invalid')
+      expect(namedInput('Time')).not.toHaveAccessibleDescription()
+    })
+  })
+})
+
+describe('DateRangePicker with granularity="minute"', () => {
+  const stay = { from: '2026-10-24T09:00', to: '2026-10-24T18:00' }
+  const start = () => screen.getByRole('textbox', { name: 'Start date' }) as HTMLInputElement
+  const end = () => screen.getByRole('textbox', { name: 'End date' }) as HTMLInputElement
+
+  function setup(props: {
+    defaultValue?: typeof stay | { from: string }
+    min?: string
+    max?: string
+    today?: string
+  }) {
+    const onValueChange = vi.fn()
+    render(
+      <DateRangePicker
+        granularity="minute"
+        onValueChange={onValueChange}
+        aria-label="Stay"
+        {...props}
+      />,
+    )
+    return onValueChange
+  }
+
+  it('shows each end with a space', () => {
+    render(
+      <DateRangePicker granularity="minute" value={stay} data-testid="picker" aria-label="Stay" />,
+    )
+    expect(screen.getByTestId('picker')).toHaveClass('st-date-range-picker--minute')
+    expect(start()).toHaveValue('2026-10-24 09:00')
+    expect(end()).toHaveValue('2026-10-24 18:00')
+  })
+
+  it('leaves out a side without its time', async () => {
+    const user = userEvent.setup()
+    const onValueChange = setup({})
+    await user.type(start(), '2026-10-24 09:00')
+    expect(onValueChange).toHaveBeenLastCalledWith({ from: '2026-10-24T09:00' })
+    await user.type(end(), '2026-10-26')
+    expect(onValueChange).toHaveBeenCalledOnce()
+    await user.type(end(), ' 18:00')
+    expect(onValueChange).toHaveBeenLastCalledWith({
+      from: '2026-10-24T09:00',
+      to: '2026-10-26T18:00',
+    })
+  })
+
+  describe('on the same day', () => {
+    it('leaves out an end before the start, without swapping', async () => {
+      const user = userEvent.setup()
+      const onValueChange = setup({ defaultValue: stay })
+      await user.clear(end())
+      await user.type(end(), '2026-10-24 08:00')
+      expect(onValueChange).toHaveBeenLastCalledWith({ from: '2026-10-24T09:00' })
+      expect(end()).toHaveValue('2026-10-24 08:00')
+      expect(end().validity.valid).toBe(false)
+      await tabOut(user)
+      expect(end()).toHaveAttribute('aria-invalid', 'true')
+      expect(start()).not.toHaveAttribute('aria-invalid')
+    })
+
+    it('allows an end at the same moment as the start', async () => {
+      const user = userEvent.setup()
+      const onValueChange = setup({ defaultValue: stay })
+      await user.clear(end())
+      await user.type(end(), '2026-10-24 09:00')
+      expect(onValueChange).toHaveBeenLastCalledWith({
+        from: '2026-10-24T09:00',
+        to: '2026-10-24T09:00',
+      })
+    })
+
+    it('marks the end when the start moves past it, and commits it once fixed', async () => {
+      const user = userEvent.setup()
+      const onValueChange = setup({ defaultValue: stay })
+      await user.click(rangeButton())
+      setTime('Start time', '20:00')
+      expect(onValueChange).toHaveBeenLastCalledWith({ from: '2026-10-24T20:00' })
+      expect(end()).toHaveValue('2026-10-24 18:00')
+      setTime('Start time', '10:00')
+      expect(onValueChange).toHaveBeenLastCalledWith({
+        from: '2026-10-24T10:00',
+        to: '2026-10-24T18:00',
+      })
+    })
+  })
+
+  it('takes an end time before the start time on a later day', async () => {
+    const user = userEvent.setup()
+    const onValueChange = setup({
+      defaultValue: { from: '2026-10-24T09:00', to: '2026-10-26T18:00' },
+    })
+    await user.click(rangeButton())
+    setTime('End time', '08:00')
+    expect(onValueChange).toHaveBeenLastCalledWith({
+      from: '2026-10-24T09:00',
+      to: '2026-10-26T08:00',
+    })
+  })
+
+  it('applies min and max to both ends', async () => {
+    const user = userEvent.setup()
+    const onValueChange = setup({
+      defaultValue: stay,
+      min: '2026-10-24T08:00',
+      max: '2026-10-24T20:00',
+    })
+    await user.click(rangeButton())
+    setTime('Start time', '07:00')
+    expect(onValueChange).toHaveBeenLastCalledWith({ to: '2026-10-24T18:00' })
+    setTime('Start time', '09:00')
+    setTime('End time', '21:00')
+    expect(onValueChange).toHaveBeenLastCalledWith({ from: '2026-10-24T09:00' })
+  })
+
+  it('keeps a start outside min while the end is edited', async () => {
+    const user = userEvent.setup()
+    const onValueChange = setup({
+      defaultValue: { from: '2026-10-24T07:00', to: '2026-10-24T10:00' },
+      min: '2026-10-24T08:00',
+    })
+    await user.click(rangeButton())
+    setTime('End time', '11:00')
+    expect(onValueChange).toHaveBeenLastCalledWith({
+      from: '2026-10-24T07:00',
+      to: '2026-10-24T11:00',
+    })
+  })
+
+  describe('panel', () => {
+    it('shows the date each time belongs to', async () => {
+      const user = userEvent.setup()
+      setup({ defaultValue: { from: '2026-10-24T09:00', to: '2026-10-26T18:00' } })
+      await user.click(rangeButton())
+      expect(namedInput('Start time')).toHaveValue('09:00')
+      expect(namedInput('Start time')).toHaveAccessibleDescription('2026-10-24')
+      expect(namedInput('End time')).toHaveValue('18:00')
+      expect(namedInput('End time')).toHaveAccessibleDescription('2026-10-26')
+    })
+
+    it('marks an end without a date, and disables its time', async () => {
+      const user = userEvent.setup()
+      setup({ defaultValue: { from: '2026-10-24T09:00' } })
+      await user.click(rangeButton())
+      expect(within(screen.getByRole('dialog')).getByText('—')).toBeInTheDocument()
+      expect(namedInput('Start time')).toBeEnabled()
+      expect(namedInput('End time')).toBeDisabled()
+    })
+
+    it('renames the times through labels', async () => {
+      const user = userEvent.setup()
+      render(
+        <DateRangePicker
+          granularity="minute"
+          labels={{ startTime: 'From', endTime: 'Until' }}
+          aria-label="Stay"
+        />,
+      )
+      await user.click(rangeButton())
+      expect(namedInput('From')).toBeInTheDocument()
+      expect(namedInput('Until')).toBeInTheDocument()
+    })
+
+    it('stays open after both picks and moves focus to the start time', async () => {
+      const user = userEvent.setup()
+      setup({ today: '2026-10-24' })
+      await user.click(rangeButton())
+      await user.click(day('2026-10-05') as HTMLElement)
+      await user.click(day('2026-10-08') as HTMLElement)
+      expect(screen.getByRole('dialog')).toBeInTheDocument()
+      expect(namedInput('Start time')).toHaveFocus()
+    })
+
+    it('keeps both times across a new range', async () => {
+      const user = userEvent.setup()
+      const onValueChange = setup({ defaultValue: stay })
+      await user.click(rangeButton())
+      await user.click(day('2026-10-05') as HTMLElement)
+      expect(end()).toHaveValue('')
+      await user.click(day('2026-10-08') as HTMLElement)
+      expect(onValueChange).toHaveBeenLastCalledWith({
+        from: '2026-10-05T09:00',
+        to: '2026-10-08T18:00',
+      })
+    })
+
+    it('drops the kept end time once the range is complete', async () => {
+      const user = userEvent.setup()
+      setup({ defaultValue: stay })
+      await user.click(rangeButton())
+      await user.click(day('2026-10-05') as HTMLElement)
+      await user.click(day('2026-10-08') as HTMLElement)
+      setTime('End time', '')
+      await user.click(day('2026-10-10') as HTMLElement)
+      await user.click(day('2026-10-12') as HTMLElement)
+      expect(end()).toHaveValue('2026-10-12')
+    })
+
+    it('closes on Enter in either time', async () => {
+      const user = userEvent.setup()
+      setup({ defaultValue: stay })
+      await user.click(rangeButton())
+      await user.click(namedInput('End time'))
+      await user.keyboard('{Enter}')
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    })
+
+    it('marks a range picked on one day, out of order', async () => {
+      const user = userEvent.setup()
+      setup({ defaultValue: { from: '2026-10-24T18:00', to: '2026-10-26T09:00' } })
+      await user.click(rangeButton())
+      await user.click(day('2026-10-05') as HTMLElement)
+      await user.click(day('2026-10-05') as HTMLElement)
+      expect(end()).toHaveAttribute('aria-invalid', 'true')
+      expect(namedInput('End time')).toHaveAttribute('aria-invalid', 'true')
+    })
+  })
+
+  it('renders no separator between the rows', () => {
+    render(<DateRangePicker granularity="minute" aria-label="Stay" />)
+    expect(screen.queryByText('–')).not.toBeInTheDocument()
+  })
+
+  it('submits both ends and restores them on reset', async () => {
+    const user = userEvent.setup()
+    const { container } = render(
+      <form>
+        <DateRangePicker
+          granularity="minute"
+          startName="start"
+          endName="end"
+          defaultValue={stay}
+          aria-label="Stay"
+        />
+        <button type="reset">Reset</button>
+      </form>,
+    )
+    const form = container.querySelector('form') as HTMLFormElement
+    expect(new FormData(form).get('start')).toBe('2026-10-24T09:00')
+    expect(new FormData(form).get('end')).toBe('2026-10-24T18:00')
+    await user.type(end(), '{Backspace}')
+    await user.click(screen.getByRole('button', { name: 'Reset' }))
+    expect(end()).toHaveValue('2026-10-24 18:00')
+    expect(end().validity.valid).toBe(true)
+    expect(new FormData(form).get('end')).toBe('2026-10-24T18:00')
+  })
+
+  it('passes error, disabled, description and required to both inputs in a Field', () => {
+    render(
+      <Field label="Stay" error="Pick times" disabled required>
+        <DateRangePicker granularity="minute" />
+      </Field>,
+    )
+    for (const input of [start(), end()]) {
+      expect(input).toHaveAttribute('aria-invalid', 'true')
+      expect(input).toHaveAttribute('aria-required', 'true')
+      expect(input).toHaveAccessibleDescription('Pick times')
+      expect(input).toBeDisabled()
+    }
   })
 })
 

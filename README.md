@@ -89,6 +89,7 @@ rendering one without React is outside the contract; compose the lv1 classes ins
 
 | Component (lv2) | React | HTML + CSS only |
 | --- | :-: | :-: |
+| `DatePicker` | ✅ | ❌ |
 | `EmptyState` | ✅ | ❌ |
 <!-- generated:lv1-support-matrix:end -->
 
@@ -868,10 +869,10 @@ import '@yasmro/schatten/css/button'
 Available components (one subpath per lv1, plus each lv2 that ships CSS of its own):
 <!-- generated:lv1-components:start -->
 `avatar` · `badge` · `button` · `callout` · `card` · `checkbox` ·
-`datecalendar` · `dialog` · `dropdownmenu` · `emptystate` · `field` ·
-`fieldset` · `icon` · `input` · `popover` · `radio` · `select` ·
-`separator` · `skeleton` · `spinner` · `switch` · `table` · `tabs` ·
-`text` · `textarea` · `toast` · `tooltip`.
+`datecalendar` · `datepicker` · `dialog` · `dropdownmenu` ·
+`emptystate` · `field` · `fieldset` · `icon` · `input` · `popover` ·
+`radio` · `select` · `separator` · `skeleton` · `spinner` · `switch` ·
+`table` · `tabs` · `text` · `textarea` · `toast` · `tooltip`.
 <!-- generated:lv1-components:end -->
 
 Tokens must be imported separately — the per-component files reference

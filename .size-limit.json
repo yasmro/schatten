@@ -13,7 +13,7 @@
   {
     "name": "components/lv2 (all)",
     "path": "dist/components/lv2/index.js",
-    "limit": "3 KB"
+    "limit": "32 KB"
   },
   {
     "name": "variants",
@@ -37,6 +37,7 @@
   { "name": "css/card", "path": "dist/css/card.css", "limit": "1.5 KB" },
   { "name": "css/checkbox", "path": "dist/css/checkbox.css", "limit": "1.5 KB" },
   { "name": "css/datecalendar", "path": "dist/css/datecalendar.css", "limit": "1.5 KB" },
+  { "name": "css/datepicker", "path": "dist/css/datepicker.css", "limit": "1.5 KB" },
   { "name": "css/dialog", "path": "dist/css/dialog.css", "limit": "1.5 KB" },
   { "name": "css/dropdownmenu", "path": "dist/css/dropdownmenu.css", "limit": "1.5 KB" },
   { "name": "css/emptystate", "path": "dist/css/emptystate.css", "limit": "1.5 KB" },

@@ -2,8 +2,8 @@ import { useCallback, useState } from 'react'
 
 /**
  * Controlled / uncontrolled state for one value. `controlled === undefined`
- * means uncontrolled. Local to DateCalendar until a second consumer exists
- * (component-architecture §6) — and Radix's own hook is not public surface.
+ * means uncontrolled. Shared by DateCalendar and the lv2 date pickers; Radix's
+ * own hook is not public surface.
  */
 export function useControllable<T>(
   controlled: T | undefined,

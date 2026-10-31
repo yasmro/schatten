@@ -33,7 +33,7 @@ export default defineConfig({
     ? [
         {
           name: 'webkit',
-          testMatch: '**/DateCalendar.interaction.vrt.spec.ts',
+          testMatch: '**/{DateCalendar,DatePicker}.interaction.vrt.spec.ts',
           use: { browserName: 'webkit' },
         },
       ]

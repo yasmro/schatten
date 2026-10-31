@@ -171,6 +171,7 @@ export const WELCOME_COMPONENT_SLUGS = [
   'components-lv1-checkbox',
   'components-lv1-radio',
   'components-lv1-switch',
+  'components-lv2-datepicker',
   'components-lv2-emptystate',
 ] as const
 

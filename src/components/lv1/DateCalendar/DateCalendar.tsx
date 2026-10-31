@@ -1,4 +1,5 @@
 import { forwardRef } from 'react'
+import { useControllable } from '../../../lib/use-controllable'
 import { cn } from '../../../lib/utils'
 import { dateCalendarVariants, dateRangeCalendarVariants } from '../../../variants/date-calendar'
 import {
@@ -10,7 +11,6 @@ import {
   validDate,
 } from './CalendarView'
 import { addDays, compareDates, diffDays } from './date-math'
-import { useControllable } from './use-controllable'
 import './DateCalendar.css'
 
 export type { DateCalendarLabels } from './CalendarView'

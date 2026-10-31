@@ -138,6 +138,8 @@ the association dangled (axe `button-name`, found in #345).
 | `RadioGroup` | At the group root, unless the consumer passed `aria-label` / `aria-labelledby` (items keep their own labels) |
 | `DateCalendar` / `DateRangeCalendar` | At the `role="group"` root, same rule as `RadioGroup`. `Field.required` is **not** wired: `aria-required` is not allowed on `group` / `grid`, and the calendar submits no value of its own. The lv2 pickers (#568) carry it on their inputs |
 | `Input` / `Textarea` / `Select` | Never — they consume `field.id` and are named natively via `htmlFor` |
+| `DatePicker` (lv2) | Never — its inner `Input` consumes `field.id`, like a bare `Input` |
+| `DateRangePicker` (lv2) | At the `role="group"` root, same rule as `RadioGroup`. See [Range input](#range-input-two-inputs-in-one-group) |
 
 Precedence (per component-architecture §5): explicit `aria-label` /
 `aria-labelledby` prop > own `label` prop > `field?.labelId`.
@@ -152,6 +154,39 @@ Precedence (per component-architecture §5): explicit `aria-label` /
   single form input; placing several label-less Checkboxes inside one Field
   gives them all the same accessible name. Give each its own `label` /
   `aria-label` instead.
+
+## Range input (two inputs in one group)
+
+A control with two inputs cannot take `field.id`: one `<label htmlFor>` reaches
+one element, and `Input` would put the same id on both. `DateRangePicker` (#568)
+is the pattern:
+
+```tsx
+const field = useFieldContext()
+const isError = field?.isError ?? isErrorProp
+const disabled = field?.disabled ?? disabledProp ?? false
+const ariaDescribedBy = field?.describedBy ?? ariaDescribedByProp
+const ariaLabelledBy = ariaLabelledByProp ?? (ariaLabel ? undefined : field?.labelId)
+
+<div role="group" aria-label={ariaLabel} aria-labelledby={ariaLabelledBy}>
+  {/* Input reads Field first, so it has to be cut off from it. */}
+  <FieldContext.Provider value={null}>
+    <Input aria-label="Start date" disabled={disabled} aria-describedby={ariaDescribedBy}
+      aria-required={field?.required || undefined} aria-invalid={isError || undefined} />
+    <Input aria-label="End date" … />
+  </FieldContext.Provider>
+</div>
+```
+
+- **The group is named, each input is named on its own.** The Field label names
+  the group; "Start date" / "End date" name the inputs.
+- **`aria-required`, `aria-invalid` and `aria-describedby` go on each input.**
+  `aria-required` is not allowed on `group`, and a description on the group is
+  not read when focus lands on an input.
+- **Clicking the Field label does nothing**, the same accepted limitation as a
+  self-labelled control without its own `label`.
+- **`value={null}` is a reset, not a new context.** See
+  [lv2-composition-guideline §4.4](lv2-composition-guideline.md#44-field-context).
 
 ## Accessibility Patterns
 

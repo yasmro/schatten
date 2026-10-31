@@ -17,7 +17,7 @@ Anything not covered here defaults to **shadcn/ui + Radix conventions**.
 |---|---|---|
 | Folder | [`src/components/lv1/`](../../src/components/lv1) | [`src/components/lv2/`](../../src/components/lv2) |
 | Purpose | Single-responsibility primitive. Low-level, focused. | A composition of multiple lv1s shaped as a single component. |
-| Examples (today) | Button, Input, Field, FieldSet, Select, Dialog, Tooltip, … | EmptyState |
+| Examples (today) | Button, Input, Field, FieldSet, Select, Dialog, Tooltip, … | EmptyState, DatePicker, DateRangePicker |
 | Rule doc | this file | [lv2-composition-guideline.md](lv2-composition-guideline.md) |
 
 ### Where the line is — does it introduce a primitive of its own?
@@ -39,7 +39,10 @@ lv1). Decide in two steps:
      `role` or `aria-*` on a wrapper is wiring, not a primitive**: a
      `role="group"` wrapper named by `aria-labelledby` (the DateRangePicker
      case, [lv2-composition-guideline.md §4.4](lv2-composition-guideline.md#44-field-context))
-     still introduces nothing a consumer could use on its own.
+     still introduces nothing a consumer could use on its own. **The same goes
+     for `<input type="hidden">`**: it has no role, no focus and no semantics,
+     so it is the wiring that carries a form value (`DatePicker`'s `name`), not
+     a native element the lv2 owns.
 
 | Component | Composes lv1s? | Primitive it introduces | Layer |
 |---|---|---|---|

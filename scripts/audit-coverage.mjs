@@ -94,11 +94,10 @@ export const PARITY_EXEMPT = new Set([
 // An lv2 NOT listed here gets no interaction requirement (column `na`).
 //
 // MAINTENANCE: the PR that adds an interactive lv2 adds its name here,
-// alphabetically (DatePicker / DateRangePicker with #568 are expected to be
-// the first entries). A static lv2 (EmptyState) stays out. Pinned by
+// alphabetically. A static lv2 (EmptyState) stays out. Pinned by
 // scripts/__tests__/audit-coverage.test.ts.
 /** @type {Set<string>} */
-export const LV2_INTERACTIVE = new Set([])
+export const LV2_INTERACTIVE = new Set(['DatePicker'])
 
 // Match `from './<name>'` / `from "./<name>"`. Same shape as
 // scripts/check-lv1-export-integrity.mjs — kept in sync deliberately.
@@ -171,6 +170,7 @@ export const ROLE_NAME_CONTRACT = /** @type {const} */ ({
   Button: 'button',
   Checkbox: 'checkbox',
   DateCalendar: 'grid',
+  DatePicker: 'textbox',
   Dialog: 'dialog',
   EmptyState: 'heading',
   FieldSet: 'group',

@@ -50,6 +50,37 @@ function AnchoredPopover() {
 }
 
 describe('Popover', () => {
+  it('stays open when onInteractOutside is prevented', async () => {
+    const user = userEvent.setup()
+    render(
+      <>
+        <button type="button">Outside</button>
+        <Popover defaultOpen>
+          <PopoverContent onInteractOutside={(event) => event.preventDefault()}>
+            Panel
+          </PopoverContent>
+        </Popover>
+      </>,
+    )
+    await user.click(screen.getByRole('button', { name: 'Outside', hidden: true }))
+    expect(screen.getByText('Panel')).toBeInTheDocument()
+  })
+
+  it('leaves focus alone when onCloseAutoFocus is prevented', async () => {
+    const user = userEvent.setup()
+    render(
+      <Popover>
+        <PopoverTrigger>Open</PopoverTrigger>
+        <PopoverContent onCloseAutoFocus={(event) => event.preventDefault()}>
+          <button type="button">Inside</button>
+        </PopoverContent>
+      </Popover>,
+    )
+    await user.click(screen.getByRole('button', { name: 'Open' }))
+    await user.keyboard('{Escape}')
+    expect(screen.getByRole('button', { name: 'Open' })).not.toHaveFocus()
+  })
+
   it('renders a trigger reachable by role + name', () => {
     render(<BasicPopover />)
     const trigger = screen.getByRole('button', { name: 'Open' })

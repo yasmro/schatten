@@ -124,16 +124,18 @@
  * Radix); authors only its own block rules (no `.st-btn` rules), so layer
  * placement is not order-sensitive. */
 @import "../components/lv1/Table/Table.css";
+/* #567 — DateCalendar (`.st-date-calendar*` class API). Self-implemented grid
+ * shared by DateRangeCalendar; authors only its own block rules, so layer
+ * placement is not order-sensitive. */
+@import "../components/lv1/DateCalendar/DateCalendar.css";
 /* #125 — EmptyState (`.st-empty-state*` class API, lv2). Its size modifiers
  * override `.st-icon--lg`, and inside `@layer components` source order breaks
  * specificity ties, so an lv2 stylesheet comes after every lv1 it composes
  * (lv2-composition-guideline §5.4). */
 @import "../components/lv2/EmptyState/EmptyState.css";
-
-/* #567 — DateCalendar (`.st-date-calendar*` class API). Self-implemented grid
- * shared by DateRangeCalendar; authors only its own block rules, so layer
- * placement is not order-sensitive. */
-@import "../components/lv1/DateCalendar/DateCalendar.css";
+/* #568 — DatePicker / DateRangePicker (`.st-date-picker` / `.st-date-range-picker`,
+ * lv2). Flattens `.st-input-wrapper`, so it must follow Input. */
+@import "../components/lv2/DatePicker/DatePicker.css";
 
 /*
  * Font configuration — load-to-activate, symmetric for sans and serif.

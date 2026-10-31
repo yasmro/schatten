@@ -92,6 +92,19 @@ export function compareDates(a: string, b: string): number {
   return a < b ? -1 : a > b ? 1 : 0
 }
 
+/**
+ * How `min` / `max` props are read everywhere: an invalid bound counts as unset,
+ * and an inverted pair is ignored.
+ */
+export function resolveBounds(min: string | undefined, max: string | undefined) {
+  const validMin = min && isValidISODate(min) ? min : undefined
+  const validMax = max && isValidISODate(max) ? max : undefined
+  const isInverted = !!validMin && !!validMax && compareDates(validMin, validMax) > 0
+  return isInverted
+    ? { isInverted, min: undefined, max: undefined }
+    : { isInverted, min: validMin, max: validMax }
+}
+
 export function clampDate(date: string, min: string, max: string): string {
   if (compareDates(date, min) < 0) return min
   return compareDates(date, max) > 0 ? max : date

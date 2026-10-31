@@ -79,6 +79,32 @@ test('DatePicker / Escape closes the panel but not the Dialog around it', async 
   await expect(page.getByRole('button', { name: 'Choose date' })).toBeFocused()
 })
 
+test('DatePicker / a click on the input opens the panel and typing closes it', async ({ page }) => {
+  await page.goto(`/iframe.html?id=${STORY_ID_PREFIX}--sizes&viewMode=story`)
+  await page.waitForLoadState('networkidle')
+  const input = page.getByRole('textbox', { name: 'Medium', exact: true })
+  await input.click()
+  await expect(panel(page)).toBeVisible()
+  await expect(input).toBeFocused()
+
+  await input.click()
+  await expect(panel(page)).toBeVisible()
+
+  await input.press('End')
+  await input.press('Backspace')
+  await expect(panel(page)).toHaveCount(0)
+  await expect(input).toBeFocused()
+  await expect(input).toHaveValue('2026-10-2')
+})
+
+test('DatePicker / Tab passes the input without opening the panel', async ({ page }) => {
+  await page.goto(`/iframe.html?id=${STORY_ID_PREFIX}--sizes&viewMode=story`)
+  await page.waitForLoadState('networkidle')
+  await page.keyboard.press('Tab')
+  await expect(page.getByRole('textbox', { name: 'Small', exact: true })).toBeFocused()
+  await expect(panel(page)).toHaveCount(0)
+})
+
 test('DatePicker / a form reset restores the defaults', async ({ page }) => {
   await page.goto(`/iframe.html?id=${STORY_ID_PREFIX}--in-form&viewMode=story`)
   await page.waitForLoadState('networkidle')

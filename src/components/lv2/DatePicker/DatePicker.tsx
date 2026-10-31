@@ -34,14 +34,9 @@ const DEFAULT_PLACEHOLDER = 'YYYY-MM-DD'
 /** An invalid or missing date counts as unset, as it does in DateCalendar. */
 const toValue = (date: string | undefined) => (date && isValidISODate(date) ? date : '')
 
-/** Alt+ArrowDown on an input opens the panel, like a native date input. */
-const opensOnAltArrowDown =
-  (open: () => void, isBlocked: boolean) => (event: KeyboardEvent<HTMLInputElement>) => {
-    if (event.altKey && event.key === 'ArrowDown' && !isBlocked) {
-      event.preventDefault()
-      open()
-    }
-  }
+/** The input an event landed on, including the padding of its wrapper. */
+const inputOf = (target: EventTarget) =>
+  (target as Element).closest('.st-input-wrapper')?.querySelector<HTMLElement>('.st-input')
 
 /** Props shared by `DatePicker` and `DateRangePicker`. */
 interface PickerCommonProps
@@ -109,19 +104,87 @@ interface PickerShellProps extends ComponentPropsWithoutRef<'div'> {
   onOpenChange: (open: boolean) => void
   /** Accessible name of the calendar button and of the panel it opens. */
   label: string
-  isTriggerDisabled: boolean
+  /** `disabled` or `readOnly`: nothing may open the panel. */
+  isBlocked: boolean
   calendar: ReactNode
 }
 
-/** The frame, the calendar button and the panel both pickers share. */
+/**
+ * The frame, the calendar button and the panel both pickers share. A click on an
+ * input opens the panel and leaves focus there, so typing still works. The
+ * calendar button and Alt+ArrowDown move focus into the calendar.
+ */
 const PickerShell = forwardRef<HTMLDivElement, PickerShellProps>(
-  ({ size, open, onOpenChange, label, isTriggerDisabled, calendar, children, ...props }, ref) => {
+  (
+    {
+      size,
+      open,
+      onOpenChange,
+      label,
+      isBlocked,
+      calendar,
+      onClick,
+      onKeyDown,
+      children,
+      ...props
+    },
+    ref,
+  ) => {
+    const rootRef = useRef<HTMLDivElement>(null)
     const contentRef = useRef<HTMLDivElement>(null)
+    // Where focus goes back to on close. Without it, Radix uses the trigger.
+    const originRef = useRef<HTMLElement | null>(null)
+    const movesFocusInRef = useRef(true)
+    const hasLeftRef = useRef(false)
+
+    function prepareOpen(origin: HTMLElement | null, movesFocusIn: boolean) {
+      originRef.current = origin
+      movesFocusInRef.current = movesFocusIn
+      hasLeftRef.current = false
+    }
+
+    const focusCalendar = () =>
+      contentRef.current
+        ?.querySelector<HTMLElement>('.st-date-calendar__day[tabindex="0"]')
+        ?.focus()
+
+    function onRootClick(event: MouseEvent<HTMLDivElement>) {
+      onClick?.(event)
+      const input = inputOf(event.target)
+      if (!input || isBlocked) return
+      prepareOpen(input, false)
+      onOpenChange(true)
+    }
+
+    function onRootKeyDown(event: KeyboardEvent<HTMLDivElement>) {
+      onKeyDown?.(event)
+      const input = inputOf(event.target)
+      if (!input || isBlocked || !event.altKey || event.key !== 'ArrowDown') return
+      event.preventDefault()
+      if (open) {
+        focusCalendar()
+      } else {
+        prepareOpen(input, true)
+        onOpenChange(true)
+      }
+    }
 
     return (
-      <Popover open={open} onOpenChange={onOpenChange}>
+      <Popover
+        open={open}
+        onOpenChange={(next) => {
+          if (next) prepareOpen(null, true)
+          onOpenChange(next)
+        }}
+      >
         <PopoverAnchor>
-          <div ref={ref} {...props}>
+          {/* biome-ignore lint/a11y/noStaticElementInteractions: the handlers delegate to the input, which keeps its own role and keyboard */}
+          <div
+            ref={mergeRefs(ref, rootRef)}
+            onClick={onRootClick}
+            onKeyDown={onRootKeyDown}
+            {...props}
+          >
             {children}
             <PopoverTrigger>
               <Button
@@ -129,7 +192,7 @@ const PickerShell = forwardRef<HTMLDivElement, PickerShellProps>(
                 size={size}
                 icon={CalendarDays}
                 aria-label={label}
-                disabled={isTriggerDisabled}
+                disabled={isBlocked}
               />
             </PopoverTrigger>
           </div>
@@ -141,9 +204,17 @@ const PickerShell = forwardRef<HTMLDivElement, PickerShellProps>(
           onOpenAutoFocus={(event) => {
             // Radix would focus the first tabbable, the previous-month button.
             event.preventDefault()
-            contentRef.current
-              ?.querySelector<HTMLElement>('.st-date-calendar__day[tabindex="0"]')
-              ?.focus()
+            if (movesFocusInRef.current) focusCalendar()
+          }}
+          onCloseAutoFocus={(event) => {
+            if (!originRef.current) return
+            event.preventDefault()
+            if (!hasLeftRef.current) originRef.current.focus()
+          }}
+          onInteractOutside={(event) => {
+            // The inputs live in the root: clicking one must not close the panel.
+            if (rootRef.current?.contains(event.target as Node)) event.preventDefault()
+            else hasLeftRef.current = true
           }}
         >
           {/* A portal keeps React context, so the calendar would otherwise take
@@ -204,7 +275,8 @@ export interface DatePickerProps extends PickerCommonProps {
 
 /**
  * Date input with a calendar in a popover. Typing `YYYY-MM-DD` and picking a
- * day stay in sync; the calendar button or Alt+ArrowDown opens the panel, focus
+ * day stay in sync; a click on the input opens the panel with focus left there,
+ * and typing closes it. The calendar button or Alt+ArrowDown opens it with focus
  * lands on the selected day, and closing returns it to the button.
  *
  * Reads `Field` like `Input`: the `Field` label names the input through
@@ -278,7 +350,7 @@ export const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(
         open={open}
         onOpenChange={setOpen}
         label={label}
-        isTriggerDisabled={disabled || readOnly}
+        isBlocked={disabled || readOnly}
         calendar={
           <DateCalendar
             value={value}
@@ -313,9 +385,11 @@ export const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(
           aria-describedby={ariaDescribedBy}
           aria-invalid={isError || input.isInvalid || undefined}
           value={input.text}
-          onChange={(event) => input.edit(event.target.value)}
+          onChange={(event) => {
+            input.edit(event.target.value)
+            setOpen(false)
+          }}
           onBlur={input.markBlurred}
-          onKeyDown={opensOnAltArrowDown(() => setOpen(true), disabled || readOnly)}
         />
         {name ? <input type="hidden" name={name} value={value} disabled={disabled} /> : null}
       </PickerShell>
@@ -501,7 +575,6 @@ export const DateRangePicker = forwardRef<HTMLDivElement, DateRangePickerProps>(
       'aria-required': field?.required || undefined,
       'aria-describedby': ariaDescribedBy,
       onBlur: onInputBlur,
-      onKeyDown: opensOnAltArrowDown(() => setOpen(true), disabled || readOnly),
     }
 
     return (
@@ -515,7 +588,7 @@ export const DateRangePicker = forwardRef<HTMLDivElement, DateRangePickerProps>(
         open={open}
         onOpenChange={setOpen}
         label={label}
-        isTriggerDisabled={disabled || readOnly}
+        isBlocked={disabled || readOnly}
         calendar={
           <DateRangeCalendar
             value={{ from: from || undefined, to: to || undefined }}
@@ -545,7 +618,10 @@ export const DateRangePicker = forwardRef<HTMLDivElement, DateRangePickerProps>(
             aria-label={labels?.startDate ?? 'Start date'}
             aria-invalid={isError || start.isInvalid || undefined}
             value={start.text}
-            onChange={(event) => start.edit(event.target.value)}
+            onChange={(event) => {
+              start.edit(event.target.value)
+              setOpen(false)
+            }}
           />
           <Text as="span" size="sm" color="muted" aria-hidden="true">
             –
@@ -556,7 +632,10 @@ export const DateRangePicker = forwardRef<HTMLDivElement, DateRangePickerProps>(
             aria-label={labels?.endDate ?? 'End date'}
             aria-invalid={isError || end.isInvalid || undefined}
             value={end.text}
-            onChange={(event) => end.edit(event.target.value)}
+            onChange={(event) => {
+              end.edit(event.target.value)
+              setOpen(false)
+            }}
           />
         </FieldContext.Provider>
         {startName ? (

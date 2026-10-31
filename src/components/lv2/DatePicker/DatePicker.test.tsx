@@ -123,11 +123,93 @@ describe('DatePicker', () => {
       expect(within(screen.getByRole('dialog')).getByText('March 2026')).toBeInTheDocument()
     })
 
-    it('does not open when the input is clicked', async () => {
+    it('opens when the input is clicked, leaving focus there', async () => {
       const user = userEvent.setup()
       render(<DatePicker aria-label="Birthday" />)
       await user.click(dateInput())
+      expect(screen.getByRole('dialog')).toBeInTheDocument()
+      expect(dateInput()).toHaveFocus()
+    })
+
+    it('opens from the padding around the input', async () => {
+      const user = userEvent.setup()
+      render(<DatePicker aria-label="Birthday" />)
+      await user.click(dateInput().parentElement as HTMLElement)
+      expect(screen.getByRole('dialog')).toBeInTheDocument()
+    })
+
+    it('does not open on focus alone', async () => {
+      const user = userEvent.setup()
+      render(<DatePicker aria-label="Birthday" />)
+      await user.tab()
+      expect(dateInput()).toHaveFocus()
       expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    })
+
+    it('stays open on a second click in the input', async () => {
+      const user = userEvent.setup()
+      render(<DatePicker aria-label="Birthday" />)
+      await user.click(dateInput())
+      await user.click(dateInput())
+      expect(screen.getByRole('dialog')).toBeInTheDocument()
+    })
+
+    it('closes when typing starts, keeping focus in the input', async () => {
+      const user = userEvent.setup()
+      render(<DatePicker aria-label="Birthday" />)
+      await user.click(dateInput())
+      await user.keyboard('2')
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+      expect(dateInput()).toHaveFocus()
+      expect(dateInput()).toHaveValue('2')
+    })
+
+    it('returns focus to the input after a pick that started there', async () => {
+      const user = userEvent.setup()
+      render(<DatePicker defaultValue="2026-10-24" aria-label="Birthday" />)
+      await user.click(dateInput())
+      await user.click(day('2026-10-15') as HTMLElement)
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+      expect(dateInput()).toHaveFocus()
+    })
+
+    it('keeps focus in the input on Escape', async () => {
+      const user = userEvent.setup()
+      render(<DatePicker aria-label="Birthday" />)
+      await user.click(dateInput())
+      await user.keyboard('{Escape}')
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+      expect(dateInput()).toHaveFocus()
+    })
+
+    it('does not pull focus back after a click elsewhere', async () => {
+      const user = userEvent.setup()
+      render(
+        <>
+          <DatePicker aria-label="Birthday" />
+          <input aria-label="Other" />
+        </>,
+      )
+      await user.click(dateInput())
+      await user.click(screen.getByRole('textbox', { name: 'Other' }))
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+      expect(screen.getByRole('textbox', { name: 'Other' })).toHaveFocus()
+    })
+
+    it('moves into the calendar with Alt+ArrowDown while open', async () => {
+      const user = userEvent.setup()
+      render(<DatePicker defaultValue="2026-10-24" aria-label="Birthday" />)
+      await user.click(dateInput())
+      await user.keyboard('{Alt>}{ArrowDown}{/Alt}')
+      expect(day('2026-10-24')).toHaveFocus()
+    })
+
+    it('fires a consumer onClick on the root', async () => {
+      const user = userEvent.setup()
+      const onClick = vi.fn()
+      render(<DatePicker onClick={onClick} aria-label="Birthday" />)
+      await user.click(dateInput())
+      expect(onClick).toHaveBeenCalledOnce()
     })
 
     it('opens with Alt+ArrowDown', async () => {
@@ -207,6 +289,7 @@ describe('DatePicker', () => {
       expect(dateInput()).toHaveAttribute('readonly')
       expect(calendarButton()).toBeDisabled()
       await user.click(dateInput())
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
       await user.keyboard('{Alt>}{ArrowDown}{/Alt}')
       expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
     })
@@ -645,9 +728,28 @@ describe('DateRangePicker', () => {
     it('opens with Alt+ArrowDown from either input', async () => {
       const user = userEvent.setup()
       render(<DateRangePicker aria-label="Stay" />)
-      await user.click(endInput())
+      await user.tab()
+      await user.tab()
+      expect(endInput()).toHaveFocus()
       await user.keyboard('{Alt>}{ArrowDown}{/Alt}')
       expect(screen.getByRole('dialog', { name: 'Choose date range' })).toBeInTheDocument()
+    })
+
+    it('stays open when moving from one input to the other', async () => {
+      const user = userEvent.setup()
+      render(<DateRangePicker aria-label="Stay" />)
+      await user.click(startInput())
+      await user.click(endInput())
+      expect(screen.getByRole('dialog')).toBeInTheDocument()
+      expect(endInput()).toHaveFocus()
+    })
+
+    it('returns focus to the input that opened it', async () => {
+      const user = userEvent.setup()
+      render(<DateRangePicker aria-label="Stay" />)
+      await user.click(endInput())
+      await user.keyboard('{Escape}')
+      expect(endInput()).toHaveFocus()
     })
   })
 

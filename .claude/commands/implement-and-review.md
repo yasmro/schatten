@@ -381,7 +381,7 @@ gh pr view "$PR_NUMBER" --json title,baseRefName,headRefName,labels
 同じセッション内で `/review-pr <PR_NUMBER>` を Skill 経由で起動する。
 
 - Skill tool を呼び、`skill="review-pr"` / `args="$PR_NUMBER"` を渡す
-- review-pr の出力 (3 セクション: 2 つの目線 / マージ可否 / 次の改善レコメンド)
+- review-pr の出力 (3 セクション: 3 つの目線 / マージ可否 / 次の改善レコメンド)
   をそのままユーザに見せる
 - Claude が自分で `gh pr review` を叩いて approve / request-changes を**しない**。
   review-pr は判断材料を出すだけで、最終的な merge / approve はユーザの操作

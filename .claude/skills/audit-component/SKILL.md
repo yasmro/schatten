@@ -26,7 +26,7 @@ do not duplicate each other:
 | Surface | What it answers | Trigger |
 |---|---|---|
 | `audit-component` (this skill) | "Does the implementation of *this one* component conform to every rule?" | user invokes per-component, on demand |
-| [`/audit-coverage`](../../commands/audit-coverage.md) | "Are the **required files** (test / VRT spec / class-API CSS / `__snapshots__/` / barrel re-export / parity files) present across **all** lv1?" | user runs library-wide; CI also runs it |
+| [`/audit-coverage`](../../commands/audit-coverage.md) | "Are the **required files** (test / VRT spec / class-API CSS / `__snapshots__/` / barrel re-export / parity files) present across **all** lv1 and lv2?" | user runs library-wide; CI also runs it |
 | `scripts/check-lv1-companions.mjs` + `scripts/check-lv1-export-integrity.mjs` (hooks) | Same structural check as `/audit-coverage`, but at edit-time / session-end | automatic |
 
 If the question is "is the file there?", run `/audit-coverage`. If it is "is
@@ -52,9 +52,14 @@ Get the component name from the user argument or the conversation. Accept
 either PascalCase (`Button`, `RadioGroup`) or kebab-case
 (`button`, `radio-group`) — normalize to PascalCase internally.
 
-Verify the component exists at `src/components/lv1/<Name>/<Name>.tsx`
-(or `lv2/<Name>/<Name>.tsx`). If it does not, stop and ask which component
-the user meant; do not silently pick the closest match.
+Verify the component exists at `src/components/<lv>/<Name>/<Name>.tsx`, where
+`<lv>` is `lv1` or `lv2`. If it does not, stop and ask which component the
+user meant; do not silently pick the closest match. If the same name exists
+in both folders, stop and ask which one.
+
+Fix `<lv>` here: it decides which paths Step 3 reads and which checkpoints
+apply. An lv2 is judged by `lv2-composition-guideline.md`, and where another
+checklist section below conflicts with it, that section says so.
 
 If the user names something that is **not** an individual component (a
 folder, a barrel re-export, a story), stop and ask. This skill audits
@@ -82,24 +87,25 @@ For `<Name>` (PascalCase), `<name-kebab>` (kebab-case):
 
 | File | Purpose |
 |---|---|
-| `src/components/lv1/<Name>/<Name>.tsx` | The component itself — props, render, a11y wiring |
-| `src/components/lv1/<Name>/<Name>.css` | The `.st-<name-kebab>` class-API source of truth |
-| `src/components/lv1/<Name>/<Name>.stories.tsx` | Storybook surface |
-| `src/components/lv1/<Name>/<Name>.test.tsx` | Vitest unit tests |
-| `src/components/lv1/<Name>/<Name>.vrt.spec.ts` | Playwright VRT spec |
-| `src/components/lv1/<Name>/<Name>.parity.stories.tsx` (optional) | Parity story (classification A/B) |
-| `src/components/lv1/<Name>/<Name>.parity.vrt.spec.ts` (optional) | Parity VRT (classification A/B) |
-| `src/components/lv1/<Name>/index.ts` | Folder barrel |
-| `src/variants/<name-kebab>.ts` (optional) | CVA variant definition |
-| `src/components/lv1/index.ts` | The relevant re-export line for `<Name>` |
+| `src/components/<lv>/<Name>/<Name>.tsx` | The component itself — props, render, a11y wiring |
+| `src/components/<lv>/<Name>/<Name>.css` | The `.st-<name-kebab>` class-API source of truth (lv2: only with visual rules of its own) |
+| `src/components/<lv>/<Name>/<Name>.stories.tsx` | Storybook surface |
+| `src/components/<lv>/<Name>/<Name>.test.tsx` | Vitest unit tests |
+| `src/components/<lv>/<Name>/<Name>.vrt.spec.ts` | Playwright VRT spec |
+| `src/components/lv1/<Name>/<Name>.parity.stories.tsx` (optional) | Parity story (classification A/B; never on lv2) |
+| `src/components/lv1/<Name>/<Name>.parity.vrt.spec.ts` (optional) | Parity VRT (classification A/B; never on lv2) |
+| `src/components/<lv>/<Name>/index.ts` | Folder barrel |
+| `src/variants/<name-kebab>.ts` (optional) | CVA variant definition (lv2: only with a variant axis) |
+| `src/components/<lv>/index.ts` | The relevant re-export line for `<Name>` |
 | `src/styles/entry.css` | The component CSS `@import` line |
+| `scripts/audit-coverage.mjs` (lv2 only) | The `LV2_INTERACTIVE` set — is `<Name>` in it? |
 
 Read whatever exists. Missing files are themselves findings — but cross-check
 against `pnpm audit:coverage` rather than re-deriving the structural matrix
 here (this skill is content-first; refer the user to `/audit-coverage` for
 missing-file detail).
 
-For compound components (`Dialog`, `Select`, `Tooltip`, `Radio` / `RadioGroup`),
+For compound components (`Select`, `Tooltip`, `Radio` / `RadioGroup`),
 the `.tsx` is multi-export — read every named export.
 
 ### Step 4 — Run the audit, rule by rule
@@ -150,15 +156,17 @@ list is not updated yet.
 
 ### component-architecture.md
 
-- **lv1 vs lv2 placement** — the component lives in the right folder for
-  its scope. (Today the lv2 folder is empty. Do not flag an lv1 as a
-  promotion candidate just because it composes several lv1s — the lv2
+- **lv1 vs lv2 placement** — the component lives in the right folder per
+  §1: an lv2 introduces no primitive of its own, an lv1 that is only other
+  lv1s plus wiring is an lv2 that has not been moved. Do not flag an lv1 as
+  a promotion candidate just because it composes several lv1s — the lv2
   criterion counts frozen decisions, not lv1s; see
-  `lv2-composition-guideline.md` below.)
+  `lv2-composition-guideline.md` below.
 - **Compound vs flat** — a compound component (multi-export) wraps a
   Radix primitive with multiple parts and names them 1-to-1 (Schatten
   `SelectTrigger` ↔ `SelectPrimitive.Trigger`). A flat component has one
-  styled tag and at most one content slot.
+  styled tag and at most one content slot. Does not apply to an lv2, which
+  is never compound (lv2-composition-guideline §4.1).
 - **`asChild` adoption (§3)** — for any new lv1 added since v0.7.0,
   `asChild` should be **absent** unless the three adoption criteria
   (real reason, internal state composes, leaf-ish) all hold. **Hard
@@ -172,13 +180,16 @@ list is not updated yet.
   **only** by externally-labelled inputs (Input / Textarea / Select),
   not by self-labelled ones (Checkbox / Switch / Radio).
 - **Dependency direction (§6)** — `lv1/` imports `lib/` / `contexts/` /
-  `variants/` / other `lv1/`. `lv1/` must not import `lv2/`. No
-  barrel-export laundering through a higher layer.
+  `variants/` / other `lv1/`. `lv1/` must not import `lv2/`. `lv2/` may
+  also import `lv1/` and other `lv2/`. No barrel-export laundering through
+  a higher layer.
 - **lv1-local `.css` files (§7)** — one `<Name>.css` holds every visual
   rule, in raw CSS on semantic tokens inside `@layer components` (no
   `@apply`, no Tailwind syntax). The component's JSX carries no Tailwind
   utility classes (pinned by `no-tailwind-in-component-jsx.test.ts`, #575).
-  A second `.css` for the same component needs a stated reason.
+  A second `.css` for the same component needs a stated reason. An lv2 needs
+  a `.css` only with visual rules of its own (lv2-composition-guideline
+  §5.4); the rest of this checkpoint applies to it unchanged.
 - **A11y contract (§8 — four guarantees)**:
   1. Explicit role from a native element / Radix primitive /
      `role="..."`. Calling out a `<div onClick>` masquerading as a button
@@ -272,32 +283,82 @@ list is not updated yet.
 
 ### lv2-composition-guideline.md
 
-For an **lv1** target this section is N/A — write one line saying so. The
-full lv2 checkpoint list is tracked in
-[#311](https://github.com/yasmro/schatten/issues/311); until it lands, an
-**lv2** target gets at least:
+For an **lv1** target this section is N/A — write one line saying so. Every
+§ below is a section of `lv2-composition-guideline.md`. Read that section
+before judging its checkpoint.
 
-- **Criterion recorded** — the issue / PR shows the G1–G4 / D1–D3 result
-  (§2). Missing → ⚠️.
-- **API shape (§4)** — flat + curated props (no named parts), `...rest` on
-  its own root, existing Pattern A / B vocabulary, **no React Context
-  provided**. A form-control lv2 reads `FieldContext` per §4.4.
-- **CSS contract (§5)** — React-only: no parity story, vanilla harness
-  sample, or `CSSApiDist` fixture section is expected (their absence is ✅,
-  their presence is ⚠️). Only block + modifier classes published; a
-  published `__*` sub-element needs a named consumer use case. Inner rules
-  hang off lv1 classes, not bare tags. `.css` exists only when the lv2 has
-  visual rules of its own, and is imported in `entry.css` after the lv1s it
-  composes.
 - **No primitive of its own** — every semantic element comes from an lv1
-  (e.g. the heading via `Text`'s `as`); see component-architecture §1.
-- **Companions (§6.1)** — judged against the lv2 column, not the lv1 one;
-  an interactive lv2 needs a non-screenshot interaction test.
+  (e.g. the heading via `Text`'s `as`, the trigger via `Button`); see
+  component-architecture §1.
+- **Criterion (§2)** — the audit checks the record and the parts the code
+  can answer. It does **not** re-judge G1 / G2 / G3 / D2: those are design
+  decisions made at promotion time, and re-arguing them per run would make
+  the result depend on the auditor.
+  - **Record** — the issue shows the G1–G4 / D1–D3 result. Follow the issue
+    number in the TSDoc / `.css` header with `gh issue view`. Missing, or
+    unreachable → ⚠️, and say which in "Skill / rule maintenance".
+  - **Argued △** — a △ on a gate is argued in the PR description with an
+    a11y / safety / state reason, not a visual one. Missing → ⚠️.
+  - **G4** — count the composition slots from the props **by role, not by
+    type**: `title` / `description` / `label` / body `children` do not count
+    (EmptyState has one, `action`). Three or more → ❌.
+  - **D1** — the class name says what it lays out (the §5.3 test). A generic
+    layout container → ❌.
+  - **D3** — it imports at least one lv1. None → ❌.
+- **Rejected candidates (§3)** — it is not a catalogued rejection coming
+  back (e.g. an alias of `Field`, #123). If it is → ❌.
+- **Flat + curated (§4.1)** — one component, no named parts. Compound → ❌.
+- **`...rest` (§4.2)** — a root of its own spreads `...rest` onto it. A root
+  that is a curated-props lv1 inherits that lv1's exception, which the TSDoc
+  must state (missing → ⚠️) along with the testid route.
+- **Vocabulary (§4.3)** — existing Pattern A / B values or an out-of-pattern
+  single axis, `size` is `sm | md | lg`, icon props are `LucideIcon`, and the
+  component has a row in the per-component matrix.
+- **Field context (§4.4)** — **no React Context provided**, in either kind.
+  - **Wraps a `Field`** — neither reads nor provides `FieldContext`.
+  - **Is placed inside a `Field`** (form control) — reads `FieldContext`
+    itself, so its non-input parts follow `disabled` / `isError` too. One
+    input consumes `field.id`. Two or more do not: the root carries
+    `role="group"` + `aria-labelledby={field.labelId}`, pinned by a
+    `getByRole('group', { name })` unit test, and each input has its own
+    name. `aria-required` uses the two idioms in field-context-guideline.
+    No `asChild`. The consumption tables in field-context-guideline list it.
+- **Accessibility (§4.5)** — adds no role its parts don't provide. A title
+  takes a `headingLevel` closed numeric union and renders through `Text`'s
+  `as`. A static lv2 with its own root tells the consumer in TSDoc how to
+  announce it at runtime (`role="status"` on a wrapper that stays mounted).
+- **Dependencies (§4.6)** — one-way, no barrel laundering. An lv2 → lv2
+  import is justified in the PR that introduced it (missing → ⚠️).
+- **React-only (§5.0)** — no parity story, vanilla harness sample, or
+  `CSSApiDist` fixture section: their absence is ✅, their presence is ⚠️.
+  The A–D classification is not applied.
+- **Manifest (§5.1)** — the classes it ships are listed. Do not flag lv2
+  classes as an unintended surface.
+- **Smallest surface (§5.2)** — only block + modifier classes published; a
+  published `__*` sub-element needs a named consumer use case. Inner rules
+  hang off lv1 classes, not bare tags. With a composition slot they use the
+  child combinator (`>`), so they cannot reach into consumer content. A
+  wrapper of the lv2's own is selected with `:not(...)` and carries no `st-`
+  class, and a unit test pins its place in the DOM.
+- **Mechanics (§5.4)** — `.css` exists only when the lv2 has visual rules of
+  its own, and is imported in `entry.css` after every lv1 it composes.
+- **Companions (§6.1)** — judged against the lv2 column, not the lv1 one.
+  `src/variants/<name-kebab>.ts` exists only with a variant axis and is not
+  re-exported from `src/variants/index.ts`. `LV2_INTERACTIVE` matches the
+  behaviour: an lv2 that opens, closes, selects, confirms or syncs values is
+  in the set and ships a non-screenshot interaction test; a static one is
+  not in it. An interactive lv2 missing from the set is a ❌, even while the
+  set is empty, because the audit script only checks what the set lists.
+- **Export path (§7)** — re-exported from `src/components/lv2/index.ts` through
+  a named export in its folder `index.ts`. The rest of the path is shared by
+  every lv2 (`tsup.config.ts` discovers the directories), so it needs no check
+  per component.
 
 ### field-context-guideline.md
 
 Only applies to form components (`Input`, `Textarea`, `Select`,
-`Checkbox`, `Radio`, `Switch`, `RadioGroup`, plus `Field` / `FieldSet`).
+`Checkbox`, `Radio`, `Switch`, `RadioGroup`, plus `Field` / `FieldSet`) and
+to form-control lv2s (lv2-composition-guideline §4.4).
 
 - **Fallback pattern** — `field?.value ?? propValue ?? defaultValue` for
   every consumed field. The fallback chain order is part of the
@@ -323,7 +384,7 @@ Only applies to form components (`Input`, `Textarea`, `Select`,
 - **TSDoc is source of truth** — when `argTypes.description` disagrees
   with TSDoc, TSDoc wins. Both must be present and consistent.
 - **Meta** — `tags: ['autodocs']`, `parameters: { layout: 'centered' }`
-  unless full-width is needed.
+  unless full-width is needed. The title is `Components/<lv>/<Name>`.
 
 ### testing-guideline.md
 
@@ -334,7 +395,8 @@ Only applies to form components (`Input`, `Textarea`, `Select`,
   returns the component.
 - **Component-type cases** — match the bucket (Form Input / Compound /
   Action / Display). Form-input components must cover controlled +
-  uncontrolled + Field-context integration.
+  uncontrolled + Field-context integration. An lv2's bucket follows its
+  behaviour: a form-control lv2 is Form Input, a static one is Display.
 - **BDD-style naming** — `it('renders ...', ...)` not `it('should ...')`
   or `it('test #3', ...)`.
 - **`describe` is the "Given"** — shared preconditions in nested
@@ -352,7 +414,8 @@ Only applies to form components (`Input`, `Textarea`, `Select`,
 - **Template choice** matches the component shape — standard /
   animation (component has `@keyframes`) / Portal (Dialog / Tooltip /
   Toast / Select-open).
-- **`STORY_ID_PREFIX`** matches the Storybook `title:` kebab-cased.
+- **`STORY_ID_PREFIX`** matches the Storybook `title:` kebab-cased
+  (`components-lv1-*` / `components-lv2-*`).
 - **Story roster sync** — every `*.stories.tsx` export that represents
   a distinct visual state is in the spec's `stories` array (or
   explicitly skipped with a one-line comment naming the reason).
@@ -365,8 +428,11 @@ Only applies to form components (`Input`, `Textarea`, `Select`,
   comment.
 - **Parity story / spec** — for classification A/B (fully vanilla-able
   + browser-handled), `*.parity.stories.tsx` and `*.parity.vrt.spec.ts`
-  exist. For classification C/D (JS-driven compounds — Tooltip / Select
-  / Dialog / Toast), they must **not** exist.
+  exist. For classification C/D (JS-driven components — Tooltip / Select
+  / Dialog / Toast), they must **not** exist. lv1 only: an lv2 has no
+  classification and no parity. Where this guideline requires an
+  interaction test for classification C/D, an lv2 follows `LV2_INTERACTIVE`
+  instead (see `lv2-composition-guideline.md` above).
 
 ### api-stability.md
 
@@ -415,7 +481,7 @@ spots** that `no-primitive-color` cannot reach:
   invisible to the linter. Read the file and grep for
   `\b(bg|text|border|ring)-(red|gray|blue|green|amber|yellow|purple|sumi|vermillion)-\d{2,3}\b`
   — any hit is a ❌.
-- **`src/components/lv1/<Name>/<Name>.css`** — component CSS is also
+- **`src/components/<lv>/<Name>/<Name>.css`** — component CSS is also
   out of the GritQL plugin's reach. Read the file and grep for the
   same pattern (note that `var(--color-*)` references are the correct
   form, not `bg-*` utilities; see css-api.md "raw CSS over `@apply`").
@@ -434,8 +500,8 @@ Emit one section per rule, plus the closing wrap-up. Use this template:
 ## 概要 / Summary
 
 <Name> は <Pattern A | Pattern B | Form | Display> の <flat | compound> な
-lv1 で、<a11y role の出どころ>。Audit 対象: <.tsx / .css / .stories.tsx /
-.test.tsx / .vrt.spec.ts / (.parity.*?)>.
+<lv1 | lv2> で、<a11y role の出どころ>。Audit 対象: <.tsx / .css /
+.stories.tsx / .test.tsx / .vrt.spec.ts / (.parity.*?)>.
 
 - ✅ <pass count> / ⚠️ <warning count> / ❌ <violation count>
 
@@ -517,9 +583,8 @@ conversation. The structural anchors (`✅`/`⚠️`/`❌`, rule file names,
 - **Update VRT baselines** (`pnpm test:vrt:update`). The blind-update
   prohibition in [vrt-spec-guideline.md](../../rules/vrt-spec-guideline.md)
   applies to all agent-driven runs.
-- **Audit `lv2` in depth.** The lv2 folder is empty today; the
-  `lv2-composition-guideline.md` section above covers only the minimum.
-  The full lv2 checkpoint list is #311.
+- **Re-judge the lv2 promotion.** G1 / G2 / G3 / D2 are recorded in the
+  issue at promotion time; the audit checks the record, not the verdict.
 - **Replace `/audit-coverage`.** Structural file-presence checks belong
   to that command — this skill defers to it for the "is the file
   there" question.
@@ -543,7 +608,7 @@ conversation. The structural anchors (`✅`/`⚠️`/`❌`, rule file names,
   PR can backfill the checklist.
 - **CVA variant files and component CSS are not covered by
   `no-primitive-color`.** The audit explicitly grep-reads
-  `src/variants/<name-kebab>.ts` and `src/components/lv1/<Name>/<Name>.css`
+  `src/variants/<name-kebab>.ts` and `src/components/<lv>/<Name>/<Name>.css`
   for primitive colour usage — do not rely on `pnpm lint` alone.
 - **Compound components produce a longer report** because each named
   export gets its own audit. Mark each sub-component's findings under

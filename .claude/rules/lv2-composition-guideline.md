@@ -426,7 +426,7 @@ thing lv1 already ships in `.st-field` / `.st-card__header` / `.st-callout`.
 | `{X}.test.tsx` | Required | Required | Apply the [testing-guideline](testing-guideline.md) bucket by behaviour (a form-control lv2 is "form input", a static one "display") |
 | `{X}.vrt.spec.ts` + `__snapshots__/` | Required | Required | Story-id prefix `components-lv2-{x}` |
 | `{X}.css` | **Always** | **Only with own visual rules** | §5.4 |
-| `src/variants/{x}.ts` (CVA) | Effectively always | **Only with a variant axis** | — |
+| `src/variants/{x}.ts` (CVA) | Effectively always | **Only with a variant axis** | Not re-exported from `src/variants/index.ts`: that entry serves non-React consumers, and an lv2 is React-only (§5.0). Exporting it later is additive |
 | CSS API fixture section (`cssApiSamples.html.ts` + `.tsx`) | Required | **Not required** | Vanilla markup — React-only (§5.0); `CSSApiDist.vrt.spec.ts` does not discover lv2 |
 | Vanilla harness sample | Required | **Not required** | React-only (§5.0) |
 | Parity story + spec | Classification A/B | **Not required** | React-only (§5.0) |
@@ -531,5 +531,6 @@ Restoring the export is an additive surface change (`minor`).
   record the consumer use case next to it.
 - **Scaffolding skill:** there is no `add-lv2-component` skill yet. It is
   filed with #568, once two real lv2s show which steps repeat.
-- **Audit skill:** lv2-specific checkpoints for `audit-component` are tracked
-  in [#311](https://github.com/yasmro/schatten/issues/311).
+- **Audit skill:** `audit-component` mirrors this document section by section
+  in its `lv2-composition-guideline.md` checklist. A new numbered section here
+  fails `SKILL.test.ts` until the checklist cites it or the test excuses it.

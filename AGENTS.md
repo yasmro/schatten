@@ -71,6 +71,8 @@ pnpm build             # Build JS + CSS into dist/
 pnpm test              # Run Vitest
 pnpm test:vrt          # Run Playwright VRT
 pnpm test:vrt:update   # Update VRT snapshots
+pnpm test:tz           # DateCalendar date math under four time zones
+pnpm test:webkit       # DateCalendar interaction spec on WebKit (local only)
 pnpm lint              # Biome CI checks
 pnpm lint:fix          # Biome auto-fix
 pnpm typecheck         # tsc --noEmit

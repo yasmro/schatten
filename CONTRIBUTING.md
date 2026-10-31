@@ -97,6 +97,8 @@ jobs one-to-one, so a green local run is a green CI run.
 | `pnpm test --run` | Vitest unit suite. |
 | `pnpm test:vrt` | Playwright visual regression (compare only). |
 | `pnpm test:a11y` | `@axe-core/playwright` — zero WCAG 2.1 A/AA violations. |
+| `pnpm test:tz` | DateCalendar date math under four time zones. |
+| `pnpm test:webkit` | DateCalendar interaction spec on WebKit (local only; run `pnpm exec playwright install webkit` once). |
 | `pnpm size` | Per-entry bundle-size budgets in [`.size-limit.json`](.size-limit.json). |
 | `pnpm check:manifest` | The public CSS class / variable manifest matches the committed snapshot. |
 | `pnpm check:layer-order` | The `@layer` declaration in the dist matches [css-api.md](.claude/rules/css-api.md). |

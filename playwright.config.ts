@@ -26,6 +26,18 @@ export default defineConfig({
       maxDiffPixelRatio: 0.01,
     },
   },
+  // WebKit is local-only for now (#567): the macOS CI runner is scarce (#582) and
+  // the VRT runtime is under review (#583). Only DateCalendar's interaction spec
+  // runs here, because focus handling is where Safari differs. No screenshots.
+  projects: process.env.PW_WEBKIT
+    ? [
+        {
+          name: 'webkit',
+          testMatch: '**/DateCalendar.interaction.vrt.spec.ts',
+          use: { browserName: 'webkit' },
+        },
+      ]
+    : undefined,
   webServer: {
     command: 'pnpm dev',
     url: 'http://localhost:6006',

@@ -117,6 +117,10 @@ jobs:
       - name: Unit tests
         run: pnpm vitest run
 
+      # Node reads TZ at startup, so the date math needs one process per zone.
+      - name: Date math across time zones
+        run: pnpm test:tz
+
   size:
     runs-on: ubuntu-latest
     steps:

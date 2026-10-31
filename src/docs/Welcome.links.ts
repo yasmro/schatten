@@ -179,7 +179,8 @@ export const WELCOME_COMPONENT_SLUGS = [
  * their primary UI is portal-rendered and pointer-driven (dialog, menu,
  * popover), so a static live-preview card cannot show the real thing — an
  * open overlay would escape the card's preview box or require interaction
- * the card's click-trap blocks. They stay reachable through the sidebar's
+ * the card's click-trap blocks. DateCalendar has no portal, but a month grid
+ * is wider than the card's preview box. They stay reachable through the sidebar's
  * `Components/lv1/*` catalog.
  *
  * `Welcome.drift.test.ts` asserts every lv1 story module is either carded in
@@ -189,5 +190,6 @@ export const WELCOME_COMPONENT_SLUGS = [
 export const WELCOME_CARD_EXEMPT = [
   'components-lv1-dialog',
   'components-lv1-dropdownmenu',
+  'components-lv1-datecalendar',
   'components-lv1-popover',
 ] as const

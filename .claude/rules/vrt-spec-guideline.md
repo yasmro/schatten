@@ -415,7 +415,7 @@ visual" — but only for components a vanilla consumer can realistically use.
 
 For components in the [#297](https://github.com/yasmro/schatten/issues/297)
 classification **区分 C (静的描画のみ)** or **区分 D (JS 必須)** — i.e.,
-Tooltip, Select, Dialog, Toast — **do not author a parity story or a
+Tooltip, Select, Dialog, Toast, DateCalendar — **do not author a parity story or a
 `*.parity.vrt.spec.ts`**. The class API still exists and is documented in the
 manifest, but there is no realistic vanilla use case to prove parity against:
 

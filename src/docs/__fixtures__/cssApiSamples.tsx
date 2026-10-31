@@ -36,6 +36,7 @@ import {
   CardHeader,
   CardTitle,
   Checkbox,
+  DateCalendar,
   Field,
   FieldSet,
   Icon,
@@ -314,6 +315,13 @@ export function ReactSamples() {
           <CardContent>Main content goes here.</CardContent>
           <CardFooter>Footer</CardFooter>
         </Card>
+      </section>
+
+      <section className="cssapi-fixture__sample" data-component="datecalendar">
+        <span className="cssapi-fixture__sample-label">
+          DateCalendar — .st-date-calendar (static markup; navigation and selection need JS)
+        </span>
+        <DateCalendar aria-label="Date" today="2026-10-24" defaultValue="2026-10-20" />
       </section>
 
       <section className="cssapi-fixture__sample" data-component="avatar">

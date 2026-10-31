@@ -203,6 +203,11 @@ directly:
 | Read-only | `:read-only` (HTML) | `.st-input:read-only` |
 | Error / invalid | `[aria-invalid="true"]` | `.st-input[aria-invalid="true"]` |
 | Loading / busy | `[aria-busy="true"]` | `.st-btn[aria-busy="true"]` |
+| Selected date cell | `[aria-selected="true"]` | `.st-date-calendar__cell[aria-selected="true"]` |
+| Unavailable date cell, disabled calendar | `[aria-disabled="true"]` | `.st-date-calendar__cell[aria-disabled="true"]` |
+| Today | `[aria-current="date"]` | `.st-date-calendar__day[aria-current="date"]` |
+| Position in a date range | `[data-range-start]` / `[data-range-end]` / `[data-range-middle]` | `.st-date-calendar__cell[data-range-middle]` |
+| Adjacent-month day | `[data-outside]` | `.st-date-calendar__cell[data-outside]` |
 | Radix runtime state | `[data-state="open" \| "closed" \| "checked" \| …]` | `.st-dialog__content[data-state="open"]` |
 | Radix popper side | `[data-side="top" \| "right" \| "bottom" \| "left"]` | `.st-tooltip__content[data-side="bottom"]` |
 | Toast swipe | `[data-swipe="start" \| "move" \| "end" \| "cancel"]` | `.st-toast[data-swipe="end"]` |

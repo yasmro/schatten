@@ -75,6 +75,7 @@ const DATA_COMPONENT_RE = /data-component="([^"]+)"/g
 // gets parsed.
 export const PARITY_EXEMPT = new Set([
   'Avatar',
+  'DateCalendar',
   'Dialog',
   'DropdownMenu',
   'Popover',
@@ -169,6 +170,7 @@ export const ROLE_NAME_CONTRACT = /** @type {const} */ ({
   Badge: 'img',
   Button: 'button',
   Checkbox: 'checkbox',
+  DateCalendar: 'grid',
   Dialog: 'dialog',
   EmptyState: 'heading',
   FieldSet: 'group',

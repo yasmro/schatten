@@ -32,9 +32,9 @@ describe('src/__generated__/schatten.manifest.json (committed snapshot)', () => 
   })
 
   describe('dataAttributes', () => {
-    it('every entry matches the contract shape (data-* | aria-invalid | aria-busy)', () => {
+    it('every entry matches the contract shape (data-* | a pinned aria-* hook)', () => {
       for (const a of committed.dataAttributes) {
-        expect(a).toMatch(/^(?:data-[a-z-]+|aria-(?:invalid|busy))$/)
+        expect(a).toMatch(/^(?:data-[a-z-]+|aria-(?:invalid|busy|selected|disabled|current))$/)
       }
     })
 

@@ -18,6 +18,16 @@ export {
 } from './Card'
 export { Checkbox, type CheckboxProps } from './Checkbox'
 export {
+  DateCalendar,
+  type DateCalendarLabels,
+  type DateCalendarLocale,
+  type DateCalendarProps,
+  type DateRange,
+  DateRangeCalendar,
+  type DateRangeCalendarProps,
+  type WeekDay,
+} from './DateCalendar'
+export {
   Dialog,
   type DialogActionButton,
   type DialogCancelButton,

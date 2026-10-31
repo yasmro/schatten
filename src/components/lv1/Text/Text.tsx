@@ -10,7 +10,8 @@ export interface TextProps extends Omit<HTMLAttributes<HTMLElement>, 'color'>, T
    * Semantic role of the text.
    * - `body` — paragraph copy
    * - `label` — form labels and inline metadata
-   * - `heading` — headings (use `as` to pick `h1`–`h6`)
+   * - `heading` — headings (use `as` to pick `h1`–`h6`). Normal weight at
+   *   every size; the hierarchy comes from size and line-height, not weight.
    * @default 'body'
    */
   variant?: TextVariants['variant']

@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { useEffect, useRef, useState } from 'react'
+import { Button } from '../../lv1/Button'
 import { Dialog } from '../../lv1/Dialog'
 import { Field } from '../../lv1/Field'
 import { DatePicker, DateRangePicker } from './DatePicker'
@@ -190,19 +191,38 @@ export const InField: Story = {
   ),
 }
 
+export const InForm: Story = {
+  name: 'In Form',
+  render: () => (
+    <form className="flex w-72 flex-col gap-4">
+      <DatePicker name="date" defaultValue="2026-10-24" aria-label="Date" />
+      <DateRangePicker
+        startName="start"
+        endName="end"
+        defaultValue={{ from: '2026-10-20', to: '2026-10-24' }}
+        aria-label="Stay"
+      />
+      <button type="reset">Reset</button>
+    </form>
+  ),
+}
+
 function InDialogDemo() {
-  const [isOpen, setIsOpen] = useState(true)
+  const [isOpen, setIsOpen] = useState(false)
   return (
-    <Dialog
-      isOpen={isOpen}
-      onOpenChange={setIsOpen}
-      title="Schedule"
-      actionButton={{ label: 'Save', onClick: () => setIsOpen(false) }}
-    >
-      <Field label="Date">
-        <DatePicker defaultValue="2026-10-24" today="2026-10-20" />
-      </Field>
-    </Dialog>
+    <>
+      <Button onClick={() => setIsOpen(true)}>Open dialog</Button>
+      <Dialog
+        isOpen={isOpen}
+        onOpenChange={setIsOpen}
+        title="Schedule"
+        actionButton={{ label: 'Save', onClick: () => setIsOpen(false) }}
+      >
+        <Field label="Date">
+          <DatePicker defaultValue="2026-10-24" today="2026-10-20" />
+        </Field>
+      </Dialog>
+    </>
   )
 }
 

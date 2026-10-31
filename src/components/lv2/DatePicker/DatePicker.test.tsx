@@ -295,6 +295,99 @@ describe('DatePicker', () => {
     })
   })
 
+  describe('form reset', () => {
+    function reset(user: ReturnType<typeof userEvent.setup>) {
+      return user.click(screen.getByRole('button', { name: 'Reset' }))
+    }
+    const hidden = (name: string) =>
+      document.querySelector<HTMLInputElement>(`input[type="hidden"][name="${name}"]`)
+
+    it('restores defaultValue', async () => {
+      const user = userEvent.setup()
+      const onValueChange = vi.fn()
+      render(
+        <form>
+          <DatePicker
+            name="birthday"
+            defaultValue="2026-10-24"
+            onValueChange={onValueChange}
+            aria-label="Birthday"
+          />
+          <button type="reset">Reset</button>
+        </form>,
+      )
+      await user.clear(dateInput())
+      await user.type(dateInput(), '2026-11-01')
+      await reset(user)
+      expect(dateInput()).toHaveValue('2026-10-24')
+      expect(hidden('birthday')).toHaveValue('2026-10-24')
+      expect(onValueChange).toHaveBeenLastCalledWith('2026-10-24')
+    })
+
+    it('clears an invalid draft and its error', async () => {
+      const user = userEvent.setup()
+      render(
+        <form>
+          <DatePicker aria-label="Birthday" />
+          <button type="reset">Reset</button>
+        </form>,
+      )
+      await user.type(dateInput(), 'nope')
+      await user.tab()
+      await reset(user)
+      expect(dateInput()).toHaveValue('')
+      expect(dateInput()).not.toHaveAttribute('aria-invalid')
+      expect((dateInput() as HTMLInputElement).validity.valid).toBe(true)
+    })
+
+    it('leaves a controlled value to the parent, dropping only the draft', async () => {
+      const user = userEvent.setup()
+      const onValueChange = vi.fn()
+      render(
+        <form>
+          <DatePicker value="" onValueChange={onValueChange} aria-label="Birthday" />
+          <button type="reset">Reset</button>
+        </form>,
+      )
+      await user.type(dateInput(), 'nope')
+      await reset(user)
+      expect(dateInput()).toHaveValue('')
+      expect(onValueChange).not.toHaveBeenCalled()
+    })
+
+    it('ignores the reset of another form', async () => {
+      const user = userEvent.setup()
+      render(
+        <>
+          <form>
+            <DatePicker defaultValue="2026-10-24" aria-label="Birthday" />
+          </form>
+          <form>
+            <button type="reset">Reset</button>
+          </form>
+        </>,
+      )
+      await user.clear(dateInput())
+      await user.type(dateInput(), '2026-11-01')
+      await reset(user)
+      expect(dateInput()).toHaveValue('2026-11-01')
+    })
+
+    it('stays put when a handler cancels the reset', async () => {
+      const user = userEvent.setup()
+      render(
+        <form onReset={(event) => event.preventDefault()}>
+          <DatePicker defaultValue="2026-10-24" aria-label="Birthday" />
+          <button type="reset">Reset</button>
+        </form>,
+      )
+      await user.clear(dateInput())
+      await user.type(dateInput(), '2026-11-01')
+      await reset(user)
+      expect(dateInput()).toHaveValue('2026-11-01')
+    })
+  })
+
   it('exposes the input through inputRef', () => {
     const inputRef = createRef<HTMLInputElement>()
     render(<DatePicker inputRef={inputRef} aria-label="Birthday" />)
@@ -463,6 +556,41 @@ describe('DateRangePicker', () => {
     )
     await user.type(endInput(), '2026-10-24')
     expect(onValueChange).toHaveBeenLastCalledWith({ from: '2026-01-01', to: '2026-10-24' })
+  })
+
+  it('restores defaultValue on form reset', async () => {
+    const user = userEvent.setup()
+    const onValueChange = vi.fn()
+    render(
+      <form>
+        <DateRangePicker
+          startName="checkIn"
+          defaultValue={{ from: '2026-10-20', to: '2026-10-24' }}
+          onValueChange={onValueChange}
+          aria-label="Stay"
+        />
+        <button type="reset">Reset</button>
+      </form>,
+    )
+    await user.clear(endInput())
+    await user.type(startInput(), '{Backspace}')
+    await user.click(screen.getByRole('button', { name: 'Reset' }))
+    expect(startInput()).toHaveValue('2026-10-20')
+    expect(endInput()).toHaveValue('2026-10-24')
+    expect(onValueChange).toHaveBeenLastCalledWith({ from: '2026-10-20', to: '2026-10-24' })
+  })
+
+  it('does not report a change when the reset changes nothing', async () => {
+    const user = userEvent.setup()
+    const onValueChange = vi.fn()
+    render(
+      <form>
+        <DateRangePicker onValueChange={onValueChange} aria-label="Stay" />
+        <button type="reset">Reset</button>
+      </form>,
+    )
+    await user.click(screen.getByRole('button', { name: 'Reset' }))
+    expect(onValueChange).not.toHaveBeenCalled()
   })
 
   it('exposes each input through its own ref', () => {

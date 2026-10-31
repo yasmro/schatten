@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { type RefObject, useEffect, useRef, useState } from 'react'
 import { compareDates, isValidISODate, resolveBounds } from '../../lv1/DateCalendar/date-math'
 
 export interface DateConstraints {
@@ -18,6 +18,24 @@ export function parseDate(text: string, { min, max, isDateDisabled }: DateConstr
   if (bounds.min && compareDates(date, bounds.min) < 0) return ''
   if (bounds.max && compareDates(date, bounds.max) > 0) return ''
   return isDateDisabled?.(date) ? '' : date
+}
+
+/**
+ * Runs `onReset` when the input's form resets. A native reset cannot reach React
+ * state. Listening on `document` runs after React's own `onReset`, so a handler
+ * that cancels the reset is respected, and `input.form` also covers `form="…"`.
+ */
+export function useFormReset(inputRef: RefObject<HTMLInputElement | null>, onReset: () => void) {
+  useEffect(() => {
+    const input = inputRef.current
+    if (!input) return
+    const document = input.ownerDocument
+    const listener = (event: Event) => {
+      if (event.target === input.form && !event.defaultPrevented) onReset()
+    }
+    document.addEventListener('reset', listener)
+    return () => document.removeEventListener('reset', listener)
+  })
 }
 
 /**

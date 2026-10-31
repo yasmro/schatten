@@ -12,6 +12,13 @@ async function open(page: Page, story: string) {
   await page.locator('[role="dialog"]').waitFor({ state: 'visible', timeout: 10_000 })
 }
 
+async function openInDialog(page: Page) {
+  await page.goto(`/iframe.html?id=${STORY_ID_PREFIX}--in-dialog&viewMode=story`)
+  await page.waitForLoadState('networkidle')
+  await page.getByRole('button', { name: 'Open dialog' }).click()
+  await page.getByRole('dialog', { name: 'Schedule' }).waitFor({ state: 'visible' })
+}
+
 const day = (page: Page, date: string) => page.locator(`[data-date="${date}"]`)
 const panel = (page: Page) => page.getByRole('dialog')
 
@@ -49,7 +56,7 @@ test('DatePicker / Enter on a day picks it from the keyboard', async ({ page }) 
 })
 
 test('DatePicker / a day can be picked inside a modal Dialog', async ({ page }) => {
-  await open(page, 'in-dialog')
+  await openInDialog(page)
   await page.getByRole('button', { name: 'Choose date' }).click()
   const calendar = page.getByRole('dialog', { name: 'Choose date' })
   await expect(calendar).toBeVisible()
@@ -62,7 +69,7 @@ test('DatePicker / a day can be picked inside a modal Dialog', async ({ page }) 
 })
 
 test('DatePicker / Escape closes the panel but not the Dialog around it', async ({ page }) => {
-  await open(page, 'in-dialog')
+  await openInDialog(page)
   await page.getByRole('button', { name: 'Choose date' }).click()
   const calendar = page.getByRole('dialog', { name: 'Choose date' })
   await expect(calendar).toBeVisible()
@@ -70,6 +77,22 @@ test('DatePicker / Escape closes the panel but not the Dialog around it', async 
   await expect(calendar).toHaveCount(0)
   await expect(page.getByRole('dialog', { name: 'Schedule' })).toBeVisible()
   await expect(page.getByRole('button', { name: 'Choose date' })).toBeFocused()
+})
+
+test('DatePicker / a form reset restores the defaults', async ({ page }) => {
+  await page.goto(`/iframe.html?id=${STORY_ID_PREFIX}--in-form&viewMode=story`)
+  await page.waitForLoadState('networkidle')
+  const date = page.getByRole('textbox', { name: 'Date', exact: true })
+  const end = page.getByRole('textbox', { name: 'End date' })
+  await date.fill('2026-11-01')
+  await end.fill('nope')
+
+  await page.getByRole('button', { name: 'Reset' }).click()
+
+  await expect(date).toHaveValue('2026-10-24')
+  await expect(end).toHaveValue('2026-10-24')
+  await expect(page.locator('input[type="hidden"][name="date"]')).toHaveValue('2026-10-24')
+  await expect(page.locator('input[type="hidden"][name="end"]')).toHaveValue('2026-10-24')
 })
 
 test('DateRangePicker / two clicks pick a range', async ({ page }) => {

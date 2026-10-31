@@ -26,7 +26,7 @@ import { isValidISODate } from '../../lv1/DateCalendar/date-math'
 import { Input } from '../../lv1/Input'
 import { Popover, PopoverAnchor, PopoverContent, PopoverTrigger } from '../../lv1/Popover'
 import { Text } from '../../lv1/Text'
-import { type DateConstraints, parseDate, useDateInput } from './use-date-input'
+import { type DateConstraints, parseDate, useDateInput, useFormReset } from './use-date-input'
 import './DatePicker.css'
 
 const DEFAULT_PLACEHOLDER = 'YYYY-MM-DD'
@@ -177,7 +177,8 @@ export interface DatePickerProps extends PickerCommonProps {
    */
   value?: string
   /**
-   * The initially selected date as `YYYY-MM-DD` (uncontrolled).
+   * The initially selected date as `YYYY-MM-DD` (uncontrolled). A `<form>` reset
+   * restores it.
    */
   defaultValue?: string
   /**
@@ -254,6 +255,13 @@ export const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(
     const constraints: DateConstraints = { min, max, isDateDisabled }
     const parse = (text: string) => parseDate(text, constraints)
     const input = useDateInput(value, parse, (text) => setValue(parse(text)), labels?.invalidDate)
+
+    // A controlled value belongs to the parent; only the draft goes.
+    useFormReset(input.inputRef, () => {
+      const next = valueProp === undefined ? defaultValue : value
+      input.reset(toValue(next))
+      setValue(next)
+    })
 
     const label = labels?.openCalendar ?? 'Choose date'
 
@@ -347,7 +355,7 @@ export interface DateRangePickerProps extends PickerCommonProps {
    */
   value?: DateRange
   /**
-   * The initially selected range (uncontrolled).
+   * The initially selected range (uncontrolled). A `<form>` reset restores it.
    */
   defaultValue?: DateRange
   /**
@@ -464,6 +472,16 @@ export const DateRangePicker = forwardRef<HTMLDivElement, DateRangePickerProps>(
       (text) => commit(start.text, text),
       labels?.invalidDate,
     )
+
+    // A controlled value belongs to the parent; only the drafts go.
+    useFormReset(start.inputRef, () => {
+      const isControlled = valueProp !== undefined
+      const nextFrom = isControlled ? from : toValue(defaultValue.from)
+      const nextTo = isControlled ? to : toValue(defaultValue.to)
+      start.reset(nextFrom)
+      end.reset(nextTo)
+      if (!isControlled && (nextFrom !== from || nextTo !== to)) setRange(defaultValue)
+    })
 
     const label = labels?.openCalendar ?? 'Choose date range'
 

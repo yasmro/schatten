@@ -1,0 +1,93 @@
+/*
+ * DatePicker / DateRangePicker — block classes only
+ * (lv2-composition-guideline §5.2). Both share one frame: the root draws the
+ * border, the surface and the focus ring, because a date range needs two inputs
+ * and a button inside one box. The inner `.st-input-wrapper` gives those up.
+ *
+ * State reads off the inner `.st-input`, in Input.css's source order:
+ * default < [aria-invalid] < :read-only < :disabled.
+ *
+ * The inner parts keep their `size` height and take -1px block margins, so the
+ * frame's border stays inside that height and the root lines up with `Input`.
+ *
+ * lv2 is React-only: the inner DOM is not public, so the selectors below are
+ * free to rely on it. Child combinators keep them off anything else.
+ */
+@layer components {
+  .st-date-picker,
+  .st-date-range-picker {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    border: 1px solid var(--color-border-strong);
+    background-color: transparent;
+    transition:
+      background-color 200ms,
+      border-color 200ms;
+  }
+
+  /* :is() reaches the specificity of Input.css's state rules, which would
+   * otherwise repaint the wrapper inside the frame. */
+  .st-date-picker > .st-input-wrapper,
+  .st-date-range-picker > .st-input-wrapper,
+  .st-date-picker
+    > .st-input-wrapper:has(.st-input:is([aria-invalid="true"], :focus-visible, :read-only)),
+  .st-date-range-picker
+    > .st-input-wrapper:has(.st-input:is([aria-invalid="true"], :focus-visible, :read-only)) {
+    flex: 1 1 0;
+    min-width: 0;
+    margin-block: -1px;
+    border: 0;
+    background-color: transparent;
+    box-shadow: none;
+  }
+
+  .st-date-picker > .st-btn,
+  .st-date-range-picker > .st-btn {
+    flex: none;
+    margin-block: -1px;
+  }
+
+  /* The separator and the button already space the inputs, and a whole date
+   * has to fit at `lg` in a narrow form column. */
+  .st-date-range-picker > .st-input-wrapper {
+    padding-inline-end: 0;
+  }
+
+  .st-date-range-picker > .st-text {
+    flex: none;
+    margin-inline-end: 0.75rem;
+  }
+
+  .st-date-picker:has(.st-input:focus-visible),
+  .st-date-range-picker:has(.st-input:focus-visible) {
+    box-shadow:
+      0 0 0 2px var(--color-ring-offset),
+      0 0 0 4px var(--color-ring);
+  }
+
+  .st-date-picker:has(.st-input[aria-invalid="true"]),
+  .st-date-range-picker:has(.st-input[aria-invalid="true"]) {
+    border-color: var(--color-error);
+    background-color: var(--color-error-subtle);
+  }
+
+  .st-date-picker:has(.st-input[aria-invalid="true"]:focus-visible),
+  .st-date-range-picker:has(.st-input[aria-invalid="true"]:focus-visible) {
+    box-shadow:
+      0 0 0 2px var(--color-ring-offset),
+      0 0 0 4px var(--color-error);
+  }
+
+  .st-date-picker:has(.st-input:read-only),
+  .st-date-range-picker:has(.st-input:read-only) {
+    border-color: var(--color-border-readonly);
+    background-color: var(--color-surface-readonly);
+  }
+
+  .st-date-picker:has(.st-input:disabled),
+  .st-date-range-picker:has(.st-input:disabled) {
+    border-color: var(--color-border-disabled);
+    background-color: var(--color-surface-disabled);
+  }
+}

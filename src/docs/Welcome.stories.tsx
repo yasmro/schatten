@@ -34,6 +34,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/lv1/Tabs
 import { Text } from '../components/lv1/Text'
 import { Textarea } from '../components/lv1/Textarea'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../components/lv1/Tooltip'
+import { DatePicker } from '../components/lv2/DatePicker'
 import { EmptyState } from '../components/lv2/EmptyState'
 import { WELCOME_DEEP_LINKS, type WelcomeDeepLink } from './Welcome.links'
 
@@ -581,6 +582,16 @@ export const Overview: Story = {
           >
             <div className="w-44 scale-90">
               <EmptyState size="sm" icon={Inbox} title="No messages" />
+            </div>
+          </ComponentCard>
+
+          <ComponentCard
+            name="DatePicker"
+            description="Date input with a calendar, single or as a range."
+            storyPath="components-lv2-datepicker"
+          >
+            <div className="w-40">
+              <DatePicker size="sm" defaultValue="2026-10-24" aria-label="Date" />
             </div>
           </ComponentCard>
         </div>

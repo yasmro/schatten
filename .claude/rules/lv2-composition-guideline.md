@@ -210,6 +210,14 @@ Rules common to both kinds:
 - **An lv2 never provides its own React Context.** It would compete with the
   `Field` / `FieldSet` / `Tooltip` contexts and add a fourth stage to the
   `FieldSet → Field → form lv1` collapse chain.
+- **Exception — shielding a part with `<FieldContext.Provider value={null}>`.**
+  A form-control lv2 may cut a part off from `Field` when the lv1 would misread
+  it, because a direct prop cannot override `Field` (`field?.x ?? prop`). The lv2
+  then resolves the value itself and passes it down. `null` adds no value and no
+  stage to the collapse chain, so the rule above stands: **never provide any
+  other value.** Two uses today: `DateRangePicker`'s two `Input`s, which would
+  otherwise share `field.id`, and the calendar inside a picker's popover, which
+  a portal does not shield from the context.
 - A form-control lv2 reads `FieldContext` itself (rather than relying on its
   inner lv1 `Input` to pick it up) so that **its non-input parts** — a popover
   trigger, a clear button — follow `disabled` / `isError` too. An inner
@@ -522,7 +530,6 @@ Restoring the export is an additive surface change (`minor`).
 - **Sub-element publication (§5.2):** when the first sub-element is published,
   record the consumer use case next to it.
 - **Scaffolding skill:** there is no `add-lv2-component` skill yet. It is
-  filed when the second lv2 starts (#568), once two real lv2s show which
-  steps repeat.
+  filed with #568, once two real lv2s show which steps repeat.
 - **Audit skill:** lv2-specific checkpoints for `audit-component` are tracked
   in [#311](https://github.com/yasmro/schatten/issues/311).

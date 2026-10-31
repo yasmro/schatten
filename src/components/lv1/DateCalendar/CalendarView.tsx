@@ -13,6 +13,7 @@ import {
 } from 'react'
 import { useFieldContext } from '../../../contexts/field'
 import { mergeRefs } from '../../../lib/merge-refs'
+import { useControllable } from '../../../lib/use-controllable'
 import { cn } from '../../../lib/utils'
 import {
   addDays,
@@ -36,7 +37,6 @@ import {
   type WeekDay,
   weekNumberOfRow,
 } from './date-math'
-import { useControllable } from './use-controllable'
 
 /** Overrides for the strings Schatten cannot derive from `Intl`. */
 export interface DateCalendarLabels {

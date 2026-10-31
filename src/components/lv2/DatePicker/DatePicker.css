@@ -7,8 +7,9 @@
  * State reads off the inner `.st-input`, in Input.css's source order:
  * default < [aria-invalid] < :read-only < :disabled.
  *
- * The inner parts keep their `size` height and take -1px block margins, so the
- * frame's border stays inside that height and the root lines up with `Input`.
+ * The input keeps its `size` height and takes -1px block margins, so the frame's
+ * border stays inside that height and the root lines up with `Input`. The button
+ * sits inset in the frame: its hover fill must not touch the border.
  *
  * lv2 is React-only: the inner DOM is not public, so the selectors below are
  * free to rely on it. Child combinators keep them off anything else.
@@ -42,10 +43,30 @@
     box-shadow: none;
   }
 
+  /* Each square is the frame's inner height minus a 3px inset on both sides,
+   * which leaves a 24px target at `sm`. */
   .st-date-picker > .st-btn,
   .st-date-range-picker > .st-btn {
     flex: none;
-    margin-block: -1px;
+    margin-inline: 0.1875rem;
+  }
+
+  .st-date-picker > .st-btn--sm,
+  .st-date-range-picker > .st-btn--sm {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+
+  .st-date-picker > .st-btn--md,
+  .st-date-range-picker > .st-btn--md {
+    width: 2rem;
+    height: 2rem;
+  }
+
+  .st-date-picker > .st-btn--lg,
+  .st-date-range-picker > .st-btn--lg {
+    width: 2.5rem;
+    height: 2.5rem;
   }
 
   /* The separator and the button already space the inputs, and a whole date

@@ -1,0 +1,49 @@
+import { forwardRef, type HTMLAttributes, type ReactNode } from 'react'
+import { cn } from '../../../lib/utils'
+import {
+  type __ComponentName__Variants,
+  __componentName__Variants,
+} from '../../../variants/__component-name__'
+import { Text } from '../../lv1/Text'
+import './__ComponentName__.css'
+
+export interface __ComponentName__Props
+  extends Omit<HTMLAttributes<HTMLDivElement>, 'title' | 'children'>,
+    __ComponentName__Variants {
+  /**
+   * Heading text. Rendered as a heading through `Text`; pick the level with
+   * `headingLevel`.
+   */
+  title: ReactNode
+  /**
+   * Heading level of the title. The consumer decides the page outline.
+   * @default 2
+   */
+  headingLevel?: 1 | 2 | 3 | 4 | 5 | 6
+  /**
+   * Overall scale of the composition.
+   * - `sm` — describe each option here (bullet list per option)
+   * @default 'md'
+   */
+  size?: __ComponentName__Variants['size']
+}
+
+/**
+ * __ComponentName__ — one-line description of the decisions this composition
+ * freezes (lv2-composition-guideline §1).
+ *
+ * lv2 — React only. Without React, compose the lv1 classes directly.
+ */
+export const __ComponentName__ = forwardRef<HTMLDivElement, __ComponentName__Props>(
+  ({ title, headingLevel = 2, size, className, ...props }, ref) => {
+    return (
+      <div ref={ref} className={cn(__componentName__Variants({ size }), className)} {...props}>
+        <Text as={`h${headingLevel}`} variant="heading">
+          {title}
+        </Text>
+      </div>
+    )
+  },
+)
+
+__ComponentName__.displayName = '__ComponentName__'

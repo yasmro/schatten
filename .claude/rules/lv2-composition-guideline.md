@@ -513,10 +513,15 @@ Restoring the export is an additive surface change (`minor`).
    yes: block + modifiers only, descendant selectors on lv1 classes,
    imported after its lv1 parts.
 6. **Ship the companions** (§6.1) in the same PR as the component.
-7. **If it is the first lv2**, land the script tooling (§6.2 foundation
+7. **Register it where the gates read it:** `ROLE_NAME_CONTRACT` or
+   `ROLE_NAME_EXEMPT` in `scripts/audit-coverage.mjs`, and a Welcome card
+   (`WELCOME_COMPONENT_SLUGS`) or `WELCOME_CARD_EXEMPT`. A missing entry fails
+   `audit-coverage.test.ts` / `Welcome.drift.test.ts`. Check `pnpm size` against
+   `components/lv2 (all)`: bundling lv1s moves it a lot.
+8. **If it is the first lv2**, land the script tooling (§6.2 foundation
    rows) in a separate foundation PR first; the export path (§7) and the
    size-limit / `entry.css` rows ship with the component itself.
-8. **Changeset**: `minor` (a new component is additive), with a `CSS API:`
+9. **Changeset**: `minor` (a new component is additive), with a `CSS API:`
    line when it ships classes.
 
 ## When this rule changes
@@ -529,8 +534,9 @@ Restoring the export is an additive surface change (`minor`).
   should not), adjust the gate and cite the case.
 - **Sub-element publication (§5.2):** when the first sub-element is published,
   record the consumer use case next to it.
-- **Scaffolding skill:** there is no `add-lv2-component` skill yet. It is
-  filed with #568, once two real lv2s show which steps repeat.
+- **Scaffolding skill:** [`add-lv2-component`](../skills/add-lv2-component/SKILL.md)
+  turns §8 into a procedure, and its `templates/` freeze the shape of an lv2. A
+  change to §4–§8 usually changes both: the templates do not follow on their own.
 - **Audit skill:** `audit-component` mirrors this document section by section
   in its `lv2-composition-guideline.md` checklist. A new numbered section here
   fails `SKILL.test.ts` until the checklist cites it or the test excuses it.

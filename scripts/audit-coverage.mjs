@@ -812,6 +812,7 @@ export function renderTable(rows, opts = {}) {
       format === 'markdown' ? '### Recommended actions' : 'Recommended actions:',
     )
     lines.push('- Run `/add-lv1-component` to scaffold missing companions for a new lv1.')
+    lines.push('- Run `/add-lv2-component` to scaffold missing companions for a new lv2.')
     lines.push(
       '- For an existing lv1 missing only the VRT spec, run `/add-vrt-spec` then `pnpm test:vrt` to capture baselines.',
     )

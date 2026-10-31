@@ -1,0 +1,33 @@
+/*
+ * __ComponentName__ — `.st-__component-name__` class API (lv2).
+ *
+ * Published surface: the block and its modifiers only
+ * (lv2-composition-guideline §5.2). There are no sub-element classes. The parts
+ * are the lv1s the component composes, reached through their public classes.
+ *
+ * - With a composition slot, select parts with the child combinator (`>`).
+ *   A descendant selector also reaches the lv1s inside consumer content.
+ * - A wrapper of the lv2's own has no lv1 class, and an `st-` class on it would
+ *   enter the manifest. Select it with `:not(...)` and pin its place with a test.
+ *
+ * lv2 is React-only: this file is not a vanilla-HTML contract (§5.0). It is
+ * still published at `@yasmro/schatten/css/__componentname__`.
+ *
+ * Raw CSS and semantic tokens only, inside `@layer components`.
+ */
+@layer components {
+  .st-__component-name__ {
+    /* TODO(__ComponentName__): layout of the composition. */
+  }
+
+  /* ===== size ===== */
+  .st-__component-name__--sm {
+    /* TODO(__ComponentName__): spacing for `sm`. */
+  }
+  .st-__component-name__--md {
+    /* TODO(__ComponentName__): spacing for `md`. */
+  }
+  .st-__component-name__--lg {
+    /* TODO(__ComponentName__): spacing for `lg`. */
+  }
+}

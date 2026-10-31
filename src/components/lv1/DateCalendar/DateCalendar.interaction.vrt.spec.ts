@@ -22,6 +22,17 @@ test('DateCalendar / picks a date with a real click', async ({ page }) => {
   await expect(cell(page, '2026-10-20')).not.toHaveAttribute('aria-selected')
 })
 
+test('DateCalendar / a selected day responds to hover like Button', async ({ page }) => {
+  await open(page, 'single')
+  const selected = day(page, '2026-10-20')
+  const background = () => selected.evaluate((element) => getComputedStyle(element).backgroundColor)
+  const resting = await background()
+
+  await selected.hover()
+
+  await expect.poll(background).not.toBe(resting)
+})
+
 test('DateCalendar / changes month with the navigation buttons', async ({ page }) => {
   await open(page, 'single')
   await page.getByRole('button', { name: 'Next month' }).click()

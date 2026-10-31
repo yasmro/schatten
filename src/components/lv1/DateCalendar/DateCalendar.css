@@ -69,6 +69,11 @@
     padding: 0;
     color: currentColor;
     font: inherit;
+    /* Same as .st-btn, so these controls respond like Button. */
+    transition:
+      color 200ms,
+      background-color 200ms,
+      border-color 200ms;
   }
 
   .st-date-calendar__selects {
@@ -195,6 +200,13 @@
   .st-date-calendar__cell[aria-selected="true"][aria-disabled="true"]:not([data-range-middle])
     .st-date-calendar__day {
     background-color: var(--color-surface-disabled);
+  }
+
+  /* The same hover as Button's primary, which shares this solid fill. */
+  .st-date-calendar__cell[aria-selected="true"]:not([data-range-middle], [aria-disabled="true"])
+    .st-date-calendar__day:hover {
+    background-color: var(--color-solid-hover);
+    color: var(--color-solid-foreground-hover);
   }
 
   .st-date-calendar__day[aria-current="date"] {

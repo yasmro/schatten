@@ -701,6 +701,21 @@ describe('DateCalendar CSS contract', () => {
     expect(slashRule).not.toMatch(/gradient|background/)
   })
 
+  it('uses the same transition as Button', () => {
+    const buttonCss = readFileSync(resolve(__dirname, '../Button/Button.css'), 'utf8')
+    const transition = (source: string) =>
+      source.match(/transition:\s*(color[^;]*);/)?.[1].replace(/\s+/g, ' ')
+
+    expect(transition(buttonCss)).toBeTruthy()
+    expect(transition(css)).toBe(transition(buttonCss))
+  })
+
+  it('gives a selected day the hover of a primary Button', () => {
+    const rule = css.match(/__day:hover \{([^}]*solid[^}]*)\}/)?.[1]
+    expect(rule).toContain('background-color: var(--color-solid-hover)')
+    expect(rule).toContain('color: var(--color-solid-foreground-hover)')
+  })
+
   it('keeps square corners, like Button, Input and Select', () => {
     expect(css).not.toContain('radius')
   })

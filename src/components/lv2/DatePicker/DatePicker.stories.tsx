@@ -13,22 +13,29 @@ const meta: Meta<typeof DatePicker> = {
     layout: 'centered',
   },
   argTypes: {
+    granularity: {
+      description:
+        'What the value holds: a date (`YYYY-MM-DD`), or a local date and time (`YYYY-MM-DDTHH:mm`).',
+      control: 'inline-radio',
+      options: ['day', 'minute'],
+      table: { type: { summary: '"day" | "minute"' }, defaultValue: { summary: 'day' } },
+    },
     value: {
-      description: 'The selected date as `YYYY-MM-DD` (controlled). `""` is no selection.',
+      description: 'The selected value (controlled), in the format of `granularity`. `""` is none.',
       control: 'text',
       table: { type: { summary: 'string' } },
     },
     defaultValue: {
-      description: 'The initially selected date as `YYYY-MM-DD` (uncontrolled).',
+      description: 'The initial value (uncontrolled), in the format of `granularity`.',
       control: 'text',
       table: { type: { summary: 'string' } },
     },
     onValueChange: {
-      description: 'Fired when the date changes. `""` while the input holds no valid date.',
+      description: 'Fired when the value changes. `""` while the inputs hold no valid value.',
       table: { type: { summary: '(value: string) => void' } },
     },
     name: {
-      description: 'Submits the selected date under this name.',
+      description: 'Submits the selected value under this name.',
       control: 'text',
       table: { type: { summary: 'string' } },
     },
@@ -42,12 +49,12 @@ const meta: Meta<typeof DatePicker> = {
       },
     },
     min: {
-      description: 'The earliest selectable date. Applies to the calendar and to typed dates.',
+      description: 'The earliest selectable value, in the format of `value`.',
       control: 'text',
       table: { type: { summary: 'string' } },
     },
     max: {
-      description: 'The latest selectable date. Applies to the calendar and to typed dates.',
+      description: 'The latest selectable value, in the format of `value`.',
       control: 'text',
       table: { type: { summary: 'string' } },
     },
@@ -73,7 +80,7 @@ const meta: Meta<typeof DatePicker> = {
       table: { type: { summary: 'string' } },
     },
     placeholder: {
-      description: 'Text shown while the input is empty.',
+      description: 'Text shown while the date input is empty.',
       control: 'text',
       table: { type: { summary: 'string' }, defaultValue: { summary: 'YYYY-MM-DD' } },
     },
@@ -93,7 +100,7 @@ const meta: Meta<typeof DatePicker> = {
       table: { type: { summary: 'boolean' }, defaultValue: { summary: 'false' } },
     },
     disabled: {
-      description: 'Disables the input and the calendar button.',
+      description: 'Disables the inputs and the calendar button.',
       control: 'boolean',
       table: { type: { summary: 'boolean' }, defaultValue: { summary: 'false' } },
     },
@@ -103,7 +110,7 @@ const meta: Meta<typeof DatePicker> = {
       table: { type: { summary: 'boolean' }, defaultValue: { summary: 'false' } },
     },
     required: {
-      description: 'Native required validation on the input.',
+      description: 'Native required validation on the inputs.',
       control: 'boolean',
       table: { type: { summary: 'boolean' }, defaultValue: { summary: 'false' } },
     },
@@ -207,6 +214,122 @@ export const InForm: Story = {
   ),
 }
 
+const timedRange = { from: '2026-10-24T09:00', to: '2026-10-26T18:00' }
+
+export const WithTime: Story = {
+  name: 'With Time',
+  render: () => (
+    <div className="flex w-72 flex-col gap-4">
+      <DatePicker
+        granularity="minute"
+        size="sm"
+        defaultValue="2026-10-24T13:30"
+        aria-label="Small"
+      />
+      <DatePicker
+        granularity="minute"
+        size="md"
+        defaultValue="2026-10-24T13:30"
+        aria-label="Medium"
+      />
+      <DatePicker
+        granularity="minute"
+        size="lg"
+        defaultValue="2026-10-24T13:30"
+        aria-label="Large"
+      />
+      <DateRangePicker
+        granularity="minute"
+        size="sm"
+        defaultValue={timedRange}
+        aria-label="Small range"
+      />
+      <DateRangePicker
+        granularity="minute"
+        size="md"
+        defaultValue={timedRange}
+        aria-label="Medium range"
+      />
+      <DateRangePicker
+        granularity="minute"
+        size="lg"
+        defaultValue={timedRange}
+        aria-label="Large range"
+      />
+    </div>
+  ),
+}
+
+export const WithTimeStates: Story = {
+  name: 'With Time States',
+  render: () => (
+    <div className="grid w-[40rem] grid-cols-2 items-start gap-4">
+      <DatePicker granularity="minute" aria-label="Empty" />
+      <DateRangePicker granularity="minute" aria-label="Empty range" />
+      <DatePicker granularity="minute" isError defaultValue="2026-10-24T13:30" aria-label="Error" />
+      <DateRangePicker
+        granularity="minute"
+        isError
+        defaultValue={timedRange}
+        aria-label="Error range"
+      />
+      <DatePicker
+        granularity="minute"
+        readOnly
+        defaultValue="2026-10-24T13:30"
+        aria-label="Read-only"
+      />
+      <DateRangePicker
+        granularity="minute"
+        readOnly
+        defaultValue={timedRange}
+        aria-label="Read-only range"
+      />
+      <DatePicker
+        granularity="minute"
+        disabled
+        defaultValue="2026-10-24T13:30"
+        aria-label="Disabled"
+      />
+      <DateRangePicker
+        granularity="minute"
+        disabled
+        defaultValue={timedRange}
+        aria-label="Disabled range"
+      />
+      <Field label="Departure" description="Pick a weekday." required>
+        <DatePicker granularity="minute" defaultValue="2026-10-24T13:30" />
+      </Field>
+      <Field label="Stay" error="Choose both times." required>
+        <DateRangePicker granularity="minute" defaultValue={{ from: '2026-10-24T09:00' }} />
+      </Field>
+    </div>
+  ),
+}
+
+export const WithTimeInForm: Story = {
+  name: 'With Time In Form',
+  render: () => (
+    <form className="flex w-72 flex-col gap-4">
+      <DatePicker
+        granularity="minute"
+        name="date"
+        defaultValue="2026-10-24T13:30"
+        aria-label="Departure"
+      />
+      <DateRangePicker
+        granularity="minute"
+        startName="start"
+        endName="end"
+        defaultValue={{ from: '2026-10-24T09:00', to: '2026-10-24T18:00' }}
+        aria-label="Stay"
+      />
+      <button type="reset">Reset</button>
+      <button type="submit">Submit</button>
+    </form>
+  ),
+}
+
 function InDialogDemo() {
   const [isOpen, setIsOpen] = useState(false)
   return (
@@ -267,6 +390,23 @@ export const OpenRange: Story = {
           defaultValue={{ from: '2026-10-20', to: '2026-10-24' }}
           today="2026-10-20"
           aria-label="Stay"
+        />
+      </OpenOnMount>
+    </div>
+  ),
+}
+
+export const OpenWithTime: Story = {
+  name: 'Open With Time',
+  parameters: openLayout,
+  render: () => (
+    <div className="h-96">
+      <OpenOnMount>
+        <DatePicker
+          granularity="minute"
+          defaultValue="2026-10-24T13:30"
+          today="2026-10-20"
+          aria-label="Departure"
         />
       </OpenOnMount>
     </div>

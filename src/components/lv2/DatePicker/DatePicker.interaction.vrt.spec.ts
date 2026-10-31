@@ -140,3 +140,85 @@ test('DateRangePicker / Escape keeps a half-picked range', async ({ page }) => {
   await expect(page.getByRole('textbox', { name: 'Start date' })).toHaveValue('2026-10-05')
   await expect(page.getByRole('textbox', { name: 'End date' })).toHaveValue('')
 })
+
+test('DatePicker / a click on the time input opens nothing', async ({ page }) => {
+  await page.goto(`/iframe.html?id=${STORY_ID_PREFIX}--with-time&viewMode=story`)
+  await page.waitForLoadState('networkidle')
+  const time = page.getByRole('group', { name: 'Medium', exact: true }).getByLabel('Time')
+  await time.click()
+  await expect(time).toBeFocused()
+  await expect(panel(page)).toHaveCount(0)
+})
+
+test('DatePicker / moving to the time input closes the panel and stays there', async ({ page }) => {
+  await page.goto(`/iframe.html?id=${STORY_ID_PREFIX}--with-time&viewMode=story`)
+  await page.waitForLoadState('networkidle')
+  const group = page.getByRole('group', { name: 'Medium', exact: true })
+  await group.getByRole('textbox', { name: 'Date' }).click()
+  await expect(panel(page)).toBeVisible()
+  await group.getByLabel('Time').click()
+  await expect(panel(page)).toHaveCount(0)
+  await expect(group.getByLabel('Time')).toBeFocused()
+})
+
+test('DatePicker / the time input draws the focus ring of the frame', async ({ page }) => {
+  await page.goto(`/iframe.html?id=${STORY_ID_PREFIX}--with-time&viewMode=story`)
+  await page.waitForLoadState('networkidle')
+  const group = page.getByRole('group', { name: 'Medium', exact: true })
+  await group.getByRole('textbox', { name: 'Date' }).focus()
+  await page.keyboard.press('Tab')
+  await expect(group.getByLabel('Time')).toBeFocused()
+  await expect(group).not.toHaveCSS('box-shadow', 'none')
+})
+
+test('DatePicker / tabbing from the date leaves the empty time clean', async ({ page }) => {
+  await page.goto(`/iframe.html?id=${STORY_ID_PREFIX}--with-time-states&viewMode=story`)
+  await page.waitForLoadState('networkidle')
+  const group = page.getByRole('group', { name: 'Empty', exact: true })
+  await group.getByRole('textbox', { name: 'Date' }).fill('2026-10-24')
+  await page.keyboard.press('Tab')
+  await expect(group.getByLabel('Time')).toBeFocused()
+  await expect(group.getByLabel('Time')).not.toHaveAttribute('aria-invalid', 'true')
+})
+
+test('DatePicker / a partly typed time shows the error after blur', async ({ page }) => {
+  await page.goto(`/iframe.html?id=${STORY_ID_PREFIX}--with-time-states&viewMode=story`)
+  await page.waitForLoadState('networkidle')
+  const group = page.getByRole('group', { name: 'Empty', exact: true })
+  await group.getByLabel('Time').focus()
+  await page.keyboard.type('01')
+  await page.mouse.click(5, 5)
+  await expect(group.getByLabel('Time')).toHaveAttribute('aria-invalid', 'true')
+})
+
+test('DatePicker / a picked day and a typed time reach the form', async ({ page }) => {
+  await page.goto(`/iframe.html?id=${STORY_ID_PREFIX}--with-time-in-form&viewMode=story`)
+  await page.waitForLoadState('networkidle')
+  await page.getByRole('button', { name: 'Choose date', exact: true }).click()
+  await day(page, '2026-10-15').click()
+  await page.getByRole('group', { name: 'Departure' }).getByLabel('Time').fill('08:45')
+  await expect(page.locator('input[type="hidden"][name="date"]')).toHaveValue('2026-10-15T08:45')
+})
+
+test('DateRangePicker / an end before the start on one day stops the form', async ({ page }) => {
+  await page.goto(`/iframe.html?id=${STORY_ID_PREFIX}--with-time-in-form&viewMode=story`)
+  await page.waitForLoadState('networkidle')
+  const end = page.getByLabel('End time')
+  await end.fill('08:00')
+  await expect(page.locator('input[type="hidden"][name="end"]')).toHaveValue('')
+  await page.getByRole('button', { name: 'Submit' }).click()
+  await expect(end).toBeFocused()
+  await expect(page).toHaveURL(/viewMode=story/)
+  expect(await end.evaluate((input: HTMLInputElement) => input.validity.valid)).toBe(false)
+})
+
+test('DateRangePicker / a form reset restores the dates and the times', async ({ page }) => {
+  await page.goto(`/iframe.html?id=${STORY_ID_PREFIX}--with-time-in-form&viewMode=story`)
+  await page.waitForLoadState('networkidle')
+  await page.getByLabel('Start time').fill('10:15')
+  await page.getByLabel('End date').fill('nope')
+  await page.getByRole('button', { name: 'Reset' }).click()
+  await expect(page.getByLabel('Start time')).toHaveValue('09:00')
+  await expect(page.getByLabel('End date')).toHaveValue('2026-10-24')
+  await expect(page.locator('input[type="hidden"][name="start"]')).toHaveValue('2026-10-24T09:00')
+})

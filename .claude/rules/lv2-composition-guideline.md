@@ -215,7 +215,8 @@ Rules common to both kinds:
   it, because a direct prop cannot override `Field` (`field?.x ?? prop`). The lv2
   then resolves the value itself and passes it down. `null` adds no value and no
   stage to the collapse chain, so the rule above stands: **never provide any
-  other value.** Two uses today: `DateRangePicker`'s two `Input`s, which would
+  other value.** Two uses today: the `Input`s of a picker with two or more of
+  them (`DateRangePicker`, `DatePicker` with `granularity="minute"`), which would
   otherwise share `field.id`, and the calendar inside a picker's popover, which
   a portal does not shield from the context.
 - A form-control lv2 reads `FieldContext` itself (rather than relying on its
@@ -226,7 +227,8 @@ Rules common to both kinds:
   ([field-context-guideline](field-context-guideline.md)):
   - **One input** (DatePicker) — the inner `Input` consumes `field.id`, so the
     Field label names it through `htmlFor` (the `Input` precedent).
-  - **Two or more inputs** (DateRangePicker) — `field.id` is **not**
+  - **Two or more inputs** (DateRangePicker, and DatePicker with
+    `granularity="minute"`, which adds a time input) — `field.id` is **not**
     consumed. The group root carries **`role="group"`** and applies
     `aria-labelledby={field.labelId}` (the `RadioGroup` precedent), and each
     inner input gets its own name (e.g. "Start date" / "End date").

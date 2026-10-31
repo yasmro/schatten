@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test'
 
-const STORY_ID_PREFIX = 'components-lv1-__component-name__'
+const STORY_ID_PREFIX = 'components-lv1-__componentname__'
 
 const stories = ['parity'] as const
 

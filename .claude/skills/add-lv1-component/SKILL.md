@@ -69,6 +69,13 @@ Placeholder tokens (replace **every** occurrence):
 | `__ComponentName__` | PascalCase name | `SearchField` |
 | `__componentName__` | camelCase name | `searchField` |
 | `__component-name__` | kebab-case name | `search-field` |
+| `__componentname__` | lowercased name (the slug) | `searchfield` |
+
+`<kebab>` and `<slug>` below are two different strings for a multi-word name.
+`<kebab>` is the `.st-*` block and the variants filename. `<slug>` is
+`Name.toLowerCase()`, used by the story ID, the `css/<slug>` subpath, the
+`data-component` fixture attribute, and the Welcome slugs. Storybook's own title
+sanitizing and `scripts/lv1-slugs.mjs` both produce this form.
 
 ## Procedure
 
@@ -163,7 +170,7 @@ requires a discussion per `component-api-conventions.md`.
    `Component.*` → `<Name>.*` and `variants.ts` → `<kebab>.ts`. The `.css`
    template lands at `src/components/lv1/<Name>/<Name>.css` — it is
    the SSOT for the public `.st-<kebab>` class API and is published per-
-   component at `@yasmro/schatten/css/<kebab>` (#291), so it is **not
+   component at `@yasmro/schatten/css/<slug>` (#291), so it is **not
    optional**: the `build:component-css` step fails the build when any
    lv1 dir is missing this file, and the `check-lv1-companions`
    PostToolUse hook warns at edit time.
@@ -212,21 +219,21 @@ requires a discussion per `component-api-conventions.md`.
    miss).** [`CSSApiDist.vrt.spec.ts`](../../../src/docs/CSSApiDist.vrt.spec.ts)
    auto-discovers every `src/components/lv1/<Name>/` dir that has both
    `<Name>.tsx` and `<Name>.css` (mirroring `scripts/lv1-slugs.mjs`) and
-   **requires** a matching `<section data-component="<kebab>">` in the shared
+   **requires** a matching `<section data-component="<slug>">` in the shared
    vanilla-HTML fixture — without it the dist-CSS VRT throws
-   `CSSApiDist: no <section data-component="<kebab>"> in vanillaHtml`. Neither
-   the `check-lv1-companions` hook nor `pnpm audit:coverage` catches this (both
-   only check the component-local 7 files), so the gap is invisible until VRT
-   runs. Add the sample to BOTH fixture files, kept in sync:
+   `CSSApiDist: no <section data-component="<slug>"> in vanillaHtml`. The
+   `check-lv1-companions` hook warns about a missing section and
+   `pnpm audit:coverage` fails on it. Add the sample to BOTH fixture files, kept
+   in sync:
    - **`src/docs/__fixtures__/cssApiSamples.html.ts`** — append a
-     `<section class="cssapi-fixture__sample" data-component="<kebab>">` (a
+     `<section class="cssapi-fixture__sample" data-component="<slug>">` (a
      `cssapi-fixture__sample-label` span + the hand-written `.st-<kebab>*`
      markup). This string is the SSOT the dist test reads, so it is the
      **REQUIRED** half. Mirror an existing section — `card` / `skeleton` are
      the simplest references; for a 区分 C/D portal/JS component copy how
      `tooltip` / `select` / `dialog` / `toast` show static markup only.
    - **`src/docs/__fixtures__/cssApiSamples.tsx`** — add the matching
-     `<section data-component="<kebab>">` rendering the real `<Name>` (import it
+     `<section data-component="<slug>">` rendering the real `<Name>` (import it
      into the named-import block, alphabetically). This keeps the
      `parity-comparison` story's React column consistent with the vanilla
      column. A 区分 C/D component that portal-mounts may be omitted from the
@@ -242,8 +249,8 @@ requires a discussion per `component-api-conventions.md`.
    [`Welcome.links.ts`](../../../src/docs/Welcome.links.ts)) — skipping this
    step fails `pnpm test --run`. Pick one:
    - **Static-previewable component (the default)** — add
-     `'components-lv1-<kebab>'` to `WELCOME_COMPONENT_SLUGS` AND add a matching
-     `<ComponentCard storyPath="components-lv1-<kebab>">` with a small live
+     `'components-lv1-<slug>'` to `WELCOME_COMPONENT_SLUGS` AND add a matching
+     `<ComponentCard storyPath="components-lv1-<slug>">` with a small live
      preview to `Welcome.stories.tsx` (mirror an existing card; keep the
      description a one-sentence third-person line in English).
    - **Portal / pointer-driven component** (dialog-, menu-, popover-like — a
@@ -259,11 +266,12 @@ of these remain. The `src/components/lv1/<Name>` glob already covers the
 parity files when they were generated (区分 A / B):
 
 ```sh
-grep -rn 'it\.todo(\|describe each option here\|TODO(\|__ComponentName__\|__componentName__\|__component-name__' \
+grep -rn 'it\.todo(\|describe each option here\|TODO(\|__ComponentName__\|__componentName__\|__component-name__\|__componentname__' \
   src/components/lv1/<Name> src/variants/<kebab>.ts
 ```
 
-- `__ComponentName__` / `__componentName__` / `__component-name__` — an
+- `__ComponentName__` / `__componentName__` / `__component-name__` /
+  `__componentname__` — an
   un-substituted placeholder token. Must be **zero** hits.
 - `it.todo(...)` — a stub test. Each one must be replaced with a real
   assertion (or deleted if genuinely not applicable) per

@@ -4,7 +4,7 @@
  * This file is the SSOT for the public `.st-*` class API for this
  * component. It is bundled into the integrated stylesheet
  * (`@yasmro/schatten/schatten.css`) AND published per-component at
- * `@yasmro/schatten/css/__component-name__` (#291).
+ * `@yasmro/schatten/css/__componentname__` (#291).
  *
  * Surface to fill in:
  * - **Block** — `.st-__component-name__` (the component's root class).

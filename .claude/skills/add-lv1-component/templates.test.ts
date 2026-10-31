@@ -24,6 +24,7 @@ const PLACEHOLDERS: Record<string, string> = {
   __ComponentName__: 'TemplateProbe',
   __componentName__: 'templateProbe',
   '__component-name__': 'template-probe',
+  __componentname__: 'templateprobe',
 }
 
 function expand(source: string): string {
@@ -72,6 +73,16 @@ describe('add-lv1-component templates', () => {
       'index.ts.template',
       'variants.ts.template',
     ])
+  })
+
+  // Storybook lowercases the title and keeps no word boundary: `DropdownMenu` is
+  // `components-lv1-dropdownmenu`. A kebab prefix would point at no story.
+  it.each([
+    'Component.vrt.spec.ts.template',
+    'Component.parity.vrt.spec.ts.template',
+  ])('%s uses the lowercased slug in the story id', (file) => {
+    const expanded = expand(readFileSync(join(templatesDir, file), 'utf8'))
+    expect(expanded).toContain("STORY_ID_PREFIX = 'components-lv1-templateprobe'")
   })
 
   for (const file of templates) {

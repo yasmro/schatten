@@ -938,3 +938,29 @@ describe('DateRangeCalendar', () => {
     warn.mockRestore()
   })
 })
+
+describe('value types', () => {
+  it('takes a date, never a date and time', () => {
+    const typed = [
+      <DateCalendar key="date" value="2026-10-24" min="2026-01-01" month="2026-10-01" />,
+      <DateCalendar key="empty" value="" />,
+      <DateRangeCalendar key="range" value={{ from: '2026-10-24' }} />,
+      <DateRangeCalendar key="timed" value={{ from: '2026-10-24', to: '2026-10-25' }} />,
+      // A callback typed on DateValue compiles only if that is what it receives.
+      <DateCalendar key="change" onValueChange={(date: DateValue) => date.slice(0, 4)} />,
+      // @ts-expect-error a calendar picks days
+      <DateCalendar key="a" value="2026-10-24T13:30" />,
+      // @ts-expect-error not the format of a value
+      <DateCalendar key="b" defaultValue="2026/10/24" />,
+      // @ts-expect-error a string has to go through isDateValue
+      <DateCalendar key="c" min={String('2026-10-24')} />,
+      // @ts-expect-error month is a date too
+      <DateCalendar key="d" month="2026-10" />,
+      // @ts-expect-error a calendar picks days
+      <DateRangeCalendar key="e" value={{ from: '2026-10-24T13:30' }} />,
+      // @ts-expect-error `{}` is the empty range, not `''`
+      <DateRangeCalendar key="f" value={{ from: '' }} />,
+    ]
+    expect(typed).toHaveLength(11)
+  })
+})

@@ -103,8 +103,12 @@ describe('toDate', () => {
     vi.stubEnv('TZ', 'America/Havana')
     expect(toDateString(toDate('2026-03-08') as Date)).toBe('2026-03-08')
   })
+})
 
-  it('round-trips every date', () => {
+// Not Pacific/Kiritimati: it skipped 1994-12-31, a day `Date` cannot hold.
+describe.each(['America/Los_Angeles', 'UTC', 'Asia/Tokyo'])('every date in %s', (zone) => {
+  it('round-trips', () => {
+    vi.stubEnv('TZ', zone)
     const value = fc
       .integer({ min: -62_135_596_800_000, max: 253_402_214_400_000 })
       .map((ms) => new Date(ms).toISOString().slice(0, 10))
@@ -134,5 +138,14 @@ describe('toDateString', () => {
     expect(toDateString(date)).toBe('')
     date.setFullYear(0, 0, 1)
     expect(toDateString(date)).toBe('')
+  })
+})
+
+describe('toDateString with a granularity held in a variable', () => {
+  it('follows the value', () => {
+    const write = (granularity: 'day' | 'minute') =>
+      toDateString(new Date(2026, 9, 24, 13, 30), granularity)
+    expect(write('day')).toBe('2026-10-24')
+    expect(write('minute')).toBe('2026-10-24T13:30')
   })
 })

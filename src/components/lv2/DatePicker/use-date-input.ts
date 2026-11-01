@@ -7,7 +7,7 @@ export type DateGranularity = 'day' | 'minute'
 
 /** True for a time in `HH:mm` form, on the 24-hour clock. */
 export function isValidISOTime(value: string): boolean {
-  return /^(?:[01]\d|2[0-3]):[0-5]\d$/.test(value)
+  return isDateTimeValue(`2000-01-01T${value}`)
 }
 
 /** True for a value in the format of `granularity`. */

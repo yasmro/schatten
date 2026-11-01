@@ -18,8 +18,8 @@ const TODAY = '2026-10-24'
 
 /**
  * Always-visible month grid for picking a date (`DateCalendar`) or a range
- * (`DateRangeCalendar`). Values are ISO `YYYY-MM-DD` strings, so a time zone can
- * never shift a date by one day.
+ * (`DateRangeCalendar`). Values are ISO `YYYY-MM-DD` strings, typed `DateValue`, so
+ * a time zone can never shift a date by one day.
  */
 const meta: Meta<CalendarArgs> = {
   title: 'Components/lv1/DateCalendar',
@@ -33,44 +33,44 @@ const meta: Meta<CalendarArgs> = {
     value: {
       description: 'The selected date as `YYYY-MM-DD` (controlled).',
       control: 'text',
-      table: { type: { summary: 'string' } },
+      table: { type: { summary: 'DateValue | ""' } },
     },
     defaultValue: {
       description: 'The initially selected date as `YYYY-MM-DD` (uncontrolled).',
       control: 'text',
-      table: { type: { summary: 'string' } },
+      table: { type: { summary: 'DateValue | ""' } },
     },
     onValueChange: {
       description: 'Fired with the selected date as `YYYY-MM-DD`.',
-      table: { type: { summary: '(value: string) => void' } },
+      table: { type: { summary: '(value: DateValue) => void' } },
     },
     month: {
       description: 'The displayed month (controlled), as any date in that month.',
       control: 'text',
-      table: { type: { summary: 'string' } },
+      table: { type: { summary: 'DateValue' } },
     },
     defaultMonth: {
       description: 'The month displayed first (uncontrolled).',
       control: 'text',
-      table: { type: { summary: 'string' } },
+      table: { type: { summary: 'DateValue' } },
     },
     onMonthChange: {
       description: 'Fired when the displayed month changes, with its first day.',
-      table: { type: { summary: '(month: string) => void' } },
+      table: { type: { summary: '(month: DateValue) => void' } },
     },
     min: {
       description: 'The earliest selectable date.',
       control: 'text',
-      table: { type: { summary: 'string' } },
+      table: { type: { summary: 'DateValue' } },
     },
     max: {
       description: 'The latest selectable date.',
       control: 'text',
-      table: { type: { summary: 'string' } },
+      table: { type: { summary: 'DateValue' } },
     },
     isDateDisabled: {
       description: 'Marks individual dates unavailable.',
-      table: { type: { summary: '(date: string) => boolean' } },
+      table: { type: { summary: '(date: DateValue) => boolean' } },
     },
     locale: {
       description: 'BCP 47 language tag passed to `Intl.DateTimeFormat`.',
@@ -86,7 +86,7 @@ const meta: Meta<CalendarArgs> = {
     today: {
       description: 'The date marked as today. Defaults to the local date.',
       control: 'text',
-      table: { type: { summary: 'string' } },
+      table: { type: { summary: 'DateValue' } },
     },
     captionLayout: {
       description: 'How the month heading is presented.',

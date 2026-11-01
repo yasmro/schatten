@@ -5,7 +5,7 @@ import { describe, expect, it, vi } from 'vitest'
 import type { DateTimeValue, DateValue } from '../../../date'
 import type { DateRange } from '../../lv1/DateCalendar'
 import { Field } from '../../lv1/Field'
-import { DatePicker, DateRangePicker } from './DatePicker'
+import { DatePicker, type DatePickerProps, DateRangePicker } from './DatePicker'
 
 const dateInput = () => screen.getByRole('textbox', { name: 'Birthday' })
 const calendarButton = () => screen.getByRole('button', { name: 'Choose date' })
@@ -1495,6 +1495,17 @@ describe('DateRangePicker', () => {
   })
 })
 
+// The recipe in the README: a plain Omit flattens the union.
+type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, K> : never
+
+function SpreadPicker(props: DatePickerProps) {
+  return <DatePicker {...props} />
+}
+
+function OmittedPicker(props: DistributiveOmit<DatePickerProps, 'size'>) {
+  return <DatePicker {...props} />
+}
+
 describe('value types', () => {
   it('ties the format of the value props to granularity', () => {
     const typed = [
@@ -1509,6 +1520,8 @@ describe('value types', () => {
       />,
       // A wider callback is fine: the value is still a string.
       <DatePicker key="wide" onValueChange={(_value: string) => {}} />,
+      // A callback typed on DateValue compiles only if that is what it receives.
+      <DatePicker key="disabled" isDateDisabled={(date: DateValue) => date.endsWith('-25')} />,
       // @ts-expect-error a time needs granularity="minute"
       <DatePicker key="a" value="2026-10-24T13:30" />,
       // @ts-expect-error granularity="minute" needs a time
@@ -1526,11 +1539,16 @@ describe('value types', () => {
       // @ts-expect-error granularity="minute" needs a time
       <DateRangePicker key="h" granularity="minute" value={{ to: '2026-10-24' }} />,
     ]
-    expect(typed).toHaveLength(14)
+    expect(typed).toHaveLength(15)
   })
 
-  it('passes only a DateValue to isDateDisabled', () => {
-    const isSunday = (date: DateValue) => date.endsWith('-25')
-    expect(render(<DatePicker isDateDisabled={isSunday} aria-label="Day" />).container).toBeTruthy()
+  it('keeps a wrapper typed through the union', () => {
+    const typed = [
+      <SpreadPicker key="spread" granularity="minute" value="2026-10-24T13:30" />,
+      <OmittedPicker key="omitted" granularity="minute" value="2026-10-24T13:30" />,
+      // @ts-expect-error the wrapper keeps the tie to granularity
+      <OmittedPicker key="a" value="2026-10-24T13:30" />,
+    ]
+    expect(typed).toHaveLength(3)
   })
 })

@@ -70,10 +70,15 @@ export function toDate(value: string): Date | undefined {
  * Writes the local date of `date` as a value, and with `'minute'` its local time.
  * `date.toISOString().slice(0, 10)` would be the UTC date, which is a different
  * day for part of every day. An invalid `Date`, or a year outside `0001`–`9999`,
- * is `''`.
+ * is `''`, the empty value: for a prop that takes none, such as `min`, write
+ * `toDateString(date) || undefined`.
  */
 export function toDateString(date: Date, granularity?: 'day'): DateValue | ''
 export function toDateString(date: Date, granularity: 'minute'): DateTimeValue | ''
+export function toDateString(
+  date: Date,
+  granularity?: 'day' | 'minute',
+): DateValue | DateTimeValue | ''
 export function toDateString(date: Date, granularity: 'day' | 'minute' = 'day'): string {
   const year = date.getFullYear()
   if (!(year >= 1 && year <= 9999)) return ''

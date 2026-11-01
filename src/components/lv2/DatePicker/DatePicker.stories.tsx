@@ -25,16 +25,18 @@ const meta: Meta<typeof DatePicker> = {
     value: {
       description: 'The selected value (controlled), in the format of `granularity`. `""` is none.',
       control: 'text',
-      table: { type: { summary: 'string' } },
+      table: { type: { summary: 'DateValue | "", or DateTimeValue | "" at minute' } },
     },
     defaultValue: {
       description: 'The initial value (uncontrolled), in the format of `granularity`.',
       control: 'text',
-      table: { type: { summary: 'string' } },
+      table: { type: { summary: 'DateValue | "", or DateTimeValue | "" at minute' } },
     },
     onValueChange: {
       description: 'Fired when the value changes. `""` while the inputs hold no valid value.',
-      table: { type: { summary: '(value: string) => void' } },
+      table: {
+        type: { summary: '(value: DateValue | "") => void, or DateTimeValue | "" at minute' },
+      },
     },
     name: {
       description: 'Submits the selected value under this name.',
@@ -53,17 +55,17 @@ const meta: Meta<typeof DatePicker> = {
     min: {
       description: 'The earliest selectable value, in the format of `value`.',
       control: 'text',
-      table: { type: { summary: 'string' } },
+      table: { type: { summary: 'DateValue, or DateTimeValue at minute' } },
     },
     max: {
       description: 'The latest selectable value, in the format of `value`.',
       control: 'text',
-      table: { type: { summary: 'string' } },
+      table: { type: { summary: 'DateValue, or DateTimeValue at minute' } },
     },
     isDateDisabled: {
       description: 'Marks individual dates unavailable.',
       control: false,
-      table: { type: { summary: '(date: string) => boolean' } },
+      table: { type: { summary: '(date: DateValue) => boolean' } },
     },
     locale: {
       description: 'BCP 47 language tag for the calendar. Typed dates stay `YYYY-MM-DD`.',
@@ -79,7 +81,7 @@ const meta: Meta<typeof DatePicker> = {
     today: {
       description: 'The date the calendar marks as today. Defaults to the local date.',
       control: 'text',
-      table: { type: { summary: 'string' } },
+      table: { type: { summary: 'DateValue' } },
     },
     placeholder: {
       description: 'Text shown while the input is empty.',

@@ -38,6 +38,7 @@ When adding or modifying components, follow shadcn/ui conventions (Radix UI + CV
 - `src/components/lv1/` — Primitive components (Button, etc.)
 - `src/components/lv2/` — Composite components (EmptyState, etc.) — React-only
 - `src/variants/` — CVA variant definitions
+- `src/date/` — Date value types and conversion, React-free (`@yasmro/schatten/date`)
 - `src/lib/` — Shared utilities
 
 ## Guidelines

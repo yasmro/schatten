@@ -128,12 +128,6 @@ discipline** (always run `pnpm test:vrt` and inspect the `*-diff.png` before
 > you** — CI runs `pnpm test:vrt` in compare-only mode and does *not* generate
 > baselines, so a spec with no committed PNG fails CI on the first run.
 
-> **One exception: `CSS API / reference`.** That page does not render the
-> same locally as in CI, so its baseline is re-captured from the CI actual,
-> not with `pnpm test:vrt:update`. See
-> [vrt-spec-guideline.md § `CSS API / reference`](.claude/rules/vrt-spec-guideline.md#css-api--reference--re-baseline-from-the-ci-actual-interim-581)
-> (interim, #581).
-
 ### `vrt` failed without running any test — re-run it
 
 The `vrt` job runs on GitHub's `macos-latest` runners, which are sometimes

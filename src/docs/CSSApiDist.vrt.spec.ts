@@ -6,6 +6,7 @@ import { expect, test } from '@playwright/test'
 // `*.css` side-effect imports that the lv1 React layer brings in.
 // See `cssApiSamples.html.ts` header for the full rationale.
 import { dialogFooterHtml, fixtureChromeCss, vanillaHtml } from './__fixtures__/cssApiSamples.html'
+import { vrtFontPinCss } from './__fixtures__/vrtFontPin'
 
 /*
  * Dist-artifact VRT for the framework-agnostic CSS surface.
@@ -74,6 +75,7 @@ function buildHtml(theme: 'light' | 'dark', cssBlocks: string[], body: string): 
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <style>${cssBlocks.join('\n')}</style>
     <style>${fixtureChromeCss}</style>
+    <style>${vrtFontPinCss}</style>
   </head>
   <body>
     <div class="cssapi-fixture">${body}</div>

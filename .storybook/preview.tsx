@@ -5,7 +5,7 @@ import { vrtFontPinCss } from '../src/docs/__fixtures__/vrtFontPin'
 // Import Tailwind + design tokens + themes
 import '../src/styles/globals.css'
 
-// VRT only — see vrtFontPin.ts. Human viewers keep their system font.
+// Automation only — see vrtFontPin.ts. Human viewers keep their system font.
 if (navigator.webdriver) {
   const style = document.createElement('style')
   style.textContent = vrtFontPinCss

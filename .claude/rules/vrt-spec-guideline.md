@@ -763,20 +763,30 @@ have looked "almost right" without that triage. Don't shortcut it.
 
 ### Mono text is pinned to Menlo under automation (#581)
 
-`ui-monospace` leads `--font-mono` and resolves per OS: Menlo on the macOS CI
-runner, SF Mono on macOS 27. SF Mono's line box is taller at small sizes, so
-every row of mono text pushed a local render off its baseline (+21px on
-`CSS API / reference`, plus the `Tokens/*` pages and `css/input.css`).
+`--font-mono` reads `ui-monospace, SFMono-Regular, "SF Mono", Menlo, …`.
+Chromium treats `ui-monospace` as an ordinary family name and finds nothing, so
+the stack moves on: to SF Mono where Apple's optional SF Mono package
+(`com.apple.pkg.SFMonoFonts`) is installed, and to Menlo everywhere else on
+macOS. The baselines match Menlo. SF Mono's line box is taller at small sizes,
+so on a Mac with the package every row of mono text pushed a local render off
+its baseline: 24 failures, including +21px on `CSS API / reference`. The cause
+is that package, not the macOS version.
 
-[`vrtFontPin.ts`](../../src/docs/__fixtures__/vrtFontPin.ts) maps `ui-monospace`
-to Menlo only under automation: `.storybook/preview.tsx` applies it when
-`navigator.webdriver` is set, and `CSSApiDist.vrt.spec.ts` adds it to its
-`setContent` page. The public token and what people see in Storybook don't
-change. A new spec that renders outside both paths must add `vrtFontPinCss`
-itself.
+[`vrtFontPin.ts`](../../src/docs/__fixtures__/vrtFontPin.ts) defines a face named
+`ui-monospace` that points at Menlo, so the first name in the stack matches. It
+applies only under automation: `.storybook/preview.tsx` adds it when
+`navigator.webdriver` is set, which covers `pnpm review:shots` as well as VRT,
+and `CSSApiDist.vrt.spec.ts` adds it to its `setContent` page. The public token
+and what people see in Storybook don't change. A new spec that renders outside
+both paths must add `vrtFontPinCss` itself.
+
+It works in Chromium only, which is the only browser that takes screenshots.
+WebKit reads `ui-monospace` as a keyword and ignores the face, and the Playwright
+WebKit project runs interaction specs only.
 
 If a local run drifts on text rows only, check which font actually rendered
-(CDP `CSS.getPlatformFontsForNode`) before suspecting your change.
+(CDP `CSS.getPlatformFontsForNode` on an element using the **whole** stack, since
+`ui-monospace` alone reports a fallback) before suspecting your change.
 
 ## Snapshot Naming
 

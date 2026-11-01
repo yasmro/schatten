@@ -1,6 +1,10 @@
 import { render, screen } from '@testing-library/react'
-import { describe, expect, it } from 'vitest'
+import userEvent from '@testing-library/user-event'
+import { describe, expect, it, vi } from 'vitest'
 import { useFieldContext } from '../../../contexts/field'
+import { Checkbox } from '../Checkbox/Checkbox'
+import { Input } from '../Input/Input'
+import { Switch } from '../Switch/Switch'
 import { TooltipProvider } from '../Tooltip/Tooltip'
 import { Field } from './Field'
 
@@ -382,6 +386,67 @@ describe('Field', () => {
         </Field>,
       )
       expect(container.firstChild).not.toHaveAttribute('data-error')
+    })
+  })
+
+  describe('description click', () => {
+    it('focuses an Input', async () => {
+      const user = userEvent.setup()
+      render(
+        <Field label="Email" description="Help text">
+          <Input />
+        </Field>,
+      )
+      await user.click(screen.getByText('Help text'))
+      expect(screen.getByRole('textbox')).toHaveFocus()
+    })
+
+    it('leaves a link inside the description working', async () => {
+      const user = userEvent.setup()
+      const wasCancelled = vi.fn()
+      const listener = (event: Event) => wasCancelled(event.defaultPrevented)
+      document.addEventListener('click', listener)
+      render(
+        <Field label="Notifications" description={<a href="#help">Read more</a>}>
+          <Switch />
+        </Field>,
+      )
+      await user.click(screen.getByRole('link', { name: 'Read more' }))
+      document.removeEventListener('click', listener)
+      expect(wasCancelled).toHaveBeenCalledWith(false)
+    })
+  })
+
+  describe('duplicate id warning', () => {
+    it('warns once when a bare Checkbox shares field.id with an Input', () => {
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      const { rerender } = render(
+        <Field label="Email">
+          <Checkbox />
+          <Input />
+        </Field>,
+      )
+      rerender(
+        <Field label="Email">
+          <Checkbox />
+          <Input />
+        </Field>,
+      )
+      expect(warn).toHaveBeenCalledTimes(1)
+      expect(warn.mock.calls[0]?.[0]).toContain('2 controls share one id')
+      warn.mockRestore()
+    })
+
+    it('stays silent when each control has its own label', () => {
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      render(
+        <Field label="Interests">
+          <Checkbox label="Design" />
+          <Checkbox label="Business" />
+        </Field>,
+      )
+      expect(warn).not.toHaveBeenCalled()
+      warn.mockRestore()
     })
   })
 })

@@ -80,16 +80,17 @@ export const Checkbox = forwardRef<HTMLButtonElement, CheckboxProps>(
     const field = useFieldContext()
     const autoId = useId()
 
-    // Don't use field?.id - Checkbox has its own label and needs unique id per instance
-    const id = idProp ?? autoId
     const isError = field?.isError ?? isErrorProp
     const disabled = field?.disabled ?? disabledProp
     const ariaDescribedBy = field?.describedBy ?? ariaDescribedByProp
     // With no own `label` (and no explicit naming), the Field-rendered label
-    // names this control via aria-labelledby — htmlFor can't reach it because
-    // Checkbox keeps its own per-instance id. See field-context-guideline.
+    // names this control via aria-labelledby. See field-context-guideline.
     const ariaLabelledBy =
       ariaLabelledByProp ?? (label || props['aria-label'] ? undefined : field?.labelId)
+    // Checkbox keeps a per-instance id, except when the Field label names it: then
+    // it takes field.id so that label's htmlFor reaches it and a click toggles it.
+    const isNamedByField = ariaLabelledBy !== undefined && ariaLabelledBy === field?.labelId
+    const id = idProp ?? (isNamedByField ? field?.id : undefined) ?? autoId
 
     return (
       <div className={cn('st-checkbox-wrapper', className)}>

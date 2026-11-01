@@ -1,5 +1,5 @@
 import { Info } from 'lucide-react'
-import { type ReactNode, useId, useMemo } from 'react'
+import { type MouseEvent, type ReactNode, useEffect, useId, useMemo, useRef } from 'react'
 import { FieldContext, type FieldContextValue } from '../../../contexts/field'
 import { useFieldSetContext } from '../../../contexts/fieldset'
 import { cn } from '../../../lib/utils'
@@ -46,6 +46,18 @@ export interface FieldProps {
 const flexGrowClasses = { 0: 'st-field--grow-0', 1: 'st-field--grow' } as const
 const flexShrinkClasses = { 0: 'st-field--shrink-0', 1: 'st-field--shrink' } as const
 
+/**
+ * A description is a `<label>` so that clicking it focuses an `Input`. On a
+ * `Checkbox` or `Switch` the same click would change the value, and this text
+ * is there to be read. Interactive content in the description keeps working.
+ */
+function keepDescriptionFromToggling(event: MouseEvent<HTMLLabelElement>) {
+  if ((event.target as Element).closest('a, button, input, select, textarea')) return
+  if (event.currentTarget.control?.matches('[role="checkbox"], [role="switch"]')) {
+    event.preventDefault()
+  }
+}
+
 export function Field({
   label,
   description,
@@ -76,6 +88,20 @@ export function Field({
     return ids.length > 0 ? ids.join(' ') : undefined
   }, [description, error, descriptionId, errorId])
 
+  // field.id can only land on one element. A second one takes the label away
+  // from the control it belongs to, and axe does not report it.
+  const warnedDuplicateId = useRef(false)
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'production' || warnedDuplicateId.current) return
+    const count = document.querySelectorAll(`[id="${id}"]`).length
+    if (count > 1) {
+      warnedDuplicateId.current = true
+      console.warn(
+        `Field: ${count} controls share one id. A Field wraps a single control, so give the others their own \`label\` or \`aria-label\`.`,
+      )
+    }
+  })
+
   const hasLabel = !!label
   const contextValue = useMemo<FieldContextValue>(
     () => ({
@@ -105,8 +131,8 @@ export function Field({
         {label && (
           <div className="st-field__label-row">
             {/* `id` makes this label referenceable via aria-labelledby for
-             * self-labelled / group children that htmlFor cannot reach
-             * (Checkbox / Switch / RadioGroup) — see field-context-guideline. */}
+             * children named by it without htmlFor: RadioGroup, and a Checkbox
+             * or Switch with no own label — see field-context-guideline. */}
             <label id={labelId} htmlFor={id} className="st-field__label">
               {label}
               {required && <span className="st-field__required-marker">*</span>}
@@ -122,7 +148,13 @@ export function Field({
           </div>
         )}
         {description && (
-          <label htmlFor={id} id={descriptionId} className="st-field__description">
+          // biome-ignore lint/a11y/useKeyWithClickEvents: only cancels a click, a label has no keyboard path to cancel
+          <label
+            htmlFor={id}
+            id={descriptionId}
+            className="st-field__description"
+            onClick={keepDescriptionFromToggling}
+          >
             {description}
           </label>
         )}

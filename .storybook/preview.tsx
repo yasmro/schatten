@@ -1,8 +1,16 @@
 import type { Preview } from '@storybook/react-vite'
 import { useEffect } from 'react'
 
+import { vrtFontPinCss } from '../src/docs/__fixtures__/vrtFontPin'
 // Import Tailwind + design tokens + themes
 import '../src/styles/globals.css'
+
+// VRT only — see vrtFontPin.ts. Human viewers keep their system font.
+if (navigator.webdriver) {
+  const style = document.createElement('style')
+  style.textContent = vrtFontPinCss
+  document.head.append(style)
+}
 
 // `STORYBOOK_CHANNEL` is injected by `.github/workflows/deploy-storybook.yml`:
 // the `develop` build (published at /schatten/next/) sets it to `next`, the

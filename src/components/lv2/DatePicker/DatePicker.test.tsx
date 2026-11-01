@@ -2,8 +2,10 @@ import { fireEvent, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { createRef } from 'react'
 import { describe, expect, it, vi } from 'vitest'
+import type { DateTimeValue, DateValue } from '../../../date'
+import type { DateRange } from '../../lv1/DateCalendar'
 import { Field } from '../../lv1/Field'
-import { DatePicker, DateRangePicker } from './DatePicker'
+import { DatePicker, type DatePickerProps, DateRangePicker } from './DatePicker'
 
 const dateInput = () => screen.getByRole('textbox', { name: 'Birthday' })
 const calendarButton = () => screen.getByRole('button', { name: 'Choose date' })
@@ -88,7 +90,7 @@ describe('DatePicker', () => {
     })
 
     it('shows nothing for an invalid value', () => {
-      render(<DatePicker value="not-a-date" aria-label="Birthday" />)
+      render(<DatePicker value={'not-a-date' as DateValue} aria-label="Birthday" />)
       expect(dateInput()).toHaveValue('')
     })
 
@@ -578,7 +580,9 @@ describe('DatePicker with granularity="minute"', () => {
     it.each(['2026-10-24', '2026-10-24T13:30:00', '2026-10-24T13:30Z'])(
       'shows nothing for %s',
       (value) => {
-        render(<DatePicker granularity="minute" value={value} aria-label="Departure" />)
+        render(
+          <DatePicker granularity="minute" value={value as DateTimeValue} aria-label="Departure" />,
+        )
         expect(departure()).toHaveValue('')
       },
     )
@@ -671,7 +675,7 @@ describe('DatePicker with granularity="minute"', () => {
   })
 
   describe('panel', () => {
-    function setup(props: { defaultValue?: string; min?: string } = {}) {
+    function setup(props: { defaultValue?: DateTimeValue | ''; min?: DateTimeValue } = {}) {
       const onValueChange = vi.fn()
       render(
         <DatePicker
@@ -925,15 +929,18 @@ describe('DatePicker with granularity="minute"', () => {
 })
 
 describe('DateRangePicker with granularity="minute"', () => {
-  const stay = { from: '2026-10-24T09:00', to: '2026-10-24T18:00' }
+  const stay: { from: DateTimeValue; to: DateTimeValue } = {
+    from: '2026-10-24T09:00',
+    to: '2026-10-24T18:00',
+  }
   const start = () => screen.getByRole('textbox', { name: 'Start date' }) as HTMLInputElement
   const end = () => screen.getByRole('textbox', { name: 'End date' }) as HTMLInputElement
 
   function setup(props: {
-    defaultValue?: typeof stay | { from: string }
-    min?: string
-    max?: string
-    today?: string
+    defaultValue?: DateRange<DateTimeValue>
+    min?: DateTimeValue
+    max?: DateTimeValue
+    today?: DateValue
   }) {
     const onValueChange = vi.fn()
     render(
@@ -1485,5 +1492,63 @@ describe('DateRangePicker', () => {
       }
       expect(rangeButton()).toBeDisabled()
     })
+  })
+})
+
+// The recipe in the README: a plain Omit flattens the union.
+type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, K> : never
+
+function SpreadPicker(props: DatePickerProps) {
+  return <DatePicker {...props} />
+}
+
+function OmittedPicker(props: DistributiveOmit<DatePickerProps, 'size'>) {
+  return <DatePicker {...props} />
+}
+
+describe('value types', () => {
+  it('ties the format of the value props to granularity', () => {
+    const typed = [
+      <DatePicker key="day" value="2026-10-24" min="2026-01-01" />,
+      <DatePicker key="empty" value="" />,
+      <DatePicker key="minute" granularity="minute" value="2026-10-24T13:30" />,
+      <DateRangePicker key="range" value={{ from: '2026-10-24' }} />,
+      <DateRangePicker
+        key="timed-range"
+        granularity="minute"
+        defaultValue={{ from: '2026-10-24T13:30' }}
+      />,
+      // A wider callback is fine: the value is still a string.
+      <DatePicker key="wide" onValueChange={(_value: string) => {}} />,
+      // A callback typed on DateValue compiles only if that is what it receives.
+      <DatePicker key="disabled" isDateDisabled={(date: DateValue) => date.endsWith('-25')} />,
+      // @ts-expect-error a time needs granularity="minute"
+      <DatePicker key="a" value="2026-10-24T13:30" />,
+      // @ts-expect-error granularity="minute" needs a time
+      <DatePicker key="b" granularity="minute" value="2026-10-24" />,
+      // @ts-expect-error min follows granularity
+      <DatePicker key="c" granularity="minute" min="2026-10-24" />,
+      // @ts-expect-error not the format of a value
+      <DatePicker key="d" value="not-a-date" />,
+      // @ts-expect-error not the format of a value
+      <DatePicker key="e" value="2026/10/24" />,
+      // @ts-expect-error a string has to go through isDateValue
+      <DatePicker key="f" value={String('2026-10-24')} />,
+      // @ts-expect-error a time needs granularity="minute"
+      <DateRangePicker key="g" value={{ from: '2026-10-24T13:30' }} />,
+      // @ts-expect-error granularity="minute" needs a time
+      <DateRangePicker key="h" granularity="minute" value={{ to: '2026-10-24' }} />,
+    ]
+    expect(typed).toHaveLength(15)
+  })
+
+  it('keeps a wrapper typed through the union', () => {
+    const typed = [
+      <SpreadPicker key="spread" granularity="minute" value="2026-10-24T13:30" />,
+      <OmittedPicker key="omitted" granularity="minute" value="2026-10-24T13:30" />,
+      // @ts-expect-error the wrapper keeps the tie to granularity
+      <OmittedPicker key="a" value="2026-10-24T13:30" />,
+    ]
+    expect(typed).toHaveLength(3)
   })
 })

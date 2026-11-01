@@ -5,6 +5,7 @@ import userEvent from '@testing-library/user-event'
 import { createRef, useState } from 'react'
 import { renderToString } from 'react-dom/server'
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import type { DateValue } from '../../../date'
 import { Field } from '../Field/Field'
 import {
   DateCalendar,
@@ -14,17 +15,17 @@ import {
 } from './DateCalendar'
 import { createFormatters } from './date-math'
 
-const TODAY = '2026-10-24'
+const TODAY: DateValue = '2026-10-24'
 
-const dayName = (date: string, locale = 'en-US') => createFormatters(locale).dayLabel(date)
+const dayName = (date: DateValue, locale = 'en-US') => createFormatters(locale).dayLabel(date)
 // A prefix match: the ends of a range append "range start" / "range end".
-const day = (date: string) =>
+const day = (date: DateValue) =>
   screen.getByRole('button', { name: (name) => name.startsWith(dayName(date)) })
-const cell = (date: string) => day(date).closest('td') as HTMLElement
+const cell = (date: DateValue) => day(date).closest('td') as HTMLElement
 const grid = () => screen.getByRole('grid')
 
-function ControlledMonth(props: { onMonthChange?: (month: string) => void }) {
-  const [month, setMonth] = useState('2026-10-01')
+function ControlledMonth(props: { onMonthChange?: (month: DateValue) => void }) {
+  const [month, setMonth] = useState<DateValue>('2026-10-01')
   return (
     <DateCalendar
       today={TODAY}
@@ -63,7 +64,7 @@ function WithInput() {
 }
 
 function Delayed() {
-  const [month, setMonth] = useState('2026-10-01')
+  const [month, setMonth] = useState<DateValue>('2026-10-01')
   return (
     <>
       <DateCalendar today={TODAY} month={month} defaultValue="2026-10-31" />
@@ -388,7 +389,7 @@ describe('DateCalendar', () => {
   })
 
   describe('keyboard', () => {
-    async function focusDay(date: string, props: DateCalendarProps = {}) {
+    async function focusDay(date: DateValue, props: DateCalendarProps = {}) {
       const user = userEvent.setup()
       renderCalendar({ defaultValue: date, ...props })
       await user.tab()
@@ -408,7 +409,7 @@ describe('DateCalendar', () => {
     ])('moves focus with %s', async (key, expected) => {
       const user = await focusDay('2026-10-20')
       await user.keyboard(key)
-      expect(day(expected)).toHaveFocus()
+      expect(day(expected as DateValue)).toHaveFocus()
     })
 
     it.each([
@@ -420,7 +421,7 @@ describe('DateCalendar', () => {
       const user = await focusDay('2026-10-20')
       await user.keyboard(key)
       expect(screen.getByRole('grid', { name: caption })).toBeInTheDocument()
-      expect(day(expected)).toHaveFocus()
+      expect(day(expected as DateValue)).toHaveFocus()
     })
 
     it('crosses into the adjacent month', async () => {
@@ -935,5 +936,31 @@ describe('DateRangeCalendar', () => {
     renderRange({ value: { from: '2026-02-30' } })
     expect(warn).toHaveBeenCalledWith(expect.stringContaining('`value.from` "2026-02-30"'))
     warn.mockRestore()
+  })
+})
+
+describe('value types', () => {
+  it('takes a date, never a date and time', () => {
+    const typed = [
+      <DateCalendar key="date" value="2026-10-24" min="2026-01-01" month="2026-10-01" />,
+      <DateCalendar key="empty" value="" />,
+      <DateRangeCalendar key="range" value={{ from: '2026-10-24' }} />,
+      <DateRangeCalendar key="timed" value={{ from: '2026-10-24', to: '2026-10-25' }} />,
+      // A callback typed on DateValue compiles only if that is what it receives.
+      <DateCalendar key="change" onValueChange={(date: DateValue) => date.slice(0, 4)} />,
+      // @ts-expect-error a calendar picks days
+      <DateCalendar key="a" value="2026-10-24T13:30" />,
+      // @ts-expect-error not the format of a value
+      <DateCalendar key="b" defaultValue="2026/10/24" />,
+      // @ts-expect-error a string has to go through isDateValue
+      <DateCalendar key="c" min={String('2026-10-24')} />,
+      // @ts-expect-error month is a date too
+      <DateCalendar key="d" month="2026-10" />,
+      // @ts-expect-error a calendar picks days
+      <DateRangeCalendar key="e" value={{ from: '2026-10-24T13:30' }} />,
+      // @ts-expect-error `{}` is the empty range, not `''`
+      <DateRangeCalendar key="f" value={{ from: '' }} />,
+    ]
+    expect(typed).toHaveLength(11)
   })
 })

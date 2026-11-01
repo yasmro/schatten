@@ -1,4 +1,5 @@
 import { forwardRef } from 'react'
+import type { DateTimeValue, DateValue } from '../../../date'
 import { useControllable } from '../../../lib/use-controllable'
 import { cn } from '../../../lib/utils'
 import { dateCalendarVariants, dateRangeCalendarVariants } from '../../../variants/date-calendar'
@@ -13,6 +14,7 @@ import {
 import { addDays, compareDates, diffDays } from './date-math'
 import './DateCalendar.css'
 
+export type { DateTimeValue, DateValue } from '../../../date'
 export type { DateCalendarLabels } from './CalendarView'
 export type { DateCalendarLocale, WeekDay } from './date-math'
 
@@ -24,15 +26,15 @@ export interface DateCalendarProps extends CalendarCommonProps {
    * `Date` objects, so a time zone can never shift a date by one day. Pass `''`
    * for no selection.
    */
-  value?: string
+  value?: DateValue | ''
   /**
    * The initially selected date as `YYYY-MM-DD` (uncontrolled).
    */
-  defaultValue?: string
+  defaultValue?: DateValue | ''
   /**
    * Fired with the selected date as `YYYY-MM-DD`.
    */
-  onValueChange?: (value: string) => void
+  onValueChange?: (value: DateValue) => void
 }
 
 /**
@@ -75,11 +77,11 @@ DateCalendar.displayName = 'DateCalendar'
 
 /* ----- DateRangeCalendar ----- */
 
-export interface DateRange {
-  /** First day of the range, as `YYYY-MM-DD`. */
-  from?: string
-  /** Last day of the range, as `YYYY-MM-DD`. Unset while the range is half-picked. */
-  to?: string
+export interface DateRange<T extends DateValue | DateTimeValue = DateValue> {
+  /** Start of the range. */
+  from?: T
+  /** End of the range. Unset while the range is half-picked. */
+  to?: T
 }
 
 export interface DateRangeCalendarProps extends CalendarCommonProps {
@@ -125,11 +127,11 @@ export interface DateRangeCalendarProps extends CalendarCommonProps {
  * day". Each direction walks only once per render, so the grid's 42 cells cost
  * one scan rather than 42.
  */
-function createSpanChecker(from: string, isBlocked: (date: string) => boolean) {
+function createSpanChecker(from: DateValue, isBlocked: (date: DateValue) => boolean) {
   const scanner = (step: 1 | -1) => {
     let cursor = from
-    let blocked: string | undefined
-    return (until: string) => {
+    let blocked: DateValue | undefined
+    return (until: DateValue) => {
       while (!blocked && compareDates(cursor, until) * step < 0) {
         cursor = addDays(cursor, step)
         if (isBlocked(cursor)) blocked = cursor
@@ -139,7 +141,7 @@ function createSpanChecker(from: string, isBlocked: (date: string) => boolean) {
   }
   const forward = scanner(1)
   const backward = scanner(-1)
-  return (date: string) => (compareDates(date, from) < 0 ? backward : forward)(date)
+  return (date: DateValue) => (compareDates(date, from) < 0 ? backward : forward)(date)
 }
 
 /**
@@ -180,7 +182,7 @@ export const DateRangeCalendar = forwardRef<HTMLDivElement, DateRangeCalendarPro
     // Only a half-picked range constrains the next click.
     const start = from && !to ? from : undefined
 
-    let spansBlockedDay: ((date: string) => boolean) | undefined
+    let spansBlockedDay: ((date: DateValue) => boolean) | undefined
 
     const selection: CalendarSelection = {
       anchor: from,
@@ -204,7 +206,7 @@ export const DateRangeCalendar = forwardRef<HTMLDivElement, DateRangeCalendarPro
       },
     }
 
-    function getRangePosition(date: string): RangePosition | undefined {
+    function getRangePosition(date: DateValue): RangePosition | undefined {
       if (!from) return undefined
       const end = to ?? from
       if (compareDates(date, from) < 0 || compareDates(date, end) > 0) return undefined

@@ -1,5 +1,6 @@
 import fc from 'fast-check'
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import { type DateValue, isDateValue } from '../../../date'
 import {
   addDays,
   addMonths,
@@ -12,7 +13,6 @@ import {
   getLocalToday,
   isoWeek,
   isSameMonth,
-  isValidISODate,
   MAX_DATE,
   MIN_DATE,
   monthMatrix,
@@ -26,31 +26,10 @@ import {
 
 const isoDate = fc
   .integer({ min: -62_135_596_800_000, max: 253_402_214_400_000 })
-  .map((ms) => new Date(ms).toISOString().slice(0, 10))
+  .map((ms) => new Date(ms).toISOString().slice(0, 10) as DateValue)
   .filter((date) => date >= MIN_DATE && date <= MAX_DATE)
 const weekDay = fc.constantFrom<WeekDay>(0, 1, 2, 3, 4, 5, 6)
 const offset = fc.integer({ min: -4000, max: 4000 })
-
-describe('isValidISODate', () => {
-  it.each(['2026-10-24', '2024-02-29', '2000-02-29', MIN_DATE, MAX_DATE])('accepts %s', (date) => {
-    expect(isValidISODate(date)).toBe(true)
-  })
-
-  it.each([
-    '2026-02-30',
-    '2023-02-29',
-    '1900-02-29',
-    '2026-13-01',
-    '2026-00-10',
-    '0000-01-01',
-    '2026-1-1',
-    '2026/10/24',
-    '20261024',
-    '',
-  ])('rejects %s', (date) => {
-    expect(isValidISODate(date)).toBe(false)
-  })
-})
 
 describe('addDays', () => {
   it('crosses a year boundary', () => {
@@ -86,7 +65,7 @@ describe('addDays', () => {
   })
 
   it('always returns a valid date', () => {
-    fc.assert(fc.property(isoDate, offset, (date, days) => isValidISODate(addDays(date, days))))
+    fc.assert(fc.property(isoDate, offset, (date, days) => isDateValue(addDays(date, days))))
   })
 })
 
@@ -111,7 +90,7 @@ describe('addMonths', () => {
   it('never produces a date that does not exist', () => {
     fc.assert(
       fc.property(isoDate, fc.integer({ min: -1200, max: 1200 }), (date, months) =>
-        isValidISODate(addMonths(date, months)),
+        isDateValue(addMonths(date, months)),
       ),
     )
   })
@@ -123,7 +102,7 @@ describe('addMonths', () => {
         fc.integer({ min: 1, max: 12 }),
         fc.integer({ min: -1200, max: 1200 }),
         (year, month, months) => {
-          const date = `${year}-${String(month).padStart(2, '0')}-15`
+          const date = `${year}-${String(month).padStart(2, '0')}-15` as DateValue
           const index = year * 12 + month - 1 + months
           expect(Number(addMonths(date, months).slice(0, 4))).toBe(Math.floor(index / 12))
           expect(Number(addMonths(date, months).slice(5, 7))).toBe((index % 12) + 1)

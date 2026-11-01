@@ -82,6 +82,7 @@
     {
       "includes": [
         "src/core/**",
+        "src/date/**",
         "src/variants/**",
         "src/themes/**",
         "src/tokens.ts",

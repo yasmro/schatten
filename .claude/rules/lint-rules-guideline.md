@@ -66,7 +66,7 @@ invariant that makes the assertion safe.
 
 ### `style/noRestrictedImports` — `error` (core / variants / themes scope)
 
-Inside `src/core/**` / `src/variants/**` / `src/themes/**` / `src/tokens.ts`
+Inside `src/core/**` / `src/date/**` / `src/variants/**` / `src/themes/**` / `src/tokens.ts`
 / `src/theme-init.ts`, `react` / `react-dom` / `@radix-ui/*` imports are an
 `error` (applied via a scoped `overrides` entry in
 [biome.json](../../biome.json)).
@@ -104,7 +104,7 @@ belongs in `src/lib/` (lib-layer helpers like
 **Scope additions:** if a new top-level directory under `src/` is
 introduced that should stay framework-agnostic, update the `includes`
 list in [biome.json](../../biome.json) explicitly. The current entries
-are `src/core/**`, `src/variants/**`, `src/themes/**`, `src/tokens.ts`,
+are `src/core/**`, `src/date/**`, `src/variants/**`, `src/themes/**`, `src/tokens.ts`,
 `src/theme-init.ts` — no implicit catch-all, so new directories don't
 acquire the restriction by accident or lose it silently.
 

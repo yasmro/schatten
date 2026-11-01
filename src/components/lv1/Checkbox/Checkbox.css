@@ -48,13 +48,15 @@
   }
   /* Stretches the label's hit area over the wrapper's gap, which would
    * otherwise neither activate the control nor show the pointer cursor.
-   * Out of flow, so the layout is exactly the plain `gap`. */
+   * Out of flow, so the layout is exactly the plain `gap`. Assumes the label
+   * follows the control in the inline direction: on a reversed or column
+   * wrapper this sits on the far side of the label instead of in the gap. */
   .st-checkbox-wrapper__label::before {
     content: "";
     position: absolute;
     inset-block: 0;
     inset-inline-end: 100%;
-    width: var(--schatten-checkbox-gap);
+    inline-size: var(--schatten-checkbox-gap);
   }
   /* Label font-size + line-height pair, derived from the inner checkbox
    * size — vanilla HTML consumers only write the size on the checkbox itself.

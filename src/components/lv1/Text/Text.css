@@ -105,31 +105,36 @@
     font-weight: var(--font-medium);
   }
 
-  /* heading — sm / md / lg / xl / 2xl */
+  /* heading — sm / md / lg / xl / 2xl
+   * Normal weight at every size: the hierarchy is carried by size and
+   * line-height alone, not by weight. This is the 陰翳礼讃 posture of the
+   * brand — headings recede into the page rather than shout — and it keeps
+   * serif headings (`family="serif"`) from needing a 600/700 cut. Body is
+   * normal too; only `label` carries weight (medium). */
   .st-text--heading.st-text--sm {
     font-size: var(--text-lg);
     line-height: var(--leading-snug);
-    font-weight: var(--font-semibold);
+    font-weight: var(--font-normal);
   }
   .st-text--heading.st-text--md {
     font-size: var(--text-xl);
     line-height: var(--leading-snug);
-    font-weight: var(--font-semibold);
+    font-weight: var(--font-normal);
   }
   .st-text--heading.st-text--lg {
     font-size: var(--text-2xl);
     line-height: var(--leading-snug);
-    font-weight: var(--font-semibold);
+    font-weight: var(--font-normal);
   }
   .st-text--heading.st-text--xl {
     font-size: var(--text-3xl);
     line-height: var(--leading-tight);
-    font-weight: var(--font-bold);
+    font-weight: var(--font-normal);
   }
   .st-text--heading.st-text--2xl {
     font-size: var(--text-4xl);
     line-height: var(--leading-tight);
-    font-weight: var(--font-bold);
+    font-weight: var(--font-normal);
   }
 
   /* ===== leading (line-height override) =====

@@ -150,9 +150,15 @@ Precedence (per component-architecture §5): explicit `aria-label` /
 
 `Checkbox` / `Switch` resolve `id` from the same decision: when `field?.labelId`
 is applied they take `field.id`, so the Field label both names the control and
-activates it, and so does a Field `description`, which is a `<label>` too. An
-explicit `id` prop still wins, and then the Field label names the control
-without activating it.
+activates it. An explicit `id` prop still wins, and then the Field label names
+the control without activating it. That order is the reverse of `Input`, where
+`field.id` wins: a Checkbox's `id` has always been honoured, and dropping it
+would break consumers who rely on it.
+
+A Field `description` is a `<label>` pointing at the same id, but it does not
+toggle: `Field` cancels that click when the target is a `checkbox` or `switch`,
+because reading a sentence should not change a value. Links and buttons inside
+the description are left alone.
 
 ### Known limitations (accepted, documented)
 
@@ -161,6 +167,13 @@ without activating it.
   get the same accessible name and the same duplicate `id`, and a click on the
   Field label reaches only the first. Give each its own `label` / `aria-label`
   instead.
+- **A bare control ahead of another control takes its label.** In
+  `<Field label="Email"><Checkbox /><Input /></Field>` both get `field.id`, and
+  a `<label for>` resolves to the first match in document order, so the `Input`
+  loses its name (the same goes for `Select`, and `DatePicker` falls back to its
+  placeholder) and the label toggles the Checkbox instead of focusing the input.
+  axe does not report it, so `Field` warns through `console.warn` outside
+  production when one id lands on more than one element.
 
 ## Range input (two inputs in one group)
 
@@ -214,7 +227,7 @@ Use `<label htmlFor={id}>` for description to enable click-to-focus while mainta
 ```
 
 The `aria-describedby` attribute links the description for screen readers, so:
-- Clicking description focuses the input (via `htmlFor`)
+- Clicking description focuses the input (via `htmlFor`). On a Checkbox / Switch, `Field` cancels the click so it does not toggle
 - Screen readers announce description as supplementary info (via `aria-describedby`)
 
 ### Error messages

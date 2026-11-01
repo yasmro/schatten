@@ -55,14 +55,25 @@ for (const story of stories) {
 }
 
 // jsdom can dispatch the click, but only a real pointer proves nothing sits on
-// top of the label. A bare Switch is named by this label, so it must also toggle.
-test('Field / clicking the label toggles a self-labelled control it names', async ({ page }) => {
-  await page.goto(storyUrl('with-switch', 'light'))
-  await page.waitForLoadState('networkidle')
+// top of the label. A bare control is named by this label, so it must also
+// toggle. Its description must not: that text is there to be read.
+const namedControls = [
+  ['with-switch', 'switch', 'Notifications', 'Enable push notifications.'],
+  ['label-usage-patterns', 'checkbox', 'Accept the terms', 'Required to continue.'],
+] as const
 
-  const control = page.getByRole('switch', { name: 'Notifications' })
-  await expect(control).toHaveAttribute('data-state', 'unchecked')
+for (const [story, role, name, description] of namedControls) {
+  test(`Field / the label toggles a bare ${role}, the description does not`, async ({ page }) => {
+    await page.goto(storyUrl(story, 'light'))
+    await page.waitForLoadState('networkidle')
 
-  await page.getByText('Notifications', { exact: true }).click()
-  await expect(control).toHaveAttribute('data-state', 'checked')
-})
+    const control = page.getByRole(role, { name })
+    await expect(control).toHaveAttribute('data-state', 'unchecked')
+
+    await page.getByText(description, { exact: true }).click()
+    await expect(control).toHaveAttribute('data-state', 'unchecked')
+
+    await page.getByText(name, { exact: true }).click()
+    await expect(control).toHaveAttribute('data-state', 'checked')
+  })
+}

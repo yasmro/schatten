@@ -269,6 +269,30 @@ describe('Switch', () => {
       )
     })
 
+    it('keeps its own id when aria-labelledby names it', () => {
+      render(
+        <Field label="Notifications">
+          <Switch aria-labelledby="external" />
+        </Field>,
+      )
+      expect(screen.getByText('Notifications')).not.toHaveAttribute(
+        'for',
+        screen.getByRole('switch').id,
+      )
+    })
+
+    it('keeps its own id when Field has no label', () => {
+      render(
+        <Field description="Help text">
+          <Switch aria-label="Named" />
+        </Field>,
+      )
+      expect(screen.getByText('Help text')).not.toHaveAttribute(
+        'for',
+        screen.getByRole('switch').id,
+      )
+    })
+
     it('prefers an explicit id over the Field id', () => {
       render(
         <Field label="Notifications">
@@ -276,6 +300,17 @@ describe('Switch', () => {
         </Field>,
       )
       expect(screen.getByRole('switch')).toHaveAttribute('id', 'explicit')
+    })
+
+    it('does not toggle from the Field description', async () => {
+      const user = userEvent.setup()
+      render(
+        <Field label="Notifications" description="Help text">
+          <Switch />
+        </Field>,
+      )
+      await user.click(screen.getByText('Help text'))
+      expect(screen.getByRole('switch')).toHaveAttribute('data-state', 'unchecked')
     })
 
     it('does not toggle from the Field label when Field is disabled', async () => {

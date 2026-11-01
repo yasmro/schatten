@@ -346,11 +346,10 @@ const describedBy  = field?.describedBy  ?? props['aria-describedby']
 This applies uniformly to `Input`, `Textarea`, `Select`, `Checkbox`, `Switch`,
 `Radio`, and `RadioGroup`.
 
-### `id` (consumed only by externally-labelled components)
+### `id` (consumed by whatever the Field label names)
 
 `FieldContext.id` is specifically **the hookup id between an external `<label htmlFor>`
-and the input element**. It is consumed only by components that lack their own
-internal label:
+and the input element**. It is consumed by components the Field label names:
 
 | Consumes `field?.id` | Does not consume `field?.id` |
 |---|---|

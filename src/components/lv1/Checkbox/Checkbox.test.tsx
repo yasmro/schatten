@@ -205,6 +205,27 @@ describe('Checkbox', () => {
       expect(screen.getByText('Terms')).not.toHaveAttribute('for', screen.getByRole('checkbox').id)
     })
 
+    it('keeps its own id when aria-labelledby names it', () => {
+      render(
+        <Field label="Terms">
+          <Checkbox aria-labelledby="external" />
+        </Field>,
+      )
+      expect(screen.getByText('Terms')).not.toHaveAttribute('for', screen.getByRole('checkbox').id)
+    })
+
+    it('keeps its own id when Field has no label', () => {
+      render(
+        <Field description="Help text">
+          <Checkbox aria-label="Named" />
+        </Field>,
+      )
+      expect(screen.getByText('Help text')).not.toHaveAttribute(
+        'for',
+        screen.getByRole('checkbox').id,
+      )
+    })
+
     it('prefers an explicit id over the Field id', () => {
       render(
         <Field label="Terms">
@@ -212,6 +233,17 @@ describe('Checkbox', () => {
         </Field>,
       )
       expect(screen.getByRole('checkbox')).toHaveAttribute('id', 'explicit')
+    })
+
+    it('does not toggle from the Field description', async () => {
+      const user = userEvent.setup()
+      render(
+        <Field label="Terms" description="Help text">
+          <Checkbox />
+        </Field>,
+      )
+      await user.click(screen.getByText('Help text'))
+      expect(screen.getByRole('checkbox')).toHaveAttribute('data-state', 'unchecked')
     })
 
     it('does not toggle from the Field label when Field is disabled', async () => {

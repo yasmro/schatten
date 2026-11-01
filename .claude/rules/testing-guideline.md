@@ -103,8 +103,8 @@ Applies to: Input, Textarea, Select, Checkbox, Switch, Radio.
 - **Error state** — `isError` toggles `aria-invalid` and the error-styled
   class (`border-error` etc.)
 - **Field context integration** — wrap the component in `<Field>` and assert:
-  - It picks up the Field `id` (label association), unless the component has
-    its own internal `<label>` like Checkbox/Switch/Radio — see
+  - It picks up the Field `id` (label association). Checkbox/Switch do so only
+    when the Field label names them, and Radio never does — see
     [field-context-guideline.md](field-context-guideline.md)
   - It picks up `isError` and `disabled` from Field
   - It picks up `aria-describedby` from Field

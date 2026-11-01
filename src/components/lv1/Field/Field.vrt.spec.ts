@@ -53,3 +53,16 @@ for (const story of stories) {
     })
   }
 }
+
+// jsdom can dispatch the click, but only a real pointer proves nothing sits on
+// top of the label. A bare Switch is named by this label, so it must also toggle.
+test('Field / clicking the label toggles a self-labelled control it names', async ({ page }) => {
+  await page.goto(storyUrl('with-switch', 'light'))
+  await page.waitForLoadState('networkidle')
+
+  const control = page.getByRole('switch', { name: 'Notifications' })
+  await expect(control).toHaveAttribute('data-state', 'unchecked')
+
+  await page.getByText('Notifications', { exact: true }).click()
+  await expect(control).toHaveAttribute('data-state', 'checked')
+})

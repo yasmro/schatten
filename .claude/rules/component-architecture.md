@@ -354,10 +354,13 @@ internal label:
 
 | Consumes `field?.id` | Does not consume `field?.id` |
 |---|---|
-| `Input`, `Textarea`, `Select` | `Checkbox`, `Switch`, `Radio` |
+| `Input`, `Textarea`, `Select` | `Radio` |
+| `Checkbox`, `Switch` — only when the Field label names them | `Checkbox`, `Switch` — with an own `label` or explicit naming |
 
 Components with internal labels generate their own per-instance id (each
-checkbox is its own field).
+checkbox is its own field). `Checkbox` / `Switch` without an own `label` are
+named by the Field label, so they take `field.id` and that label activates them
+too — see `labelId` below.
 
 ### `labelId` (naming fallback for self-labelled / group components)
 
@@ -366,11 +369,10 @@ checkbox is its own field).
 hookup above cannot name two classes of children:
 
 - **Self-labelled components without an own `label`** —
-  `<Field label="Notifications"><Switch /></Field>` would otherwise leave the
-  Switch unnamed (the Field label's `htmlFor` points at the unconsumed
-  `field.id`). `Checkbox` / `Switch` apply
-  `aria-labelledby={field?.labelId}` only when they have no own `label` and
-  the consumer passed no explicit naming prop.
+  `<Field label="Notifications"><Switch /></Field>`. `Checkbox` / `Switch`
+  apply `aria-labelledby={field?.labelId}` only when they have no own `label`
+  and the consumer passed no explicit naming prop. They take `field.id` in the
+  same case, so the label that names the control also activates it.
 - **`RadioGroup`** — a `role="radiogroup"` div cannot be reached by
   `htmlFor` at all; the group root always applies `aria-labelledby` unless
   the consumer names it explicitly.

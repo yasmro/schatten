@@ -364,8 +364,9 @@ to form-control lv2s (lv2-composition-guideline §4.4).
   every consumed field. The fallback chain order is part of the
   contract.
 - **`id` consumption** — externally-labelled inputs (Input / Textarea /
-  Select) use `field?.id`; self-labelled inputs (Checkbox / Switch /
-  Radio) do **not** (each generates its own per-instance id).
+  Select) use `field?.id`. Checkbox / Switch use it only when the Field
+  label names them (no own `label`, no explicit naming); otherwise they
+  generate a per-instance id. Radio never uses it.
 - **`aria-describedby` wiring** — flows through `field?.describedBy`.
 - **Description as `<label htmlFor>`** — clickable description focuses
   the input via `htmlFor` while `aria-describedby` carries the SR

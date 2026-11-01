@@ -67,10 +67,6 @@
     cursor: pointer;
     user-select: none;
   }
-  .st-radio-wrapper:has(.st-radio:disabled) .st-radio-wrapper__label {
-    cursor: not-allowed;
-    color: var(--color-foreground-disabled);
-  }
   /* Label font-size + line-height pair, derived from the inner radio's
    * size — vanilla HTML consumers only write the size class on the radio
    * itself. Same line-height-with-font-size rationale as Checkbox.css. */
@@ -85,6 +81,10 @@
   .st-radio-wrapper:has(.st-radio--lg) .st-radio-wrapper__label {
     font-size: 1rem;
     line-height: 1.5rem;
+  }
+  .st-radio-wrapper:has(.st-radio:disabled) .st-radio-wrapper__label {
+    cursor: not-allowed;
+    color: var(--color-foreground-disabled);
   }
 
   /* ===== block ===== */

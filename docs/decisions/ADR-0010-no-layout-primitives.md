@@ -53,3 +53,6 @@ Schatten でもこれらを足すか検討したが、レイアウトは「見�
 - 2026-03 — layout primitive 不採用を採用（遡及記録）。
 - ⚠️ **一次判断の出典が薄い ADR。** 対応する `.claude/rules/` の明示ルールは無く、本 ADR が
   唯一の記録。棄却理由の一次資料（評価レポート §1.6 等）が判明したら Rationale を補強する。
+- 2026-10 — lv2 が持つ「名前のある semantic pattern の内部レイアウト」（`.st-empty-state` など）は layout
+  primitive に当たらない、という線引きを [lv2-composition-guideline.md §5.3](../../.claude/rules/lv2-composition-guideline.md#53-named-pattern-vs-layout-primitive-the-adr-0010-line)
+  に置いた（#492）。本 ADR の決定は変わらない。

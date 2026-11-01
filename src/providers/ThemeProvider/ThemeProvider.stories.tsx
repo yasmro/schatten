@@ -208,6 +208,24 @@ export const AutoSeasonal: Story = {
   ),
 }
 
+function PaintInner() {
+  const [counter] = useState(() => Math.floor(Math.random() * 10000))
+  return (
+    <div className="flex flex-col gap-4 p-6 rounded-lg border border-border bg-surface">
+      <Text>
+        Inner component mounted with random id <strong>{counter}</strong>. Switch theme above — this
+        number does NOT change, proving the JSX subtree did not re-render.
+      </Text>
+      <div className="flex items-center gap-2">
+        <Button variant="primary">Primary</Button>
+        <Button variant="secondary">Secondary</Button>
+        <Badge variant="success">Success</Badge>
+        <Badge variant="warning">Warning</Badge>
+      </div>
+    </div>
+  )
+}
+
 /**
  * Demonstrates that `useTheme()` updates do NOT trigger Schatten lv1
  * components to re-render in JSX — they re-paint via CSS cascade only.
@@ -217,28 +235,11 @@ export const AutoSeasonal: Story = {
 export const PaintWithoutReactReRender: Story = {
   name: 'Paint Without Re-Render',
   render: () => {
-    function Inner() {
-      const [counter] = useState(() => Math.floor(Math.random() * 10000))
-      return (
-        <div className="flex flex-col gap-4 p-6 rounded-lg border border-border bg-surface">
-          <Text>
-            Inner component mounted with random id <strong>{counter}</strong>. Switch theme above —
-            this number does NOT change, proving the JSX subtree did not re-render.
-          </Text>
-          <div className="flex items-center gap-2">
-            <Button variant="primary">Primary</Button>
-            <Button variant="secondary">Secondary</Button>
-            <Badge variant="success">Success</Badge>
-            <Badge variant="warning">Warning</Badge>
-          </div>
-        </div>
-      )
-    }
     return (
       <ThemeProvider defaultMode="light" storageKey={null}>
         <div className="flex flex-col gap-4">
           <ThemePanel />
-          <Inner />
+          <PaintInner />
         </div>
       </ThemeProvider>
     )

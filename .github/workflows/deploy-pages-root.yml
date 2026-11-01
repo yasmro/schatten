@@ -1,0 +1,57 @@
+name: Deploy Pages Root
+
+# Owns everything at the Pages root that is NOT Storybook or a PR preview:
+#
+#   index.html  router — `?path=` deep links go to storybook/ (pre-#502 links),
+#               everyone else to the public site at yasmro/schatten-site
+#   site/       redirect stubs for the retired in-repo docs site (#563). The
+#               site moved to https://yasmro.github.io/schatten-site/ with the
+#               same path layout, so each stub forwards to the same path there
+#   404.html    fallback for any other /schatten/site/<rest> URL
+#
+# Nothing here is built and nothing describes npm state, so this deploys on
+# merge to develop (only when the files change) rather than tag-synced like
+# the old deploy-site.yml (#502) did. workflow_dispatch re-deploys on demand.
+
+on:
+  push:
+    branches: [develop]
+    paths:
+      - '.github/pages-root/**'
+      - '.github/workflows/deploy-pages-root.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+# gh-pages に書く workflow は全て同一グループで直列化する。JamesIves の deploy は
+# 実行開始時点の gh-pages を base に force-push するため、並走すると後着が先着の
+# コミットを黙って巻き戻す(#502 の切替作業で 2 回実測: cannot-lock-ref 失敗と、
+# force-push による site 更新の消失)。cancel はせず順番待ちにする。
+concurrency:
+  group: gh-pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Deploy Pages root
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: .github/pages-root
+          target-folder: ''
+          clean: true
+          # Everything under the root that another workflow owns, by name.
+          # site/ is deliberately NOT excluded (#563): this clean replaces the
+          # old site build left on gh-pages with the redirect stubs.
+          # NOTE: clean-exclude doubles as an rsync --exclude on the SOURCE
+          # copy (JamesIves v4), so .nojekyll must NOT be listed here — it
+          # would be excluded from the deployment itself (learned in #509's
+          # follow-up). The file ships from .github/pages-root/ every deploy,
+          # so it needs no clean protection.
+          clean-exclude: |
+            storybook
+            pr

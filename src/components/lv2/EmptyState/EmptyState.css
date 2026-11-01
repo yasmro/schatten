@@ -1,0 +1,87 @@
+/*
+ * EmptyState — `.st-empty-state` class API (lv2).
+ *
+ * Published surface: the block and its modifiers only
+ * (lv2-composition-guideline §5.2):
+ * - size:  sm | md | lg     (icon size, padding, gap)
+ * - align: center | start   (column placement + text alignment)
+ *
+ * There are no `__*` sub-elements. The parts are the lv1s the component
+ * composes, reached through their public classes. Every part selector uses
+ * the child combinator (`>`): the `action` slot holds arbitrary consumer
+ * content, and a `Button` icon inside it is also a `.st-icon` — a descendant
+ * selector would enlarge it.
+ *
+ * The action row is the one wrapper with no lv1 class of its own. It is the
+ * only direct child that is neither `.st-icon` nor `.st-text`, so it is
+ * selected that way: an `st-` class on it would enter the manifest as public API.
+ *
+ * No color is declared here. `Text` / `Icon` take theirs from their `color`
+ * prop, so dark mode and Specials follow through the tokens.
+ *
+ * lv2 is React-only: this file is not a vanilla-HTML contract (§5.0).
+ *
+ * See: .claude/rules/lv2-composition-guideline.md §5, #125.
+ */
+@layer components {
+  .st-empty-state {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+  }
+
+  /* ===== align ===== */
+  .st-empty-state--center {
+    align-items: center;
+    text-align: center;
+  }
+  .st-empty-state--start {
+    align-items: flex-start;
+    text-align: start;
+  }
+
+  /* ===== size ===== */
+  /* `Icon` tops out at 24px; an empty state's icon is the focal point, so the
+   * size modifier sets it directly. (0,2,0) beats `.st-icon--lg` (0,1,0). */
+  .st-empty-state--sm {
+    gap: 0.5rem;
+    padding: 1.5rem;
+  }
+  .st-empty-state--sm > .st-icon {
+    width: 2rem;
+    height: 2rem;
+  }
+  .st-empty-state--md {
+    gap: 0.75rem;
+    padding: 2.5rem;
+  }
+  .st-empty-state--md > .st-icon {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+  .st-empty-state--lg {
+    gap: 1rem;
+    padding: 4rem;
+  }
+  .st-empty-state--lg > .st-icon {
+    width: 3rem;
+    height: 3rem;
+  }
+
+  /* ===== parts ===== */
+  /* Keep the description at a readable line length. */
+  .st-empty-state > .st-text--body {
+    max-inline-size: 32rem;
+  }
+
+  /* Action row — several buttons sit side by side and wrap. */
+  .st-empty-state > :not(.st-icon, .st-text) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-block-start: 0.5rem;
+  }
+  .st-empty-state--center > :not(.st-icon, .st-text) {
+    justify-content: center;
+  }
+}

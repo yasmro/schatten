@@ -60,3 +60,55 @@ describe('audit-component SKILL.md ↔ .claude/rules/ integrity', () => {
     expect(stale, `SKILL.md references rules that no longer exist: ${stale.join(', ')}`).toEqual([])
   })
 })
+
+// The lv2 checkpoints mirror lv2-composition-guideline.md section by section,
+// so a section added there must reach the checklist or be excused here. The
+// heading guard above cannot see this: the rule file keeps its heading however
+// stale the checkpoints under it become.
+describe('audit-component SKILL.md ↔ lv2-composition-guideline.md integrity', () => {
+  const guideline = readFileSync(join(rulesDir, 'lv2-composition-guideline.md'), 'utf8')
+
+  // Sections with no per-component checkpoint, each for a stated reason.
+  const NOT_AUDITED: Record<string, string> = {
+    '1': 'the argument for the criterion, not a requirement',
+    '4': 'parent heading, its subsections are audited',
+    '5': 'parent heading, its subsections are audited',
+    '6': 'parent heading, 6.1 is audited',
+    '6.2': 'repository tooling, not a property of one component',
+    '8': 'the authoring checklist, restates the sections above',
+  }
+
+  // Ends at the next `### ` heading so a `§` cited elsewhere in SKILL.md cannot
+  // satisfy the check, and fails loudly if the section ever goes missing.
+  const lv2Section = skill.match(/^### lv2-composition-guideline\.md\n[\s\S]*?(?=^### )/m)?.[0]
+  const sectionNumbers = [...guideline.matchAll(/^#{2,3} (\d+(?:\.\d+)?)\.? /gm)].map(
+    (match) => match[1] as string,
+  )
+
+  it('finds the guideline sections and the checklist section (sanity)', () => {
+    expect(sectionNumbers).toContain('4.1')
+    expect(lv2Section).toBeDefined()
+  })
+
+  for (const section of sectionNumbers.filter((number) => !(number in NOT_AUDITED))) {
+    it(`cites §${section} in the lv2 checklist`, () => {
+      // The boundary stops `§4` from matching `§4.1`.
+      expect(lv2Section).toMatch(new RegExp(String.raw`§${section.replace('.', String.raw`\.`)}(?![.\d])`))
+    })
+  }
+
+  it('excuses only sections the guideline still has', () => {
+    expect(Object.keys(NOT_AUDITED).filter((number) => !sectionNumbers.includes(number))).toEqual([])
+  })
+
+  it('resolves lv2 paths in the file set', () => {
+    expect(skill).toContain('src/components/<lv>/<Name>/<Name>.tsx')
+    expect(skill).toContain('LV2_INTERACTIVE')
+  })
+
+  it('no longer defers lv2 to a follow-up', () => {
+    expect(skill).not.toContain('lv2 folder is empty')
+    expect(skill).not.toContain('Audit `lv2` in depth')
+    expect(skill).not.toMatch(/#311|issues\/311/)
+  })
+})

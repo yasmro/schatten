@@ -35,7 +35,7 @@ CHANGELOG:
 | CSS class names | `.st-btn`, `.st-btn--primary`, `.st-input-wrapper`, `.st-callout__icon`, plus the `[aria-invalid="true"]` / `[aria-busy="true"]` / `[data-state]` / `[data-side]` state hooks they target. The naming convention (prefix `st-`, BEM, attribute-driven state) is fixed in [css-api.md](css-api.md); this document only sets the breaking-change policy that sits on top. |
 | CSS custom properties | `--color-primary-600`, `--color-error`, `--spacing-4`, `--font-sans` |
 | CVA output strings | The class string returned by `buttonVariants({ variant: 'primary' })` |
-| Multi-entry exports | `@yasmro/schatten/components/lv1`, `/tokens`, `/variants`, `/themes/default`, `/themes/seasonal`, `/providers` |
+| Multi-entry exports | `@yasmro/schatten/components/lv1`, `/components/lv2`, `/tokens`, `/variants`, `/themes/default`, `/themes/seasonal`, `/providers` |
 | Module format | ESM-only — every JS entry in `exports` carries an `import` condition only (no `require`, no `default`). Adding CJS support back would be additive (`minor`); going ESM-only again after that, or narrowing the supported-consumer set, is breaking. See [Module format — ESM-only](#module-format--esm-only-since-v100). |
 | Theme contract | Which CSS variables a custom theme must define to be valid |
 | Provider runtime contract | The `localStorage` key (`'schatten-theme'`) and JSON shape (`{ mode, special }`) that `<ThemeProvider>` reads/writes. This is the contract the FOUC inline snippet ([#129](https://github.com/yasmro/schatten/issues/129)) and any consumer-side persistence code depends on. Renaming the key, adding/removing a field, or changing field semantics is a breaking change. |
@@ -177,7 +177,10 @@ The implications:
   with no Tailwind utilities in the string. `.st-*` classes don't conflict on
   a shared shorthand the way two Tailwind utilities (`p-2` / `p-4`) do, so
   there is nothing to dedupe and clsx emits them in the deterministic
-  definition order. (Historically `cn()` wrapped the output in
+  definition order. The "`.st-*` only" half is machine-checked by
+  [`no-tailwind-in-component-jsx.test.ts`](../../src/components/__tests__/no-tailwind-in-component-jsx.test.ts),
+  which walks every `cva(…)` call in `src/variants/` (base class, option
+  values, `compoundVariants` classes). (Historically `cn()` wrapped the output in
   `tailwind-merge` to dedupe conflicting Tailwind utilities; that dependency
   was dropped once the internals went 100% `.st-*` — the dedup step was a
   no-op on BEM classes. See [css-api.md](css-api.md).) If the internals ever
@@ -341,7 +344,7 @@ additions"). The boundary has three rules:
    `forwardRef` element types are concrete DOM types (`HTMLButtonElement`),
    not `ComponentRef<typeof …>`.
 3. **The boundary is machine-enforced, twice.**
-   [`radix-type-boundary.test.tsx`](../../src/components/lv1/__tests__/radix-type-boundary.test.tsx)
+   [`radix-type-boundary.test.tsx`](../../src/components/__tests__/radix-type-boundary.test.tsx)
    scans every lv1 implementation file for the two banned shapes (Radix-derived
    type references, direct instance re-exports) and pins representative
    shielded props with `@ts-expect-error`. Value-level compatibility needs no
@@ -467,7 +470,8 @@ source of truth for what consumers can rely on.
 ## Manifest as the authoritative API listing
 
 `dist/schatten.manifest.json` enumerates every public `.st-*` class, every
-state-hook attribute (`data-*` / `aria-invalid` / `aria-busy`), and every
+state-hook attribute (`data-*` / `aria-invalid` / `aria-busy` / `aria-selected` /
+`aria-disabled` / `aria-current`), and every
 CSS custom property declared in the hand-maintained registrar — i.e. the
 machine-readable form of this contract. **The `@layer theme` registrar
 ([`src/styles/public-tokens.css`](../../src/styles/public-tokens.css)) is

@@ -6,13 +6,12 @@
 onlyBuiltDependencies:
   - esbuild
 
-# Workspace members (#449 Phase 2). The "." entry is load-bearing: changesets
+# Workspace members. The "." entry is load-bearing: changesets
 # (@manypkg/get-packages) only treats glob-matched projects as workspace
 # packages, so without it `changeset version` fails with "Found changeset …
 # which is not in the workspace" for @yasmro/schatten itself (the root
-# package). pnpm resolves `"@yasmro/schatten": "workspace:*"` from apps/* to
-# the root via symlink, so the library stays at the repo root — no path
-# migration for scripts/CI.
+# package). apps/* was removed with apps/docs (#563 — the public site now
+# lives in yasmro/schatten-site and consumes the library from npm); "." alone
+# is the expected shape until a new member lands (e.g. #258).
 packages:
   - "."
-  - "apps/*"

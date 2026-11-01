@@ -4,7 +4,7 @@
  * Dialog has no `.st-dialog` block root: Radix's `DialogPrimitive.Root`
  * emits no DOM, and the Overlay + Content are mounted into a Portal
  * directly under `<body>`. There is no physical parent that ties them
- * together, so the SSOT is the 8 sub-element classes listed below.
+ * together, so the SSOT is the 12 sub-element classes listed below.
  *
  * Sub-elements:
  * - `.st-dialog__overlay`      — fixed-inset dim layer (animation target)
@@ -14,15 +14,22 @@
  * - `.st-dialog__description`  — Radix Description (optional)
  * - `.st-dialog__body`         — children scroll region (only emitted when children present)
  * - `.st-dialog__footer`       — flex container for action / cancel / sub-action buttons
+ * - `.st-dialog__action`       — footer action button (on the `.st-btn` root)
+ * - `.st-dialog__cancel`       — footer cancel button (on the `.st-btn` root)
+ * - `.st-dialog__separator`    — mobile-only rule above the sub-action (on the `.st-separator` root)
+ * - `.st-dialog__sub-action`   — footer sub-action button (on the `.st-btn` root)
  * - `.st-dialog__close`        — absolute-positioned wrapper for the close ✕ button
  *
- * Footer note — the per-button `order-N` Tailwind utilities (`order-1`,
- * `sm:order-3`, etc.) stay on the `<Button>` element in Dialog.tsx. They
- * exist for the React-side Radix focus trap (DOM order is
- * Action → Cancel → SubAction so the action button gets initial focus),
- * which has no vanilla HTML counterpart. Vanilla consumers writing the
- * markup directly should put the buttons in visual order — no `order-*`
- * utility classes needed.
+ * Footer note — DOM order is Action → Cancel → Separator → SubAction so
+ * Radix's focus trap gives the action button initial focus. The visual
+ * order is recovered here with `order` on the four footer sub-element
+ * classes: on mobile (stacked) the visual order equals DOM order; from the
+ * 640px breakpoint the row reads SubAction … Cancel Action. Because `order`
+ * is bound to the class (not to `:nth-child`), omitting the cancel or
+ * sub-action button never shifts the others. Vanilla consumers write the
+ * same DOM order + classes as the React layer and get the same layout.
+ * (Before #575 this order lived in Tailwind utilities on each `<Button>`,
+ * which the Tailwind-free dist does not ship.)
  *
  * State attributes (Radix-emitted, drive animation only):
  * - `[data-state="open"|"closed"]` — fade-in / zoom-in on open,
@@ -152,9 +159,9 @@
   }
 
   /* ===== footer =====
-   * `.st-dialog__footer` is a flex container only. Per-button order is
-   * a JSX-side concern (Tailwind utility on each Button — see comment
-   * at the top of this file). */
+   * `.st-dialog__footer` is the flex container; the per-button visual
+   * order lives on the footer sub-element classes below (see "Footer
+   * note" at the top of this file). */
   .st-dialog__footer {
     flex-shrink: 0;
     display: flex;
@@ -168,6 +175,29 @@
       align-items: center;
       justify-content: flex-end;
       gap: 0.5rem;
+    }
+  }
+
+  /* Mobile (stacked): visual order is DOM order. The separator divides the
+   * sub-action from the primary pair, with extra breathing room on top of
+   * the footer gap. */
+  .st-dialog__separator {
+    margin-block: 0.5rem;
+  }
+  @media (min-width: 640px) {
+    /* sm: breakpoint — row reads SubAction … Cancel Action */
+    .st-dialog__sub-action {
+      order: 1;
+      margin-right: auto;
+    }
+    .st-dialog__cancel {
+      order: 2;
+    }
+    .st-dialog__action {
+      order: 3;
+    }
+    .st-dialog__separator {
+      display: none;
     }
   }
 

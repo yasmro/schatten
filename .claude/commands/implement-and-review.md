@@ -35,8 +35,8 @@
    してユーザの承認を取る (1 回目の承認)
 7. **Commit & push** — 承認後にコミット → push
 8. **Create PR** — `gh pr create --base develop` で PR を作成
-9. **Hand off to /review-pr** — 作成された PR 番号で `/review-pr` を同セッション
-   内で起動
+9. **Hand off to /review-pr** — 作成された PR 番号で `/review-pr --skip-brand` を
+   同セッション内で起動
 
 ## Step 0. Parse arguments
 
@@ -121,7 +121,7 @@ git switch -c "$BRANCH" origin/develop
 
 | タスクの種類 | 読むべき rule |
 |---|---|
-| 新規 lv1 / lv2 component 追加 | `component-architecture.md` / `component-api-conventions.md` / `storybook-guideline.md` / `testing-guideline.md` / `vrt-spec-guideline.md` / `component-testid-guideline.md` |
+| 新規 lv1 / lv2 component 追加 | `component-architecture.md` / `component-api-conventions.md` / `storybook-guideline.md` / `testing-guideline.md` / `vrt-spec-guideline.md` / `component-testid-guideline.md` (lv2 はさらに `lv2-composition-guideline.md`) |
 | 既存 component の variant / prop 追加 | `component-api-conventions.md` + 該当 component の現状 |
 | トークン / theme 関連 | `state-token-guideline.md` / `theme-architecture.md` |
 | Field / Form 系 | `field-context-guideline.md` |
@@ -378,10 +378,12 @@ gh pr view "$PR_NUMBER" --json title,baseRefName,headRefName,labels
 
 ## Step 9. Hand off to /review-pr
 
-同じセッション内で `/review-pr <PR_NUMBER>` を Skill 経由で起動する。
+同じセッション内で `/review-pr <PR_NUMBER> --skip-brand` を Skill 経由で起動する。
+ブランディングアーティスト目線は撮影と画像の評価でコストが大きいので、この経路では
+省略する。見た目を変える PR なら、ユーザが `/review-pr <PR_NUMBER>` を単独で実行する。
 
-- Skill tool を呼び、`skill="review-pr"` / `args="$PR_NUMBER"` を渡す
-- review-pr の出力 (3 セクション: 2 つの目線 / マージ可否 / 次の改善レコメンド)
+- Skill tool を呼び、`skill="review-pr"` / `args="$PR_NUMBER --skip-brand"` を渡す
+- review-pr の出力 (3 セクション: 3 つの目線 / マージ可否 / 次の改善レコメンド)
   をそのままユーザに見せる
 - Claude が自分で `gh pr review` を叩いて approve / request-changes を**しない**。
   review-pr は判断材料を出すだけで、最終的な merge / approve はユーザの操作

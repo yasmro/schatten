@@ -1,5 +1,6 @@
 import { type RefObject, useEffect, useMemo, useRef, useState } from 'react'
-import { compareDates, isValidISODate, resolveBounds } from '../../lv1/DateCalendar/date-math'
+import { type DateValue, isDateTimeValue, isDateValue } from '../../../date'
+import { compareDates, resolveBounds } from '../../lv1/DateCalendar/date-math'
 
 /** What a picker's value holds. */
 export type DateGranularity = 'day' | 'minute'
@@ -11,9 +12,7 @@ export function isValidISOTime(value: string): boolean {
 
 /** True for a value in the format of `granularity`. */
 export function isValidValue(value: string, granularity: DateGranularity): boolean {
-  if (granularity === 'day') return isValidISODate(value)
-  const [date = '', time = ''] = value.split('T')
-  return value.length === 16 && isValidISODate(date) && isValidISOTime(time)
+  return granularity === 'day' ? isDateValue(value) : isDateTimeValue(value)
 }
 
 /** An input shows a value with a space: `2026-10-24 13:30`. */
@@ -24,7 +23,7 @@ export const fromText = (text: string) => text.replace(' ', 'T')
 export function readText(text: string) {
   const [date = '', time = '', ...rest] = text.trim().split(/[ T]/)
   return {
-    date: isValidISODate(date) ? date : '',
+    date: isDateValue(date) ? date : ('' as const),
     time: rest.length === 0 && isValidISOTime(time) ? time : '',
   }
 }
@@ -42,7 +41,11 @@ export function useValueBounds(
 ) {
   return useMemo(() => {
     if (granularity === 'day') {
-      return { accept: (value: string) => value, dateMin: min, dateMax: max }
+      return {
+        accept: (value: string) => value,
+        dateMin: min as DateValue | undefined,
+        dateMax: max as DateValue | undefined,
+      }
     }
     const read = (bound: string | undefined, prop: string) => {
       if (!bound || isValidValue(bound, granularity)) return bound
@@ -65,8 +68,8 @@ export function useValueBounds(
       /** The value a complete text commits: `''` outside the bounds. */
       accept: (value: string) =>
         (lower && value < lower) || (upper && value > upper) ? '' : value,
-      dateMin: lower?.slice(0, 10),
-      dateMax: upper?.slice(0, 10),
+      dateMin: lower?.slice(0, 10) as DateValue | undefined,
+      dateMax: upper?.slice(0, 10) as DateValue | undefined,
     }
   }, [min, max, granularity])
 }
@@ -74,7 +77,7 @@ export function useValueBounds(
 export interface DateConstraints {
   min?: string
   max?: string
-  isDateDisabled?: (date: string) => boolean
+  isDateDisabled?: (date: DateValue) => boolean
 }
 
 /**
@@ -83,7 +86,7 @@ export interface DateConstraints {
  */
 export function parseDate(text: string, { min, max, isDateDisabled }: DateConstraints): string {
   const date = text.trim()
-  if (!isValidISODate(date)) return ''
+  if (!isDateValue(date)) return ''
   const bounds = resolveBounds(min, max)
   if (bounds.min && compareDates(date, bounds.min) < 0) return ''
   if (bounds.max && compareDates(date, bounds.max) > 0) return ''

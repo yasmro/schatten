@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { type ComponentType, useState } from 'react'
+import type { DateValue } from '../../../date'
 import { Field } from '../Field'
 import {
   DateCalendar,
@@ -266,7 +267,7 @@ export const InField: Story = {
 }
 
 function ValueReadout() {
-  const [value, setValue] = useState('')
+  const [value, setValue] = useState<DateValue | ''>('')
   const [range, setRange] = useState<DateRange>({})
   return (
     <div className="flex flex-col gap-6">

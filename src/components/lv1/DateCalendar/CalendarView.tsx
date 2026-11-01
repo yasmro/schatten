@@ -12,6 +12,7 @@ import {
   useSyncExternalStore,
 } from 'react'
 import { useFieldContext } from '../../../contexts/field'
+import { type DateValue, isDateValue } from '../../../date'
 import { mergeRefs } from '../../../lib/merge-refs'
 import { useControllable } from '../../../lib/use-controllable'
 import { cn } from '../../../lib/utils'
@@ -26,7 +27,6 @@ import {
   endOfWeek,
   getLocalToday,
   isSameMonth,
-  isValidISODate,
   MAX_DATE,
   MIN_DATE,
   monthMatrix,
@@ -95,31 +95,31 @@ export interface CalendarCommonProps
    * The displayed month (controlled), as any `YYYY-MM-DD` date in that month.
    * With several months, this is the leftmost one.
    */
-  month?: string
+  month?: DateValue
   /**
    * The month displayed first (uncontrolled). Falls back to the selected date,
    * then `today`.
    */
-  defaultMonth?: string
+  defaultMonth?: DateValue
   /**
    * Fired when the displayed month changes, with its first day (`YYYY-MM-01`).
    */
-  onMonthChange?: (month: string) => void
+  onMonthChange?: (month: DateValue) => void
   /**
    * The earliest selectable date, as `YYYY-MM-DD`. The previous-month button
    * stops at this month.
    */
-  min?: string
+  min?: DateValue
   /**
    * The latest selectable date, as `YYYY-MM-DD`. The next-month button stops at
    * this month.
    */
-  max?: string
+  max?: DateValue
   /**
    * Marks individual dates unavailable. They stay focusable so keyboard users
    * can pass through them, but cannot be selected.
    */
-  isDateDisabled?: (date: string) => boolean
+  isDateDisabled?: (date: DateValue) => boolean
   /**
    * BCP 47 language tag passed to `Intl.DateTimeFormat`. The listed values are
    * suggestions; any tag `Intl` supports works. Use `ja`, not `jp`, for
@@ -142,7 +142,7 @@ export interface CalendarCommonProps
    * not know the user's time zone. Pass this prop (or `defaultMonth`) so the
    * server and the client agree on the first month.
    */
-  today?: string
+  today?: DateValue
   /**
    * How the month heading is presented.
    * - `label` — text only; move with the previous / next buttons
@@ -184,12 +184,12 @@ export interface RangePosition {
 /** What `DateCalendar` / `DateRangeCalendar` plug into the shared view. */
 export interface CalendarSelection {
   /** The date Tab lands on, and the month shown first. */
-  anchor?: string
-  isSelected: (date: string) => boolean
-  onSelect: (date: string) => void
+  anchor?: DateValue
+  isSelected: (date: DateValue) => boolean
+  onSelect: (date: DateValue) => void
   /** Rejects a date that `min` / `max` / `isDateDisabled` allow. */
-  isUnavailable?: (date: string, isBaseDisabled: (date: string) => boolean) => boolean
-  getRangePosition?: (date: string) => RangePosition | undefined
+  isUnavailable?: (date: DateValue, isBaseDisabled: (date: DateValue) => boolean) => boolean
+  getRangePosition?: (date: DateValue) => RangePosition | undefined
   multiselectable?: boolean
 }
 
@@ -200,13 +200,13 @@ interface CalendarViewProps extends CalendarCommonProps {
 
 /** A date prop if it is valid. Invalid and empty values count as unset. */
 export function validDate(date: string | undefined) {
-  return date && isValidISODate(date) ? date : undefined
+  return date && isDateValue(date) ? date : undefined
 }
 
 /** Warns once per distinct set of invalid date props. */
 export function useInvalidDateWarning(dates: Record<string, string | undefined>) {
   const invalid = Object.entries(dates)
-    .filter(([, date]) => date && !isValidISODate(date))
+    .filter(([, date]) => date && !isDateValue(date))
     .map(([name, date]) => `\`${name}\` "${date}"`)
     .join(', ')
 
@@ -223,7 +223,7 @@ const getServerToday = () => undefined
 /** Where a key moves focus from `date`, or `undefined` for any other key. */
 function getKeyTarget(
   key: string,
-  date: string,
+  date: DateValue,
   shiftKey: boolean,
   isRtl: boolean,
   weekStartsOn: WeekDay,
@@ -336,24 +336,24 @@ export const CalendarView = forwardRef<HTMLDivElement, CalendarViewProps>(
       addMonths(firstMonth, index),
     )
     const lastMonth = months[months.length - 1]
-    const isVisible = (date: string) =>
+    const isVisible = (date: DateValue) =>
       compareDates(startOfMonth(date), firstMonth) >= 0 &&
       compareDates(startOfMonth(date), lastMonth) <= 0
 
-    const isBaseDisabled = (date: string) =>
+    const isBaseDisabled = (date: DateValue) =>
       compareDates(date, min) < 0 || compareDates(date, max) > 0 || !!isDateDisabled?.(date)
-    const isUnavailable = (date: string) =>
+    const isUnavailable = (date: DateValue) =>
       disabled || isBaseDisabled(date) || !!selection.isUnavailable?.(date, isBaseDisabled)
 
     // The last day that really held focus. Only the day's own focus event writes
     // this, so it can never name a day the parent refused to show.
-    const [focused, setFocused] = useState<string>()
-    const pendingFocus = useRef<string | null>(null)
+    const [focused, setFocused] = useState<DateValue>()
+    const pendingFocus = useRef<DateValue | null>(null)
     const [, requestCommit] = useReducer((count: number) => count + 1, 0)
     const rootRef = useRef<HTMLDivElement>(null)
     const baseId = useId()
 
-    const findDay = (date: string) =>
+    const findDay = (date: DateValue) =>
       rootRef.current?.querySelector<HTMLElement>(`[data-date="${date}"]`)
 
     // Clears the request whether or not the day appeared, so a month the parent
@@ -370,7 +370,7 @@ export const CalendarView = forwardRef<HTMLDivElement, CalendarViewProps>(
         .map((date) => date && clampDate(date, min, max))
         .find((date) => date && isVisible(date)) ?? firstMonth
 
-    function moveFocus(target: string) {
+    function moveFocus(target: DateValue) {
       const next = clampDate(target, min, max)
       const day = findDay(next)
       if (day) {
@@ -388,7 +388,7 @@ export const CalendarView = forwardRef<HTMLDivElement, CalendarViewProps>(
       }
     }
 
-    function select(date: string) {
+    function select(date: DateValue) {
       if (readOnly || isUnavailable(date)) return
       selection.onSelect(date)
       // Safari does not focus a button on click.
@@ -398,7 +398,7 @@ export const CalendarView = forwardRef<HTMLDivElement, CalendarViewProps>(
     function onGridKeyDown(event: KeyboardEvent<HTMLTableElement>) {
       if (event.altKey || event.ctrlKey || event.metaKey) return
       // The focused element, not state: this must follow what the user is on.
-      const base = (event.target as HTMLElement).dataset.date ?? tabStop
+      const base = ((event.target as HTMLElement).dataset.date as DateValue | undefined) ?? tabStop
       const isRtl = getComputedStyle(event.currentTarget).direction === 'rtl'
       const target = getKeyTarget(event.key, base, event.shiftKey, isRtl, weekStartsOn)
       if (!target) return
@@ -431,7 +431,7 @@ export const CalendarView = forwardRef<HTMLDivElement, CalendarViewProps>(
       )
     }
 
-    function renderDropdowns(month: string, index: number) {
+    function renderDropdowns(month: DateValue, index: number) {
       const year = Number(month.slice(0, 4))
       const center = Number(clampDate(referenceDate, min, max).slice(0, 4))
       const firstYear = Math.max(Number(min.slice(0, 4)), center - 100)
@@ -440,7 +440,7 @@ export const CalendarView = forwardRef<HTMLDivElement, CalendarViewProps>(
       if (!years.includes(year)) years.push(year)
       years.sort((a, b) => a - b)
 
-      const moveTo = (target: string) =>
+      const moveTo = (target: DateValue) =>
         setFirstMonth(addMonths(startOfMonth(clampDate(target, min, max)), -index))
 
       return (
@@ -450,7 +450,9 @@ export const CalendarView = forwardRef<HTMLDivElement, CalendarViewProps>(
             aria-label={labels.month}
             value={month.slice(5, 7)}
             disabled={disabled}
-            onChange={(event) => moveTo(`${month.slice(0, 4)}-${event.target.value}-01`)}
+            onChange={(event) =>
+              moveTo(`${month.slice(0, 4)}-${event.target.value}-01` as DateValue)
+            }
           >
             {monthNames.map((name, monthIndex) => {
               const value = pad(monthIndex + 1, 2)
@@ -474,7 +476,7 @@ export const CalendarView = forwardRef<HTMLDivElement, CalendarViewProps>(
             value={year}
             disabled={disabled}
             onChange={(event) =>
-              moveTo(`${pad(Number(event.target.value), 4)}-${month.slice(5, 7)}-01`)
+              moveTo(`${pad(Number(event.target.value), 4)}-${month.slice(5, 7)}-01` as DateValue)
             }
           >
             {years.map((value) => (
@@ -487,7 +489,7 @@ export const CalendarView = forwardRef<HTMLDivElement, CalendarViewProps>(
       )
     }
 
-    function renderDay(date: string) {
+    function renderDay(date: DateValue) {
       const position = selection.getRangePosition?.(date)
       const unavailable = isUnavailable(date)
       const rangeLabels = [
@@ -526,7 +528,7 @@ export const CalendarView = forwardRef<HTMLDivElement, CalendarViewProps>(
       )
     }
 
-    function renderCell(date: string | null, month: string, key: string) {
+    function renderCell(date: DateValue | null, month: DateValue, key: string) {
       if (date !== null && isSameMonth(date, month)) return renderDay(date)
       // Multi-month: an outside day would duplicate a real day of the
       // neighbouring grid, so the cell stays empty.

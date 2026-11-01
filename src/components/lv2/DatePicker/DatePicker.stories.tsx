@@ -1,6 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { useEffect, useRef, useState } from 'react'
+import type { DateTimeValue } from '../../../date'
 import { Button } from '../../lv1/Button'
+import type { DateRange } from '../../lv1/DateCalendar'
 import { Dialog } from '../../lv1/Dialog'
 import { Field } from '../../lv1/Field'
 import { DatePicker, DateRangePicker } from './DatePicker'
@@ -217,7 +219,7 @@ export const InForm: Story = {
   ),
 }
 
-const timedRange = { from: '2026-10-24T09:00', to: '2026-10-26T18:00' }
+const timedRange: DateRange<DateTimeValue> = { from: '2026-10-24T09:00', to: '2026-10-26T18:00' }
 
 export const WithTime: Story = {
   name: 'With Time',
@@ -333,7 +335,7 @@ export const WithTimeInForm: Story = {
   ),
 }
 
-function InDialogDemo({ granularity }: { granularity?: 'minute' }) {
+function InDialogDemo({ isTimed = false }: { isTimed?: boolean }) {
   const [isOpen, setIsOpen] = useState(false)
   return (
     <>
@@ -345,11 +347,11 @@ function InDialogDemo({ granularity }: { granularity?: 'minute' }) {
         actionButton={{ label: 'Save', onClick: () => setIsOpen(false) }}
       >
         <Field label="Date">
-          <DatePicker
-            granularity={granularity}
-            defaultValue={granularity ? '2026-10-24T13:30' : '2026-10-24'}
-            today="2026-10-20"
-          />
+          {isTimed ? (
+            <DatePicker granularity="minute" defaultValue="2026-10-24T13:30" today="2026-10-20" />
+          ) : (
+            <DatePicker defaultValue="2026-10-24" today="2026-10-20" />
+          )}
         </Field>
       </Dialog>
     </>
@@ -363,7 +365,7 @@ export const InDialog: Story = {
 
 export const WithTimeInDialog: Story = {
   name: 'With Time In Dialog',
-  render: () => <InDialogDemo granularity="minute" />,
+  render: () => <InDialogDemo isTimed />,
 }
 
 /** Opens the panel once on mount, so VRT and axe can see it. */

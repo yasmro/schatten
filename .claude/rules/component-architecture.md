@@ -407,9 +407,10 @@ importing from a higher one) are forbidden.
 | Layer | May import from |
 |---|---|
 | [`lib/`](../../src/lib) (`cn`, `mergeRefs`) | external only (React, clsx) |
+| [`date/`](../../src/date) | nothing — no React, no dependency |
 | [`contexts/`](../../src/contexts), [`variants/`](../../src/variants) | external only (React, cva) |
-| [`components/lv1/`](../../src/components/lv1) | `lib/`, `contexts/`, `variants/`, **other `lv1/`** |
-| [`components/lv2/`](../../src/components/lv2) | `lib/`, `contexts/`, `variants/`, `lv1/`, other `lv2/` |
+| [`components/lv1/`](../../src/components/lv1) | `lib/`, `date/`, `contexts/`, `variants/`, **other `lv1/`** |
+| [`components/lv2/`](../../src/components/lv2) | `lib/`, `date/`, `contexts/`, `variants/`, `lv1/`, other `lv2/` |
 
 ### Key rules
 

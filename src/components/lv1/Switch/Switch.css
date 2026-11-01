@@ -49,18 +49,28 @@
 @layer components {
   /* ===== wrapper ===== */
   .st-switch-wrapper {
+    --schatten-switch-gap: 0.5rem;
     display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
-    cursor: pointer;
-  }
-  .st-switch-wrapper:has(.st-switch:disabled) {
-    cursor: not-allowed;
+    gap: var(--schatten-switch-gap);
   }
   .st-switch-wrapper__label {
+    position: relative;
     color: var(--color-foreground);
     cursor: pointer;
     user-select: none;
+  }
+  /* Stretches the label's hit area over the wrapper's gap, which would
+   * otherwise neither activate the control nor show the pointer cursor.
+   * Out of flow, so the layout is exactly the plain `gap`. Assumes the label
+   * follows the control in the inline direction: on a reversed or column
+   * wrapper this sits on the far side of the label instead of in the gap. */
+  .st-switch-wrapper__label::before {
+    content: "";
+    position: absolute;
+    inset-block: 0;
+    inset-inline-end: 100%;
+    inline-size: var(--schatten-switch-gap);
   }
   /* line-height must be set alongside font-size — see the matching comment
    * in Checkbox.css for the rationale. */

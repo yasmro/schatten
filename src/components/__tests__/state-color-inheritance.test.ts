@@ -138,6 +138,11 @@ function scan(): { findings: Finding[]; pinnedAnywhere: Set<string> } {
  * the `:disabled` adornment rules in Input.css / Select.css / DropdownMenu.css.
  */
 const EXEMPT: Record<string, string> = {
+  '.st-combobox__content': 'region — the portal panel itself; not inside the trigger',
+  '.st-combobox__empty': 'region — a panel message, not part of any item',
+  '.st-combobox__input': 'region — the placeholder of the panel search, not part of any item',
+  '.st-combobox__label': 'region — a group label inside the panel, not part of any item',
+  '.st-combobox__search-icon': 'region — the panel search row, not part of any item',
   '.st-dropdown-menu__content':
     'region — the portal panel itself; never rendered inside a disabled item',
   '.st-dropdown-menu__item--destructive':

@@ -1,5 +1,5 @@
 // Component CSS for vanilla examples — loaded for the side-effect.
-// All 26 lv1 components are listed explicitly. Tooltip and Select
+// All 27 lv1 components are listed explicitly. Tooltip and Select
 // were missing from this list pre-#313 and rendered correctly by
 // accident (Field transitively imports Tooltip; Select.css happened
 // to be in adjacent story chunks at dev time). In the Storybook
@@ -13,6 +13,7 @@ import '../components/lv1/Button/Button.css'
 import '../components/lv1/Callout/Callout.css'
 import '../components/lv1/Card/Card.css'
 import '../components/lv1/Checkbox/Checkbox.css'
+import '../components/lv1/Combobox/Combobox.css'
 import '../components/lv1/DateCalendar/DateCalendar.css'
 import '../components/lv1/Dialog/Dialog.css'
 import '../components/lv1/DropdownMenu/DropdownMenu.css'
@@ -212,7 +213,7 @@ const CodeBlock = ({ children }: { children: string }) => (
 )
 
 export const Reference: Story = {
-  name: 'Reference (all 26 lv1 components)',
+  name: 'Reference (all 27 lv1 components)',
   parameters: {
     // The reference renders every documented treatment, including the solid
     // fills whose white-foreground small text is the documented intentional
@@ -1792,6 +1793,35 @@ export const Reference: Story = {
 <!-- bare .st-card has no fill / shadow — degrades to the plain look -->
 
 <!-- Sub-elements: __header / __title / __description / __content / __footer -->`}</CodeBlock>
+        </Section>
+
+        <Section
+          id="combobox"
+          title="Combobox — .st-combobox"
+          intro="Single-select dropdown with a search field inside the panel. The class API covers the static shape only: filtering, the highlighted option and positioning need JS. Compound block with no root element. The trigger has a --sm / --md / --lg size axis and the same state hooks as Select: [aria-invalid], :disabled, [data-state]. Options use [aria-selected], [data-highlighted] and [data-disabled]."
+        >
+          <CodeBlock>{`<button class="st-combobox__trigger st-combobox__trigger--md" role="combobox"
+        aria-label="Fruit" aria-expanded="true" aria-haspopup="dialog">
+  <span class="st-combobox__value">Apple</span>
+  <svg class="st-combobox__icon" aria-hidden="true">…</svg>
+</button>
+<div class="st-combobox__content" role="dialog" aria-label="Fruit">
+  <div class="st-combobox__search">
+    <svg class="st-combobox__search-icon" aria-hidden="true">…</svg>
+    <input class="st-combobox__input" type="search" aria-label="Search" />
+  </div>
+  <div class="st-combobox__list" role="listbox" aria-label="Fruit">
+    <div class="st-combobox__item" role="option" aria-selected="true">
+      <span class="st-combobox__item-indicator">…</span>
+      <span class="st-combobox__item-text">Apple</span>
+    </div>
+  </div>
+  <div class="st-combobox__empty" role="status"></div>
+</div>
+
+<!-- Sub-elements: __value / __icon / __search / __search-icon / __input / __list /
+     __empty / __group / __label / __item-indicator / __item-text / __separator /
+     __native-input -->`}</CodeBlock>
         </Section>
 
         <Section

@@ -374,6 +374,46 @@ export const vanillaHtml = `
   </button>
 </section>
 
+<section class="cssapi-fixture__sample" data-component="combobox">
+  <span class="cssapi-fixture__sample-label">Combobox — .st-combobox__content (static, no portal)</span>
+  <button type="button" class="st-combobox__trigger st-combobox__trigger--md" role="combobox"
+          aria-label="Fruit" aria-haspopup="dialog" aria-expanded="true" data-state="open">
+    <span class="st-combobox__value">Apple</span>
+    <svg class="st-combobox__icon" viewBox="0 0 24 24" fill="none"
+         stroke="currentColor" stroke-width="2" stroke-linecap="round"
+         stroke-linejoin="round" aria-hidden="true">
+      <path d="m6 9 6 6 6-6" />
+    </svg>
+  </button>
+  <!-- data-state is omitted on the panel so the enter animation cannot freeze
+       the static dist render mid-motion. -->
+  <div class="st-combobox__content" role="dialog" aria-label="Fruit" style="position: static;">
+    <div class="st-combobox__search">
+      <svg class="st-combobox__search-icon" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2" stroke-linecap="round"
+           stroke-linejoin="round" aria-hidden="true">
+        <circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" />
+      </svg>
+      <input class="st-combobox__input" type="search" placeholder="Search" aria-label="Search" />
+    </div>
+    <div class="st-combobox__list" role="listbox" aria-label="Fruit">
+      <div class="st-combobox__item" role="option" aria-selected="true" data-state="checked">
+        <span class="st-combobox__item-indicator">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M20 6 9 17l-5-5" />
+          </svg>
+        </span>
+        <span class="st-combobox__item-text">Apple</span>
+      </div>
+      <div class="st-combobox__item" role="option" aria-selected="false" data-highlighted="">
+        <span class="st-combobox__item-indicator"></span>
+        <span class="st-combobox__item-text">Banana</span>
+      </div>
+    </div>
+  </div>
+</section>
+
 <section class="cssapi-fixture__sample" data-component="toast">
   <span class="cssapi-fixture__sample-label">Toast — .st-toast (static, no portal)</span>
   <div class="st-toast st-toast--success st-toast--subtle" role="status" aria-live="polite">

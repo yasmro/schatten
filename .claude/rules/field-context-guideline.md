@@ -137,7 +137,7 @@ the association dangled (axe `button-name`, found in #345).
 | `Checkbox` / `Switch` | Only when the component has **no own `label`** and the consumer passed neither `aria-label` nor `aria-labelledby` |
 | `RadioGroup` | At the group root, unless the consumer passed `aria-label` / `aria-labelledby` (items keep their own labels) |
 | `DateCalendar` / `DateRangeCalendar` | At the `role="group"` root, same rule as `RadioGroup`. `Field.required` is **not** wired: `aria-required` is not allowed on `group` / `grid`, and the calendar submits no value of its own. The lv2 pickers (#568) carry it on their inputs |
-| `Input` / `Textarea` / `Select` | Never — they consume `field.id` and are named natively via `htmlFor` |
+| `Input` / `Textarea` / `Select` / `Combobox` | Never — they consume `field.id` and are named natively via `htmlFor` |
 | `DatePicker` (lv2) | Never — its inner `Input` consumes `field.id`, like a bare `Input` |
 | `DateRangePicker` (lv2) | At the `role="group"` root, same rule as `RadioGroup`. See [Range input](#range-input-two-inputs-in-one-group) |
 

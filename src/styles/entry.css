@@ -128,6 +128,10 @@
  * shared by DateRangeCalendar; authors only its own block rules, so layer
  * placement is not order-sensitive. */
 @import "../components/lv1/DateCalendar/DateCalendar.css";
+/* Combobox (`.st-combobox*` class API). Radix Popover plus a self-implemented
+ * listbox; authors only its own block rules, so layer placement is not
+ * order-sensitive. */
+@import "../components/lv1/Combobox/Combobox.css";
 /* #125 — EmptyState (`.st-empty-state*` class API, lv2). Its size modifiers
  * override `.st-icon--lg`, and inside `@layer components` source order breaks
  * specificity ties, so an lv2 stylesheet comes after every lv1 it composes

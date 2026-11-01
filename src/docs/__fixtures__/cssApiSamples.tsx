@@ -78,6 +78,7 @@ import {
 // per-story code-splitting drops them. The explicit imports below
 // pin the contract on both paths. Mirrors the precedent in
 // `src/docs/CSSApi.stories.tsx`. See PR #313 preview regression.
+import '../../components/lv1/Combobox/Combobox.css'
 import '../../components/lv1/Dialog/Dialog.css'
 import '../../components/lv1/Select/Select.css'
 import '../../components/lv1/Toast/Toast.css'
@@ -234,6 +235,14 @@ export function ReactSamples() {
         <Text variant="body" size="sm" color="muted">
           No comparable React render — Select dropdown portals to body. The vanilla column shows the
           closed trigger only.
+        </Text>
+      </section>
+
+      <section className="cssapi-fixture__sample" data-component="combobox">
+        <span className="cssapi-fixture__sample-label">Combobox — portal-mounted (omitted)</span>
+        <Text variant="body" size="sm" color="muted">
+          No comparable React render — the Combobox panel portals to body. The vanilla column shows
+          the panel statically.
         </Text>
       </section>
 

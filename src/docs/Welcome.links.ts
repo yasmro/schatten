@@ -189,6 +189,7 @@ export const WELCOME_COMPONENT_SLUGS = [
  * deciding its Welcome presence.
  */
 export const WELCOME_CARD_EXEMPT = [
+  'components-lv1-combobox',
   'components-lv1-dialog',
   'components-lv1-dropdownmenu',
   'components-lv1-datecalendar',

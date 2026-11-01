@@ -18,6 +18,28 @@ export {
 } from './Card'
 export { Checkbox, type CheckboxProps } from './Checkbox'
 export {
+  Combobox,
+  ComboboxContent,
+  type ComboboxContentProps,
+  ComboboxEmpty,
+  type ComboboxEmptyProps,
+  ComboboxGroup,
+  type ComboboxGroupProps,
+  ComboboxInput,
+  type ComboboxInputProps,
+  ComboboxItem,
+  type ComboboxItemProps,
+  ComboboxLabel,
+  ComboboxList,
+  type ComboboxListProps,
+  type ComboboxProps,
+  ComboboxSeparator,
+  ComboboxTrigger,
+  type ComboboxTriggerProps,
+  ComboboxValue,
+  type ComboboxValueProps,
+} from './Combobox'
+export {
   DateCalendar,
   type DateCalendarLabels,
   type DateCalendarLocale,

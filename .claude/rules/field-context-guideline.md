@@ -33,11 +33,10 @@ const ariaDescribedBy = field?.describedBy ?? ariaDescribedByProp
 
 ### Components WITH internal labels (Checkbox, Switch, Radio)
 
-These components have their own `<label>` and need unique ids per instance. Do NOT use `field?.id`:
+These components have their own `<label>` and need unique ids per instance. They take `field?.id` only when the Field label is what names them, for `Checkbox` and `Switch`:
 
 ```typescript
 const field = useFieldContext()
-const id = idProp ?? autoId  // Don't use field?.id
 const isError = field?.isError ?? isErrorProp
 const disabled = field?.disabled ?? disabledProp
 const ariaDescribedBy = field?.describedBy ?? ariaDescribedByProp
@@ -45,7 +44,12 @@ const ariaDescribedBy = field?.describedBy ?? ariaDescribedByProp
 // label names the control via aria-labelledby — see "Naming via labelId".
 const ariaLabelledBy =
   ariaLabelledByProp ?? (label || props['aria-label'] ? undefined : field?.labelId)
+// The label that names the control is also the label that activates it.
+const isNamedByField = ariaLabelledBy !== undefined && ariaLabelledBy === field?.labelId
+const id = idProp ?? (isNamedByField ? field?.id : undefined) ?? autoId
 ```
+
+`Radio` never takes `field?.id`: the Field label names its `RadioGroup`, not one item.
 
 ### Group components (RadioGroup)
 
@@ -128,9 +132,9 @@ Radix reflects onto the combobox via `context.required`.
 
 `Field` renders its `<label>` with `id={labelId}` and exposes that id through
 context. This closes the gap where `<Field label="…"><Switch /></Field>` left
-the Switch unnamed: the Field label's `htmlFor` points at `field.id`, which
-self-labelled components deliberately do not consume, so without `labelId`
-the association dangled (axe `button-name`, found in #345).
+the Switch unnamed: a self-labelled control keeps a per-instance id, so the
+Field label's `htmlFor` alone did not reach it (axe `button-name`, found in
+#345).
 
 | Consumer | When `field?.labelId` is applied |
 |---|---|
@@ -144,16 +148,32 @@ the association dangled (axe `button-name`, found in #345).
 Precedence (per component-architecture §5): explicit `aria-label` /
 `aria-labelledby` prop > own `label` prop > `field?.labelId`.
 
+`Checkbox` / `Switch` resolve `id` from the same decision: when `field?.labelId`
+is applied they take `field.id`, so the Field label both names the control and
+activates it. An explicit `id` prop still wins, and then the Field label names
+the control without activating it. That order is the reverse of `Input`, where
+`field.id` wins: a Checkbox's `id` has always been honoured, and dropping it
+would break consumers who rely on it.
+
+A Field `description` is a `<label>` pointing at the same id, but it does not
+toggle: `Field` cancels that click when the target is a `checkbox` or `switch`,
+because reading a sentence should not change a value. Links and buttons inside
+the description are left alone.
+
 ### Known limitations (accepted, documented)
 
-- **No click affordance.** Clicking the Field label does not focus/toggle a
-  self-labelled control — `htmlFor` still points at the unconsumed `field.id`.
-  Only the screen-reader name is wired. Consumers who need click-to-toggle
-  should use the component's own `label` prop.
-- **Multiple bare controls share the name.** Field is a wrapper around a
-  single form input; placing several label-less Checkboxes inside one Field
-  gives them all the same accessible name. Give each its own `label` /
-  `aria-label` instead.
+- **Multiple bare controls share the name and the id.** Field is a wrapper
+  around a single form input; several label-less Checkboxes inside one Field
+  get the same accessible name and the same duplicate `id`, and a click on the
+  Field label reaches only the first. Give each its own `label` / `aria-label`
+  instead.
+- **A bare control ahead of another control takes its label.** In
+  `<Field label="Email"><Checkbox /><Input /></Field>` both get `field.id`, and
+  a `<label for>` resolves to the first match in document order, so the `Input`
+  loses its name (the same goes for `Select`, and `DatePicker` falls back to its
+  placeholder) and the label toggles the Checkbox instead of focusing the input.
+  axe does not report it, so `Field` warns through `console.warn` outside
+  production when one id lands on more than one element.
 
 ## Range input (two inputs in one group)
 
@@ -183,8 +203,8 @@ const ariaLabelledBy = ariaLabelledByProp ?? (ariaLabel ? undefined : field?.lab
 - **`aria-required`, `aria-invalid` and `aria-describedby` go on each input.**
   `aria-required` is not allowed on `group`, and a description on the group is
   not read when focus lands on an input.
-- **Clicking the Field label does nothing**, the same accepted limitation as a
-  self-labelled control without its own `label`.
+- **Clicking the Field label does nothing.** `htmlFor` points at `field.id`,
+  which neither input takes.
 - **`value={null}` is a reset, not a new context.** See
   [lv2-composition-guideline §4.4](lv2-composition-guideline.md#44-field-context).
 
@@ -207,7 +227,7 @@ Use `<label htmlFor={id}>` for description to enable click-to-focus while mainta
 ```
 
 The `aria-describedby` attribute links the description for screen readers, so:
-- Clicking description focuses the input (via `htmlFor`)
+- Clicking description focuses the input (via `htmlFor`). On a Checkbox / Switch, `Field` cancels the click so it does not toggle
 - Screen readers announce description as supplementary info (via `aria-describedby`)
 
 ### Error messages

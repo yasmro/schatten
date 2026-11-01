@@ -123,8 +123,10 @@ export const CheckboxRadioSwitch: Story = {
     <div className="mx-auto mt-12 w-96">
       <Note>
         Checkbox / Switch / Radio carry their own <code className="text-xs">&lt;label&gt;</code>, so
-        they are <strong>not</strong> wrapped in Field — group them directly under a FieldSet. Radio
-        is wrapped in a RadioGroup, and that group is wrapped by a single Field for its group label.
+        several of them are <strong>not</strong> wrapped in Field — group them directly under a
+        FieldSet. A single Checkbox or Switch with no label of its own can sit in a Field, which
+        then names it. Radio is wrapped in a RadioGroup, and that group is wrapped by a single Field
+        for its group label.
       </Note>
       <div className="flex flex-col gap-8">
         {/* Checkbox owns its label — place under FieldSet, not Field */}

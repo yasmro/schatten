@@ -177,8 +177,8 @@ list is not updated yet.
   prop is a finding.
 - **Context consumption (§5)** — form lv1s read `isError` / `disabled`
   / `describedBy` from `FieldContext` with prop fallback. `id` is read
-  **only** by externally-labelled inputs (Input / Textarea / Select),
-  not by self-labelled ones (Checkbox / Switch / Radio).
+  by externally-labelled inputs (Input / Textarea / Select), by Checkbox /
+  Switch only when the Field label names them, and never by Radio.
 - **Dependency direction (§6)** — `lv1/` imports `lib/` / `contexts/` /
   `variants/` / other `lv1/`. `lv1/` must not import `lv2/`. `lv2/` may
   also import `lv1/` and other `lv2/`. No barrel-export laundering through
@@ -364,12 +364,14 @@ to form-control lv2s (lv2-composition-guideline §4.4).
   every consumed field. The fallback chain order is part of the
   contract.
 - **`id` consumption** — externally-labelled inputs (Input / Textarea /
-  Select) use `field?.id`; self-labelled inputs (Checkbox / Switch /
-  Radio) do **not** (each generates its own per-instance id).
+  Select) use `field?.id`. Checkbox / Switch use it only when the Field
+  label names them (no own `label`, no explicit naming); otherwise they
+  generate a per-instance id. Radio never uses it.
 - **`aria-describedby` wiring** — flows through `field?.describedBy`.
 - **Description as `<label htmlFor>`** — clickable description focuses
   the input via `htmlFor` while `aria-describedby` carries the SR
-  announcement.
+  announcement. On a Checkbox / Switch, `Field` cancels the click so it
+  does not toggle.
 
 ### storybook-guideline.md
 

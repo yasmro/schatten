@@ -49,6 +49,7 @@ export default defineConfig([
     entry: {
       'variants/index': 'src/variants/index.ts',
       'tokens/index': 'src/tokens.ts',
+      'date/index': 'src/date/index.ts',
       // The FOUC snippet is React-free, so it ships here (no `'use client'`
       // banner) rather than via `providers`. That lets a React Server
       // Component / non-React server import the raw `THEME_INIT_SCRIPT`

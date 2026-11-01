@@ -16,6 +16,11 @@
     "limit": "32 KB"
   },
   {
+    "name": "date",
+    "path": "dist/date/index.js",
+    "limit": "1 KB"
+  },
+  {
     "name": "variants",
     "path": "dist/variants/index.js",
     "limit": "5 KB"

@@ -7,6 +7,7 @@ import {
   useState,
 } from 'react'
 import { FieldContext, useFieldContext } from '../../../contexts/field'
+import type { DateTimeValue, DateValue } from '../../../date'
 import { mergeRefs } from '../../../lib/merge-refs'
 import { useControllable } from '../../../lib/use-controllable'
 import { cn } from '../../../lib/utils'
@@ -46,40 +47,58 @@ const invalidMessageOf = (isTimed: boolean) =>
 const toValue = (value: string | undefined, granularity: DateGranularity) =>
   value && isValidValue(value, granularity) ? value : ''
 
+/** A range while it is being read: the type of `value` depends on `granularity`. */
+interface RawRange {
+  from?: string
+  to?: string
+}
+
+interface DayGranularity {
+  /**
+   * What the value holds: a date, `YYYY-MM-DD`.
+   * @default 'day'
+   */
+  granularity?: 'day'
+}
+
+interface MinuteGranularity {
+  /**
+   * What the value holds: a local date and time, `YYYY-MM-DDTHH:mm`, the format
+   * of `<input type="datetime-local">`. It has no time zone. The input shows and
+   * takes `YYYY-MM-DD HH:mm`, and the panel gains a time input.
+   */
+  granularity: 'minute'
+}
+
+/** The props whose format follows `granularity`, shared by both pickers. */
+interface PickerBoundProps<T extends DateValue | DateTimeValue> {
+  /**
+   * The earliest selectable value, in the format of `value`: `YYYY-MM-DD`, or
+   * `YYYY-MM-DDTHH:mm` with `granularity="minute"`. Applies to the calendar and
+   * to typed values.
+   */
+  min?: T
+  /**
+   * The latest selectable value, in the format of `value`: `YYYY-MM-DD`, or
+   * `YYYY-MM-DDTHH:mm` with `granularity="minute"`. Applies to the calendar and
+   * to typed values.
+   */
+  max?: T
+}
+
 /** Props shared by `DatePicker` and `DateRangePicker`. */
 interface PickerCommonProps
   extends Omit<ComponentPropsWithoutRef<'div'>, 'defaultValue' | 'onChange' | 'children'> {
-  /**
-   * What the value holds.
-   * - `day` — a date, `YYYY-MM-DD`
-   * - `minute` — a local date and time, `YYYY-MM-DDTHH:mm`, the format of
-   *   `<input type="datetime-local">`. It has no time zone. The input shows and
-   *   takes `YYYY-MM-DD HH:mm`, and the panel gains a time input.
-   * @default 'day'
-   */
-  granularity?: 'day' | 'minute'
   /**
    * Size of the control.
    * @default 'md'
    */
   size?: 'sm' | 'md' | 'lg'
   /**
-   * The earliest selectable value, in the format of `value`: `YYYY-MM-DD`, or
-   * `YYYY-MM-DDTHH:mm` with `granularity="minute"`. Applies to the calendar and
-   * to typed values.
-   */
-  min?: string
-  /**
-   * The latest selectable value, in the format of `value`: `YYYY-MM-DD`, or
-   * `YYYY-MM-DDTHH:mm` with `granularity="minute"`. Applies to the calendar and
-   * to typed values.
-   */
-  max?: string
-  /**
    * Marks individual dates unavailable, always by the date. Applies to the
    * calendar and to typed dates.
    */
-  isDateDisabled?: (date: string) => boolean
+  isDateDisabled?: (date: DateValue) => boolean
   /**
    * BCP 47 language tag for the calendar. Typed dates stay `YYYY-MM-DD`
    * whatever the locale.
@@ -95,7 +114,7 @@ interface PickerCommonProps
    * The date the calendar marks as today, as `YYYY-MM-DD`. Defaults to the
    * local date.
    */
-  today?: string
+  today?: DateValue
   /**
    * Text shown while the input is empty.
    * @default 'YYYY-MM-DD', or 'YYYY-MM-DD HH:mm' with `granularity="minute"`
@@ -138,23 +157,26 @@ export interface DatePickerLabels extends DateCalendarLabels {
   time?: string
 }
 
-export interface DatePickerProps extends PickerCommonProps {
+interface DatePickerValueProps<T extends DateValue | DateTimeValue> extends PickerBoundProps<T> {
   /**
    * The selected value (controlled), in the format of `granularity`. Pass `''`
    * for no selection.
    */
-  value?: string
+  value?: T | ''
   /**
    * The initially selected value (uncontrolled), in the format of `granularity`.
    * A `<form>` reset restores it.
    */
-  defaultValue?: string
+  defaultValue?: T | ''
   /**
    * Fired when the value changes. While the input holds an unfinished, invalid
    * or unavailable value this is `''`, so the value never lags behind the text.
    * With `granularity="minute"`, that includes a date without a time.
    */
-  onValueChange?: (value: string) => void
+  onValueChange?: (value: T | '') => void
+}
+
+interface DatePickerBaseProps extends PickerCommonProps {
   /**
    * Submits the selected value under this name. An unfinished or invalid draft
    * submits an empty value, and fails native form validation.
@@ -170,6 +192,17 @@ export interface DatePickerProps extends PickerCommonProps {
    */
   inputRef?: Ref<HTMLInputElement>
 }
+
+/**
+ * The format of the value props follows `granularity`, so `'2026-10-24T13:30'`
+ * without `granularity="minute"` is a type error. A `string` from an API or a form
+ * goes through `isDateValue` / `isDateTimeValue` from `@yasmro/schatten/date`.
+ */
+export type DatePickerProps = DatePickerBaseProps &
+  (
+    | (DayGranularity & DatePickerValueProps<DateValue>)
+    | (MinuteGranularity & DatePickerValueProps<DateTimeValue>)
+  )
 
 /**
  * Date input with a calendar in a popover. Typing `YYYY-MM-DD` and picking a
@@ -230,7 +263,12 @@ export const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(
     const isTimed = granularity === 'minute'
 
     const [open, setOpen] = useState(false)
-    const [rawValue, setValue] = useControllable(valueProp, defaultValue, onValueChange)
+    // Past the union the value is one string, whose format `granularity` decides.
+    const [rawValue, setValue] = useControllable<string>(
+      valueProp,
+      defaultValue,
+      onValueChange as ((value: string) => void) | undefined,
+    )
     const value = toValue(rawValue, granularity)
 
     const bounds = useValueBounds(min, max, granularity)
@@ -300,7 +338,7 @@ export const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(
         calendar={
           <>
             <DateCalendar
-              value={isTimed ? parts.date : value}
+              value={isTimed ? parts.date : (value as DateValue | '')}
               onValueChange={pickDay}
               onClick={onCalendarClick}
               min={bounds.dateMin}
@@ -391,24 +429,28 @@ export interface DateRangePickerLabels extends DateCalendarLabels {
   endTime?: string
 }
 
-export interface DateRangePickerProps extends PickerCommonProps {
+interface DateRangePickerValueProps<T extends DateValue | DateTimeValue>
+  extends PickerBoundProps<T> {
   /**
    * The selected range (controlled), in the format of `granularity`. Pass `{}`
    * for no selection.
    */
-  value?: DateRange
+  value?: DateRange<T>
   /**
    * The initially selected range (uncontrolled), in the format of `granularity`.
    * A `<form>` reset restores it.
    */
-  defaultValue?: DateRange
+  defaultValue?: DateRange<T>
   /**
    * Fired when the range changes. A side holding an unfinished, invalid or
    * unavailable value is left out, and so is an end before the start: typed
    * values are never swapped. A start and an end at the same moment are fine.
    * The days between two typed dates are not checked against `isDateDisabled`.
    */
-  onValueChange?: (value: DateRange) => void
+  onValueChange?: (value: DateRange<T>) => void
+}
+
+interface DateRangePickerBaseProps extends PickerCommonProps {
   /**
    * Submits the start under this name.
    */
@@ -430,6 +472,15 @@ export interface DateRangePickerProps extends PickerCommonProps {
    */
   endInputRef?: Ref<HTMLInputElement>
 }
+
+/**
+ * The format of the value props follows `granularity`, as in `DatePickerProps`.
+ */
+export type DateRangePickerProps = DateRangePickerBaseProps &
+  (
+    | (DayGranularity & DateRangePickerValueProps<DateValue>)
+    | (MinuteGranularity & DateRangePickerValueProps<DateTimeValue>)
+  )
 
 /**
  * Two date inputs in one frame, with a range calendar in a popover. The panel
@@ -491,7 +542,11 @@ export const DateRangePicker = forwardRef<HTMLDivElement, DateRangePickerProps>(
     const isTimed = granularity === 'minute'
 
     const [open, setOpen] = useState(false)
-    const [range, setRange] = useControllable(valueProp, defaultValue, onValueChange)
+    const [range, setRange] = useControllable<RawRange>(
+      valueProp,
+      defaultValue,
+      onValueChange as ((value: RawRange) => void) | undefined,
+    )
     const from = toText(toValue(range.from, granularity))
     const to = toText(toValue(range.to, granularity))
 
@@ -612,7 +667,7 @@ export const DateRangePicker = forwardRef<HTMLDivElement, DateRangePickerProps>(
               value={
                 isTimed
                   ? { from: startParts.date || undefined, to: endParts.date || undefined }
-                  : { from: from || undefined, to: to || undefined }
+                  : { from: (from as DateValue) || undefined, to: (to as DateValue) || undefined }
               }
               onValueChange={pickRange}
               min={bounds.dateMin}

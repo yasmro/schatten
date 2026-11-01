@@ -5,12 +5,14 @@
 // This lives next to the component, not in `lib/`: a future EventCalendar is
 // the second consumer that would justify moving it (component-architecture §6).
 
+import { type DateValue, isDateValue, toDateString } from '../../../date'
+
 const DAY_MS = 86_400_000
 
 /** The earliest date the calendar can represent. */
-export const MIN_DATE = '0001-01-01'
+export const MIN_DATE: DateValue = '0001-01-01'
 /** The latest date the calendar can represent. */
-export const MAX_DATE = '9999-12-31'
+export const MAX_DATE: DateValue = '9999-12-31'
 
 const WEEK_DAY = {
   sunday: 0,
@@ -60,8 +62,8 @@ function toDayNumber(iso: string): number {
   return utcMs(year, month - 1, day) / DAY_MS
 }
 
-function fromDayNumber(dayNumber: number): string {
-  return new Date(dayNumber * DAY_MS).toISOString().slice(0, 10)
+function fromDayNumber(dayNumber: number) {
+  return new Date(dayNumber * DAY_MS).toISOString().slice(0, 10) as DateValue
 }
 
 const MIN_DAY = toDayNumber(MIN_DATE)
@@ -76,15 +78,7 @@ export function pad(value: number, length: number) {
  * so a Tokyo user would see yesterday until 9:00.
  */
 export function getLocalToday() {
-  const now = new Date()
-  return `${pad(now.getFullYear(), 4)}-${pad(now.getMonth() + 1, 2)}-${pad(now.getDate(), 2)}`
-}
-
-/** True for a real calendar date in `YYYY-MM-DD` form (`2026-02-30` is not). */
-export function isValidISODate(value: string): boolean {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(value) || value < MIN_DATE) return false
-  const [year, month, day] = parts(value)
-  return fromDayNumber(utcMs(year, month - 1, day) / DAY_MS) === value
+  return toDateString(new Date()) as DateValue
 }
 
 /** ISO strings of equal length sort lexicographically. */
@@ -97,21 +91,21 @@ export function compareDates(a: string, b: string): number {
  * and an inverted pair is ignored.
  */
 export function resolveBounds(min: string | undefined, max: string | undefined) {
-  const validMin = min && isValidISODate(min) ? min : undefined
-  const validMax = max && isValidISODate(max) ? max : undefined
+  const validMin = min && isDateValue(min) ? min : undefined
+  const validMax = max && isDateValue(max) ? max : undefined
   const isInverted = !!validMin && !!validMax && compareDates(validMin, validMax) > 0
   return isInverted
     ? { isInverted, min: undefined, max: undefined }
     : { isInverted, min: validMin, max: validMax }
 }
 
-export function clampDate(date: string, min: string, max: string): string {
+export function clampDate(date: DateValue, min: DateValue, max: DateValue): DateValue {
   if (compareDates(date, min) < 0) return min
   return compareDates(date, max) > 0 ? max : date
 }
 
 /** Adds days. The result stays inside `MIN_DATE`–`MAX_DATE`. */
-export function addDays(date: string, days: number): string {
+export function addDays(date: DateValue, days: number): DateValue {
   return fromDayNumber(Math.min(MAX_DAY, Math.max(MIN_DAY, toDayNumber(date) + days)))
 }
 
@@ -119,7 +113,7 @@ export function addDays(date: string, days: number): string {
  * Adds months, clamping the day to the target month (Jan 31 + 1 month → Feb 28
  * or 29). The result stays inside `MIN_DATE`–`MAX_DATE`.
  */
-export function addMonths(date: string, months: number): string {
+export function addMonths(date: DateValue, months: number): DateValue {
   const [year, month, day] = parts(date)
   const index = year * 12 + (month - 1) + months
   const targetYear = Math.floor(index / 12)
@@ -130,13 +124,13 @@ export function addMonths(date: string, months: number): string {
   return fromDayNumber(utcMs(targetYear, targetMonth, Math.min(day, lastDay)) / DAY_MS)
 }
 
-export function startOfMonth(date: string): string {
-  return `${date.slice(0, 7)}-01`
+export function startOfMonth(date: DateValue) {
+  return `${date.slice(0, 7)}-01` as DateValue
 }
 
-export function endOfMonth(date: string): string {
+export function endOfMonth(date: DateValue) {
   const [year, month] = parts(date)
-  return `${date.slice(0, 7)}-${pad(new Date(utcMs(year, month, 0)).getUTCDate(), 2)}`
+  return `${date.slice(0, 7)}-${pad(new Date(utcMs(year, month, 0)).getUTCDate(), 2)}` as DateValue
 }
 
 export function isSameMonth(a: string, b: string): boolean {
@@ -144,20 +138,20 @@ export function isSameMonth(a: string, b: string): boolean {
 }
 
 /** Day of the week, `0` = Sunday. 1970-01-01 was a Thursday. */
-export function dayOfWeek(date: string): WeekDay {
+export function dayOfWeek(date: DateValue): WeekDay {
   return ((((toDayNumber(date) + WEEK_DAY.thursday) % 7) + 7) % 7) as WeekDay
 }
 
-export function startOfWeek(date: string, weekStartsOn: WeekDay): string {
+export function startOfWeek(date: DateValue, weekStartsOn: WeekDay): DateValue {
   return addDays(date, -((dayOfWeek(date) - weekStartsOn + 7) % 7))
 }
 
-export function endOfWeek(date: string, weekStartsOn: WeekDay): string {
+export function endOfWeek(date: DateValue, weekStartsOn: WeekDay): DateValue {
   return addDays(startOfWeek(date, weekStartsOn), 6)
 }
 
 /** Number of days from `from` to `to` (negative when `to` is earlier). */
-export function diffDays(from: string, to: string): number {
+export function diffDays(from: DateValue, to: DateValue): number {
   return toDayNumber(to) - toDayNumber(from)
 }
 
@@ -167,7 +161,7 @@ export function diffDays(from: string, to: string): number {
  * A day outside `MIN_DATE`–`MAX_DATE` is `null`: it only occurs in the first
  * and last month, and has no ISO string in this format.
  */
-export function monthMatrix(month: string, weekStartsOn: WeekDay): (string | null)[][] {
+export function monthMatrix(month: DateValue, weekStartsOn: WeekDay): (DateValue | null)[][] {
   const start = toDayNumber(startOfMonth(month))
   const first = start - ((dayOfWeek(startOfMonth(month)) - weekStartsOn + 7) % 7)
   return Array.from({ length: 6 }, (_, week) =>
@@ -182,7 +176,7 @@ export function monthMatrix(month: string, weekStartsOn: WeekDay): (string | nul
  * ISO-8601 week number. Weeks start on Monday and week 1 contains January 4,
  * so a row is numbered by its Thursday whichever day the row starts on.
  */
-export function isoWeek(date: string): number {
+export function isoWeek(date: DateValue): number {
   const mondayBased = (dayOfWeek(date) + 6) % 7
   const thursday = toDayNumber(date) - mondayBased + 3
   const jan1 = toDayNumber(`${fromDayNumber(thursday).slice(0, 4)}-01-01`)
@@ -194,7 +188,7 @@ export function isoWeek(date: string): number {
  * fixed column gives the wrong week on a Saturday-start grid, where the first
  * two columns belong to the previous ISO week.
  */
-export function weekNumberOfRow(week: readonly (string | null)[]): number | undefined {
+export function weekNumberOfRow(week: readonly (DateValue | null)[]): number | undefined {
   const thursday = week.find((date) => date !== null && dayOfWeek(date) === WEEK_DAY.thursday)
   return thursday ? isoWeek(thursday) : undefined
 }
@@ -227,7 +221,7 @@ const gregorian = (options: Intl.DateTimeFormatOptions): Intl.DateTimeFormatOpti
   calendar: 'gregory',
 })
 
-const toDate = (date: string) => new Date(toDayNumber(date) * DAY_MS)
+const toUtcDate = (date: DateValue) => new Date(toDayNumber(date) * DAY_MS)
 
 export interface WeekdayName {
   short: string
@@ -236,11 +230,11 @@ export interface WeekdayName {
 
 export interface DateFormatters {
   /** "October 2026" */
-  caption: (month: string) => string
+  caption: (month: DateValue) => string
   /** "Saturday, October 24, 2026" — the full date, for the accessible name. */
-  dayLabel: (date: string) => string
+  dayLabel: (date: DateValue) => string
   /** The bare day number, in the locale's digits. */
-  dayNumber: (date: string) => string
+  dayNumber: (date: DateValue) => string
   /** A week number or year, in the locale's digits and without grouping. */
   number: (value: number) => string
   /** The 12 month names, January first. */
@@ -262,20 +256,20 @@ export function createFormatters(locale: string): DateFormatters {
   const weekdayShort = new Intl.DateTimeFormat(locale, gregorian({ weekday: 'short' }))
   const weekdayLong = new Intl.DateTimeFormat(locale, gregorian({ weekday: 'long' }))
   // 2023-01-01 was a Sunday.
-  const weekday = (index: number) => toDate(addDays('2023-01-01', index))
+  const weekday = (index: number) => toUtcDate(addDays('2023-01-01', index))
 
   return {
-    caption: (value) => caption.format(toDate(value)),
-    dayLabel: (date) => full.format(toDate(date)),
+    caption: (value) => caption.format(toUtcDate(value)),
+    dayLabel: (date) => full.format(toUtcDate(date)),
     // `format()` adds the locale's day suffix in ja / zh / ko ("20日"), so take
     // only the `day` part. It still carries the locale's digits.
     dayNumber: (date) =>
-      day.formatToParts(toDate(date)).find((part) => part.type === 'day')?.value ??
+      day.formatToParts(toUtcDate(date)).find((part) => part.type === 'day')?.value ??
       String(Number(date.slice(8, 10))),
     number: (value) => plainNumber.format(value),
     monthNames: () =>
       Array.from({ length: 12 }, (_, index) =>
-        month.format(toDate(`2023-${pad(index + 1, 2)}-01`)),
+        month.format(toUtcDate(`2023-${pad(index + 1, 2)}-01` as DateValue)),
       ),
     weekdayNames: (weekStartsOn) =>
       Array.from({ length: 7 }, (_, index) => {

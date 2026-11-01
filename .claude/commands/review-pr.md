@@ -38,8 +38,9 @@ PR をセルフレビューする。前半のチェックリストは **観察�
   - React 専用の前提を崩していないか (parity / vanilla harness / `CSSApiDist` fixture を足していないか、内部の DOM を素の HTML 向けに約束していないか)
   - 自前の primitive (semantic な要素・Radix・context) を持ち込んでいないか (`component-architecture.md` §1)
 - [ ] Context 連携パターンに従っているか (`.claude/rules/field-context-guideline.md` 参照)
-  - 内部ラベルありコンポーネント: `field?.id` を使わない
-  - 内部ラベルなしコンポーネント: `field?.id` を使う
+  - 内部ラベルなしコンポーネント (`Input` など): `field?.id` を使う
+  - `Checkbox` / `Switch`: `Field` のラベルが名前になるときだけ `field?.id` を使う
+  - `Radio`: `field?.id` を使わない
 - [ ] Fallback パターン: `field?.value ?? propValue ?? defaultValue`
 - [ ] standalone / Field 内両方で動作するか
 

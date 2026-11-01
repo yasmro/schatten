@@ -35,14 +35,26 @@
 @layer components {
   /* ===== wrapper ===== */
   .st-checkbox-wrapper {
+    --schatten-checkbox-gap: 0.5rem;
     display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: var(--schatten-checkbox-gap);
   }
   .st-checkbox-wrapper__label {
+    position: relative;
     color: var(--color-foreground);
     cursor: pointer;
     user-select: none;
+  }
+  /* Stretches the label's hit area over the wrapper's gap, which would
+   * otherwise neither activate the control nor show the pointer cursor.
+   * Out of flow, so the layout is exactly the plain `gap`. */
+  .st-checkbox-wrapper__label::before {
+    content: "";
+    position: absolute;
+    inset-block: 0;
+    inset-inline-end: 100%;
+    width: var(--schatten-checkbox-gap);
   }
   /* Label font-size + line-height pair, derived from the inner checkbox
    * size — vanilla HTML consumers only write the size on the checkbox itself.

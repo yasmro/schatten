@@ -54,3 +54,30 @@ for (const story of stories) {
     })
   }
 }
+
+// jsdom has no layout, so the gap between control and label can only be hit
+// with a real pointer. It must behave like the label: same cursor, same click.
+test('Checkbox / the gap between control and label activates the control', async ({ page }) => {
+  await page.goto(storyUrl('with-labels', 'light'))
+  await page.waitForLoadState('networkidle')
+
+  const control = page.getByRole('checkbox', { name: 'Subscribe to newsletter' })
+  await expect(control).toHaveAttribute('data-state', 'unchecked')
+
+  const box = await control.boundingBox()
+  if (!box) throw new Error('control has no layout box')
+  const x = box.x + box.width + 4
+  const y = box.y + box.height / 2
+
+  const cursor = await page.evaluate(
+    ([px, py]) => {
+      const el = document.elementFromPoint(px, py)
+      return el && getComputedStyle(el).cursor
+    },
+    [x, y],
+  )
+  expect(cursor).toBe('pointer')
+
+  await page.mouse.click(x, y)
+  await expect(control).toHaveAttribute('data-state', 'checked')
+})

@@ -157,7 +157,7 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "size-limit": "^12.1.0",
-    "storybook": "10.6.3",
+    "storybook": "10.6.5",
     "tailwindcss": "^4.2.2",
     "tsup": "^9.0.0",
     "typescript": "^5.8.3",

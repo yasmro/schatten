@@ -134,7 +134,7 @@
     "@changesets/changelog-github": "^1.0.1",
     "@changesets/cli": "^3.0.3",
     "@playwright/test": "^1.58.2",
-    "@size-limit/preset-small-lib": "^12.1.0",
+    "@size-limit/preset-small-lib": "^14.2.0",
     "@storybook/addon-a11y": "10.6.3",
     "@storybook/addon-docs": "10.6.3",
     "@storybook/react-vite": "10.6.3",

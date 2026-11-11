@@ -7,7 +7,7 @@ import {
   useState,
 } from 'react'
 import { FieldContext, useFieldContext } from '../../../contexts/field'
-import type { DateTimeValue, DateValue } from '../../../date'
+import { type DateTimeValue, type DateValue, isDateValue } from '../../../date'
 import { mergeRefs } from '../../../lib/merge-refs'
 import { useControllable } from '../../../lib/use-controllable'
 import { cn } from '../../../lib/utils'
@@ -19,9 +19,10 @@ import {
   DateRangeCalendar,
   type WeekDay,
 } from '../../lv1/DateCalendar'
+import { addMonths } from '../../lv1/DateCalendar/date-math'
 import { Input } from '../../lv1/Input'
 import { Text } from '../../lv1/Text'
-import { PickerShell, PickerTimeRow } from './PickerShell'
+import { PickerFields, PickerShell } from './PickerShell'
 import {
   type DateConstraints,
   type DateGranularity,
@@ -42,6 +43,12 @@ import './DatePicker.css'
 const placeholderOf = (isTimed: boolean) => (isTimed ? 'YYYY-MM-DD HH:mm' : 'YYYY-MM-DD')
 const invalidMessageOf = (isTimed: boolean) =>
   isTimed ? 'Enter a valid date and time.' : undefined
+
+/**
+ * The input's text after the panel's date changed. An unfinished date is kept as
+ * typed, so the time beside it survives until the date is whole again.
+ */
+const withDate = (date: string, time: string) => (date && time ? `${date} ${time}` : date)
 
 /** An invalid or missing value counts as unset, as it does in DateCalendar. */
 const toValue = (value: string | undefined, granularity: DateGranularity) =>
@@ -151,7 +158,12 @@ export interface DatePickerLabels extends DateCalendarLabels {
    */
   invalidDate?: string
   /**
-   * Label of the time input in the panel.
+   * Accessible name of the date input in the panel.
+   * @default 'Date'
+   */
+  date?: string
+  /**
+   * Accessible name of the time input in the panel.
    * @default 'Time'
    */
   time?: string
@@ -216,9 +228,11 @@ export type DatePickerProps = DatePickerBaseProps &
  * land on the input. Out of pattern, like the other form controls.
  *
  * With `granularity="minute"` the input holds `YYYY-MM-DD HH:mm`, and the panel
- * gains a time input. Picking a day moves focus there and leaves the panel open,
+ * gains a date input and a time input above the calendar. Typing a date there
+ * moves the calendar to its month. Picking a day moves focus to the time and
+ * leaves the panel open,
  * until a click outside or Escape. A day without a time is an unfinished value:
- * no time is assumed. Enter in the time closes the panel. Times are always
+ * no time is assumed. Enter in either panel input closes the panel. Times are always
  * 24-hour, whatever the locale. The error state waits until focus leaves the
  * picker or the panel closes.
  *
@@ -289,18 +303,26 @@ export const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(
 
     const timeRef = useRef<HTMLInputElement>(null)
     const focusTime = useFocusAfterRender(timeRef)
+    // A date typed in the panel moves the calendar: it remounts on that month.
+    const [shownMonth, setShownMonth] = useState<DateValue>()
+    // The value cannot hold a time without a date, so an emptied panel date keeps
+    // its time here until a date comes back.
+    const keptTimeRef = useRef('')
 
     // A controlled value belongs to the parent; only the draft goes.
     useFormReset(input.inputRef, () => {
       const next = valueProp === undefined ? defaultValue : value
       input.reset(toText(toValue(next, granularity)))
+      keptTimeRef.current = ''
       setValue(next)
     })
 
     const label = labels?.openCalendar ?? 'Choose date'
 
     function pickDay(date: string) {
-      const text = joinText(date, parts.time)
+      const time = parts.time || keptTimeRef.current
+      keptTimeRef.current = ''
+      const text = joinText(date, time)
       input.reset(text)
       setValue(fromText(parse(text)))
       if (!isTimed) {
@@ -308,7 +330,7 @@ export const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(
         return
       }
       // A kept time the day refuses gets no blur to report it.
-      if (parts.time) input.markBlurred()
+      if (time) input.markBlurred()
       focusTime()
     }
 
@@ -322,7 +344,15 @@ export const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(
     // The panel is where a time gets lost: nothing else reports it.
     function onOpenChange(next: boolean) {
       if (!next && isTimed) input.markBlurred()
+      if (next) setShownMonth(undefined)
       setOpen(next)
+    }
+
+    function editDate(date: string) {
+      const time = parts.time || keptTimeRef.current
+      keptTimeRef.current = date ? '' : time
+      input.edit(withDate(date, time))
+      if (isDateValue(date)) setShownMonth(date)
     }
 
     return (
@@ -335,9 +365,25 @@ export const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(
         label={label}
         isBlocked={disabled || readOnly}
         onFocusLeave={isTimed ? input.markBlurred : undefined}
-        calendar={
+        panel={
           <>
+            {isTimed ? (
+              <PickerFields
+                dateLabel={labels?.date ?? 'Date'}
+                timeLabel={labels?.time ?? 'Time'}
+                date={parts.date}
+                time={parts.time}
+                constraints={constraints}
+                isInvalid={input.isInvalid}
+                onDateChange={editDate}
+                onTimeChange={(time) => input.edit(joinText(parts.date, time))}
+                onEnter={() => onOpenChange(false)}
+                timeRef={timeRef}
+              />
+            ) : null}
             <DateCalendar
+              key={shownMonth}
+              defaultMonth={shownMonth}
               value={isTimed ? parts.date : (value as DateValue | '')}
               onValueChange={pickDay}
               onClick={onCalendarClick}
@@ -349,19 +395,6 @@ export const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(
               today={today}
               labels={labels}
             />
-            {isTimed ? (
-              <div className="st-date-picker-time">
-                <PickerTimeRow
-                  ref={timeRef}
-                  label={labels?.time ?? 'Time'}
-                  value={parts.time}
-                  disabled={!parts.date}
-                  isInvalid={input.isInvalid && !!parts.date}
-                  onTimeChange={(time) => input.edit(joinText(parts.date, time))}
-                  onEnter={() => onOpenChange(false)}
-                />
-              </div>
-            ) : null}
           </>
         }
         {...props}
@@ -382,6 +415,7 @@ export const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(
           value={input.text}
           onChange={(event) => {
             input.edit(event.target.value)
+            keptTimeRef.current = ''
             setOpen(false)
           }}
           onBlur={isTimed ? undefined : input.markBlurred}
@@ -402,12 +436,12 @@ export interface DateRangePickerLabels extends DateCalendarLabels {
    */
   openCalendar?: string
   /**
-   * Accessible name of the first input.
+   * Accessible name of the first input, and of the start date input in the panel.
    * @default 'Start date'
    */
   startDate?: string
   /**
-   * Accessible name of the second input.
+   * Accessible name of the second input, and of the end date input in the panel.
    * @default 'End date'
    */
   endDate?: string
@@ -418,12 +452,12 @@ export interface DateRangePickerLabels extends DateCalendarLabels {
    */
   invalidDate?: string
   /**
-   * Label of the first time input in the panel.
+   * Accessible name of the start time input in the panel.
    * @default 'Start time'
    */
   startTime?: string
   /**
-   * Label of the second time input in the panel.
+   * Accessible name of the end time input in the panel.
    * @default 'End time'
    */
   endTime?: string
@@ -483,18 +517,18 @@ export type DateRangePickerProps = DateRangePickerBaseProps &
   )
 
 /**
- * Two date inputs in one frame, with a range calendar in a popover. The panel
- * closes once the end date is picked; closing earlier keeps a half-picked
- * range.
+ * Two date inputs in one frame, with a range calendar of two months in a popover.
+ * The panel closes once the end date is picked; closing earlier keeps a
+ * half-picked range. Where two months do not fit the screen, they stack.
  *
  * Reads `Field` like `RadioGroup`: the root is a `role="group"` named by the
  * `Field` label, and each input has its own name. Outside a `Field`, pass
  * `aria-label`. `ref` and unknown props land on the root `<div>`.
  *
  * With `granularity="minute"` each input holds `YYYY-MM-DD HH:mm` and the frame
- * takes two rows. The panel gains a time input per end, next to the date it
- * belongs to, and stays open until a click outside or Escape: picking the end date
- * moves focus to the first time. Its time waits until the date is there.
+ * takes two rows. The panel gains a date input and a time input per end, above
+ * the calendar, and stays open until a click outside or Escape: picking the end
+ * date moves focus to the start time. A time waits until its date is there.
  *
  * lv2 — React only. Without React, use two `<input type="date">`, or two
  * `<input type="datetime-local">` for a time.
@@ -588,10 +622,14 @@ export const DateRangePicker = forwardRef<HTMLDivElement, DateRangePickerProps>(
     const startParts = readText(start.text)
     const endParts = readText(end.text)
 
-    // The first pick of a new range clears the end, not the time it had.
+    // The first pick of a new range clears the end, not the time it had. An
+    // emptied panel date keeps its time the same way.
+    const keptStartTimeRef = useRef('')
     const keptEndTimeRef = useRef('')
     const startTimeRef = useRef<HTMLInputElement>(null)
     const focusStartTime = useFocusAfterRender(startTimeRef)
+    // A date typed in the panel moves the calendar: it remounts on that month.
+    const [shownMonth, setShownMonth] = useState<DateValue>()
 
     // A controlled value belongs to the parent; only the drafts go.
     useFormReset(start.inputRef, () => {
@@ -600,6 +638,7 @@ export const DateRangePicker = forwardRef<HTMLDivElement, DateRangePickerProps>(
       const nextTo = isControlled ? to : toText(toValue(defaultValue.to, granularity))
       start.reset(nextFrom)
       end.reset(nextTo)
+      keptStartTimeRef.current = ''
       keptEndTimeRef.current = ''
       if (!isControlled && (nextFrom !== from || nextTo !== to)) setRange(defaultValue)
     })
@@ -613,9 +652,11 @@ export const DateRangePicker = forwardRef<HTMLDivElement, DateRangePickerProps>(
     }
 
     function pickRange(next: DateRange) {
+      const startTime = startParts.time || keptStartTimeRef.current
+      keptStartTimeRef.current = ''
       const endTime = endParts.time || keptEndTimeRef.current
       keptEndTimeRef.current = next.to ? '' : endTime
-      const startText = joinText(next.from ?? '', startParts.time)
+      const startText = joinText(next.from ?? '', startTime)
       const endText = next.to ? joinText(next.to, endTime) : ''
       start.reset(startText)
       end.reset(endText)
@@ -626,14 +667,30 @@ export const DateRangePicker = forwardRef<HTMLDivElement, DateRangePickerProps>(
         return
       }
       // Kept times the days refuse get no blur to report them.
-      if (startParts.time && endTime) onInputBlur()
+      if (startTime && endTime) onInputBlur()
       focusStartTime()
     }
 
     // The panel is where a time gets lost: nothing else reports it.
     function onOpenChange(next: boolean) {
       if (!next && isTimed) onInputBlur()
+      if (next) setShownMonth(undefined)
       setOpen(next)
+    }
+
+    function editStartDate(date: string) {
+      const time = startParts.time || keptStartTimeRef.current
+      keptStartTimeRef.current = date ? '' : time
+      start.edit(withDate(date, time))
+      if (isDateValue(date)) setShownMonth(date)
+    }
+
+    // The end shows in the second month.
+    function editEndDate(date: string) {
+      const time = endParts.time || keptEndTimeRef.current
+      keptEndTimeRef.current = date ? '' : time
+      end.edit(withDate(date, time))
+      if (isDateValue(date)) setShownMonth(addMonths(date, -1))
     }
 
     const sharedInputProps = {
@@ -661,9 +718,44 @@ export const DateRangePicker = forwardRef<HTMLDivElement, DateRangePickerProps>(
         label={label}
         isBlocked={disabled || readOnly}
         onFocusLeave={isTimed ? onInputBlur : undefined}
-        calendar={
+        isRange
+        panel={
           <>
+            {isTimed ? (
+              <div>
+                <PickerFields
+                  dateLabel={labels?.startDate ?? 'Start date'}
+                  timeLabel={labels?.startTime ?? 'Start time'}
+                  date={startParts.date}
+                  time={startParts.time}
+                  constraints={constraints}
+                  isInvalid={start.isInvalid}
+                  onDateChange={editStartDate}
+                  onTimeChange={(time) => start.edit(joinText(startParts.date, time))}
+                  onEnter={() => onOpenChange(false)}
+                  timeRef={startTimeRef}
+                />
+                <Text as="span" size="sm" color="muted" aria-hidden="true">
+                  ›
+                </Text>
+                <PickerFields
+                  dateLabel={labels?.endDate ?? 'End date'}
+                  timeLabel={labels?.endTime ?? 'End time'}
+                  date={endParts.date}
+                  time={endParts.time}
+                  constraints={constraints}
+                  isInvalid={end.isInvalid}
+                  isDateWrong={!!startParts.date && endParts.date < startParts.date}
+                  onDateChange={editEndDate}
+                  onTimeChange={(time) => end.edit(joinText(endParts.date, time))}
+                  onEnter={() => onOpenChange(false)}
+                />
+              </div>
+            ) : null}
             <DateRangeCalendar
+              key={shownMonth}
+              defaultMonth={shownMonth}
+              numberOfMonths={2}
               value={
                 isTimed
                   ? { from: startParts.date || undefined, to: endParts.date || undefined }
@@ -678,29 +770,6 @@ export const DateRangePicker = forwardRef<HTMLDivElement, DateRangePickerProps>(
               today={today}
               labels={labels}
             />
-            {isTimed ? (
-              <div className="st-date-picker-time">
-                <PickerTimeRow
-                  ref={startTimeRef}
-                  label={labels?.startTime ?? 'Start time'}
-                  date={startParts.date}
-                  value={startParts.time}
-                  disabled={!startParts.date}
-                  isInvalid={start.isInvalid && !!startParts.date}
-                  onTimeChange={(time) => start.edit(joinText(startParts.date, time))}
-                  onEnter={() => onOpenChange(false)}
-                />
-                <PickerTimeRow
-                  label={labels?.endTime ?? 'End time'}
-                  date={endParts.date}
-                  value={endParts.time}
-                  disabled={!endParts.date}
-                  isInvalid={end.isInvalid && !!endParts.date}
-                  onTimeChange={(time) => end.edit(joinText(endParts.date, time))}
-                  onEnter={() => onOpenChange(false)}
-                />
-              </div>
-            ) : null}
           </>
         }
         {...props}
@@ -716,6 +785,7 @@ export const DateRangePicker = forwardRef<HTMLDivElement, DateRangePickerProps>(
             value={start.text}
             onChange={(event) => {
               start.edit(event.target.value)
+              keptStartTimeRef.current = ''
               setOpen(false)
             }}
           />
@@ -732,6 +802,7 @@ export const DateRangePicker = forwardRef<HTMLDivElement, DateRangePickerProps>(
             value={end.text}
             onChange={(event) => {
               end.edit(event.target.value)
+              keptEndTimeRef.current = ''
               setOpen(false)
             }}
           />

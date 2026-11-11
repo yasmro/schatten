@@ -83,4 +83,17 @@ for (const theme of themes) {
       expect(results.violations).toEqual([])
     })
   }
+
+  // Two months do not fit a phone: they stack, and so do the two ends' inputs.
+  test(`DatePicker / open-range-with-time / narrow / ${theme}`, async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 1000 })
+    await page.goto(storyUrl('open-range-with-time', theme))
+    await page.waitForLoadState('networkidle')
+    await page.waitForSelector('[role="dialog"]', { timeout: 10_000 })
+    await page.addStyleTag({ content: pauseAnimations })
+
+    await expect(page).toHaveScreenshot(`open-range-with-time-narrow-${theme}.png`, {
+      fullPage: true,
+    })
+  })
 }

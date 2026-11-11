@@ -253,7 +253,7 @@ export function PickerFields({
       <Field label={dateLabel}>
         <Input
           ref={dateInput.inputRef}
-          size="sm"
+          size="md"
           autoComplete="off"
           placeholder="YYYY-MM-DD"
           aria-invalid={(isInvalid && blamesDate) || dateInput.isInvalid || undefined}
@@ -266,7 +266,7 @@ export function PickerFields({
       <Field label={timeLabel} disabled={!date}>
         <Input
           ref={mergeRefs(timeRef, timeInput.inputRef)}
-          size="sm"
+          size="md"
           autoComplete="off"
           placeholder="HH:mm"
           aria-invalid={(isInvalid && !blamesDate) || timeInput.isInvalid || undefined}

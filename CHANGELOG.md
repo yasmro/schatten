@@ -1,5 +1,48 @@
 # @yasmro/schatten
 
+## 1.2.0
+
+### Minor Changes
+
+- [#597](https://github.com/yasmro/schatten/pull/597) [`39b9c4c`](https://github.com/yasmro/schatten/commit/39b9c4c62def9967fe3c25b6b316fb4bccbdf399) Thanks [@yasmro](https://github.com/yasmro)! - Add `DateCalendar` and `DateRangeCalendar`: always-visible month grids for picking a date or a range. Values are ISO `YYYY-MM-DD` strings, typed as `DateValue`, so a time zone can never shift a date by one day. `value`, `defaultValue`, `onValueChange`, `month`, `defaultMonth`, `onMonthChange`, `min`, `max`, `today` and the argument of `isDateDisabled` all use it, and `DateRange` is generic with `DateValue` as its default. `DateValue` and `DateTimeValue` are exported from `@yasmro/schatten/components/lv1`. Self-implemented on `Date` + `Intl` with no new runtime dependency. Gregorian only.
+  
+  CSS API: new blocks `.st-date-calendar` and `.st-date-range-calendar` with their sub-elements, published at `@yasmro/schatten/css/datecalendar`, plus the state hooks `[data-range-start]` / `[data-range-end]` / `[data-range-middle]` / `[data-outside]`. The manifest now also lists `aria-selected`, `aria-disabled` and `aria-current`, which were already styling hooks but were not recorded.
+
+- [#607](https://github.com/yasmro/schatten/pull/607) [`4e1f3fc`](https://github.com/yasmro/schatten/commit/4e1f3fcb5f7c0ba56ad949daf8802a2a9496939e) Thanks [@yasmro](https://github.com/yasmro)! - Add the `@yasmro/schatten/date` subpath, for the string values of the date components. `toDate(value)` reads a `YYYY-MM-DD` or `YYYY-MM-DDTHH:mm` value as local time, and `toDateString(date, granularity?)` writes the local date back, so neither can shift a day the way `new Date('2026-10-24')` and `toISOString()` do. `isDateValue` and `isDateTimeValue` check that a `string` from an API or a form is a value that exists, and narrow it to `DateValue` / `DateTimeValue`. The subpath has no React and no `'use client'` banner, so a server can use it.
+
+- [#578](https://github.com/yasmro/schatten/pull/578) [`8cee190`](https://github.com/yasmro/schatten/commit/8cee190faf38b236cd5db73694f7f1f85bd8f0dd) Thanks [@yasmro](https://github.com/yasmro)! - CSS API: `Dialog` now decides the order of its footer buttons in `Dialog.css` alone, and adds `.st-dialog__action` / `.st-dialog__cancel` / `.st-dialog__sub-action` / `.st-dialog__separator`. The order used to rely on Tailwind utilities (`order-*`, `sm:mr-auto` and others), so where Tailwind was not loaded the footer rendered in DOM order (action → cancel → separator → subAction). React props and DOM order are unchanged. In vanilla HTML, putting the four classes on the same DOM order as React gives the same layout.
+
+- [#598](https://github.com/yasmro/schatten/pull/598) [`c047e77`](https://github.com/yasmro/schatten/commit/c047e7761488bd2498815f32f334baa5c056270a) Thanks [@yasmro](https://github.com/yasmro)! - Add `DatePicker` and `DateRangePicker` (lv2), which combine typed `YYYY-MM-DD` input with a calendar in a popover. Values are ISO strings, typed as `DateValue`. Typing and the calendar stay in sync. A click on the input opens the panel with focus left there, and typing closes it. The calendar button or Alt+ArrowDown opens it with focus on the selected day, and closing returns focus to where it came from. An unfinished or invalid date reports `''` through `onValueChange`, shows the error state after blur, and fails native form validation. A `<form>` reset restores `defaultValue`. Both read `Field`: `DatePicker` is named through `htmlFor`, `DateRangePicker` is a `role="group"` named by the Field label. `DateRangePicker` submits through `startName` / `endName`, and its panel shows two months side by side, stacked where the screen is too narrow for both.
+  
+  `PopoverContent` gains `onCloseAutoFocus` and `onInteractOutside`.
+  
+  CSS API: add `.st-date-picker`, `.st-date-range-picker`, and `.st-date-picker-panel` with `--range` for the popover panel, plus the `@yasmro/schatten/css/datepicker` subpath. The size budgets gain `css/datepicker`, and `components/lv2 (all)` goes up to 38 KB to fit the calendar, popover, input and field these pickers bundle.
+
+- [#604](https://github.com/yasmro/schatten/pull/604) [`a14b9ad`](https://github.com/yasmro/schatten/commit/a14b9adbd9d7bbc163c917e1db2cb0967ab819a6) Thanks [@yasmro](https://github.com/yasmro)! - Add `granularity` to `DatePicker` and `DateRangePicker`. With `'minute'`, values and `min` / `max` are local `YYYY-MM-DDTHH:mm` strings, the format of `datetime-local`, typed as `DateTimeValue`. The props are a union on `granularity`, so `'2026-10-24T13:30'` without `granularity="minute"` is a type error, and `DatePickerProps` / `DateRangePickerProps` are `type` aliases rather than interfaces. The input shows and takes `YYYY-MM-DD HH:mm`, and the panel gains a date input and a time input above the calendar: one pair for `DatePicker`, one per end for `DateRangePicker`. A date typed there moves the calendar to its month. Picking a day moves focus to the time and leaves the panel open until a click outside or Escape. A day without a time is an unfinished value, so it reports `''` and fails native form validation; no time is assumed. A range keeps a same-day end before the start out of the value, without swapping. New labels: `date` and `time` on `DatePickerLabels`, `startTime` and `endTime` on `DateRangePickerLabels`.
+  
+  CSS API: add `.st-date-range-picker--minute`.
+
+- [#596](https://github.com/yasmro/schatten/pull/596) [`f703001`](https://github.com/yasmro/schatten/commit/f703001b1c5d47007f11c4d8bcdbe1a7d33b98a4) Thanks [@yasmro](https://github.com/yasmro)! - Add `EmptyState`, the first lv2 (composite) component, and restore the `@yasmro/schatten/components/lv2` export. `EmptyState` lays out an icon, a title, a description and an action in one frozen composition, with `size` (`sm` / `md` / `lg`), `align` (`center` / `start`) and `headingLevel` (`1`–`6`) props. lv2 ships on the React path only.
+  
+  CSS API: add `.st-empty-state` and the `--sm` / `--md` / `--lg` / `--center` / `--start` modifiers, plus the `@yasmro/schatten/css/emptystate` subpath. `st-icon` also joins the manifest: the class is not new, but `EmptyState`'s selectors are the first to reference it. The size budgets gain `components/lv2 (all)` and `css/emptystate`.
+
+### Patch Changes
+
+- [#587](https://github.com/yasmro/schatten/pull/587) [`113ea8a`](https://github.com/yasmro/schatten/commit/113ea8a0429416b4105c0fd2cf1eb02cfd7337cf) Thanks [@yasmro](https://github.com/yasmro)! - Fix `Escape` in a `Select` (or another popper) opened inside a `Dialog` closing the `Dialog` too. `@radix-ui/react-dialog` was in `devDependencies`, so the build bundled Radix Dialog and its internal packages (DismissableLayer and others) into dist. In a consumer's app, `Dialog` and `Select` / `DropdownMenu` / `Popover` / `Tooltip` then tracked their layers in separate instances. `@radix-ui/react-dialog` is now in `dependencies`, so they all use the same Radix packages from the consumer's `node_modules`. Props and DOM are unchanged.
+
+- [#614](https://github.com/yasmro/schatten/pull/614) [`21ffa7d`](https://github.com/yasmro/schatten/commit/21ffa7d867c37a7805fd716dba5671f14f4a6e7f) Thanks [@yasmro](https://github.com/yasmro)! - Fix a click on the `Field` label not toggling a `Checkbox` / `Switch` that has no `label` of its own, as in `<Field label="…"><Switch /></Field>`. When the `Field` label names the control, the control now takes `field.id`. Nothing changes when you pass the control's own `label`, `aria-label`, `aria-labelledby` or `id`. A click on the `Field` `description` does not toggle it.
+
+  This affects a `Field` that holds a label-less `Checkbox` / `Switch` together with an `Input` or another control. `field.id` is then duplicated and the first control in the markup takes the label, so in `<Field label="Email"><Checkbox /><Input /></Field>` the `Input` loses its name. `Field` wraps a single control: pass `label` or `aria-label` to the `Checkbox` / `Switch`. In development, `Field` logs a `console.warn` when an `id` is duplicated.
+
+- [#608](https://github.com/yasmro/schatten/pull/608) [`111db64`](https://github.com/yasmro/schatten/commit/111db647dc5d17d5dbd238e7c785d6915138d410) Thanks [@yasmro](https://github.com/yasmro)! - Fix a click in the gap between a `Checkbox` / `Radio` / `Switch` and its label not toggling the value. The cursor did not turn into a pointer there either (`Switch` showed a pointer but did not toggle). The `::before` of `.st-*-wrapper__label` now extends over the gap, so the gap works as part of the label. `cursor` is removed from `.st-switch-wrapper`. With the default layout nothing changes visually.
+
+  The whole gap does not respond in these cases:
+
+  - If the wrapper's `gap` is wider than 8px, the extra width does not respond.
+  - If the wrapper is `flex-row-reverse` or `flex-col`, the gap does not respond, and the `::before` reaches 8px past the opposite side of the label, where it can take clicks meant for the neighbouring element.
+
+  `.st-*-wrapper__label` now has `position: relative`, so an absolutely positioned element passed in `label` is positioned against the label.
+
 ## 1.1.0
 
 ### Minor Changes

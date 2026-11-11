@@ -10,6 +10,7 @@ import {
   readText,
   toText,
   useDateInput,
+  useKeptTime,
   useValueBounds,
 } from './use-date-input'
 
@@ -225,5 +226,35 @@ describe('useDateInput', () => {
   it('settles on a value its parser rejects instead of looping', () => {
     const { result } = renderHook(() => useDateInput('2026-10-24', () => '', vi.fn()))
     expect(result.current.text).toBe('2026-10-24')
+  })
+})
+
+describe('useKeptTime', () => {
+  const kept = () => renderHook(() => useKeptTime()).result.current
+
+  it('passes the current time through while there is a date', () => {
+    const time = kept()
+    expect(time.resolve('13:30', '2026-10-24')).toBe('13:30')
+    expect(time.resolve('', '2026-10-25')).toBe('')
+  })
+
+  it('holds the time while the date is empty, and gives it back with a date', () => {
+    const time = kept()
+    expect(time.resolve('13:30', '')).toBe('13:30')
+    expect(time.resolve('', '2026-10-25')).toBe('13:30')
+    expect(time.resolve('', '2026-10-26')).toBe('')
+  })
+
+  it('prefers a current time over the one held', () => {
+    const time = kept()
+    time.resolve('13:30', undefined)
+    expect(time.resolve('08:00', '2026-10-25')).toBe('08:00')
+  })
+
+  it('lets go of the time on clear', () => {
+    const time = kept()
+    time.resolve('13:30', '')
+    time.clear()
+    expect(time.resolve('', '2026-10-25')).toBe('')
   })
 })

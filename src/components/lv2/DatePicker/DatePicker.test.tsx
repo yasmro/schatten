@@ -10,8 +10,15 @@ import { DatePicker, type DatePickerProps, DateRangePicker } from './DatePicker'
 const dateInput = () => screen.getByRole('textbox', { name: 'Birthday' })
 const calendarButton = () => screen.getByRole('button', { name: 'Choose date' })
 const rangeButton = () => screen.getByRole('button', { name: 'Choose date range' })
-const startInput = () => screen.getByRole('textbox', { name: 'Start date' })
-const endInput = () => screen.getByRole('textbox', { name: 'End date' })
+// The panel names its date inputs the same, inside its own dialog.
+const frameInput = (name: string) =>
+  screen
+    .getAllByRole('textbox', { name })
+    .find((input) => !input.closest('[role="dialog"]')) as HTMLInputElement
+const panelInput = (name: string) =>
+  within(screen.getByRole('dialog')).getByRole('textbox', { name }) as HTMLInputElement
+const startInput = () => frameInput('Start date')
+const endInput = () => frameInput('End date')
 const day = (date: string) => document.querySelector<HTMLElement>(`[data-date="${date}"]`)
 
 const namedInput = (name: string) => screen.getByLabelText(name) as HTMLInputElement
@@ -689,11 +696,95 @@ describe('DatePicker with granularity="minute"', () => {
       return onValueChange
     }
 
-    it('shows the time of the value, in a named input', async () => {
+    it('shows the date and the time of the value, in named inputs', async () => {
       const user = userEvent.setup()
       setup({ defaultValue: '2026-10-24T13:30' })
       await user.click(calendarButton())
+      expect(panelInput('Date')).toHaveValue('2026-10-24')
       expect(within(screen.getByRole('dialog')).getByLabelText('Time')).toHaveValue('13:30')
+    })
+
+    it('labels each panel input visibly', async () => {
+      const user = userEvent.setup()
+      setup({ defaultValue: '2026-10-24T13:30' })
+      await user.click(calendarButton())
+      const dialog = within(screen.getByRole('dialog'))
+      expect(dialog.getByText('Date').tagName).toBe('LABEL')
+      expect(dialog.getByText('Time').tagName).toBe('LABEL')
+      expect(panelInput('Date')).toHaveValue('2026-10-24')
+    })
+
+    it('puts the inputs above the calendar', async () => {
+      const user = userEvent.setup()
+      setup({ defaultValue: '2026-10-24T13:30' })
+      await user.click(calendarButton())
+      const dialog = screen.getByRole('dialog')
+      const [fields, calendar] = Array.from(dialog.children)
+      expect(fields).toContainElement(panelInput('Date'))
+      expect(calendar).toHaveClass('st-date-calendar')
+      expect(dialog).toHaveClass('st-date-picker-panel')
+      expect(dialog).not.toHaveClass('st-date-picker-panel--range')
+    })
+
+    it('commits a date typed in the panel, keeping the time', async () => {
+      const user = userEvent.setup()
+      const onValueChange = setup({ defaultValue: '2026-10-24T13:30' })
+      await user.click(calendarButton())
+      await user.clear(panelInput('Date'))
+      expect(namedInput('Time')).toBeDisabled()
+      await user.type(panelInput('Date'), '2026-12-03')
+      expect(namedInput('Time')).toHaveValue('13:30')
+      expect(onValueChange).toHaveBeenLastCalledWith('2026-12-03T13:30')
+      expect(departure()).toHaveValue('2026-12-03 13:30')
+      expect(screen.getByRole('dialog')).toBeInTheDocument()
+    })
+
+    it('keeps the time while the panel date is unfinished', async () => {
+      const user = userEvent.setup()
+      const onValueChange = setup({ defaultValue: '2026-10-24T13:30' })
+      await user.click(calendarButton())
+      await user.type(panelInput('Date'), '{Backspace}')
+      expect(onValueChange).toHaveBeenLastCalledWith('')
+      expect(namedInput('Time')).toHaveValue('13:30')
+      await user.type(panelInput('Date'), '5')
+      expect(onValueChange).toHaveBeenLastCalledWith('2026-10-25T13:30')
+    })
+
+    it('moves the calendar to a date typed in the panel', async () => {
+      const user = userEvent.setup()
+      setup({ defaultValue: '2026-10-24T13:30' })
+      await user.click(calendarButton())
+      await user.clear(panelInput('Date'))
+      await user.type(panelInput('Date'), '2027-03-10')
+      expect(within(screen.getByRole('dialog')).getByRole('grid')).toHaveAccessibleName(
+        'March 2027',
+      )
+    })
+
+    it('marks an unavailable date typed in the panel', async () => {
+      const user = userEvent.setup()
+      setup({ defaultValue: '2026-10-24T13:30', min: '2026-10-10T00:00' })
+      await user.click(calendarButton())
+      await user.clear(panelInput('Date'))
+      await user.type(panelInput('Date'), '2026-10-01')
+      await user.tab()
+      expect(panelInput('Date')).toHaveAttribute('aria-invalid', 'true')
+    })
+
+    it('closes on Enter in the date', async () => {
+      const user = userEvent.setup()
+      setup({ defaultValue: '2026-10-24T13:30' })
+      await user.click(calendarButton())
+      await user.click(panelInput('Date'))
+      await user.keyboard('{Enter}')
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    })
+
+    it('renames the date through labels', async () => {
+      const user = userEvent.setup()
+      render(<DatePicker granularity="minute" labels={{ date: 'Day' }} aria-label="Departure" />)
+      await user.click(calendarButton())
+      expect(panelInput('Day')).toBeInTheDocument()
     })
 
     it('renames the time through labels', async () => {
@@ -933,8 +1024,8 @@ describe('DateRangePicker with granularity="minute"', () => {
     from: '2026-10-24T09:00',
     to: '2026-10-24T18:00',
   }
-  const start = () => screen.getByRole('textbox', { name: 'Start date' }) as HTMLInputElement
-  const end = () => screen.getByRole('textbox', { name: 'End date' }) as HTMLInputElement
+  const start = () => frameInput('Start date')
+  const end = () => frameInput('End date')
 
   function setup(props: {
     defaultValue?: DateRange<DateTimeValue>
@@ -1060,23 +1151,72 @@ describe('DateRangePicker with granularity="minute"', () => {
   })
 
   describe('panel', () => {
-    it('shows the date each time belongs to', async () => {
+    it('shows a date and a time for each end', async () => {
       const user = userEvent.setup()
       setup({ defaultValue: { from: '2026-10-24T09:00', to: '2026-10-26T18:00' } })
       await user.click(rangeButton())
+      expect(panelInput('Start date')).toHaveValue('2026-10-24')
       expect(namedInput('Start time')).toHaveValue('09:00')
-      expect(namedInput('Start time')).toHaveAccessibleDescription('2026-10-24')
+      expect(panelInput('End date')).toHaveValue('2026-10-26')
       expect(namedInput('End time')).toHaveValue('18:00')
-      expect(namedInput('End time')).toHaveAccessibleDescription('2026-10-26')
     })
 
-    it('marks an end without a date, and disables its time', async () => {
+    it('labels the four inputs and puts a dash between the ends', async () => {
+      const user = userEvent.setup()
+      setup({ defaultValue: { from: '2026-10-24T09:00', to: '2026-10-26T18:00' } })
+      await user.click(rangeButton())
+      const dialog = within(screen.getByRole('dialog'))
+      for (const name of ['Start date', 'Start time', 'End date', 'End time']) {
+        expect(dialog.getByText(name).tagName).toBe('LABEL')
+      }
+      expect(dialog.getByText('–')).toHaveAttribute('aria-hidden', 'true')
+    })
+
+    it('disables the time of an end without a date', async () => {
       const user = userEvent.setup()
       setup({ defaultValue: { from: '2026-10-24T09:00' } })
       await user.click(rangeButton())
-      expect(within(screen.getByRole('dialog')).getByText('—')).toBeInTheDocument()
+      expect(panelInput('End date')).toHaveValue('')
       expect(namedInput('Start time')).toBeEnabled()
       expect(namedInput('End time')).toBeDisabled()
+    })
+
+    it('commits an end date typed in the panel, keeping its time', async () => {
+      const user = userEvent.setup()
+      const onValueChange = setup({
+        defaultValue: { from: '2026-10-24T09:00', to: '2026-10-26T18:00' },
+      })
+      await user.click(rangeButton())
+      await user.clear(panelInput('End date'))
+      await user.type(panelInput('End date'), '2026-12-03')
+      expect(onValueChange).toHaveBeenLastCalledWith({
+        from: '2026-10-24T09:00',
+        to: '2026-12-03T18:00',
+      })
+      expect(end()).toHaveValue('2026-12-03 18:00')
+    })
+
+    it('shows a typed end date in the second month', async () => {
+      const user = userEvent.setup()
+      setup({ defaultValue: { from: '2026-10-24T09:00', to: '2026-10-26T18:00' } })
+      await user.click(rangeButton())
+      await user.clear(panelInput('End date'))
+      await user.type(panelInput('End date'), '2027-03-10')
+      const grids = within(screen.getByRole('dialog')).getAllByRole('grid')
+      expect(grids[1]).toHaveAccessibleName('March 2027')
+    })
+
+    it('blames the end date for a date before the start', async () => {
+      const user = userEvent.setup()
+      setup({ defaultValue: { from: '2026-10-24T09:00', to: '2026-10-26T18:00' } })
+      await user.click(rangeButton())
+      await user.clear(panelInput('End date'))
+      await user.type(panelInput('End date'), '2026-10-20')
+      await user.keyboard('{Enter}')
+      expect(end()).toHaveAttribute('aria-invalid', 'true')
+      await user.click(rangeButton())
+      expect(panelInput('End date')).toHaveAttribute('aria-invalid', 'true')
+      expect(namedInput('End time')).not.toHaveAttribute('aria-invalid')
     })
 
     it('renames the times through labels', async () => {
@@ -1350,6 +1490,19 @@ describe('DateRangePicker', () => {
   })
 
   describe('calendar', () => {
+    it('shows two months, with no inputs in the panel', async () => {
+      const user = userEvent.setup()
+      render(<DateRangePicker defaultValue={{ from: '2026-10-20' }} aria-label="Stay" />)
+      await user.click(rangeButton())
+      const dialog = screen.getByRole('dialog')
+      expect(dialog).toHaveClass('st-date-picker-panel', 'st-date-picker-panel--range')
+      const grids = within(dialog).getAllByRole('grid')
+      expect(grids.map((grid) => grid.getAttribute('aria-labelledby') && grid)).toHaveLength(2)
+      expect(grids[0]).toHaveAccessibleName('October 2026')
+      expect(grids[1]).toHaveAccessibleName('November 2026')
+      expect(within(dialog).queryByRole('textbox')).not.toBeInTheDocument()
+    })
+
     it('stays open after the first pick and closes after the second', async () => {
       const user = userEvent.setup()
       const onValueChange = vi.fn()

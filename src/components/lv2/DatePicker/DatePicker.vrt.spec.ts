@@ -1,5 +1,5 @@
 import AxeBuilder from '@axe-core/playwright'
-import { expect, test } from '@playwright/test'
+import { expect, type Page, test } from '@playwright/test'
 
 const STORY_ID_PREFIX = 'components-lv2-datepicker'
 
@@ -13,6 +13,24 @@ const stories = ['sizes', 'states', 'in-field', 'with-time', 'with-time-states']
 const portalStories = ['open', 'open-range', 'open-with-time', 'open-range-with-time'] as const
 
 const themes = ['light', 'dark'] as const
+
+/**
+ * The picker and its open panel, with a margin. A full-page shot dilutes them:
+ * turning a one-month panel into a two-month one changed 0.38% of a 1280×720
+ * page, under the 1% `maxDiffPixelRatio`, and passed. Clipped, the same change is
+ * 1.6% and fails.
+ */
+async function pickerClip(page: Page) {
+  const frame = await page.locator('.st-date-picker, .st-date-range-picker').first().boundingBox()
+  const panel = await page.getByRole('dialog').boundingBox()
+  if (!frame || !panel) throw new Error('The picker or its panel is not on screen.')
+  const margin = 8
+  const x = Math.max(0, Math.min(frame.x, panel.x) - margin)
+  const y = Math.max(0, Math.min(frame.y, panel.y) - margin)
+  const right = Math.max(frame.x + frame.width, panel.x + panel.width) + margin
+  const bottom = Math.max(frame.y + frame.height, panel.y + panel.height) + margin
+  return { x, y, width: right - x, height: bottom - y }
+}
 
 function storyUrl(storyId: string, theme: string) {
   return `/iframe.html?id=${STORY_ID_PREFIX}--${storyId}&globals=theme:${theme}&viewMode=story`
@@ -68,7 +86,9 @@ for (const theme of themes) {
       await page.waitForSelector('[role="dialog"]', { timeout: 10_000 })
       await page.addStyleTag({ content: pauseAnimations })
 
-      await expect(page).toHaveScreenshot(`${story}-${theme}.png`, { fullPage: true })
+      await expect(page).toHaveScreenshot(`${story}-${theme}.png`, {
+        clip: await pickerClip(page),
+      })
     })
 
     test(`DatePicker / ${story} / ${theme} / a11y`, async ({ page }) => {
@@ -93,7 +113,7 @@ for (const theme of themes) {
     await page.addStyleTag({ content: pauseAnimations })
 
     await expect(page).toHaveScreenshot(`open-range-with-time-narrow-${theme}.png`, {
-      fullPage: true,
+      clip: await pickerClip(page),
     })
   })
 }

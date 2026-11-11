@@ -125,6 +125,29 @@ export function useFocusAfterRender(ref: RefObject<HTMLElement | null>) {
 }
 
 /**
+ * Holds a time while its date is empty: a value cannot hold a time alone. Every
+ * change of the date goes through `resolve`, so the hold is set and cleared in
+ * one place; `clear` is for edits that replace the whole text.
+ */
+export function useKeptTime() {
+  const held = useRef('')
+  return {
+    /**
+     * The time that goes with `date`: `current`, or the one held. It is held
+     * on while `date` is empty, and let go once there is one.
+     */
+    resolve(current: string, date: string | undefined) {
+      const time = current || held.current
+      held.current = date ? '' : time
+      return time
+    },
+    clear() {
+      held.current = ''
+    },
+  }
+}
+
+/**
  * Runs `onReset` when the input's form resets. A native reset cannot reach React
  * state. Listening on `document` runs after React's own `onReset`, so a handler
  * that cancels the reset is respected, and `input.form` also covers `form="…"`.

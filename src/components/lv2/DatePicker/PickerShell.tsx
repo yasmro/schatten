@@ -13,6 +13,7 @@ import { FieldContext } from '../../../contexts/field'
 import { mergeRefs } from '../../../lib/merge-refs'
 import { cn } from '../../../lib/utils'
 import { Button } from '../../lv1/Button'
+import { Field } from '../../lv1/Field'
 import { Input } from '../../lv1/Input'
 import { Popover, PopoverAnchor, PopoverContent, PopoverTrigger } from '../../lv1/Popover'
 import { type DateConstraints, isValidISOTime, parseDate, useDateInput } from './use-date-input'
@@ -185,9 +186,9 @@ export const PickerShell = forwardRef<HTMLDivElement, PickerShellProps>(
 PickerShell.displayName = 'PickerShell'
 
 interface PickerFieldsProps {
-  /** Accessible name of the date input. */
+  /** Visible label of the date input, and its accessible name. */
   dateLabel: string
-  /** Accessible name of the time input. */
+  /** Visible label of the time input, and its accessible name. */
   timeLabel: string
   /** The date half of the value: a whole date, or `''`. */
   date: string
@@ -211,10 +212,11 @@ interface PickerFieldsProps {
 const parseTime = (text: string) => (isValidISOTime(text.trim()) ? text.trim() : '')
 
 /**
- * A date input and a time input in the panel, above the calendar. Both are text
- * inputs: `type="time"` would be formatted in the browser's own locale and show
- * `01:30 PM` beside an input holding `13:30`. The time waits until there is a
- * date, because a value without a date cannot hold it.
+ * A date input and a time input in the panel, above the calendar, each labelled
+ * by a `Field`: once filled, the values alone would not say which input is which.
+ * Both are text inputs: `type="time"` would be formatted in the browser's own
+ * locale and show `01:30 PM` beside an input holding `13:30`. The time waits
+ * until there is a date, because a value without a date cannot hold it.
  */
 export function PickerFields({
   dateLabel,
@@ -244,33 +246,36 @@ export function PickerFields({
     onEnter()
   }
 
+  // `Field` names each input through htmlFor; `disabled` has to go through it
+  // too, because Input takes the field's state over its own prop.
   return (
     <div>
-      <Input
-        ref={dateInput.inputRef}
-        size="sm"
-        autoComplete="off"
-        placeholder="YYYY-MM-DD"
-        aria-label={dateLabel}
-        aria-invalid={(isInvalid && blamesDate) || dateInput.isInvalid || undefined}
-        value={dateInput.text}
-        onChange={(event) => dateInput.edit(event.target.value)}
-        onBlur={dateInput.markBlurred}
-        onKeyDown={endOnEnter}
-      />
-      <Input
-        ref={mergeRefs(timeRef, timeInput.inputRef)}
-        size="sm"
-        autoComplete="off"
-        placeholder="HH:mm"
-        aria-label={timeLabel}
-        aria-invalid={(isInvalid && !blamesDate) || timeInput.isInvalid || undefined}
-        disabled={!date}
-        value={timeInput.text}
-        onChange={(event) => timeInput.edit(event.target.value)}
-        onBlur={timeInput.markBlurred}
-        onKeyDown={endOnEnter}
-      />
+      <Field label={dateLabel}>
+        <Input
+          ref={dateInput.inputRef}
+          size="sm"
+          autoComplete="off"
+          placeholder="YYYY-MM-DD"
+          aria-invalid={(isInvalid && blamesDate) || dateInput.isInvalid || undefined}
+          value={dateInput.text}
+          onChange={(event) => dateInput.edit(event.target.value)}
+          onBlur={dateInput.markBlurred}
+          onKeyDown={endOnEnter}
+        />
+      </Field>
+      <Field label={timeLabel} disabled={!date}>
+        <Input
+          ref={mergeRefs(timeRef, timeInput.inputRef)}
+          size="sm"
+          autoComplete="off"
+          placeholder="HH:mm"
+          aria-invalid={(isInvalid && !blamesDate) || timeInput.isInvalid || undefined}
+          value={timeInput.text}
+          onChange={(event) => timeInput.edit(event.target.value)}
+          onBlur={timeInput.markBlurred}
+          onKeyDown={endOnEnter}
+        />
+      </Field>
     </div>
   )
 }

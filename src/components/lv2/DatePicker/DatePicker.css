@@ -150,45 +150,58 @@
   }
 
   /* The row of inputs. `width: 0` keeps it out of the panel's own width, which
-   * the calendar sets; `min-width` then takes all of it back. */
+   * the calendar sets; `min-width` then takes all of it back. No line under it:
+   * the calendar below is drawn in tones, not lines, and the gap is enough. The
+   * inputs keep Input's strong border, which a pale one would push under 3:1
+   * against the panel (WCAG 1.4.11). */
   .st-date-picker-panel > :not(.st-date-calendar) {
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
     width: 0;
     min-width: 100%;
-    align-items: center;
-    margin-block-end: 0.75rem;
-    padding-block-end: 0.75rem;
-    border-block-end: 1px solid var(--color-border);
+    align-items: flex-end;
+    margin-block-end: 1rem;
   }
 
-  /* One end of a range: a date and its time. A single picker's row is its one
-   * end, laid out by the row rule above. */
-  .st-date-picker-panel > :not(.st-date-calendar) > :not(.st-text) {
+  /* One end of a range: a date and its time. A single picker's row holds its
+   * two Fields directly and is laid out by the row rule above. */
+  .st-date-picker-panel--range > :not(.st-date-calendar) > :not(.st-text) {
     display: flex;
     flex: 1 1 13rem;
     gap: 0.5rem;
+    align-items: flex-end;
     /* Without it the inputs' intrinsic width wraps the ends onto two lines even
      * where they fit on one. */
     min-width: 0;
   }
 
-  .st-date-picker-panel > :not(.st-date-calendar) .st-input-wrapper {
+  .st-date-picker-panel .st-field {
     min-width: 0;
+    gap: 0.25rem;
   }
 
-  .st-date-picker-panel > :not(.st-date-calendar) .st-input-wrapper:first-child {
+  .st-date-picker-panel .st-field:first-child {
     flex: 3 1 0;
   }
 
-  .st-date-picker-panel > :not(.st-date-calendar) .st-input-wrapper:last-child {
+  .st-date-picker-panel .st-field:last-child {
     flex: 2 1 0;
   }
 
-  /* The arrow between the ends, only while they share a line. */
+  /* Field's label is sized for a form; in the panel it only names the input. */
+  .st-date-picker-panel .st-field__label {
+    color: var(--color-foreground-muted);
+    font-size: 0.75rem;
+    font-weight: 500;
+    line-height: 1rem;
+  }
+
+  /* The dash between the ends sits on the inputs' centre line, like the frame's,
+   * and only while the ends share a line. */
   .st-date-picker-panel > :not(.st-date-calendar) > .st-text {
     flex: none;
+    line-height: 2rem;
   }
 
   @media (max-width: 37.99rem) {

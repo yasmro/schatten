@@ -6,4 +6,4 @@ Add `DatePicker` and `DateRangePicker` (lv2), which combine typed `YYYY-MM-DD` i
 
 `PopoverContent` gains `onCloseAutoFocus` and `onInteractOutside`.
 
-CSS API: add `.st-date-picker`, `.st-date-range-picker`, and `.st-date-picker-panel` with `--range` for the popover panel, plus the `@yasmro/schatten/css/datepicker` subpath. The size budgets gain `css/datepicker`, and `components/lv2 (all)` goes up to fit the calendar, popover and input these pickers bundle.
+CSS API: add `.st-date-picker`, `.st-date-range-picker`, and `.st-date-picker-panel` with `--range` for the popover panel, plus the `@yasmro/schatten/css/datepicker` subpath. The size budgets gain `css/datepicker`, and `components/lv2 (all)` goes up to 38 KB to fit the calendar, popover, input and field these pickers bundle.

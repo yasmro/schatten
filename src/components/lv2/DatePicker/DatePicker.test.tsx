@@ -704,6 +704,16 @@ describe('DatePicker with granularity="minute"', () => {
       expect(within(screen.getByRole('dialog')).getByLabelText('Time')).toHaveValue('13:30')
     })
 
+    it('labels each panel input visibly', async () => {
+      const user = userEvent.setup()
+      setup({ defaultValue: '2026-10-24T13:30' })
+      await user.click(calendarButton())
+      const dialog = within(screen.getByRole('dialog'))
+      expect(dialog.getByText('Date').tagName).toBe('LABEL')
+      expect(dialog.getByText('Time').tagName).toBe('LABEL')
+      expect(panelInput('Date')).toHaveValue('2026-10-24')
+    })
+
     it('puts the inputs above the calendar', async () => {
       const user = userEvent.setup()
       setup({ defaultValue: '2026-10-24T13:30' })
@@ -1149,6 +1159,17 @@ describe('DateRangePicker with granularity="minute"', () => {
       expect(namedInput('Start time')).toHaveValue('09:00')
       expect(panelInput('End date')).toHaveValue('2026-10-26')
       expect(namedInput('End time')).toHaveValue('18:00')
+    })
+
+    it('labels the four inputs and puts a dash between the ends', async () => {
+      const user = userEvent.setup()
+      setup({ defaultValue: { from: '2026-10-24T09:00', to: '2026-10-26T18:00' } })
+      await user.click(rangeButton())
+      const dialog = within(screen.getByRole('dialog'))
+      for (const name of ['Start date', 'Start time', 'End date', 'End time']) {
+        expect(dialog.getByText(name).tagName).toBe('LABEL')
+      }
+      expect(dialog.getByText('–')).toHaveAttribute('aria-hidden', 'true')
     })
 
     it('disables the time of an end without a date', async () => {

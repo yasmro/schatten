@@ -36,6 +36,38 @@ function Consumer({ onState }: { onState?: (state: ThemeContextValue) => void })
   )
 }
 
+// Two islands per test: each sits under its own ThemeProvider (Astro Islands).
+function ModeIslandA() {
+  const { mode, setMode } = useTheme()
+  return (
+    <>
+      <span data-testid="A-mode">{mode}</span>
+      <button type="button" onClick={() => setMode('dark')}>
+        A-set-dark
+      </button>
+    </>
+  )
+}
+
+function ModeIslandB() {
+  const { mode } = useTheme()
+  return <span data-testid="B-mode">{mode}</span>
+}
+
+function SpecialIslandA() {
+  const { setSpecial } = useTheme()
+  return (
+    <button type="button" onClick={() => setSpecial('season--spring-late')}>
+      A-set-spring
+    </button>
+  )
+}
+
+function SpecialIslandB() {
+  const { special } = useTheme()
+  return <span data-testid="B-special">{special ?? 'null'}</span>
+}
+
 /** Build a controllable matchMedia mock that can fire change events. */
 function installMatchMediaMock(initialDark: boolean) {
   type Listener = (event: MediaQueryListEvent) => void
@@ -468,34 +500,17 @@ describe('ThemeProvider', () => {
     })
 
     it('syncs mode across two ThemeProvider instances in the same page (Astro Islands)', async () => {
-      function IslandA() {
-        const { mode, setMode } = useTheme()
-        return (
-          <>
-            <span data-testid="A-mode">{mode}</span>
-            <button type="button" onClick={() => setMode('dark')}>
-              A-set-dark
-            </button>
-          </>
-        )
-      }
-
-      function IslandB() {
-        const { mode } = useTheme()
-        return <span data-testid="B-mode">{mode}</span>
-      }
-
       const user = userEvent.setup()
       render(
         <>
           <div>
             <ThemeProvider defaultMode="light" storageKey={null}>
-              <IslandA />
+              <ModeIslandA />
             </ThemeProvider>
           </div>
           <div>
             <ThemeProvider defaultMode="light" storageKey={null}>
-              <IslandB />
+              <ModeIslandB />
             </ThemeProvider>
           </div>
         </>,
@@ -512,31 +527,17 @@ describe('ThemeProvider', () => {
     })
 
     it('syncs special across two ThemeProvider instances in the same page', async () => {
-      function IslandA() {
-        const { setSpecial } = useTheme()
-        return (
-          <button type="button" onClick={() => setSpecial('season--spring-late')}>
-            A-set-spring
-          </button>
-        )
-      }
-
-      function IslandB() {
-        const { special } = useTheme()
-        return <span data-testid="B-special">{special ?? 'null'}</span>
-      }
-
       const user = userEvent.setup()
       render(
         <>
           <div>
             <ThemeProvider storageKey={null}>
-              <IslandA />
+              <SpecialIslandA />
             </ThemeProvider>
           </div>
           <div>
             <ThemeProvider storageKey={null}>
-              <IslandB />
+              <SpecialIslandB />
             </ThemeProvider>
           </div>
         </>,

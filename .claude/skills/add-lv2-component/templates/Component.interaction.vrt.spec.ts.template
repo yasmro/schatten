@@ -1,0 +1,16 @@
+import { expect, test } from '@playwright/test'
+
+// The primary action runs through pointer and focus behaviour jsdom does not
+// reproduce (lv2-composition-guideline §6.1). No screenshots here, and no
+// `a11y` in a test name: `pnpm test:vrt` drops those.
+
+const STORY_ID_PREFIX = 'components-lv2-__componentname__'
+
+test('__ComponentName__ / primary action works with a real pointer', async ({ page }) => {
+  await page.goto(`/iframe.html?id=${STORY_ID_PREFIX}--playground&viewMode=story`)
+  await page.waitForLoadState('networkidle')
+
+  // TODO(__ComponentName__): drive the operation a consumer would file a bug about.
+  await page.getByRole('button').first().click()
+  await expect(page.getByRole('heading')).toBeVisible()
+})

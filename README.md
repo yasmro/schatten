@@ -63,6 +63,7 @@ size**, exactly the chain the React layer emits.
 | `Callout` | ✅ | ✅ |
 | `Card` | ✅ | ✅ |
 | `Checkbox` | ✅ | ✅ |
+| `DateCalendar` | ✅ | ⚠️ |
 | `Dialog` | ✅ | ⚠️ |
 | `DropdownMenu` | ✅ | ⚠️ |
 | `Field` | ✅ | ✅ |
@@ -82,6 +83,14 @@ size**, exactly the chain the React layer emits.
 | `Textarea` | ✅ | ✅ |
 | `Toast` | ✅ | ⚠️ |
 | `Tooltip` | ✅ | ⚠️ |
+
+Composite (lv2) components are React-only — their `.st-*` classes ship for overriding, but
+rendering one without React is outside the contract; compose the lv1 classes instead.
+
+| Component (lv2) | React | HTML + CSS only |
+| --- | :-: | :-: |
+| `DatePicker` | ✅ | ❌ |
+| `EmptyState` | ✅ | ❌ |
 <!-- generated:lv1-support-matrix:end -->
 
 ### React
@@ -857,13 +866,13 @@ import '@yasmro/schatten/themes/default'
 import '@yasmro/schatten/css/button'
 ```
 
-Available components (one subpath per lv1):
+Available components (one subpath per lv1, plus each lv2 that ships CSS of its own):
 <!-- generated:lv1-components:start -->
 `avatar` · `badge` · `button` · `callout` · `card` · `checkbox` ·
-`dialog` · `dropdownmenu` · `field` · `fieldset` · `icon` · `input` ·
-`popover` · `radio` · `select` · `separator` · `skeleton` ·
-`spinner` · `switch` · `table` · `tabs` · `text` · `textarea` ·
-`toast` · `tooltip`.
+`datecalendar` · `datepicker` · `dialog` · `dropdownmenu` ·
+`emptystate` · `field` · `fieldset` · `icon` · `input` · `popover` ·
+`radio` · `select` · `separator` · `skeleton` · `spinner` · `switch` ·
+`table` · `tabs` · `text` · `textarea` · `toast` · `tooltip`.
 <!-- generated:lv1-components:end -->
 
 Tokens must be imported separately — the per-component files reference
@@ -876,6 +885,41 @@ A detailed delivery recipe (critical-CSS inlining, defer patterns,
 Lighthouse "Reduce unused CSS" remediation) lives in
 [Performance](#performance) below, with runnable examples in
 [`examples/lighthouse-100/`](examples/lighthouse-100/).
+
+### Date values
+
+`DateCalendar`, `DatePicker` and their range versions take strings rather than `Date` objects: `YYYY-MM-DD` (`DateValue`), or `YYYY-MM-DDTHH:mm` (`DateTimeValue`) with `granularity="minute"`. The second is the format of `<input type="datetime-local">`, and neither has a time zone. `@yasmro/schatten/date` converts them to and from `Date`, always in local time. It has no React in it, so it also runs on a server.
+
+```ts
+import { isDateValue, toDate, toDateString } from '@yasmro/schatten/date'
+
+toDate('2026-10-24')                      // local midnight
+toDate('2026-10-24T13:30')                // local 13:30
+toDate('2026-02-30')                      // undefined
+
+toDateString(new Date())                  // '2026-10-24', the local date
+toDateString(new Date(), 'minute')        // '2026-10-24T13:30'
+toDateString(new Date(Number.NaN))        // ''
+
+const value = await fetchBirthday()       // string
+if (isDateValue(value)) setBirthday(value) // DateValue
+```
+
+Avoid `new Date('2026-10-24')` and `date.toISOString().slice(0, 10)`: both work in UTC, so west of UTC the first is the previous day, and the second gives the wrong date for part of every day. A local time that daylight saving skips moves forward as it does in `Date`, so `2026-03-08T02:30` in New York reads as 03:30.
+
+The value types accept any digits, so `'2026-13-99'` compiles and counts as unset at runtime. A plain `string` does not compile: put it through `isDateValue` / `isDateTimeValue`, and write `useState<DateValue | ''>('')` for state. `Temporal` reads the strings directly with `Temporal.PlainDate.from(value)` and `Temporal.PlainDateTime.from(value)`. To write a `PlainDateTime` back, use `toString({ smallestUnit: 'minute' })`, because the default adds seconds.
+
+`toDateString` returns `''` for a `Date` it cannot write. `value` takes that as no selection, but `min`, `max`, `today` and the ends of a `DateRange` do not, so use `toDateString(date) || undefined` there.
+
+The props of `DatePicker` and `DateRangePicker` are a union on `granularity`. Spreading them into a wrapper keeps the union, and the wrapper can accept `DatePickerProps` as it is. `Omit` flattens a union, so use a distributive version:
+
+```ts
+type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, K> : never
+
+type MyPickerProps = DistributiveOmit<DatePickerProps, 'size'>
+```
+
+When `granularity` is a variable, branch on it and render the picker in each branch: TypeScript cannot tie one `value` to two formats.
 
 ### Seasonal themes
 
@@ -1109,6 +1153,7 @@ src/
 ├── components/lv2/   # Composite components
 ├── contexts/         # React contexts (Field, FieldSet, …)
 ├── core/tokens/      # Primitive & semantic CSS tokens
+├── date/             # Date value types and conversion (no React)
 ├── themes/           # Default and seasonal themes
 ├── variants/         # CVA variant definitions
 ├── lib/              # Shared utilities (cn, etc.)

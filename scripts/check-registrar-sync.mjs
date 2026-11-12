@@ -14,7 +14,8 @@
 // common case: a variable that component CSS actually consumes.
 //
 // What it checks: every `var(--x)` reference in
-// `src/components/lv1/*/*.css` + `src/styles/reset.css` +
+// `src/components/lv1/*/*.css` + every `.css`-bearing
+// `src/components/lv2/*/*.css` + `src/styles/reset.css` +
 // `src/styles/preflight.css` (comments stripped) must be declared in the
 // registrar, unless it falls in a documented exemption class below.
 //
@@ -29,15 +30,21 @@
 // `check:layer-order` / `check:body-reset`.
 
 import { readFileSync } from 'node:fs'
-import { discoverLv1WithCss } from './lv1-slugs.mjs'
+import { discoverLv1WithCss, discoverLv2 } from './lv1-slugs.mjs'
 
 const REGISTRAR = 'src/styles/public-tokens.css'
 
-// The lv1 css list comes from `lv1-slugs.mjs` — the same single source of
-// truth `build-component-css.mjs` / `ensure-dist.mjs` build from, so this
-// check scans exactly the files that ship.
+// The component css list comes from `lv1-slugs.mjs` — the same single
+// source of truth `build-component-css.mjs` / `ensure-dist.mjs` build from,
+// so this check scans exactly the files that ship. lv2 stylesheets ship in
+// `dist/schatten.css` too; skipping them would let an lv2 reference an
+// unregistered variable with every gate green (lv2-composition-guideline
+// §6.2 row 11).
 const SCAN_FILES = [
   ...discoverLv1WithCss().map((entry) => entry.css),
+  ...discoverLv2()
+    .filter((entry) => entry.hasCss)
+    .map((entry) => entry.css),
   'src/styles/reset.css',
   'src/styles/preflight.css',
 ]

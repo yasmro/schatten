@@ -26,6 +26,7 @@ pnpm-debug.log*
 coverage/
 test-results/
 playwright-report/
+.review-shots/
 
 # Misc
 *.local

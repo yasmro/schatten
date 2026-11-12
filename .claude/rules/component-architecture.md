@@ -4,8 +4,8 @@
 
 This file records the design-time choices that go into adding or extending a
 component in Schatten: which folder it lives in, how its API is shaped, what
-escape hatches it exposes, and when a `.css` file is allowed to exist next to
-a `.tsx`. These choices used to live in reviewers' heads — making them
+escape hatches it exposes, and what goes into the `.css` file next to its
+`.tsx`. These choices used to live in reviewers' heads — making them
 explicit lets contributors (human and AI) land the right thing the first time
 and lets reviewers anchor feedback on a shared text instead of taste.
 
@@ -17,15 +17,48 @@ Anything not covered here defaults to **shadcn/ui + Radix conventions**.
 |---|---|---|
 | Folder | [`src/components/lv1/`](../../src/components/lv1) | [`src/components/lv2/`](../../src/components/lv2) |
 | Purpose | Single-responsibility primitive. Low-level, focused. | A composition of multiple lv1s shaped as a single component. |
-| Examples (today) | Button, Input, Field, FieldSet, Select, Dialog, Tooltip, … | (empty — first lv2s land post-1.0) |
-| Hypothetical lv2 | — | `FormField` = Field + Label + Input + error msg |
+| Examples (today) | Button, Input, Field, FieldSet, Select, Dialog, Tooltip, … | EmptyState, DatePicker, DateRangePicker |
+| Rule doc | this file | [lv2-composition-guideline.md](lv2-composition-guideline.md) |
 
-**The promotion criterion (when a recurring composition becomes an lv2) is
-intentionally deferred** — it will be defined in a follow-up rule when the
-first lv2 lands. lv2 is scoped **post-1.0**: 1.0 freezes the lv1 + CSS
-contract, and lv2 (a composition of lv1s) ships afterward as additive
-`minor` releases. Until the first lv2 lands, treat any composition of 3+
-lv1s as a candidate that the DS owner will judge case-by-case.
+### Where the line is — does it introduce a primitive of its own?
+
+Embedding another lv1 does not make a component an lv2 (§6 allows lv1 →
+lv1). Decide in two steps:
+
+1. **Does it compose any lv1?** If not, it is an **lv1** — a styled native
+   element is a primitive in its own right (`Skeleton`'s `<div>`, `Text`'s
+   `<p>` / `<h*>`). This is the same line as the lv2 disqualifier D3.
+2. **If it composes lv1s, does it also introduce a primitive of its own?**
+   - **Yes → lv1.** A primitive here is a native element whose semantics the
+     component owns (`<button>`, `<label>`, `<table>`, a heading), a
+     headless-library primitive (Radix, Sonner, …), or a React context it
+     provides. The lv1s it embeds are fixed parts.
+   - **No → lv2.** Every semantic element and every primitive comes from an
+     lv1 it composes. Its own markup is wrappers, and its own code is the
+     wiring between the parts — layout, focus, state, and ARIA. **Putting a
+     `role` or `aria-*` on a wrapper is wiring, not a primitive**: a
+     `role="group"` wrapper named by `aria-labelledby` (the DateRangePicker
+     case, [lv2-composition-guideline.md §4.4](lv2-composition-guideline.md#44-field-context))
+     still introduces nothing a consumer could use on its own. **The same goes
+     for `<input type="hidden">`**: it has no role, no focus and no semantics,
+     so it is the wiring that carries a form value (`DatePicker`'s `name`), not
+     a native element the lv2 owns.
+
+| Component | Composes lv1s? | Primitive it introduces | Layer |
+|---|---|---|---|
+| `Skeleton` | no | its styled `<div>` | lv1 (step 1) |
+| `Toast` | yes (`Icon` / `Spinner` / `Button`) | Sonner's toaster + the imperative store | lv1 |
+| `Dialog` | yes (`Button`) | Radix Dialog | lv1 |
+| `Field` | yes (`Tooltip`) | `<label>` / error `<p>` + `FieldContext` | lv1 |
+| `EmptyState` (#125) | yes (`Icon` / `Text`) | none — the heading comes from `Text`'s `as`; the root `<div>` is a wrapper | lv2 |
+| `DatePicker` (#568) | yes (`Input` / `Popover` / `DateCalendar` / `Button`) | none — the trigger is a `Button`; the value sync is wiring | lv2 |
+| `DateRangePicker` (#568) | yes (same parts) | none — the `role="group"` root is ARIA wiring on a wrapper | lv2 |
+| `ConfirmDialog` (#124, v1+) | yes (`Dialog`) | none — it owns the confirm state | lv2 |
+
+The test cuts both ways: an "lv2" that needs a native semantic element of
+its own is either an lv1 or is missing an lv1 (render the heading through
+`Text`, the trigger through `Button`), and an lv1 whose only content is
+other lv1s plus wiring is an lv2 that has not been moved.
 
 ## 2. Compound vs flat
 
@@ -35,16 +68,23 @@ consumer composes) and **flat** (one component the consumer uses directly).
 ### Compound — the consumer composes named parts
 
 ```tsx
-<Dialog>
-  <DialogTrigger>Open</DialogTrigger>
-  <DialogContent>
-    <DialogTitle>Confirm</DialogTitle>
-    <DialogDescription>Are you sure?</DialogDescription>
-  </DialogContent>
-</Dialog>
+<Select defaultValue="jp">
+  <SelectTrigger>
+    <SelectValue placeholder="Country" />
+  </SelectTrigger>
+  <SelectContent>
+    <SelectItem value="jp">Japan</SelectItem>
+    <SelectItem value="us">United States</SelectItem>
+  </SelectContent>
+</Select>
 ```
 
-Used by: `Dialog`, `Tooltip`, `Select`, `Radio` (`RadioGroup` + `Radio`).
+Used by: `Select`, `Tooltip`, `Popover`, `DropdownMenu`, `Tabs`, `Radio`
+(`RadioGroup` + `Radio`) — each over a multi-part Radix primitive — and
+`Card` / `Table`, which mirror a multi-part **native** structure
+(`<table>` / `<thead>` / `<tr>` / `<td>`; a card's header / content / footer
+regions) instead of a Radix one. `Dialog` is **not** compound — see the
+carved exception below.
 
 **When to ship as compound:** when wrapping a Radix primitive that already
 exposes multiple parts. Match Radix's part names one-to-one
@@ -57,8 +97,8 @@ redeclarations, never a Radix type — see
 **Why match Radix one-to-one rather than collapse:** Radix's parts share refs,
 context, and aria attributes internally. Collapsing them into a single component
 breaks those wires. It also strips the consumer's ability to inject custom
-content into specific slots — a custom icon inside `DialogTitle`, an extra
-className on `DialogContent`, etc.
+content into specific slots — a custom icon inside a `SelectItem`, an extra
+className on `TooltipContent`, etc.
 
 ### Flat — the consumer uses one component
 
@@ -69,7 +109,7 @@ className on `DialogContent`, etc.
 ```
 
 Used by: `Button`, `Input`, `Badge`, `Callout`, `Spinner`, `Text`, `Textarea`,
-`Field`, `FieldSet`, `Checkbox`, `Switch`.
+`Field`, `FieldSet`, `Checkbox`, `Switch`, `DateCalendar`, `DateRangeCalendar`.
 
 **When to ship as flat:** when the component is one styled tag with variants
 and has at most one content injection point (its `children`). If consumers
@@ -88,7 +128,7 @@ section's default would prescribe for a multi-part Radix wrapper. This is a
 - **The common case is genuinely single-slot.** ~90% of avatar usage is
   `src` + `alt` + an initials `fallback` (a `string`). There is no real
   per-instance need to inject custom content into the image and fallback
-  slots independently — unlike `DialogTitle` / `DialogContent`, which
+  slots independently — unlike `SelectItem` / `TooltipContent`, which
   consumers routinely customise.
 - **Radix's wiring does NOT break.** The flat component still renders all
   three Radix parts internally (`Avatar.Image` inside `Avatar.Root`, with
@@ -108,8 +148,45 @@ The rule of thumb this carves out: a multi-part Radix primitive **may** ship
 flat when (a) the multi-slot composition has no real consumer use case, (b)
 the flat wrapper still renders every Radix part internally so no behaviour is
 lost, and (c) the withheld per-part props can be re-exposed additively later.
-If any of the three fails, default back to compound. `Avatar` is the only
-component on this exception today.
+If any of the three fails, default back to compound.
+
+### Carved exception — `Dialog` is curated props over a multi-part Radix primitive
+
+`Dialog` wraps `@radix-ui/react-dialog` (it renders Root / Portal / Overlay /
+Content / Title / Description / Close internally) but exports **one** component,
+`Dialog`, driven by curated props — controlled `isOpen` / `onOpenChange`,
+`title`, `description`, `children` for the body, and the footer slots
+`actionButton` / `cancelButton` / `subActionButton`. There is no public
+`DialogTrigger` / `DialogContent` / `DialogClose`. This is the second
+sanctioned exception, and its reason differs from Avatar's:
+
+- **The composition itself is what Dialog standardises.** A confirmation
+  dialog's footer — which buttons exist, their order, the `destructive`
+  mapping, a separator above them, the close ✕ — is exactly the part
+  consumers would otherwise assemble differently on every screen. Dialog
+  fixes it; consumers supply only the content and the button configs.
+- **It owns behaviour a compound API would hand back.** While any footer
+  button is `isLoading`, Dialog blocks every dismissal path (ESC, overlay
+  click, ✕); it wires `aria-describedby` only when a `description` exists
+  (conditional ARIA opt-out, §8); it warns when `actionButton.onClick` is
+  missing. With named parts, each consumer would have to re-implement these.
+- **Radix's wiring is intact.** The Radix parts are rendered internally, so
+  focus trap, `aria-labelledby` from the title, and portal stacking work as
+  Radix intends. (There is no `Trigger`: the dialog is controlled through
+  `isOpen`, so the consumer's own button opens it.)
+- **The withheld surface is recoverable additively.** Exporting the parts
+  later (a compound split) adds exports without changing `Dialog`.
+
+The rule of thumb this adds: a multi-part Radix primitive **may** ship as
+curated props when the **composition is the standard being shipped** (not
+just the common case, as for Avatar), the component owns behaviour that
+depends on that fixed composition, and conditions (b) and (c) above hold.
+This is also the shape lv2 follows — see
+[lv2-composition-guideline.md §4.1](lv2-composition-guideline.md#41-flat--curated-props-by-default-compound-is-not-allowed).
+`Dialog` stays lv1 because it introduces the Radix Dialog primitive itself
+(§1).
+
+`Avatar` and `Dialog` are the only components on these exceptions today.
 
 ### Special case — imperative APIs
 
@@ -269,18 +346,20 @@ const describedBy  = field?.describedBy  ?? props['aria-describedby']
 This applies uniformly to `Input`, `Textarea`, `Select`, `Checkbox`, `Switch`,
 `Radio`, and `RadioGroup`.
 
-### `id` (consumed only by externally-labelled components)
+### `id` (consumed by whatever the Field label names)
 
 `FieldContext.id` is specifically **the hookup id between an external `<label htmlFor>`
-and the input element**. It is consumed only by components that lack their own
-internal label:
+and the input element**. It is consumed by components the Field label names:
 
 | Consumes `field?.id` | Does not consume `field?.id` |
 |---|---|
-| `Input`, `Textarea`, `Select` | `Checkbox`, `Switch`, `Radio` |
+| `Input`, `Textarea`, `Select` | `Radio` |
+| `Checkbox`, `Switch` — only when the Field label names them | `Checkbox`, `Switch` — with an own `label` or explicit naming |
 
 Components with internal labels generate their own per-instance id (each
-checkbox is its own field).
+checkbox is its own field). `Checkbox` / `Switch` without an own `label` are
+named by the Field label, so they take `field.id` and that label activates them
+too — see `labelId` below.
 
 ### `labelId` (naming fallback for self-labelled / group components)
 
@@ -289,11 +368,10 @@ checkbox is its own field).
 hookup above cannot name two classes of children:
 
 - **Self-labelled components without an own `label`** —
-  `<Field label="Notifications"><Switch /></Field>` would otherwise leave the
-  Switch unnamed (the Field label's `htmlFor` points at the unconsumed
-  `field.id`). `Checkbox` / `Switch` apply
-  `aria-labelledby={field?.labelId}` only when they have no own `label` and
-  the consumer passed no explicit naming prop.
+  `<Field label="Notifications"><Switch /></Field>`. `Checkbox` / `Switch`
+  apply `aria-labelledby={field?.labelId}` only when they have no own `label`
+  and the consumer passed no explicit naming prop. They take `field.id` in the
+  same case, so the label that names the control also activates it.
 - **`RadioGroup`** — a `role="radiogroup"` div cannot be reached by
   `htmlFor` at all; the group root always applies `aria-labelledby` unless
   the consumer names it explicitly.
@@ -330,9 +408,10 @@ importing from a higher one) are forbidden.
 | Layer | May import from |
 |---|---|
 | [`lib/`](../../src/lib) (`cn`, `mergeRefs`) | external only (React, clsx) |
+| [`date/`](../../src/date) | nothing — no React, no dependency |
 | [`contexts/`](../../src/contexts), [`variants/`](../../src/variants) | external only (React, cva) |
-| [`components/lv1/`](../../src/components/lv1) | `lib/`, `contexts/`, `variants/`, **other `lv1/`** |
-| [`components/lv2/`](../../src/components/lv2) | `lib/`, `contexts/`, `variants/`, `lv1/`, other `lv2/` |
+| [`components/lv1/`](../../src/components/lv1) | `lib/`, `date/`, `contexts/`, `variants/`, **other `lv1/`** |
+| [`components/lv2/`](../../src/components/lv2) | `lib/`, `date/`, `contexts/`, `variants/`, `lv1/`, other `lv2/` |
 
 ### Key rules
 
@@ -351,50 +430,55 @@ importing from a higher one) are forbidden.
 
 ## 7. lv1-local CSS files
 
-Most styling lives in Tailwind classes composed through CVA. A `.css` file
-next to a `.tsx` is allowed **only** when the styling expresses something
-Tailwind / CVA cannot reasonably express.
+Every lv1 ships **one** `{Component}.css` next to its `.tsx`, and that file
+holds **all** of the component's visual rules. Since
+[#154](https://github.com/yasmro/schatten/issues/154) it is the source of
+truth for the public `.st-*` class API ([css-api.md](css-api.md)), and since
+[#317](https://github.com/yasmro/schatten/issues/317) the dist that ships it
+is Tailwind-free. Consequences:
 
-> **Exception — `.st-{block}` class API definitions.** The `{Component}.css`
-> files added by [#154](https://github.com/yasmro/schatten/issues/154)
-> sweep-1〜7 are **exempt from the table below**: they ARE the SSOT for
-> the public class API per [css-api.md](css-api.md), and authoring them
-> with `@apply` against semantic tokens is the intended pattern. CVA
-> simplifies to class-name concatenation only, and the visual rules
-> (static colors, spacing, typography, hover/focus, light/dark, layout)
-> all land in the component's own `.css` under `@layer components`. The
-> table below remains the rule for any *other* lv1-local CSS — animation,
-> scoped variables, `prefers-reduced-motion`, conditional
-> `animation-play-state`.
+- **Everything visual goes in the `.css`, inside `@layer components`** —
+  colors, spacing, typography, hover / focus / state rules, light/dark
+  differences, layout, `@keyframes`, `prefers-reduced-motion`, and
+  component-scoped CSS variables (`--st-spinner-duration`).
+- **Raw CSS with `var(--color-*)`, never `@apply`.** lightningcss does not
+  process Tailwind directives, so `@apply` would ship as a broken at-rule
+  ([css-api.md §raw CSS over `@apply`](css-api.md#component-css-authoring-conventions--raw-css-over-apply)).
+- **Semantic tokens only**, never primitive scales (`var(--red-600)`) —
+  [state-token-guideline](state-token-guideline.md).
+- **No Tailwind utilities in component JSX.** Consumers have no Tailwind.
+  CVA only concatenates `.st-*` class names
+  ([api-stability.md §CVA output stability](api-stability.md#cva-output-stability)).
+  Tailwind remains a Storybook-only tool for story layout scaffolding.
+  Machine-enforced for lv1 and lv2 by
+  [`no-tailwind-in-component-jsx.test.ts`](../../src/components/__tests__/no-tailwind-in-component-jsx.test.ts)
+  — every class literal in `className="…"`, a `className={…}` expression,
+  or `cn(…)` must start with `st-`, and so must every class a `cva(…)`
+  definition in `src/variants/` can emit. Storybook masks a violation (it loads Tailwind), which is how
+  Dialog's footer order shipped broken until
+  [#575](https://github.com/yasmro/schatten/issues/575).
+- **One `.css` per component.** A second stylesheet for the same component
+  needs a reason the single file cannot carry (none exists today).
 
-| Allowed | Not allowed |
-|---|---|
-| `@keyframes` animations (declarative, multi-stop) | Static colors, spacing, typography (use semantic tokens + CVA) |
-| `animation-play-state` / `animation-delay` conditional on `[data-state]` | Hover/focus state styles (use Tailwind variants) |
-| `prefers-reduced-motion` media queries that disable animation | Light/dark adjustments (use CSS variables + `dark:`) |
-| CSS variable definitions scoped to the component (e.g. `--st-spinner-duration`) | Layout / flexbox / grid (use Tailwind) |
-
-**Existing exceptions today** (all animation-only, all comply):
+Examples of the less obvious rules that live in these files:
 
 - [`Tooltip.css`](../../src/components/lv1/Tooltip/Tooltip.css) — directional
-  enter/exit slide+fade animations driven by Radix `[data-state]` and
-  `[data-side]`. Per-side composed `animation:` shorthand is impractical
-  in Tailwind.
-- [`Dialog.css`](../../src/components/lv1/Dialog/Dialog.css) — overlay
-  fade and content zoom keyframes. Documents the `translate:` /
-  `transform: translate(...)` interaction with Tailwind v4 in an inline
-  comment.
+  enter/exit animations driven by Radix `[data-state]` and `[data-side]`.
+- [`Dialog.css`](../../src/components/lv1/Dialog/Dialog.css) — overlay fade
+  and content zoom keyframes, with an inline note on how `translate:` and
+  `transform: translate(...)` interact.
 - [`Toast.css`](../../src/components/lv1/Toast/Toast.css) — dissolve-in /
-  dissolve-out keyframes and swipe-handoff animation.
-- [`Spinner.css`](../../src/components/lv1/Spinner/Spinner.css) — ripple
-  and breathe keyframes; declares two component-scoped CSS variables
-  (`--st-spinner-duration`, `--st-spinner-ripple-delay`)
-  that consumers can override.
+  dissolve-out keyframes and the swipe hand-off animation.
+- [`Spinner.css`](../../src/components/lv1/Spinner/Spinner.css) — ripple and
+  breathe keyframes, plus two component-scoped variables
+  (`--st-spinner-duration`, `--st-spinner-ripple-delay`) consumers can
+  override.
 
-**Review check:** if a PR adds a `.css` file under `src/components/lv1/`,
-the reviewer must verify each rule satisfies the "not expressible in
-Tailwind / CVA" bar above. If any rule could be a Tailwind class, move
-it.
+**Review check:** a PR that touches an lv1 `.css` must keep it raw CSS
+(no `@apply` / `@theme` / Tailwind syntax), on semantic tokens, inside
+`@layer components`, with state expressed through attributes rather than
+state classes ([css-api.md](css-api.md#state-is-expressed-as-attributes-not-classes)).
+A PR that adds a second `.css` for one component must say why.
 
 ## 8. Accessibility contract
 
@@ -427,7 +511,9 @@ fallback — that policy only holds if the contract below holds.
      themselves.
    - An explicit `role="…"` written by Schatten — used only when
      neither of the above gives the right semantic. Current explicit
-     uses: [Spinner](../../src/components/lv1/Spinner/Spinner.tsx)
+     uses: [DateCalendar](../../src/components/lv1/DateCalendar/CalendarView.tsx)
+     (`role="grid"` + `role="gridcell"`, self-implemented, no Radix primitive),
+     [Spinner](../../src/components/lv1/Spinner/Spinner.tsx)
      (`role="status"`),
      [Separator](../../src/components/lv1/Separator/Separator.tsx)
      (`role="separator"` when `decorative={false}`, else
@@ -453,7 +539,11 @@ fallback — that policy only holds if the contract below holds.
      (a count that updates, a "saved"/"error" indicator that appears in
      response to an action). These are live-region roles; using one on a
      never-changing badge makes assistive tech re-announce it on
-     unrelated DOM mutations and is the wrong semantic. A Badge whose
+     unrelated DOM mutations and is the wrong semantic. **`status` must
+     already be mounted when its content changes** — a status region that
+     mounts together with its content is usually not read out, so put it
+     on a wrapper that stays mounted. `alert` does not need this: most
+     screen readers announce an alert when it is inserted. A Badge whose
      *consumer* drives such updates should have the consumer pass the
      live-region role (Badge's consumer-role-wins rule supports this);
      Schatten does not bake it in because most badges are static.
@@ -476,7 +566,7 @@ fallback — that policy only holds if the contract below holds.
      Toast title, Callout title.
    - **`aria-labelledby` auto-wired by Radix** — Dialog (`Title` →
      `aria-labelledby` on Content,
-     [Dialog.tsx:44](../../src/components/lv1/Dialog/Dialog.tsx:44)).
+     [Dialog.tsx](../../src/components/lv1/Dialog/Dialog.tsx)).
    - **`<label htmlFor>` paired through `FieldContext`** —
      externally-labelled form inputs (Input, Textarea, Select). See
      [field-context-guideline](field-context-guideline.md).
@@ -489,13 +579,13 @@ fallback — that policy only holds if the contract below holds.
      [field-context-guideline](field-context-guideline.md#naming-via-labelid-self-labelled--group-components).
    - **`aria-label`** — icon-only or symbol-only triggers. Required
      where a button has no readable text content: Dialog close ✕
-     ([Dialog.tsx:217](../../src/components/lv1/Dialog/Dialog.tsx:217)),
+     ([Dialog.tsx](../../src/components/lv1/Dialog/Dialog.tsx)),
      Callout close ✕
-     ([Callout.tsx:120](../../src/components/lv1/Callout/Callout.tsx:120)),
+     ([Callout.tsx](../../src/components/lv1/Callout/Callout.tsx)),
      Toast close ✕
-     ([Toast.tsx:102](../../src/components/lv1/Toast/Toast.tsx:102)),
+     ([Toast.tsx](../../src/components/lv1/Toast/Toast.tsx)),
      Field tooltip info icon
-     ([Field.tsx:104](../../src/components/lv1/Field/Field.tsx:104)).
+     ([Field.tsx](../../src/components/lv1/Field/Field.tsx)).
 
    The contract: `getByRole(role, { name })` returns the component. If
    it does not, the component has no usable accessible name and the
@@ -507,13 +597,12 @@ fallback — that policy only holds if the contract below holds.
      inner wrappers.)
    - Activates with the role-appropriate key (`Enter` / `Space` for
      buttons; `Arrow` keys for Radio / Select).
-   - A visible focus indicator — every interactive variant in
-     [src/variants/](../../src/variants/) bakes
-     `focus-visible:outline-none focus-visible:ring-2
-     focus-visible:ring-ring focus-visible:ring-offset-2` into its
-     base class. Do not strip this chain. If a layout conflicts,
-     replace it with an equivalent visible indicator, do not delete
-     it.
+   - A visible focus indicator — every interactive block declares a
+     `:focus-visible` rule in its `.css` that draws the ring from
+     `--color-ring` / `--color-ring-offset` (e.g. `.st-btn:focus-visible`
+     in [Button.css](../../src/components/lv1/Button/Button.css)). Do
+     not remove it. If a layout conflicts, replace it with an
+     equivalent visible indicator, do not delete it.
 
    For Radix-based components the keyboard wiring is implemented by
    Radix. The contract here is to **not break** it — don't override
@@ -535,7 +624,7 @@ fallback — that policy only holds if the contract below holds.
    - **Loading** — component-specific. Button uses
      `aria-hidden={!isLoading}` on its inline spinner so the spinner
      only enters the accessibility tree while loading
-     ([Button.tsx:131](../../src/components/lv1/Button/Button.tsx:131)).
+     ([Button.tsx](../../src/components/lv1/Button/Button.tsx)).
    - **Required** — Field propagates its `required` to the wrapped
      control as `aria-required` (announce-only) through `FieldContext`,
      mirroring `isError → aria-invalid`. It does **not** enable native
@@ -558,9 +647,9 @@ fallback — that policy only holds if the contract below holds.
   inside Dialog's footer. When you add an icon, add it.
 - **Components that intentionally have no default role** —
   [Callout](../../src/components/lv1/Callout/Callout.tsx) ships
-  role-less and documents in TSDoc that consumers should pass
-  `role="status"` (polite) or `role="alert"` (assertive) when the
-  callout content is dynamic. Don't bake in a role that's wrong half
+  role-less and documents in TSDoc how consumers announce a callout that
+  appears at runtime: `role="alert"` (assertive) on the callout, or
+  `role="status"` (polite) on a wrapper that stays mounted. Don't bake in a role that's wrong half
   the time — make the absence explicit and tell the consumer how to
   fill it.
 - **Conditional ARIA opt-out** — when a default-wired ARIA reference
@@ -568,20 +657,23 @@ fallback — that policy only holds if the contract below holds.
   conditionally as `undefined` rather than letting Radix emit a
   dangling reference. Dialog does this for `aria-describedby` when
   `description` is absent
-  ([Dialog.tsx:273](../../src/components/lv1/Dialog/Dialog.tsx:273)).
+  ([Dialog.tsx](../../src/components/lv1/Dialog/Dialog.tsx)).
 
 ### Hard rules
 
 - **Do not** wrap interactive content in a `<div>` with `onClick` and
   call it a button. Use `<button>` (or `<Button>`), or a Radix
   primitive that renders a button.
-- **Do not** rely on color alone to convey state. `isError` must add
-  both `aria-invalid` (for assistive tech) and `border-error` (for
-  sighted users) — both are required, never either-or. Same for
+- **Do not** rely on color alone to convey state. `isError` must set
+  `aria-invalid` (for assistive tech), and the error border is drawn by
+  the CSS rule that targets that same attribute (for sighted users) —
+  both are required, never either-or. Same for
   Callout / Toast variants.
-- **Do not** strip the `focus-visible:ring-*` chain from a variant
-  base class. Override the ring color if you need contrast on a
-  colored surface (see Input's `has-focus-visible:ring-error` for the
+- **Do not** strip the `:focus-visible` ring rule from an interactive
+  block's CSS. Override the ring color if you need contrast on a
+  colored surface (see Input's
+  `.st-input-wrapper:has(.st-input[aria-invalid="true"]:focus-visible)`
+  in [Input.css](../../src/components/lv1/Input/Input.css) for the
   pattern), but never disable it outright.
 - **Do not** introduce `tabIndex={-1}` on the root of a focusable
   component. It's correct on inner wrappers when focus lives
@@ -615,8 +707,9 @@ fallback — that policy only holds if the contract below holds.
 
 ## When this rule changes
 
-- **§1 (lv2 promotion criterion):** will be defined as a follow-up rule
-  when the first lv2 lands (scoped post-1.0).
+- **§1 (lv2):** the promotion criterion and every other lv2 rule live in
+  [lv2-composition-guideline.md](lv2-composition-guideline.md) (#492). Keep
+  §1 to the folder table and the pointer; change lv2 rules there.
 - **§3 (`asChild`):** the authoritative adoption list lives in
   [component-api-conventions.md](component-api-conventions.md). Keep
   this file's §3 narrowed to the *additional* constraints

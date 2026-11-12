@@ -19,7 +19,8 @@
  * - `.st-field__description`      — the description `<label htmlFor>`.
  *                                   Rendered as a `<label>` (not a
  *                                   `<p>`) so clicking the description
- *                                   focuses the input — see
+ *                                   focuses the input. It does not
+ *                                   toggle a Checkbox / Switch — see
  *                                   field-context-guideline.md.
  * - `.st-field__error`            — the error `<p>` below children.
  *

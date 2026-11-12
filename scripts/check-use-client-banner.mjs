@@ -52,7 +52,12 @@ for (const file of reactBundles) {
 }
 
 // Must NOT carry the directive — framework-agnostic bundles.
-const agnosticBundles = ['dist/variants/index.js', 'dist/tokens/index.js', 'dist/themes/seasonal/index.js']
+const agnosticBundles = [
+  'dist/variants/index.js',
+  'dist/tokens/index.js',
+  'dist/date/index.js',
+  'dist/themes/seasonal/index.js',
+]
 for (const file of agnosticBundles) {
   if (existsSync(file) && firstLine(file) === DIRECTIVE) {
     errors.push(`unexpected ${DIRECTIVE} on framework-agnostic bundle — ${file}`)

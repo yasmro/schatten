@@ -9,7 +9,11 @@ Schatten ships two parallel rendering paths:
 
 Both paths emit the same class string, render against the same compiled
 stylesheet (`dist/schatten.css`), and must produce visually identical
-output. This document is the **class-API contract** consumers code
+output.
+The two-path guarantee covers **lv1**. lv2 (composite) components ship on
+the React path only — their classes are in the manifest for React consumers
+to override, but rendering them from vanilla HTML is outside the contract
+([lv2-composition-guideline.md §5.0](lv2-composition-guideline.md#50-lv2-is-react-only)). This document is the **class-API contract** consumers code
 against when they reach for the CSS path: the prefix, the BEM shape,
 how state is expressed, how `@layer` cascades, how dark and seasonal
 themes compose on top, and the "no color-only signal" rule.
@@ -107,9 +111,10 @@ Schatten classes follow a strict three-form BEM:
   `st-dialog__content` is fine, `st-dialog__content__header` is not.
   If a hierarchy is needed, the sub-element gets its own peer entry
   (`st-dialog__header`).
-- **No primitive utility classes inside component CSS.** Component
-  rules use semantic tokens (`@apply bg-error text-foreground-muted`)
-  — never primitive utilities (`bg-red-500`, `text-gray-700`). The
+- **No primitive values inside component CSS.** Component rules use
+  semantic tokens (`color: var(--color-foreground-muted)`) — never
+  primitive scales (`var(--red-600)`) or primitive utility classes
+  (`bg-red-500`, `text-gray-700`). The
   [`no-primitive-color` Biome plugin](lint-rules-guideline.md#no-primitive-color--error)
   catches this on JSX; CVA `.ts` files and component `.css` files
   remain a code-review concern.
@@ -198,6 +203,11 @@ directly:
 | Read-only | `:read-only` (HTML) | `.st-input:read-only` |
 | Error / invalid | `[aria-invalid="true"]` | `.st-input[aria-invalid="true"]` |
 | Loading / busy | `[aria-busy="true"]` | `.st-btn[aria-busy="true"]` |
+| Selected date cell | `[aria-selected="true"]` | `.st-date-calendar__cell[aria-selected="true"]` |
+| Unavailable date cell, disabled calendar | `[aria-disabled="true"]` | `.st-date-calendar__cell[aria-disabled="true"]` |
+| Today | `[aria-current="date"]` | `.st-date-calendar__day[aria-current="date"]` |
+| Position in a date range | `[data-range-start]` / `[data-range-end]` / `[data-range-middle]` | `.st-date-calendar__cell[data-range-middle]` |
+| Adjacent-month day | `[data-outside]` | `.st-date-calendar__cell[data-outside]` |
 | Radix runtime state | `[data-state="open" \| "closed" \| "checked" \| …]` | `.st-dialog__content[data-state="open"]` |
 | Radix popper side | `[data-side="top" \| "right" \| "bottom" \| "left"]` | `.st-tooltip__content[data-side="bottom"]` |
 | Toast swipe | `[data-swipe="start" \| "move" \| "end" \| "cancel"]` | `.st-toast[data-swipe="end"]` |
@@ -534,7 +544,7 @@ The base layer is light. Dark and seasonal palettes layer on top of
 
 ### Pattern 1 — token-driven (default, preferred)
 
-Most rules consume CSS custom properties: `@apply bg-solid` or
+Most rules consume CSS custom properties:
 `background-color: var(--color-solid);`. When `.dark` flips
 `--color-solid` to its dark value, the rule resolves to the new
 colour at paint time without a dedicated dark selector. **Don't
@@ -595,10 +605,10 @@ enforced structurally:
   Stripping the icon or the title to "clean up" the markup breaks
   this contract.
 - **Focus indication is a ring, not a colour swap.** Every
-  interactive `.st-*` rule includes
-  `focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2`
-  via `@apply`. Removing the ring to fit a layout is a contract
-  violation — replace it with an equivalent visible indicator
+  interactive `.st-*` block has a `:focus-visible` rule that draws a
+  ring from `--color-ring` / `--color-ring-offset` (e.g.
+  `.st-btn:focus-visible`). Removing the ring to fit a layout is a
+  contract violation — replace it with an equivalent visible indicator
   instead.
 
 When you add a new component or modifier, walk this list before
@@ -646,9 +656,10 @@ public and how to name it.
    reach for the appropriate HTML / ARIA / Radix attribute selector
    from the table above.
 3. **Author inside `@layer components`** in the component's own
-   `.css` file under `src/components/lv1/{Component}/`. Use
-   `@apply` with semantic tokens (`@apply bg-solid
-   text-solid-foreground`), never primitive utilities.
+   `.css` file under `src/components/lv1/{Component}/`. Write raw CSS
+   against semantic tokens (`background-color: var(--color-solid)`),
+   never `@apply` and never primitive scales — see
+   [§raw CSS over `@apply`](#component-css-authoring-conventions--raw-css-over-apply).
 4. **Verify both modes.** Storybook → Color / Foundation, toggle
    light/dark. If the new modifier is part of a Special's
    allowlist, verify each Special as well.

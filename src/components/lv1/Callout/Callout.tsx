@@ -71,10 +71,16 @@ export interface CalloutProps
  * Body content can be passed either as `children` (for rich JSX) or as
  * the `description` prop (matches Toast's API for plain-text bodies).
  *
- * The component does not assign an ARIA role by default. For dynamic
- * callouts that should be announced when they appear, pass
- * `role="status"` (polite) or `role="alert"` (assertive). For static
- * informational callouts no role is needed.
+ * The component does not assign an ARIA role by default. For static
+ * informational callouts no role is needed. To announce one that appears at
+ * runtime:
+ * - **Assertive** — pass `role="alert"`. Most screen readers announce an alert
+ *   when it is inserted.
+ * - **Polite** — put `role="status"` on a wrapper that stays mounted and render
+ *   the callout inside it. A status region announces changes to its content,
+ *   so one that mounts together with its content is usually not read out.
+ *   Passing `role="status"` to the callout itself only works when it is
+ *   already mounted before its text changes.
  */
 export const Callout = forwardRef<HTMLDivElement, CalloutProps>(
   (

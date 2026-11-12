@@ -1,7 +1,10 @@
 import { createContext, useContext } from 'react'
 
 export interface FieldContextValue {
-  /** Input element id */
+  /**
+   * The id the Field label's `htmlFor` points at. Taken by externally-labelled
+   * controls, and by a Checkbox / Switch the Field label names.
+   */
   id: string
   /**
    * Id of the `<label>` element Field renders. Consumed via `aria-labelledby`

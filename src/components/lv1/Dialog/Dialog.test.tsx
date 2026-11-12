@@ -2,6 +2,7 @@ import { fireEvent, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { useState } from 'react'
 import { describe, expect, it, vi } from 'vitest'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../Select'
 import { Dialog, type DialogProps } from './Dialog'
 
 type ControlledOverrides = Partial<Omit<DialogProps, 'isOpen' | 'onOpenChange'>>
@@ -21,6 +22,22 @@ const Controlled = ({
       actionButton={{ label: 'Confirm', onClick: () => {} }}
       {...overrides}
     />
+  )
+}
+
+function WithSelect() {
+  return (
+    <Controlled>
+      <Select>
+        <SelectTrigger aria-label="Fruit">
+          <SelectValue placeholder="Pick a fruit" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="apple">Apple</SelectItem>
+          <SelectItem value="banana">Banana</SelectItem>
+        </SelectContent>
+      </Select>
+    </Controlled>
   )
 }
 
@@ -205,6 +222,37 @@ describe('Dialog', () => {
     expect(screen.queryByText('Test dialog')).not.toBeInTheDocument()
   })
 
+  // Radix tracks which layer an ESC / outside click belongs to through
+  // module-level context in @radix-ui/react-dismissable-layer. When Dialog
+  // and Select resolve two copies of it, both layers handle the same ESC and
+  // the Dialog closes along with the Select. That happened in the published
+  // dist (react-dialog sat in devDependencies and was bundled) and in this
+  // repo whenever react-dialog lagged behind the other Radix packages.
+  describe('with a Select open inside the body', () => {
+    it('closes only the Select on ESC', async () => {
+      const user = userEvent.setup()
+      render(<WithSelect />)
+
+      await user.click(screen.getByRole('combobox', { name: 'Fruit' }))
+      expect(await screen.findByRole('listbox')).toBeInTheDocument()
+
+      await user.keyboard('{Escape}')
+      expect(screen.queryByRole('listbox')).not.toBeInTheDocument()
+      expect(screen.getByRole('dialog', { name: 'Test dialog' })).toBeInTheDocument()
+    })
+
+    it('stays open after an option is picked', async () => {
+      const user = userEvent.setup()
+      render(<WithSelect />)
+
+      await user.click(screen.getByRole('combobox', { name: 'Fruit' }))
+      await user.click(await screen.findByRole('option', { name: 'Banana' }))
+
+      expect(screen.getByRole('combobox', { name: 'Fruit' })).toHaveTextContent('Banana')
+      expect(screen.getByRole('dialog', { name: 'Test dialog' })).toBeInTheDocument()
+    })
+  })
+
   it('blocks overlay click dismissal when a footer button is loading', () => {
     render(<Controlled actionButton={{ label: 'Confirm', onClick: () => {}, isLoading: true }} />)
 
@@ -276,6 +324,61 @@ describe('Dialog', () => {
     expect(document.querySelector('.st-dialog__body')).not.toBeNull()
     expect(document.querySelector('.st-dialog__footer')).not.toBeNull()
     expect(document.querySelector('.st-dialog__close')).not.toBeNull()
+  })
+
+  describe('footer layout classes (#575)', () => {
+    const renderFull = () =>
+      render(
+        <Controlled
+          cancelButton={{ label: 'Cancel' }}
+          subActionButton={{ label: 'Delete', onClick: () => {} }}
+        />,
+      )
+
+    it('marks each footer button with its sub-element class', () => {
+      renderFull()
+      expect(screen.getByRole('button', { name: 'Confirm' })).toHaveClass('st-dialog__action')
+      expect(screen.getByRole('button', { name: 'Cancel' })).toHaveClass('st-dialog__cancel')
+      expect(screen.getByRole('button', { name: 'Delete' })).toHaveClass('st-dialog__sub-action')
+    })
+
+    it('marks the separator with both the Dialog and Separator classes', () => {
+      renderFull()
+      const separator = document.querySelector('.st-dialog__separator')
+      expect(separator).toHaveClass('st-separator')
+    })
+
+    it('keeps the footer DOM order action → cancel → separator → sub-action', () => {
+      // The focus trap relies on this order (action gets initial focus);
+      // the visual order is recovered by `order` in Dialog.css.
+      renderFull()
+      const footer = document.querySelector('.st-dialog__footer')
+      const order = Array.from(footer?.children ?? []).map(
+        (child) => Array.from(child.classList).find((c) => c.startsWith('st-dialog__')) ?? '',
+      )
+      expect(order).toEqual([
+        'st-dialog__action',
+        'st-dialog__cancel',
+        'st-dialog__separator',
+        'st-dialog__sub-action',
+      ])
+    })
+
+    it('emits no Tailwind order utilities on the footer children', () => {
+      renderFull()
+      const footer = document.querySelector('.st-dialog__footer')
+      for (const child of Array.from(footer?.children ?? [])) {
+        for (const className of Array.from(child.classList)) {
+          expect(className.startsWith('st-'), className).toBe(true)
+        }
+      }
+    })
+
+    it('omits the separator when there is no sub-action', () => {
+      render(<Controlled cancelButton={{ label: 'Cancel' }} />)
+      expect(document.querySelector('.st-dialog__separator')).toBeNull()
+      expect(document.querySelector('.st-dialog__sub-action')).toBeNull()
+    })
   })
 
   it('exposes the dialog frame by role + accessible name (from title)', () => {

@@ -5,6 +5,9 @@
 
 export type CellState = 'present' | 'missing' | 'exempt' | 'na'
 
+/** Which component layer a row belongs to. */
+export type Layer = 'lv1' | 'lv2'
+
 export interface AuditFiles {
   readonly tsx: CellState
   readonly css: CellState
@@ -12,9 +15,11 @@ export interface AuditFiles {
   readonly test: CellState
   readonly vrt: CellState
   /**
-   * Non-screenshot Playwright interaction test — required for classification
-   * C/D (== the parity-exempt set), `na` for A/B. See vrt-spec-guideline
-   * §"区分 C/D (JS 必須) — a Playwright interaction test is REQUIRED".
+   * Non-screenshot Playwright interaction test — required for lv1
+   * classification C/D (== the parity-exempt set), `na` for A/B. For lv2,
+   * required only for the components in {@link LV2_INTERACTIVE}. See
+   * vrt-spec-guideline §"区分 C/D (JS 必須) — a Playwright interaction test is
+   * REQUIRED" and lv2-composition-guideline §6.1.
    */
   readonly interaction: CellState
   readonly index: CellState
@@ -46,6 +51,12 @@ export interface AuditFiles {
 
 export interface AuditRow {
   readonly name: string
+  /**
+   * `lv2` rows use the reduced lv2 audit (lv2-composition-guideline §6.1):
+   * `css` is `present` or `na`, and `cssApiFixture` / the parity columns are
+   * always `na`.
+   */
+  readonly layer: Layer
   readonly files: AuditFiles
   readonly missing: readonly string[]
   /**
@@ -58,26 +69,27 @@ export interface AuditRow {
 }
 
 export interface AuditResult {
+  /** lv1 rows. */
   readonly rows: readonly AuditRow[]
+  /** Entries in `src/components/lv1/index.ts` with no matching directory. */
   readonly orphanedExports: readonly string[]
-  /**
-   * True when `src/components/lv2/` contains at least one direct
-   * subdirectory (a real component, not just the empty placeholder).
-   * Stays false while the dir exists but is empty — see
-   * scripts/audit-coverage.mjs `runAudit` for the rationale.
-   */
-  readonly lv2HasComponents: boolean
+  /** lv2 rows — empty while `src/components/lv2/` holds only its barrel. */
+  readonly lv2Rows: readonly AuditRow[]
+  /** Entries in `src/components/lv2/index.ts` with no matching directory. */
+  readonly lv2OrphanedExports: readonly string[]
 }
 
 export interface RenderTableOptions {
   readonly format?: 'markdown' | 'plain'
   readonly generatedAt?: string
   readonly orphanedExports?: readonly string[]
-  readonly lv2HasComponents?: boolean
+  readonly lv2Rows?: readonly AuditRow[]
+  readonly lv2OrphanedExports?: readonly string[]
 }
 
 export interface RenderJsonOptions {
   readonly generatedAt?: string
+  readonly lv2Rows?: readonly AuditRow[]
 }
 
 /**
@@ -87,6 +99,14 @@ export interface RenderJsonOptions {
  * pinned by scripts/__tests__/audit-coverage.test.ts.
  */
 export const PARITY_EXEMPT: ReadonlySet<string>
+
+/**
+ * lv2 components that are interactive (open / close / select / confirm / sync
+ * values) and so must ship a non-screenshot Playwright interaction test.
+ * Hand-maintained in alphabetical order; pinned by
+ * scripts/__tests__/audit-coverage.test.ts. See lv2-composition-guideline §6.2.
+ */
+export const LV2_INTERACTIVE: ReadonlySet<string>
 
 /**
  * Components whose a11y contract exposes a role + accessible name on their own
@@ -99,7 +119,7 @@ export const ROLE_NAME_CONTRACT: Readonly<Record<string, string>>
 /**
  * Components intentionally OUT of the `roleTest` gate (no role+accessible-name-
  * on-self contract). Together with {@link ROLE_NAME_CONTRACT} this forms an
- * exhaustive, disjoint partition of the lv1 tree — enforced by
+ * exhaustive, disjoint partition of the lv1 + lv2 trees — enforced by
  * {@link roleContractPartitionGaps} so a new component missing from both sets
  * fails CI instead of silently defaulting to `na`.
  */
@@ -166,6 +186,13 @@ export function auditComponent(opts: {
    * check (the `cssApiFixture` column resolves to `na`).
    */
   fixtureSlugs?: Set<string> | null
+  /** Component layer. `lv2` switches to the reduced lv2 audit. @default 'lv1' */
+  layer?: Layer
+  /**
+   * lv2 only: whether the component is in {@link LV2_INTERACTIVE} (→ the
+   * interaction column is required). Ignored for lv1. @default false
+   */
+  interactive?: boolean
 }): AuditRow
 
 export function renderTable(rows: readonly AuditRow[], opts?: RenderTableOptions): string
@@ -174,4 +201,7 @@ export function renderJson(rows: readonly AuditRow[], opts?: RenderJsonOptions):
 
 export function runAudit(projectDir: string): AuditResult
 
-export function hasFailures(result: Pick<AuditResult, 'rows' | 'orphanedExports'>): boolean
+export function hasFailures(
+  result: Pick<AuditResult, 'rows' | 'orphanedExports'> &
+    Partial<Pick<AuditResult, 'lv2Rows' | 'lv2OrphanedExports'>>,
+): boolean

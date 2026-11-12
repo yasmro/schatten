@@ -1,0 +1,213 @@
+/*
+ * DatePicker / DateRangePicker — block classes only
+ * (lv2-composition-guideline §5.2). Both share one frame: the root draws the
+ * border, the surface and the focus ring, because a date range needs two inputs
+ * and a button inside one box. The inner `.st-input-wrapper` gives those up.
+ *
+ * State reads off the inner `.st-input`, in Input.css's source order:
+ * default < [aria-invalid] < :read-only < :disabled.
+ *
+ * The input keeps its `size` height and takes -1px block margins, so the frame's
+ * border stays inside that height and the root lines up with `Input`. The button
+ * sits inset in the frame: its hover fill must not touch the border.
+ *
+ * With a time, each range input holds 16 characters, so `--minute` takes two rows,
+ * start above end, with no separator: one row would not fit a form column. The
+ * button spans both rows because it opens the whole range.
+ *
+ * `.st-date-picker-panel` is the popover panel. It portals out of the block, so
+ * no descendant selector reaches it and it needs a block of its own. With a time,
+ * its first child is the row of date and time inputs; `--range` shows two months.
+ * The row and its sides are the picker's own wrappers, selected by what they are
+ * not (§5.2).
+ *
+ * lv2 is React-only: the inner DOM is not public, so the selectors below are
+ * free to rely on it. Child combinators keep them off anything else.
+ */
+@layer components {
+  .st-date-picker,
+  .st-date-range-picker {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    border: 1px solid var(--color-border-strong);
+    background-color: transparent;
+    transition:
+      background-color 200ms,
+      border-color 200ms;
+  }
+
+  /* :is() reaches the specificity of Input.css's state rules, which would
+   * otherwise repaint the wrapper inside the frame. */
+  .st-date-picker > .st-input-wrapper,
+  .st-date-range-picker > .st-input-wrapper,
+  .st-date-picker
+    > .st-input-wrapper:has(.st-input:is([aria-invalid="true"], :focus-visible, :read-only)),
+  .st-date-range-picker
+    > .st-input-wrapper:has(.st-input:is([aria-invalid="true"], :focus-visible, :read-only)) {
+    flex: 1 1 0;
+    min-width: 0;
+    margin-block: -1px;
+    border: 0;
+    background-color: transparent;
+    box-shadow: none;
+  }
+
+  /* Each square is the frame's inner height minus a 3px inset on both sides,
+   * which leaves a 24px target at `sm`. */
+  .st-date-picker > .st-btn,
+  .st-date-range-picker > .st-btn {
+    flex: none;
+    margin-inline: 0.1875rem;
+  }
+
+  .st-date-picker > .st-btn--sm,
+  .st-date-range-picker > .st-btn--sm {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+
+  .st-date-picker > .st-btn--md,
+  .st-date-range-picker > .st-btn--md {
+    width: 2rem;
+    height: 2rem;
+  }
+
+  .st-date-picker > .st-btn--lg,
+  .st-date-range-picker > .st-btn--lg {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+
+  /* The separator and the button already space the inputs, and a whole date
+   * has to fit at `lg` in a narrow form column. */
+  .st-date-range-picker > .st-input-wrapper {
+    padding-inline-end: 0;
+  }
+
+  .st-date-range-picker > .st-text {
+    flex: none;
+    margin-inline-end: 0.75rem;
+  }
+
+  .st-date-range-picker--minute {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .st-date-range-picker--minute > .st-btn {
+    grid-row: 1 / span 2;
+    grid-column: 2;
+  }
+
+  /* A line between the two inputs. It is a background because the wrapper gives
+   * up its border in every state above. */
+  .st-date-range-picker--minute > .st-input-wrapper:first-child {
+    background-image: linear-gradient(var(--color-border), var(--color-border));
+    background-repeat: no-repeat;
+    background-position: bottom;
+    background-size: 100% 1px;
+  }
+
+  .st-date-picker:has(.st-input:focus-visible),
+  .st-date-range-picker:has(.st-input:focus-visible) {
+    box-shadow:
+      0 0 0 2px var(--color-ring-offset),
+      0 0 0 4px var(--color-ring);
+  }
+
+  .st-date-picker:has(.st-input[aria-invalid="true"]),
+  .st-date-range-picker:has(.st-input[aria-invalid="true"]) {
+    border-color: var(--color-error);
+    background-color: var(--color-error-subtle);
+  }
+
+  .st-date-picker:has(.st-input[aria-invalid="true"]:focus-visible),
+  .st-date-range-picker:has(.st-input[aria-invalid="true"]:focus-visible) {
+    box-shadow:
+      0 0 0 2px var(--color-ring-offset),
+      0 0 0 4px var(--color-error);
+  }
+
+  .st-date-picker:has(.st-input:read-only),
+  .st-date-range-picker:has(.st-input:read-only) {
+    border-color: var(--color-border-readonly);
+    background-color: var(--color-surface-readonly);
+  }
+
+  .st-date-picker:has(.st-input:disabled),
+  .st-date-range-picker:has(.st-input:disabled) {
+    border-color: var(--color-border-disabled);
+    background-color: var(--color-surface-disabled);
+  }
+
+  /* Two months side by side. Below 38rem of screen they would not fit, so the
+   * panel keeps Popover's width and the months stack (DateRangeCalendar wraps). */
+  @media (min-width: 38rem) {
+    .st-popover__content.st-date-picker-panel--range {
+      max-width: min(38rem, var(--radix-popover-content-available-width, 100vw));
+    }
+  }
+
+  /* The row of inputs. `width: 0` keeps it out of the panel's own width, which
+   * the calendar sets; `min-width` then takes all of it back. No line under it:
+   * the calendar below is drawn in tones, not lines, and the gap is enough. The
+   * inputs keep Input's strong border, which a pale one would push under 3:1
+   * against the panel (WCAG 1.4.11). */
+  .st-date-picker-panel > :not(.st-date-calendar) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    width: 0;
+    min-width: 100%;
+    align-items: flex-end;
+    margin-block-end: 1rem;
+  }
+
+  /* One end of a range: a date and its time. A single picker's row holds its
+   * two Fields directly and is laid out by the row rule above. */
+  .st-date-picker-panel--range > :not(.st-date-calendar) > :not(.st-text) {
+    display: flex;
+    flex: 1 1 13rem;
+    gap: 0.5rem;
+    align-items: flex-end;
+    /* Without it the inputs' intrinsic width wraps the ends onto two lines even
+     * where they fit on one. */
+    min-width: 0;
+  }
+
+  .st-date-picker-panel .st-field {
+    min-width: 0;
+    gap: 0.25rem;
+  }
+
+  .st-date-picker-panel .st-field:first-child {
+    flex: 3 1 0;
+  }
+
+  .st-date-picker-panel .st-field:last-child {
+    flex: 2 1 0;
+  }
+
+  /* Field's label is sized for a form; in the panel it only names the input, a
+   * step under the `md` value it labels, which stays the strongest text there. */
+  .st-date-picker-panel .st-field__label {
+    color: var(--color-foreground-muted);
+    font-size: 0.75rem;
+    font-weight: 500;
+    line-height: 1rem;
+  }
+
+  /* The dash between the ends sits on the inputs' centre line, like the frame's,
+   * and only while the ends share a line. */
+  .st-date-picker-panel > :not(.st-date-calendar) > .st-text {
+    flex: none;
+    line-height: 2.5rem;
+  }
+
+  @media (max-width: 37.99rem) {
+    .st-date-picker-panel > :not(.st-date-calendar) > .st-text {
+      display: none;
+    }
+  }
+}

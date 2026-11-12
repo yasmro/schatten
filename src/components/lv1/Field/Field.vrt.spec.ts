@@ -53,3 +53,27 @@ for (const story of stories) {
     })
   }
 }
+
+// jsdom can dispatch the click, but only a real pointer proves nothing sits on
+// top of the label. A bare control is named by this label, so it must also
+// toggle. Its description must not: that text is there to be read.
+const namedControls = [
+  ['with-switch', 'switch', 'Notifications', 'Enable push notifications.'],
+  ['label-usage-patterns', 'checkbox', 'Accept the terms', 'Required to continue.'],
+] as const
+
+for (const [story, role, name, description] of namedControls) {
+  test(`Field / the label toggles a bare ${role}, the description does not`, async ({ page }) => {
+    await page.goto(storyUrl(story, 'light'))
+    await page.waitForLoadState('networkidle')
+
+    const control = page.getByRole(role, { name })
+    await expect(control).toHaveAttribute('data-state', 'unchecked')
+
+    await page.getByText(description, { exact: true }).click()
+    await expect(control).toHaveAttribute('data-state', 'unchecked')
+
+    await page.getByText(name, { exact: true }).click()
+    await expect(control).toHaveAttribute('data-state', 'checked')
+  })
+}

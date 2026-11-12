@@ -54,6 +54,12 @@ function lintAt(relPath: string, code: string): string {
 
 describe('noRestrictedImports — core / variants / themes boundary', () => {
   describe('flags React-tree imports inside the scoped paths', () => {
+    it('flags `react` import in src/date/**', () => {
+      expect(lintAt('src/date/_fixture.ts', `import * as React from 'react'\n`)).toMatch(
+        /noRestrictedImports/,
+      )
+    })
+
     it('flags `react` import in src/core/**', () => {
       expect(lintAt('src/core/_fixture.ts', `import * as React from 'react'\n`)).toMatch(
         /noRestrictedImports/,

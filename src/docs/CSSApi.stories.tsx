@@ -1,5 +1,5 @@
 // Component CSS for vanilla examples — loaded for the side-effect.
-// All 24 lv1 components are listed explicitly. Tooltip and Select
+// All 26 lv1 components are listed explicitly. Tooltip and Select
 // were missing from this list pre-#313 and rendered correctly by
 // accident (Field transitively imports Tooltip; Select.css happened
 // to be in adjacent story chunks at dev time). In the Storybook
@@ -13,6 +13,7 @@ import '../components/lv1/Button/Button.css'
 import '../components/lv1/Callout/Callout.css'
 import '../components/lv1/Card/Card.css'
 import '../components/lv1/Checkbox/Checkbox.css'
+import '../components/lv1/DateCalendar/DateCalendar.css'
 import '../components/lv1/Dialog/Dialog.css'
 import '../components/lv1/DropdownMenu/DropdownMenu.css'
 import '../components/lv1/Field/Field.css'
@@ -34,6 +35,7 @@ import '../components/lv1/Toast/Toast.css'
 import '../components/lv1/Tooltip/Tooltip.css'
 
 import type { Meta, StoryObj } from '@storybook/react-vite'
+import { DateRangeCalendar } from '../components/lv1/DateCalendar'
 
 /**
  * # CSS API
@@ -210,7 +212,7 @@ const CodeBlock = ({ children }: { children: string }) => (
 )
 
 export const Reference: Story = {
-  name: 'Reference (all 25 lv1 components)',
+  name: 'Reference (all 26 lv1 components)',
   parameters: {
     // The reference renders every documented treatment, including the solid
     // fills whose white-foreground small text is the documented intentional
@@ -667,7 +669,7 @@ export const Reference: Story = {
             </div>
           </div>
           <CodeBlock>{`<!-- Layout is on .st-callout itself — sub-elements sit directly under it -->
-<div class="st-callout st-callout--info st-callout--subtle" role="status">
+<div class="st-callout st-callout--info st-callout--subtle">
   <svg class="st-callout__icon" aria-hidden="true">…</svg>
   <div class="st-callout__content">
     <div class="st-callout__title">Heads up</div>
@@ -1442,7 +1444,7 @@ export const Reference: Story = {
         <Section
           id="dialog"
           title="Dialog — .st-dialog__*"
-          intro="Modal overlay + content panel mounted into a portal. Dialog has no .st-dialog block root: Radix's Root emits no DOM, and Overlay + Content are sibling portal children. The 8 sub-element classes below are the SSOT. Vanilla HTML consumers DO NOT get Radix's focus trap, ESC dismissal, or aria-* auto-wiring — those must be implemented separately if needed."
+          intro="Modal overlay + content panel mounted into a portal. Dialog has no .st-dialog block root: Radix's Root emits no DOM, and Overlay + Content are sibling portal children. The 12 sub-element classes below are the SSOT. Vanilla HTML consumers DO NOT get Radix's focus trap, ESC dismissal, or aria-* auto-wiring — those must be implemented separately if needed."
           attributes={[
             {
               name: 'role="dialog"',
@@ -1494,13 +1496,18 @@ export const Reference: Story = {
        cap-height of the dialog frame.</p>
   </div>
   <div class="st-dialog__footer">
-    <!-- Visual order in vanilla = DOM order. React side reverses for
-         Radix focus reasons (Action gets initial focus); vanilla
-         consumers just write left → right. -->
+    <!-- Write the React DOM order (action first, so it is the first
+         tabbable). The footer sub-element classes recover the visual
+         order: stacked on mobile, "Delete … Cancel Confirm" from sm+.
+         Cancel / sub-action (+ its separator) are optional. -->
     <button type="button"
-            class="st-btn st-btn--secondary st-btn--md">Cancel</button>
+            class="st-btn st-btn--primary st-btn--md st-dialog__action">Confirm</button>
     <button type="button"
-            class="st-btn st-btn--primary st-btn--md">Confirm</button>
+            class="st-btn st-btn--secondary st-btn--md st-dialog__cancel">Cancel</button>
+    <div class="st-separator st-separator--horizontal st-dialog__separator"
+         aria-hidden="true"></div>
+    <button type="button"
+            class="st-btn st-btn--tertiary st-btn--md st-dialog__sub-action">Delete</button>
   </div>
   <div class="st-dialog__close">
     <button type="button"
@@ -1522,7 +1529,12 @@ export const Reference: Story = {
 <!-- .st-dialog__body         children scroll region — capped height,
                               overflow-y-auto inside the frame -->
 <!-- .st-dialog__footer       flex container; column on mobile, row on
-                              sm+; per-button order is consumer's call -->
+                              sm+ -->
+<!-- .st-dialog__action       footer action button; rightmost on sm+ -->
+<!-- .st-dialog__cancel       footer cancel button; left of action on sm+ -->
+<!-- .st-dialog__separator    rule above the sub-action; mobile only -->
+<!-- .st-dialog__sub-action   footer sub-action button; pushed to the
+                              left edge on sm+ -->
 <!-- .st-dialog__close        absolute-positioned wrapper for the
                               close ✕ button (top-right) -->
 
@@ -1780,6 +1792,46 @@ export const Reference: Story = {
 <!-- bare .st-card has no fill / shadow — degrades to the plain look -->
 
 <!-- Sub-elements: __header / __title / __description / __content / __footer -->`}</CodeBlock>
+        </Section>
+
+        <Section
+          id="datecalendar"
+          title="DateCalendar — .st-date-calendar"
+          intro="Month grid shared by DateCalendar and DateRangeCalendar. The class API covers the static shape only: navigation, selection and the roving tabindex need JS. Out of pattern, with no size axis. State is attribute-driven and lives on the cell: [aria-selected], [aria-disabled], [data-outside], and for a range [data-range-start] / [data-range-end] / [data-range-middle]. Today is [aria-current=&quot;date&quot;] on __day. Add .st-date-range-calendar next to .st-date-calendar to lay several months side by side. Name the grid with aria-labelledby pointing at __caption, and keep aria-live on the caption so a month change is announced."
+        >
+          <div className="cssapi-doc__row">
+            <DateRangeCalendar
+              aria-label="Stay"
+              today="2026-10-24"
+              defaultValue={{ from: '2026-10-13', to: '2026-10-22' }}
+            />
+          </div>
+          <CodeBlock>{`<div class="st-date-calendar" role="group" aria-label="Check-in">
+  <div class="st-date-calendar__months">
+    <div class="st-date-calendar__month">
+      <div class="st-date-calendar__header">
+        <button class="st-date-calendar__nav st-date-calendar__nav--previous" aria-label="Previous month">…</button>
+        <div class="st-date-calendar__caption" id="caption" aria-live="polite">October 2026</div>
+        <button class="st-date-calendar__nav st-date-calendar__nav--next" aria-label="Next month">…</button>
+      </div>
+      <table class="st-date-calendar__grid" role="grid" aria-labelledby="caption">
+        <thead><tr><th class="st-date-calendar__weekday" scope="col">Sun</th>…</tr></thead>
+        <tbody>
+          <tr>
+            <td class="st-date-calendar__cell" role="gridcell" aria-selected="true">
+              <button class="st-date-calendar__day" aria-label="October 20, 2026">20</button>
+            </td>
+            …
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Sub-elements: __months / __month / __header / __nav / __nav-icon / __caption /
+     __selects / __select / __grid / __weekday / __cell / __day -->
+<!-- Modifiers: __nav--previous / __nav--next / __caption--hidden -->`}</CodeBlock>
         </Section>
 
         <Section

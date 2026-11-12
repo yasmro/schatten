@@ -49,22 +49,28 @@
 @layer components {
   /* ===== wrapper ===== */
   .st-switch-wrapper {
+    --schatten-switch-gap: 0.5rem;
     display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
-    cursor: pointer;
-  }
-  .st-switch-wrapper:has(.st-switch:disabled) {
-    cursor: not-allowed;
+    gap: var(--schatten-switch-gap);
   }
   .st-switch-wrapper__label {
+    position: relative;
     color: var(--color-foreground);
     cursor: pointer;
     user-select: none;
   }
-  .st-switch-wrapper:has(.st-switch:disabled) .st-switch-wrapper__label {
-    cursor: not-allowed;
-    color: var(--color-foreground-disabled);
+  /* Stretches the label's hit area over the wrapper's gap, which would
+   * otherwise neither activate the control nor show the pointer cursor.
+   * Out of flow, so the layout is exactly the plain `gap`. Assumes the label
+   * follows the control in the inline direction: on a reversed or column
+   * wrapper this sits on the far side of the label instead of in the gap. */
+  .st-switch-wrapper__label::before {
+    content: "";
+    position: absolute;
+    inset-block: 0;
+    inset-inline-end: 100%;
+    inline-size: var(--schatten-switch-gap);
   }
   /* line-height must be set alongside font-size — see the matching comment
    * in Checkbox.css for the rationale. */
@@ -79,6 +85,10 @@
   .st-switch-wrapper:has(.st-switch--lg) .st-switch-wrapper__label {
     font-size: 1rem;
     line-height: 1.5rem;
+  }
+  .st-switch-wrapper:has(.st-switch:disabled) .st-switch-wrapper__label {
+    cursor: not-allowed;
+    color: var(--color-foreground-disabled);
   }
 
   /* ===== block ===== */
@@ -167,14 +177,6 @@
       transform 200ms,
       background-color 200ms;
   }
-  .st-switch[data-state="checked"] .st-switch__thumb {
-    background-color: var(--color-background);
-  }
-  .st-switch:disabled .st-switch__thumb,
-  .st-switch:disabled[data-state="checked"] .st-switch__thumb {
-    background-color: var(--color-foreground-disabled);
-  }
-
   .st-switch--sm .st-switch__thumb {
     width: 0.75rem;
     height: 0.75rem;
@@ -199,6 +201,13 @@
   .st-switch--lg[data-state="checked"] .st-switch__thumb {
     transform: translateX(21px);
   }
+  .st-switch[data-state="checked"] .st-switch__thumb {
+    background-color: var(--color-background);
+  }
+  .st-switch:disabled .st-switch__thumb,
+  .st-switch:disabled[data-state="checked"] .st-switch__thumb {
+    background-color: var(--color-foreground-disabled);
+  }
 
   /* ===== check icon =====
    * Fades in on the checked state — same attribute pattern as thumb. */
@@ -213,9 +222,6 @@
     color: currentColor;
     opacity: 0;
     transition: opacity 200ms;
-  }
-  .st-switch[data-state="checked"] .st-switch__check {
-    opacity: 1;
   }
   .st-switch__check > svg {
     width: 100%;
@@ -232,5 +238,8 @@
   .st-switch--lg .st-switch__check {
     width: 0.875rem;
     height: 0.875rem;
+  }
+  .st-switch[data-state="checked"] .st-switch__check {
+    opacity: 1;
   }
 }

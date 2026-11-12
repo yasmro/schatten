@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 // Build per-component CSS files into `dist/css/<slug>.css`.
 //
-// These ship the `.st-*` rules for a single lv1 component, minified, with no
+// These ship the `.st-*` rules for a single lv1 component — or an lv2 that
+// has visual rules of its own (lv2-composition-guideline §5.4) — minified, with no
 // tokens / reset / preflight baked in — consumers compose tokens separately
 // via `@yasmro/schatten/tokens` (or `@yasmro/schatten/core/tokens`). Each
 // output is published through `package.json#exports` as
@@ -39,7 +40,7 @@ import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { transform } from 'lightningcss'
 import { TW4_BASELINE_TARGETS } from './build-css.mjs'
-import { discoverLv1WithCss } from './lv1-slugs.mjs'
+import { discoverLv1WithCss, discoverLv2 } from './lv1-slugs.mjs'
 
 const DIST_DIR = 'dist/css'
 
@@ -50,7 +51,12 @@ function discoverComponents() {
   // lv1 is missing its `.css` companion (the post-#154 class-API
   // contract). The `check-lv1-companions` PostToolUse hook catches
   // this at edit time; this build-time throw is the backstop.
-  return discoverLv1WithCss().map((entry) => ({
+  //
+  // lv2s are added only when they carry a `.css` — an lv2 without own
+  // visual rules has no subpath to ship (lv2-composition-guideline §5.4).
+  // The `./css/*` export is a wildcard, so building the file is enough.
+  const entries = [...discoverLv1WithCss(), ...discoverLv2().filter((entry) => entry.hasCss)]
+  return entries.map((entry) => ({
     name: entry.name,
     slug: entry.slug,
     srcCss: entry.css,

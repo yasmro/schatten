@@ -33,33 +33,23 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      # Preview mirrors the production directory split (#449): the two
-      # surfaces live side by side under named directories —
-      #   pr/<n>/site/       docs site
+      # Preview mirrors the production directory split (#449 / #502):
       #   pr/<n>/storybook/  Storybook
-      #   pr/<n>/            a router page (below) — the same shape the
-      #                      production Pages root will take, so the preview
-      #                      doubles as its prototype.
+      #   pr/<n>/            the production router page (below)
+      # The public site lives in yasmro/schatten-site since #563, so there is
+      # no site build to preview here; the router sends non-`?path=` visitors
+      # to the production schatten-site.
       - name: Build Storybook
         env:
           STORYBOOK_BASE: /schatten/pr/${{ github.event.pull_request.number }}/storybook/
         run: pnpm build:storybook
 
-      - name: Build library (dist the docs site consumes)
-        run: pnpm build
-
-      - name: Build docs site
-        env:
-          DOCS_BASE: /schatten/pr/${{ github.event.pull_request.number }}/site/
-        run: pnpm --filter schatten-docs build
-
-      - name: Assemble preview (site/ + storybook/ + router index)
+      - name: Assemble preview (storybook/ + router index)
         run: |
-          mkdir -p preview-dist/storybook preview-dist/site
+          mkdir -p preview-dist/storybook
           cp -r storybook-static/. preview-dist/storybook/
-          cp -r apps/docs/dist/. preview-dist/site/
           # Router page — the SAME file production deploys to the Pages root
-          # (deploy-site.yml), so the preview tree mirrors production exactly.
+          # (deploy-pages-root.yml), so the preview tree mirrors production.
           cp .github/pages-root/index.html preview-dist/index.html
 
       - name: Deploy preview
@@ -89,7 +79,6 @@ jobs:
 
             | | |
             |---|---|
-            | 🌐 Docs site | https://yasmro.github.io/schatten/pr/${{ github.event.pull_request.number }}/site/ |
             | 📖 Storybook | https://yasmro.github.io/schatten/pr/${{ github.event.pull_request.number }}/storybook/ |
 
             _Updated for commit ${{ github.event.pull_request.head.sha }}_

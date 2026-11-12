@@ -1,8 +1,13 @@
 # Brand Concept
 
-> 本書は `apps/docs` のブランドページ（#449 Phase 3）の **SSOT**。
+> 本書は公開サイト [`yasmro/schatten-site`](https://github.com/yasmro/schatten-site)
+> のブランドページ（`src/pages/[...locale]/brand.astro`、#449 Phase 3）の **SSOT**。
 > サイトはこれを描画するだけで、ブランドの一次情報を持たない
 > （#449 論点 (3) の「新しい view は既存 SSOT の消費者として設計する」原則）。
+>
+> サイトは 2026-10-19 に `apps/docs` から別リポへ切り出されたが、本書は
+> ライブラリ側に残す（#563）。§1 の事実は本リポの token ファイルから検証する
+> 内容なので、token を変える PR と同じ PR で直せる場所に置く。
 >
 > **§1 はコードから検証できる事実のみ**（数値は v1.0.0 時点）。
 > §2–3 が確定したコンセプト、§4 が唯一の未決事項。
@@ -227,7 +232,8 @@ BEM / CVA）。**表層**は和の美学語彙でできている（朱・墨・�
 
 ## 6. サイトへの反映（Phase 3）
 
-`apps/docs` にブランドページを追加する。データソースは**本書（手書きプローズ）**、
+ブランドページは [`yasmro/schatten-site`](https://github.com/yasmro/schatten-site)
+にある（#563 までは本リポの `apps/docs`）。データソースは**本書（手書きプローズ）**、
 ただし色・書体・季節の**値はすべて生成**し、drift を防ぐ
 （#449 論点 (3) の SSOT → 消費者マップに行を追加する）。
 
@@ -239,6 +245,10 @@ BEM / CVA）。**表層**は和の美学語彙でできている（朱・墨・�
 | 朱 ≠ 紅 の対比 | 同上 | 同上 |
 | 季節ランプ（八節） | `src/themes/seasonal/themes.css` | 同上 |
 | 型の尺度（`--text-*` / `--leading-*`） | `dist/schatten.css` | 同上 |
+
+サイトはライブラリを npm から消費するので、上表の `dist/schatten.css` は
+サイト側では公開版の `@yasmro/schatten/schatten.css` を指す。値が変わっても、
+サイトに反映されるのは次のリリース以降になる。
 
 ### Storybook `Tokens/*` との線引き（二重化の回避）
 

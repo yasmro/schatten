@@ -64,7 +64,20 @@ describe('extractManifest', () => {
       ])
     })
 
-    it('captures aria-invalid and aria-busy (the two ARIA state hooks)', () => {
+    it('captures the date cell ARIA state hooks', () => {
+      const css = `
+        .st-date-calendar__cell[aria-selected="true"] { color: red; }
+        .st-date-calendar__cell[aria-disabled="true"] { color: red; }
+        .st-date-calendar__day[aria-current="date"] { color: red; }
+      `
+      expect(extractManifest(css).dataAttributes).toEqual([
+        'aria-current',
+        'aria-disabled',
+        'aria-selected',
+      ])
+    })
+
+    it('captures aria-invalid and aria-busy', () => {
       const css = `
         .st-input[aria-invalid="true"] { border-color: red; }
         .st-btn[aria-busy="true"] { cursor: wait; }

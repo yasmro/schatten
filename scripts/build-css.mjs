@@ -33,6 +33,7 @@
 import { mkdirSync, writeFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { bundle } from 'lightningcss'
+import { isCliEntry } from './is-cli-entry.mjs'
 
 // Tailwind v4 baseline: Safari 16.4, Chrome 111, Firefox 128.
 // lightningcss encodes versions as (major << 16) | (minor << 8) | patch.
@@ -70,9 +71,7 @@ export function buildSchattenCss(entry = 'src/styles/entry.css') {
   return DIST_BANNER + code.toString('utf8')
 }
 
-const isCliEntry = import.meta.url === `file://${resolve(process.argv[1] ?? '')}`
-
-if (isCliEntry) {
+if (isCliEntry(import.meta.url)) {
   const outPath = resolve('dist/schatten.css')
   try {
     const css = buildSchattenCss()

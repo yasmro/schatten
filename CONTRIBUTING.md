@@ -64,7 +64,13 @@ the Claude Code skill. Before writing code, read the component rules:
 [css-api.md](.claude/rules/css-api.md), and
 [state-token-guideline.md](.claude/rules/state-token-guideline.md).
 
-`pnpm audit:coverage` reports any missing companion file across every lv1 —
+A new `lv2` composite has its own scaffold in
+[`.claude/skills/add-lv2-component/`](.claude/skills/add-lv2-component). Its
+`SKILL.md` starts from the promotion criterion in
+[lv2-composition-guideline.md](.claude/rules/lv2-composition-guideline.md).
+
+`pnpm audit:coverage` reports any missing companion file across every lv1
+(and every lv2, with the smaller lv2 companion set) —
 run it locally; the CI `audit` job runs the same check.
 
 ### Adding or changing a rule
@@ -96,11 +102,13 @@ jobs one-to-one, so a green local run is a green CI run.
 | `pnpm test --run` | Vitest unit suite. |
 | `pnpm test:vrt` | Playwright visual regression (compare only). |
 | `pnpm test:a11y` | `@axe-core/playwright` — zero WCAG 2.1 A/AA violations. |
+| `pnpm test:tz` | DateCalendar date math under four time zones. |
+| `pnpm test:webkit` | DateCalendar interaction spec on WebKit (local only; run `pnpm exec playwright install webkit` once). |
 | `pnpm size` | Per-entry bundle-size budgets in [`.size-limit.json`](.size-limit.json). |
 | `pnpm check:manifest` | The public CSS class / variable manifest matches the committed snapshot. |
 | `pnpm check:layer-order` | The `@layer` declaration in the dist matches [css-api.md](.claude/rules/css-api.md). |
 | `pnpm check:doc-links` | Relative links & heading anchors in the prose docs resolve. |
-| `pnpm check:readme` | README's component list matches the lv1 directories on disk. |
+| `pnpm check:readme` | README's component list and support matrix match the lv1 / lv2 directories on disk. |
 | `pnpm audit:coverage` | Every lv1 has its required companion files. |
 
 `pnpm lint:fix` auto-fixes the formatter-safe subset — review its diff before
@@ -119,6 +127,26 @@ discipline** (always run `pnpm test:vrt` and inspect the `*-diff.png` before
 > A new `*.vrt.spec.ts` needs its `__snapshots__/` baseline **committed by
 > you** — CI runs `pnpm test:vrt` in compare-only mode and does *not* generate
 > baselines, so a spec with no committed PNG fails CI on the first run.
+
+### `vrt` failed without running any test — re-run it
+
+The `vrt` job runs on GitHub's `macos-latest` runners, which are sometimes
+short on capacity. When no runner picks the job up, GitHub cancels it after
+~15 minutes and the PR shows **`vrt` fail**, the same as a real visual
+regression ([#582](https://github.com/yasmro/schatten/issues/582)). Tell the
+two apart before reading any diff:
+
+| | Runner not acquired | Real VRT failure |
+|---|---|---|
+| Steps in the job log | none | checkout → … → `pnpm test:vrt` (red) |
+| Annotation | `The job was not acquired by Runner of type hosted even after multiple attempts` (often with `Due to capacity constraints, jobs targeting macOS arm64 runners may experience longer queue times.`) | Playwright errors |
+| `vrt-diff` artifact / `🔴 VRT Failed` comment | none | present |
+| Fix | **Re-run the job** (`gh run rerun <run-id> --failed`) — no code change needed | Follow the re-baselining procedure |
+
+When it happens, add the run URL to
+[#582](https://github.com/yasmro/schatten/issues/582) so we can see how often
+it recurs; an automatic re-run (or moving VRT off macOS, #87) is decided from
+that count.
 
 ## Accessibility
 

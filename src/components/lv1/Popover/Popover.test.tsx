@@ -28,7 +28,59 @@ function BasicPopover(props: {
   )
 }
 
+// Canonical separate-anchor usage: an explicit PopoverAnchor positions the
+// panel, and a separate button toggles controlled `open` — NOT a
+// PopoverTrigger (rendering both gives Radix two competing anchors). See
+// the WithAnchor story.
+function AnchoredPopover() {
+  const [open, setOpen] = useState(false)
+  return (
+    <>
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverAnchor data-testid="anchor">
+          <span>anchor region</span>
+        </PopoverAnchor>
+        <PopoverContent>
+          <p>Anchored body</p>
+        </PopoverContent>
+      </Popover>
+      <Button onClick={() => setOpen((o) => !o)}>Toggle</Button>
+    </>
+  )
+}
+
 describe('Popover', () => {
+  it('stays open when onInteractOutside is prevented', async () => {
+    const user = userEvent.setup()
+    render(
+      <>
+        <button type="button">Outside</button>
+        <Popover defaultOpen>
+          <PopoverContent onInteractOutside={(event) => event.preventDefault()}>
+            Panel
+          </PopoverContent>
+        </Popover>
+      </>,
+    )
+    await user.click(screen.getByRole('button', { name: 'Outside', hidden: true }))
+    expect(screen.getByText('Panel')).toBeInTheDocument()
+  })
+
+  it('leaves focus alone when onCloseAutoFocus is prevented', async () => {
+    const user = userEvent.setup()
+    render(
+      <Popover>
+        <PopoverTrigger>Open</PopoverTrigger>
+        <PopoverContent onCloseAutoFocus={(event) => event.preventDefault()}>
+          <button type="button">Inside</button>
+        </PopoverContent>
+      </Popover>,
+    )
+    await user.click(screen.getByRole('button', { name: 'Open' }))
+    await user.keyboard('{Escape}')
+    expect(screen.getByRole('button', { name: 'Open' })).not.toHaveFocus()
+  })
+
   it('renders a trigger reachable by role + name', () => {
     render(<BasicPopover />)
     const trigger = screen.getByRole('button', { name: 'Open' })
@@ -101,27 +153,6 @@ describe('Popover', () => {
   })
 
   describe('with PopoverAnchor', () => {
-    // Canonical separate-anchor usage: an explicit PopoverAnchor positions the
-    // panel, and a separate button toggles controlled `open` — NOT a
-    // PopoverTrigger (rendering both gives Radix two competing anchors). See
-    // the WithAnchor story.
-    function AnchoredPopover() {
-      const [open, setOpen] = useState(false)
-      return (
-        <>
-          <Popover open={open} onOpenChange={setOpen}>
-            <PopoverAnchor data-testid="anchor">
-              <span>anchor region</span>
-            </PopoverAnchor>
-            <PopoverContent>
-              <p>Anchored body</p>
-            </PopoverContent>
-          </Popover>
-          <Button onClick={() => setOpen((o) => !o)}>Toggle</Button>
-        </>
-      )
-    }
-
     it('renders the anchor and opens via a separate (non-trigger) button', async () => {
       const user = userEvent.setup()
       render(<AnchoredPopover />)

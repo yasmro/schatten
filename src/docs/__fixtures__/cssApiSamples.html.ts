@@ -212,7 +212,7 @@ export const vanillaHtml = `
 
 <section class="cssapi-fixture__sample" data-component="callout">
   <span class="cssapi-fixture__sample-label">Callout — .st-callout</span>
-  <div class="st-callout st-callout--info st-callout--subtle" role="status">
+  <div class="st-callout st-callout--info st-callout--subtle">
     <svg class="st-callout__icon" viewBox="0 0 24 24" fill="none"
          stroke="currentColor" stroke-width="2" stroke-linecap="round"
          stroke-linejoin="round" aria-hidden="true">
@@ -519,6 +519,90 @@ export const vanillaHtml = `
   </div>
 </section>
 
+<section class="cssapi-fixture__sample" data-component="datecalendar">
+  <span class="cssapi-fixture__sample-label">DateCalendar — .st-date-calendar (static markup; navigation and selection need JS)</span>
+  <div class="st-date-calendar" role="group" aria-label="Date">
+    <div class="st-date-calendar__months">
+      <div class="st-date-calendar__month">
+        <div class="st-date-calendar__header">
+          <button type="button" class="st-date-calendar__nav st-date-calendar__nav--previous" aria-label="Previous month">‹</button>
+          <div class="st-date-calendar__caption" id="fixture-date-caption" aria-live="polite">October 2026</div>
+          <button type="button" class="st-date-calendar__nav st-date-calendar__nav--next" aria-label="Next month">›</button>
+        </div>
+        <table class="st-date-calendar__grid" role="grid" aria-labelledby="fixture-date-caption">
+          <thead>
+            <tr>
+            <th scope="col" class="st-date-calendar__weekday">Sun</th>
+            <th scope="col" class="st-date-calendar__weekday">Mon</th>
+            <th scope="col" class="st-date-calendar__weekday">Tue</th>
+            <th scope="col" class="st-date-calendar__weekday">Wed</th>
+            <th scope="col" class="st-date-calendar__weekday">Thu</th>
+            <th scope="col" class="st-date-calendar__weekday">Fri</th>
+            <th scope="col" class="st-date-calendar__weekday">Sat</th>
+            </tr>
+          </thead>
+          <tbody>
+          <tr>
+            <td role="gridcell" class="st-date-calendar__cell" aria-disabled="true" data-outside="true"><span class="st-date-calendar__day">27</span></td>
+            <td role="gridcell" class="st-date-calendar__cell" aria-disabled="true" data-outside="true"><span class="st-date-calendar__day">28</span></td>
+            <td role="gridcell" class="st-date-calendar__cell" aria-disabled="true" data-outside="true"><span class="st-date-calendar__day">29</span></td>
+            <td role="gridcell" class="st-date-calendar__cell" aria-disabled="true" data-outside="true"><span class="st-date-calendar__day">30</span></td>
+            <td role="gridcell" class="st-date-calendar__cell"><button type="button" class="st-date-calendar__day" tabindex="-1" aria-label="October 1, 2026">1</button></td>
+            <td role="gridcell" class="st-date-calendar__cell"><button type="button" class="st-date-calendar__day" tabindex="-1" aria-label="October 2, 2026">2</button></td>
+            <td role="gridcell" class="st-date-calendar__cell"><button type="button" class="st-date-calendar__day" tabindex="-1" aria-label="October 3, 2026">3</button></td>
+          </tr>
+          <tr>
+            <td role="gridcell" class="st-date-calendar__cell"><button type="button" class="st-date-calendar__day" tabindex="-1" aria-label="October 4, 2026">4</button></td>
+            <td role="gridcell" class="st-date-calendar__cell"><button type="button" class="st-date-calendar__day" tabindex="-1" aria-label="October 5, 2026">5</button></td>
+            <td role="gridcell" class="st-date-calendar__cell"><button type="button" class="st-date-calendar__day" tabindex="-1" aria-label="October 6, 2026">6</button></td>
+            <td role="gridcell" class="st-date-calendar__cell"><button type="button" class="st-date-calendar__day" tabindex="-1" aria-label="October 7, 2026">7</button></td>
+            <td role="gridcell" class="st-date-calendar__cell"><button type="button" class="st-date-calendar__day" tabindex="-1" aria-label="October 8, 2026">8</button></td>
+            <td role="gridcell" class="st-date-calendar__cell"><button type="button" class="st-date-calendar__day" tabindex="-1" aria-label="October 9, 2026">9</button></td>
+            <td role="gridcell" class="st-date-calendar__cell"><button type="button" class="st-date-calendar__day" tabindex="-1" aria-label="October 10, 2026">10</button></td>
+          </tr>
+          <tr>
+            <td role="gridcell" class="st-date-calendar__cell"><button type="button" class="st-date-calendar__day" tabindex="-1" aria-label="October 11, 2026">11</button></td>
+            <td role="gridcell" class="st-date-calendar__cell"><button type="button" class="st-date-calendar__day" tabindex="-1" aria-label="October 12, 2026">12</button></td>
+            <td role="gridcell" class="st-date-calendar__cell"><button type="button" class="st-date-calendar__day" tabindex="-1" aria-label="October 13, 2026">13</button></td>
+            <td role="gridcell" class="st-date-calendar__cell"><button type="button" class="st-date-calendar__day" tabindex="-1" aria-label="October 14, 2026">14</button></td>
+            <td role="gridcell" class="st-date-calendar__cell"><button type="button" class="st-date-calendar__day" tabindex="-1" aria-label="October 15, 2026">15</button></td>
+            <td role="gridcell" class="st-date-calendar__cell"><button type="button" class="st-date-calendar__day" tabindex="-1" aria-label="October 16, 2026">16</button></td>
+            <td role="gridcell" class="st-date-calendar__cell"><button type="button" class="st-date-calendar__day" tabindex="-1" aria-label="October 17, 2026">17</button></td>
+          </tr>
+          <tr>
+            <td role="gridcell" class="st-date-calendar__cell"><button type="button" class="st-date-calendar__day" tabindex="-1" aria-label="October 18, 2026">18</button></td>
+            <td role="gridcell" class="st-date-calendar__cell"><button type="button" class="st-date-calendar__day" tabindex="-1" aria-label="October 19, 2026">19</button></td>
+            <td role="gridcell" class="st-date-calendar__cell" aria-selected="true"><button type="button" class="st-date-calendar__day" tabindex="0" aria-label="October 20, 2026">20</button></td>
+            <td role="gridcell" class="st-date-calendar__cell"><button type="button" class="st-date-calendar__day" tabindex="-1" aria-label="October 21, 2026">21</button></td>
+            <td role="gridcell" class="st-date-calendar__cell"><button type="button" class="st-date-calendar__day" tabindex="-1" aria-label="October 22, 2026">22</button></td>
+            <td role="gridcell" class="st-date-calendar__cell"><button type="button" class="st-date-calendar__day" tabindex="-1" aria-label="October 23, 2026">23</button></td>
+            <td role="gridcell" class="st-date-calendar__cell"><button type="button" class="st-date-calendar__day" tabindex="-1" aria-current="date" aria-label="October 24, 2026">24</button></td>
+          </tr>
+          <tr>
+            <td role="gridcell" class="st-date-calendar__cell"><button type="button" class="st-date-calendar__day" tabindex="-1" aria-label="October 25, 2026">25</button></td>
+            <td role="gridcell" class="st-date-calendar__cell"><button type="button" class="st-date-calendar__day" tabindex="-1" aria-label="October 26, 2026">26</button></td>
+            <td role="gridcell" class="st-date-calendar__cell"><button type="button" class="st-date-calendar__day" tabindex="-1" aria-label="October 27, 2026">27</button></td>
+            <td role="gridcell" class="st-date-calendar__cell"><button type="button" class="st-date-calendar__day" tabindex="-1" aria-label="October 28, 2026">28</button></td>
+            <td role="gridcell" class="st-date-calendar__cell"><button type="button" class="st-date-calendar__day" tabindex="-1" aria-label="October 29, 2026">29</button></td>
+            <td role="gridcell" class="st-date-calendar__cell"><button type="button" class="st-date-calendar__day" tabindex="-1" aria-label="October 30, 2026">30</button></td>
+            <td role="gridcell" class="st-date-calendar__cell"><button type="button" class="st-date-calendar__day" tabindex="-1" aria-label="October 31, 2026">31</button></td>
+          </tr>
+          <tr>
+            <td role="gridcell" class="st-date-calendar__cell" aria-disabled="true" data-outside="true"><span class="st-date-calendar__day">1</span></td>
+            <td role="gridcell" class="st-date-calendar__cell" aria-disabled="true" data-outside="true"><span class="st-date-calendar__day">2</span></td>
+            <td role="gridcell" class="st-date-calendar__cell" aria-disabled="true" data-outside="true"><span class="st-date-calendar__day">3</span></td>
+            <td role="gridcell" class="st-date-calendar__cell" aria-disabled="true" data-outside="true"><span class="st-date-calendar__day">4</span></td>
+            <td role="gridcell" class="st-date-calendar__cell" aria-disabled="true" data-outside="true"><span class="st-date-calendar__day">5</span></td>
+            <td role="gridcell" class="st-date-calendar__cell" aria-disabled="true" data-outside="true"><span class="st-date-calendar__day">6</span></td>
+            <td role="gridcell" class="st-date-calendar__cell" aria-disabled="true" data-outside="true"><span class="st-date-calendar__day">7</span></td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
 <section class="cssapi-fixture__sample" data-component="avatar">
   <span class="cssapi-fixture__sample-label">Avatar — .st-avatar</span>
   <div class="cssapi-fixture__sample-row">
@@ -552,4 +636,41 @@ export const vanillaHtml = `
     </table>
   </div>
 </section>
+`
+
+/**
+ * Dialog footer in the exact DOM order the React layer emits
+ * (action → cancel → separator → sub-action — action first so Radix's
+ * focus trap lands on it), rendered unscoped so `.st-dialog__content`
+ * keeps its real fixed / centered positioning and the 640px footer
+ * breakpoint resolves against the viewport.
+ *
+ * Consumed by `CSSApiDist.vrt.spec.ts` at a mobile and a desktop width:
+ * the visual order must come from the dist CSS alone, with no Tailwind
+ * on the page (#575 — the order used to live in Tailwind utilities on
+ * each `<Button>`, which the Tailwind-free dist does not ship).
+ */
+export const dialogFooterHtml = `
+<div class="st-dialog__overlay"></div>
+<div class="st-dialog__content" role="dialog" aria-modal="true"
+     aria-labelledby="footer-fixture-title">
+  <div class="st-dialog__header">
+    <h2 id="footer-fixture-title" class="st-dialog__title">Delete project?</h2>
+  </div>
+  <div class="st-dialog__footer">
+    <button type="button" class="st-btn st-btn--primary st-btn--md st-dialog__action">
+      <span class="st-btn__spinner-overlay" aria-hidden="true"></span>
+      <span class="st-btn__content">Confirm</span>
+    </button>
+    <button type="button" class="st-btn st-btn--secondary st-btn--md st-dialog__cancel">
+      <span class="st-btn__spinner-overlay" aria-hidden="true"></span>
+      <span class="st-btn__content">Cancel</span>
+    </button>
+    <div class="st-separator st-separator--horizontal st-dialog__separator" aria-hidden="true"></div>
+    <button type="button" class="st-btn st-btn--tertiary st-btn--md st-dialog__sub-action">
+      <span class="st-btn__spinner-overlay" aria-hidden="true"></span>
+      <span class="st-btn__content">Delete</span>
+    </button>
+  </div>
+</div>
 `

@@ -415,7 +415,7 @@ visual" — but only for components a vanilla consumer can realistically use.
 
 For components in the [#297](https://github.com/yasmro/schatten/issues/297)
 classification **区分 C (静的描画のみ)** or **区分 D (JS 必須)** — i.e.,
-Tooltip, Select, Dialog, Toast — **do not author a parity story or a
+Tooltip, Select, Dialog, Toast, DateCalendar — **do not author a parity story or a
 `*.parity.vrt.spec.ts`**. The class API still exists and is documented in the
 manifest, but there is no realistic vanilla use case to prove parity against:
 
@@ -701,6 +701,34 @@ would make every font/antialiasing nudge a failure):
 Rule of thumb: **the smaller the element carrying the meaning, the less VRT
 is protecting it** — pair it with a non-pixel assertion.
 
+#### A full-page shot dilutes a portal the same way
+
+The 1% is a share of the **whole image**, so a large frame hides a large change
+in a small region. A portal spec that follows the "screenshot the full page"
+advice above measures a popover against 1280×720 of mostly empty page.
+[#624](https://github.com/yasmro/schatten/issues/624) found it the hard way:
+`DateRangePicker`'s panel went from one month to two, and the new month's digits
+and caption changed 3,488 pixels — 0.38% of the page. The spec passed. Lowering
+the colour `threshold` to 0.05 did not help either: the panel surface and the
+page are close enough in tone that only the glyphs differ.
+
+Clip a portal shot to the component and its open panel, with a small margin,
+instead of `fullPage: true`:
+
+```ts
+await expect(page).toHaveScreenshot(`${story}-${theme}.png`, {
+  clip: await pickerClip(page), // union of the trigger's and the panel's boxes
+})
+```
+
+The same change is then 1.6% of the image and fails. Prove the clip before
+trusting it: crop the old full-page baseline to the new clip (`sips -c <h> <w>
+--cropOffset <y> <x>` on macOS) and confirm the spec fails against it.
+[`DatePicker.vrt.spec.ts`](../../src/components/lv2/DatePicker/DatePicker.vrt.spec.ts)
+is the reference. Lowering `maxDiffPixelRatio` would also catch it, but across
+the whole page it turns every font or antialiasing nudge between local and CI
+into a failure.
+
 ### The mirror trap — `rm` + regenerate without `test:vrt` first
 
 The complementary mistake is to **delete the PNG and regenerate immediately**
@@ -760,6 +788,33 @@ The procedure:
 The category-by-category triage is what saved #277 from shipping the
 preflight bug ─ the new baselines for `dist-schatten-css-*` would
 have looked "almost right" without that triage. Don't shortcut it.
+
+### Mono text is pinned to Menlo under automation (#581)
+
+`--font-mono` reads `ui-monospace, SFMono-Regular, "SF Mono", Menlo, …`.
+Chromium treats `ui-monospace` as an ordinary family name and finds nothing, so
+the stack moves on: to SF Mono where Apple's optional SF Mono package
+(`com.apple.pkg.SFMonoFonts`) is installed, and to Menlo everywhere else on
+macOS. The baselines match Menlo. SF Mono's line box is taller at small sizes,
+so on a Mac with the package every row of mono text pushed a local render off
+its baseline: 24 failures, including +21px on `CSS API / reference`. The cause
+is that package, not the macOS version.
+
+[`vrtFontPin.ts`](../../src/docs/__fixtures__/vrtFontPin.ts) defines a face named
+`ui-monospace` that points at Menlo, so the first name in the stack matches. It
+applies only under automation: `.storybook/preview.tsx` adds it when
+`navigator.webdriver` is set, which covers `pnpm review:shots` as well as VRT,
+and `CSSApiDist.vrt.spec.ts` adds it to its `setContent` page. The public token
+and what people see in Storybook don't change. A new spec that renders outside
+both paths must add `vrtFontPinCss` itself.
+
+It works in Chromium only, which is the only browser that takes screenshots.
+WebKit reads `ui-monospace` as a keyword and ignores the face, and the Playwright
+WebKit project runs interaction specs only.
+
+If a local run drifts on text rows only, check which font actually rendered
+(CDP `CSS.getPlatformFontsForNode` on an element using the **whole** stack, since
+`ui-monospace` alone reports a fallback) before suspecting your change.
 
 ## Snapshot Naming
 

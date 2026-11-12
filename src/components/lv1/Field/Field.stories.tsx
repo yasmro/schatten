@@ -304,6 +304,15 @@ export const LabelUsagePatterns: Story = {
 
       <div>
         <h3 className="text-sm font-semibold text-foreground-muted mb-3">
+          Checkbox: Field.label only (single option)
+        </h3>
+        <Field label="Accept the terms" description="Required to continue.">
+          <Checkbox />
+        </Field>
+      </div>
+
+      <div>
+        <h3 className="text-sm font-semibold text-foreground-muted mb-3">
           Standalone (without Field): Use component label
         </h3>
         <div className="flex flex-col gap-2">

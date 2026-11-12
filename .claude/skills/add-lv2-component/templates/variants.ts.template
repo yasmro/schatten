@@ -1,0 +1,26 @@
+import { cva, type VariantProps } from 'class-variance-authority'
+
+/**
+ * Variants for the `__ComponentName__` lv2 component — class-name concatenation
+ * only. The rules live in
+ * `src/components/lv2/__ComponentName__/__ComponentName__.css`.
+ *
+ * Deliberately NOT re-exported from `src/variants/index.ts`. The `/variants`
+ * entry is the way into Schatten for non-React consumers, and rendering an
+ * lv2's classes without its React component is outside the contract
+ * (lv2-composition-guideline §5.0). Exporting it later is additive (`minor`).
+ */
+export const __componentName__Variants = cva('st-__component-name__', {
+  variants: {
+    size: {
+      sm: 'st-__component-name__--sm',
+      md: 'st-__component-name__--md',
+      lg: 'st-__component-name__--lg',
+    },
+  },
+  defaultVariants: {
+    size: 'md',
+  },
+})
+
+export type __ComponentName__Variants = VariantProps<typeof __componentName__Variants>

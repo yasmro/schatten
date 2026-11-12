@@ -104,35 +104,37 @@ describe('Welcome deep links ↔ story definitions', () => {
   })
 })
 
-describe('Welcome component cards ↔ lv1 autodocs', () => {
+describe('Welcome component cards ↔ lv1 / lv2 autodocs', () => {
   // Pin the const against the storyPaths actually wired into the ComponentCards,
   // so a new card (or a removed one) that desyncs from the const fails here.
   const SRC = readFileSync(resolve(__dirname, 'Welcome.stories.tsx'), 'utf8')
-  const wiredSlugs = [...SRC.matchAll(/storyPath="(components-lv1-[a-z]+)"/g)].map((m) => m[1])
+  const wiredSlugs = [...SRC.matchAll(/storyPath="(components-lv[12]-[a-z]+)"/g)].map((m) => m[1])
 
   it('WELCOME_COMPONENT_SLUGS lists exactly the storyPaths used by ComponentCards', () => {
     expect(new Set(wiredSlugs)).toEqual(new Set(WELCOME_COMPONENT_SLUGS))
   })
 
-  it.each(WELCOME_COMPONENT_SLUGS)('%s resolves to an lv1 module with autodocs', (slug) => {
+  it.each(WELCOME_COMPONENT_SLUGS)('%s resolves to a component module with autodocs', (slug) => {
     expect(bySlug.has(slug)).toBe(true)
     expect(hasAutodocs(slug)).toBe(true)
   })
 })
 
 describe('Welcome component-card catalog completeness', () => {
-  // Every lv1 story module must be either carded on Welcome or explicitly
+  // Every lv1 / lv2 story module must be either carded on Welcome or explicitly
   // exempt (portal/pointer-driven — see WELCOME_CARD_EXEMPT). This is the
-  // "forgot to add the card for the new lv1" guard: the two set-equality
+  // "forgot to add the card for the new component" guard: the two set-equality
   // checks above only validate the cards that exist, not the ones missing.
-  const lv1Slugs = [...bySlug.keys()].filter((s) => s.startsWith('components-lv1-'))
+  const componentSlugs = [...bySlug.keys()].filter((s) => /^components-lv[12]-/.test(s))
 
-  it('there is at least one lv1 module to check', () => {
-    expect(lv1Slugs.length).toBeGreaterThan(0)
+  it('there is at least one component module to check', () => {
+    expect(componentSlugs.length).toBeGreaterThan(0)
   })
 
-  it('every lv1 is either carded on Welcome or listed in WELCOME_CARD_EXEMPT', () => {
-    expect(new Set(lv1Slugs)).toEqual(new Set([...WELCOME_COMPONENT_SLUGS, ...WELCOME_CARD_EXEMPT]))
+  it('every component is either carded on Welcome or listed in WELCOME_CARD_EXEMPT', () => {
+    expect(new Set(componentSlugs)).toEqual(
+      new Set([...WELCOME_COMPONENT_SLUGS, ...WELCOME_CARD_EXEMPT]),
+    )
   })
 
   it('no slug is both carded and exempt', () => {

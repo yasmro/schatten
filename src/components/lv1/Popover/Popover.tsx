@@ -116,6 +116,17 @@ export interface PopoverContentProps extends ComponentPropsWithoutRef<'div'> {
    */
   onOpenAutoFocus?: (event: Event) => void
   /**
+   * Fired when focus would return to the trigger on close. Call
+   * `event.preventDefault()` to place focus yourself.
+   */
+  onCloseAutoFocus?: (event: Event) => void
+  /**
+   * Fired on a pointer press or focus move outside the panel. Call
+   * `event.preventDefault()` to keep it open, e.g. for a click on a related
+   * input. `event.target` is the element interacted with.
+   */
+  onInteractOutside?: (event: Event) => void
+  /**
    * Custom container element for the portal. Useful for rendering inside a
    * Dialog or Drawer.
    */

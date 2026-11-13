@@ -232,7 +232,9 @@ test('DatePicker / the time works inside a modal Dialog', async ({ page }) => {
   const time = page.getByLabel('Time')
   await expect(time).toBeFocused()
   await time.fill('08:45')
-  await expect(page.getByRole('textbox', { name: 'Date' })).toHaveValue('2026-10-15 08:45')
+  // The panel portals out of the Dialog, so this finds the frame's input only.
+  const frame = page.getByRole('dialog', { name: 'Schedule' })
+  await expect(frame.getByRole('textbox', { name: 'Date' })).toHaveValue('2026-10-15 08:45')
   await page.keyboard.press('Escape')
   await expect(page.getByRole('dialog', { name: 'Choose date' })).toHaveCount(0)
   await expect(page.getByRole('dialog', { name: 'Schedule' })).toBeVisible()
@@ -255,8 +257,10 @@ test('DateRangePicker / picking the end moves to the start time', async ({ page 
   await expect(page.getByLabel('Start time')).toBeFocused()
   await page.getByLabel('Start time').fill('10:15')
   await page.getByLabel('End time').fill('18:00')
-  await expect(page.getByRole('textbox', { name: 'Start date' })).toHaveValue('2026-10-24 10:15')
-  await expect(page.getByRole('textbox', { name: 'End date' })).toHaveValue('2026-10-26 18:00')
+  // The panel names its date inputs the same: read the frame's.
+  const frame = page.getByRole('group', { name: 'Stay' })
+  await expect(frame.getByRole('textbox', { name: 'Start date' })).toHaveValue('2026-10-24 10:15')
+  await expect(frame.getByRole('textbox', { name: 'End date' })).toHaveValue('2026-10-26 18:00')
 })
 
 test('DateRangePicker / an end before the start on one day stops the form', async ({ page }) => {
@@ -280,4 +284,27 @@ test('DateRangePicker / a form reset restores the dates and the times', async ({
   await expect(start).toHaveValue('2026-10-24 09:00')
   await expect(page.getByRole('textbox', { name: 'End date' })).toHaveValue('2026-10-24 18:00')
   await expect(page.locator('input[type="hidden"][name="start"]')).toHaveValue('2026-10-24T09:00')
+})
+
+test('DatePicker / a date typed in the panel moves the calendar', async ({ page }) => {
+  await open(page, 'open-with-time')
+  const date = page.getByRole('dialog').getByRole('textbox', { name: 'Date' })
+  await date.fill('2027-03-10')
+  await expect(page.getByRole('dialog').getByRole('grid')).toHaveAccessibleName('March 2027')
+  await expect(page.getByRole('dialog').getByRole('textbox', { name: 'Time' })).toBeEnabled()
+})
+
+test('DateRangePicker / two months sit side by side, and stack on a phone', async ({ page }) => {
+  await open(page, 'open-range-with-time')
+  const grids = page.getByRole('dialog').getByRole('grid')
+  await expect(grids).toHaveCount(2)
+  let [first, second] = [await grids.nth(0).boundingBox(), await grids.nth(1).boundingBox()]
+  expect(second?.y).toBe(first?.y)
+
+  await page.setViewportSize({ width: 375, height: 1000 })
+  await open(page, 'open-range-with-time')
+  ;[first, second] = [await grids.nth(0).boundingBox(), await grids.nth(1).boundingBox()]
+  expect(second?.y ?? 0).toBeGreaterThan((first?.y ?? 0) + (first?.height ?? 0) - 1)
+  const dialog = await page.getByRole('dialog').boundingBox()
+  expect((dialog?.x ?? 0) + (dialog?.width ?? 0)).toBeLessThanOrEqual(375)
 })

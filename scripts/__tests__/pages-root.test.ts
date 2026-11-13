@@ -26,10 +26,11 @@ function listFiles(dir: string): string[] {
   })
 }
 
+/** The first inline <script>, read with the HTML parser rather than a regex. */
 function inlineScript(html: string) {
-  const match = html.match(/<script>([\s\S]*?)<\/script>/)
-  if (!match) throw new Error('no inline <script>')
-  return match[1]
+  const script = new DOMParser().parseFromString(html, 'text/html').querySelector('script')
+  if (!script?.textContent) throw new Error('no inline <script>')
+  return script.textContent
 }
 
 /** Runs a page's inline script and returns the URL it redirected to (or null). */

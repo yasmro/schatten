@@ -1,4 +1,4 @@
-import { CalendarDays, Clock } from 'lucide-react'
+import { CalendarDays } from 'lucide-react'
 import {
   type ComponentPropsWithoutRef,
   type FocusEvent,
@@ -6,16 +6,17 @@ import {
   type KeyboardEvent,
   type MouseEvent,
   type ReactNode,
-  useId,
+  type Ref,
   useRef,
 } from 'react'
 import { FieldContext } from '../../../contexts/field'
 import { mergeRefs } from '../../../lib/merge-refs'
+import { cn } from '../../../lib/utils'
 import { Button } from '../../lv1/Button'
+import { Field } from '../../lv1/Field'
 import { Input } from '../../lv1/Input'
 import { Popover, PopoverAnchor, PopoverContent, PopoverTrigger } from '../../lv1/Popover'
-import { Text } from '../../lv1/Text'
-import { isValidISOTime, useDateInput } from './use-date-input'
+import { type DateConstraints, isValidISOTime, parseDate, useDateInput } from './use-date-input'
 
 /** The input an event landed on, including the padding of its wrapper. */
 const inputOf = (target: EventTarget) =>
@@ -29,7 +30,10 @@ export interface PickerShellProps extends ComponentPropsWithoutRef<'div'> {
   label: string
   /** `disabled` or `readOnly`: nothing may open the panel. */
   isBlocked: boolean
-  calendar: ReactNode
+  /** The panel's content: the input fields, if any, and the calendar. */
+  panel: ReactNode
+  /** Whether the panel holds a range, which shows two months. */
+  isRange?: boolean
   /** Focus left the picker while the panel was closed. */
   onFocusLeave?: () => void
 }
@@ -47,7 +51,8 @@ export const PickerShell = forwardRef<HTMLDivElement, PickerShellProps>(
       onOpenChange,
       label,
       isBlocked,
-      calendar,
+      panel,
+      isRange = false,
       onFocusLeave,
       onClick,
       onKeyDown,
@@ -151,6 +156,7 @@ export const PickerShell = forwardRef<HTMLDivElement, PickerShellProps>(
         </PopoverAnchor>
         <PopoverContent
           ref={contentRef}
+          className={cn('st-date-picker-panel', isRange && 'st-date-picker-panel--range')}
           align="start"
           aria-label={label}
           onOpenAutoFocus={(event) => {
@@ -171,7 +177,7 @@ export const PickerShell = forwardRef<HTMLDivElement, PickerShellProps>(
         >
           {/* A portal keeps React context, so the panel would otherwise take the
            * Field's error outline, label and id. It has its own name. */}
-          <FieldContext.Provider value={null}>{calendar}</FieldContext.Provider>
+          <FieldContext.Provider value={null}>{panel}</FieldContext.Provider>
         </PopoverContent>
       </Popover>
     )
@@ -179,61 +185,97 @@ export const PickerShell = forwardRef<HTMLDivElement, PickerShellProps>(
 )
 PickerShell.displayName = 'PickerShell'
 
-interface PickerTimeRowProps {
-  /** Shown beside the input, and its accessible name. */
-  label: string
-  /** The date this time belongs to. A range shows it, `''` while unset. */
-  date?: string
-  value: string
-  disabled: boolean
+interface PickerFieldsProps {
+  /** Visible label of the date input, and its accessible name. */
+  dateLabel: string
+  /** Visible label of the time input, and its accessible name. */
+  timeLabel: string
+  /** The date half of the value: a whole date, or `''`. */
+  date: string
+  /** The time half of the value, `HH:mm`, or `''`. */
+  time: string
+  /** The checks a typed date goes through, the same as the picker's input. */
+  constraints: DateConstraints
+  /** The value is invalid. The date takes the blame unless it passes its checks. */
   isInvalid: boolean
+  /** Whether a date that passes its checks is still wrong, e.g. before the start. */
+  isDateWrong?: boolean
+  /** Fired with the date input's text, trimmed, valid or not. */
+  onDateChange: (text: string) => void
+  /** Fired with a whole time, or `''`. */
   onTimeChange: (time: string) => void
   /** Enter ends the panel: Tab stays inside it. */
   onEnter: () => void
+  timeRef?: Ref<HTMLInputElement>
 }
 
 const parseTime = (text: string) => (isValidISOTime(text.trim()) ? text.trim() : '')
 
 /**
- * A time input in the panel, below the calendar. It is a text input rather than
- * `type="time"`: the browser would format that one in its own locale, and show
- * `01:30 PM` under an input holding `13:30`.
+ * A date input and a time input in the panel, above the calendar, each labelled
+ * by a `Field`: once filled, the values alone would not say which input is which.
+ * Both are text inputs: `type="time"` would be formatted in the browser's own
+ * locale and show `01:30 PM` beside an input holding `13:30`. The time waits
+ * until there is a date, because a value without a date cannot hold it.
  */
-export const PickerTimeRow = forwardRef<HTMLInputElement, PickerTimeRowProps>(
-  ({ label, date, value, disabled, isInvalid, onTimeChange, onEnter }, ref) => {
-    const dateId = useId()
-    const time = useDateInput(value, parseTime, (text) => onTimeChange(parseTime(text)), '')
-    return (
-      <>
-        <Text as="span" size="xs" color="muted" aria-hidden="true">
-          {label}
-        </Text>
-        {date === undefined ? null : (
-          <Text as="span" size="xs" id={dateId}>
-            {date || '—'}
-          </Text>
-        )}
+export function PickerFields({
+  dateLabel,
+  timeLabel,
+  date,
+  time,
+  constraints,
+  isInvalid,
+  isDateWrong = false,
+  onDateChange,
+  onTimeChange,
+  onEnter,
+  timeRef,
+}: PickerFieldsProps) {
+  const dateInput = useDateInput(
+    date,
+    (text) => parseDate(text, constraints),
+    (text) => onDateChange(text.trim()),
+    '',
+  )
+  const timeInput = useDateInput(time, parseTime, (text) => onTimeChange(parseTime(text)), '')
+  const blamesDate = isDateWrong || !parseDate(date, constraints)
+
+  const endOnEnter = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key !== 'Enter') return
+    event.preventDefault()
+    onEnter()
+  }
+
+  // `Field` names each input through htmlFor; `disabled` has to go through it
+  // too, because Input takes the field's state over its own prop.
+  return (
+    <div>
+      <Field label={dateLabel}>
         <Input
-          ref={mergeRefs(ref, time.inputRef)}
-          size="sm"
-          iconLeft={Clock}
+          ref={dateInput.inputRef}
+          size="md"
+          autoComplete="off"
+          placeholder="YYYY-MM-DD"
+          aria-invalid={(isInvalid && blamesDate) || dateInput.isInvalid || undefined}
+          value={dateInput.text}
+          onChange={(event) => dateInput.edit(event.target.value)}
+          onBlur={dateInput.markBlurred}
+          onKeyDown={endOnEnter}
+        />
+      </Field>
+      <Field label={timeLabel} disabled={!date}>
+        <Input
+          ref={mergeRefs(timeRef, timeInput.inputRef)}
+          size="md"
           autoComplete="off"
           placeholder="HH:mm"
-          aria-label={label}
-          aria-describedby={date ? dateId : undefined}
-          aria-invalid={isInvalid || time.isInvalid || undefined}
-          disabled={disabled}
-          value={time.text}
-          onChange={(event) => time.edit(event.target.value)}
-          onBlur={time.markBlurred}
-          onKeyDown={(event) => {
-            if (event.key !== 'Enter') return
-            event.preventDefault()
-            onEnter()
-          }}
+          aria-invalid={(isInvalid && !blamesDate) || timeInput.isInvalid || undefined}
+          value={timeInput.text}
+          onChange={(event) => timeInput.edit(event.target.value)}
+          onBlur={timeInput.markBlurred}
+          onKeyDown={endOnEnter}
         />
-      </>
-    )
-  },
-)
-PickerTimeRow.displayName = 'PickerTimeRow'
+      </Field>
+    </div>
+  )
+}

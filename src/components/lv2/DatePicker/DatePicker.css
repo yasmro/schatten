@@ -15,9 +15,11 @@
  * start above end, with no separator: one row would not fit a form column. The
  * button spans both rows because it opens the whole range.
  *
- * `.st-date-picker-time` is the time inputs in the panel. The panel portals out of
- * the block, so no descendant selector reaches them and they need a block of their
- * own. Its grid is label, date, input: a range shows the date each time belongs to.
+ * `.st-date-picker-panel` is the popover panel. It portals out of the block, so
+ * no descendant selector reaches it and it needs a block of its own. With a time,
+ * its first child is the row of date and time inputs; `--range` shows two months.
+ * The row and its sides are the picker's own wrappers, selected by what they are
+ * not (§5.2).
  *
  * lv2 is React-only: the inner DOM is not public, so the selectors below are
  * free to rely on it. Child combinators keep them off anything else.
@@ -139,25 +141,73 @@
     background-color: var(--color-surface-disabled);
   }
 
-  /* `width: 0` keeps the rows out of the panel's own width, which the calendar
-   * sets; `min-width` then takes all of it back. */
-  .st-date-picker-time {
-    display: grid;
-    grid-template-columns: auto auto minmax(0, 1fr);
+  /* Two months side by side. Below 38rem of screen they would not fit, so the
+   * panel keeps Popover's width and the months stack (DateRangeCalendar wraps). */
+  @media (min-width: 38rem) {
+    .st-popover__content.st-date-picker-panel--range {
+      max-width: min(38rem, var(--radix-popover-content-available-width, 100vw));
+    }
+  }
+
+  /* The row of inputs. `width: 0` keeps it out of the panel's own width, which
+   * the calendar sets; `min-width` then takes all of it back. No line under it:
+   * the calendar below is drawn in tones, not lines, and the gap is enough. The
+   * inputs keep Input's strong border, which a pale one would push under 3:1
+   * against the panel (WCAG 1.4.11). */
+  .st-date-picker-panel > :not(.st-date-calendar) {
+    display: flex;
+    flex-wrap: wrap;
     gap: 0.5rem;
     width: 0;
     min-width: 100%;
-    align-items: center;
-    margin-block-start: 0.75rem;
-    padding-block-start: 0.75rem;
-    border-block-start: 1px solid var(--color-border);
+    align-items: flex-end;
+    margin-block-end: 1rem;
   }
 
-  /* A line, not a second box inside the panel's. It keeps the strong ink: the
-   * pale border token would fall under 3:1 against the panel (WCAG 1.4.11). */
-  .st-date-picker-time > .st-input-wrapper {
-    grid-column: 3;
-    border-block-start: 0;
-    border-inline: 0;
+  /* One end of a range: a date and its time. A single picker's row holds its
+   * two Fields directly and is laid out by the row rule above. */
+  .st-date-picker-panel--range > :not(.st-date-calendar) > :not(.st-text) {
+    display: flex;
+    flex: 1 1 13rem;
+    gap: 0.5rem;
+    align-items: flex-end;
+    /* Without it the inputs' intrinsic width wraps the ends onto two lines even
+     * where they fit on one. */
+    min-width: 0;
+  }
+
+  .st-date-picker-panel .st-field {
+    min-width: 0;
+    gap: 0.25rem;
+  }
+
+  .st-date-picker-panel .st-field:first-child {
+    flex: 3 1 0;
+  }
+
+  .st-date-picker-panel .st-field:last-child {
+    flex: 2 1 0;
+  }
+
+  /* Field's label is sized for a form; in the panel it only names the input, a
+   * step under the `md` value it labels, which stays the strongest text there. */
+  .st-date-picker-panel .st-field__label {
+    color: var(--color-foreground-muted);
+    font-size: 0.75rem;
+    font-weight: 500;
+    line-height: 1rem;
+  }
+
+  /* The dash between the ends sits on the inputs' centre line, like the frame's,
+   * and only while the ends share a line. */
+  .st-date-picker-panel > :not(.st-date-calendar) > .st-text {
+    flex: none;
+    line-height: 2.5rem;
+  }
+
+  @media (max-width: 37.99rem) {
+    .st-date-picker-panel > :not(.st-date-calendar) > .st-text {
+      display: none;
+    }
   }
 }

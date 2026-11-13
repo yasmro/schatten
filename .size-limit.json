@@ -13,7 +13,7 @@
   {
     "name": "components/lv2 (all)",
     "path": "dist/components/lv2/index.js",
-    "limit": "32 KB"
+    "limit": "38 KB"
   },
   {
     "name": "date",

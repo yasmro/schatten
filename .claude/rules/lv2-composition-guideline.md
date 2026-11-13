@@ -386,8 +386,10 @@ Two details that a descendant selector needs here:
   with a unit test.
 - **A part that portals out of the block is out of reach of both.** No selector
   anchored on the block finds it, so a wrapper with its own rules takes a block
-  class of its own, named for what it holds: `.st-date-picker-time`, the time
-  inputs in the picker's panel. This is a block, not a `__*` sub-element.
+  class of its own, named for what it holds: `.st-date-picker-panel`, the
+  picker's popover panel, put on the lv1 `PopoverContent` through `className`.
+  This is a block, not a `__*` sub-element, and its own wrappers inside are
+  again selected by what they are not.
 
 This is deliberately the **opposite** of lv1's default (Callout and Card
 publish their sub-elements). An lv1 is a part the consumer composes, so a

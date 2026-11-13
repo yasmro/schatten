@@ -148,7 +148,7 @@ Copy the templates that apply, rename `Component.*` → `<Name>.*` and
 | `LV2_INTERACTIVE` in `scripts/audit-coverage.mjs` | Interactive | Alphabetical, plus the interaction spec |
 | webkit `testMatch` in `playwright.config.ts` | Interactive and moves focus | Add the interaction spec. Safari does not focus a button on click |
 | `src/styles/entry.css` | With a `.css` | `@import` **after** every lv1 it composes (§5.4) |
-| `.size-limit.json` `css/<slug>` | With a `.css` | `"limit": "1.5 KB"` |
+| `.size-limit.json` `css/<slug>` | With a `.css` | `"limit": "1.5 KB", "rolldown": false`. size-limit 14 bundles with rolldown, which cannot take a `.css` entry, so a CSS check without `"rolldown": false` fails `pnpm size` |
 | Tables in `field-context-guideline.md` | Form control | Its row, in the same PR (§4.4) |
 
 **Leave these alone.** They are habits from the lv1 skill:

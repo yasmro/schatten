@@ -28,39 +28,66 @@
   {
     "name": "schatten.css",
     "path": "dist/schatten.css",
-    "limit": "50 KB"
+    "limit": "50 KB",
+    "rolldown": false
   },
   {
     "name": "css/* (per-component aggregate)",
     "path": "dist/css/*.css",
-    "limit": "20 KB"
+    "limit": "20 KB",
+    "rolldown": false
   },
-  { "name": "css/avatar", "path": "dist/css/avatar.css", "limit": "1.5 KB" },
-  { "name": "css/badge", "path": "dist/css/badge.css", "limit": "1.5 KB" },
-  { "name": "css/button", "path": "dist/css/button.css", "limit": "1.5 KB" },
-  { "name": "css/callout", "path": "dist/css/callout.css", "limit": "1.5 KB" },
-  { "name": "css/card", "path": "dist/css/card.css", "limit": "1.5 KB" },
-  { "name": "css/checkbox", "path": "dist/css/checkbox.css", "limit": "1.5 KB" },
-  { "name": "css/datecalendar", "path": "dist/css/datecalendar.css", "limit": "1.5 KB" },
-  { "name": "css/datepicker", "path": "dist/css/datepicker.css", "limit": "1.5 KB" },
-  { "name": "css/dialog", "path": "dist/css/dialog.css", "limit": "1.5 KB" },
-  { "name": "css/dropdownmenu", "path": "dist/css/dropdownmenu.css", "limit": "1.5 KB" },
-  { "name": "css/emptystate", "path": "dist/css/emptystate.css", "limit": "1.5 KB" },
-  { "name": "css/field", "path": "dist/css/field.css", "limit": "1.5 KB" },
-  { "name": "css/fieldset", "path": "dist/css/fieldset.css", "limit": "1.5 KB" },
-  { "name": "css/icon", "path": "dist/css/icon.css", "limit": "1.5 KB" },
-  { "name": "css/input", "path": "dist/css/input.css", "limit": "1.5 KB" },
-  { "name": "css/popover", "path": "dist/css/popover.css", "limit": "1.5 KB" },
-  { "name": "css/radio", "path": "dist/css/radio.css", "limit": "1.5 KB" },
-  { "name": "css/select", "path": "dist/css/select.css", "limit": "1.5 KB" },
-  { "name": "css/separator", "path": "dist/css/separator.css", "limit": "1.5 KB" },
-  { "name": "css/skeleton", "path": "dist/css/skeleton.css", "limit": "1.5 KB" },
-  { "name": "css/spinner", "path": "dist/css/spinner.css", "limit": "1.5 KB" },
-  { "name": "css/switch", "path": "dist/css/switch.css", "limit": "1.5 KB" },
-  { "name": "css/table", "path": "dist/css/table.css", "limit": "1.5 KB" },
-  { "name": "css/tabs", "path": "dist/css/tabs.css", "limit": "1.5 KB" },
-  { "name": "css/text", "path": "dist/css/text.css", "limit": "1.5 KB" },
-  { "name": "css/textarea", "path": "dist/css/textarea.css", "limit": "1.5 KB" },
-  { "name": "css/toast", "path": "dist/css/toast.css", "limit": "1.5 KB" },
-  { "name": "css/tooltip", "path": "dist/css/tooltip.css", "limit": "1.5 KB" }
+  { "name": "css/avatar", "path": "dist/css/avatar.css", "limit": "1.5 KB", "rolldown": false },
+  { "name": "css/badge", "path": "dist/css/badge.css", "limit": "1.5 KB", "rolldown": false },
+  { "name": "css/button", "path": "dist/css/button.css", "limit": "1.5 KB", "rolldown": false },
+  { "name": "css/callout", "path": "dist/css/callout.css", "limit": "1.5 KB", "rolldown": false },
+  { "name": "css/card", "path": "dist/css/card.css", "limit": "1.5 KB", "rolldown": false },
+  { "name": "css/checkbox", "path": "dist/css/checkbox.css", "limit": "1.5 KB", "rolldown": false },
+  {
+    "name": "css/datecalendar",
+    "path": "dist/css/datecalendar.css",
+    "limit": "1.5 KB",
+    "rolldown": false
+  },
+  {
+    "name": "css/datepicker",
+    "path": "dist/css/datepicker.css",
+    "limit": "1.5 KB",
+    "rolldown": false
+  },
+  { "name": "css/dialog", "path": "dist/css/dialog.css", "limit": "1.5 KB", "rolldown": false },
+  {
+    "name": "css/dropdownmenu",
+    "path": "dist/css/dropdownmenu.css",
+    "limit": "1.5 KB",
+    "rolldown": false
+  },
+  {
+    "name": "css/emptystate",
+    "path": "dist/css/emptystate.css",
+    "limit": "1.5 KB",
+    "rolldown": false
+  },
+  { "name": "css/field", "path": "dist/css/field.css", "limit": "1.5 KB", "rolldown": false },
+  { "name": "css/fieldset", "path": "dist/css/fieldset.css", "limit": "1.5 KB", "rolldown": false },
+  { "name": "css/icon", "path": "dist/css/icon.css", "limit": "1.5 KB", "rolldown": false },
+  { "name": "css/input", "path": "dist/css/input.css", "limit": "1.5 KB", "rolldown": false },
+  { "name": "css/popover", "path": "dist/css/popover.css", "limit": "1.5 KB", "rolldown": false },
+  { "name": "css/radio", "path": "dist/css/radio.css", "limit": "1.5 KB", "rolldown": false },
+  { "name": "css/select", "path": "dist/css/select.css", "limit": "1.5 KB", "rolldown": false },
+  {
+    "name": "css/separator",
+    "path": "dist/css/separator.css",
+    "limit": "1.5 KB",
+    "rolldown": false
+  },
+  { "name": "css/skeleton", "path": "dist/css/skeleton.css", "limit": "1.5 KB", "rolldown": false },
+  { "name": "css/spinner", "path": "dist/css/spinner.css", "limit": "1.5 KB", "rolldown": false },
+  { "name": "css/switch", "path": "dist/css/switch.css", "limit": "1.5 KB", "rolldown": false },
+  { "name": "css/table", "path": "dist/css/table.css", "limit": "1.5 KB", "rolldown": false },
+  { "name": "css/tabs", "path": "dist/css/tabs.css", "limit": "1.5 KB", "rolldown": false },
+  { "name": "css/text", "path": "dist/css/text.css", "limit": "1.5 KB", "rolldown": false },
+  { "name": "css/textarea", "path": "dist/css/textarea.css", "limit": "1.5 KB", "rolldown": false },
+  { "name": "css/toast", "path": "dist/css/toast.css", "limit": "1.5 KB", "rolldown": false },
+  { "name": "css/tooltip", "path": "dist/css/tooltip.css", "limit": "1.5 KB", "rolldown": false }
 ]

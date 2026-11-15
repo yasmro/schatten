@@ -8,7 +8,21 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '../components/lv1/Popover/Popover'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '../components/lv1/Select/Select'
 import { Text } from '../components/lv1/Text/Text'
+import { Toaster, toast } from '../components/lv1/Toast'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '../components/lv1/Tooltip/Tooltip'
 import { Lead, Note, PageTitle, SectionTitle, SubsectionTitle } from './docs-ui'
 
 /**
@@ -109,6 +123,12 @@ const EXIT_EASES = [
   { id: 'ease-in-out', label: 'ease-in-out' },
 ] as const
 
+/** Tooltip is small and shows often, so its blur can be compared on and off. */
+const TOOLTIP_BLURS = [
+  { id: 'same', label: 'Same as others' },
+  { id: 'none', label: 'No blur' },
+] as const
+
 const exitDuration = (enter: string, preset: string, speed: (typeof EXIT_SPEEDS)[number]['id']) =>
   speed === 'preset' ? preset : `${Math.round(Number.parseFloat(enter) * Number(speed))}ms`
 
@@ -202,14 +222,97 @@ html[data-motion-proto="a"] .st-dialog__overlay[data-state="closed"] {
   animation-duration: calc(150ms * var(--proto-slowmo));
 }
 
+/* ---- Select (same timing as Popover; no nested fixed child, so scale is safe) ---- */
+html[data-motion-proto="b"] .st-select__content,
+html[data-motion-proto="c"] .st-select__content {
+  transform-origin: var(--radix-select-content-transform-origin);
+}
+html[data-motion-proto="b"] .st-select__content[data-state="open"] {
+  animation: proto-in-b calc(var(--proto-popover-enter) * var(--proto-slowmo)) var(--proto-ease-enter);
+}
+html[data-motion-proto="c"] .st-select__content[data-state="open"] {
+  animation: proto-in-c calc(var(--proto-popover-enter) * var(--proto-slowmo)) var(--proto-ease-enter);
+}
+html[data-motion-proto="b"] .st-select__content[data-state="closed"] {
+  animation: var(--proto-exit-b) calc(var(--proto-popover-exit) * var(--proto-slowmo)) var(--proto-ease-exit);
+}
+html[data-motion-proto="c"] .st-select__content[data-state="closed"] {
+  animation: var(--proto-exit-c) calc(var(--proto-popover-exit) * var(--proto-slowmo)) var(--proto-ease-exit);
+}
+html[data-motion-proto="a"] .st-select__content[data-state="open"] {
+  animation-duration: calc(150ms * var(--proto-slowmo));
+}
+html[data-motion-proto="a"] .st-select__content[data-state="closed"] {
+  animation-duration: calc(100ms * var(--proto-slowmo));
+}
+
+/* ---- Tooltip (its own in / out names, so its blur can be switched off) ---- */
+html[data-motion-proto="b"] .st-tooltip__content,
+html[data-motion-proto="c"] .st-tooltip__content {
+  transform-origin: var(--radix-tooltip-content-transform-origin);
+}
+html[data-motion-proto="b"] .st-tooltip__content:is([data-state="delayed-open"], [data-state="instant-open"]) {
+  animation: proto-in-b calc(var(--proto-popover-enter) * var(--proto-slowmo)) var(--proto-ease-enter);
+}
+html[data-motion-proto="c"] .st-tooltip__content:is([data-state="delayed-open"], [data-state="instant-open"]) {
+  animation: var(--proto-tooltip-in) calc(var(--proto-popover-enter) * var(--proto-slowmo)) var(--proto-ease-enter);
+}
+html[data-motion-proto="b"] .st-tooltip__content[data-state="closed"] {
+  animation: var(--proto-exit-b) calc(var(--proto-popover-exit) * var(--proto-slowmo)) var(--proto-ease-exit);
+}
+html[data-motion-proto="c"] .st-tooltip__content[data-state="closed"] {
+  animation: var(--proto-tooltip-out) calc(var(--proto-popover-exit) * var(--proto-slowmo)) var(--proto-ease-exit);
+}
+html[data-motion-proto="a"] .st-tooltip__content {
+  animation-duration: calc(150ms * var(--proto-slowmo));
+}
+html[data-motion-proto="a"] .st-tooltip__content[data-state="closed"] {
+  animation-duration: calc(100ms * var(--proto-slowmo));
+}
+
+/*
+ * ---- Toast ----
+ * Sonner owns the slide + fade: a 400ms transition on transform / opacity,
+ * keyed on [data-mounted], and it unmounts 200ms after [data-removed]
+ * (TIME_BEFORE_UNMOUNT). Sonner also uses transform for stacking (the
+ * toasts behind the front one are scaled), so scale is never applied here.
+ * Candidate c adds only a filter animation, which Sonner does not touch.
+ * The state attributes sit on Sonner's <li>, while .st-toast is the <div>
+ * Toast.tsx renders, two wrappers down ([data-content] > [data-title]), so
+ * the rules key on the <li> and blur the descendant. Slow motion cannot
+ * reach Sonner's timing, so the toast ignores it. Sonner's reduced-motion
+ * rule stops animations on [data-sonner-toast] > * only, which does not
+ * reach .st-toast, so the blur is declared under no-preference instead.
+ */
+@keyframes proto-toast-blur-in {
+  from { filter: blur(var(--proto-blur)); }
+  to   { filter: blur(0); }
+}
+@keyframes proto-toast-blur-out {
+  from { filter: blur(0); }
+  to   { filter: blur(var(--proto-blur)); }
+}
+@media (prefers-reduced-motion: no-preference) {
+  html[data-motion-proto="c"] [data-sonner-toast][data-mounted="true"] .st-toast {
+    animation: proto-toast-blur-in 400ms var(--proto-ease-enter) both;
+  }
+  html[data-motion-proto="c"] [data-sonner-toast][data-removed="true"] .st-toast {
+    animation: proto-toast-blur-out 200ms var(--proto-ease-exit) both;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html[data-motion-proto] .st-dialog__content[data-state="open"],
   html[data-motion-proto] .st-popover__content[data-state="open"],
+  html[data-motion-proto] .st-select__content[data-state="open"],
+  html[data-motion-proto] .st-tooltip__content:is([data-state="delayed-open"], [data-state="instant-open"]),
   html[data-motion-proto] .proto-specimen[data-state="open"] {
     animation: proto-fade-in 150ms linear both;
   }
   html[data-motion-proto] .st-dialog__content[data-state="closed"],
   html[data-motion-proto] .st-popover__content[data-state="closed"],
+  html[data-motion-proto] .st-select__content[data-state="closed"],
+  html[data-motion-proto] .st-tooltip__content[data-state="closed"],
   html[data-motion-proto] .proto-specimen[data-state="closed"] {
     animation: proto-fade-out 100ms linear both;
   }
@@ -281,6 +384,7 @@ const PrototypePage = () => {
   const [blur, setBlur] = useState<(typeof BLURS)[number]>('3px')
   const [scale, setScale] = useState<(typeof SCALES)[number]>('0.97')
   const [slowmo, setSlowmo] = useState<(typeof SLOWMO)[number]>('1')
+  const [tooltipBlur, setTooltipBlur] = useState<(typeof TOOLTIP_BLURS)[number]['id']>('same')
   const [specimenState, setSpecimenState] = useState<'open' | 'closed'>('open')
   const [dialogOpen, setDialogOpen] = useState(false)
   const [reduced, setReduced] = useState(false)
@@ -308,6 +412,13 @@ const PrototypePage = () => {
       '--proto-ease-exit': exitEase === 'preset' ? t.easeExit : exitEase,
       '--proto-exit-b': exitStyle === 'mirror' ? 'proto-out-b' : 'proto-fade-out',
       '--proto-exit-c': exitStyle === 'mirror' ? 'proto-out-c' : 'proto-fade-out',
+      '--proto-tooltip-in': tooltipBlur === 'none' ? 'proto-in-b' : 'proto-in-c',
+      '--proto-tooltip-out':
+        exitStyle === 'fade'
+          ? 'proto-fade-out'
+          : tooltipBlur === 'none'
+            ? 'proto-out-b'
+            : 'proto-out-c',
     }
     root.setAttribute('data-motion-proto', variant)
     for (const [k, v] of Object.entries(vars)) root.style.setProperty(k, v)
@@ -315,7 +426,7 @@ const PrototypePage = () => {
       root.removeAttribute('data-motion-proto')
       for (const k of Object.keys(vars)) root.style.removeProperty(k)
     }
-  }, [variant, timing, exitStyle, exitSpeed, exitEase, blur, scale, slowmo])
+  }, [variant, timing, exitStyle, exitSpeed, exitEase, blur, scale, slowmo, tooltipBlur])
 
   return (
     <div className="mx-auto max-w-4xl px-8 py-12">
@@ -377,6 +488,12 @@ const PrototypePage = () => {
           onChange={setScale}
         />
         <Segmented
+          label="Tooltip (c)"
+          options={TOOLTIP_BLURS}
+          value={tooltipBlur}
+          onChange={setTooltipBlur}
+        />
+        <Segmented
           label="Slow motion"
           options={SLOWMO.map((id) => ({ id, label: `×${id}` }))}
           value={slowmo}
@@ -417,7 +534,9 @@ const PrototypePage = () => {
 
       <SectionTitle>Real components</SectionTitle>
       <Note>
-        These are the shipped Dialog and Popover, re-animated by the candidate selected above.
+        These are the shipped Dialog, Popover, Select, Tooltip and Toast, re-animated by the
+        candidate selected above. DropdownMenu is left out on purpose: its submenu is a nested fixed
+        child, so the panel can take neither transform nor filter.
       </Note>
 
       <SubsectionTitle>Dialog</SubsectionTitle>
@@ -453,6 +572,52 @@ const PrototypePage = () => {
           </Popover>
         ))}
       </div>
+
+      <SubsectionTitle>Select</SubsectionTitle>
+      <div className="w-56">
+        <Select defaultValue="apple">
+          <SelectTrigger aria-label="Fruit">
+            <SelectValue placeholder="Pick a fruit" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="apple">Apple</SelectItem>
+            <SelectItem value="banana">Banana</SelectItem>
+            <SelectItem value="cherry">Cherry</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      <SubsectionTitle>Tooltip</SubsectionTitle>
+      <TooltipProvider delayDuration={100}>
+        <div className="flex flex-wrap gap-3">
+          {(['top', 'bottom'] as const).map((side) => (
+            <Tooltip key={side}>
+              <TooltipTrigger>
+                <Button variant="secondary">Hover ({side})</Button>
+              </TooltipTrigger>
+              <TooltipContent side={side}>Saved to drafts</TooltipContent>
+            </Tooltip>
+          ))}
+        </div>
+      </TooltipProvider>
+
+      <SubsectionTitle>Toast</SubsectionTitle>
+      <Note>
+        Sonner owns the toast&apos;s slide and fade (400ms in, unmounted 200ms after dismiss) and
+        uses transform for stacking, so no candidate scales the toast. Candidate c adds blur only; a
+        and b look the same here. Slow motion does not reach Sonner&apos;s timing.
+      </Note>
+      <div className="mt-4 flex flex-wrap gap-3 pb-32">
+        <Button
+          variant="secondary"
+          onClick={() =>
+            toast({ title: 'Saved', description: 'Your edits are kept in this draft.' })
+          }
+        >
+          Show toast
+        </Button>
+      </div>
+      <Toaster />
     </div>
   )
 }

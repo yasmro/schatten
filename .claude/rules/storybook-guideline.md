@@ -210,9 +210,13 @@ initialGlobals: {
     10.6.6. Manual mode stops the same automatic run and keeps a **"Run
     accessibility scan"** button in the panel.
   - **Re-check on an addon-a11y bump.** Both claims above are addon behaviour,
-    not ours, and no test exercises the panel. After a bump, re-read the guard
-    in the preview chunk and the panel's render condition in `manager.js`, and
-    open the panel once.
+    not ours, and no test exercises the panel. Our side — manual mode on, no
+    `test` flag, the WCAG tag set — is pinned by
+    [`StorybookA11y.drift.test.ts`](../../src/docs/StorybookA11y.drift.test.ts).
+    The addon side is re-checked by hand: the
+    [`prepare-release`](../skills/prepare-release/SKILL.md) skill's Step 3
+    detects the bump and lists the guard in the preview chunk, the panel's
+    render condition in `manager.js`, and a Toast repeat run to check.
   - If `@storybook/addon-vitest` is ever wired up as a second runner, reconcile
     the two before turning manual mode off.
 - **Dark mode / seasonal violations come for free.** The addon scans the

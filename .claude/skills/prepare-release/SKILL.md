@@ -263,6 +263,7 @@ for the canonical list and rationale. This step pivots on those bumps:
 | `tailwindcss` / `@tailwindcss/vite` | **Storybook/dev path only since #317** — the dist build is Tailwind-free, so a Tailwind bump can no longer move the manifest or `dist/schatten.css`. It still renders every story the component VRT screenshots (stories use Tailwind utilities as layout scaffolding), so a bump can drift component/docs VRT baselines. | `pnpm build:storybook` (builder health) + `pnpm test:vrt`, triage per [vrt-spec-guideline §Bulk re-baseline](../../rules/vrt-spec-guideline.md#re-baselining-updating-snapshots) |
 | `lightningcss` | Compiles `dist/schatten.css` + every `dist/css/<component>.css` (#317). Its output feeds the `CSSApiDist.vrt.spec.ts` baselines **and** is the source `generate-manifest.mjs` parses — a bump can shift both with zero source diff. Exact-pinned; `scripts/__tests__/build-css.test.ts` smoke-pins the output shape first. | `pnpm test --run scripts/__tests__/build-css.test.ts && pnpm build && pnpm check:manifest && pnpm test:vrt:dist` |
 | `vite` | Vite builds the Storybook the VRT specs screenshot against **and** is the Vitest runtime. A major bump can shift font / antialiasing / sub-pixel rendering across the **whole** suite, drifting every `*.png` baseline at once (not one parity story — all of them). It is pinned exact in `package.json`. A Vitest major can also force a Vite major via peer (`vite >= 6` for Vitest 4 — see [#254](https://github.com/yasmro/schatten/issues/254)), so check `vite` whenever `vitest` bumps too. | `pnpm build:storybook` (builder health) + full `pnpm test:vrt`, then triage per [vrt-spec-guideline §Bulk re-baseline](../../rules/vrt-spec-guideline.md#re-baselining-updating-snapshots) |
+| `@storybook/addon-a11y` | Not a visual-contract dependency — it guards the a11y tooling. Two of its behaviours are load-bearing and no test exercises the addon itself: (1) its automatic per-render axe run stops only on `test: 'off'` or `globals.a11y.manual`, and when it runs it races the Playwright axe scan (#346); (2) its panel hides the scan button on `test: 'off'`, which is why the repo uses manual mode. A bump that changes either moves silently. See [storybook-guideline §a11y](../../rules/storybook-guideline.md#a11y-addon-a11y). | `pnpm test --run src/docs/StorybookA11y.drift.test.ts` (our config), then re-read the two addon conditions and open the Accessibility panel once (addon behaviour) |
 
 > **Type-surface detection for any `@radix-ui/*` bump (since #156).** The
 > public Props types no longer inherit from Radix — each component redeclares
@@ -293,11 +294,12 @@ node -e "
     'lightningcss':  ['dependencies', 'peerDependencies', 'devDependencies'],
     'vite':          ['dependencies', 'peerDependencies', 'devDependencies'],
     'vitest':        ['dependencies', 'peerDependencies', 'devDependencies'],
+    '@storybook/addon-a11y': ['dependencies', 'peerDependencies', 'devDependencies'],
   };
   const findRadix = (deps) =>
     Object.entries(deps || {}).filter(([k]) => k.startsWith('@radix-ui/'));
 
-  for (const family of ['lucide-react', 'tailwindcss', 'lightningcss', 'vite', 'vitest']) {
+  for (const family of ['lucide-react', 'tailwindcss', 'lightningcss', 'vite', 'vitest', '@storybook/addon-a11y']) {
     for (const slot of families[family]) {
       const a = (last[slot] || {})[family];
       const b = (head[slot] || {})[family];
@@ -356,6 +358,16 @@ pnpm build && pnpm check:manifest
 #   full VRT and triage diffs category-by-category (NEVER a blanket
 #   test:vrt:update) per vrt-spec-guideline §Bulk re-baseline.
 pnpm build:storybook && pnpm test:vrt
+
+# If @storybook/addon-a11y bumped:
+#   Our config is pinned by a unit test; the addon's behaviour is not. Re-read
+#   the automatic-run guard (`shouldRunEnvironmentIndependent` in the preview
+#   chunk) and the panel's "disabled" condition (in manager.js), then open the
+#   Accessibility panel once and press "Run accessibility scan".
+pnpm test --run src/docs/StorybookA11y.drift.test.ts
+grep -ho 'shouldRunEnvironmentIndependent = [^,]*' node_modules/@storybook/addon-a11y/dist/_browser-chunks/*.js
+grep -o 'parameters.disable || parameters.test === "off"' node_modules/@storybook/addon-a11y/dist/manager.js
+pnpm test:a11y --grep "Toast" --repeat-each=5   # the race showed up worst on Toast
 ```
 
 If a targeted check **passes**, the bump is safe — report the bump and the
@@ -371,6 +383,7 @@ If a targeted check **fails**, abort with a specific recovery instruction:
 | `@radix-ui/react-slot` | The Slot bump changed prop-merging or ref-forwarding behavior. Re-run `pnpm test --run` and `pnpm test:vrt` against components that consume `asChild` (Button / Text / Tooltip Trigger / Dialog Trigger / Dialog Close / Select Trigger). Fix the broken consumer, then re-verify. |
 | `tailwindcss` | The manifest drifted. Run `pnpm build && pnpm check:manifest` and read the per-section diff. If the change is intentional (new variables justified by the bump), `pnpm update:manifest` + ship a `CSS API:` changeset. If unintentional (variables silently dropped), pin Tailwind to the prior minor or investigate the regression upstream before releasing. |
 | `vite` / `vitest` | The render engine changed and VRT baselines drifted. Open the `*-diff.png` under `test-results/` and triage **by category** (font/AA micro-shift vs layout vs color) per [vrt-spec-guideline §Bulk re-baseline](../../rules/vrt-spec-guideline.md#re-baselining-updating-snapshots). Re-baseline category-by-category with `--grep` scoping (never a blanket `test:vrt:update`), committing per category so a later bisect can locate a hidden regression. Also confirm `pnpm build:storybook` succeeds — a Vite major can break the builder before VRT even runs. Vite is exact-pinned, so the bump is intentional; if the drift includes anything beyond micro-shifts, investigate before releasing. |
+| `@storybook/addon-a11y` | If the guard no longer stops on `globals.a11y.manual`, the automatic run is back and the Toast repeat run fails intermittently with `Axe is already running` — find the addon's new way to stop it, update `.storybook/preview.tsx`, the drift test and storybook-guideline together. If only the panel condition changed (manual mode hides the button, or `test: 'off'` now keeps it), the CI gate is unaffected; fix the panel setting and the guideline before releasing. |
 
 **Never run `pnpm test:vrt:update` from this skill to make the parity check
 green.** That violates [vrt-spec-guideline.md §Re-baselining](../../rules/vrt-spec-guideline.md#re-baselining-updating-snapshots).

@@ -92,19 +92,17 @@ const preview: Preview = {
           values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'],
         },
       },
-      // `test: 'off'` — NOT inert. addon-a11y's preview `afterEach` runs axe
-      // on every `viewMode=story` render whenever `test !== 'off'` (see the
-      // `shouldRunEnvironmentIndependent` guard in addon-a11y's preview.js).
-      // Playwright loads exactly those `iframe.html?viewMode=story` URLs, so
-      // the addon's run RACES our `@axe-core/playwright` `.analyze()` in the
-      // same frame → intermittent `Error: Axe is already running` (worst on
-      // Toast, whose toasts mount in a useEffect → a second render → a second
-      // axe run). Phase 1's exit-0 shim masked it; #346 (blocking) surfaced it.
-      // Our a11y test runner IS `@axe-core/playwright` (the CI `a11y` gate), so
-      // the addon's headless run is redundant — turn it off and keep addon-a11y
-      // as the on-demand dev PANEL only. The panel still scans the selected
-      // story with the pinned tag set above.
-      test: 'off',
+      // No `test: 'off'` — the automatic run is stopped by
+      // `initialGlobals.a11y.manual` below instead. addon-a11y's preview
+      // `afterEach` runs axe on every `viewMode=story` render unless `test` is
+      // 'off' OR `globals.a11y.manual` is true (the `shouldRunEnvironmentIndependent`
+      // guard in addon-a11y's preview chunk). Playwright loads exactly those
+      // `iframe.html?viewMode=story` URLs, so an automatic run RACES our
+      // `@axe-core/playwright` `.analyze()` → intermittent `Error: Axe is already
+      // running` (#346). `test: 'off'` stopped the race, but the panel then
+      // renders only "Accessibility tests are disabled for this story", with no
+      // way to scan (addon-a11y 10.4.1 through 10.6.6). Manual mode stops the
+      // same run and keeps a "Run accessibility scan" button in the panel.
     },
     options: {
       // Comparator form (was a `storySort.order` array). The top-level group
@@ -145,6 +143,10 @@ const preview: Preview = {
         return 0
       },
     },
+  },
+  initialGlobals: {
+    // Manual mode — see the `a11y` parameter note above.
+    a11y: { manual: true },
   },
   globalTypes: {
     theme: {

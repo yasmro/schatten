@@ -668,10 +668,11 @@ pnpm test:vrt     # playwright test --grep-invert a11y    → screenshots only`}
         <Code>aria-hidden</Code> but leaves the trigger focusable, a known Radix behavior not
         fixable from Schatten; the disable is scoped to the open-state a11y tests only. These two
         rule ids are the <em>entire</em> allowed set (see{' '}
-        <Code>.claude/rules/vrt-spec-guideline.md</Code> §a11y assertions). The addon panel&apos;s{' '}
-        <Code>test</Code> flag is <Code>off</Code> so its headless preview run does not race the
-        Playwright suite; addon-a11y stays the on-demand dev companion — click{' '}
-        <strong>Rerun</strong> in the Accessibility panel to scan the current story.
+        <Code>.claude/rules/vrt-spec-guideline.md</Code> §a11y assertions). The addon panel runs in
+        manual mode (<Code>globals.a11y.manual</Code>) so its automatic preview run does not race
+        the Playwright suite; addon-a11y stays the on-demand dev companion — click{' '}
+        <strong>Run accessibility scan</strong> in the Accessibility panel to scan the current
+        story.
       </Note>
     </Page>
   ),

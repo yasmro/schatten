@@ -170,12 +170,16 @@ The addon is registered in [`.storybook/main.ts`](../../.storybook/main.ts)
 once via `parameters.a11y` in [`.storybook/preview.tsx`](../../.storybook/preview.tsx):
 
 ```tsx
-a11y: {
-  options: {
-    runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'] },
+parameters: {
+  a11y: {
+    options: {
+      runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'] },
+    },
   },
-  test: 'todo',
-}
+},
+initialGlobals: {
+  a11y: { manual: true },
+},
 ```
 
 - **`options.runOnly` MUST pin the same WCAG tag set the VRT specs use**
@@ -185,24 +189,36 @@ a11y: {
   `landmark-one-main` / `page-has-heading-one`) that flag the Storybook iframe
   itself on every story — pure noise. Keeping the tag set identical means
   "green in the dev panel" maps to the same contract CI enforces.
-- **`test: 'off'` is required, and is NOT "inert".** addon-a11y's preview
-  `afterEach` runs axe on every `viewMode=story` render unless `test === 'off'`
-  (the `shouldRunEnvironmentIndependent` guard in the addon's `preview.js`).
-  `@axe-core/playwright` loads exactly those `iframe.html?viewMode=story` URLs,
-  so any value other than `'off'` makes the addon's run **race** our Playwright
-  `.analyze()` in the same frame → intermittent `Error: Axe is already running`
-  (worst on Toast, which mounts toasts in a `useEffect`, forcing a second
-  render → a second axe run). The Phase-1 observe-only exit-0 shim hid this;
-  flipping the gate to blocking ([#346](https://github.com/yasmro/schatten/issues/346))
-  surfaced it. Our a11y **test runner** is `@axe-core/playwright` (the CI `a11y`
-  job), so the addon's headless run is redundant — `'off'` turns it off and
-  keeps addon-a11y as the **on-demand dev panel** only. `'off'` disables only
-  the headless `afterEach`; the panel's own run path is the `MANUAL` channel
-  event (the **"Rerun accessibility scan"** button), which is independent of
-  `test`, so the panel still scans the current story — you click Rerun instead
-  of it auto-populating on render. If `@storybook/addon-vitest` is ever wired up
-  as a second runner, reconcile the two before re-enabling the flag; don't
-  simply flip it back to `'todo'`/`'error'`.
+- **Manual mode (`initialGlobals.a11y.manual: true`) is required — not
+  `test: 'off'`.** addon-a11y's preview `afterEach` runs axe on every
+  `viewMode=story` render unless `test === 'off'` **or** `globals.a11y.manual`
+  is true (the `shouldRunEnvironmentIndependent` guard in the addon's preview
+  chunk). `@axe-core/playwright` loads exactly those `iframe.html?viewMode=story`
+  URLs, so an automatic run **races** our Playwright `.analyze()` in the same
+  frame → intermittent `Error: Axe is already running` (worst on Toast, which
+  mounts toasts in a `useEffect`, forcing a second render → a second axe run).
+  The Phase-1 observe-only exit-0 shim hid this; flipping the gate to blocking
+  ([#346](https://github.com/yasmro/schatten/issues/346)) surfaced it. Our a11y
+  **test runner** is `@axe-core/playwright` (the CI `a11y` job), so the addon's
+  automatic run is redundant.
+  - **Why not `test: 'off'`.** It also stops the race, and #346 shipped it — but
+    the panel then renders only "Accessibility tests are disabled for this
+    story", with **no** scan button (the manager checks `parameters.test ===
+    'off'` before anything else). The panel was unusable from #346 on; the old
+    text here claimed a "Rerun" button still worked, which was never true —
+    checked against addon-a11y 10.4.1 (the version #346 shipped with) and
+    10.6.6. Manual mode stops the same automatic run and keeps a **"Run
+    accessibility scan"** button in the panel.
+  - **Re-check on an addon-a11y bump.** Both claims above are addon behaviour,
+    not ours, and no test exercises the panel. Our side — manual mode on, no
+    `test` flag, the WCAG tag set — is pinned by
+    [`StorybookA11y.drift.test.ts`](../../src/docs/StorybookA11y.drift.test.ts).
+    The addon side is re-checked by hand: the
+    [`prepare-release`](../skills/prepare-release/SKILL.md) skill's Step 3
+    detects the bump and lists the guard in the preview chunk, the panel's
+    render condition in `manager.js`, and a Toast repeat run to check.
+  - If `@storybook/addon-vitest` is ever wired up as a second runner, reconcile
+    the two before turning manual mode off.
 - **Dark mode / seasonal violations come for free.** The addon scans the
   rendered DOM *after* the global theme decorator applies `.dark` /
   `data-theme` to `<html>`, so toggling the Theme toolbar surfaces dark-mode

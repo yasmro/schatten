@@ -95,6 +95,10 @@ beyond WCAG minimums), record it under
 Every PR must pass these before review. Run them locally — they mirror the CI
 jobs one-to-one, so a green local run is a green CI run.
 
+This table lists the gates by command. What each gate guarantees, which
+failures block a merge, the allowed exceptions, and the known gaps are
+defined in [docs/quality-definition.md](docs/quality-definition.md).
+
 | Command | What it guards |
 |---|---|
 | `pnpm lint` | Biome lint + format, and the custom `no-primitive-color` / doc-link / layer-order checks in the `lint` job. |

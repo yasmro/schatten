@@ -118,12 +118,14 @@
             "case": "data-testid passes through",
             "ok": true
           }
-        ]
+        ],
+        "status": "prepared"
       },
       "a11y": {
         "role": null,
         "roleTest": null,
-        "exceptions": []
+        "exceptions": [],
+        "status": "prepared"
       },
       "visual": {
         "notInRoster": [
@@ -135,14 +137,17 @@
             "story": "with-broken-image",
             "skip": "documented"
           }
-        ]
+        ],
+        "status": "prepared"
       },
       "interaction": {
-        "required": true
+        "required": true,
+        "status": "prepared"
       },
       "parity": {
         "required": false,
-        "present": false
+        "present": false,
+        "status": "na"
       }
     }
   },
@@ -315,14 +320,16 @@
             "case": "data-testid passes through",
             "ok": true
           }
-        ]
+        ],
+        "status": "prepared"
       },
       "a11y": {
         "role": "img",
         "roleTest": true,
         "exceptions": [
           "color-contrast"
-        ]
+        ],
+        "status": "prepared"
       },
       "visual": {
         "notInRoster": [
@@ -350,14 +357,17 @@
             "story": "icons",
             "skip": "undocumented"
           }
-        ]
+        ],
+        "status": "missing"
       },
       "interaction": {
-        "required": false
+        "required": false,
+        "status": "na"
       },
       "parity": {
         "required": true,
-        "present": true
+        "present": true,
+        "status": "prepared"
       }
     }
   },
@@ -613,14 +623,16 @@
             "case": "data-testid passes through",
             "ok": true
           }
-        ]
+        ],
+        "status": "prepared"
       },
       "a11y": {
         "role": "button",
         "roleTest": true,
         "exceptions": [
           "color-contrast"
-        ]
+        ],
+        "status": "prepared"
       },
       "visual": {
         "notInRoster": [
@@ -628,14 +640,17 @@
             "story": "playground",
             "skip": "by rule"
           }
-        ]
+        ],
+        "status": "prepared"
       },
       "interaction": {
-        "required": false
+        "required": false,
+        "status": "prepared"
       },
       "parity": {
         "required": true,
-        "present": true
+        "present": true,
+        "status": "prepared"
       }
     }
   },
@@ -856,14 +871,16 @@
             "case": "data-testid passes through",
             "ok": true
           }
-        ]
+        ],
+        "status": "prepared"
       },
       "a11y": {
         "role": null,
         "roleTest": null,
         "exceptions": [
           "color-contrast"
-        ]
+        ],
+        "status": "prepared"
       },
       "visual": {
         "notInRoster": [
@@ -879,14 +896,17 @@
             "story": "full-matrix",
             "skip": "undocumented"
           }
-        ]
+        ],
+        "status": "missing"
       },
       "interaction": {
-        "required": false
+        "required": false,
+        "status": "na"
       },
       "parity": {
         "required": true,
-        "present": true
+        "present": true,
+        "status": "prepared"
       }
     }
   },
@@ -999,12 +1019,14 @@
             "case": "data-testid passes through",
             "ok": true
           }
-        ]
+        ],
+        "status": "prepared"
       },
       "a11y": {
         "role": null,
         "roleTest": null,
-        "exceptions": []
+        "exceptions": [],
+        "status": "prepared"
       },
       "visual": {
         "notInRoster": [
@@ -1012,14 +1034,17 @@
             "story": "playground",
             "skip": "by rule"
           }
-        ]
+        ],
+        "status": "prepared"
       },
       "interaction": {
-        "required": false
+        "required": false,
+        "status": "na"
       },
       "parity": {
         "required": true,
-        "present": true
+        "present": true,
+        "status": "prepared"
       }
     }
   },
@@ -1350,12 +1375,14 @@
             "case": "data-testid passes through",
             "ok": true
           }
-        ]
+        ],
+        "status": "prepared"
       },
       "a11y": {
         "role": "checkbox",
         "roleTest": true,
-        "exceptions": []
+        "exceptions": [],
+        "status": "prepared"
       },
       "visual": {
         "notInRoster": [
@@ -1363,14 +1390,17 @@
             "story": "playground",
             "skip": "by rule"
           }
-        ]
+        ],
+        "status": "prepared"
       },
       "interaction": {
-        "required": false
+        "required": false,
+        "status": "prepared"
       },
       "parity": {
         "required": true,
-        "present": true
+        "present": true,
+        "status": "prepared"
       }
     }
   },
@@ -2299,12 +2329,14 @@
             "case": "data-testid passes through",
             "ok": true
           }
-        ]
+        ],
+        "status": "prepared"
       },
       "a11y": {
         "role": "grid",
         "roleTest": true,
-        "exceptions": []
+        "exceptions": [],
+        "status": "prepared"
       },
       "visual": {
         "notInRoster": [
@@ -2316,14 +2348,17 @@
             "story": "returned-value",
             "skip": "documented"
           }
-        ]
+        ],
+        "status": "prepared"
       },
       "interaction": {
-        "required": true
+        "required": true,
+        "status": "prepared"
       },
       "parity": {
         "required": false,
-        "present": false
+        "present": false,
+        "status": "na"
       }
     }
   },
@@ -3466,12 +3501,14 @@
             "case": "data-testid passes through",
             "ok": true
           }
-        ]
+        ],
+        "status": "prepared"
       },
       "a11y": {
         "role": "textbox",
         "roleTest": true,
-        "exceptions": []
+        "exceptions": [],
+        "status": "prepared"
       },
       "visual": {
         "notInRoster": [
@@ -3495,14 +3532,17 @@
             "story": "with-time-in-dialog",
             "skip": "documented"
           }
-        ]
+        ],
+        "status": "prepared"
       },
       "interaction": {
-        "required": true
+        "required": true,
+        "status": "prepared"
       },
       "parity": {
         "required": false,
-        "present": false
+        "present": false,
+        "status": "na"
       }
     }
   },
@@ -3790,14 +3830,16 @@
     ],
     "aspects": {
       "behaviour": {
-        "required": []
+        "required": [],
+        "status": "prepared"
       },
       "a11y": {
         "role": "dialog",
         "roleTest": true,
         "exceptions": [
           "color-contrast"
-        ]
+        ],
+        "status": "prepared"
       },
       "visual": {
         "notInRoster": [
@@ -3813,14 +3855,17 @@
             "story": "async-sub-action",
             "skip": "undocumented"
           }
-        ]
+        ],
+        "status": "missing"
       },
       "interaction": {
-        "required": true
+        "required": true,
+        "status": "prepared"
       },
       "parity": {
         "required": false,
-        "present": false
+        "present": false,
+        "status": "na"
       }
     }
   },
@@ -3955,14 +4000,16 @@
             "case": "data-testid passes through",
             "ok": true
           }
-        ]
+        ],
+        "status": "prepared"
       },
       "a11y": {
         "role": null,
         "roleTest": null,
         "exceptions": [
           "aria-hidden-focus"
-        ]
+        ],
+        "status": "prepared"
       },
       "visual": {
         "notInRoster": [
@@ -3974,14 +4021,17 @@
             "story": "controlled",
             "skip": "documented"
           }
-        ]
+        ],
+        "status": "prepared"
       },
       "interaction": {
-        "required": true
+        "required": true,
+        "status": "prepared"
       },
       "parity": {
         "required": false,
-        "present": false
+        "present": false,
+        "status": "na"
       }
     }
   },
@@ -4139,12 +4189,14 @@
             "case": "data-testid passes through",
             "ok": true
           }
-        ]
+        ],
+        "status": "prepared"
       },
       "a11y": {
         "role": "heading",
         "roleTest": true,
-        "exceptions": []
+        "exceptions": [],
+        "status": "prepared"
       },
       "visual": {
         "notInRoster": [
@@ -4152,14 +4204,17 @@
             "story": "playground",
             "skip": "by rule"
           }
-        ]
+        ],
+        "status": "prepared"
       },
       "interaction": {
-        "required": false
+        "required": false,
+        "status": "na"
       },
       "parity": {
         "required": false,
-        "present": false
+        "present": false,
+        "status": "na"
       }
     }
   },
@@ -4461,12 +4516,14 @@
     ],
     "aspects": {
       "behaviour": {
-        "required": []
+        "required": [],
+        "status": "prepared"
       },
       "a11y": {
         "role": null,
         "roleTest": null,
-        "exceptions": []
+        "exceptions": [],
+        "status": "prepared"
       },
       "visual": {
         "notInRoster": [
@@ -4494,14 +4551,17 @@
             "story": "label-usage-patterns",
             "skip": "undocumented"
           }
-        ]
+        ],
+        "status": "missing"
       },
       "interaction": {
-        "required": false
+        "required": false,
+        "status": "prepared"
       },
       "parity": {
         "required": true,
-        "present": true
+        "present": true,
+        "status": "prepared"
       }
     }
   },
@@ -4780,12 +4840,14 @@
     "interactions": [],
     "aspects": {
       "behaviour": {
-        "required": []
+        "required": [],
+        "status": "prepared"
       },
       "a11y": {
         "role": "group",
         "roleTest": true,
-        "exceptions": []
+        "exceptions": [],
+        "status": "prepared"
       },
       "visual": {
         "notInRoster": [
@@ -4821,14 +4883,17 @@
             "story": "flex-props-patterns",
             "skip": "undocumented"
           }
-        ]
+        ],
+        "status": "missing"
       },
       "interaction": {
-        "required": false
+        "required": false,
+        "status": "na"
       },
       "parity": {
         "required": true,
-        "present": true
+        "present": true,
+        "status": "prepared"
       }
     }
   },
@@ -4974,12 +5039,14 @@
             "case": "data-testid passes through",
             "ok": true
           }
-        ]
+        ],
+        "status": "prepared"
       },
       "a11y": {
         "role": null,
         "roleTest": null,
-        "exceptions": []
+        "exceptions": [],
+        "status": "prepared"
       },
       "visual": {
         "notInRoster": [
@@ -4987,14 +5054,17 @@
             "story": "playground",
             "skip": "by rule"
           }
-        ]
+        ],
+        "status": "prepared"
       },
       "interaction": {
-        "required": false
+        "required": false,
+        "status": "na"
       },
       "parity": {
         "required": true,
-        "present": true
+        "present": true,
+        "status": "prepared"
       }
     }
   },
@@ -5319,12 +5389,14 @@
             "case": "data-testid passes through",
             "ok": true
           }
-        ]
+        ],
+        "status": "prepared"
       },
       "a11y": {
         "role": "textbox",
         "roleTest": true,
-        "exceptions": []
+        "exceptions": [],
+        "status": "prepared"
       },
       "visual": {
         "notInRoster": [
@@ -5336,14 +5408,17 @@
             "story": "text-overrides-icon",
             "skip": "undocumented"
           }
-        ]
+        ],
+        "status": "missing"
       },
       "interaction": {
-        "required": false
+        "required": false,
+        "status": "na"
       },
       "parity": {
         "required": true,
-        "present": true
+        "present": true,
+        "status": "prepared"
       }
     }
   },
@@ -5470,14 +5545,16 @@
             "case": "data-testid passes through",
             "ok": true
           }
-        ]
+        ],
+        "status": "prepared"
       },
       "a11y": {
         "role": null,
         "roleTest": null,
         "exceptions": [
           "aria-hidden-focus"
-        ]
+        ],
+        "status": "prepared"
       },
       "visual": {
         "notInRoster": [
@@ -5493,14 +5570,17 @@
             "story": "controlled",
             "skip": "documented"
           }
-        ]
+        ],
+        "status": "prepared"
       },
       "interaction": {
-        "required": true
+        "required": true,
+        "status": "prepared"
       },
       "parity": {
         "required": false,
-        "present": false
+        "present": false,
+        "status": "na"
       }
     }
   },
@@ -5774,12 +5854,14 @@
             "case": "data-testid passes through",
             "ok": true
           }
-        ]
+        ],
+        "status": "prepared"
       },
       "a11y": {
         "role": "radio",
         "roleTest": true,
-        "exceptions": []
+        "exceptions": [],
+        "status": "prepared"
       },
       "visual": {
         "notInRoster": [
@@ -5787,14 +5869,17 @@
             "story": "playground",
             "skip": "by rule"
           }
-        ]
+        ],
+        "status": "prepared"
       },
       "interaction": {
-        "required": false
+        "required": false,
+        "status": "prepared"
       },
       "parity": {
         "required": true,
-        "present": true
+        "present": true,
+        "status": "prepared"
       }
     }
   },
@@ -6020,14 +6105,16 @@
             "case": "data-testid passes through",
             "ok": true
           }
-        ]
+        ],
+        "status": "prepared"
       },
       "a11y": {
         "role": null,
         "roleTest": null,
         "exceptions": [
           "aria-hidden-focus"
-        ]
+        ],
+        "status": "prepared"
       },
       "visual": {
         "notInRoster": [
@@ -6043,14 +6130,17 @@
             "story": "many-items",
             "skip": "undocumented"
           }
-        ]
+        ],
+        "status": "missing"
       },
       "interaction": {
-        "required": true
+        "required": true,
+        "status": "prepared"
       },
       "parity": {
         "required": false,
-        "present": false
+        "present": false,
+        "status": "na"
       }
     }
   },
@@ -6149,12 +6239,14 @@
             "case": "data-testid passes through",
             "ok": true
           }
-        ]
+        ],
+        "status": "prepared"
       },
       "a11y": {
         "role": null,
         "roleTest": null,
-        "exceptions": []
+        "exceptions": [],
+        "status": "prepared"
       },
       "visual": {
         "notInRoster": [
@@ -6162,14 +6254,17 @@
             "story": "playground",
             "skip": "by rule"
           }
-        ]
+        ],
+        "status": "prepared"
       },
       "interaction": {
-        "required": false
+        "required": false,
+        "status": "na"
       },
       "parity": {
         "required": true,
-        "present": true
+        "present": true,
+        "status": "prepared"
       }
     }
   },
@@ -6270,12 +6365,14 @@
             "case": "data-testid passes through",
             "ok": true
           }
-        ]
+        ],
+        "status": "prepared"
       },
       "a11y": {
         "role": null,
         "roleTest": null,
-        "exceptions": []
+        "exceptions": [],
+        "status": "prepared"
       },
       "visual": {
         "notInRoster": [
@@ -6283,14 +6380,17 @@
             "story": "playground",
             "skip": "by rule"
           }
-        ]
+        ],
+        "status": "prepared"
       },
       "interaction": {
-        "required": false
+        "required": false,
+        "status": "na"
       },
       "parity": {
         "required": true,
-        "present": true
+        "present": true,
+        "status": "prepared"
       }
     }
   },
@@ -6426,12 +6526,14 @@
             "case": "data-testid passes through",
             "ok": true
           }
-        ]
+        ],
+        "status": "prepared"
       },
       "a11y": {
         "role": null,
         "roleTest": null,
-        "exceptions": []
+        "exceptions": [],
+        "status": "prepared"
       },
       "visual": {
         "notInRoster": [
@@ -6439,14 +6541,17 @@
             "story": "playground",
             "skip": "by rule"
           }
-        ]
+        ],
+        "status": "prepared"
       },
       "interaction": {
-        "required": false
+        "required": false,
+        "status": "na"
       },
       "parity": {
         "required": true,
-        "present": true
+        "present": true,
+        "status": "prepared"
       }
     }
   },
@@ -6792,12 +6897,14 @@
             "case": "data-testid passes through",
             "ok": true
           }
-        ]
+        ],
+        "status": "prepared"
       },
       "a11y": {
         "role": "switch",
         "roleTest": true,
-        "exceptions": []
+        "exceptions": [],
+        "status": "prepared"
       },
       "visual": {
         "notInRoster": [
@@ -6805,14 +6912,17 @@
             "story": "playground",
             "skip": "by rule"
           }
-        ]
+        ],
+        "status": "prepared"
       },
       "interaction": {
-        "required": false
+        "required": false,
+        "status": "prepared"
       },
       "parity": {
         "required": true,
-        "present": true
+        "present": true,
+        "status": "prepared"
       }
     }
   },
@@ -6938,12 +7048,14 @@
             "case": "data-testid passes through",
             "ok": true
           }
-        ]
+        ],
+        "status": "prepared"
       },
       "a11y": {
         "role": null,
         "roleTest": null,
-        "exceptions": []
+        "exceptions": [],
+        "status": "prepared"
       },
       "visual": {
         "notInRoster": [
@@ -6955,14 +7067,17 @@
             "story": "hoverable",
             "skip": "documented"
           }
-        ]
+        ],
+        "status": "prepared"
       },
       "interaction": {
-        "required": false
+        "required": false,
+        "status": "na"
       },
       "parity": {
         "required": true,
-        "present": true
+        "present": true,
+        "status": "prepared"
       }
     }
   },
@@ -7121,12 +7236,14 @@
             "case": "data-testid passes through",
             "ok": true
           }
-        ]
+        ],
+        "status": "prepared"
       },
       "a11y": {
         "role": null,
         "roleTest": null,
-        "exceptions": []
+        "exceptions": [],
+        "status": "prepared"
       },
       "visual": {
         "notInRoster": [
@@ -7134,14 +7251,17 @@
             "story": "playground",
             "skip": "by rule"
           }
-        ]
+        ],
+        "status": "prepared"
       },
       "interaction": {
-        "required": true
+        "required": true,
+        "status": "prepared"
       },
       "parity": {
         "required": false,
-        "present": false
+        "present": false,
+        "status": "na"
       }
     }
   },
@@ -7391,14 +7511,16 @@
             "case": "data-testid passes through",
             "ok": true
           }
-        ]
+        ],
+        "status": "prepared"
       },
       "a11y": {
         "role": "heading",
         "roleTest": true,
         "exceptions": [
           "color-contrast"
-        ]
+        ],
+        "status": "prepared"
       },
       "visual": {
         "notInRoster": [
@@ -7406,14 +7528,17 @@
             "story": "playground",
             "skip": "by rule"
           }
-        ]
+        ],
+        "status": "prepared"
       },
       "interaction": {
-        "required": false
+        "required": false,
+        "status": "na"
       },
       "parity": {
         "required": true,
-        "present": true
+        "present": true,
+        "status": "prepared"
       }
     }
   },
@@ -7647,12 +7772,14 @@
             "case": "data-testid passes through",
             "ok": true
           }
-        ]
+        ],
+        "status": "prepared"
       },
       "a11y": {
         "role": "textbox",
         "roleTest": true,
-        "exceptions": []
+        "exceptions": [],
+        "status": "prepared"
       },
       "visual": {
         "notInRoster": [
@@ -7660,14 +7787,17 @@
             "story": "playground",
             "skip": "by rule"
           }
-        ]
+        ],
+        "status": "prepared"
       },
       "interaction": {
-        "required": false
+        "required": false,
+        "status": "na"
       },
       "parity": {
         "required": true,
-        "present": true
+        "present": true,
+        "status": "prepared"
       }
     }
   },
@@ -7846,14 +7976,16 @@
     ],
     "aspects": {
       "behaviour": {
-        "required": []
+        "required": [],
+        "status": "prepared"
       },
       "a11y": {
         "role": null,
         "roleTest": null,
         "exceptions": [
           "color-contrast"
-        ]
+        ],
+        "status": "prepared"
       },
       "visual": {
         "notInRoster": [
@@ -7869,14 +8001,17 @@
             "story": "promise-demo",
             "skip": "undocumented"
           }
-        ]
+        ],
+        "status": "missing"
       },
       "interaction": {
-        "required": true
+        "required": true,
+        "status": "prepared"
       },
       "parity": {
         "required": false,
-        "present": false
+        "present": false,
+        "status": "na"
       }
     }
   },
@@ -7993,12 +8128,14 @@
             "case": "data-testid passes through",
             "ok": true
           }
-        ]
+        ],
+        "status": "prepared"
       },
       "a11y": {
         "role": null,
         "roleTest": null,
-        "exceptions": []
+        "exceptions": [],
+        "status": "prepared"
       },
       "visual": {
         "notInRoster": [
@@ -8014,14 +8151,17 @@
             "story": "with-disabled-button",
             "skip": "undocumented"
           }
-        ]
+        ],
+        "status": "missing"
       },
       "interaction": {
-        "required": true
+        "required": true,
+        "status": "prepared"
       },
       "parity": {
         "required": false,
-        "present": false
+        "present": false,
+        "status": "na"
       }
     }
   }

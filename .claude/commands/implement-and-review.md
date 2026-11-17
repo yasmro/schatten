@@ -28,7 +28,7 @@
    を切るかを判定
 3. **Implement** — タスクに従って実装する。関連する `.claude/rules/*.md` は
    実装前に読む
-4. **Quality gates** — `pnpm lint` / `pnpm test --run` / `pnpm typecheck` を順に通す
+4. **Quality gates** — `pnpm lint` / `pnpm test --run` / `pnpm typecheck` / `pnpm check:test-catalog` を順に通す
 5. **Changeset** — ユーザ向け変更なら `.changeset/*.md` を追加 (内部限定 PR は
    後段の `no-changeset` ラベルでスキップする旨を覚えておく)
 6. **Approval gate** — 差分・コミットメッセージ・PR タイトル / body をプレビュー
@@ -162,6 +162,7 @@ git switch -c "$BRANCH" origin/develop
 pnpm lint           # Biome ci checks (auto-fix では走らせない — 何が変わるか不可視になる)
 pnpm test --run     # Vitest single-pass
 pnpm typecheck      # tsc --noEmit -p tsconfig.test.json
+pnpm check:test-catalog  # テストを足す・名前を変える・消したときは、先に pnpm update:test-catalog を流してコミットする
 ```
 
 ### 失敗時の方針

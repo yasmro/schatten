@@ -39,6 +39,7 @@ import {
   ROLE_NAME_CONTRACT,
   spreadsProps,
   usesForwardRef,
+  vrtSkipReason,
 } from './audit-coverage.mjs'
 import { isCliEntry } from './is-cli-entry.mjs'
 
@@ -84,17 +85,6 @@ export function storyIdsFromSource(source) {
   return [...source.matchAll(/^export const (\w+)\s*[:=]/gm)].map(([, name]) =>
     sanitize(storyNameFromExport(name)),
   )
-}
-
-/**
- * Why a story is outside the VRT roster. vrt-spec-guideline excludes
- * Playground by rule; any other skipped story must be named in a
- * `// '<id>' — reason` comment in its spec.
- */
-export function skipReason(storyId, specSource) {
-  if (storyId.startsWith('playground')) return 'by rule'
-  const escaped = storyId.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-  return new RegExp(`//.*['"]${escaped}['"]`).test(specSource) ? 'documented' : 'undocumented'
 }
 
 function entryFor(catalog, comp) {
@@ -198,7 +188,7 @@ function collectAspects(catalog) {
         notInRoster: readAll(dir, '.stories.tsx')
           .flatMap(storyIdsFromSource)
           .filter((id) => !roster.has(id))
-          .map((story) => ({ story, skip: skipReason(story, specs) })),
+          .map((story) => ({ story, skip: vrtSkipReason(story, specs) })),
       },
       interaction: { required: PARITY_EXEMPT.has(name) || LV2_INTERACTIVE.has(name) },
       parity: {
@@ -206,6 +196,42 @@ function collectAspects(catalog) {
         present: roster.has('parity'),
       },
     }
+    for (const [aspect, status] of Object.entries(aspectStatuses(entry))) {
+      entry.aspects[aspect].status = status
+    }
+  }
+}
+
+/**
+ * Stage 1 of docs/quality-definition.md §3 per aspect: are the required tests
+ * prepared? Lives here, not in the Tests tab, so it is unit-tested and a
+ * change of status shows in the committed catalog's diff.
+ *   prepared — the tests the aspect requires exist
+ *   missing  — something the aspect requires is absent
+ *   na       — the aspect does not apply to this component
+ * Aspects 6 and 7 are checked library-wide and get no per-component status.
+ */
+export function aspectStatuses(entry) {
+  const a = entry.aspects
+  const axeScans = entry.screenshots.reduce((n, s) => n + s.a11y.length, 0)
+  const screenshots = entry.screenshots.reduce((n, s) => n + s.screenshot.length, 0)
+  const hasInteraction = entry.interactions.length > 0
+  return {
+    behaviour:
+      entry.unit.length === 0 || a.behaviour.required.some((r) => !r.ok) ? 'missing' : 'prepared',
+    a11y: axeScans === 0 || (a.a11y.role && !a.a11y.roleTest) ? 'missing' : 'prepared',
+    visual:
+      screenshots === 0 || a.visual.notInRoster.some((s) => s.skip === 'undocumented')
+        ? 'missing'
+        : 'prepared',
+    interaction: a.interaction.required
+      ? hasInteraction
+        ? 'prepared'
+        : 'missing'
+      : hasInteraction
+        ? 'prepared'
+        : 'na',
+    parity: a.parity.required ? (a.parity.present ? 'prepared' : 'missing') : 'na',
   }
 }
 

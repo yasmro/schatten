@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest'
 import {
+  aspectStatuses,
   classifySpecTitle,
   componentOf,
   parseUnitName,
   serializeCatalog,
-  skipReason,
   storyIdsFromSource,
 } from '../generate-test-catalog.mjs'
 
@@ -86,28 +86,6 @@ describe('storyIdsFromSource', () => {
   })
 })
 
-describe('skipReason', () => {
-  const spec = [
-    'const stories = [',
-    "  'all-variants',",
-    "  // 'states' — visual covered by 'full-matrix'",
-    '] as const',
-  ].join('\n')
-
-  it('treats Playground as skipped by rule', () => {
-    expect(skipReason('playground', spec)).toBe('by rule')
-    expect(skipReason('playground-story', spec)).toBe('by rule')
-  })
-
-  it('accepts a story named in a skip comment', () => {
-    expect(skipReason('states', spec)).toBe('documented')
-  })
-
-  it('flags a story that is neither in the roster nor named in a comment', () => {
-    expect(skipReason('solid-treatments', spec)).toBe('undocumented')
-  })
-})
-
 describe('serializeCatalog', () => {
   it('orders components by name and tests by file, keeping the in-file order', () => {
     const catalog = {
@@ -130,5 +108,81 @@ describe('serializeCatalog', () => {
       'second in a',
       'second file',
     ])
+  })
+})
+
+describe('aspectStatuses', () => {
+  type Entry = Parameters<typeof aspectStatuses>[0]
+
+  // A component with every aspect in place: the baseline each test varies.
+  function entry(overrides: {
+    unit?: unknown[]
+    screenshots?: Entry['screenshots']
+    interactions?: unknown[]
+    aspects?: Partial<Entry['aspects']>
+  }): Entry {
+    return {
+      unit: overrides.unit ?? [{}],
+      screenshots: overrides.screenshots ?? [{ screenshot: ['light'], a11y: ['light'] }],
+      interactions: overrides.interactions ?? [],
+      aspects: {
+        behaviour: { required: [{ ok: true }] },
+        a11y: { role: 'button', roleTest: true },
+        visual: { notInRoster: [{ skip: 'by rule' }] },
+        interaction: { required: false },
+        parity: { required: true, present: true },
+        ...overrides.aspects,
+      },
+    }
+  }
+
+  it('reports every aspect as prepared when the required tests exist', () => {
+    expect(aspectStatuses(entry({}))).toEqual({
+      behaviour: 'prepared',
+      a11y: 'prepared',
+      visual: 'prepared',
+      interaction: 'na',
+      parity: 'prepared',
+    })
+  })
+
+  it('reports behaviour as missing with no unit test, even when nothing is required', () => {
+    const e = entry({ unit: [], aspects: { behaviour: { required: [] } } })
+    expect(aspectStatuses(e).behaviour).toBe('missing')
+  })
+
+  it('reports behaviour as missing when a required common case is absent', () => {
+    const e = entry({ aspects: { behaviour: { required: [{ ok: true }, { ok: false }] } } })
+    expect(aspectStatuses(e).behaviour).toBe('missing')
+  })
+
+  it('reports accessibility as missing with no axe scan, even without a role contract', () => {
+    const e = entry({
+      screenshots: [{ screenshot: ['light'], a11y: [] }],
+      aspects: { a11y: { role: null, roleTest: null } },
+    })
+    expect(aspectStatuses(e).a11y).toBe('missing')
+  })
+
+  it('reports accessibility as missing when the role + name test is absent', () => {
+    const e = entry({ aspects: { a11y: { role: 'button', roleTest: false } } })
+    expect(aspectStatuses(e).a11y).toBe('missing')
+  })
+
+  it('reports visual as missing for a story skipped without a reason', () => {
+    const e = entry({ aspects: { visual: { notInRoster: [{ skip: 'undocumented' }] } } })
+    expect(aspectStatuses(e).visual).toBe('missing')
+  })
+
+  it('reports interaction as missing only when the component requires one', () => {
+    const required = entry({ aspects: { interaction: { required: true } } })
+    expect(aspectStatuses(required).interaction).toBe('missing')
+    const optional = entry({ interactions: [{}] })
+    expect(aspectStatuses(optional).interaction).toBe('prepared')
+  })
+
+  it('reports parity as not applicable when the component is exempt', () => {
+    const e = entry({ aspects: { parity: { required: false, present: false } } })
+    expect(aspectStatuses(e).parity).toBe('na')
   })
 })

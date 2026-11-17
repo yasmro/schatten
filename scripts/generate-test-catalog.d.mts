@@ -16,10 +16,20 @@ export function classifySpecTitle(
 
 export function storyIdsFromSource(source: string): string[]
 
-export function skipReason(
-  storyId: string,
-  specSource: string,
-): 'by rule' | 'documented' | 'undocumented'
+export type AspectStatus = 'prepared' | 'missing' | 'na'
+
+export function aspectStatuses(entry: {
+  unit: unknown[]
+  screenshots: { screenshot: string[]; a11y: string[] }[]
+  interactions: unknown[]
+  aspects: {
+    behaviour: { required: { ok: boolean }[] }
+    a11y: { role: string | null; roleTest: boolean | null }
+    visual: { notInRoster: { skip: string }[] }
+    interaction: { required: boolean }
+    parity: { required: boolean; present: boolean }
+  }
+}): Record<'behaviour' | 'a11y' | 'visual' | 'interaction' | 'parity', AspectStatus>
 
 export function serializeCatalog(catalog: Record<string, unknown>): string
 

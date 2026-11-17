@@ -145,6 +145,11 @@ Once the spec is generated, **the skill stops here**. Tell the user:
 The skill must not run `pnpm test:vrt:update` (it would create unverified
 baselines).
 
+It **does** run `pnpm update:test-catalog` and includes the regenerated
+`src/docs/__generated__/test-catalog.json` in the change: the new spec's test
+titles must appear there, or CI's `check:test-catalog` fails. This lists test
+titles only — it captures no baseline.
+
 ## Templates
 
 Templates A / B / C below are all the **full version (INSTALLED)** — they

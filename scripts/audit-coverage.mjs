@@ -307,6 +307,22 @@ export function hasRoleNameTest(testSource, role) {
   return re.test(testSource)
 }
 
+/**
+ * Why a story is outside the VRT roster. vrt-spec-guideline excludes
+ * Playground by rule; any other skipped story must be named in a
+ * `// '<id>' — reason` comment in its spec. Shared with
+ * scripts/generate-test-catalog.mjs (the Storybook Tests tab), so the tab and
+ * any audit built on this agree on what counts as a documented skip.
+ * @param {string} storyId the story id suffix (`all-variants`)
+ * @param {string} specSource the component's `*.vrt.spec.ts` sources, joined
+ * @returns {'by rule' | 'documented' | 'undocumented'}
+ */
+export function vrtSkipReason(storyId, specSource) {
+  if (storyId.startsWith('playground')) return 'by rule'
+  const escaped = storyId.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  return new RegExp(`//.*['"]${escaped}['"]`).test(specSource) ? 'documented' : 'undocumented'
+}
+
 const REQUIRED_KEYS = /** @type {const} */ ([
   'tsx',
   'css',

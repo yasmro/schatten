@@ -262,6 +262,12 @@ whether the open story is in the VRT roster.
   that they pass (CI) or that they are enough (review) — the three stages in
   [docs/quality-definition.md §3](../../docs/quality-definition.md).
 - **Aspect names follow the document.** Rename an aspect in both places at once.
+- **Status is decided by the generator, not the tab.** `aspectStatuses()` in
+  the script sets Prepared / Missing / Not applicable and is unit-tested; the
+  tab only renders it, so a status change shows in the catalog's diff.
+- **The catalog ships in the manager bundle.** Measured at ~19 KB gzip
+  (~2% of the Storybook manager runtime, about the size of addon-a11y), so it
+  is imported statically. Revisit if it grows several times over.
 - **The manager bundle uses the classic JSX runtime.** `TestsPanel.tsx` imports
   `React` for that reason; the automatic runtime bundles a second React and
   fails at render. Manager-side changes also need a Storybook restart.

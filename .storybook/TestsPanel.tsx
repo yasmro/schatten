@@ -27,12 +27,23 @@ const QUALITY_DEFINITION_URL =
 type UnitTest = { file: string; group: string; title: string }
 type Screenshot = { file: string; story: string; screenshot: string[]; a11y: string[] }
 type Interaction = { file: string; title: string }
+// `status` is decided by `aspectStatuses()` in the generator (unit-tested);
+// this tab only renders it.
+type AspectStatus = 'prepared' | 'missing' | 'na'
 type Aspects = {
-  behaviour: { required: { case: string; ok: boolean }[] }
-  a11y: { role: string | null; roleTest: boolean | null; exceptions: string[] }
-  visual: { notInRoster: { story: string; skip: 'by rule' | 'documented' | 'undocumented' }[] }
-  interaction: { required: boolean }
-  parity: { required: boolean; present: boolean }
+  behaviour: { required: { case: string; ok: boolean }[]; status: AspectStatus }
+  a11y: {
+    role: string | null
+    roleTest: boolean | null
+    exceptions: string[]
+    status: AspectStatus
+  }
+  visual: {
+    notInRoster: { story: string; skip: 'by rule' | 'documented' | 'undocumented' }[]
+    status: AspectStatus
+  }
+  interaction: { required: boolean; status: AspectStatus }
+  parity: { required: boolean; present: boolean; status: AspectStatus }
 }
 type Entry = {
   level: string
@@ -42,14 +53,14 @@ type Entry = {
   aspects: Aspects
 }
 
-type Status = 'ok' | 'check' | 'na' | 'repo'
+type Status = AspectStatus | 'library'
 
 // Status is spelled out in text as well as colour (css-api.md: colour alone is not enough).
 const STATUS: Record<Status, { label: string; tone: 'positive' | 'warning' | 'muted' }> = {
-  ok: { label: '✓ Prepared', tone: 'positive' },
-  check: { label: '! Missing', tone: 'warning' },
+  prepared: { label: '✓ Prepared', tone: 'positive' },
+  missing: { label: '! Missing', tone: 'warning' },
   na: { label: '– Not applicable', tone: 'muted' },
-  repo: { label: '◎ Library-wide', tone: 'muted' },
+  library: { label: '◎ Library-wide', tone: 'muted' },
 }
 
 const Wrapper = styled.div(({ theme }) => ({
@@ -152,13 +163,11 @@ function aspectRows(entry: Entry): ReactNode[][] {
   const { aspects: a } = entry
   const shots = entry.screenshots.reduce((n, s) => n + s.screenshot.length, 0)
   const axe = entry.screenshots.reduce((n, s) => n + s.a11y.length, 0)
-  const undocumented = a.visual.notInRoster.filter((s) => s.skip === 'undocumented')
-  const missingCases = a.behaviour.required.filter((r) => !r.ok)
 
   return [
     [
       '1. Behaviour',
-      <StatusPill key="s" status={missingCases.length ? 'check' : 'ok'} />,
+      <StatusPill key="s" status={a.behaviour.status} />,
       <>
         {entry.unit.length} unit tests (jsdom).{' '}
         {a.behaviour.required.map((r) => `${r.ok ? '✓' : '✗'} ${r.case}`).join(' · ')}
@@ -176,7 +185,7 @@ function aspectRows(entry: Entry): ReactNode[][] {
     ],
     [
       '2. Accessibility',
-      <StatusPill key="s" status={a.a11y.role && !a.a11y.roleTest ? 'check' : 'ok'} />,
+      <StatusPill key="s" status={a.a11y.status} />,
       <>
         {a.a11y.role
           ? `${a.a11y.roleTest ? '✓' : '✗'} getByRole('${a.a11y.role}', { name })`
@@ -189,7 +198,7 @@ function aspectRows(entry: Entry): ReactNode[][] {
     ],
     [
       '3. Visual',
-      <StatusPill key="s" status={undocumented.length ? 'check' : 'ok'} />,
+      <StatusPill key="s" status={a.visual.status} />,
       <>
         {shots} screenshots across {new Set(entry.screenshots.map((s) => s.story)).size} stories.
         {a.visual.notInRoster.length > 0 && (
@@ -208,18 +217,7 @@ function aspectRows(entry: Entry): ReactNode[][] {
     ],
     [
       '4. Real-browser interaction',
-      <StatusPill
-        key="s"
-        status={
-          a.interaction.required
-            ? entry.interactions.length
-              ? 'ok'
-              : 'check'
-            : entry.interactions.length
-              ? 'ok'
-              : 'na'
-        }
-      />,
+      <StatusPill key="s" status={a.interaction.status} />,
       <>
         {a.interaction.required
           ? 'Required (JS-driven component). '
@@ -236,10 +234,7 @@ function aspectRows(entry: Entry): ReactNode[][] {
     ],
     [
       '5. CSS-only parity',
-      <StatusPill
-        key="s"
-        status={a.parity.required ? (a.parity.present ? 'ok' : 'check') : 'na'}
-      />,
+      <StatusPill key="s" status={a.parity.status} />,
       a.parity.required
         ? `${a.parity.present ? '✓' : '✗'} React vs vanilla HTML screenshot`
         : entry.level === 'lv2'
@@ -248,12 +243,12 @@ function aspectRows(entry: Entry): ReactNode[][] {
     ],
     [
       '6. Public API',
-      <StatusPill key="s" status="repo" />,
+      <StatusPill key="s" status="library" />,
       'Typecheck, Radix type boundary, CSS variable registrar, ESM-only check, size-limit, manifest diff, changeset — checked for the whole library in CI.',
     ],
     [
       '7. Theme & state colour',
-      <StatusPill key="s" status="repo" />,
+      <StatusPill key="s" status="library" />,
       'resolution.test, solid-contrast.test, state-color-inheritance.test — checked for the whole library in CI.',
     ],
   ]

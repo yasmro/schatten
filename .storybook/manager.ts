@@ -1,5 +1,17 @@
-import { addons } from 'storybook/manager-api'
+import { createElement } from 'react'
+import { addons, types } from 'storybook/manager-api'
 import { create } from 'storybook/theming'
+import { TestsPanel } from './TestsPanel'
+
+// PoC: "Tests" tab in the addon panel — see TestsPanel.tsx.
+addons.register('schatten/tests', () => {
+  addons.add('schatten/tests/panel', {
+    type: types.PANEL,
+    title: 'Tests',
+    match: ({ viewMode }) => viewMode === 'story',
+    render: ({ active }) => createElement(TestsPanel, { active }),
+  })
+})
 
 // `STORYBOOK_CHANNEL` is injected by `.github/workflows/deploy-storybook.yml`:
 // the `develop` build (published at /schatten/next/) sets it to `next`, the

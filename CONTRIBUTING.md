@@ -110,6 +110,7 @@ defined in [docs/quality-definition.md](docs/quality-definition.md).
 | `pnpm test:webkit` | DateCalendar interaction spec on WebKit (local only; run `pnpm exec playwright install webkit` once). |
 | `pnpm size` | Per-entry bundle-size budgets in [`.size-limit.json`](.size-limit.json). |
 | `pnpm check:manifest` | The public CSS class / variable manifest matches the committed snapshot. |
+| `pnpm check:test-catalog` | The test catalog behind the Storybook **Tests** tab matches the tests on disk. Run `pnpm update:test-catalog` after adding, renaming, or removing a test. |
 | `pnpm check:layer-order` | The `@layer` declaration in the dist matches [css-api.md](.claude/rules/css-api.md). |
 | `pnpm check:doc-links` | Relative links & heading anchors in the prose docs resolve. |
 | `pnpm check:readme` | README's component list and support matrix match the lv1 / lv2 directories on disk. |

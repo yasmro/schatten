@@ -243,6 +243,29 @@ violations visible, so do not blanket-disable a rule globally. When a per-story
 disable is genuinely warranted, leave a one-line comment naming the reason and,
 if it tracks a backlog item, the issue.
 
+## Tests tab — the test catalog
+
+The addon panel has a **Tests** tab ([`.storybook/TestsPanel.tsx`](../../.storybook/TestsPanel.tsx),
+registered in [`.storybook/manager.ts`](../../.storybook/manager.ts), #641).
+For the component being viewed it lists the tests by the quality aspects of
+[docs/quality-definition.md](../../docs/quality-definition.md), and shows
+whether the open story is in the VRT roster.
+
+- **It reads a committed catalog, it runs nothing.**
+  [`scripts/generate-test-catalog.mjs`](../../scripts/generate-test-catalog.mjs)
+  lists test titles (`vitest list`, `playwright test --list`) into
+  `src/docs/__generated__/test-catalog.json`. After adding, renaming, or
+  removing a test, run `pnpm update:test-catalog` and commit the JSON — the
+  required `test` CI job runs `pnpm check:test-catalog` and fails on a stale
+  catalog. The diff is the point: a reviewer reads what a PR now checks.
+- **It shows stage 1 only.** "Prepared" means the required tests exist, not
+  that they pass (CI) or that they are enough (review) — the three stages in
+  [docs/quality-definition.md §3](../../docs/quality-definition.md).
+- **Aspect names follow the document.** Rename an aspect in both places at once.
+- **The manager bundle uses the classic JSX runtime.** `TestsPanel.tsx` imports
+  `React` for that reason; the automatic runtime bundles a second React and
+  fails at render. Manager-side changes also need a Storybook restart.
+
 ## Story title taxonomy (IA)
 
 The Storybook sidebar's **top level is a fixed set of 7 groups** (depth ≤ 2),

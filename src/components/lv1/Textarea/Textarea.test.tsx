@@ -138,6 +138,40 @@ describe('Textarea', () => {
       expect(describedBy).toContain('-description')
     })
 
+    it('takes its own disabled and isError inside a Field', () => {
+      render(
+        <Field label="Bio">
+          <Textarea disabled isError />
+        </Field>,
+      )
+      const ta = screen.getByRole('textbox')
+      expect(ta).toBeDisabled()
+      expect(ta).toHaveAttribute('aria-invalid', 'true')
+    })
+
+    it('keeps the Field disabled and isError when its own are false', () => {
+      render(
+        <Field label="Bio" error="Required" disabled>
+          <Textarea disabled={false} isError={false} />
+        </Field>,
+      )
+      const ta = screen.getByRole('textbox')
+      expect(ta).toBeDisabled()
+      expect(ta).toHaveAttribute('aria-invalid', 'true')
+    })
+
+    it('adds its own aria-describedby after the Field ids', () => {
+      render(
+        <>
+          <p id="extra">0 / 200</p>
+          <Field label="Bio" description="Help text">
+            <Textarea aria-describedby="extra" />
+          </Field>
+        </>,
+      )
+      expect(screen.getByRole('textbox')).toHaveAccessibleDescription('Help text 0 / 200')
+    })
+
     it('inherits required (aria-required) from Field', () => {
       render(
         <Field label="Bio" required>

@@ -12,6 +12,7 @@ function BasicSelect(props: {
   disabled?: boolean
   required?: boolean
   size?: 'sm' | 'md' | 'lg'
+  'aria-describedby'?: string
 }) {
   return (
     <Select
@@ -20,7 +21,12 @@ function BasicSelect(props: {
       onValueChange={props.onValueChange}
       required={props.required}
     >
-      <SelectTrigger isError={props.isError} disabled={props.disabled} size={props.size}>
+      <SelectTrigger
+        isError={props.isError}
+        disabled={props.disabled}
+        size={props.size}
+        aria-describedby={props['aria-describedby']}
+      >
         <SelectValue placeholder="Pick a fruit" />
       </SelectTrigger>
       <SelectContent>
@@ -184,6 +190,40 @@ describe('Select', () => {
       )
       const describedBy = screen.getByRole('combobox').getAttribute('aria-describedby')
       expect(describedBy).toContain('-description')
+    })
+
+    it('takes its own disabled and isError inside a Field', () => {
+      render(
+        <Field label="Fruit">
+          <BasicSelect disabled isError />
+        </Field>,
+      )
+      const trigger = screen.getByRole('combobox')
+      expect(trigger).toBeDisabled()
+      expect(trigger).toHaveAttribute('aria-invalid', 'true')
+    })
+
+    it('keeps the Field disabled and isError when its own are false', () => {
+      render(
+        <Field label="Fruit" error="Required" disabled>
+          <BasicSelect disabled={false} isError={false} />
+        </Field>,
+      )
+      const trigger = screen.getByRole('combobox')
+      expect(trigger).toBeDisabled()
+      expect(trigger).toHaveAttribute('aria-invalid', 'true')
+    })
+
+    it('adds its own aria-describedby after the Field ids', () => {
+      render(
+        <>
+          <p id="extra">Seasonal only</p>
+          <Field label="Fruit" description="Help text">
+            <BasicSelect aria-describedby="extra" />
+          </Field>
+        </>,
+      )
+      expect(screen.getByRole('combobox')).toHaveAccessibleDescription('Help text Seasonal only')
     })
 
     it('inherits required (aria-required) from Field', () => {

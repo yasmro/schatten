@@ -13,6 +13,7 @@ import {
 } from 'react'
 import { useFieldContext } from '../../../contexts/field'
 import { type DateValue, isDateValue } from '../../../date'
+import { mergeIds } from '../../../lib/merge-ids'
 import { mergeRefs } from '../../../lib/merge-refs'
 import { useControllable } from '../../../lib/use-controllable'
 import { cn } from '../../../lib/utils'
@@ -281,9 +282,10 @@ export const CalendarView = forwardRef<HTMLDivElement, CalendarViewProps>(
     ref,
   ) => {
     const field = useFieldContext()
-    const isError = field?.isError ?? isErrorProp
-    const disabled = field?.disabled ?? disabledProp ?? false
-    const ariaDescribedBy = field?.describedBy ?? ariaDescribedByProp
+    // Field state adds to the control's own props, never replaces them (#615).
+    const isError = field?.isError || isErrorProp
+    const disabled = field?.disabled || disabledProp || false
+    const ariaDescribedBy = mergeIds(field?.describedBy, ariaDescribedByProp)
     // A role="group" div cannot be reached by htmlFor, so the Field label names
     // it the same way it names RadioGroup.
     const ariaLabelledBy = ariaLabelledByProp ?? (props['aria-label'] ? undefined : field?.labelId)

@@ -26,9 +26,9 @@ These components should use the Field's `id` for label association:
 ```typescript
 const field = useFieldContext()
 const id = field?.id ?? idProp ?? autoId
-const isError = field?.isError ?? isErrorProp
-const disabled = field?.disabled ?? disabledProp
-const ariaDescribedBy = field?.describedBy ?? ariaDescribedByProp
+const isError = field?.isError || isErrorProp
+const disabled = field?.disabled || disabledProp
+const ariaDescribedBy = mergeIds(field?.describedBy, ariaDescribedByProp)
 ```
 
 ### Components WITH internal labels (Checkbox, Switch, Radio)
@@ -37,9 +37,9 @@ These components have their own `<label>` and need unique ids per instance. They
 
 ```typescript
 const field = useFieldContext()
-const isError = field?.isError ?? isErrorProp
-const disabled = field?.disabled ?? disabledProp
-const ariaDescribedBy = field?.describedBy ?? ariaDescribedByProp
+const isError = field?.isError || isErrorProp
+const disabled = field?.disabled || disabledProp
+const ariaDescribedBy = mergeIds(field?.describedBy, ariaDescribedByProp)
 // When no own `label` (and no explicit naming) is given, the Field-rendered
 // label names the control via aria-labelledby — see "Naming via labelId".
 const ariaLabelledBy =
@@ -57,9 +57,9 @@ Group components should consume Field context at the group level and provide the
 
 ```typescript
 const field = useFieldContext()
-const isError = field?.isError ?? isErrorProp
-const disabled = field?.disabled ?? disabledProp
-const ariaDescribedBy = field?.describedBy ?? ariaDescribedByProp
+const isError = field?.isError || isErrorProp
+const disabled = field?.disabled || disabledProp
+const ariaDescribedBy = mergeIds(field?.describedBy, ariaDescribedByProp)
 // Do NOT use field?.id - RadioGroup doesn't need label association.
 // The group IS named by the Field label, via aria-labelledby — a
 // role="radiogroup" div cannot be reached by htmlFor.
@@ -183,9 +183,9 @@ is the pattern:
 
 ```tsx
 const field = useFieldContext()
-const isError = field?.isError ?? isErrorProp
-const disabled = field?.disabled ?? disabledProp ?? false
-const ariaDescribedBy = field?.describedBy ?? ariaDescribedByProp
+const isError = field?.isError || isErrorProp
+const disabled = field?.disabled || disabledProp || false
+const ariaDescribedBy = mergeIds(field?.describedBy, ariaDescribedByProp)
 const ariaLabelledBy = ariaLabelledByProp ?? (ariaLabel ? undefined : field?.labelId)
 
 <div role="group" aria-label={ariaLabel} aria-labelledby={ariaLabelledBy}>
@@ -244,13 +244,26 @@ Error messages use `aria-describedby` but remain as `<p>` elements (not clickabl
 
 ## Fallback Pattern
 
-All components must work both standalone and within Field. Use the fallback pattern:
+All components must work both standalone and within Field. How a Field value
+meets the control's own prop depends on the value:
 
 ```typescript
-const value = field?.value ?? propValue ?? defaultValue
+// State booleans: either side turns the state on.
+const isError = field?.isError || isErrorProp
+const disabled = field?.disabled || disabledProp
+// Description ids: both are read, the Field's first.
+const ariaDescribedBy = mergeIds(field?.describedBy, ariaDescribedByProp)
+// The id of an externally-labelled control: the Field's, then the prop, then a default.
+const id = field?.id ?? idProp ?? autoId
 ```
 
 This ensures:
-1. Field context values take precedence when inside Field
+1. Inside a Field, the Field adds its state and description to the control's own props without dropping them
 2. Direct props work when used standalone
 3. Sensible defaults when neither is provided
+
+Never write `field?.isError ??`, `field?.disabled ??` or `field?.describedBy ??`.
+Field always provides a boolean, and `false` is not nullish, so the Field's
+`false` would override a direct `true`; a Field with a description would drop
+the control's own ids (#615). The full rule per value is in
+[component-architecture §5 Precedence](component-architecture.md#precedence).

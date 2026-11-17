@@ -1,5 +1,6 @@
 import { forwardRef, type TextareaHTMLAttributes, useId } from 'react'
 import { useFieldContext } from '../../../contexts/field'
+import { mergeIds } from '../../../lib/merge-ids'
 import { cn } from '../../../lib/utils'
 import { type TextareaVariants, textareaVariants } from '../../../variants/textarea'
 import './Textarea.css'
@@ -38,9 +39,10 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
     const autoId = useId()
 
     const id = field?.id ?? idProp ?? autoId
-    const isError = field?.isError ?? isErrorProp
-    const disabled = field?.disabled ?? disabledProp
-    const ariaDescribedBy = field?.describedBy ?? ariaDescribedByProp
+    // Field state adds to the control's own props, never replaces them (#615).
+    const isError = field?.isError || isErrorProp
+    const disabled = field?.disabled || disabledProp
+    const ariaDescribedBy = mergeIds(field?.describedBy, ariaDescribedByProp)
 
     return (
       <textarea

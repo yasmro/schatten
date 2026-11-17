@@ -223,6 +223,42 @@ describe('Input', () => {
       expect(describedBy).toContain('-description')
     })
 
+    it('takes its own disabled and isError inside a Field', () => {
+      render(
+        <Field label="Email">
+          <Input disabled isError />
+        </Field>,
+      )
+      const input = screen.getByRole('textbox')
+      expect(input).toBeDisabled()
+      expect(input).toHaveAttribute('aria-invalid', 'true')
+    })
+
+    it('keeps the Field disabled and isError when its own are false', () => {
+      render(
+        <Field label="Email" error="Required" disabled>
+          <Input disabled={false} isError={false} />
+        </Field>,
+      )
+      const input = screen.getByRole('textbox')
+      expect(input).toBeDisabled()
+      expect(input).toHaveAttribute('aria-invalid', 'true')
+    })
+
+    it('adds its own aria-describedby after the Field ids', () => {
+      render(
+        <>
+          <p id="extra">Up to 254 characters</p>
+          <Field label="Email" description="We never share your address">
+            <Input aria-describedby="extra" />
+          </Field>
+        </>,
+      )
+      expect(screen.getByRole('textbox')).toHaveAccessibleDescription(
+        'We never share your address Up to 254 characters',
+      )
+    })
+
     it('inherits required (aria-required) from Field', () => {
       render(
         <Field label="Email" required>

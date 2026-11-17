@@ -868,9 +868,11 @@ So the defense is this text **plus one static drift guard**:
 reads every lv1 stylesheet as text and fails when a sub-element pins
 `color: var(--color-*)` inside a component that has a block-level state
 color — unless that sub-element is classified in the test's `EXEMPT`
-inventory with one of exactly two reasons (`region` — it never renders
+inventory with one of exactly three reasons (`region` — it never renders
 inside the stateful block; `specificity` — a block-state sibling outranks
-it).
+it; `a11y` — following the block would push non-exempt text below AA, see
+[Bounded exception](#second-shape--a-resting-tier-plus-a-state-scoped-repaint)
+below).
 
 DOM containment is not derivable from CSS, so the guard deliberately does
 **not** decide for you. What it pins is the *inventory*: a newly pinned color

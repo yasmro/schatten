@@ -119,7 +119,7 @@ function scan(): { findings: Finding[]; pinnedAnywhere: Set<string> } {
 
 /*
  * Every sub-element that pins a color inside a stateful component, with the
- * reason it is allowed to. Exactly two reasons are legitimate:
+ * reason it is allowed to. Exactly three reasons are legitimate:
  *
  *   region        — the element never renders inside the stateful block (a
  *                   portal panel, a group label, a tab panel), so the block's

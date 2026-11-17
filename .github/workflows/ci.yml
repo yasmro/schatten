@@ -277,9 +277,9 @@ jobs:
     # `aria-hidden-focus` disables on open Radix poppers (Select /
     # DropdownMenu / Popover — see vrt-spec-guideline.md §a11y assertions).
     # So the gate now propagates the
-    # Playwright exit code (a new violation fails the PR). Adding `a11y` to
-    # develop's required checks is a repo-settings change (ruleset), tracked in
-    # #346, not in this workflow.
+    # Playwright exit code (a new violation fails the PR). `a11y` is one of
+    # develop's required checks (repo ruleset `protect-default`, a settings
+    # change outside this workflow), so a failure blocks the merge.
     steps:
       - uses: actions/checkout@v7
 

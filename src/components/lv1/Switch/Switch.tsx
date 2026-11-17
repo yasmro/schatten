@@ -72,7 +72,8 @@ export const Switch = forwardRef<HTMLButtonElement, SwitchProps>(
     const field = useFieldContext()
     const autoId = useId()
 
-    // Field state adds to the control's own props, never replaces them (#615).
+    // The Field adds its isError / disabled / description to the control's own
+    // and never drops them (#615).
     const isError = field?.isError || isErrorProp
     const disabled = field?.disabled || disabledProp
     const ariaDescribedBy = mergeIds(field?.describedBy, ariaDescribedByProp)

@@ -19,9 +19,16 @@ import { describe, expect, it } from 'vitest'
  * Field with a description drops the control's own ids. All nine call sites
  * were written that way before #615, the same shape as the rule docs' examples.
  *
- * Out of scope on purpose: `field?.id ?? idProp` (the Field id wins for
- * Input / Textarea / Select) and `fieldSet?.isError ?? …` in Field (a Field may
- * opt out of a FieldSet error). `\bfield\?` does not match `fieldSet?.`.
+ * The guard checks whatever name the context is bound to, not only `field`, and
+ * fails a file that reads the context without a plain `const x = …` binding,
+ * since it could not check that file. Out of scope on purpose:
+ * `field?.id ?? idProp` (the Field id wins for Input / Textarea / Select) and
+ * `fieldSet?.isError ?? …` in Field (a Field may opt out of a FieldSet error);
+ * `useFieldSetContext()` is not a FieldContext read.
+ *
+ * This shape is the one that broke; the per-component tests required by
+ * testing-guideline.md catch the others (a prop that is never read, ids joined
+ * in the wrong order).
  *
  * Files are read as TEXT, never imported, like radix-type-boundary.test.tsx.
  */
@@ -37,7 +44,19 @@ function stripComments(src: string): string {
   return src.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/[^\n]*/g, '')
 }
 
-const FIELD_OVERRIDES_PROP = /\bfield\?\.(?:isError|disabled|describedBy)\s*\?\?/
+const FIELD_CONTEXT_READ = /\buseFieldContext\(\)|\buseContext\(\s*FieldContext\s*\)/g
+const FIELD_CONTEXT_BINDING =
+  /\bconst\s+(\w+)\s*=\s*(?:useFieldContext\(\)|useContext\(\s*FieldContext\s*\))/g
+
+/** The names a file binds the Field context to. */
+function fieldBindings(src: string): string[] {
+  return [...src.matchAll(FIELD_CONTEXT_BINDING)].map((match) => match[1])
+}
+
+/** `<name>?.isError ??` and its siblings: the Field value overriding the prop. */
+function overridesProp(name: string): RegExp {
+  return new RegExp(`\\b${name}\\?\\.(?:isError|disabled|describedBy)\\s*\\?\\?`)
+}
 
 describe('Field context combine (drift guard)', () => {
   it('scans the lv1 and lv2 implementation files', () => {
@@ -46,15 +65,24 @@ describe('Field context combine (drift guard)', () => {
     expect(implPaths.some((p) => p.startsWith('../lv2/'))).toBe(true)
   })
 
-  it('matches the banned shape and nothing that is allowed', () => {
-    expect('field?.disabled ?? disabledProp').toMatch(FIELD_OVERRIDES_PROP)
-    expect('field?.describedBy ?? ariaDescribedByProp').toMatch(FIELD_OVERRIDES_PROP)
-    expect('field?.id ?? idProp').not.toMatch(FIELD_OVERRIDES_PROP)
-    expect('fieldSet?.isError ?? false').not.toMatch(FIELD_OVERRIDES_PROP)
+  it('finds the binding and matches only the banned shape', () => {
+    expect(fieldBindings('const field = useFieldContext()')).toEqual(['field'])
+    expect(fieldBindings('const ctx = useContext(FieldContext)')).toEqual(['ctx'])
+    expect(fieldBindings('const fieldSet = useFieldSetContext()')).toEqual([])
+    expect('field?.disabled ?? disabledProp').toMatch(overridesProp('field'))
+    expect('ctx?.describedBy ?? ariaDescribedByProp').toMatch(overridesProp('ctx'))
+    expect('field?.disabled || disabledProp').not.toMatch(overridesProp('field'))
+    expect('field?.id ?? idProp').not.toMatch(overridesProp('field'))
+    expect('fieldSet?.isError ?? false').not.toMatch(overridesProp('field'))
   })
 
   it.each(implPaths)('%s combines Field state with its own props', (path) => {
     const src = stripComments(readFileSync(resolve(here, path), 'utf-8'))
-    expect(src).not.toMatch(FIELD_OVERRIDES_PROP)
+    const reads = src.match(FIELD_CONTEXT_READ)?.length ?? 0
+    const names = fieldBindings(src)
+    // A read the guard cannot name (destructuring, a non-const binding) is
+    // one it cannot check.
+    expect(names).toHaveLength(reads)
+    for (const name of names) expect(src).not.toMatch(overridesProp(name))
   })
 })

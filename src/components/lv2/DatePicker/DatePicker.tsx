@@ -273,7 +273,8 @@ export const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(
     ref,
   ) => {
     const field = useFieldContext()
-    // Field state adds to the control's own props, never replaces them (#615).
+    // The Field adds its isError / disabled / description to the control's own
+    // and never drops them (#615).
     const isError = field?.isError || isErrorProp
     const disabled = field?.disabled || disabledProp || false
 
@@ -567,7 +568,8 @@ export const DateRangePicker = forwardRef<HTMLDivElement, DateRangePickerProps>(
     ref,
   ) => {
     const field = useFieldContext()
-    // Field state adds to the control's own props, never replaces them (#615).
+    // The Field adds its isError / disabled / description to the control's own
+    // and never drops them (#615).
     const isError = field?.isError || isErrorProp
     const disabled = field?.disabled || disabledProp || false
     const ariaDescribedBy = mergeIds(field?.describedBy, ariaDescribedByProp)

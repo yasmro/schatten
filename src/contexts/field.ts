@@ -14,9 +14,15 @@ export interface FieldContextValue {
    * Undefined when Field has no `label` prop.
    */
   labelId?: string
-  /** Error state */
+  /**
+   * Error state. A control combines it with its own `isError`: either one
+   * turns the error on, so a control's `isError={false}` cannot clear it.
+   */
   isError: boolean
-  /** Disabled state */
+  /**
+   * Disabled state. A control combines it with its own `disabled` the same
+   * way as `isError`: either one disables the control.
+   */
   disabled: boolean
   /**
    * Required state. Consumed as `aria-required` (announce-only) by the wrapped
@@ -25,7 +31,10 @@ export interface FieldContextValue {
    * on the control. Mirrors `isError → aria-invalid`.
    */
   required: boolean
-  /** aria-describedby id list */
+  /**
+   * aria-describedby id list: the description, then the error. Undefined when
+   * Field has neither. A control appends its own `aria-describedby` after it.
+   */
   describedBy?: string
 }
 

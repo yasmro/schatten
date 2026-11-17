@@ -68,7 +68,9 @@ export const FieldWithError: Story = {
         <code className="text-xs">isError</code>, which wires{' '}
         <code className="text-xs">aria-invalid="true"</code> +{' '}
         <code className="text-xs">aria-describedby</code> on the input. Meaning comes from the error
-        text, not colour alone.
+        text, not colour alone. The Field adds its state to the input's own: an input inside it can
+        still set <code className="text-xs">isError</code> itself, but its{' '}
+        <code className="text-xs">isError={'{false}'}</code> cannot clear the Field's error.
       </Note>
       <Field label="Email" error="Enter a valid email address" required>
         <Input type="email" defaultValue="invalid-email" />
@@ -185,7 +187,9 @@ export const CompleteSignUpForm: Story = {
           <code className="text-xs">disabled={'{submitting}'}</code> plus Button{' '}
           <code className="text-xs">isLoading</code> (which sets{' '}
           <code className="text-xs">aria-busy="true"</code>) keep the form consistent while the
-          simulated request runs.
+          simulated request runs. Each input sits inside a Field and still takes its own{' '}
+          <code className="text-xs">disabled</code>: a Field adds its state to the control's own and
+          never drops it.
         </Note>
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <Field label="Email" required error={errors.email}>

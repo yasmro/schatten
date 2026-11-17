@@ -402,7 +402,9 @@ to form-control lv2s (lv2-composition-guideline §4.4).
   returns the component.
 - **Component-type cases** — match the bucket (Form Input / Compound /
   Action / Display). Form-input components must cover controlled +
-  uncontrolled + Field-context integration. An lv2's bucket follows its
+  uncontrolled + Field-context integration, including their own
+  `disabled` / `isError` / `aria-describedby` still applying inside a Field
+  (#615). An lv2's bucket follows its
   behaviour: a form-control lv2 is Form Input, a static one is Display.
 - **BDD-style naming** — `it('renders ...', ...)` not `it('should ...')`
   or `it('test #3', ...)`.

@@ -19,6 +19,7 @@ const stories = [
   'read-only',
   'disabled-vs-read-only',
   'read-only-with-error',
+  'text-overrides-icon',
 ] as const
 
 const themes = ['light', 'dark'] as const

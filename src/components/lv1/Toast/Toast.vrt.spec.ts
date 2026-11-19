@@ -10,7 +10,8 @@ const stories = [
   'title-only',
   'long-content',
   'loading',
-  // 'promise' — interactive (button-triggered, async timing); not a deterministic visual state
+  'long-action-label',
+  // 'promise-demo' — interactive (button-triggered, async timing); not a deterministic visual state
 ] as const
 
 const themes = ['light', 'dark'] as const
@@ -23,7 +24,11 @@ const themes = ['light', 'dark'] as const
 // colour alone, so this is an intentional AA exception. The subtle treatments
 // use the AA `emphasis` rung and pass. Disable just this rule, just here;
 // mirrored in the story's `parameters.a11y`. #344 (Phase B) / #346.
-const COLOR_CONTRAST_EXCEPTION_STORIES = new Set<(typeof stories)[number]>(['solid-treatments'])
+const COLOR_CONTRAST_EXCEPTION_STORIES = new Set<(typeof stories)[number]>([
+  'solid-treatments',
+  // its second toast is solid; the subtle one passes on its own
+  'long-action-label',
+])
 
 function storyUrl(storyId: string, theme: string) {
   return `/iframe.html?id=${STORY_ID_PREFIX}--${storyId}&globals=theme:${theme}&viewMode=story`

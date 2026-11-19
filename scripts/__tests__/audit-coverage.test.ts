@@ -1,7 +1,17 @@
-import { existsSync, mkdirSync, mkdtempSync, rmSync, statSync, writeFileSync } from 'node:fs'
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+  statSync,
+  writeFileSync,
+} from 'node:fs'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { sanitize, storyNameFromExport } from 'storybook/internal/csf'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import {
   auditComponent,
@@ -22,6 +32,9 @@ import {
   roleContractPartitionGaps,
   runAudit,
   spreadsProps,
+  storyIdFromExportName,
+  storyIdsFromSource,
+  undocumentedVrtSkips,
   usesForwardRef,
   vrtSkipReason,
 } from '../audit-coverage.mjs'
@@ -634,16 +647,16 @@ describe('renderTable / renderJson', () => {
     const out = renderTable(sampleRows(), { generatedAt: fixedAt })
     expect(out).toContain('## Coverage Audit Report (2026-05-25)')
     expect(out).toContain(
-      '| Component | tsx | css | stories | test | vrt | interaction | index | snap | export | cssapi.fx | parity.stories | parity.vrt | parity.snap | ref.test | testid.test | role.test |',
+      '| Component | tsx | css | stories | test | vrt | vrt.roster | interaction | index | snap | export | cssapi.fx | parity.stories | parity.vrt | parity.snap | ref.test | testid.test | role.test |',
     )
     // A/B (Button): interaction is n/a — the parity series covers the real-browser
     // contract. The three advisory columns are all present in the fixture.
     expect(out).toContain(
-      '| Button | ✓ | ✓ | ✓ | ✓ | ✓ | n/a | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |',
+      '| Button | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | n/a | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |',
     )
     // C/D (Dialog): interaction required and present; parity exempt.
     expect(out).toContain(
-      '| Dialog | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | — | — | — | ✓ | ✓ | ✓ |',
+      '| Dialog | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | — | — | — | ✓ | ✓ | ✓ |',
     )
     expect(out).toContain('_All lv1 / lv2 components have required companions._')
     expect(out).toContain('Advisory (non-blocking) test-existence gaps: ⚠ 0')
@@ -668,7 +681,7 @@ describe('renderTable / renderJson', () => {
     const out = renderTable([row], { generatedAt: fixedAt })
     // ⚠ (advisory) glyph, not ✗ (blocking).
     expect(out).toContain(
-      '| Radio | ✓ | ✓ | ✓ | ✓ | ✓ | n/a | ✓ | ✓ | ✓ | n/a | ✓ | ✓ | ✓ | ⚠ | ⚠ | ⚠ |',
+      '| Radio | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | n/a | ✓ | ✓ | ✓ | n/a | ✓ | ✓ | ✓ | ⚠ | ⚠ | ⚠ |',
     )
     expect(out).toContain('### Test-existence gaps (advisory — non-blocking)')
     expect(out).toContain("no `getByRole('radio', { name })`")
@@ -1169,5 +1182,115 @@ describe('vrtSkipReason', () => {
 
   it('flags a story that is neither in the roster nor named in a comment', () => {
     expect(vrtSkipReason('solid-treatments', spec)).toBe('undocumented')
+  })
+})
+
+describe('storyIdsFromSource', () => {
+  it('derives story ids from export names the way Storybook does', () => {
+    const source = [
+      'export const Playground: Story = {}',
+      'export const AllVariants: Story = {}',
+      'export const IconOnly = {}',
+      'const helper = 1',
+      'export default meta',
+    ].join('\n')
+    expect(storyIdsFromSource(source)).toEqual(['playground', 'all-variants', 'icon-only'])
+  })
+})
+
+describe('undocumentedVrtSkips', () => {
+  let root: string
+  beforeEach(() => {
+    root = mkdtempSync(join(tmpdir(), 'vrt-roster-'))
+  })
+  afterEach(() => {
+    rmSync(root, { recursive: true, force: true })
+  })
+
+  function component(stories: string, spec: string) {
+    writeFileSync(join(root, 'Foo.stories.tsx'), stories)
+    writeFileSync(join(root, 'Foo.vrt.spec.ts'), spec)
+    return root
+  }
+
+  const stories = [
+    'export const Playground: Story = {}',
+    'export const AllVariants: Story = {}',
+    'export const Sizes: Story = {}',
+    'export const Icons: Story = {}',
+  ].join('\n')
+
+  it('accepts stories that are in the roster, skipped with a reason, or Playground', () => {
+    const dir = component(
+      stories,
+      "const stories = [\n  'all-variants',\n  'sizes',\n  // 'icons' — visual covered by 'all-variants'\n] as const",
+    )
+    expect(undocumentedVrtSkips(dir)).toEqual([])
+  })
+
+  it('lists a story that is neither in the roster nor named in a skip comment', () => {
+    const dir = component(stories, "const stories = ['all-variants'] as const")
+    expect(undocumentedVrtSkips(dir)).toEqual(['sizes', 'icons'])
+  })
+
+  it('does not count an id that appears only inside a comment as a roster entry', () => {
+    const dir = component(
+      stories,
+      "const stories = ['all-variants', 'sizes'] as const\n// see icons",
+    )
+    expect(undocumentedVrtSkips(dir)).toEqual(['icons'])
+  })
+})
+
+describe('auditComponent — vrt.roster', () => {
+  let root: string
+  beforeEach(() => {
+    root = mkdtempSync(join(tmpdir(), 'vrt-roster-audit-'))
+  })
+  afterEach(() => {
+    rmSync(root, { recursive: true, force: true })
+  })
+
+  it('fails the row and names the story when a story is skipped without a reason', () => {
+    const dir = makeComponent(root, 'Foo', {})
+    writeFileSync(join(dir, 'Foo.stories.tsx'), 'export const Extra: Story = {}\n')
+    const row = auditComponent({ name: 'Foo', componentDir: dir, exported: true, exempt: false })
+    expect(row.files.vrtRoster).toBe('missing')
+    expect(row.missing.some((m) => m.includes('extra'))).toBe(true)
+  })
+})
+
+// audit-coverage.mjs copies Storybook's id derivation because the CI `audit`
+// job runs it without dependencies. Pin the copy to the real functions over
+// every story export in the repo, so a Storybook change that alters ids fails
+// here instead of silently mis-auditing the VRT roster.
+describe('storyIdFromExportName', () => {
+  it("matches Storybook's storyNameFromExport + sanitize for every story in the repo", () => {
+    const root = join(dirname(fileURLToPath(import.meta.url)), '..', '..', 'src')
+    const names: string[] = []
+    const walk = (dir: string) => {
+      for (const entry of readdirSync(dir, { withFileTypes: true })) {
+        const full = join(dir, entry.name)
+        if (entry.isDirectory()) walk(full)
+        else if (entry.name.endsWith('.stories.tsx')) {
+          for (const [, name] of readFileSync(full, 'utf8').matchAll(
+            /^export const (\w+)\s*[:=]/gm,
+          )) {
+            names.push(name)
+          }
+        }
+      }
+    }
+    walk(root)
+    expect(names.length).toBeGreaterThan(100)
+    for (const name of names) {
+      expect(storyIdFromExportName(name), name).toBe(sanitize(storyNameFromExport(name)))
+    }
+  })
+
+  it('handles digits and acronyms the way Storybook does', () => {
+    for (const name of ['H2Heading', 'WithURL', 'Size2xl', 'PlaygroundStory', 'ARIALabel']) {
+      expect(storyIdFromExportName(name), name).toBe(sanitize(storyNameFromExport(name)))
+    }
   })
 })

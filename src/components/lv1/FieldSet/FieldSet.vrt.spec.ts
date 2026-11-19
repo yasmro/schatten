@@ -3,7 +3,19 @@ import { expect, test } from '@playwright/test'
 
 const STORY_ID_PREFIX = 'components-lv1-fieldset'
 
-const stories = ['address', 'error-state', 'disabled', 'error-propagation'] as const
+const stories = [
+  'address',
+  'error-state',
+  'disabled',
+  'error-propagation',
+  'layout-variants',
+  'flex-props-patterns',
+  'nested-field-sets',
+  'description-with-error',
+  // 'date-range' — visual covered by 'error-state' (the same date-range layout)
+  // 'layout-only-field-set' — visual covered by 'address' (its inner legend-less row)
+  // 'nested-fields' — visual covered by 'address' and 'nested-field-sets'
+] as const
 
 const themes = ['light', 'dark'] as const
 

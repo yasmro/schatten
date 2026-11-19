@@ -396,6 +396,10 @@ export const LongContent: Story = {
  */
 export const LongActionLabel: Story = {
   name: 'Long Action Label',
+  parameters: {
+    // The second toast is solid — the intentional AA solid exception (icon + title carry the meaning). Mirrors Toast.vrt.spec.ts. #344 / #346.
+    a11y: { config: { rules: [{ id: 'color-contrast', enabled: false }] } },
+  },
   render: () => (
     <AutoFireDemo
       inputs={[

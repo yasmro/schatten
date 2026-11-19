@@ -9,6 +9,8 @@ in `src/docs/__fixtures__/cssApiSamples.html.ts`, plus
 non-screenshot Playwright interaction test — the `interaction` column — for
 classification C/D per
 [vrt-spec-guideline](../rules/vrt-spec-guideline.md)) and report any gaps.
+The `vrt.roster` column (#640) also requires every story to be in the VRT
+roster or skipped with a `// '<id>' — reason` comment (Playground exempt).
 
 Beyond the required *files*, the report also carries three **advisory
 (non-blocking)** columns — `ref.test` / `testid.test` / `role.test` — that

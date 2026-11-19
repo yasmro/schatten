@@ -5,7 +5,6 @@ import {
   componentOf,
   parseUnitName,
   serializeCatalog,
-  storyIdsFromSource,
 } from '../generate-test-catalog.mjs'
 
 describe('componentOf', () => {
@@ -70,19 +69,6 @@ describe('classifySpecTitle', () => {
     expect(classifySpecTitle('Toast / close button dismisses on real click')).toEqual({
       kind: 'interaction',
     })
-  })
-})
-
-describe('storyIdsFromSource', () => {
-  it('derives story ids from export names the way Storybook does', () => {
-    const source = [
-      'export const Playground: Story = {}',
-      'export const AllVariants: Story = {}',
-      'export const IconOnly = {}',
-      'const helper = 1',
-      'export default meta',
-    ].join('\n')
-    expect(storyIdsFromSource(source)).toEqual(['playground', 'all-variants', 'icon-only'])
   })
 })
 

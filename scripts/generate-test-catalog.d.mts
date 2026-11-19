@@ -14,8 +14,6 @@ export function classifySpecTitle(
   | { kind: 'screenshot' | 'a11y'; story: string; theme: string }
   | { kind: 'interaction' }
 
-export function storyIdsFromSource(source: string): string[]
-
 export type AspectStatus = 'prepared' | 'missing' | 'na'
 
 export function aspectStatuses(entry: {

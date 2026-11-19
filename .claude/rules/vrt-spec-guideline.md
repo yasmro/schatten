@@ -420,10 +420,15 @@ What is **not** a legitimate skip reason:
   catches that unit tests don't.
 - Silence (no skip comment) — silent skip is what this rule prevents.
 
-When the lefthook pre-commit hook or a future CI lint catches an orphaned
-story (defined as: a `*.stories.tsx` export that is neither in the spec's
-`stories` array nor mentioned in a skip comment), treat the warning as
-blocking — fix the roster, do not bypass.
+**Machine-checked (#640).** `pnpm audit:coverage` — and the required CI
+`audit` job — has a `vrt.roster` column that fails a component with an
+orphaned story: a `*.stories.tsx` export whose id is neither a quoted string
+on a non-comment line of its `*.vrt.spec.ts` (the `stories` array, a
+`storyUrl('<id>')` call) nor named in a `// '<id>' — reason` comment.
+Playground is exempt by the rule above. Fix the roster or write the reason;
+do not bypass. The skip comment must use the story **id** (`'promise-demo'`
+for `export const PromiseDemo`), not the display name — a comment naming
+`'promise'` did not count, which is how #640 found one.
 
 ## Parity stories — when to write one, when to skip
 

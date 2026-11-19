@@ -12,6 +12,8 @@ const stories = [
   'without-close-button',
   'info-only',
   'long-content',
+  // 'async-action' — button-triggered, async timing; the loading visual is covered by 'loading'
+  // 'async-sub-action' — button-triggered, async timing; the loading visual is covered by 'sub-action-loading'
 ] as const
 
 const themes = ['light', 'dark'] as const

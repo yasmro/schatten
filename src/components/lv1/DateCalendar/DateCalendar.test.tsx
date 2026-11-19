@@ -618,6 +618,42 @@ describe('DateCalendar', () => {
       )
     })
 
+    it('takes its own disabled and isError', () => {
+      render(
+        <Field label="Check-in">
+          <DateCalendar today={TODAY} disabled isError />
+        </Field>,
+      )
+      const group = screen.getByRole('group', { name: 'Check-in' })
+      expect(group).toHaveAttribute('aria-invalid', 'true')
+      expect(day(TODAY)).toBeDisabled()
+    })
+
+    it('keeps the Field disabled and isError when its own are false', () => {
+      render(
+        <Field label="Check-in" error="Pick a date" disabled>
+          <DateCalendar today={TODAY} disabled={false} isError={false} />
+        </Field>,
+      )
+      const group = screen.getByRole('group', { name: 'Check-in' })
+      expect(group).toHaveAttribute('aria-invalid', 'true')
+      expect(day(TODAY)).toBeDisabled()
+    })
+
+    it('adds its own aria-describedby after the Field ids', () => {
+      render(
+        <>
+          <p id="extra">Weekends are full</p>
+          <Field label="Check-in" description="Earliest is today">
+            <DateCalendar today={TODAY} aria-describedby="extra" />
+          </Field>
+        </>,
+      )
+      expect(screen.getByRole('group', { name: 'Check-in' })).toHaveAccessibleDescription(
+        'Earliest is today Weekends are full',
+      )
+    })
+
     it('does not put aria-required on a role that forbids it', () => {
       render(
         <Field label="Check-in" required>

@@ -334,17 +334,20 @@ The rule is **one shape** with a single `id` qualifier:
 
 ### State (always consumed, all form lv1s)
 
-Every form lv1 reads three values from `FieldContext` with prop fallback:
+Every form lv1 reads three values from `FieldContext` and combines each with
+its own prop — the Field adds to the prop, it never replaces it:
 
 ```ts
 const field = useFieldContext()
-const isError      = field?.isError      ?? props.isError      ?? false
-const disabled     = field?.disabled     ?? props.disabled     ?? false
-const describedBy  = field?.describedBy  ?? props['aria-describedby']
+const isError      = field?.isError  || props.isError  || false
+const disabled     = field?.disabled || props.disabled || false
+const describedBy  = mergeIds(field?.describedBy, props['aria-describedby'])
 ```
 
 This applies uniformly to `Input`, `Textarea`, `Select`, `Checkbox`, `Switch`,
-`Radio`, and `RadioGroup`.
+`RadioGroup`, and `DateCalendar` / `DateRangeCalendar`, and to the form-control
+lv2s (`DatePicker` / `DateRangePicker`). `Radio` reads the `RadioGroup` context
+instead. Why each value combines this way is under [Precedence](#precedence).
 
 ### `id` (consumed by whatever the Field label names)
 
@@ -395,9 +398,20 @@ directly** — they only ever see `FieldContext`.
 
 ### Precedence
 
-```
-direct prop  >  FieldContext  >  FieldSetContext (already collapsed into FieldContext via Field)  >  default
-```
+| Value | Rule |
+|---|---|
+| `disabled` | OR at every layer (FieldSet → Field → control, RadioGroup → Radio). Nothing below re-enables what is disabled above — the same as `<fieldset disabled>` and Radix's `context.disabled \|\| disabled`. |
+| `isError` | Field → control: OR. FieldSet → Field and RadioGroup → Radio: the child's own value wins. A parent that groups several children lets one opt out; a Field wraps one control, so its control cannot. |
+| `describedBy` | Both, joined by `mergeIds()`: the Field's ids first, then the prop's. A description is supplementary, so neither is dropped. |
+| `id` / naming | See the tables above. An explicit name replaces the Field label; it is not joined. |
+
+Do not write `field?.isError ?? prop`, `field?.disabled ?? prop` or
+`field?.describedBy ?? prop`. Field always provides a boolean, and `false` is
+not nullish, so the Field's `false` would override the prop; a Field with a
+description would drop the prop's ids
+([#615](https://github.com/yasmro/schatten/issues/615)).
+[`field-context-combine.test.ts`](../../src/components/__tests__/field-context-combine.test.ts)
+fails on that shape in any lv1 / lv2.
 
 ## 6. Dependency direction — strictly one-way
 

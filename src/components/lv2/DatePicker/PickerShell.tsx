@@ -246,8 +246,7 @@ export function PickerFields({
     onEnter()
   }
 
-  // `Field` names each input through htmlFor; `disabled` has to go through it
-  // too, because Input takes the field's state over its own prop.
+  // `Field` names each input through htmlFor.
   return (
     <div>
       <Field label={dateLabel}>

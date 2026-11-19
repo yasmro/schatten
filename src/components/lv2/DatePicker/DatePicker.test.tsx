@@ -533,6 +533,40 @@ describe('DatePicker', () => {
       expect(calendarButton()).toBeDisabled()
     })
 
+    it('takes its own disabled and isError', () => {
+      render(
+        <Field label="Birthday">
+          <DatePicker disabled isError />
+        </Field>,
+      )
+      expect(dateInput()).toHaveAttribute('aria-invalid', 'true')
+      expect(dateInput()).toBeDisabled()
+      expect(calendarButton()).toBeDisabled()
+    })
+
+    it('keeps the Field disabled and isError when its own are false', () => {
+      render(
+        <Field label="Birthday" error="Pick a date" disabled>
+          <DatePicker disabled={false} isError={false} />
+        </Field>,
+      )
+      expect(dateInput()).toHaveAttribute('aria-invalid', 'true')
+      expect(dateInput()).toBeDisabled()
+      expect(calendarButton()).toBeDisabled()
+    })
+
+    it('adds its own aria-describedby after the Field ids', () => {
+      render(
+        <>
+          <p id="extra">Used for the age check</p>
+          <Field label="Birthday" description="As on your passport">
+            <DatePicker aria-describedby="extra" />
+          </Field>
+        </>,
+      )
+      expect(dateInput()).toHaveAccessibleDescription('As on your passport Used for the age check')
+    })
+
     it('shows an invalid draft even when the Field has no error', async () => {
       const user = userEvent.setup()
       render(
@@ -1644,6 +1678,46 @@ describe('DateRangePicker', () => {
         expect(input).toBeDisabled()
       }
       expect(rangeButton()).toBeDisabled()
+    })
+
+    it('takes its own disabled and isError', () => {
+      render(
+        <Field label="Stay">
+          <DateRangePicker disabled isError />
+        </Field>,
+      )
+      for (const input of [startInput(), endInput()]) {
+        expect(input).toHaveAttribute('aria-invalid', 'true')
+        expect(input).toBeDisabled()
+      }
+      expect(rangeButton()).toBeDisabled()
+    })
+
+    it('keeps the Field disabled and isError when its own are false', () => {
+      render(
+        <Field label="Stay" error="Pick dates" disabled>
+          <DateRangePicker disabled={false} isError={false} />
+        </Field>,
+      )
+      for (const input of [startInput(), endInput()]) {
+        expect(input).toHaveAttribute('aria-invalid', 'true')
+        expect(input).toBeDisabled()
+      }
+      expect(rangeButton()).toBeDisabled()
+    })
+
+    it('adds its own aria-describedby after the Field ids on both inputs', () => {
+      render(
+        <>
+          <p id="extra">Up to 14 nights</p>
+          <Field label="Stay" description="Check-in from 3 pm">
+            <DateRangePicker aria-describedby="extra" />
+          </Field>
+        </>,
+      )
+      for (const input of [startInput(), endInput()]) {
+        expect(input).toHaveAccessibleDescription('Check-in from 3 pm Up to 14 nights')
+      }
     })
   })
 })

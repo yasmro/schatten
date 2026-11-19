@@ -162,6 +162,40 @@ describe('Checkbox', () => {
       expect(describedBy).toContain('-description')
     })
 
+    it('takes its own disabled and isError inside a Field', () => {
+      render(
+        <Field label="Terms">
+          <Checkbox aria-label="cb" disabled isError />
+        </Field>,
+      )
+      const checkbox = screen.getByRole('checkbox')
+      expect(checkbox).toBeDisabled()
+      expect(checkbox).toHaveAttribute('aria-invalid', 'true')
+    })
+
+    it('keeps the Field disabled and isError when its own are false', () => {
+      render(
+        <Field label="Terms" error="Required" disabled>
+          <Checkbox aria-label="cb" disabled={false} isError={false} />
+        </Field>,
+      )
+      const checkbox = screen.getByRole('checkbox')
+      expect(checkbox).toBeDisabled()
+      expect(checkbox).toHaveAttribute('aria-invalid', 'true')
+    })
+
+    it('adds its own aria-describedby after the Field ids', () => {
+      render(
+        <>
+          <p id="extra">Version 3</p>
+          <Field label="Terms" description="Help text">
+            <Checkbox aria-label="cb" aria-describedby="extra" />
+          </Field>
+        </>,
+      )
+      expect(screen.getByRole('checkbox')).toHaveAccessibleDescription('Help text Version 3')
+    })
+
     it('does NOT inherit id from Field (Checkbox has its own label)', () => {
       // Field provides its own id; Checkbox should keep its own unique id so
       // label htmlFor works for the internal label.

@@ -26,9 +26,9 @@ These components should use the Field's `id` for label association:
 ```typescript
 const field = useFieldContext()
 const id = field?.id ?? idProp ?? autoId
-const isError = field?.isError ?? isErrorProp
-const disabled = field?.disabled ?? disabledProp
-const ariaDescribedBy = field?.describedBy ?? ariaDescribedByProp
+const isError = field?.isError || isErrorProp
+const disabled = field?.disabled || disabledProp
+const ariaDescribedBy = mergeIds(field?.describedBy, ariaDescribedByProp)
 ```
 
 ### Components WITH internal labels (Checkbox, Switch, Radio)
@@ -37,9 +37,9 @@ These components have their own `<label>` and need unique ids per instance. They
 
 ```typescript
 const field = useFieldContext()
-const isError = field?.isError ?? isErrorProp
-const disabled = field?.disabled ?? disabledProp
-const ariaDescribedBy = field?.describedBy ?? ariaDescribedByProp
+const isError = field?.isError || isErrorProp
+const disabled = field?.disabled || disabledProp
+const ariaDescribedBy = mergeIds(field?.describedBy, ariaDescribedByProp)
 // When no own `label` (and no explicit naming) is given, the Field-rendered
 // label names the control via aria-labelledby — see "Naming via labelId".
 const ariaLabelledBy =
@@ -57,9 +57,9 @@ Group components should consume Field context at the group level and provide the
 
 ```typescript
 const field = useFieldContext()
-const isError = field?.isError ?? isErrorProp
-const disabled = field?.disabled ?? disabledProp
-const ariaDescribedBy = field?.describedBy ?? ariaDescribedByProp
+const isError = field?.isError || isErrorProp
+const disabled = field?.disabled || disabledProp
+const ariaDescribedBy = mergeIds(field?.describedBy, ariaDescribedByProp)
 // Do NOT use field?.id - RadioGroup doesn't need label association.
 // The group IS named by the Field label, via aria-labelledby — a
 // role="radiogroup" div cannot be reached by htmlFor.
@@ -155,10 +155,9 @@ the control without activating it. That order is the reverse of `Input`, where
 `field.id` wins: a Checkbox's `id` has always been honoured, and dropping it
 would break consumers who rely on it.
 
-A Field `description` is a `<label>` pointing at the same id, but it does not
-toggle: `Field` cancels that click when the target is a `checkbox` or `switch`,
-because reading a sentence should not change a value. Links and buttons inside
-the description are left alone.
+A Field `description` is not a `<label>`, so clicking it neither toggles a
+Checkbox / Switch nor focuses an Input — see
+[Description is not a label](#description-is-not-a-label).
 
 ### Known limitations (accepted, documented)
 
@@ -183,9 +182,9 @@ is the pattern:
 
 ```tsx
 const field = useFieldContext()
-const isError = field?.isError ?? isErrorProp
-const disabled = field?.disabled ?? disabledProp ?? false
-const ariaDescribedBy = field?.describedBy ?? ariaDescribedByProp
+const isError = field?.isError || isErrorProp
+const disabled = field?.disabled || disabledProp || false
+const ariaDescribedBy = mergeIds(field?.describedBy, ariaDescribedByProp)
 const ariaLabelledBy = ariaLabelledByProp ?? (ariaLabel ? undefined : field?.labelId)
 
 <div role="group" aria-label={ariaLabel} aria-labelledby={ariaLabelledBy}>
@@ -210,25 +209,29 @@ const ariaLabelledBy = ariaLabelledByProp ?? (ariaLabel ? undefined : field?.lab
 
 ## Accessibility Patterns
 
-### Description as clickable label
+### Description is not a label
 
-Use `<label htmlFor={id}>` for description to enable click-to-focus while maintaining proper a11y:
+The description is a `<div>` linked to the control by `aria-describedby` only:
 
 ```tsx
 {description && (
-  <label
-    htmlFor={id}
-    id={descriptionId}
-    className="text-sm text-foreground-muted"
-  >
+  <div id={descriptionId} className="st-field__description">
     {description}
-  </label>
+  </div>
 )}
 ```
 
-The `aria-describedby` attribute links the description for screen readers, so:
-- Clicking description focuses the input (via `htmlFor`). On a Checkbox / Switch, `Field` cancels the click so it does not toggle
-- Screen readers announce description as supplementary info (via `aria-describedby`)
+- **Not a `<label htmlFor>`.** A control with two `<label for>` elements takes
+  both into its accessible name, so the description was read twice — once in
+  the name ("Email Used when you sign in") and once as the description. With no
+  Field `label`, the description became the whole name (#646).
+- **Not a `<p>`.** `description` is a `ReactNode`, and block content inside a
+  `<p>` is invalid HTML that an SSR parser closes early.
+- **Clicking it does nothing.** It neither focuses an Input nor toggles a
+  Checkbox / Switch. Keyboard and screen reader users never relied on it.
+- **A Field with a description but no `label` leaves the control unnamed.** The
+  description is not a name; pass `aria-label` to the control. axe reports the
+  missing name, so it cannot ship unnoticed.
 
 ### Error messages
 
@@ -244,13 +247,26 @@ Error messages use `aria-describedby` but remain as `<p>` elements (not clickabl
 
 ## Fallback Pattern
 
-All components must work both standalone and within Field. Use the fallback pattern:
+All components must work both standalone and within Field. How a Field value
+meets the control's own prop depends on the value:
 
 ```typescript
-const value = field?.value ?? propValue ?? defaultValue
+// State booleans: either side turns the state on.
+const isError = field?.isError || isErrorProp
+const disabled = field?.disabled || disabledProp
+// Description ids: both are read, the Field's first.
+const ariaDescribedBy = mergeIds(field?.describedBy, ariaDescribedByProp)
+// The id of an externally-labelled control: the Field's, then the prop, then a default.
+const id = field?.id ?? idProp ?? autoId
 ```
 
 This ensures:
-1. Field context values take precedence when inside Field
+1. Inside a Field, the Field adds its state and description to the control's own props without dropping them
 2. Direct props work when used standalone
 3. Sensible defaults when neither is provided
+
+Never write `field?.isError ??`, `field?.disabled ??` or `field?.describedBy ??`.
+Field always provides a boolean, and `false` is not nullish, so the Field's
+`false` would override a direct `true`; a Field with a description would drop
+the control's own ids (#615). The full rule per value is in
+[component-architecture §5 Precedence](component-architecture.md#precedence).

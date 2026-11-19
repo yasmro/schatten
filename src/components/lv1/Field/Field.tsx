@@ -1,5 +1,5 @@
 import { Info } from 'lucide-react'
-import { type MouseEvent, type ReactNode, useEffect, useId, useMemo, useRef } from 'react'
+import { type ReactNode, useEffect, useId, useMemo, useRef } from 'react'
 import { FieldContext, type FieldContextValue } from '../../../contexts/field'
 import { useFieldSetContext } from '../../../contexts/fieldset'
 import { cn } from '../../../lib/utils'
@@ -45,18 +45,6 @@ export interface FieldProps {
 
 const flexGrowClasses = { 0: 'st-field--grow-0', 1: 'st-field--grow' } as const
 const flexShrinkClasses = { 0: 'st-field--shrink-0', 1: 'st-field--shrink' } as const
-
-/**
- * A description is a `<label>` so that clicking it focuses an `Input`. On a
- * `Checkbox` or `Switch` the same click would change the value, and this text
- * is there to be read. Interactive content in the description keeps working.
- */
-function keepDescriptionFromToggling(event: MouseEvent<HTMLLabelElement>) {
-  if ((event.target as Element).closest('a, button, input, select, textarea')) return
-  if (event.currentTarget.control?.matches('[role="checkbox"], [role="switch"]')) {
-    event.preventDefault()
-  }
-}
 
 export function Field({
   label,
@@ -148,15 +136,12 @@ export function Field({
           </div>
         )}
         {description && (
-          // biome-ignore lint/a11y/useKeyWithClickEvents: only cancels a click, a label has no keyboard path to cancel
-          <label
-            htmlFor={id}
-            id={descriptionId}
-            className="st-field__description"
-            onClick={keepDescriptionFromToggling}
-          >
+          // Not a <label for>: a second label would add the description to the
+          // control's accessible name as well as its description (#646). A
+          // <div>, not a <p>, so a ReactNode description may hold block content.
+          <div id={descriptionId} className="st-field__description">
             {description}
-          </label>
+          </div>
         )}
         {children}
         {error && (

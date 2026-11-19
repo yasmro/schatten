@@ -8,6 +8,7 @@ import {
   useId,
 } from 'react'
 import { useFieldContext } from '../../../contexts/field'
+import { mergeIds } from '../../../lib/merge-ids'
 import { cn } from '../../../lib/utils'
 import { type RadioVariants, radioVariants } from '../../../variants/radio'
 import './Radio.css'
@@ -97,9 +98,11 @@ export const RadioGroup = forwardRef<HTMLDivElement, RadioGroupProps>(
   ) => {
     const field = useFieldContext()
 
-    const isError = field?.isError ?? isErrorProp
-    const disabled = field?.disabled ?? disabledProp ?? false
-    const ariaDescribedBy = field?.describedBy ?? ariaDescribedByProp
+    // The Field adds its isError / disabled / description to the control's own
+    // and never drops them (#615).
+    const isError = field?.isError || isErrorProp
+    const disabled = field?.disabled || disabledProp || false
+    const ariaDescribedBy = mergeIds(field?.describedBy, ariaDescribedByProp)
     // role="radiogroup" cannot be named through htmlFor, so the Field-rendered
     // label names the group via aria-labelledby (unless the consumer names it
     // explicitly). Individual Radio items keep their own labels.

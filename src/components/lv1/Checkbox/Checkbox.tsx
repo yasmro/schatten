@@ -1,6 +1,7 @@
 import * as CheckboxPrimitive from '@radix-ui/react-checkbox'
 import { type ComponentPropsWithoutRef, forwardRef, type ReactNode, useId } from 'react'
 import { useFieldContext } from '../../../contexts/field'
+import { mergeIds } from '../../../lib/merge-ids'
 import { cn } from '../../../lib/utils'
 import { type CheckboxVariants, checkboxVariants } from '../../../variants/checkbox'
 import './Checkbox.css'
@@ -80,9 +81,11 @@ export const Checkbox = forwardRef<HTMLButtonElement, CheckboxProps>(
     const field = useFieldContext()
     const autoId = useId()
 
-    const isError = field?.isError ?? isErrorProp
-    const disabled = field?.disabled ?? disabledProp
-    const ariaDescribedBy = field?.describedBy ?? ariaDescribedByProp
+    // The Field adds its isError / disabled / description to the control's own
+    // and never drops them (#615).
+    const isError = field?.isError || isErrorProp
+    const disabled = field?.disabled || disabledProp
+    const ariaDescribedBy = mergeIds(field?.describedBy, ariaDescribedByProp)
     // With no own `label` (and no explicit naming), the Field-rendered label
     // names this control via aria-labelledby. See field-context-guideline.
     const ariaLabelledBy =

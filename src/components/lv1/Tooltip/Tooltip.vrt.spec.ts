@@ -6,7 +6,13 @@ const STORY_ID_PREFIX = 'components-lv1-tooltip'
 // Tooltip stories that pin `open` (see Tooltip.stories.tsx — Sides / LongContent / RichContent).
 // Tooltip Content portals out of `#storybook-root` into `document.body`, so
 // these tests screenshot the full page rather than the root locator.
-const stories = ['sides', 'long-content', 'rich-content'] as const
+const stories = [
+  'sides',
+  'long-content',
+  'rich-content',
+  // 'with-icon-button' — closed until hovered; the open content is covered by 'sides'
+  // 'with-disabled-button' — closed until hovered; the open content is covered by 'sides'
+] as const
 
 const themes = ['light', 'dark'] as const
 

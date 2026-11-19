@@ -40,7 +40,7 @@ Schatten の品質とは次の2つがそろっていることを言う。
 |---|---|---|---|---|---|
 | 1 | 振る舞い | props のとおりに DOM と ARIA の属性が出力され、イベントが発火する | 単体テスト（Vitest、jsdom）。種類ごとの必須ケースがある | マージできない（`test`）。ただし、必須ケースの一部（`ref`・`data-testid`・`role`）が欠けていても警告だけで、ジョブは成功する（#474） | [testing-guideline](../.claude/rules/testing-guideline.md) |
 | 2 | アクセシビリティ | role・名前・キーボード・状態の `aria-*` | 単体テストの `getByRole(role, { name })`。VRT の story × テーマごとの axe（WCAG 2.1 A/AA） | マージできない（`test`・`a11y`） | [component-architecture §8](../.claude/rules/component-architecture.md#8-accessibility-contract) |
-| 3 | 見た目 | story ごとに、light と dark の両方で、見た目が変わっていない | VRT のスクリーンショット | `vrt` のジョブは失敗するが、マージはできる | [vrt-spec-guideline](../.claude/rules/vrt-spec-guideline.md) |
+| 3 | 見た目 | story ごとに、light と dark の両方で、見た目が変わっていない | VRT のスクリーンショット。対象外の story には理由のコメントがあるか（`audit:coverage` の `vrt.roster`） | スクリーンショットが違うときは `vrt` のジョブが失敗するが、マージはできる。理由のない対象外の story があるとマージできない（`audit`） | [vrt-spec-guideline](../.claude/rules/vrt-spec-guideline.md) |
 | 4 | 本物のブラウザでの操作 | 開く・閉じる・選ぶ・消すが、本物のポインタで動く | Playwright の操作テスト。区分 C/D の lv1 と、操作のある lv2 に必要 | テストがないとマージできない（`audit`）。テストが失敗したときは `vrt` のジョブが失敗するが、マージはできる | [vrt-spec-guideline §区分 C/D](../.claude/rules/vrt-spec-guideline.md#区分-cd-js-必須--a-playwright-interaction-test-is-required) |
 | 5 | CSS だけで使ったときの一致 | React で描いたものと、`.st-*` を書いた HTML の見た目が同じ | parity の VRT（区分 A/B の lv1）。配布物の CSS で描く VRT（`CSSApiDist`） | parity の story がないとマージできない（`audit`）。見た目が違うときは `vrt` のジョブが失敗するが、マージはできる | [css-api](../.claude/rules/css-api.md)、[vrt-spec-guideline §Parity](../.claude/rules/vrt-spec-guideline.md#parity-stories--when-to-write-one-when-to-skip) |
 
@@ -94,7 +94,6 @@ Schatten の品質とは次の2つがそろっていることを言う。
 |---|---|---|
 | 1 | jsdom では CSS が読まれないので、CSS で決まる振る舞いを単体テストで確かめられない | Vitest のブラウザモードで試す（#642） |
 | 1 | 必須ケースのうち、種類ごとのもの（フォーム部品の制御・非制御など）は、テストがあるかを機械で調べていない | テストの名前を並べて人が見る（#641） |
-| 3 | story を VRT から外すときに理由を書くことを、機械で確かめていない。理由のない story が 28 件ある | #640 |
 | 3 | VRT は 1% までの差を許すので、小さな要素の変化を見逃す | story の作り方で補う（[vrt-spec-guideline §Sub-threshold drift](../.claude/rules/vrt-spec-guideline.md#sub-threshold-drift--a-stale-baseline-trap)）。根本の対応は #237 |
 | 3・5・6 | `vrt`・`manifest`・`changeset` のジョブは必須チェックではないので、失敗しても PR をマージできる。見た目の変化や、公開 API の変化に changeset がないことを、レビューで見落とすと、そのまま develop に入る | なし |
 | 7 | Special のテーマが、許された CSS 変数だけを上書きしているかを確かめていない。`scripts/check-theme-allowlist.mjs` は中身のない仮置きで、CI からも呼ばれていない | レビューで確かめている（[theme-architecture §Allowlist](../.claude/rules/theme-architecture.md#allowlist-mechanism-design--implementation-in-v070)） |

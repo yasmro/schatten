@@ -11,6 +11,8 @@ const triggerStories = [
   'disabled-with-error',
   'long-text',
   'disabled-items',
+  // 'with-groups' — closed until opened; the open groups are covered by 'open-content'
+  // 'many-items' — closed until opened; scrolling a long list is not a static visual
 ] as const
 
 // Portal stories — `defaultOpen` mounts the SelectContent into

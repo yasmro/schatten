@@ -10,6 +10,11 @@ const stories = [
   'required',
   'error-state',
   'disabled',
+  'label-usage-patterns',
+  // 'with-checkbox' — visual covered by 'label-usage-patterns'
+  // 'with-switch' — visual covered by 'label-usage-patterns'
+  // 'with-radio-group' — visual covered by 'label-usage-patterns'
+  // 'with-textarea' — Field layout covered by 'with-input'; Textarea itself by Textarea.vrt.spec.ts
 ] as const
 
 const themes = ['light', 'dark'] as const

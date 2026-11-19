@@ -3,7 +3,17 @@ import { expect, test } from '@playwright/test'
 
 const STORY_ID_PREFIX = 'components-lv1-badge'
 
-const stories = ['full-matrix', 'sizes', 'icon-positions', 'icon-only'] as const
+const stories = [
+  'full-matrix',
+  'sizes',
+  'icon-positions',
+  'icon-only',
+  // 'solid-treatments' — visual covered by 'full-matrix'
+  // 'subtle-treatments' — visual covered by 'full-matrix'
+  // 'outline-treatments' — visual covered by 'full-matrix'
+  // 'states' — visual covered by 'full-matrix' and 'icon-positions'
+  // 'icons' — visual covered by 'icon-positions'
+] as const
 
 const themes = ['light', 'dark'] as const
 

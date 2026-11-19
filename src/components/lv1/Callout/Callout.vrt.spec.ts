@@ -11,7 +11,9 @@ const stories = [
   'with-action',
   'solid-with-action',
   'solid-dismissible',
+  'dismissible',
   'long-content',
+  // 'full-matrix' — visual covered by 'subtle-treatments' and 'solid-treatments'
 ] as const
 
 const themes = ['light', 'dark'] as const

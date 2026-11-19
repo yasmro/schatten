@@ -29,7 +29,6 @@ import {
 import { tmpdir } from 'node:os'
 import { dirname, join, relative, resolve, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { sanitize, storyNameFromExport } from 'storybook/internal/csf'
 import {
   hasRefLandsTest,
   hasRoleNameTest,
@@ -38,6 +37,7 @@ import {
   PARITY_EXEMPT,
   ROLE_NAME_CONTRACT,
   spreadsProps,
+  storyIdsFromSource,
   usesForwardRef,
   vrtSkipReason,
 } from './audit-coverage.mjs'
@@ -78,13 +78,6 @@ export function classifySpecTitle(title) {
     return { kind: isA11y ? 'a11y' : 'screenshot', story: parts.at(-2), theme }
   }
   return { kind: 'interaction' }
-}
-
-/** Story ids the way Storybook derives them: export name → display name → slug. */
-export function storyIdsFromSource(source) {
-  return [...source.matchAll(/^export const (\w+)\s*[:=]/gm)].map(([, name]) =>
-    sanitize(storyNameFromExport(name)),
-  )
 }
 
 function entryFor(catalog, comp) {

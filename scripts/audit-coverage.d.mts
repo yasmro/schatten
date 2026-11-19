@@ -15,6 +15,12 @@ export interface AuditFiles {
   readonly test: CellState
   readonly vrt: CellState
   /**
+   * Every story is in the VRT roster or skipped with a `// '<id>' — reason`
+   * comment (vrt-spec-guideline). `na` until both the stories file and the
+   * spec exist.
+   */
+  readonly vrtRoster: CellState
+  /**
    * Non-screenshot Playwright interaction test — required for lv1
    * classification C/D (== the parity-exempt set), `na` for A/B. For lv2,
    * required only for the components in {@link LV2_INTERACTIVE}. See
@@ -158,6 +164,10 @@ export function hasTestidPassthroughTest(testSource: string): boolean
  * for the exact `role`.
  */
 export function hasRoleNameTest(testSource: string, role: string): boolean
+
+export function storyIdsFromSource(source: string): string[]
+
+export function undocumentedVrtSkips(componentDir: string): string[]
 
 export function vrtSkipReason(
   storyId: string,

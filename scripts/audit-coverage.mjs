@@ -31,6 +31,7 @@
 
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs'
 import path from 'node:path'
+import { sanitize, storyNameFromExport } from 'storybook/internal/csf'
 import { isCliEntry } from './is-cli-entry.mjs'
 
 const LV1_DIR_REL = 'src/components/lv1'
@@ -323,12 +324,55 @@ export function vrtSkipReason(storyId, specSource) {
   return new RegExp(`//.*['"]${escaped}['"]`).test(specSource) ? 'documented' : 'undocumented'
 }
 
+/**
+ * Story ids the way Storybook derives them: export name → display name → slug
+ * (`export const AllVariants` → `all-variants`). Shared with
+ * scripts/generate-test-catalog.mjs.
+ * @param {string} source a `*.stories.tsx` source
+ * @returns {string[]}
+ */
+export function storyIdsFromSource(source) {
+  return [...source.matchAll(/^export const (\w+)\s*[:=]/gm)].map(([, name]) =>
+    sanitize(storyNameFromExport(name)),
+  )
+}
+
+/**
+ * Stories of a component that are neither in its VRT roster nor skipped with
+ * a reason (vrt-spec-guideline §"Adding a new story → add it to the VRT roster
+ * (or document the skip)"). A story counts as rostered when its id appears as
+ * a quoted string on a non-comment line of a `*.vrt.spec.ts` (the `stories`
+ * array, a `storyUrl('<id>')` call); otherwise `vrtSkipReason()` decides. The
+ * Storybook Tests tab reads the roster from `playwright test --list` instead,
+ * so the two agree for every spec that lists its stories in an array.
+ * @param {string} componentDir
+ * @returns {string[]} the undocumented story ids, in source order
+ */
+export function undocumentedVrtSkips(componentDir) {
+  const read = (suffix) =>
+    readdirSync(componentDir)
+      .filter((f) => f.endsWith(suffix))
+      .sort()
+      .map((f) => readFileSync(path.join(componentDir, f), 'utf8'))
+  const specs = read('.vrt.spec.ts').join('\n')
+  const code = specs
+    .split('\n')
+    .filter((line) => !line.trim().startsWith('//'))
+    .join('\n')
+  const escape = (id) => id.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  return read('.stories.tsx')
+    .flatMap(storyIdsFromSource)
+    .filter((id) => !new RegExp(`['"\`]${escape(id)}['"\`]`).test(code))
+    .filter((id) => vrtSkipReason(id, specs) === 'undocumented')
+}
+
 const REQUIRED_KEYS = /** @type {const} */ ([
   'tsx',
   'css',
   'stories',
   'test',
   'vrt',
+  'vrtRoster',
   'interaction',
   'index',
   'snap',
@@ -350,6 +394,7 @@ const ADVISORY_KEYS = /** @type {const} */ (['refTest', 'testidTest', 'roleTest'
  *   stories: CellState,
  *   test: CellState,
  *   vrt: CellState,
+ *   vrtRoster: CellState,
  *   interaction: CellState,
  *   index: CellState,
  *   snap: CellState,
@@ -534,6 +579,7 @@ export function auditComponent({
     stories: 'na',
     test: 'na',
     vrt: 'na',
+    vrtRoster: 'na',
     interaction: 'na',
     index: 'na',
     snap: 'na',
@@ -547,6 +593,9 @@ export function auditComponent({
     roleTest: 'na',
   }
 
+  /** @type {string[]} story ids neither in the VRT roster nor skipped with a reason */
+  let unrostered = []
+
   if (tsxPresent) {
     // lv2: a `.css` is shipped only with visual rules of its own (§5.4), so
     // its absence is `na`, not a gap.
@@ -554,6 +603,12 @@ export function auditComponent({
     files.stories = cell(present(`${name}.stories.tsx`))
     files.test = cell(present(`${name}.test.tsx`))
     files.vrt = cell(present(`${name}.vrt.spec.ts`))
+    // Every story is in the VRT roster or skipped with a `// '<id>' — reason`
+    // comment. Checked only once both the stories and the spec exist.
+    if (files.stories === 'present' && files.vrt === 'present') {
+      unrostered = undocumentedVrtSkips(componentDir)
+      files.vrtRoster = cell(unrostered.length === 0)
+    }
     // 区分 C/D (== the parity-exempt set: interactive, JS-required) must ship
     // a non-screenshot Playwright interaction test; 区分 A/B stay `na` — their
     // real-browser contract is pinned by the parity series instead.
@@ -615,6 +670,11 @@ export function auditComponent({
   if (files.stories === 'missing') missing.push(`${name}.stories.tsx`)
   if (files.test === 'missing') missing.push(`${name}.test.tsx`)
   if (files.vrt === 'missing') missing.push(`${name}.vrt.spec.ts`)
+  if (files.vrtRoster === 'missing') {
+    missing.push(
+      `VRT roster entry, or a \`// '<id>' — reason\` skip comment, for: ${unrostered.join(', ')} (vrt-spec-guideline)`,
+    )
+  }
   if (files.interaction === 'missing') {
     missing.push(
       isLv2
@@ -704,6 +764,7 @@ const LV2_REQUIRED_KEYS = /** @type {const} */ ([
   'stories',
   'test',
   'vrt',
+  'vrtRoster',
   'interaction',
   'index',
   'snap',
@@ -767,9 +828,9 @@ export function renderTable(rows, opts = {}) {
     )
     lines.push('')
     lines.push(
-      '| Component | tsx | css | stories | test | vrt | interaction | index | snap | export | cssapi.fx | parity.stories | parity.vrt | parity.snap | ref.test | testid.test | role.test |',
+      '| Component | tsx | css | stories | test | vrt | vrt.roster | interaction | index | snap | export | cssapi.fx | parity.stories | parity.vrt | parity.snap | ref.test | testid.test | role.test |',
     )
-    lines.push('|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|')
+    lines.push('|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|')
     for (const row of rows) {
       lines.push(`| ${row.name} | ${rowCells(row, REQUIRED_KEYS, PARITY_KEYS).join(' | ')} |`)
     }
@@ -778,9 +839,9 @@ export function renderTable(rows, opts = {}) {
       lines.push('### lv2 components')
       lines.push('')
       lines.push(
-        '| Component | tsx | css | stories | test | vrt | interaction | index | snap | export | ref.test | testid.test | role.test |',
+        '| Component | tsx | css | stories | test | vrt | vrt.roster | interaction | index | snap | export | ref.test | testid.test | role.test |',
       )
-      lines.push('|---|---|---|---|---|---|---|---|---|---|---|---|---|')
+      lines.push('|---|---|---|---|---|---|---|---|---|---|---|---|---|---|')
       for (const row of lv2Rows) {
         lines.push(`| ${row.name} | ${rowCells(row, LV2_REQUIRED_KEYS, []).join(' | ')} |`)
       }

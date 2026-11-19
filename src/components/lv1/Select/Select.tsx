@@ -2,6 +2,7 @@ import * as SelectPrimitive from '@radix-ui/react-select'
 import { Check, ChevronDown, ChevronUp } from 'lucide-react'
 import { type ComponentPropsWithoutRef, forwardRef, type ReactNode, useId } from 'react'
 import { useFieldContext } from '../../../contexts/field'
+import { mergeIds } from '../../../lib/merge-ids'
 import { cn } from '../../../lib/utils'
 import { type SelectTriggerVariants, selectTriggerVariants } from '../../../variants/select'
 import './Select.css'
@@ -127,9 +128,11 @@ const SelectTrigger = forwardRef<HTMLButtonElement, SelectTriggerProps>(
     const autoId = useId()
 
     const id = field?.id ?? idProp ?? autoId
-    const isError = field?.isError ?? isErrorProp
-    const disabled = field?.disabled ?? disabledProp
-    const ariaDescribedBy = field?.describedBy ?? ariaDescribedByProp
+    // The Field adds its isError / disabled / description to the control's own
+    // and never drops them (#615).
+    const isError = field?.isError || isErrorProp
+    const disabled = field?.disabled || disabledProp
+    const ariaDescribedBy = mergeIds(field?.describedBy, ariaDescribedByProp)
 
     return (
       <SelectPrimitive.Trigger

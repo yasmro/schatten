@@ -1,6 +1,7 @@
 import type { LucideIcon } from 'lucide-react'
 import { forwardRef, type InputHTMLAttributes, useId, useRef } from 'react'
 import { useFieldContext } from '../../../contexts/field'
+import { mergeIds } from '../../../lib/merge-ids'
 import { mergeRefs } from '../../../lib/merge-refs'
 import { cn } from '../../../lib/utils'
 import { type InputVariants, inputVariants, inputWrapperVariants } from '../../../variants/input'
@@ -62,9 +63,11 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     const autoId = useId()
 
     const id = field?.id ?? idProp ?? autoId
-    const isError = field?.isError ?? isErrorProp
-    const disabled = field?.disabled ?? disabledProp
-    const ariaDescribedBy = field?.describedBy ?? ariaDescribedByProp
+    // The Field adds its isError / disabled / description to the control's own
+    // and never drops them (#615).
+    const isError = field?.isError || isErrorProp
+    const disabled = field?.disabled || disabledProp
+    const ariaDescribedBy = mergeIds(field?.describedBy, ariaDescribedByProp)
 
     const inputRef = useRef<HTMLInputElement>(null)
 

@@ -175,8 +175,9 @@ list is not updated yet.
 - **Polymorphic `as` (§4)** — only `Text` may carry one today (closed
   enum of semantic HTML tags). Any other component sprouting an `as`
   prop is a finding.
-- **Context consumption (§5)** — form lv1s read `isError` / `disabled`
-  / `describedBy` from `FieldContext` with prop fallback. `id` is read
+- **Context consumption (§5)** — form lv1s combine `FieldContext` with
+  their own props: `isError` / `disabled` with OR (`field?.x || xProp`),
+  `describedBy` with `mergeIds(field?.describedBy, prop)`. `id` is read
   by externally-labelled inputs (Input / Textarea / Select), by Checkbox /
   Switch only when the Field label names them, and never by Radio.
 - **Dependency direction (§6)** — `lv1/` imports `lib/` / `contexts/` /
@@ -360,14 +361,18 @@ Only applies to form components (`Input`, `Textarea`, `Select`,
 `Checkbox`, `Radio`, `Switch`, `RadioGroup`, plus `Field` / `FieldSet`) and
 to form-control lv2s (lv2-composition-guideline §4.4).
 
-- **Fallback pattern** — `field?.value ?? propValue ?? defaultValue` for
-  every consumed field. The fallback chain order is part of the
-  contract.
+- **Fallback pattern** — `isError` / `disabled` are OR-combined
+  (`field?.x || xProp`); `describedBy` is joined with
+  `mergeIds(field?.describedBy, prop)`; `id` follows
+  `field?.id ?? idProp ?? autoId`. `field?.isError ??` /
+  `field?.disabled ??` / `field?.describedBy ??` is ❌ — the Field's
+  `false` or ids override the prop (#615).
 - **`id` consumption** — externally-labelled inputs (Input / Textarea /
   Select) use `field?.id`. Checkbox / Switch use it only when the Field
   label names them (no own `label`, no explicit naming); otherwise they
   generate a per-instance id. Radio never uses it.
-- **`aria-describedby` wiring** — flows through `field?.describedBy`.
+- **`aria-describedby` wiring** — `mergeIds(field?.describedBy, prop)`:
+  the Field's ids first, then the control's own.
 - **Description as `<label htmlFor>`** — clickable description focuses
   the input via `htmlFor` while `aria-describedby` carries the SR
   announcement. On a Checkbox / Switch, `Field` cancels the click so it
@@ -397,7 +402,9 @@ to form-control lv2s (lv2-composition-guideline §4.4).
   returns the component.
 - **Component-type cases** — match the bucket (Form Input / Compound /
   Action / Display). Form-input components must cover controlled +
-  uncontrolled + Field-context integration. An lv2's bucket follows its
+  uncontrolled + Field-context integration, including their own
+  `disabled` / `isError` / `aria-describedby` still applying inside a Field
+  (#615). An lv2's bucket follows its
   behaviour: a form-control lv2 is Form Input, a static one is Display.
 - **BDD-style naming** — `it('renders ...', ...)` not `it('should ...')`
   or `it('test #3', ...)`.

@@ -212,7 +212,8 @@ Rules common to both kinds:
   `FieldSet → Field → form lv1` collapse chain.
 - **Exception — shielding a part with `<FieldContext.Provider value={null}>`.**
   A form-control lv2 may cut a part off from `Field` when the lv1 would misread
-  it, because a direct prop cannot override `Field` (`field?.x ?? prop`). The lv2
+  it, because a direct prop cannot override `Field`: the Field's `id` wins, and a
+  direct `false` cannot turn off the Field's `isError` / `disabled`. The lv2
   then resolves the value itself and passes it down. `null` adds no value and no
   stage to the collapse chain, so the rule above stands: **never provide any
   other value.** Two uses today: `DateRangePicker`'s two `Input`s, which would

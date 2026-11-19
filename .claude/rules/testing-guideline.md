@@ -108,6 +108,12 @@ Applies to: Input, Textarea, Select, Checkbox, Switch, Radio.
     [field-context-guideline.md](field-context-guideline.md)
   - It picks up `isError` and `disabled` from Field
   - It picks up `aria-describedby` from Field
+  - Its own `disabled` / `isError` / `aria-describedby` still apply inside a
+    Field: the Field adds to them and never drops them. Pin both directions —
+    the control's own `true` shows inside a Field that has none, and its own
+    `false` does not clear the Field's `true`. The `??` shape that broke this
+    (#615) is caught by a static guard; these tests catch every other shape.
+    See [component-architecture §5 Precedence](component-architecture.md#precedence)
 
 ### Compound components
 

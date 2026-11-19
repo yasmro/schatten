@@ -223,6 +223,40 @@ describe('Switch', () => {
       expect(describedBy).toContain('-description')
     })
 
+    it('takes its own disabled and isError inside a Field', () => {
+      render(
+        <Field label="Notifications">
+          <Switch aria-label="sw" disabled isError />
+        </Field>,
+      )
+      const sw = screen.getByRole('switch')
+      expect(sw).toBeDisabled()
+      expect(sw).toHaveAttribute('aria-invalid', 'true')
+    })
+
+    it('keeps the Field disabled and isError when its own are false', () => {
+      render(
+        <Field label="Notifications" error="Required" disabled>
+          <Switch aria-label="sw" disabled={false} isError={false} />
+        </Field>,
+      )
+      const sw = screen.getByRole('switch')
+      expect(sw).toBeDisabled()
+      expect(sw).toHaveAttribute('aria-invalid', 'true')
+    })
+
+    it('adds its own aria-describedby after the Field ids', () => {
+      render(
+        <>
+          <p id="extra">Daily digest</p>
+          <Field label="Notifications" description="Help text">
+            <Switch aria-label="sw" aria-describedby="extra" />
+          </Field>
+        </>,
+      )
+      expect(screen.getByRole('switch')).toHaveAccessibleDescription('Help text Daily digest')
+    })
+
     it('does NOT inherit id from Field (Switch has its own label)', () => {
       render(
         <Field label="Notifications">

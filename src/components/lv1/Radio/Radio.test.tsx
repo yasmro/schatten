@@ -229,6 +229,46 @@ describe('Radio', () => {
       expect(group?.getAttribute('aria-describedby')).toContain('-description')
     })
 
+    it('RadioGroup takes its own disabled and isError inside a Field', () => {
+      render(
+        <Field label="Pick one">
+          <RadioGroup disabled isError>
+            <Radio value="a" label="A" />
+            <Radio value="b" label="B" />
+          </RadioGroup>
+        </Field>,
+      )
+      expect(screen.getByRole('radiogroup')).toHaveAttribute('aria-invalid', 'true')
+      for (const radio of screen.getAllByRole('radio')) expect(radio).toBeDisabled()
+    })
+
+    it('RadioGroup keeps the Field disabled and isError when its own are false', () => {
+      render(
+        <Field label="Pick one" error="Required" disabled>
+          <RadioGroup disabled={false} isError={false}>
+            <Radio value="a" label="A" />
+            <Radio value="b" label="B" />
+          </RadioGroup>
+        </Field>,
+      )
+      expect(screen.getByRole('radiogroup')).toHaveAttribute('aria-invalid', 'true')
+      for (const radio of screen.getAllByRole('radio')) expect(radio).toBeDisabled()
+    })
+
+    it('RadioGroup adds its own aria-describedby after the Field ids', () => {
+      render(
+        <>
+          <p id="extra">Choose one</p>
+          <Field label="Pick one" description="Help text">
+            <RadioGroup aria-describedby="extra">
+              <Radio value="a" label="A" />
+            </RadioGroup>
+          </Field>
+        </>,
+      )
+      expect(screen.getByRole('radiogroup')).toHaveAccessibleDescription('Help text Choose one')
+    })
+
     it('RadioGroup takes its accessible name from the Field label', () => {
       render(
         <Field label="Pick one">

@@ -41,7 +41,7 @@ PR をセルフレビューする。前半のチェックリストは **観察�
   - 内部ラベルなしコンポーネント (`Input` など): `field?.id` を使う
   - `Checkbox` / `Switch`: `Field` のラベルが名前になるときだけ `field?.id` を使う
   - `Radio`: `field?.id` を使わない
-- [ ] Fallback パターン: `field?.value ?? propValue ?? defaultValue`
+- [ ] Fallback パターン: `isError` / `disabled` は `field?.x || xProp`、`aria-describedby` は `mergeIds(field?.describedBy, prop)`、`id` は `field?.id ?? idProp ?? autoId`（`field?.isError ??` / `field?.disabled ??` / `field?.describedBy ??` は不可、#615）
 - [ ] standalone / Field 内両方で動作するか
 
 ### 3. デザインシステムの堅牢性

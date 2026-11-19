@@ -3,7 +3,8 @@
  * Generates the test catalog behind the Storybook "Tests" tab (#641).
  *
  * Collects test titles without running them —
- *   - unit tests via `vitest list --json`
+ *   - unit tests via `vitest list --json`, for the jsdom and the real-browser
+ *     suites
  *   - VRT / a11y / interaction tests via `playwright test --list --reporter=json`
  * — groups them by component directory (`src/components/lv{1,2}/<Name>/`), and
  * sorts the evidence into the quality aspects of docs/quality-definition.md,
@@ -85,22 +86,28 @@ function entryFor(catalog, comp) {
   return catalog[comp.name]
 }
 
+// The jsdom suite and the real-browser suite (#650). Listing the browser suite
+// does not start a browser: `vitest list` reads the test titles only.
+const VITEST_CONFIGS = ['vitest.config.ts', 'vitest.browser.config.ts']
+
 function collectUnit(catalog) {
   const dir = mkdtempSync(join(tmpdir(), 'test-catalog-'))
-  const out = join(dir, 'vitest.json')
   try {
-    // `--json=<path>`: a bare `--json <file>` takes the file as the output
-    // path and overwrites it.
-    execFileSync('pnpm', ['exec', 'vitest', 'list', `--json=${out}`], {
-      cwd: ROOT,
-      stdio: ['ignore', 'ignore', 'inherit'],
-    })
-    const tests = JSON.parse(readFileSync(out, 'utf8'))
-    for (const t of tests) {
-      const file = relative(ROOT, t.file)
-      const comp = componentOf(file)
-      if (!comp) continue
-      entryFor(catalog, comp).unit.push({ file, ...parseUnitName(t.name) })
+    for (const config of VITEST_CONFIGS) {
+      const out = join(dir, `${config}.json`)
+      // `--json=<path>`: a bare `--json <file>` takes the file as the output
+      // path and overwrites it.
+      execFileSync('pnpm', ['exec', 'vitest', 'list', '--config', config, `--json=${out}`], {
+        cwd: ROOT,
+        stdio: ['ignore', 'ignore', 'inherit'],
+      })
+      const tests = JSON.parse(readFileSync(out, 'utf8'))
+      for (const t of tests) {
+        const file = relative(ROOT, t.file)
+        const comp = componentOf(file)
+        if (!comp) continue
+        entryFor(catalog, comp).unit.push({ file, ...parseUnitName(t.name) })
+      }
     }
   } finally {
     rmSync(dir, { recursive: true, force: true })

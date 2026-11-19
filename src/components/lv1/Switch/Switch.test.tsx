@@ -1,17 +1,8 @@
-import { readFileSync } from 'node:fs'
-import { resolve } from 'node:path'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 import { Field } from '../Field/Field'
 import { Switch } from './Switch'
-
-// Comments are stripped so the rule-body matches below can't be fooled by
-// prose in the file header that quotes the very selectors being asserted.
-const switchCss = readFileSync(resolve(__dirname, 'Switch.css'), 'utf8').replace(
-  /\/\*[\s\S]*?\*\//g,
-  '',
-)
 
 describe('Switch', () => {
   it('renders an unchecked switch by default', () => {
@@ -152,39 +143,10 @@ describe('Switch', () => {
   // which is exactly why the original bug shipped with every gate green.
   // The rendered contrast stays the VRT's job; these pin the token wiring
   // the visual hangs off.
+  // The colours themselves are asserted on computed styles in
+  // Switch.browser.test.tsx (#650) — jsdom loads no stylesheet. This keeps
+  // the DOM hook those colour rules key off.
   describe('CSS colour contract (#524)', () => {
-    /** Body of the first rule whose selector matches `selector`, comments stripped. */
-    function ruleBody(selector: string): string {
-      const escaped = selector.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-      const match = switchCss.match(new RegExp(`${escaped} \\{[^}]*\\}`))
-      // Never fall back to '' — an unmatched selector must fail loudly here
-      // rather than make every `not.toContain` below pass vacuously.
-      expect(match, `no rule found for \`${selector}\``).not.toBeNull()
-      return match?.[0] ?? ''
-    }
-
-    it('leaves the check icon colour to the block (no token pinned on the child)', () => {
-      const checkRule = ruleBody('.st-switch__check')
-      expect(checkRule).toContain('color: currentColor')
-      expect(checkRule).not.toContain('var(--color-')
-    })
-
-    it('recedes the check icon to --color-foreground-disabled when disabled', () => {
-      expect(ruleBody('.st-switch:disabled')).toContain('color: var(--color-foreground-disabled)')
-    })
-
-    // The disabled colour above sits at `(0,2,0)` and wins over
-    // `.st-switch[data-state="checked"]` (also `(0,2,0)`) by source order
-    // alone. Any `color` declared on an error+checked rule would be `(0,3,0)`
-    // and would out-rank it, silently restoring #524 — so pin its absence.
-    it('declares no colour on the error+checked rule that would out-rank :disabled', () => {
-      // `[\s;{]` anchors the match to a `color:` *declaration* — without it
-      // the rule's own `background-color:` / `border-color:` match too.
-      expect(ruleBody('.st-switch[aria-invalid="true"][data-state="checked"]')).not.toMatch(
-        /[\s;{]color\s*:/,
-      )
-    })
-
     it('exposes the :disabled + [data-state="checked"] hook that colour rule keys off', () => {
       render(<Switch aria-label="sw" disabled defaultChecked />)
       const sw = screen.getByRole('switch')

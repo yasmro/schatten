@@ -38,7 +38,7 @@ Schatten の品質とは次の2つがそろっていることを言う。
 
 | # | 観点 | 保証すること | 確かめる仕組み | CI 失敗時の挙動 | 決めている文書 |
 |---|---|---|---|---|---|
-| 1 | 振る舞い | props のとおりに DOM と ARIA の属性が出力され、イベントが発火する | 単体テスト（Vitest、jsdom）。種類ごとの必須ケースがある | マージできない（`test`）。ただし、必須ケースの一部（`ref`・`data-testid`・`role`）が欠けていても警告だけで、ジョブは成功する（#474） | [testing-guideline](../.claude/rules/testing-guideline.md) |
+| 1 | 振る舞い | props のとおりに DOM と ARIA の属性が出力され、イベントが発火する | 単体テスト（Vitest、jsdom）。種類ごとの必須ケースがある。CSS で決まる見た目と、本物の入力でしか起きない動きは、本物のブラウザで動く単体テスト（`*.browser.test.tsx`）で確かめる | マージできない（`test`）。ただし、必須ケースの一部（`ref`・`data-testid`・`role`）が欠けていても警告だけで、ジョブは成功する（#474） | [testing-guideline](../.claude/rules/testing-guideline.md) |
 | 2 | アクセシビリティ | role・名前・キーボード・状態の `aria-*` | 単体テストの `getByRole(role, { name })`。VRT の story × テーマごとの axe（WCAG 2.1 A/AA） | マージできない（`test`・`a11y`） | [component-architecture §8](../.claude/rules/component-architecture.md#8-accessibility-contract) |
 | 3 | 見た目 | story ごとに、light と dark の両方で、見た目が変わっていない | VRT のスクリーンショット。対象外の story には理由のコメントがあるか（`audit:coverage` の `vrt.roster`） | スクリーンショットが違うときは `vrt` のジョブが失敗するが、マージはできる。理由のない対象外の story があるとマージできない（`audit`） | [vrt-spec-guideline](../.claude/rules/vrt-spec-guideline.md) |
 | 4 | 本物のブラウザでの操作 | 開く・閉じる・選ぶ・消すが、本物のポインタで動く | Playwright の操作テスト。区分 C/D の lv1 と、操作のある lv2 に必要 | テストがないとマージできない（`audit`）。テストが失敗したときは `vrt` のジョブが失敗するが、マージはできる | [vrt-spec-guideline §区分 C/D](../.claude/rules/vrt-spec-guideline.md#区分-cd-js-必須--a-playwright-interaction-test-is-required) |
@@ -46,7 +46,7 @@ Schatten の品質とは次の2つがそろっていることを言う。
 
 観点 4 と 5 はコンポーネントの区分で要るかどうかが決まる。区分 A/B は素の HTML でも動くので 5 が要り、区分 C/D は JavaScript がないと動かないので 4 が要る。lv2 は React 専用なので 5 は要らず、操作のあるもの（`LV2_INTERACTIVE`）だけ 4 が要る。
 
-観点 1 の単体テストは jsdom で動くので、CSS が読み込まれない。そのため、色や大きさのように CSS で決まるものは、観点 1 では確かめられない。観点 3 の VRT か、観点 7 のテストで確かめる。
+観点 1 の単体テストのほとんどは jsdom で動くので、CSS が読み込まれない。そのため、色や大きさのように CSS で決まるものは、本物のブラウザで動く単体テスト（`*.browser.test.tsx`、#650）か、観点 3 の VRT、観点 7 のテストで確かめる。使い分けは [testing-guideline](../.claude/rules/testing-guideline.md#jsdom-or-a-real-browser) にある。
 
 ## 2. ライブラリの品質（観点 6・7）
 
@@ -92,7 +92,6 @@ Schatten の品質とは次の2つがそろっていることを言う。
 
 | 観点 | 穴 | 対応 |
 |---|---|---|
-| 1 | jsdom では CSS が読まれないので、CSS で決まる振る舞いを単体テストで確かめられない | Vitest のブラウザモードで試す（#642） |
 | 1 | 必須ケースのうち、種類ごとのもの（フォーム部品の制御・非制御など）は、テストがあるかを機械で調べていない | テストの名前を並べて人が見る（#641） |
 | 3 | VRT は 1% までの差を許すので、小さな要素の変化を見逃す | story の作り方で補う（[vrt-spec-guideline §Sub-threshold drift](../.claude/rules/vrt-spec-guideline.md#sub-threshold-drift--a-stale-baseline-trap)）。根本の対応は #237 |
 | 3・5・6 | `vrt`・`manifest`・`changeset` のジョブは必須チェックではないので、失敗しても PR をマージできる。見た目の変化や、公開 API の変化に changeset がないことを、レビューで見落とすと、そのまま develop に入る | なし |

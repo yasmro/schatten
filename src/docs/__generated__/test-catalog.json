@@ -375,6 +375,26 @@
     "level": "lv1",
     "unit": [
       {
+        "file": "src/components/lv1/Button/Button.browser.test.tsx",
+        "group": "hover",
+        "title": "darkens the primary label on hover"
+      },
+      {
+        "file": "src/components/lv1/Button/Button.browser.test.tsx",
+        "group": "hover",
+        "title": "darkens the destructive label on hover"
+      },
+      {
+        "file": "src/components/lv1/Button/Button.browser.test.tsx",
+        "group": "hover",
+        "title": "keeps the secondary label colour on hover"
+      },
+      {
+        "file": "src/components/lv1/Button/Button.browser.test.tsx",
+        "group": "hover",
+        "title": "keeps the tertiary label colour on hover"
+      },
+      {
         "file": "src/components/lv1/Button/Button.test.tsx",
         "group": "",
         "title": "renders with default props"
@@ -6735,6 +6755,36 @@
     "level": "lv1",
     "unit": [
       {
+        "file": "src/components/lv1/Switch/Switch.browser.test.tsx",
+        "group": "disabled + checked, light",
+        "title": "paints the check icon in --color-foreground-disabled (#524)"
+      },
+      {
+        "file": "src/components/lv1/Switch/Switch.browser.test.tsx",
+        "group": "disabled + checked, light",
+        "title": "keeps the check icon distinguishable from the track (#524)"
+      },
+      {
+        "file": "src/components/lv1/Switch/Switch.browser.test.tsx",
+        "group": "disabled + checked, light",
+        "title": "keeps the disabled check colour when the switch is also in error"
+      },
+      {
+        "file": "src/components/lv1/Switch/Switch.browser.test.tsx",
+        "group": "disabled + checked, dark",
+        "title": "paints the check icon in --color-foreground-disabled (#524)"
+      },
+      {
+        "file": "src/components/lv1/Switch/Switch.browser.test.tsx",
+        "group": "disabled + checked, dark",
+        "title": "keeps the check icon distinguishable from the track (#524)"
+      },
+      {
+        "file": "src/components/lv1/Switch/Switch.browser.test.tsx",
+        "group": "disabled + checked, dark",
+        "title": "keeps the disabled check colour when the switch is also in error"
+      },
+      {
         "file": "src/components/lv1/Switch/Switch.test.tsx",
         "group": "",
         "title": "renders an unchecked switch by default"
@@ -6818,21 +6868,6 @@
         "file": "src/components/lv1/Switch/Switch.test.tsx",
         "group": "thumb + check icon",
         "title": "JSX no longer adds the `group` Tailwind utility"
-      },
-      {
-        "file": "src/components/lv1/Switch/Switch.test.tsx",
-        "group": "CSS colour contract (#524)",
-        "title": "leaves the check icon colour to the block (no token pinned on the child)"
-      },
-      {
-        "file": "src/components/lv1/Switch/Switch.test.tsx",
-        "group": "CSS colour contract (#524)",
-        "title": "recedes the check icon to --color-foreground-disabled when disabled"
-      },
-      {
-        "file": "src/components/lv1/Switch/Switch.test.tsx",
-        "group": "CSS colour contract (#524)",
-        "title": "declares no colour on the error+checked rule that would out-rank :disabled"
       },
       {
         "file": "src/components/lv1/Switch/Switch.test.tsx",

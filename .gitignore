@@ -37,3 +37,6 @@ playwright-report/
 # Local-only Claude Code state (user-specific slash commands, worktrees)
 .claude/commands/release.md
 .claude/worktrees/
+
+# Vitest browser mode attachments (#650)
+.vitest/

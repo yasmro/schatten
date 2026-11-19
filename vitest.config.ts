@@ -1,4 +1,4 @@
-import { defineConfig } from 'vitest/config'
+import { configDefaults, defineConfig } from 'vitest/config'
 
 export default defineConfig({
   test: {
@@ -11,5 +11,7 @@ export default defineConfig({
       'scripts/**/*.test.ts',
       '.claude/skills/**/*.test.ts',
     ],
+    // Real-browser tests run under vitest.browser.config.ts (#650).
+    exclude: [...configDefaults.exclude, '**/*.browser.test.{ts,tsx}'],
   },
 })

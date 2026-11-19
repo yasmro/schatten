@@ -106,6 +106,7 @@ defined in [docs/quality-definition.md](docs/quality-definition.md).
 | `pnpm test --run` | Vitest unit suite. |
 | `pnpm test:vrt` | Playwright visual regression (compare only). |
 | `pnpm test:a11y` | `@axe-core/playwright` — zero WCAG 2.1 A/AA violations. |
+| `pnpm test:browser` | Unit tests that need a real browser (`*.browser.test.tsx`) — computed styles and real pointer input. Run `pnpm exec playwright install chromium` once. |
 | `pnpm test:tz` | DateCalendar date math under four time zones. |
 | `pnpm test:webkit` | DateCalendar interaction spec on WebKit (local only; run `pnpm exec playwright install webkit` once). |
 | `pnpm size` | Per-entry bundle-size budgets in [`.size-limit.json`](.size-limit.json). |

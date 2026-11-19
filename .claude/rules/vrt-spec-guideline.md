@@ -720,9 +720,9 @@ would make every font/antialiasing nudge a failure):
   of a 12px icon in one story is four chances to exceed 1%; four separate
   stories is four independent sub-threshold hiding places.
 - **Where the contract is a colour/ratio rather than a shape, assert it
-  outside VRT.** A token-level unit test (`resolution.test.ts`) or a CSS-source
-  assertion (`Switch.test.tsx` §"CSS colour contract") catches what a
-  screenshot structurally cannot. VRT proves "it still looks like this"; it is
+  outside VRT.** A token-level unit test (`resolution.test.ts`) or an
+  assertion on computed colours in a real browser (`Switch.browser.test.tsx`,
+  #650) catches what a screenshot structurally cannot. VRT proves "it still looks like this"; it is
   a poor instrument for "this is legible."
 
 Rule of thumb: **the smaller the element carrying the meaning, the less VRT

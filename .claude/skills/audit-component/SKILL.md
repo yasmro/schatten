@@ -373,10 +373,9 @@ to form-control lv2s (lv2-composition-guideline §4.4).
   generate a per-instance id. Radio never uses it.
 - **`aria-describedby` wiring** — `mergeIds(field?.describedBy, prop)`:
   the Field's ids first, then the control's own.
-- **Description as `<label htmlFor>`** — clickable description focuses
-  the input via `htmlFor` while `aria-describedby` carries the SR
-  announcement. On a Checkbox / Switch, `Field` cancels the click so it
-  does not toggle.
+- **Description is not a label** — the description is a `<div>` linked
+  only by `aria-describedby`. A `<label htmlFor>` there is ❌: it adds the
+  description to the control's accessible name too (#646).
 
 ### storybook-guideline.md
 

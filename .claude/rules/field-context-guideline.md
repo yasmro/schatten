@@ -155,10 +155,9 @@ the control without activating it. That order is the reverse of `Input`, where
 `field.id` wins: a Checkbox's `id` has always been honoured, and dropping it
 would break consumers who rely on it.
 
-A Field `description` is a `<label>` pointing at the same id, but it does not
-toggle: `Field` cancels that click when the target is a `checkbox` or `switch`,
-because reading a sentence should not change a value. Links and buttons inside
-the description are left alone.
+A Field `description` is not a `<label>`, so clicking it neither toggles a
+Checkbox / Switch nor focuses an Input — see
+[Description is not a label](#description-is-not-a-label).
 
 ### Known limitations (accepted, documented)
 
@@ -210,25 +209,29 @@ const ariaLabelledBy = ariaLabelledByProp ?? (ariaLabel ? undefined : field?.lab
 
 ## Accessibility Patterns
 
-### Description as clickable label
+### Description is not a label
 
-Use `<label htmlFor={id}>` for description to enable click-to-focus while maintaining proper a11y:
+The description is a `<div>` linked to the control by `aria-describedby` only:
 
 ```tsx
 {description && (
-  <label
-    htmlFor={id}
-    id={descriptionId}
-    className="text-sm text-foreground-muted"
-  >
+  <div id={descriptionId} className="st-field__description">
     {description}
-  </label>
+  </div>
 )}
 ```
 
-The `aria-describedby` attribute links the description for screen readers, so:
-- Clicking description focuses the input (via `htmlFor`). On a Checkbox / Switch, `Field` cancels the click so it does not toggle
-- Screen readers announce description as supplementary info (via `aria-describedby`)
+- **Not a `<label htmlFor>`.** A control with two `<label for>` elements takes
+  both into its accessible name, so the description was read twice — once in
+  the name ("Email Used when you sign in") and once as the description. With no
+  Field `label`, the description became the whole name (#646).
+- **Not a `<p>`.** `description` is a `ReactNode`, and block content inside a
+  `<p>` is invalid HTML that an SSR parser closes early.
+- **Clicking it does nothing.** It neither focuses an Input nor toggles a
+  Checkbox / Switch. Keyboard and screen reader users never relied on it.
+- **A Field with a description but no `label` leaves the control unnamed.** The
+  description is not a name; pass `aria-label` to the control. axe reports the
+  missing name, so it cannot ship unnoticed.
 
 ### Error messages
 

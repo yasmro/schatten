@@ -4,7 +4,9 @@ import { describe, expect, it, vi } from 'vitest'
 import { useFieldContext } from '../../../contexts/field'
 import { Checkbox } from '../Checkbox/Checkbox'
 import { Input } from '../Input/Input'
+import { Select, SelectTrigger, SelectValue } from '../Select/Select'
 import { Switch } from '../Switch/Switch'
+import { Textarea } from '../Textarea/Textarea'
 import { TooltipProvider } from '../Tooltip/Tooltip'
 import { Field } from './Field'
 
@@ -389,31 +391,65 @@ describe('Field', () => {
     })
   })
 
-  describe('description click', () => {
-    it('focuses an Input', async () => {
-      const user = userEvent.setup()
+  describe('description', () => {
+    // The description describes the control; it never names it (#646).
+    it('names an Input with the label alone', () => {
       render(
-        <Field label="Email" description="Help text">
+        <Field label="Email" description="Used when you sign in">
           <Input />
         </Field>,
       )
-      await user.click(screen.getByText('Help text'))
-      expect(screen.getByRole('textbox')).toHaveFocus()
+      expect(screen.getByRole('textbox', { name: 'Email' })).toHaveAccessibleDescription(
+        'Used when you sign in',
+      )
     })
 
-    it('leaves a link inside the description working', async () => {
-      const user = userEvent.setup()
-      const wasCancelled = vi.fn()
-      const listener = (event: Event) => wasCancelled(event.defaultPrevented)
-      document.addEventListener('click', listener)
+    it('names a Textarea with the label alone', () => {
       render(
-        <Field label="Notifications" description={<a href="#help">Read more</a>}>
+        <Field label="Bio" description="Shown on your profile">
+          <Textarea />
+        </Field>,
+      )
+      expect(screen.getByRole('textbox', { name: 'Bio' })).toHaveAccessibleDescription(
+        'Shown on your profile',
+      )
+    })
+
+    it('names a Select trigger with the label alone', () => {
+      render(
+        <Field label="Fruit" description="Pick one">
+          <Select>
+            <SelectTrigger>
+              <SelectValue placeholder="Choose" />
+            </SelectTrigger>
+          </Select>
+        </Field>,
+      )
+      expect(screen.getByRole('combobox', { name: 'Fruit' })).toHaveAccessibleDescription(
+        'Pick one',
+      )
+    })
+
+    it('does not name the control when Field has no label', () => {
+      render(
+        <Field description="Used when you sign in">
+          <Input />
+        </Field>,
+      )
+      const input = screen.getByRole('textbox')
+      expect(input).not.toHaveAccessibleName()
+      expect(input).toHaveAccessibleDescription('Used when you sign in')
+    })
+
+    it('does not toggle a Switch when clicked', async () => {
+      const user = userEvent.setup()
+      render(
+        <Field label="Notifications" description="Enable push notifications.">
           <Switch />
         </Field>,
       )
-      await user.click(screen.getByRole('link', { name: 'Read more' }))
-      document.removeEventListener('click', listener)
-      expect(wasCancelled).toHaveBeenCalledWith(false)
+      await user.click(screen.getByText('Enable push notifications.'))
+      expect(screen.getByRole('switch', { name: 'Notifications' })).not.toBeChecked()
     })
   })
 

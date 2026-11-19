@@ -16,11 +16,11 @@
  *                                   when `required` is set.
  * - `.st-field__info`             — the Lucide `Info` icon that opens
  *                                   the tooltip on hover/focus.
- * - `.st-field__description`      — the description `<label htmlFor>`.
- *                                   Rendered as a `<label>` (not a
- *                                   `<p>`) so clicking the description
- *                                   focuses the input. It does not
- *                                   toggle a Checkbox / Switch — see
+ * - `.st-field__description`      — the description `<div>`, linked to
+ *                                   the control by `aria-describedby`.
+ *                                   Not a `<label for>`: a second label
+ *                                   would add it to the control's name
+ *                                   too (#646). See
  *                                   field-context-guideline.md.
  * - `.st-field__error`            — the error `<p>` below children.
  *

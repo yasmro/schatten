@@ -1590,13 +1590,9 @@ export const Reference: Story = {
                   Email
                 </label>
               </div>
-              <label
-                htmlFor="cssapi-field-email"
-                id="cssapi-field-email-desc"
-                className="st-field__description"
-              >
+              <div id="cssapi-field-email-desc" className="st-field__description">
                 We never share your email
-              </label>
+              </div>
               <div className="st-input-wrapper st-input-wrapper--md">
                 <input
                   id="cssapi-field-email"
@@ -1632,9 +1628,9 @@ export const Reference: Story = {
   <div class="st-field__label-row">
     <label for="email" class="st-field__label">Email</label>
   </div>
-  <label for="email" id="email-desc" class="st-field__description">
+  <div id="email-desc" class="st-field__description">
     We never share your email
-  </label>
+  </div>
   <div class="st-input-wrapper st-input-wrapper--md">
     <input id="email" type="email" class="st-input"
            aria-describedby="email-desc">
@@ -1665,8 +1661,8 @@ export const Reference: Story = {
 <!-- .st-field__label           the <label htmlFor> for the input    -->
 <!-- .st-field__required-marker the * span next to the label         -->
 <!-- .st-field__info            tooltip info icon (Lucide Info)      -->
-<!-- .st-field__description     <label htmlFor> rendered as clickable
-                                description (clicks focus the input) -->
+<!-- .st-field__description     description <div>, linked by
+                                aria-describedby (not a <label>) -->
 <!-- .st-field__error           error <p> below the input            -->`}</CodeBlock>
         </Section>
 

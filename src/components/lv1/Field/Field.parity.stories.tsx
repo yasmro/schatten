@@ -57,9 +57,9 @@ export const Parity: Story = {
               Email
             </label>
           </div>
-          <label htmlFor="v1-input" id="v1-description" className="st-field__description">
+          <div id="v1-description" className="st-field__description">
             We never share your email
-          </label>
+          </div>
           <div className="st-input-wrapper st-input-wrapper--md">
             <input
               id="v1-input"

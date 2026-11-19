@@ -564,9 +564,7 @@ describe('DatePicker', () => {
           </Field>
         </>,
       )
-      expect(screen.getByRole('textbox')).toHaveAccessibleDescription(
-        'As on your passport Used for the age check',
-      )
+      expect(dateInput()).toHaveAccessibleDescription('As on your passport Used for the age check')
     })
 
     it('shows an invalid draft even when the Field has no error', async () => {

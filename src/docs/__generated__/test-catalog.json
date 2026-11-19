@@ -1154,6 +1154,21 @@
       {
         "file": "src/components/lv1/Checkbox/Checkbox.test.tsx",
         "group": "Field context integration",
+        "title": "takes its own disabled and isError inside a Field"
+      },
+      {
+        "file": "src/components/lv1/Checkbox/Checkbox.test.tsx",
+        "group": "Field context integration",
+        "title": "keeps the Field disabled and isError when its own are false"
+      },
+      {
+        "file": "src/components/lv1/Checkbox/Checkbox.test.tsx",
+        "group": "Field context integration",
+        "title": "adds its own aria-describedby after the Field ids"
+      },
+      {
+        "file": "src/components/lv1/Checkbox/Checkbox.test.tsx",
+        "group": "Field context integration",
         "title": "does NOT inherit id from Field (Checkbox has its own label)"
       },
       {
@@ -1890,6 +1905,21 @@
       {
         "file": "src/components/lv1/DateCalendar/DateCalendar.test.tsx",
         "group": "inside <Field>",
+        "title": "takes its own disabled and isError"
+      },
+      {
+        "file": "src/components/lv1/DateCalendar/DateCalendar.test.tsx",
+        "group": "inside <Field>",
+        "title": "keeps the Field disabled and isError when its own are false"
+      },
+      {
+        "file": "src/components/lv1/DateCalendar/DateCalendar.test.tsx",
+        "group": "inside <Field>",
+        "title": "adds its own aria-describedby after the Field ids"
+      },
+      {
+        "file": "src/components/lv1/DateCalendar/DateCalendar.test.tsx",
+        "group": "inside <Field>",
         "title": "does not put aria-required on a role that forbids it"
       },
       {
@@ -2603,6 +2633,21 @@
       {
         "file": "src/components/lv2/DatePicker/DatePicker.test.tsx",
         "group": "inside <Field>",
+        "title": "takes its own disabled and isError"
+      },
+      {
+        "file": "src/components/lv2/DatePicker/DatePicker.test.tsx",
+        "group": "inside <Field>",
+        "title": "keeps the Field disabled and isError when its own are false"
+      },
+      {
+        "file": "src/components/lv2/DatePicker/DatePicker.test.tsx",
+        "group": "inside <Field>",
+        "title": "adds its own aria-describedby after the Field ids"
+      },
+      {
+        "file": "src/components/lv2/DatePicker/DatePicker.test.tsx",
+        "group": "inside <Field>",
         "title": "shows an invalid draft even when the Field has no error"
       },
       {
@@ -3069,6 +3114,21 @@
         "file": "src/components/lv2/DatePicker/DatePicker.test.tsx",
         "group": "inside <Field>",
         "title": "passes error, disabled, description and required to both inputs"
+      },
+      {
+        "file": "src/components/lv2/DatePicker/DatePicker.test.tsx",
+        "group": "inside <Field>",
+        "title": "takes its own disabled and isError"
+      },
+      {
+        "file": "src/components/lv2/DatePicker/DatePicker.test.tsx",
+        "group": "inside <Field>",
+        "title": "keeps the Field disabled and isError when its own are false"
+      },
+      {
+        "file": "src/components/lv2/DatePicker/DatePicker.test.tsx",
+        "group": "inside <Field>",
+        "title": "adds its own aria-describedby after the Field ids on both inputs"
       },
       {
         "file": "src/components/lv2/DatePicker/DatePicker.test.tsx",
@@ -4403,13 +4463,28 @@
       },
       {
         "file": "src/components/lv1/Field/Field.test.tsx",
-        "group": "description click",
-        "title": "focuses an Input"
+        "group": "description",
+        "title": "names an Input with the label alone"
       },
       {
         "file": "src/components/lv1/Field/Field.test.tsx",
-        "group": "description click",
-        "title": "leaves a link inside the description working"
+        "group": "description",
+        "title": "names a Textarea with the label alone"
+      },
+      {
+        "file": "src/components/lv1/Field/Field.test.tsx",
+        "group": "description",
+        "title": "names a Select trigger with the label alone"
+      },
+      {
+        "file": "src/components/lv1/Field/Field.test.tsx",
+        "group": "description",
+        "title": "does not name the control when Field has no label"
+      },
+      {
+        "file": "src/components/lv1/Field/Field.test.tsx",
+        "group": "description",
+        "title": "does not toggle a Switch when clicked"
       },
       {
         "file": "src/components/lv1/Field/Field.test.tsx",
@@ -5214,6 +5289,21 @@
       {
         "file": "src/components/lv1/Input/Input.test.tsx",
         "group": "Field context integration",
+        "title": "takes its own disabled and isError inside a Field"
+      },
+      {
+        "file": "src/components/lv1/Input/Input.test.tsx",
+        "group": "Field context integration",
+        "title": "keeps the Field disabled and isError when its own are false"
+      },
+      {
+        "file": "src/components/lv1/Input/Input.test.tsx",
+        "group": "Field context integration",
+        "title": "adds its own aria-describedby after the Field ids"
+      },
+      {
+        "file": "src/components/lv1/Input/Input.test.tsx",
+        "group": "Field context integration",
         "title": "inherits required (aria-required) from Field"
       },
       {
@@ -5690,6 +5780,21 @@
       {
         "file": "src/components/lv1/Radio/Radio.test.tsx",
         "group": "Field context integration",
+        "title": "RadioGroup takes its own disabled and isError inside a Field"
+      },
+      {
+        "file": "src/components/lv1/Radio/Radio.test.tsx",
+        "group": "Field context integration",
+        "title": "RadioGroup keeps the Field disabled and isError when its own are false"
+      },
+      {
+        "file": "src/components/lv1/Radio/Radio.test.tsx",
+        "group": "Field context integration",
+        "title": "RadioGroup adds its own aria-describedby after the Field ids"
+      },
+      {
+        "file": "src/components/lv1/Radio/Radio.test.tsx",
+        "group": "Field context integration",
         "title": "RadioGroup takes its accessible name from the Field label"
       },
       {
@@ -5970,6 +6075,21 @@
         "file": "src/components/lv1/Select/Select.test.tsx",
         "group": "Field context integration",
         "title": "inherits aria-describedby from Field"
+      },
+      {
+        "file": "src/components/lv1/Select/Select.test.tsx",
+        "group": "Field context integration",
+        "title": "takes its own disabled and isError inside a Field"
+      },
+      {
+        "file": "src/components/lv1/Select/Select.test.tsx",
+        "group": "Field context integration",
+        "title": "keeps the Field disabled and isError when its own are false"
+      },
+      {
+        "file": "src/components/lv1/Select/Select.test.tsx",
+        "group": "Field context integration",
+        "title": "adds its own aria-describedby after the Field ids"
       },
       {
         "file": "src/components/lv1/Select/Select.test.tsx",
@@ -6677,6 +6797,21 @@
         "file": "src/components/lv1/Switch/Switch.test.tsx",
         "group": "Field context integration",
         "title": "inherits aria-describedby from Field"
+      },
+      {
+        "file": "src/components/lv1/Switch/Switch.test.tsx",
+        "group": "Field context integration",
+        "title": "takes its own disabled and isError inside a Field"
+      },
+      {
+        "file": "src/components/lv1/Switch/Switch.test.tsx",
+        "group": "Field context integration",
+        "title": "keeps the Field disabled and isError when its own are false"
+      },
+      {
+        "file": "src/components/lv1/Switch/Switch.test.tsx",
+        "group": "Field context integration",
+        "title": "adds its own aria-describedby after the Field ids"
       },
       {
         "file": "src/components/lv1/Switch/Switch.test.tsx",
@@ -7629,6 +7764,21 @@
         "file": "src/components/lv1/Textarea/Textarea.test.tsx",
         "group": "Field context integration",
         "title": "inherits aria-describedby from Field"
+      },
+      {
+        "file": "src/components/lv1/Textarea/Textarea.test.tsx",
+        "group": "Field context integration",
+        "title": "takes its own disabled and isError inside a Field"
+      },
+      {
+        "file": "src/components/lv1/Textarea/Textarea.test.tsx",
+        "group": "Field context integration",
+        "title": "keeps the Field disabled and isError when its own are false"
+      },
+      {
+        "file": "src/components/lv1/Textarea/Textarea.test.tsx",
+        "group": "Field context integration",
+        "title": "adds its own aria-describedby after the Field ids"
       },
       {
         "file": "src/components/lv1/Textarea/Textarea.test.tsx",

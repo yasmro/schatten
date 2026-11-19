@@ -1,7 +1,17 @@
-import { existsSync, mkdirSync, mkdtempSync, rmSync, statSync, writeFileSync } from 'node:fs'
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+  statSync,
+  writeFileSync,
+} from 'node:fs'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { sanitize, storyNameFromExport } from 'storybook/internal/csf'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import {
   auditComponent,
@@ -22,6 +32,7 @@ import {
   roleContractPartitionGaps,
   runAudit,
   spreadsProps,
+  storyIdFromExportName,
   storyIdsFromSource,
   undocumentedVrtSkips,
   usesForwardRef,
@@ -1246,5 +1257,40 @@ describe('auditComponent — vrt.roster', () => {
     const row = auditComponent({ name: 'Foo', componentDir: dir, exported: true, exempt: false })
     expect(row.files.vrtRoster).toBe('missing')
     expect(row.missing.some((m) => m.includes('extra'))).toBe(true)
+  })
+})
+
+// audit-coverage.mjs copies Storybook's id derivation because the CI `audit`
+// job runs it without dependencies. Pin the copy to the real functions over
+// every story export in the repo, so a Storybook change that alters ids fails
+// here instead of silently mis-auditing the VRT roster.
+describe('storyIdFromExportName', () => {
+  it("matches Storybook's storyNameFromExport + sanitize for every story in the repo", () => {
+    const root = join(dirname(fileURLToPath(import.meta.url)), '..', '..', 'src')
+    const names: string[] = []
+    const walk = (dir: string) => {
+      for (const entry of readdirSync(dir, { withFileTypes: true })) {
+        const full = join(dir, entry.name)
+        if (entry.isDirectory()) walk(full)
+        else if (entry.name.endsWith('.stories.tsx')) {
+          for (const [, name] of readFileSync(full, 'utf8').matchAll(
+            /^export const (\w+)\s*[:=]/gm,
+          )) {
+            names.push(name)
+          }
+        }
+      }
+    }
+    walk(root)
+    expect(names.length).toBeGreaterThan(100)
+    for (const name of names) {
+      expect(storyIdFromExportName(name), name).toBe(sanitize(storyNameFromExport(name)))
+    }
+  })
+
+  it('handles digits and acronyms the way Storybook does', () => {
+    for (const name of ['H2Heading', 'WithURL', 'Size2xl', 'PlaygroundStory', 'ARIALabel']) {
+      expect(storyIdFromExportName(name), name).toBe(sanitize(storyNameFromExport(name)))
+    }
   })
 })

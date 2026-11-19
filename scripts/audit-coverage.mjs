@@ -31,7 +31,6 @@
 
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs'
 import path from 'node:path'
-import { sanitize, storyNameFromExport } from 'storybook/internal/csf'
 import { isCliEntry } from './is-cli-entry.mjs'
 
 const LV1_DIR_REL = 'src/components/lv1'
@@ -325,15 +324,43 @@ export function vrtSkipReason(storyId, specSource) {
 }
 
 /**
- * Story ids the way Storybook derives them: export name → display name → slug
- * (`export const AllVariants` → `all-variants`). Shared with
+ * The story id suffix Storybook derives from an export name
+ * (`AllVariants` → `all-variants`): `storyNameFromExport()` then `sanitize()`
+ * from `storybook/internal/csf`, copied here because the CI `audit` job runs
+ * this script without installing dependencies. A unit test compares it with
+ * Storybook's own functions for every story in the repo.
+ * @param {string} exportName
+ * @returns {string}
+ */
+export function storyIdFromExportName(exportName) {
+  const startCase = exportName
+    .replace(/_/g, ' ')
+    .replace(/-/g, ' ')
+    .replace(/\./g, ' ')
+    .replace(/([^\n])([A-Z])([a-z])/g, (_, a, b, c) => `${a} ${b}${c}`)
+    .replace(/([a-z])([A-Z])/g, (_, a, b) => `${a} ${b}`)
+    .replace(/([a-z])([0-9])/gi, (_, a, b) => `${a} ${b}`)
+    .replace(/([0-9])([a-z])/gi, (_, a, b) => `${a} ${b}`)
+    .replace(/(\s|^)(\w)/g, (_, a, b) => `${a}${b.toUpperCase()}`)
+    .replace(/ +/g, ' ')
+    .trim()
+  return startCase
+    .toLowerCase()
+    .replace(/[ ’–—―′¿'`~!@#$%^&*()_|+\-=?;:'",.<>{}[\]\\/]/gi, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-+/, '')
+    .replace(/-+$/, '')
+}
+
+/**
+ * Story ids of every `export const` in a `*.stories.tsx` source. Shared with
  * scripts/generate-test-catalog.mjs.
- * @param {string} source a `*.stories.tsx` source
+ * @param {string} source
  * @returns {string[]}
  */
 export function storyIdsFromSource(source) {
   return [...source.matchAll(/^export const (\w+)\s*[:=]/gm)].map(([, name]) =>
-    sanitize(storyNameFromExport(name)),
+    storyIdFromExportName(name),
   )
 }
 

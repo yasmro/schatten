@@ -165,6 +165,8 @@ export function hasTestidPassthroughTest(testSource: string): boolean
  */
 export function hasRoleNameTest(testSource: string, role: string): boolean
 
+export function storyIdFromExportName(exportName: string): string
+
 export function storyIdsFromSource(source: string): string[]
 
 export function undocumentedVrtSkips(componentDir: string): string[]

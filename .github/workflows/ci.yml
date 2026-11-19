@@ -117,6 +117,12 @@ jobs:
       - name: Unit tests
         run: pnpm vitest run
 
+      # The Storybook "Tests" tab reads a committed catalog of test titles
+      # (#641). Lists tests without running them — no browser is needed for
+      # `playwright test --list`. Fix a failure with `pnpm update:test-catalog`.
+      - name: Test catalog is up to date
+        run: pnpm check:test-catalog
+
       # Node reads TZ at startup, so the date math needs one process per zone.
       - name: Date math across time zones
         run: pnpm test:tz

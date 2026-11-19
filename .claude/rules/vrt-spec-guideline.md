@@ -98,6 +98,28 @@ Storybook converts story export names to kebab-case:
 The story ID prefix follows the Storybook title:
 - `title: 'Components/lv1/Button'` → `components-lv1-button`
 
+## Test titles — the Tests tab reads them
+
+The Storybook **Tests** tab ([storybook-guideline](storybook-guideline.md#tests-tab--the-test-catalog))
+sorts Playwright tests by their **title**, not by what they do:
+
+| Title shape | Counted as |
+|---|---|
+| `<Prefix> / <story> / <light\|dark>` | a screenshot of `<story>` in that theme |
+| `<Prefix> / <story> / <light\|dark> / a11y` | an axe scan of `<story>` in that theme |
+| anything else | a browser interaction test |
+
+The template above already produces the first two shapes. Two rules follow:
+
+- Keep `<story>` equal to the story id suffix the spec loads, so the tab can
+  match the screenshot to the story being viewed.
+- **Do not end an interaction test's title with `/ light` or `/ dark`.** It
+  would be counted as a screenshot. Name the behaviour instead
+  (`Toast / close button dismisses on real click`).
+
+After adding, renaming, or removing a test, run `pnpm update:test-catalog` and
+commit the result — CI's `check:test-catalog` fails otherwise.
+
 ## Required Wait Logic
 
 Always include these waits for CI reliability:

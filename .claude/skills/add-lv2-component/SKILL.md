@@ -188,6 +188,8 @@ pnpm check:readme
 pnpm check:registrar
 pnpm audit:coverage
 pnpm size
+pnpm update:test-catalog  # commit src/docs/__generated__/test-catalog.json —
+                          # CI's `check:test-catalog` fails without the new tests
 ```
 
 **Size budget.** `pnpm size` decides whether to raise `components/lv2 (all)` and

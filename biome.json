@@ -63,7 +63,8 @@
       "!storybook-static",
       "!test-results",
       "!pnpm-lock.yaml",
-      "!src/__generated__/schatten.manifest.json"
+      "!src/__generated__/schatten.manifest.json",
+      "!src/docs/__generated__/test-catalog.json"
     ]
   },
   "overrides": [

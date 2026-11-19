@@ -159,6 +159,11 @@ export function hasTestidPassthroughTest(testSource: string): boolean
  */
 export function hasRoleNameTest(testSource: string, role: string): boolean
 
+export function vrtSkipReason(
+  storyId: string,
+  specSource: string,
+): 'by rule' | 'documented' | 'undocumented'
+
 export function discoverComponents(lv1Dir: string): string[]
 
 export function parseExportedNames(indexPath: string): Set<string>

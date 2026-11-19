@@ -23,6 +23,7 @@ import {
   runAudit,
   spreadsProps,
   usesForwardRef,
+  vrtSkipReason,
 } from '../audit-coverage.mjs'
 
 // Pure-function unit tests for scripts/audit-coverage.mjs. Filesystem
@@ -1146,5 +1147,27 @@ describe('LV2_INTERACTIVE', () => {
       expect(existsSync(dir), `${name} is in LV2_INTERACTIVE but ${dir} does not exist`).toBe(true)
       expect(statSync(dir).isDirectory(), `${dir} is not a directory`).toBe(true)
     }
+  })
+})
+
+describe('vrtSkipReason', () => {
+  const spec = [
+    'const stories = [',
+    "  'all-variants',",
+    "  // 'states' — visual covered by 'full-matrix'",
+    '] as const',
+  ].join('\n')
+
+  it('treats Playground as skipped by rule', () => {
+    expect(vrtSkipReason('playground', spec)).toBe('by rule')
+    expect(vrtSkipReason('playground-story', spec)).toBe('by rule')
+  })
+
+  it('accepts a story named in a skip comment', () => {
+    expect(vrtSkipReason('states', spec)).toBe('documented')
+  })
+
+  it('flags a story that is neither in the roster nor named in a comment', () => {
+    expect(vrtSkipReason('solid-treatments', spec)).toBe('undocumented')
   })
 })

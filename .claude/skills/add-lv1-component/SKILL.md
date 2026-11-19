@@ -299,6 +299,9 @@ pnpm lint              # confirm lint + format are clean
 pnpm test --run src/components/lv1/<Name>
 pnpm build:component-css   # the new per-component CSS subpath (#291) — fails
                            # loudly if `<Name>.css` is missing
+pnpm update:test-catalog   # the Storybook Tests tab reads this committed list
+                           # of test titles; CI (`check:test-catalog`) fails
+                           # if the new tests are missing from it — commit it
 ```
 
 VRT baselines do not exist yet — the first `pnpm test:vrt` run writes them.

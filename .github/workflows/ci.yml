@@ -117,6 +117,14 @@ jobs:
       - name: Unit tests
         run: pnpm vitest run
 
+      # Unit tests that need a real browser — computed styles and real pointer
+      # input, which jsdom cannot show (#650). Runs in this required job so a
+      # failure blocks the merge like any other unit test.
+      - run: pnpm exec playwright install chromium
+
+      - name: Unit tests in a real browser
+        run: pnpm test:browser
+
       # The Storybook "Tests" tab reads a committed catalog of test titles
       # (#641). Lists tests without running them — no browser is needed for
       # `playwright test --list`. Fix a failure with `pnpm update:test-catalog`.

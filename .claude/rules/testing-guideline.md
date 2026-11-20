@@ -58,6 +58,50 @@ You shouldn't need to add more polyfills in individual specs.
   did — landing on `vite 7.3.3`). `@vitest/ui` must match `vitest` exactly
   (peer), so keep their ranges aligned.
 
+## jsdom or a real browser
+
+The unit suite runs in **jsdom** (`vitest.config.ts`). A small second suite
+runs in a **real Chromium** through Vitest's browser mode
+(`vitest.browser.config.ts`, #650). Write a test in the browser suite only
+when jsdom cannot see what it asserts:
+
+| Assert this | Where | Why |
+|---|---|---|
+| Props, DOM, ARIA, events, context wiring | **jsdom** (`*.test.tsx`) | Fast, and everything it needs exists in jsdom |
+| A computed style — a colour, a size, a state colour on a child | **browser** (`*.browser.test.tsx`) | jsdom loads no stylesheet; `getComputedStyle` returns defaults |
+| Behaviour that only real input triggers — CSS `:hover`, pointer capture | **browser** | `@testing-library/user-event` dispatches events and never sets `:hover`; `userEvent` from `vitest/browser` drives the real pointer |
+
+The canonical examples are
+[`Switch.browser.test.tsx`](../../src/components/lv1/Switch/Switch.browser.test.tsx)
+(#524: the disabled check icon's computed colour, in light and dark) and
+[`Button.browser.test.tsx`](../../src/components/lv1/Button/Button.browser.test.tsx)
+(the label colour on a real hover).
+
+Rules for the browser suite:
+
+- **Name the file `*.browser.test.tsx`.** The jsdom config excludes that
+  suffix and the browser config includes only it.
+- **The full stylesheet is already loaded.** `vitest.browser.setup.ts` imports
+  `src/styles/entry.css` — the chain `dist/schatten.css` ships — so tokens,
+  `.dark`, and every `.st-*` rule apply. Toggle `.dark` on
+  `document.documentElement` for dark mode and remove it after each test.
+- **Use the built-in matchers, not `@testing-library/jest-dom`.**
+  `vitest/browser` ships its own jest-dom matcher types, which conflict with
+  `@testing-library/jest-dom`'s. The browser suite is type-checked on its own
+  (`tsconfig.browser.json`) and the jsdom suite excludes it
+  (`tsconfig.test.json`), so `pnpm typecheck` runs both.
+- **Write titles out — no `it.each` / `describe.each`.** The test catalog
+  behind the Storybook Tests tab lists browser tests without running them, so
+  a `%s` template stays unexpanded there. Factor the body into a helper and
+  call it from tests with literal titles.
+- **Keep the top-level `describe` as the component name**, as in the jsdom
+  suite — the catalog drops it as the component.
+- **Do not move a test here because it is "more real".** The browser suite is
+  slower and needs a browser in CI; behaviour jsdom can show stays in jsdom.
+
+Run it with `pnpm test:browser`. CI runs it in the required `test` job after
+installing Chromium.
+
 ## File layout
 
 ```

@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig.json",
+  "include": [
+    "src/**/*.browser.test.tsx",
+    "src/**/*.d.ts",
+    "vitest.browser.config.ts",
+    "vitest.browser.setup.ts"
+  ],
+  "exclude": ["node_modules", "dist"]
+}

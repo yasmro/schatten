@@ -34,10 +34,11 @@ import { Lead, Note, PageTitle, SectionTitle, SubsectionTitle } from './docs-ui'
  * story sets on mount and removes on unmount. Unlayered rules beat
  * `@layer components`, so no specificity escalation is needed.
  *
- * Three candidates:
+ * Four candidates:
  * - a — current (the shipped keyframes, untouched)
  * - b — dissolve + scale
- * - c — dissolve + scale + blur
+ * - c — dissolve + scale + blur on the way in
+ * - d — dissolve + scale in, blur on the way out (Tooltip / Toast stay a)
  *
  * No VRT spec: the contract here is motion over time, which a still frame
  * cannot show (same reasoning as Tokens/Motion).
@@ -52,7 +53,7 @@ const meta: Meta = {
 export default meta
 type Story = StoryObj
 
-type Variant = 'a' | 'b' | 'c'
+type Variant = 'a' | 'b' | 'c' | 'd'
 type Timing = 'current' | 'transitions-dev'
 type ExitStyle = 'mirror' | 'fade'
 
@@ -60,6 +61,11 @@ const VARIANTS: { id: Variant; label: string; summary: string }[] = [
   { id: 'a', label: 'a — Current', summary: 'Shipped keyframes (fade + scale / slide)' },
   { id: 'b', label: 'b — Dissolve + scale', summary: 'opacity + scale from the scale token' },
   { id: 'c', label: 'c — + Blur', summary: 'opacity + scale + blur, settling into focus' },
+  {
+    id: 'd',
+    label: 'd — Blur on exit',
+    summary: 'opacity + scale in; reverse with blur out (Tooltip / Toast stay a)',
+  },
 ]
 
 /**
@@ -246,6 +252,39 @@ html[data-motion-proto="a"] .st-select__content[data-state="closed"] {
   animation-duration: calc(100ms * var(--proto-slowmo));
 }
 
+/*
+ * ---- Candidate d: no blur on the way in, blur on the way out ----
+ * Enter is b (opacity + scale). Exit always plays c's reverse (sharp ->
+ * blurred), whatever the "Exit (b/c)" control says, at the exit speed and
+ * easing chosen above. Tooltip and Toast keep the shipped motion under d.
+ */
+html[data-motion-proto="d"] .st-dialog__content[data-state="open"],
+html[data-motion-proto] .proto-specimen[data-variant="d"][data-state="open"] {
+  animation: proto-in-b calc(var(--proto-dialog-enter) * var(--proto-slowmo)) var(--proto-ease-enter) both;
+}
+html[data-motion-proto="d"] .st-dialog__content[data-state="closed"],
+html[data-motion-proto] .proto-specimen[data-variant="d"][data-state="closed"] {
+  animation: proto-out-c calc(var(--proto-dialog-exit) * var(--proto-slowmo)) var(--proto-ease-exit) both;
+}
+html[data-motion-proto="d"] .st-popover__content {
+  transform-origin: var(--radix-popover-content-transform-origin);
+}
+html[data-motion-proto="d"] .st-popover__content[data-state="open"] {
+  animation: proto-in-b calc(var(--proto-popover-enter) * var(--proto-slowmo)) var(--proto-ease-enter);
+}
+html[data-motion-proto="d"] .st-popover__content[data-state="closed"] {
+  animation: proto-out-c calc(var(--proto-popover-exit) * var(--proto-slowmo)) var(--proto-ease-exit);
+}
+html[data-motion-proto="d"] .st-select__content {
+  transform-origin: var(--radix-select-content-transform-origin);
+}
+html[data-motion-proto="d"] .st-select__content[data-state="open"] {
+  animation: proto-in-b calc(var(--proto-popover-enter) * var(--proto-slowmo)) var(--proto-ease-enter);
+}
+html[data-motion-proto="d"] .st-select__content[data-state="closed"] {
+  animation: proto-out-c calc(var(--proto-popover-exit) * var(--proto-slowmo)) var(--proto-ease-exit);
+}
+
 /* ---- Tooltip (its own in / out names, so its blur can be switched off) ---- */
 html[data-motion-proto="b"] .st-tooltip__content,
 html[data-motion-proto="c"] .st-tooltip__content {
@@ -263,10 +302,12 @@ html[data-motion-proto="b"] .st-tooltip__content[data-state="closed"] {
 html[data-motion-proto="c"] .st-tooltip__content[data-state="closed"] {
   animation: var(--proto-tooltip-out) calc(var(--proto-popover-exit) * var(--proto-slowmo)) var(--proto-ease-exit);
 }
-html[data-motion-proto="a"] .st-tooltip__content {
+html[data-motion-proto="a"] .st-tooltip__content,
+html[data-motion-proto="d"] .st-tooltip__content {
   animation-duration: calc(150ms * var(--proto-slowmo));
 }
-html[data-motion-proto="a"] .st-tooltip__content[data-state="closed"] {
+html[data-motion-proto="a"] .st-tooltip__content[data-state="closed"],
+html[data-motion-proto="d"] .st-tooltip__content[data-state="closed"] {
   animation-duration: calc(100ms * var(--proto-slowmo));
 }
 
@@ -297,7 +338,8 @@ html[data-motion-proto="a"] .st-tooltip__content[data-state="closed"] {
     animation: proto-toast-blur-in 400ms var(--proto-ease-enter) both;
   }
   html[data-motion-proto="c"] [data-sonner-toast][data-removed="true"] .st-toast {
-    animation: proto-toast-blur-out 200ms var(--proto-ease-exit) both;
+    /* "Fade only" leaves the exit to Sonner's own fade (no blur). */
+    animation: var(--proto-toast-out) 200ms var(--proto-ease-exit) both;
   }
 }
 
@@ -412,6 +454,7 @@ const PrototypePage = () => {
       '--proto-ease-exit': exitEase === 'preset' ? t.easeExit : exitEase,
       '--proto-exit-b': exitStyle === 'mirror' ? 'proto-out-b' : 'proto-fade-out',
       '--proto-exit-c': exitStyle === 'mirror' ? 'proto-out-c' : 'proto-fade-out',
+      '--proto-toast-out': exitStyle === 'fade' ? 'none' : 'proto-toast-blur-out',
       '--proto-tooltip-in': tooltipBlur === 'none' ? 'proto-in-b' : 'proto-in-c',
       '--proto-tooltip-out':
         exitStyle === 'fade'
@@ -511,7 +554,7 @@ const PrototypePage = () => {
           {specimenState === 'open' ? 'Play exit' : 'Play enter'}
         </Button>
       </div>
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
         {VARIANTS.map((v) => (
           <div key={v.id} className="flex flex-col gap-2">
             <Specimen variant={v.id} state={specimenState}>

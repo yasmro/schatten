@@ -34,11 +34,15 @@ import { Lead, Note, PageTitle, SectionTitle, SubsectionTitle } from './docs-ui'
  * story sets on mount and removes on unmount. Unlayered rules beat
  * `@layer components`, so no specificity escalation is needed.
  *
- * Four candidates:
+ * Five candidates:
  * - a — current (the shipped keyframes, untouched)
  * - b — dissolve + scale
  * - c — dissolve + scale + blur on the way in
  * - d — dissolve + scale in, blur on the way out (Tooltip / Toast stay a)
+ * - e — b with timing sized to the surface (Tooltip / Toast stay a)
+ *
+ * Two adversarial brand reviews rejected c and d (blur read as a lens /
+ * depth metaphor, not as ink on paper), so #630 continues with b / e.
  *
  * No VRT spec: the contract here is motion over time, which a still frame
  * cannot show (same reasoning as Tokens/Motion).
@@ -53,7 +57,7 @@ const meta: Meta = {
 export default meta
 type Story = StoryObj
 
-type Variant = 'a' | 'b' | 'c' | 'd'
+type Variant = 'a' | 'b' | 'c' | 'd' | 'e'
 type Timing = 'current' | 'transitions-dev'
 type ExitStyle = 'mirror' | 'fade'
 
@@ -65,6 +69,11 @@ const VARIANTS: { id: Variant; label: string; summary: string }[] = [
     id: 'd',
     label: 'd — Blur on exit',
     summary: 'opacity + scale in; reverse with blur out (Tooltip / Toast stay a)',
+  },
+  {
+    id: 'e',
+    label: 'e — Sized timing',
+    summary: 'b, fixed: Dialog 250 / 150ms, Popover · Select 150 / 100ms (ignores timing controls)',
   },
 ]
 
@@ -285,6 +294,45 @@ html[data-motion-proto="d"] .st-select__content[data-state="closed"] {
   animation: proto-out-c calc(var(--proto-popover-exit) * var(--proto-slowmo)) var(--proto-ease-exit);
 }
 
+/*
+ * ---- Candidate e: b with timing sized to the surface ----
+ * A fixed proposal: it ignores the timing and exit controls (only scale and
+ * slow motion apply). Enter is opacity + scale on the smooth ease-out, exit
+ * is a plain fade on ease-in. Overlay-sized surfaces (Dialog) take 250 /
+ * 150ms; popover-sized ones (Popover, Select) take 150 / 100ms, the same
+ * lengths as today. Tooltip and Toast keep the shipped motion.
+ */
+html[data-motion-proto="e"] {
+  --proto-e-ease-in: cubic-bezier(0.22, 1, 0.36, 1);
+}
+html[data-motion-proto="e"] .st-dialog__content[data-state="open"],
+html[data-motion-proto] .proto-specimen[data-variant="e"][data-state="open"] {
+  animation: proto-in-b calc(250ms * var(--proto-slowmo)) cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+html[data-motion-proto="e"] .st-dialog__content[data-state="closed"],
+html[data-motion-proto] .proto-specimen[data-variant="e"][data-state="closed"] {
+  animation: proto-fade-out calc(150ms * var(--proto-slowmo)) ease-in both;
+}
+/* Doubled attribute: matches the specificity of the :not(a) overlay rules above. */
+html[data-motion-proto="e"][data-motion-proto] .st-dialog__overlay[data-state="open"] {
+  animation: proto-fade-in calc(250ms * var(--proto-slowmo)) var(--proto-e-ease-in);
+}
+html[data-motion-proto="e"][data-motion-proto] .st-dialog__overlay[data-state="closed"] {
+  animation: proto-fade-out calc(150ms * var(--proto-slowmo)) ease-in;
+}
+html[data-motion-proto="e"] .st-popover__content {
+  transform-origin: var(--radix-popover-content-transform-origin);
+}
+html[data-motion-proto="e"] .st-select__content {
+  transform-origin: var(--radix-select-content-transform-origin);
+}
+html[data-motion-proto="e"] :is(.st-popover__content, .st-select__content)[data-state="open"] {
+  animation: proto-in-b calc(150ms * var(--proto-slowmo)) var(--proto-e-ease-in);
+}
+html[data-motion-proto="e"] :is(.st-popover__content, .st-select__content)[data-state="closed"] {
+  animation: proto-fade-out calc(100ms * var(--proto-slowmo)) ease-in;
+}
+
 /* ---- Tooltip (its own in / out names, so its blur can be switched off) ---- */
 html[data-motion-proto="b"] .st-tooltip__content,
 html[data-motion-proto="c"] .st-tooltip__content {
@@ -303,11 +351,13 @@ html[data-motion-proto="c"] .st-tooltip__content[data-state="closed"] {
   animation: var(--proto-tooltip-out) calc(var(--proto-popover-exit) * var(--proto-slowmo)) var(--proto-ease-exit);
 }
 html[data-motion-proto="a"] .st-tooltip__content,
-html[data-motion-proto="d"] .st-tooltip__content {
+html[data-motion-proto="d"] .st-tooltip__content,
+html[data-motion-proto="e"] .st-tooltip__content {
   animation-duration: calc(150ms * var(--proto-slowmo));
 }
 html[data-motion-proto="a"] .st-tooltip__content[data-state="closed"],
-html[data-motion-proto="d"] .st-tooltip__content[data-state="closed"] {
+html[data-motion-proto="d"] .st-tooltip__content[data-state="closed"],
+html[data-motion-proto="e"] .st-tooltip__content[data-state="closed"] {
   animation-duration: calc(100ms * var(--proto-slowmo));
 }
 
@@ -554,7 +604,7 @@ const PrototypePage = () => {
           {specimenState === 'open' ? 'Play exit' : 'Play enter'}
         </Button>
       </div>
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         {VARIANTS.map((v) => (
           <div key={v.id} className="flex flex-col gap-2">
             <Specimen variant={v.id} state={specimenState}>

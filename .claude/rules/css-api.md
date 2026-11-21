@@ -992,10 +992,11 @@ The rules for such a panel:
   `transform`). No `scale` / `translate` keyframes on the content. See
   [`DropdownMenu.css`](../../src/components/lv1/DropdownMenu/DropdownMenu.css)
   for the opacity-only enter/exit.
-- **This is specific to panels with nested fixed children.** `Select` /
-  `Tooltip` / `Dialog` / `Toast` keep their `scale` enter/exit because their
-  content is portaled with **no** nested fixed descendant inside it, so a
-  transform there is harmless. The constraint kicks in only when a fixed child
+- **This is specific to panels with nested fixed children.** `Tooltip` keeps
+  its slide and Sonner moves `Toast` with `transform` because their content is
+  portaled with **no** nested fixed descendant inside it, so a transform there
+  is harmless. (`Select` / `Dialog` / `Popover` are opacity-only since #630 for
+  a different reason — see [§Motion](#motion--tokens-tiers-and-what-moves).) The constraint kicks in only when a fixed child
   lives in the panel's subtree.
 - **Guard it.** Because the failure is *animation-transient*, neither static
   VRT (still frames) nor jsdom unit tests catch it. Pair the component with a
@@ -1088,6 +1089,49 @@ Two obligations keep this honest: (1) every define-only token is
 retire it. "Zero define-only tokens before 1.0" is explicitly **not** a
 goal.
 
+## Motion — tokens, tiers, and what moves
+
+Component CSS times every transition and animation through the semantic
+`--motion-*` tokens in
+[`animation.css`](../../src/core/tokens/animation.css) (#630). The rules:
+
+- **Reference `--motion-*` only.** Never `--st-duration-*` / `--st-ease-*`
+  (the scales under it) and never a literal time. Pick the token by intent:
+
+  | Intent | Token | Value |
+  |---|---|---|
+  | A **modal** surface opens / closes (Dialog, a future Sheet) | `--motion-overlay-enter` / `-exit` | 200ms / 150ms |
+  | **Any other** surface opens / closes (Popover, Select, Tooltip, DropdownMenu, a future Combobox) | `--motion-popover-enter` / `-exit` | 150ms / 100ms |
+  | The enter / exit curve, with either tier | `--motion-ease-enter` / `-exit` | `cubic-bezier(0.22, 1, 0.36, 1)` / `ease-in` |
+  | Hover, color or state change, Switch thumb, Tabs indicator | `--motion-feedback` | 200ms |
+
+  The tier is decided by **whether the surface is modal**, not by its size.
+  A new surface that opens and closes picks its tier by that question.
+- **Always repeat the value as a fallback** —
+  `var(--motion-feedback, 200ms)`. The per-component subpaths
+  (`@yasmro/schatten/css/<slug>`) ship no tokens, so a bare `var()` would
+  drop the timing there.
+- **Exit is shorter than enter.**
+- **Open surfaces fade.** Dialog / Popover / Select animate `opacity` only.
+  A 0.97 zoom was too small to see, and blur — tried on the way in and on the
+  way out — read as a lens / depth effect rather than as ink on paper, which
+  contradicts [brand-concept §3.4](../../docs/brand-concept.md) (#630; the
+  search for a signature motion continues in #653). Tooltip keeps its short
+  slide; DropdownMenu must stay transform- and filter-free regardless
+  ([§Portal content](#portal-content-with-nested-position-fixed-children-must-stay-transform-free)).
+- **Answer `prefers-reduced-motion: reduce`.** A component with an
+  enter/exit animation sets `animation: none` under reduce; a sliding part
+  (the Switch thumb) jumps instead. Color fades may stay.
+- **Loops are exempt.** Continuous `infinite` animations (Spinner, Skeleton)
+  keep their component-local cadence
+  ([component-architecture.md §7](component-architecture.md#7-lv1-local-css-files)).
+
+All four mechanical rules — no literal time, no direct scale reference,
+fallback equals the token value, reduced-motion present — are pinned by
+[`motion-token-usage.test.ts`](../../src/components/__tests__/motion-token-usage.test.ts),
+which reads every lv1 / lv2 stylesheet as text. jsdom loads no stylesheet and
+VRT pauses animations, so no other gate can see a timing.
+
 ## Quick reference
 
 - **Prefix**: `st-` (frozen for v1.0).
@@ -1134,6 +1178,11 @@ goal.
   on a composite CSS variable or a `@utility`. Single-value semantic
   tokens (`--radius-control`, `--shadow-modal`) stay variables. Rule:
   "can it be one `var()`?" — no → class.
+- **Motion**: reference `--motion-*` only, with the value repeated as the
+  fallback. Modal surfaces take the `overlay` tier (200 / 150ms), every other
+  surface the `popover` tier (150 / 100ms); hover and state changes take
+  `--motion-feedback`. Open surfaces fade (no zoom, no blur). Reduced motion
+  turns enter/exit off. Pinned by `motion-token-usage.test.ts`.
 - **Layer order**: `theme, base, reset, tokens, components, utilities`
   (`theme` = public registrar, `base` = vendored preflight).
 - **Dark / seasonal**: token-driven by default; `:where(.dark)

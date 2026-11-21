@@ -414,14 +414,14 @@ four layers, each with its own naming rule:
 | 1 | **Primitive** | `--vermillion-*` `--red-*` `--blue-*` `--gray-*` `--sumi-*` `--alabaster-*` `--paper-*` `--ink-*` | **No** — ships in dist `:root` but not in the registrar/manifest | Internal. Rename/retune freely (see [What is not public API](#what-is-not-public-api)). Consumers use the semantic layer instead. |
 | 2 | **Tailwind-convention** | `--spacing-*` `--text-*` `--leading-*` `--font-*` `--radius-none/sm..2xl/full` `--shadow-sm..xl` | Yes, **bare** | Keep the Tailwind-scale names. The value is a shared convention, so a consumer overriding / colliding is **intended** — it lets their Tailwind pick Schatten's scale up. |
 | 3 | **Semantic** | `--color-*` (surfaces / foregrounds / state / inverted / brand / `--color-theme-*`), the schatten-specific aliases `--radius-control` `--radius-surface` `--radius-pill` `--shadow-card/popover/modal/toast` `--z-*` `--motion-*` | Yes, **bare** | The meaning is Schatten's, so these **can** collide with another full design system (shadcn defines `--color-background` too). Not namespaced — the collision is **documented, not renamed away** (see below). Consumers with a conflicting token scope Schatten (below). |
-| 4 | **Schatten-namespaced** | `--st-duration-*` `--st-spinner-*` | Yes, **`--st-` prefix** | For axes with no Tailwind-convention counterpart (raw enter/exit timing, spinner cadence). `--st-` mirrors the `.st-` class prefix ([css-api.md](css-api.md)). New schatten-specific tokens that don't fit layers 2–3 go here. |
+| 4 | **Schatten-namespaced** | `--st-duration-*` `--st-ease-*` `--st-spinner-*` | Yes, **`--st-` prefix** | For axes with no Tailwind-convention counterpart (raw enter/exit timing, spinner cadence) — or whose bare name Tailwind already uses with a different value (`--st-ease-*`: Tailwind v4 owns `--ease-out` / `--ease-in` with other curves, #630). `--st-` mirrors the `.st-` class prefix ([css-api.md](css-api.md)). New schatten-specific tokens that don't fit layers 2–3 go here. |
 
 The table is **exhaustive over the public surface**: every variable in the
 manifest (`src/__generated__/schatten.manifest.json` `cssVariables`) maps to
 exactly one layer above — layer 2 = the Tailwind-convention scales, layer 3 =
 the `--color-*` semantics plus the schatten-specific `--radius-control` /
 `--radius-surface` / `--radius-pill` / `--shadow-{card,popover,modal,toast}` /
-`--z-*` / `--motion-*` aliases, layer 4 = the two `--st-*` families. Primitives
+`--z-*` / `--motion-*` aliases, layer 4 = the three `--st-*` families. Primitives
 (layer 1) are deliberately **absent** from the manifest. When you add a public
 token, it must fit one of these four layers; if it doesn't, that's a signal to
 discuss before shipping, not to invent a fifth naming shape.

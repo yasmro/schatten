@@ -1541,12 +1541,11 @@ export const Reference: Story = {
 <!-- State attributes (set by Radix in the React path; vanilla HTML
      consumers do NOT get the enter / exit animation) -->
 <!-- [data-state="open"|"closed"]  on overlay AND content — drives the
-                                    fade-in / zoom-in / fade-out / zoom-out
-                                    keyframes -->
+                                    fade-in / fade-out keyframes -->
 
-<!-- Consumer-overridable timing (@theme-registered, shared scale) -->
-<!-- open  uses --st-duration-slow   default 200ms -->
-<!-- close uses --st-duration-base   default 150ms -->`}</CodeBlock>
+<!-- Consumer-overridable timing (public motion tokens, overlay tier) -->
+<!-- open  uses --motion-overlay-enter + --motion-ease-enter   default 200ms -->
+<!-- close uses --motion-overlay-exit  + --motion-ease-exit    default 150ms -->`}</CodeBlock>
         </Section>
 
         <Section

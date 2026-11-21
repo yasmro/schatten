@@ -29,13 +29,47 @@ function cssDuration(token: string): string {
 }
 
 /** The `{ token: '…', value: '…', … }` entries from the story's DURATION_SCALE. */
+const durationBlock = STORY_SRC.slice(STORY_SRC.indexOf('const DURATION_SCALE'))
 const storyDurations = new Map(
-  [...STORY_SRC.matchAll(/\{ token: '(\w+)', value: '([^']+)'/g)].map(
-    ([, token, value]) => [token, value] as const,
-  ),
+  [
+    ...durationBlock
+      .slice(0, durationBlock.indexOf('] as const'))
+      .matchAll(/\{ token: '(\w+)', value: '([^']+)'/g),
+  ].map(([, token, value]) => [token, value] as const),
 )
 
 const DURATION_TOKENS = ['fast', 'base', 'slow'] as const
+
+/** Literal `--st-ease-{token}: <value>;` declarations from animation.css. */
+function cssEasing(token: string): string {
+  const match = ANIMATION_CSS.match(new RegExp(`--st-ease-${token}:\\s*([^;]+);`))
+  if (!match) throw new Error(`--st-ease-${token} not declared in animation.css`)
+  return match[1].trim()
+}
+
+/** The `token` / `value` pairs from the story's EASING_SCALE block. */
+const easingBlock = STORY_SRC.slice(STORY_SRC.indexOf('const EASING_SCALE'))
+const storyEasings = new Map(
+  [
+    ...easingBlock
+      .slice(0, easingBlock.indexOf('] as const'))
+      .matchAll(/token: '([\w-]+)',\s*value: '([^']+)'/g),
+  ].map(([, token, value]) => [token, value] as const),
+)
+
+const EASING_TOKENS = ['smooth-out', 'in'] as const
+
+describe('Motion story ↔ animation.css --st-ease-* values', () => {
+  it('lists every easing curve', () => {
+    expect([...storyEasings.keys()].sort()).toEqual([...EASING_TOKENS].sort())
+  })
+
+  for (const token of EASING_TOKENS) {
+    it(`--st-ease-${token} matches the value printed in the docs table`, () => {
+      expect(storyEasings.get(token)).toBe(cssEasing(token))
+    })
+  }
+})
 
 describe('Motion story ↔ animation.css --st-duration-* values', () => {
   it('lists every duration step (fast/base/slow)', () => {

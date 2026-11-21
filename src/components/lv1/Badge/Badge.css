@@ -39,7 +39,7 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     transition-property: color, background-color, border-color;
-    transition-duration: 150ms;
+    transition-duration: var(--motion-feedback, 200ms);
   }
   .st-badge:focus-visible {
     outline: none;

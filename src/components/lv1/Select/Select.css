@@ -49,10 +49,11 @@
  * `[data-side]`. Vanilla HTML consumers must set those attributes
  * themselves; Schatten does not (cannot) auto-wire them.
  *
- * Animation: open / close use a fade + zoom + slide chain driven by
- * `[data-state]` × `[data-side]`. Keyframes live outside `@layer
- * components`. Shared with Tooltip's animation discipline but kept
- * component-local because the slide offsets differ.
+ * Animation: open / close are an opacity fade driven by `[data-state]`
+ * (#630 dropped the 0.95 zoom), timed by the popover tier of the motion
+ * tokens (`--motion-popover-enter` / `-exit`, `--motion-ease-enter` /
+ * `-exit`). `[data-side]` sets a static 0.25rem offset from the trigger, not
+ * an animation. Keyframes live outside `@layer components`.
  *
  * Uses raw CSS + `var(--color-*)` throughout, per css-api.md
  * "Component CSS authoring conventions — raw CSS over @apply".
@@ -65,22 +66,18 @@
 @keyframes select-content-open {
   from {
     opacity: 0;
-    transform: scale(0.95);
   }
   to {
     opacity: 1;
-    transform: scale(1);
   }
 }
 
 @keyframes select-content-close {
   from {
     opacity: 1;
-    transform: scale(1);
   }
   to {
     opacity: 0;
-    transform: scale(0.95);
   }
 }
 
@@ -96,9 +93,9 @@
     color: var(--color-foreground);
     cursor: pointer;
     transition:
-      color 200ms,
-      background-color 200ms,
-      border-color 200ms;
+      color var(--motion-feedback, 200ms),
+      background-color var(--motion-feedback, 200ms),
+      border-color var(--motion-feedback, 200ms);
   }
   .st-select__trigger:focus-visible {
     outline: none;
@@ -211,10 +208,12 @@
 
   /* enter / exit animations */
   .st-select__content[data-state="open"] {
-    animation: select-content-open 150ms ease-out;
+    animation: select-content-open var(--motion-popover-enter, 150ms)
+      var(--motion-ease-enter, cubic-bezier(0.22, 1, 0.36, 1));
   }
   .st-select__content[data-state="closed"] {
-    animation: select-content-close 100ms ease-in;
+    animation: select-content-close var(--motion-popover-exit, 100ms)
+      var(--motion-ease-exit, ease-in);
   }
 
   /* popper offset per side — Radix only emits [data-side] when
@@ -223,9 +222,8 @@
    *
    * Uses the modern `translate:` CSS property (not `transform:
    * translate(...)`) so the offset composes additively with Radix
-   * Popper's `transform: translate3d(...)` positioning AND with our
-   * own `select-content-open` keyframe's `transform: scale(...)` —
-   * the three live on independent CSS properties. This mirrors
+   * Popper's `transform: translate3d(...)` positioning — the two live
+   * on independent CSS properties. This mirrors
    * Tailwind v4's compilation of pre-sweep's `data-[side=bottom]:translate-y-1`
    * (see Dialog.css for the same precedent). */
   .st-select__content[data-side="bottom"] {
@@ -338,5 +336,12 @@
     margin-bottom: 0.25rem;
     height: 1px;
     background-color: var(--color-border-strong);
+  }
+
+  /* ===== reduced motion ===== */
+  @media (prefers-reduced-motion: reduce) {
+    .st-select__content {
+      animation: none;
+    }
   }
 }

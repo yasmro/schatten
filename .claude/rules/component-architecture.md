@@ -478,8 +478,9 @@ Examples of the less obvious rules that live in these files:
 
 - [`Tooltip.css`](../../src/components/lv1/Tooltip/Tooltip.css) — directional
   enter/exit animations driven by Radix `[data-state]` and `[data-side]`.
-- [`Dialog.css`](../../src/components/lv1/Dialog/Dialog.css) — overlay fade
-  and content zoom keyframes, with an inline note on how `translate:` and
+- [`Dialog.css`](../../src/components/lv1/Dialog/Dialog.css) — one opacity
+  fade shared by the overlay and the content, timed by the overlay-tier
+  motion tokens (#630), with an inline note on how `translate:` and
   `transform: translate(...)` interact.
 - [`Toast.css`](../../src/components/lv1/Toast/Toast.css) — dissolve-in /
   dissolve-out keyframes and the swipe hand-off animation.

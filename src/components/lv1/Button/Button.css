@@ -56,9 +56,9 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     transition:
-      color 200ms,
-      background-color 200ms,
-      border-color 200ms;
+      color var(--motion-feedback, 200ms),
+      background-color var(--motion-feedback, 200ms),
+      border-color var(--motion-feedback, 200ms);
   }
   .st-btn:focus-visible {
     outline: none;
@@ -335,7 +335,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: opacity 300ms;
+    transition: opacity var(--motion-feedback, 200ms);
     opacity: 0;
   }
   .st-btn[aria-busy="true"] .st-btn__spinner-overlay {
@@ -370,7 +370,7 @@
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    transition: opacity 300ms;
+    transition: opacity var(--motion-feedback, 200ms);
   }
   .st-btn[aria-busy="true"] .st-btn__content {
     opacity: 0;

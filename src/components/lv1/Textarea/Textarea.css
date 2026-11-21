@@ -36,9 +36,9 @@
     background-color: transparent;
     color: var(--color-foreground);
     transition:
-      color 200ms,
-      background-color 200ms,
-      border-color 200ms;
+      color var(--motion-feedback, 200ms),
+      background-color var(--motion-feedback, 200ms),
+      border-color var(--motion-feedback, 200ms);
   }
   .st-textarea::placeholder {
     color: var(--color-foreground-muted);

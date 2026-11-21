@@ -71,9 +71,9 @@
     font: inherit;
     /* Same as .st-btn, so these controls respond like Button. */
     transition:
-      color 200ms,
-      background-color 200ms,
-      border-color 200ms;
+      color var(--motion-feedback, 200ms),
+      background-color var(--motion-feedback, 200ms),
+      border-color var(--motion-feedback, 200ms);
   }
 
   .st-date-calendar__selects {

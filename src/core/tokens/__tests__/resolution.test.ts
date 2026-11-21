@@ -751,6 +751,14 @@ describe('semantic shadow / radius / motion resolution', () => {
     'motion-quick': 'st-duration-fast',
     'motion-base': 'st-duration-base',
     'motion-expressive': 'st-duration-slow',
+    // Enter/exit tiers (#630): overlay = modal, popover = every other surface.
+    'motion-overlay-enter': 'st-duration-slow',
+    'motion-overlay-exit': 'st-duration-base',
+    'motion-popover-enter': 'st-duration-base',
+    'motion-popover-exit': 'st-duration-fast',
+    'motion-ease-enter': 'st-ease-smooth-out',
+    'motion-ease-exit': 'st-ease-in',
+    'motion-feedback': 'st-duration-slow',
   } as const
 
   for (const [token, primitive] of Object.entries({ ...SHADOW, ...RADIUS })) {

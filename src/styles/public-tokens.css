@@ -181,9 +181,18 @@
     --st-duration-fast: var(--st-duration-fast);
     --st-duration-base: var(--st-duration-base);
     --st-duration-slow: var(--st-duration-slow);
+    --st-ease-smooth-out: var(--st-ease-smooth-out);
+    --st-ease-in: var(--st-ease-in);
     --motion-quick: var(--motion-quick);
     --motion-base: var(--motion-base);
     --motion-expressive: var(--motion-expressive);
+    --motion-overlay-enter: var(--motion-overlay-enter);
+    --motion-overlay-exit: var(--motion-overlay-exit);
+    --motion-popover-enter: var(--motion-popover-enter);
+    --motion-popover-exit: var(--motion-popover-exit);
+    --motion-ease-enter: var(--motion-ease-enter);
+    --motion-ease-exit: var(--motion-ease-exit);
+    --motion-feedback: var(--motion-feedback);
     --st-spinner-duration: var(--st-spinner-duration);
     --st-spinner-ripple-delay: var(--st-spinner-ripple-delay);
   }

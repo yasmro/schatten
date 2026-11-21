@@ -41,9 +41,11 @@
  * inside a Dialog (--z-modal 50) renders in front of the modal — matching
  * Select / Tooltip content.
  *
- * Animation: open / close use a fade + zoom chain driven by `[data-state]`,
- * with a `[data-side]` translate offset. Keyframes live outside `@layer
- * components`. Raw CSS + `var(--color-*)` throughout, per css-api.md
+ * Animation: open / close are an opacity-only fade driven by `[data-state]`
+ * (the panel must stay transform- and filter-free, #403 — see the keyframes
+ * note below). Durations come from the popover tier of the motion tokens
+ * (`--motion-popover-enter` / `-exit`, #630); the `ease-out` / `ease-in`
+ * curves are unchanged. Keyframes live outside `@layer components`. Raw CSS + `var(--color-*)` throughout, per css-api.md
  * "Component CSS authoring conventions — raw CSS over @apply".
  *
  * See: .claude/rules/css-api.md, #41.
@@ -99,10 +101,10 @@
 
   /* enter / exit animations */
   .st-dropdown-menu__content[data-state="open"] {
-    animation: dropdown-menu-content-open 150ms ease-out;
+    animation: dropdown-menu-content-open var(--motion-popover-enter, 150ms) ease-out;
   }
   .st-dropdown-menu__content[data-state="closed"] {
-    animation: dropdown-menu-content-close 100ms ease-in;
+    animation: dropdown-menu-content-close var(--motion-popover-exit, 100ms) ease-in;
   }
 
   /* NOTE: the directional gap comes from Radix `sideOffset` (set in
@@ -230,5 +232,13 @@
   .st-dropdown-menu__item[data-disabled] .st-dropdown-menu__shortcut,
   .st-dropdown-menu__item[data-disabled] .st-dropdown-menu__sub-trigger-chevron {
     color: var(--color-foreground-disabled);
+  }
+
+  /* ===== reduced motion ===== */
+  /* SubContent carries `.st-dropdown-menu__content` too, so this covers it. */
+  @media (prefers-reduced-motion: reduce) {
+    .st-dropdown-menu__content {
+      animation: none;
+    }
   }
 }

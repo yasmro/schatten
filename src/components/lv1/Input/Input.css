@@ -66,9 +66,9 @@
     color: var(--color-foreground);
     cursor: text;
     transition:
-      color 200ms,
-      background-color 200ms,
-      border-color 200ms;
+      color var(--motion-feedback, 200ms),
+      background-color var(--motion-feedback, 200ms),
+      border-color var(--motion-feedback, 200ms);
   }
   /* Focus ring on the wrapper, triggered by the inner input. */
   .st-input-wrapper:has(.st-input:focus-visible) {

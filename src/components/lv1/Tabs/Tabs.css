@@ -107,10 +107,10 @@
     pointer-events: none;
     background-color: var(--color-foreground);
     transition:
-      transform 200ms ease,
-      width 200ms ease,
-      height 200ms ease,
-      opacity 150ms ease;
+      transform var(--motion-feedback, 200ms) ease,
+      width var(--motion-feedback, 200ms) ease,
+      height var(--motion-feedback, 200ms) ease,
+      opacity var(--motion-feedback, 200ms) ease;
   }
   .st-tabs__list[data-orientation="horizontal"] .st-tabs__indicator {
     bottom: 0;
@@ -145,8 +145,8 @@
      * `.st-tabs__indicator`, so the trigger carries no border / radius of its
      * own. */
     transition:
-      color 200ms,
-      background-color 200ms;
+      color var(--motion-feedback, 200ms),
+      background-color var(--motion-feedback, 200ms);
   }
   /* Hover surface — a subtle background on enabled, non-active tabs only,
    * mirroring the tertiary Button's `--color-surface-hover` hover. The active

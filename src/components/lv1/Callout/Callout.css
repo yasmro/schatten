@@ -194,8 +194,8 @@
     cursor: pointer;
     opacity: 0.7;
     transition:
-      opacity 200ms,
-      background-color 200ms;
+      opacity var(--motion-feedback, 200ms),
+      background-color var(--motion-feedback, 200ms);
   }
   .st-callout__close:not(:disabled):hover {
     opacity: 1;

@@ -1,6 +1,9 @@
+import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import {
   baselinePath,
+  OPEN_BEFORE_CAPTURE,
+  openActionFor,
   type StoryEntry,
   SYSTEM_WIDE_STORIES,
   selectStories,
@@ -134,5 +137,26 @@ describe('baselinePath', () => {
     expect(
       baselinePath(story('components-lv1-button--all-variants', 'Button', button), 'dark'),
     ).toBe('src/components/lv1/Button/__snapshots__/all-variants-dark.png')
+  })
+})
+
+describe('openActionFor', () => {
+  it('opens the surface of a component that starts closed', () => {
+    expect(openActionFor({ title: 'Components/lv1/Dialog' })).toEqual({
+      trigger: '#storybook-root button',
+      open: '[role="dialog"]',
+    })
+  })
+
+  it('leaves every other story as it renders', () => {
+    expect(openActionFor({ title: 'Components/lv1/Button' })).toBeNull()
+  })
+
+  it('names only titles that a stories file declares', () => {
+    for (const title of Object.keys(OPEN_BEFORE_CAPTURE)) {
+      const name = title.split('/').at(-1)
+      const source = readFileSync(`src/components/lv1/${name}/${name}.stories.tsx`, 'utf8')
+      expect(source).toContain(`title: '${title}'`)
+    }
   })
 })

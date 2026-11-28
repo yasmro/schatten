@@ -147,3 +147,20 @@ test('Dialog / cancel and action buttons close the dialog on real click', async 
   await page.getByRole('button', { name: 'Save' }).click()
   await expect(page.getByRole('dialog')).toHaveCount(0)
 })
+
+/**
+ * Reduced motion (#630). The `prefers-reduced-motion: reduce` rule must win
+ * over the open / closed rules, which carry `[data-state]`; a bare class
+ * selector loses to them on specificity and the animation keeps running.
+ * jsdom loads no stylesheet and the screenshots pause animations, so only a
+ * real browser can see this.
+ */
+test('Dialog / reduced motion turns off the open animation', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await page.goto(storyUrl('confirm', 'light'))
+  await page.waitForLoadState('networkidle')
+
+  await page.getByRole('button', { name: 'Open' }).click()
+  await expect(page.locator('.st-dialog__content')).toHaveCSS('animation-name', 'none')
+  await expect(page.locator('.st-dialog__overlay')).toHaveCSS('animation-name', 'none')
+})

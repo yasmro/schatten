@@ -208,8 +208,11 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .st-dialog__overlay,
-    .st-dialog__content {
+    /* The selectors carry `[data-state]` so they match the specificity of the
+     * open / closed rules above; a bare class loses to them and the animation
+     * keeps running (#630). */
+    .st-dialog__overlay[data-state],
+    .st-dialog__content[data-state] {
       animation: none;
     }
   }

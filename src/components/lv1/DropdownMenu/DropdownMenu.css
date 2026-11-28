@@ -237,7 +237,10 @@
   /* ===== reduced motion ===== */
   /* SubContent carries `.st-dropdown-menu__content` too, so this covers it. */
   @media (prefers-reduced-motion: reduce) {
-    .st-dropdown-menu__content {
+    /* The selectors carry `[data-state]` so they match the specificity of the
+     * open / closed rules above; a bare class loses to them and the animation
+     * keeps running (#630). */
+    .st-dropdown-menu__content[data-state] {
       animation: none;
     }
   }

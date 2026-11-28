@@ -136,3 +136,19 @@ test('Select / trigger opens the listbox and picking an option updates the value
   await expect(page.getByRole('listbox')).toHaveCount(0)
   await expect(trigger).toContainText('Banana')
 })
+
+/**
+ * Reduced motion (#630). The `prefers-reduced-motion: reduce` rule must win
+ * over the open / closed rules, which carry `[data-state]`; a bare class
+ * selector loses to them on specificity and the animation keeps running.
+ * jsdom loads no stylesheet and the screenshots pause animations, so only a
+ * real browser can see this.
+ */
+test('Select / reduced motion turns off the open animation', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await page.goto(storyUrl('sizes', 'light'))
+  await page.waitForLoadState('networkidle')
+
+  await page.getByRole('combobox', { name: 'Medium select' }).click()
+  await expect(page.locator('.st-select__content')).toHaveCSS('animation-name', 'none')
+})

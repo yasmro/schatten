@@ -35,6 +35,8 @@ PoC（PR #631）で 5 案を比べた。評価は、Playwright でアニメー�
 - **d が不採用になった理由:** ぼかしは見えたが、ピンぼけ（奥行き）に見え、§3.4「影は elevation ではない」と食い違った。ぼけた枠線が影のふちに見えた。
 - **e に残った条件:** 縮小 0.97 はほとんど見えない（250ms の 25% の時点で 0.993 倍、幅 292px の面で約 2px の差）。Dialog は入力を止める面なので、総時間は短いほうがよい。
 
+この 2 点を受けて、e から縮小を外し、Dialog の入りを 200ms に戻したものを最終の組み合わせとした。PR #654 のレビューのあと、実装した部品の story（Dialog・Popover・Select、light / dark）で、develop の動きと並べて同じ方法で撮り、別のエージェントに評価させた。結果は「採用してよい」（7.5/10）。a より読みにくくなるコマはなく、入りでは背面の文字と重なる時間が短くなった。出の途中で背面の文字と重なる時間は a と変わらず、改善は入りの側だけだった。
+
 ## Decision
 
 1. **開閉の動きはフェードにそろえる。** 縮小もぼかしも使わない。入りは `cubic-bezier(0.22, 1, 0.36, 1)`、出は `ease-in`。
@@ -46,8 +48,9 @@ PoC（PR #631）で 5 案を比べた。評価は、Playwright でアニメー�
 
 ## Consequences
 
-- 公開 CSS 変数が 9 個増える（`minor`）。既存の `--motion-quick / base / expressive` と `--st-duration-*` は名前も値も変えない。`--motion-base` と `--motion-expressive` は使う部品がなくなり、define-only になる。
+- 公開 CSS 変数が 9 個増える（`minor`）。既存の `--motion-quick / base / expressive` と `--st-duration-*` は名前も値も変えない。
+- `--motion-base` と `--motion-expressive` は使う部品がなくなり、define-only になる。開閉の時間は overlay / popover の段のトークンが受け持つので、**使う予定の部品はない**。名前（quick / base / expressive）も、用途で選ぶ今の語彙と合わない。css-api.md の define-only の決まりのとおり、`Tokens/Motion` に `defined only` の印を付けて見えるようにしてある。次の major で廃止する候補とし、廃止するなら api-stability.md の決まりに従って、その前の minor で `@deprecated` にする。`--motion-quick` は Table の行の hover が使い続ける。
 - 値が変わる箇所が 3 つある。Badge の色の変化（150ms → 200ms）、Button の読み込み表示の切り替え（300ms → 200ms）、Tabs の下線の不透明度（150ms → 200ms）。どれも用途（feedback）でトークンを選んだ結果。
 - Popover は、開く向きへの 8px のスライドをやめる。向きの手がかりはなくなるが、e のレビューでは劣化とまでは判定されなかった。
-- Select・DropdownMenu・Switch のつまみに、reduced-motion の対策が加わる。
-- [`motion-token-usage.test.ts`](../../src/components/__tests__/motion-token-usage.test.ts) が、直書きの禁止・第 3 層だけの参照・既定値とトークンの一致・reduced-motion の有無を検査する。jsdom はスタイルシートを読まず、VRT はアニメーションを止めて撮るため、時間を見られる仕組みはこのテストだけになる。
+- reduced-motion の対策が、開閉する 5 部品で実際に効くようになる。Dialog・Popover・Tooltip にはもともと対策があったが、`.st-popover__content { animation: none }` のような素のクラスのセレクタだったため、`[data-state]` 付きの開閉のルールに詳細度で負けて、アニメーションが止まっていなかった。今回 Select と DropdownMenu に足した対策も、最初は同じ形で効いていなかった（PR #654 のレビューで、Chromium の計算済みスタイルを読んで見つけた）。5 部品とも `[data-state]` 付きのセレクタに直し、Switch のつまみにも対策を足した。
+- [`motion-token-usage.test.ts`](../../src/components/__tests__/motion-token-usage.test.ts) が、直書きの禁止・第 3 層だけの参照・既定値とトークンの一致・reduced-motion の有無と `[data-state]` の有無を、CSS を文字列として読んで検査する。reduced-motion のルールが実際に勝つかは文字列からは決まらないので、各部品の `*.vrt.spec.ts` の「reduced motion」の Playwright テストが、実際のブラウザで `animation-name: none` を確かめる。

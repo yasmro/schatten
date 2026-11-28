@@ -3914,6 +3914,10 @@
       {
         "file": "src/components/lv1/Dialog/Dialog.vrt.spec.ts",
         "title": "Dialog / cancel and action buttons close the dialog on real click"
+      },
+      {
+        "file": "src/components/lv1/Dialog/Dialog.vrt.spec.ts",
+        "title": "Dialog / reduced motion turns off the open animation"
       }
     ],
     "aspects": {
@@ -4075,6 +4079,10 @@
       {
         "file": "src/components/lv1/DropdownMenu/DropdownMenu.interaction.vrt.spec.ts",
         "title": "DropdownMenu / submenu stays positioned through close (no containing-block jump)"
+      },
+      {
+        "file": "src/components/lv1/DropdownMenu/DropdownMenu.interaction.vrt.spec.ts",
+        "title": "DropdownMenu / reduced motion turns off the open animation"
       }
     ],
     "aspects": {
@@ -5698,6 +5706,10 @@
       {
         "file": "src/components/lv1/Popover/Popover.vrt.spec.ts",
         "title": "Popover / Close button inside the panel dismisses it on real click"
+      },
+      {
+        "file": "src/components/lv1/Popover/Popover.vrt.spec.ts",
+        "title": "Popover / reduced motion turns off the open animation"
       }
     ],
     "aspects": {
@@ -6288,6 +6300,10 @@
       {
         "file": "src/components/lv1/Select/Select.vrt.spec.ts",
         "title": "Select / trigger opens the listbox and picking an option updates the value"
+      },
+      {
+        "file": "src/components/lv1/Select/Select.vrt.spec.ts",
+        "title": "Select / reduced motion turns off the open animation"
       }
     ],
     "aspects": {
@@ -7095,6 +7111,10 @@
       }
     ],
     "interactions": [
+      {
+        "file": "src/components/lv1/Switch/Switch.vrt.spec.ts",
+        "title": "Switch / reduced motion keeps the color fade but drops the thumb slide"
+      },
       {
         "file": "src/components/lv1/Switch/Switch.vrt.spec.ts",
         "title": "activates the control across its whole width"
@@ -8364,6 +8384,10 @@
       {
         "file": "src/components/lv1/Tooltip/Tooltip.vrt.spec.ts",
         "title": "Tooltip / shows on keyboard focus"
+      },
+      {
+        "file": "src/components/lv1/Tooltip/Tooltip.vrt.spec.ts",
+        "title": "Tooltip / reduced motion turns off the open animation"
       }
     ],
     "aspects": {

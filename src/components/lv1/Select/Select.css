@@ -340,7 +340,10 @@
 
   /* ===== reduced motion ===== */
   @media (prefers-reduced-motion: reduce) {
-    .st-select__content {
+    /* The selectors carry `[data-state]` so they match the specificity of the
+     * open / closed rules above; a bare class loses to them and the animation
+     * keeps running (#630). */
+    .st-select__content[data-state] {
       animation: none;
     }
   }

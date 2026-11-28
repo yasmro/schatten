@@ -126,3 +126,21 @@ test.describe('Switch / gap between control and label', () => {
     await expect(control).toHaveAttribute('data-state', 'unchecked')
   })
 })
+
+/**
+ * Reduced motion (#630). The `prefers-reduced-motion: reduce` rule must win
+ * over the open / closed rules, which carry `[data-state]`; a bare class
+ * selector loses to them on specificity and the animation keeps running.
+ * jsdom loads no stylesheet and the screenshots pause animations, so only a
+ * real browser can see this.
+ */
+test('Switch / reduced motion keeps the color fade but drops the thumb slide', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await page.goto(storyUrl('playground', 'light'))
+  await page.waitForLoadState('networkidle')
+
+  await expect(page.locator('.st-switch__thumb').first()).toHaveCSS(
+    'transition-property',
+    'background-color',
+  )
+})

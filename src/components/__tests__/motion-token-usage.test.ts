@@ -24,10 +24,17 @@ import { describe, expect, it } from 'vitest'
  *      token resolves to in animation.css. A fallback is a copy, so a token
  *      retune would otherwise leave the standalone CSS on the old value.
  *   4. A component with an enter/exit animation answers
- *      `prefers-reduced-motion`.
+ *      `prefers-reduced-motion`, and when its animations are keyed on
+ *      `[data-state]`, so is the reduced-motion rule. A bare class loses to
+ *      `.x[data-state="open"]` on specificity and the animation keeps running
+ *      — the shape that shipped in Dialog / Popover / Tooltip before #630.
  *
- * jsdom loads no stylesheet, so none of this is observable from a rendered
- * component, and VRT pauses animations — this file is the only gate.
+ * jsdom loads no stylesheet and VRT pauses animations, so the rendered
+ * timing is visible to no other unit gate. Rule 4 is still only a text check:
+ * whether the reduced-motion rule actually wins is decided by the cascade,
+ * and that is asserted in a real browser by each component's
+ * "reduced motion" Playwright test (`*.vrt.spec.ts`). Inline `style`
+ * transitions in `.tsx` are out of scope here — none carry a time today.
  */
 
 const here = dirname(fileURLToPath(import.meta.url))
@@ -195,4 +202,35 @@ describe('motion token usage in component CSS', () => {
       .map(({ file }) => file)
     expect(findings).toEqual([])
   })
+
+  it('keys the reduced-motion rule on [data-state] when the animations are', () => {
+    const findings = sources
+      .filter(({ source }) =>
+        /\[data-state[^\]]*\][^{]*\{[^}]*\banimation\s*:\s*(?!none)/.test(stripComments(source)),
+      )
+      .filter(({ source }) => {
+        const reduced = reducedMotionBlock(stripComments(source))
+        return (
+          reduced !== undefined && !/\[data-state[^{]*\{[^}]*animation\s*:\s*none/.test(reduced)
+        )
+      })
+      .map(({ file }) => file)
+    expect(findings).toEqual([])
+  })
 })
+
+/** The body of the `@media (prefers-reduced-motion: reduce)` block, braces balanced. */
+function reducedMotionBlock(source: string): string | undefined {
+  const start = source.search(/@media\s*\(prefers-reduced-motion:\s*reduce\)\s*\{/)
+  if (start === -1) return undefined
+  const open = source.indexOf('{', start)
+  let depth = 0
+  for (let i = open; i < source.length; i++) {
+    if (source[i] === '{') depth++
+    else if (source[i] === '}') {
+      depth--
+      if (depth === 0) return source.slice(open + 1, i)
+    }
+  }
+  return undefined
+}

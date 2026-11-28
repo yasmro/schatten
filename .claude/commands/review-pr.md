@@ -216,6 +216,9 @@ PR をセルフレビューする。前半のチェックリストは **観察�
    このブランチ専用の Storybook を起動し、変更に対応する story を `.review-shots/`
    に書き出す。1 story につき light / dark / 春 (light) / 冬 (dark) の 4 枚で、最大
    6 story。`manifest.json` の `visualFiles` が空なら③は対象外なので、ここで終える。
+   閉じた状態で始まる Dialog・Popover・Select・DropdownMenu の story は、トリガーを
+   押して開いた状態で撮る（スクリプトの `OPEN_BEFORE_CAPTURE`）。開けたかどうかは
+   `shots[].opened` に残る。開閉の動きそのものは静止画では評価できない。
 3. **別の目で見る**: 差分を読んだ本人は意図に引きずられるので、Agent ツール
    (`general-purpose`) で fresh な agent を起動し、下のブリーフをそのまま渡す。
    **PR の説明・差分・実装の意図は渡さない**。これが③の価値で、画像も親の

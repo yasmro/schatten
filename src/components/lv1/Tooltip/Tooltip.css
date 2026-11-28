@@ -229,7 +229,11 @@
 
   /* ===== reduced motion ===== */
   @media (prefers-reduced-motion: reduce) {
-    .st-tooltip__content {
+    /* The selectors carry `[data-state]` (and `[data-side]`) so they match the
+     * specificity of the enter / exit rules above; a bare class loses to them
+     * and the animation keeps running (#630). */
+    .st-tooltip__content[data-state],
+    .st-tooltip__content[data-state][data-side] {
       animation: none;
     }
   }

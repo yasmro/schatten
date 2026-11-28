@@ -1076,7 +1076,10 @@ yes → semantic token; no → `.st-*` class rule.
 single-value semantic token MAY be declared ahead of its consumer and
 sit *define-only* — `@theme`-registered and on the public manifest, but
 not yet referenced by any component (today: `--radius-control`,
-`--radius-surface`). This is an accepted state, not
+`--radius-surface`, and `--motion-base` / `--motion-expressive`, which lost
+their consumers to the enter/exit tier tokens in #630 and have no planned
+one — candidates for removal in the next major, recorded in
+[docs/decisions/2026-11-motion-tokens.md](../../docs/decisions/2026-11-motion-tokens.md)). This is an accepted state, not
 debt: the policy is to **wait for the token's natural consumer** rather
 than manufacture one to "use it up", and to never apply a token whose
 *name* mismatches the consumer's *role* (e.g. `--shadow-card` was kept
@@ -1119,18 +1122,29 @@ Component CSS times every transition and animation through the semantic
   search for a signature motion continues in #653). Tooltip keeps its short
   slide; DropdownMenu must stay transform- and filter-free regardless
   ([§Portal content](#portal-content-with-nested-position-fixed-children-must-stay-transform-free)).
-- **Answer `prefers-reduced-motion: reduce`.** A component with an
-  enter/exit animation sets `animation: none` under reduce; a sliding part
-  (the Switch thumb) jumps instead. Color fades may stay.
+- **Answer `prefers-reduced-motion: reduce` — with enough specificity.** A
+  component with an enter/exit animation sets `animation: none` under
+  reduce; a sliding part (the Switch thumb) jumps instead. Color fades may
+  stay. The reduce rule must match the specificity of the rules it cancels:
+  write `.st-popover__content[data-state] { animation: none }`, not
+  `.st-popover__content { … }` — a bare class loses to
+  `.st-popover__content[data-state="open"]` and the animation keeps running.
+  That is how Dialog / Popover / Tooltip shipped before #630, every gate
+  green. Each component's `*.vrt.spec.ts` carries a "reduced motion"
+  Playwright test that reads the computed `animation-name` in a real
+  browser.
 - **Loops are exempt.** Continuous `infinite` animations (Spinner, Skeleton)
   keep their component-local cadence
   ([component-architecture.md §7](component-architecture.md#7-lv1-local-css-files)).
 
-All four mechanical rules — no literal time, no direct scale reference,
-fallback equals the token value, reduced-motion present — are pinned by
+The mechanical rules — no literal time, no direct scale reference, fallback
+equals the token value, reduced-motion present and keyed on `[data-state]` —
+are pinned by
 [`motion-token-usage.test.ts`](../../src/components/__tests__/motion-token-usage.test.ts),
-which reads every lv1 / lv2 stylesheet as text. jsdom loads no stylesheet and
-VRT pauses animations, so no other gate can see a timing.
+which reads every lv1 / lv2 stylesheet as text. Whether the reduce rule
+actually wins the cascade is checked in a real browser by the "reduced
+motion" tests above; jsdom loads no stylesheet and the screenshots pause
+animations, so neither can see it.
 
 ## Quick reference
 

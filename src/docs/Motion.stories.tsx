@@ -346,7 +346,10 @@ export const UsageGuide: Story = {
       <Note>
         <strong>Respect prefers-reduced-motion.</strong> Every component with an enter/exit
         animation turns it off under <code>@media (prefers-reduced-motion: reduce)</code>; the
-        Switch thumb jumps instead of sliding. New motion must do the same.
+        Switch thumb jumps instead of sliding. New motion must do the same — and the reduce rule
+        must be as specific as the rule it cancels: <code>.st-popover__content[data-state]</code>,
+        not <code>.st-popover__content</code>, which loses to the <code>[data-state]</code> open
+        rule.
       </Note>
       <Note>
         <strong>Always repeat the value as a fallback.</strong> Write{' '}

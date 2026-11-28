@@ -101,3 +101,19 @@ test('Tooltip / shows on keyboard focus', async ({ page }) => {
   await page.keyboard.press('Tab')
   await expect(page.getByRole('tooltip')).toBeVisible()
 })
+
+/**
+ * Reduced motion (#630). The `prefers-reduced-motion: reduce` rule must win
+ * over the open / closed rules, which carry `[data-state]`; a bare class
+ * selector loses to them on specificity and the animation keeps running.
+ * jsdom loads no stylesheet and the screenshots pause animations, so only a
+ * real browser can see this.
+ */
+test('Tooltip / reduced motion turns off the open animation', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await page.goto(storyUrl('playground', 'light'))
+  await page.waitForLoadState('networkidle')
+
+  await page.getByRole('button', { name: 'Hover me' }).hover()
+  await expect(page.locator('.st-tooltip__content')).toHaveCSS('animation-name', 'none')
+})

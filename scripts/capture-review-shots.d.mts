@@ -18,6 +18,18 @@ export const OUT_DIR: string
 /** Stories captured when a token / theme / global-style file changed. */
 export const SYSTEM_WIDE_STORIES: string[]
 
+/** How to open a surface that starts closed: the trigger to press, the element to wait for. */
+export interface OpenAction {
+  trigger: string
+  open: string
+}
+
+/** Titles whose surface is opened before the shot, keyed by Storybook title. */
+export const OPEN_BEFORE_CAPTURE: Record<string, OpenAction>
+
+/** How to open a story's surface before capturing it, or `null` when it renders as it is. */
+export function openActionFor(story: Pick<StoryEntry, 'title'>): OpenAction | null
+
 /** Mode × Season combinations captured per story. */
 export const SHOT_MATRIX: { mode: 'light' | 'dark'; season: string | null }[]
 

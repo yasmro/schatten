@@ -102,9 +102,9 @@
     border-radius: var(--radius-pill, 9999px);
     cursor: pointer;
     transition:
-      color 200ms,
-      background-color 200ms,
-      border-color 200ms;
+      color var(--motion-feedback, 200ms),
+      background-color var(--motion-feedback, 200ms),
+      border-color var(--motion-feedback, 200ms);
   }
   .st-switch:focus-visible {
     outline: none;
@@ -174,8 +174,8 @@
     background-color: var(--color-foreground);
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
     transition:
-      transform 200ms,
-      background-color 200ms;
+      transform var(--motion-feedback, 200ms),
+      background-color var(--motion-feedback, 200ms);
   }
   .st-switch--sm .st-switch__thumb {
     width: 0.75rem;
@@ -221,7 +221,7 @@
      * token here, or `:disabled` can no longer move it. */
     color: currentColor;
     opacity: 0;
-    transition: opacity 200ms;
+    transition: opacity var(--motion-feedback, 200ms);
   }
   .st-switch__check > svg {
     width: 100%;
@@ -241,5 +241,14 @@
   }
   .st-switch[data-state="checked"] .st-switch__check {
     opacity: 1;
+  }
+
+  /* ===== reduced motion =====
+   * The thumb's slide is motion; under reduce it jumps to the new position.
+   * Color changes keep their fade (#630). */
+  @media (prefers-reduced-motion: reduce) {
+    .st-switch__thumb {
+      transition: background-color var(--motion-feedback, 200ms);
+    }
   }
 }

@@ -144,11 +144,23 @@ export const tokens = {
     toast: 'var(--shadow-toast)',
   },
 
-  /** Semantic (用途別) motion — aliases over the `--st-duration-*` scale. */
+  /**
+   * Semantic (用途別) motion — aliases over the `--st-duration-*` and
+   * `--st-ease-*` scales. Enter/exit timing comes in two tiers: `overlay`
+   * for modal surfaces, `popover` for every other surface that opens and
+   * closes.
+   */
   motion: {
     quick: 'var(--motion-quick)',
     base: 'var(--motion-base)',
     expressive: 'var(--motion-expressive)',
+    overlayEnter: 'var(--motion-overlay-enter)',
+    overlayExit: 'var(--motion-overlay-exit)',
+    popoverEnter: 'var(--motion-popover-enter)',
+    popoverExit: 'var(--motion-popover-exit)',
+    easeEnter: 'var(--motion-ease-enter)',
+    easeExit: 'var(--motion-ease-exit)',
+    feedback: 'var(--motion-feedback)',
   },
 
   /**

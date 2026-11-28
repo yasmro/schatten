@@ -23,10 +23,10 @@
  * animation is owned by Sonner since #318, so Toast.css no longer declares
  * any keyframes or duration references.)
  *
- * Three groups of token live here:
+ * Four groups of token live here:
  *
  * 1. `--st-duration-*` — a shared transition-duration scale for enter/exit
- *    motion (Tooltip / Dialog). Three perceptually-distinct steps:
+ *    motion and interaction feedback. Three perceptually-distinct steps:
  *    fast (100ms) / base (150ms) / slow (200ms). Introduced as a
  *    VALUE-PRESERVING centralization: every reference migrated onto a step
  *    matches its pre-existing hardcoded duration exactly, so the seam lands
@@ -36,14 +36,28 @@
  *    owned by Sonner, so that question is moot — Toast no longer references
  *    the scale.)
  *
- * 2. `--motion-*` — semantic (用途別) aliases over group 1, giving the
- *    duration steps intent names (quick / base / expressive). Layered on the
- *    live `--st-duration-*` scale rather than the old `--transition-*`
- *    (deprecated in #145, removed in #350) so timing stays one vocabulary,
- *    not three.
+ * 2. `--st-ease-*` — the easing curves enter/exit motion uses (#630):
+ *    `smooth-out` reaches a readable state early (opacity 0.76 at a quarter
+ *    of the way in, where the keyword `ease-out` is at 0.38), and `in` lets a
+ *    closing surface leave without lingering. Named by shape, with the `--st-`
+ *    prefix, because Tailwind v4 owns the bare `--ease-out` / `--ease-in`
+ *    names with different curves (api-stability.md, layer 4).
  *
- * 3. `--st-spinner-*` — Spinner ripple-type loop timing (a continuous-loop
+ * 3. `--motion-*` — semantic (用途別) aliases over groups 1 and 2. Component
+ *    CSS references only this layer. Layered on the live `--st-duration-*`
+ *    scale rather than the old `--transition-*` (deprecated in #145, removed
+ *    in #350) so timing stays one vocabulary, not three. Enter/exit timing is
+ *    split into two tiers by whether the surface is modal (#630): `overlay`
+ *    (Dialog, a future Sheet) and `popover` (everything else that opens and
+ *    closes — Popover, Select, Tooltip, DropdownMenu).
+ *
+ * 4. `--st-spinner-*` — Spinner ripple-type loop timing (a continuous-loop
  *    cadence, semantically distinct from enter/exit transitions; #286).
+ *
+ * Component CSS always references these with a fallback that repeats the
+ * value — `var(--motion-feedback, 200ms)` — because the per-component CSS
+ * subpaths ship no tokens. `motion-token-usage.test.ts` checks each fallback
+ * against the value declared here.
  */
 
 :root {
@@ -51,6 +65,10 @@
   --st-duration-fast: 100ms;
   --st-duration-base: 150ms;
   --st-duration-slow: 200ms;
+
+  /* Easing curves for enter/exit motion (consumer-overridable). */
+  --st-ease-smooth-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --st-ease-in: ease-in;
 
   /* Motion — semantic (用途別) aliases over the `--st-duration-*` scale.
      Intentionally layered on the LIVE scale, not the old `--transition-*`
@@ -63,6 +81,19 @@
   --motion-quick: var(--st-duration-fast); /* 100ms — hover */
   --motion-base: var(--st-duration-base); /* 150ms — default */
   --motion-expressive: var(--st-duration-slow); /* 200ms — dialog / drawer enter */
+
+  /* Enter/exit by tier (#630): modal surfaces take the overlay tier, every
+     other surface that opens and closes takes the popover tier. */
+  --motion-overlay-enter: var(--st-duration-slow); /* 200ms — Dialog */
+  --motion-overlay-exit: var(--st-duration-base); /* 150ms */
+  --motion-popover-enter: var(--st-duration-base); /* 150ms — Popover / Select / … */
+  --motion-popover-exit: var(--st-duration-fast); /* 100ms */
+  --motion-ease-enter: var(--st-ease-smooth-out);
+  --motion-ease-exit: var(--st-ease-in);
+
+  /* Interaction feedback — hover, color / state changes, Switch thumb, the
+     Tabs indicator. */
+  --motion-feedback: var(--st-duration-slow); /* 200ms */
 
   /* Spinner ripple-type animation timing (consumer-overridable) */
   --st-spinner-duration: 2.8s;

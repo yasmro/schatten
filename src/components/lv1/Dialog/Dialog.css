@@ -32,27 +32,24 @@
  * which the Tailwind-free dist does not ship.)
  *
  * State attributes (Radix-emitted, drive animation only):
- * - `[data-state="open"|"closed"]` — fade-in / zoom-in on open,
- *                                     fade-out / zoom-out on close
+ * - `[data-state="open"|"closed"]` — fade-in on open, fade-out on close
  *
- * IMPORTANT — animation vs centering: Tailwind v4 used to emit centering
- * via the standalone `translate:` property; we keep that approach here
- * (set `translate: -50% -50%` on `.st-dialog__content`). The keyframes
- * animate `transform: scale(...)` ONLY, so the standalone `translate:`
- * value is unaffected and the dialog stays centered throughout the
- * animation. Animating `transform: translate(-50%, -50%) scale(...)`
- * would compose on top of `translate:` and double the offset — that's
- * the historical regression pinned in the legacy `.dialog-content`
- * comment.
+ * Centering uses the standalone `translate: -50% -50%` property on
+ * `.st-dialog__content`. The keyframes animate `opacity` only (#630 dropped
+ * the 0.96 zoom), so nothing composes with that offset. If a future
+ * keyframe animates `transform`, keep it off `translate` — animating
+ * `transform: translate(-50%, -50%) …` composes on top of `translate:` and
+ * doubles the offset, the historical regression of the legacy
+ * `.dialog-content`.
  *
  * Uses raw CSS + `var(--color-*)` throughout, per css-api.md
  * "Component CSS authoring conventions — raw CSS over @apply".
  *
- * Enter/exit durations reference the shared `--st-duration-*` scale
- * (animation.css): open uses `--st-duration-slow`, close the snappier
- * `--st-duration-base`. The `var(--st-*, <fallback>)` fallback keeps the
- * per-component standalone build (`dist/css/dialog.css`, #291 — ships no
- * tokens) animating at the same cadence.
+ * Enter/exit timing comes from the overlay tier of the motion tokens
+ * (animation.css, #630): `--motion-overlay-enter` / `-exit` with
+ * `--motion-ease-enter` / `-exit`. The `var(--motion-*, <fallback>)`
+ * fallback keeps the per-component standalone build (`dist/css/dialog.css`,
+ * #291 — ships no tokens) animating at the same cadence.
  *
  * See: .claude/rules/css-api.md, #271 sweep-6.
  */
@@ -65,10 +62,11 @@
     background-color: rgb(0 0 0 / 0.5);
   }
   .st-dialog__overlay[data-state="open"] {
-    animation: dialog-overlay-fade-in var(--st-duration-slow, 200ms) ease-out;
+    animation: dialog-fade-in var(--motion-overlay-enter, 200ms)
+      var(--motion-ease-enter, cubic-bezier(0.22, 1, 0.36, 1));
   }
   .st-dialog__overlay[data-state="closed"] {
-    animation: dialog-overlay-fade-out var(--st-duration-base, 150ms) ease-in;
+    animation: dialog-fade-out var(--motion-overlay-exit, 150ms) var(--motion-ease-exit, ease-in);
   }
 
   /* ===== content ===== */
@@ -99,10 +97,11 @@
     padding: 1.5rem; /* p-6 */
   }
   .st-dialog__content[data-state="open"] {
-    animation: dialog-content-zoom-in var(--st-duration-slow, 200ms) ease-out;
+    animation: dialog-fade-in var(--motion-overlay-enter, 200ms)
+      var(--motion-ease-enter, cubic-bezier(0.22, 1, 0.36, 1));
   }
   .st-dialog__content[data-state="closed"] {
-    animation: dialog-content-zoom-out var(--st-duration-base, 150ms) ease-in;
+    animation: dialog-fade-out var(--motion-overlay-exit, 150ms) var(--motion-ease-exit, ease-in);
   }
 
   /* ===== header ===== */
@@ -209,24 +208,22 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .st-dialog__overlay,
-    .st-dialog__content {
+    /* The selectors carry `[data-state]` so they match the specificity of the
+     * open / closed rules above; a bare class loses to them and the animation
+     * keeps running (#630). */
+    .st-dialog__overlay[data-state],
+    .st-dialog__content[data-state] {
       animation: none;
     }
   }
 }
 
 /*
- * Dialog enter / exit keyframes.
- *
- * Overlay: simple opacity fade.
- * Content: opacity + scale only — `transform: scale(...)` here composes
- *          safely with `translate: -50% -50%` on `.st-dialog__content`.
- *
- * Declared outside `@layer components` so the keyframes are global and
- * shared across the dist.
+ * Dialog enter / exit keyframes — one opacity fade shared by the overlay and
+ * the content (#630). Declared outside `@layer components` so the keyframes
+ * are global and shared across the dist.
  */
-@keyframes dialog-overlay-fade-in {
+@keyframes dialog-fade-in {
   from {
     opacity: 0;
   }
@@ -235,33 +232,11 @@
   }
 }
 
-@keyframes dialog-overlay-fade-out {
+@keyframes dialog-fade-out {
   from {
     opacity: 1;
   }
   to {
     opacity: 0;
-  }
-}
-
-@keyframes dialog-content-zoom-in {
-  from {
-    opacity: 0;
-    transform: scale(0.96);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-@keyframes dialog-content-zoom-out {
-  from {
-    opacity: 1;
-    transform: scale(1);
-  }
-  to {
-    opacity: 0;
-    transform: scale(0.98);
   }
 }

@@ -6,8 +6,13 @@
  * animation, and auto-dismiss, while the toast BODY is rendered by Schatten
  * (see Toast.tsx) using real `<Icon>` / `<Spinner>` / `<Button>` components and
  * the `.st-toast*` classes — structurally identical to `Callout`. The
- * `.st-toast` class chain is applied to Sonner's `<li>` (via the `className`
- * option); icon / content / action are its direct children. There is NO
+ * `.st-toast` class chain sits on the `<div>` Toast.tsx renders, which Sonner
+ * wraps twice inside its `<li data-sonner-toast>` (`[data-content] >
+ * [data-title] > .st-toast`); icon / content / action are the direct children
+ * of `.st-toast`. Sonner's state attributes (`[data-mounted]`,
+ * `[data-removed]`, …) live on that `<li>`, not on `.st-toast`, and Sonner's
+ * own reduced-motion rule (`[data-sonner-toast] > *`) does not reach
+ * `.st-toast` (found in #630's PoC). There is NO
  * `.st-toaster` viewport class and NO `[data-state]` / `[data-swipe]` animation
  * here — those were Radix-Toast concerns, removed.
  *
@@ -207,8 +212,8 @@
     cursor: pointer;
     opacity: 0.7;
     transition:
-      opacity 200ms,
-      background-color 200ms;
+      opacity var(--motion-feedback, 200ms),
+      background-color var(--motion-feedback, 200ms);
   }
   .st-toast__close:not(:disabled):hover {
     opacity: 1;

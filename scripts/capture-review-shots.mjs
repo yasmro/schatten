@@ -45,6 +45,36 @@ export const SYSTEM_WIDE_STORIES = [
 // Interactive sandbox / React-vs-vanilla proof — neither is a look to judge.
 const SKIPPED_STORY_RE = /--(?:playground|parity)$/
 
+// Surfaces that open from a trigger. Their stories start closed, so a shot of
+// the story alone shows only the trigger — and the "before" image, a VRT
+// baseline whose spec opened the surface first, is not comparable to it. For
+// these titles the trigger is pressed before the shot, unless the story
+// already renders the surface open. Keyed by title, so every story of the
+// component gets the same treatment.
+export const OPEN_BEFORE_CAPTURE = {
+  'Components/lv1/Dialog': { trigger: '#storybook-root button', open: '[role="dialog"]' },
+  'Components/lv1/Popover': {
+    trigger: '#storybook-root [aria-haspopup="dialog"]',
+    open: '[role="dialog"]',
+  },
+  'Components/lv1/Select': { trigger: '#storybook-root [role="combobox"]', open: '[role="listbox"]' },
+  'Components/lv1/DropdownMenu': {
+    trigger: '#storybook-root [aria-haspopup="menu"]',
+    open: '[role="menu"]',
+  },
+}
+
+/**
+ * How to open a story's surface before capturing it, or `null` when the story
+ * renders as it is.
+ *
+ * @param {{ title: string }} story
+ * @returns {{ trigger: string, open: string } | null}
+ */
+export function openActionFor(story) {
+  return OPEN_BEFORE_CAPTURE[story.title] ?? null
+}
+
 // The brand claim to test is "seasons carry color but never legibility", so
 // two far-apart hues on opposite Modes cover more than all 16 combinations
 // would for the cost: warm pink on light, cool indigo on dark.
@@ -205,7 +235,10 @@ function storyUrl(port, id, { mode, season }) {
   return `http://localhost:${port}/iframe.html?id=${id}&viewMode=story&globals=${globals}`
 }
 
-async function captureShot(page, url, path) {
+/**
+ * @returns {Promise<boolean>} whether the surface was opened for the shot
+ */
+async function captureShot(page, url, path, openAction) {
   await page.goto(url)
   await page.waitForLoadState('networkidle')
   await page.waitForFunction(() => {
@@ -213,6 +246,17 @@ async function captureShot(page, url, path) {
     return root && root.children.length > 0
   })
   await page.evaluate(() => document.fonts.ready)
+  let opened = false
+  if (openAction && (await page.locator(openAction.open).count()) === 0) {
+    const trigger = page.locator(openAction.trigger).first()
+    if ((await trigger.count()) > 0) {
+      await trigger.click()
+      await page.locator(openAction.open).first().waitFor({ state: 'visible' })
+      // Let the enter animation finish before animations are paused below.
+      await page.waitForTimeout(500)
+      opened = true
+    }
+  }
   await page.addStyleTag({
     content: `
       *, *::before, *::after {
@@ -223,6 +267,7 @@ async function captureShot(page, url, path) {
   })
   // Full page, not `#storybook-root`: portal content renders outside the root.
   await page.screenshot({ path, fullPage: true })
+  return opened
 }
 
 function exportBaseline(base, story, mode, target) {
@@ -278,8 +323,9 @@ async function main() {
       for (const shot of SHOT_MATRIX) {
         const name = `${story.id}__${shot.mode}${shot.season ? `__${shot.season}` : ''}.png`
         const file = join(OUT_DIR, name)
+        let opened = false
         try {
-          await captureShot(page, storyUrl(port, story.id, shot), file)
+          opened = await captureShot(page, storyUrl(port, story.id, shot), file, openActionFor(story))
         } catch (error) {
           manifest.failed.push({ story: story.id, ...shot, error: String(error).split('\n')[0] })
           continue
@@ -298,6 +344,7 @@ async function main() {
           title: story.title,
           ...shot,
           file,
+          opened,
           before: hasBefore ? beforeFile : null,
         })
       }

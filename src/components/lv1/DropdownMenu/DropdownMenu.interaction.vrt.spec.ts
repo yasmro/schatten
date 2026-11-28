@@ -82,3 +82,22 @@ test('DropdownMenu / submenu stays positioned through close (no containing-block
 
   expect(bad, 'no submenu jump / parent overflow during close').toEqual([])
 })
+
+/**
+ * Reduced motion (#630). The `prefers-reduced-motion: reduce` rule must win
+ * over the open / closed rules, which carry `[data-state]`; a bare class
+ * selector loses to them on specificity and the animation keeps running.
+ * jsdom loads no stylesheet and the screenshots pause animations, so only a
+ * real browser can see this.
+ */
+test('DropdownMenu / reduced motion turns off the open animation', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await page.goto(STORY_URL)
+  await page.waitForLoadState('networkidle')
+  await page.waitForSelector('[role="menu"]')
+
+  await expect(page.locator('.st-dropdown-menu__content').first()).toHaveCSS(
+    'animation-name',
+    'none',
+  )
+})

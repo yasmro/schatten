@@ -24,41 +24,75 @@ type Story = StoryObj
  * but the printed table is a hand-copy with no other source of truth).
  */
 const DURATION_SCALE = [
-  { token: 'fast', value: '100ms', motion: 'quick', use: 'Hover, exit transitions' },
-  { token: 'base', value: '150ms', motion: 'base', use: 'Default, enter transitions' },
-  { token: 'slow', value: '200ms', motion: 'expressive', use: 'Dialog / drawer enter' },
+  { token: 'fast', value: '100ms', motion: 'quick', use: 'Popover-tier exit' },
+  { token: 'base', value: '150ms', motion: 'base', use: 'Popover-tier enter, overlay-tier exit' },
+  { token: 'slow', value: '200ms', motion: 'expressive', use: 'Overlay-tier enter, feedback' },
+] as const
+
+/**
+ * The easing curves, sourced verbatim from `src/core/tokens/animation.css`.
+ * `value` is pinned against the CSS by `Motion.drift.test.ts`.
+ */
+const EASING_SCALE = [
+  {
+    token: 'smooth-out',
+    value: 'cubic-bezier(0.22, 1, 0.36, 1)',
+    use: 'Enter — reaches a readable state early',
+  },
+  { token: 'in', value: 'ease-in', use: 'Exit — leaves without lingering' },
 ] as const
 
 /**
  * The semantic (用途別) motion tokens, sourced verbatim from
- * `src/core/tokens/animation.css`. Each is a value-preserving alias over a
- * `--st-duration-*` step — no new timing, just an intent-named handle. The
- * alias mapping is pinned by `resolution.test.ts`.
+ * `src/core/tokens/animation.css`. Each is an alias over a `--st-duration-*`
+ * or `--st-ease-*` step; the alias mapping is pinned by `resolution.test.ts`,
+ * and `motion-token-usage.test.ts` keeps component CSS on this layer.
  *
- * All three are `defined-only`: no component references `--motion-*` yet
- * (hover transitions are still hardcoded). This is an accepted, visualized
- * state — see css-api.md "Define-only single-value semantic tokens are
- * allowed" and the same treatment of `--radius-control` / `--shadow-card`.
+ * `quick` / `base` / `expressive` predate the tiers (#145). `base` and
+ * `expressive` sit define-only — an accepted, visualized state (see
+ * css-api.md "Define-only single-value semantic tokens are allowed").
  */
 const SEMANTIC_MOTION = [
   {
-    name: 'quick',
-    alias: 'fast',
-    status: 'defined-only',
-    usedBy: '— (future: hover feedback — hardcoded today)',
+    name: 'overlay-enter',
+    alias: 'st-duration-slow',
+    status: 'applied',
+    usedBy: 'Dialog (overlay + content) — the modal tier',
+  },
+  { name: 'overlay-exit', alias: 'st-duration-base', status: 'applied', usedBy: 'Dialog' },
+  {
+    name: 'popover-enter',
+    alias: 'st-duration-base',
+    status: 'applied',
+    usedBy: 'Popover, Select, Tooltip, DropdownMenu — every non-modal surface',
   },
   {
-    name: 'base',
-    alias: 'base',
-    status: 'defined-only',
-    usedBy: '— (future: default interactions — hardcoded today)',
+    name: 'popover-exit',
+    alias: 'st-duration-fast',
+    status: 'applied',
+    usedBy: 'Popover, Select, Tooltip, DropdownMenu',
   },
   {
-    name: 'expressive',
-    alias: 'slow',
-    status: 'defined-only',
-    usedBy: '— (future: dialog / drawer — enter uses --st-duration-slow today)',
+    name: 'ease-enter',
+    alias: 'st-ease-smooth-out',
+    status: 'applied',
+    usedBy: 'Dialog, Popover, Select enter',
   },
+  {
+    name: 'ease-exit',
+    alias: 'st-ease-in',
+    status: 'applied',
+    usedBy: 'Dialog, Popover, Select exit',
+  },
+  {
+    name: 'feedback',
+    alias: 'st-duration-slow',
+    status: 'applied',
+    usedBy: 'Hover / color / state changes, Switch thumb, Tabs indicator, Button loading',
+  },
+  { name: 'quick', alias: 'st-duration-fast', status: 'applied', usedBy: 'Table row hover' },
+  { name: 'base', alias: 'st-duration-base', status: 'defined-only', usedBy: '—' },
+  { name: 'expressive', alias: 'st-duration-slow', status: 'defined-only', usedBy: '—' },
 ] as const
 
 const StatusBadge = ({ status }: { status: 'applied' | 'defined-only' }) =>
@@ -177,6 +211,27 @@ export const DurationScale: Story = {
           </div>
         ))}
       </div>
+
+      <SectionTitle>Easing</SectionTitle>
+      <Note>
+        Enter/exit motion pairs a duration with one of two curves. They take the <code>--st-</code>{' '}
+        prefix because Tailwind v4 already owns the bare <code>--ease-out</code> /{' '}
+        <code>--ease-in</code> names with different curves.
+      </Note>
+      <div className="mt-6 border border-border rounded-xl px-5">
+        {EASING_SCALE.map((e) => (
+          <div
+            key={e.token}
+            className="flex items-center gap-4 py-3 border-b border-border last:border-b-0"
+          >
+            <p className="w-44 shrink-0 text-sm font-medium text-foreground font-mono">
+              --st-ease-{e.token}
+            </p>
+            <code className="w-56 shrink-0 text-xs text-foreground-muted">{e.value}</code>
+            <p className="flex-1 text-sm text-foreground-muted">{e.use}</p>
+          </div>
+        ))}
+      </div>
     </div>
   ),
 }
@@ -187,10 +242,11 @@ export const SemanticTokens: Story = {
     <div className="max-w-3xl mx-auto px-8 py-12">
       <PageTitle>Semantic tokens</PageTitle>
       <Lead>
-        Components reference these intent-named tokens, not the raw scale. Each is a
-        value-preserving alias over a <code>--st-duration-*</code> step — the table reads as{' '}
-        <strong>purpose → which duration step → which component uses it</strong>. All three are{' '}
-        <em>defined only</em> today: nothing references <code>--motion-*</code> yet.
+        Components reference these intent-named tokens, never the raw scales. Each is an alias over
+        a <code>--st-duration-*</code> or <code>--st-ease-*</code> step — the table reads as{' '}
+        <strong>purpose → which step → which component uses it</strong>. Enter/exit timing comes in
+        two tiers, chosen by whether the surface is modal: <code>overlay</code> for modal surfaces,{' '}
+        <code>popover</code> for every other surface that opens and closes.
       </Lead>
 
       <div className="border border-border rounded-xl px-5">
@@ -201,7 +257,7 @@ export const SemanticTokens: Story = {
           >
             <div className="flex-1">
               <p className="text-sm font-medium text-foreground font-mono">--motion-{m.name}</p>
-              <p className="text-xs text-foreground-muted font-mono">= --st-duration-{m.alias}</p>
+              <p className="text-xs text-foreground-muted font-mono">= --{m.alias}</p>
               <p className="text-xs text-foreground-muted mt-1">{m.usedBy}</p>
             </div>
             <div className="w-28 shrink-0">
@@ -213,12 +269,13 @@ export const SemanticTokens: Story = {
 
       <SectionTitle>Define-only is intentional</SectionTitle>
       <Note>
-        The <code>--motion-*</code> aliases are <strong>defined but not yet applied</strong>:
-        component hover transitions are still hardcoded, and unifying them onto the motion scale is
-        a separate spike. The tokens wait for that consumer rather than being wired in piecemeal.
-        This mirrors <code>--radius-control</code> in <strong>Tokens/Radius</strong> and{' '}
-        <code>--shadow-card</code> in <strong>Tokens/Elevation</strong> — a single-value semantic
-        token may sit define-only until its natural consumer lands (see css-api.md).
+        <code>--motion-base</code> and <code>--motion-expressive</code> are{' '}
+        <strong>defined but not applied</strong>: they predate the enter/exit tiers, and their old
+        consumers moved to the tier tokens. They keep their names (renaming a public variable is a
+        major change) and wait for a natural consumer. This mirrors <code>--radius-control</code> in{' '}
+        <strong>Tokens/Radius</strong> and <code>--shadow-card</code> in{' '}
+        <strong>Tokens/Elevation</strong> — a single-value semantic token may sit define-only (see
+        css-api.md).
       </Note>
     </div>
   ),
@@ -245,55 +302,64 @@ export const UsageGuide: Story = {
       <SectionTitle>By intent</SectionTitle>
       <div className="border border-border rounded-xl px-5 mb-8">
         <GuideRow
-          surface="Hover / exit"
-          token="--motion-quick"
-          note="Lightweight feedback that should feel near-instant. (Alias of --st-duration-fast.)"
+          surface="Modal enter / exit"
+          token="--motion-overlay-*"
+          note="Dialog (and a future Sheet): surfaces that stop input. 200ms in, 150ms out."
         />
         <GuideRow
-          surface="Default / enter"
-          token="--motion-base"
-          note="The default for most enter transitions and focus rings. (Alias of --st-duration-base.)"
+          surface="Other surfaces"
+          token="--motion-popover-*"
+          note="Popover, Select, Tooltip, DropdownMenu — every non-modal surface that opens and closes. 150ms in, 100ms out."
         />
         <GuideRow
-          surface="Dialog / drawer"
-          token="--motion-expressive"
-          note="Larger surfaces sliding in; slightly slower reads as deliberate. (Alias of --st-duration-slow.)"
+          surface="Enter / exit curve"
+          token="--motion-ease-enter / -exit"
+          note="Pair with either tier. Enter reaches a readable state early; exit leaves without lingering."
+        />
+        <GuideRow
+          surface="Feedback"
+          token="--motion-feedback"
+          note="Hover, color and state changes, the Switch thumb, the Tabs indicator. 200ms."
         />
         <GuideRow
           surface="Looping"
           token="--st-spinner-*"
-          note="Continuous loops (spinner ripple) use component-scoped timing, distinct from the enter/exit scale."
+          note="Continuous loops (spinner ripple) use component-scoped timing, distinct from the enter/exit tiers."
         />
       </div>
 
       <SectionTitle>Design principles</SectionTitle>
       <Note>
-        <strong>Respect prefers-reduced-motion.</strong> Every animated component disables motion
-        under <code>@media (prefers-reduced-motion: reduce)</code> — see <code>Toast.css</code>,{' '}
-        <code>Dialog.css</code>, <code>Tooltip.css</code>. New motion must do the same; the demo on
-        the <strong>Duration Scale</strong> page does it too.
+        <strong>Pick by intent, not by number.</strong> Choose the tier the surface belongs to —
+        modal or not — and let the token carry the milliseconds. Component CSS references only{' '}
+        <code>--motion-*</code>, never <code>--st-duration-*</code> / <code>--st-ease-*</code>, and
+        never a literal time (<code>motion-token-usage.test.ts</code> checks all three).
+      </Note>
+      <Note>
+        <strong>Open surfaces fade; they do not slide, zoom or blur.</strong> Dialog, Popover and
+        Select use opacity only. A zoom of 0.97 was too small to see, and blur read as a lens /
+        depth effect rather than ink on paper (#630). Tooltip keeps its short slide.
+      </Note>
+      <Note>
+        <strong>Exit is shorter than enter.</strong> Closing should never hold the user up.
+      </Note>
+      <Note>
+        <strong>Respect prefers-reduced-motion.</strong> Every component with an enter/exit
+        animation turns it off under <code>@media (prefers-reduced-motion: reduce)</code>; the
+        Switch thumb jumps instead of sliding. New motion must do the same — and the reduce rule
+        must be as specific as the rule it cancels: <code>.st-popover__content[data-state]</code>,
+        not <code>.st-popover__content</code>, which loses to the <code>[data-state]</code> open
+        rule.
+      </Note>
+      <Note>
+        <strong>Always repeat the value as a fallback.</strong> Write{' '}
+        <code>var(--motion-feedback, 200ms)</code>, not <code>var(--motion-feedback)</code>: the
+        per-component CSS subpaths ship no tokens.
       </Note>
       <Note>
         <strong>Loop animations live in component CSS.</strong> Continuous loops (spinner) are
         authored as <code>@keyframes</code> in the component's own <code>.css</code>, not as a
-        transition token — see component-architecture §7.
-      </Note>
-      <Note>
-        <strong>Interactive feedback uses transition; enter/exit uses the scale.</strong> Reach for
-        a <code>transition</code> on hover/focus state; reach for <code>--st-duration-*</code> on
-        the mount/unmount keyframes.
-      </Note>
-      <Note>
-        <strong>Don't animate without a reason.</strong> Motion should communicate a state change.
-        If a transition doesn't help the user understand what changed, leave it out.
-      </Note>
-
-      <SectionTitle>Not yet tokenized</SectionTitle>
-      <Note>
-        Component <em>hover</em> transitions are still <strong>hardcoded</strong> today (e.g. Badge
-        at 150ms, others at 200ms) and do not yet reference <code>--motion-*</code>. Folding them
-        onto the motion scale is a separate spike. <em>Enter/exit</em> animations (Tooltip / Dialog
-        / Toast) already consume <code>--st-duration-*</code>.
+        motion token — see component-architecture §7.
       </Note>
 
       <SectionTitle>Removed: --transition-*</SectionTitle>
